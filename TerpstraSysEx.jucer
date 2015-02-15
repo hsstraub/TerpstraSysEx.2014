@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.2.0.1"
+              bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
+              jucerVersion="3.1.0" companyName="Hans Straub">
+  <MAINGROUP id="obWLli" name="TerpstraSysEx">
+    <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
+      <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
+            file="BinaryData/TerpstraIcon.png"/>
+      <FILE id="SxzwMb" name="OctaveGraphic.png" compile="0" resource="1"
+            file="BinaryData/OctaveGraphic.png"/>
+    </GROUP>
+    <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="MnKHbv" name="EditFunctionComponents.cpp" compile="1" resource="0"
+            file="Source/EditFunctionComponents.cpp"/>
+      <FILE id="zH9GKT" name="EditFunctionComponents.h" compile="0" resource="0"
+            file="Source/EditFunctionComponents.h"/>
+      <FILE id="j6lR5H" name="KeyboardDataStructure.cpp" compile="1" resource="0"
+            file="Source/KeyboardDataStructure.cpp"/>
+      <FILE id="Li5aMg" name="ViewConstants.h" compile="0" resource="0" file="Source/ViewConstants.h"/>
+      <FILE id="cWrCk6" name="ViewComponents.cpp" compile="1" resource="0"
+            file="Source/ViewComponents.cpp"/>
+      <FILE id="DfBSef" name="ViewComponents.h" compile="0" resource="0"
+            file="Source/ViewComponents.h"/>
+      <FILE id="HAyzGx" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
+      <FILE id="iBGzO1" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
+      <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
+            file="Source/KeyboardDataStructure.h"/>
+      <FILE id="suuQow" name="MidiConstants.h" compile="0" resource="0" file="Source/MidiConstants.h"/>
+      <FILE id="eoBUqq" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="pVqj5T" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="PJosGU" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <VS2013 targetFolder="Builds/VisualStudio2013" bigIcon="KQ7uKE">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="TerpstraSysEx"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="TerpstraSysEx"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2013>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>
