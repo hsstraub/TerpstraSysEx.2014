@@ -111,6 +111,7 @@ MainContentComponent::MainContentComponent()
 	addAndMakeVisible(cbMidiInput);
 	cbMidiInput->setBounds(EDITAREAFIRSTCOLPOS, 280, MIDIPORTWIDTH, 20);
 	cbMidiInput->addItemList(MidiInput::getDevices(), 1);
+	cbMidiInput->addListener(this);
 
 	lblMidiOutput = new Label("Label", "MIDI Output Device");
 	addAndMakeVisible(lblMidiOutput);
@@ -120,6 +121,7 @@ MainContentComponent::MainContentComponent()
 	addAndMakeVisible(cbMidiOutput);
 	cbMidiOutput->setBounds(EDITAREAFIRSTCOLPOS+EDITAREAWIDTH - MIDIPORTWIDTH, 280, MIDIPORTWIDTH, 20);
 	cbMidiOutput->addItemList(MidiOutput::getDevices(), 1);
+	cbMidiOutput->addListener(this);
 
 	editArea = new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
 	addAndMakeVisible(editArea);
@@ -198,8 +200,11 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			if (keyData.noteNumber < 0) keyData.noteNumber = 0;
 			keyData.channelNumber = noteAssignTab->channelBox->getSelectedId();	// 0 for no selection or 1-16
 
-			mappingData.sets[currentSetSelection].theKeys[i] = keyData;	// Save data
+			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
 			terpstraKeyFields[i]->setValue(keyData);						// Display
+
+			// Send to device, if "sending at once" is specified
+			// XXX
 
 			// Auto increment
 			if (noteAssignTab->noteAutoIncrButton->getToggleState())
@@ -207,6 +212,21 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 
 			break;
 		}
+	}
+}
+
+void MainContentComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+{
+	if (comboBoxThatHasChanged == cbMidiInput)
+	{
+		//[UserComboBoxCode_comboBoxMidiInput] -- add your combo box handling code here..
+		//[/UserComboBoxCode_comboBoxMidiInput]
+	}
+	else if (comboBoxThatHasChanged == cbMidiOutput)
+	{
+		//[UserComboBoxCode_comboBoxMidiOutput] -- add your combo box handling code here..
+		midiDriver.setMidiOutput(cbMidiOutput->getSelectedItemIndex());
+		//[/UserComboBoxCode_comboBoxMidiOutput]
 	}
 }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.2.0.1"
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.2.0.3"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
               jucerVersion="3.1.0" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
@@ -11,6 +11,10 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="fjf3oK" name="TerpstraMidiDriver.cpp" compile="1" resource="0"
+            file="Source/TerpstraMidiDriver.cpp"/>
+      <FILE id="Ojhxdv" name="TerpstraMidiDriver.h" compile="0" resource="0"
+            file="Source/TerpstraMidiDriver.h"/>
       <FILE id="MnKHbv" name="EditFunctionComponents.cpp" compile="1" resource="0"
             file="Source/EditFunctionComponents.cpp"/>
       <FILE id="zH9GKT" name="EditFunctionComponents.h" compile="0" resource="0"
@@ -26,7 +30,6 @@
       <FILE id="iBGzO1" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
       <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
             file="Source/KeyboardDataStructure.h"/>
-      <FILE id="suuQow" name="MidiConstants.h" compile="0" resource="0" file="Source/MidiConstants.h"/>
       <FILE id="eoBUqq" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="pVqj5T" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

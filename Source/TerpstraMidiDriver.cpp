@@ -1,0 +1,73 @@
+/*
+  ==============================================================================
+
+    TerpstraMidiDriver.cpp
+    Created: 20 Feb 2015 8:04:02pm
+    Author:  hsstraub
+
+  ==============================================================================
+*/
+
+#include "TerpstraMidiDriver.h"
+
+
+TerpstraMidiDriver::TerpstraMidiDriver()
+{
+	midiInputs = MidiInput::getDevices();
+	midiOutputs = MidiOutput::getDevices();
+
+	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String::empty, 0);
+
+	midiOutput = nullptr;
+}
+
+TerpstraMidiDriver::~TerpstraMidiDriver()
+{
+	midiOutput = nullptr;
+}
+
+void TerpstraMidiDriver::setMidiOutput(int deviceIndex)
+{
+	midiOutput = MidiOutput::openDevice(deviceIndex);
+}
+
+void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
+{
+	// Send only if data are not empty
+	if (!keyData.isEmpty())
+		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber-1, '\0', '\0');
+}
+
+void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
+{
+	sendSysEx(boardIndex, STORE_TO_EEPROM, '\0', '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::recallFromEEPROM(int boardIndex)
+{
+	sendSysEx(boardIndex, RECALL_FROM_EEPROM, '\0', '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5)
+{
+	// Send only if output device is there
+	if (midiOutput != nullptr)
+	{
+		unsigned char sysExData[10];
+		sysExData[0] = MMID1;
+		sysExData[1] = MMID2;
+		sysExData[2] = MMID3;
+		sysExData[3] = boardIndex;
+		sysExData[4] = cmd;
+		sysExData[5] = data1;
+		sysExData[6] = data2;
+		sysExData[7] = data3;
+		sysExData[8] = data4;
+		sysExData[9] = data5;
+
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 10);
+		midiOutput->sendMessageNow(msg);
+
+	}
+
+}
