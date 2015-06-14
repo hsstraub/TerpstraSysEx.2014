@@ -11,6 +11,9 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="LEN1v2" name="MidiEditArea.h" compile="0" resource="0" file="Source/MidiEditArea.h"/>
+      <FILE id="c8h6UL" name="MidiEditArea.cpp" compile="1" resource="0"
+            file="Source/MidiEditArea.cpp"/>
       <FILE id="fjf3oK" name="TerpstraMidiDriver.cpp" compile="1" resource="0"
             file="Source/TerpstraMidiDriver.cpp"/>
       <FILE id="Ojhxdv" name="TerpstraMidiDriver.h" compile="0" resource="0"
