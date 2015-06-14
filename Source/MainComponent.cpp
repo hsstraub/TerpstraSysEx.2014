@@ -103,29 +103,14 @@ MainContentComponent::MainContentComponent()
 		terpstraKeyFields[i]->addMouseListener(this, true);
 
 	// Midi input + output
-	lblMidiInput = new Label("Label", "MIDI Input Device");
-	addAndMakeVisible(lblMidiInput);
-	lblMidiInput->setBounds(EDITAREAFIRSTCOLPOS, 250, MIDIPORTWIDTH, STANDARDLABELHEIGTH);
-
-	cbMidiInput = new ComboBox();
-	addAndMakeVisible(cbMidiInput);
-	cbMidiInput->setBounds(EDITAREAFIRSTCOLPOS, 280, MIDIPORTWIDTH, 20);
-	cbMidiInput->addItemList(MidiInput::getDevices(), 1);
-	cbMidiInput->addListener(this);
-
-	lblMidiOutput = new Label("Label", "MIDI Output Device");
-	addAndMakeVisible(lblMidiOutput);
-	lblMidiOutput->setBounds(EDITAREAFIRSTCOLPOS + EDITAREAWIDTH - MIDIPORTWIDTH, 250, MIDIPORTWIDTH, STANDARDLABELHEIGTH);
-
-	cbMidiOutput = new ComboBox();
-	addAndMakeVisible(cbMidiOutput);
-	cbMidiOutput->setBounds(EDITAREAFIRSTCOLPOS+EDITAREAWIDTH - MIDIPORTWIDTH, 280, MIDIPORTWIDTH, 20);
-	cbMidiOutput->addItemList(MidiOutput::getDevices(), 1);
-	cbMidiOutput->addListener(this);
+	midiEditArea = new MidiEditArea();
+	midiEditArea->setMidiDriver(&midiDriver);
+	addAndMakeVisible(midiEditArea);
+	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 
 	editArea = new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
 	addAndMakeVisible(editArea);
-	editArea->setBounds(EDITAREAFIRSTCOLPOS, 310, EDITAREAWIDTH, EDITAREAHEIGHT);
+	editArea->setBounds(EDITAREAFIRSTCOLPOS, 250 + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 
 	noteAssignTab = new NoteAssignTab();
 	editArea->addTab("Assign Notes to Keys", Colour(MAINWINDOWBGCOLOUR), noteAssignTab, true);
@@ -204,7 +189,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			terpstraKeyFields[i]->setValue(keyData);						// Display
 
 			// Send to device, if "sending at once" is specified
-			// XXX
+			// XXX to be encapsulated in midiEditArea
 
 			// Auto increment
 			if (noteAssignTab->noteAutoIncrButton->getToggleState())
@@ -212,21 +197,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 
 			break;
 		}
-	}
-}
-
-void MainContentComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
-{
-	if (comboBoxThatHasChanged == cbMidiInput)
-	{
-		//[UserComboBoxCode_comboBoxMidiInput] -- add your combo box handling code here..
-		//[/UserComboBoxCode_comboBoxMidiInput]
-	}
-	else if (comboBoxThatHasChanged == cbMidiOutput)
-	{
-		//[UserComboBoxCode_comboBoxMidiOutput] -- add your combo box handling code here..
-		midiDriver.setMidiOutput(cbMidiOutput->getSelectedItemIndex());
-		//[/UserComboBoxCode_comboBoxMidiOutput]
 	}
 }
 

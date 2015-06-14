@@ -15,6 +15,7 @@
 #include "EditFunctionComponents.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
+#include "MidiEditArea.h"
 
 
 //==============================================================================
@@ -22,7 +23,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public ButtonListener, public ComboBoxListener
+class MainContentComponent : public Component, public ButtonListener/*, public ComboBoxListener*/
 {
 public:
     //==============================================================================
@@ -39,7 +40,7 @@ public:
     void resized();
 	void buttonClicked(Button *button);
 	void mouseDown(const MouseEvent &event);
-	void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
+	//void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
 
 private:
 	void changeSetSelection(int newSelection);
@@ -62,10 +63,7 @@ private:
 	TerpstraKeyEdit*	terpstraKeyFields[TERPSTRABOARDSIZE];
 
 	// Midi devices
-	Label*		lblMidiInput;
-	ComboBox*	cbMidiInput;
-	Label*		lblMidiOutput;
-	ComboBox*	cbMidiOutput;
+	MidiEditArea*		midiEditArea;
 
 	// Edit fields for setting key and button parameters
 	TabbedComponent*	editArea;
