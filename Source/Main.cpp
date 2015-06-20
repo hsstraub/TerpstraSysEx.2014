@@ -20,7 +20,7 @@ class TerpstraSysExApplication  : public JUCEApplication
 {
 public:
     //==============================================================================
-    TerpstraSysExApplication() {}
+    TerpstraSysExApplication() : tooltipWindow() {}
 
     const String getApplicationName()       { return ProjectInfo::projectName; }
     const String getApplicationVersion()    { return ProjectInfo::versionString; }
@@ -240,6 +240,8 @@ private:
     ScopedPointer<MainWindow> mainWindow;
 	ScopedPointer<ApplicationCommandManager> commandManager;
 	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
+
+	TooltipWindow	tooltipWindow;
 };
 
 //==============================================================================

@@ -56,7 +56,7 @@ private:
 	// Buttons for SysEx commands
 	// XXX
 
-	// Sets of 56 krys
+	// Sets of 56 keys
 	TerpstraKeySetEdit* terpstraSetSelectors[NUMBEROFBOARDS];
 
 	// Editing single keys (of the selected 56-key set)

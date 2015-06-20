@@ -59,20 +59,34 @@ public:
 	// Open the specified device
 	void setMidiOutput(int deviceIndex);
 
+	void setAutoSave(bool value) { this->autoSave = value; }
+
+	//////////////////////////////////
+	// Combined (hi-level) commands
+
+	// Send parametrization of one key to the device and save it there, if autosave is active
+	void sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
+
+	// Store a sub board's sent key parametrizations permanently on device
+	void storeAllToEEPROM();
+
+	// Discard edits of a sub-board on device
+	void recallAllFromEEPROM();
+
 	//////////////////////////////////
 	// Single (mid-level) commands
 
 	// Send parametrization of one key to the device
 	void sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
 
-	// Store a board's sent key parametrizations permanmently on device
+	// Store a sub board's sent key parametrizations permanently on device
 	void storeToEEPROM(int boardIndex);
 
-	// Discard edits on device
+	// Discard edits of a sub-board on device
 	void recallFromEEPROM(int boardIndex);
 
 private:
-	// Low-level SysEx message sending
+	// Low-level SysEx = valuemessage sending
 	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5);
 
 	// Attributes
@@ -82,6 +96,7 @@ private:
 	AudioDeviceManager deviceManager;
 
 	ScopedPointer<MidiOutput> midiOutput;
+	bool autoSave;
 
 };
 

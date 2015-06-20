@@ -55,6 +55,7 @@ MidiEditArea::MidiEditArea ()
     lblMidiOutput->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (cbMidiOutput = new ComboBox ("cbMidiOutput"));
+    cbMidiOutput->setTooltip (TRANS("Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."));
     cbMidiOutput->setEditableText (false);
     cbMidiOutput->setJustificationType (Justification::centredLeft);
     cbMidiOutput->setTextWhenNothingSelected (String::empty);
@@ -62,22 +63,22 @@ MidiEditArea::MidiEditArea ()
     cbMidiOutput->addListener (this);
 
     addAndMakeVisible (toggleAutoSave = new ToggleButton ("toggleAutoSave"));
-    toggleAutoSave->setTooltip (TRANS("Tooltip for AutoSave"));
+    toggleAutoSave->setTooltip (TRANS("If this is active, all edits are saved on controller automatically."));
     toggleAutoSave->setButtonText (TRANS("AutoSave"));
     toggleAutoSave->addListener (this);
 
     addAndMakeVisible (buttonSendSaveEdits = new TextButton ("buttonSendSaveEdits"));
-    buttonSendSaveEdits->setTooltip (TRANS("Send edits to controller and save them there"));
+    buttonSendSaveEdits->setTooltip (TRANS("Save edits that have been sent on controller"));
     buttonSendSaveEdits->setButtonText (TRANS("Send & Save Edits"));
     buttonSendSaveEdits->addListener (this);
 
     addAndMakeVisible (buttonSendAll = new TextButton ("buttonSendAll"));
-    buttonSendAll->setTooltip (TRANS("Send the all key mappings to controller and save them there "));
+    buttonSendAll->setTooltip (TRANS("Send the all key mappings to controller and save them there. NOT IMPLEMENTED YET. "));
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
     buttonSendAll->addListener (this);
 
     addAndMakeVisible (buttonDiscard = new TextButton ("buttonDiscard"));
-    buttonDiscard->setTooltip (TRANS("Discard edits on controller"));
+    buttonDiscard->setTooltip (TRANS("Discard edits on controller. This has the same effect as switching controller off and on again."));
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
@@ -87,7 +88,7 @@ MidiEditArea::MidiEditArea ()
 	cbMidiOutput->addItemList(MidiOutput::getDevices(), 1);
     //[/UserPreSize]
 
-    setSize (400, 200);
+    setSize (380, 130);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -152,6 +153,8 @@ void MidiEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == cbMidiOutput)
     {
         //[UserComboBoxCode_cbMidiOutput] -- add your combo box handling code here..
+		if (midiDriver != nullptr)
+			midiDriver->setMidiOutput(cbMidiOutput->getSelectedItemIndex());
         //[/UserComboBoxCode_cbMidiOutput]
     }
 
@@ -167,11 +170,15 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == toggleAutoSave)
     {
         //[UserButtonCode_toggleAutoSave] -- add your button handler code here..
+		if (midiDriver != nullptr)
+			midiDriver->setAutoSave(toggleAutoSave->getToggleState());
         //[/UserButtonCode_toggleAutoSave]
     }
     else if (buttonThatWasClicked == buttonSendSaveEdits)
     {
         //[UserButtonCode_buttonSendSaveEdits] -- add your button handler code here..
+		if (midiDriver != nullptr)
+			midiDriver->storeAllToEEPROM();
         //[/UserButtonCode_buttonSendSaveEdits]
     }
     else if (buttonThatWasClicked == buttonSendAll)
@@ -182,6 +189,8 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == buttonDiscard)
     {
         //[UserButtonCode_buttonDiscard] -- add your button handler code here..
+		if (midiDriver != nullptr)
+			midiDriver->recallAllFromEEPROM();
         //[/UserButtonCode_buttonDiscard]
     }
 
@@ -207,7 +216,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="MidiEditArea" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="400" initialHeight="200">
+                 fixedSize="0" initialWidth="380" initialHeight="130">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblMidiInput" id="717ebff5200810bd" memberName="lblMidiInput"
          virtualName="" explicitFocusOrder="0" pos="8 8 184 16" edTextCol="ff000000"
@@ -223,22 +232,22 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbMidiOutput" id="f3f3544c4916f527" memberName="cbMidiOutput"
-            virtualName="" explicitFocusOrder="0" pos="200 32 184 24" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            virtualName="" explicitFocusOrder="0" pos="200 32 184 24" tooltip="Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."
+            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="toggleAutoSave" id="b5157b1eef5898bb" memberName="toggleAutoSave"
-                virtualName="" explicitFocusOrder="0" pos="8 64 168 24" tooltip="Tooltip for AutoSave"
+                virtualName="" explicitFocusOrder="0" pos="8 64 168 24" tooltip="If this is active, all edits are saved on controller automatically."
                 buttonText="AutoSave" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
   <TEXTBUTTON name="buttonSendSaveEdits" id="b3ed9064acdde93" memberName="buttonSendSaveEdits"
-              virtualName="" explicitFocusOrder="0" pos="8 96 150 24" tooltip="Send edits to controller and save them there"
+              virtualName="" explicitFocusOrder="0" pos="8 96 150 24" tooltip="Save edits that have been sent on controller"
               buttonText="Send &amp; Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="200 64 150 24" tooltip="Send the all key mappings to controller and save them there "
+              virtualName="" explicitFocusOrder="0" pos="200 64 150 24" tooltip="Send the all key mappings to controller and save them there. NOT IMPLEMENTED YET. "
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="200 96 150 24" tooltip="Discard edits on controller"
+              virtualName="" explicitFocusOrder="0" pos="200 96 150 24" tooltip="Discard edits on controller. This has the same effect as switching controller off and on again."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
 </JUCER_COMPONENT>

@@ -19,6 +19,7 @@ TerpstraMidiDriver::TerpstraMidiDriver()
 	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String::empty, 0);
 
 	midiOutput = nullptr;
+	autoSave = false;
 }
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
@@ -31,22 +32,77 @@ void TerpstraMidiDriver::setMidiOutput(int deviceIndex)
 	midiOutput = MidiOutput::openDevice(deviceIndex);
 }
 
-void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
+/*
+==============================================================================
+Combined (hi-level) commands
+*/
+
+void TerpstraMidiDriver::sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
 {
 	// Send only if data are not empty
 	if (!keyData.isEmpty())
-		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber-1, '\0', '\0');
+	{
+		sendKeyParam(boardIndex, keyIndex, keyData);
+
+		if (autoSave)
+			storeToEEPROM(boardIndex);
+	}
+}
+
+void TerpstraMidiDriver::storeAllToEEPROM()
+{
+	// XXX open question: does controller need some delay in sending several messages
+
+	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
+		storeToEEPROM(boardIndex);
+}
+
+void TerpstraMidiDriver::recallAllFromEEPROM()
+{
+	// XXX open question: does controller need some delay in sending several messages
+
+	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
+		recallFromEEPROM(boardIndex);
+}
+
+
+/*
+==============================================================================
+Single (mid-level) commands
+*/
+
+void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
+{
+	// boardIndex is expected 1-based
+	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
+	// Send only if data are not empty
+	if (!keyData.isEmpty())
+	{
+		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, '\0', '\0');
+	}
 }
 
 void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
 {
+	// boardIndex is expected 1-based
+	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
 	sendSysEx(boardIndex, STORE_TO_EEPROM, '\0', '\0', '\0', '\0', '\0');
 }
 
 void TerpstraMidiDriver::recallFromEEPROM(int boardIndex)
 {
+	// boardIndex is expected 1-based
+	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
 	sendSysEx(boardIndex, RECALL_FROM_EEPROM, '\0', '\0', '\0', '\0', '\0');
 }
+
+/*
+==============================================================================
+Low-level SysEx calls 
+*/
 
 void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5)
 {
@@ -67,7 +123,5 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 10);
 		midiOutput->sendMessageNow(msg);
-
 	}
-
 }

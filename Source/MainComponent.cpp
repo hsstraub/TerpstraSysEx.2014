@@ -188,8 +188,8 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
 			terpstraKeyFields[i]->setValue(keyData);						// Display
 
-			// Send to device, if "sending at once" is specified
-			// XXX to be encapsulated in midiEditArea
+			// Send to device
+			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);
 
 			// Auto increment
 			if (noteAssignTab->noteAutoIncrButton->getToggleState())
