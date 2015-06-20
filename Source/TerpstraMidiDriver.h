@@ -67,6 +67,12 @@ public:
 	// Send parametrization of one key to the device and save it there, if autosave is active
 	void sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
 
+	// Send and save all parametrizations of one sub board
+	void sendAndSaveAllParamsOfBoard(int boardIndex, TerpstraKeys boardData);
+
+	// Send and save a complete key mapping
+	void sendAndSaveCompleteMapping(TerpstraKeyMapping mappingData);
+
 	// Store a sub board's sent key parametrizations permanently on device
 	void storeAllToEEPROM();
 

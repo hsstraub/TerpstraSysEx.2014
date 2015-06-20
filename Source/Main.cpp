@@ -169,7 +169,7 @@ public:
 		// XXX Version: there are the internal constants JUCE_APP_VERSION and JUCE_APP_VERSION_HEX...
 		m << "Terpstra SysEx Utility" << newLine
 			<< newLine
-			<< "Version 0.2.0.3"	<< newLine
+			<< "Version 0.2.1"	<< newLine
 			<< newLine
 			<< "Original design @ Dylan Horvath 2007" << newLine
 			<< "Reengineered @ Hans Straub 2014" << newLine
