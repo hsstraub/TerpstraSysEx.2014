@@ -75,7 +75,6 @@ MidiEditArea::MidiEditArea ()
     addAndMakeVisible (buttonSendAll = new TextButton ("buttonSendAll"));
     buttonSendAll->setTooltip (TRANS("Send the all key mappings to controller and save them there. NOT IMPLEMENTED YET. "));
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
-    buttonSendAll->addListener (this);
 
     addAndMakeVisible (buttonDiscard = new TextButton ("buttonDiscard"));
     buttonDiscard->setTooltip (TRANS("Discard edits on controller. This has the same effect as switching controller off and on again."));
@@ -128,6 +127,9 @@ void MidiEditArea::paint (Graphics& g)
 
 void MidiEditArea::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     lblMidiInput->setBounds (8, 8, 184, 16);
     cbMidiInput->setBounds (8, 32, 184, 24);
     lblMidiOutput->setBounds (200, 8, 184, 16);
@@ -165,7 +167,10 @@ void MidiEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
-    //[/UserbuttonClicked_Pre]
+
+	// "Send and save all" is handled in MainComponent
+	
+	//[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == toggleAutoSave)
     {
@@ -180,11 +185,6 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
 		if (midiDriver != nullptr)
 			midiDriver->storeAllToEEPROM();
         //[/UserButtonCode_buttonSendSaveEdits]
-    }
-    else if (buttonThatWasClicked == buttonSendAll)
-    {
-        //[UserButtonCode_buttonSendAll] -- add your button handler code here..
-        //[/UserButtonCode_buttonSendAll]
     }
     else if (buttonThatWasClicked == buttonDiscard)
     {
@@ -244,7 +244,7 @@ BEGIN_JUCER_METADATA
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
               virtualName="" explicitFocusOrder="0" pos="200 64 150 24" tooltip="Send the all key mappings to controller and save them there. NOT IMPLEMENTED YET. "
-              buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
+              buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="0"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
               virtualName="" explicitFocusOrder="0" pos="200 96 150 24" tooltip="Discard edits on controller. This has the same effect as switching controller off and on again."

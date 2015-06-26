@@ -158,12 +158,19 @@ void MainContentComponent::resized()
 
 void MainContentComponent::buttonClicked(Button *button)
 {
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	if (midiEditArea->isSendAllButton(button))
 	{
-		if (button == terpstraSetSelectors[i])
+		// XXX
+	}
+	else
+	{
+		for (int i = 0; i < NUMBEROFBOARDS; i++)
 		{
-			changeSetSelection(i);
-			break;
+			if (button == terpstraSetSelectors[i])
+			{
+				changeSetSelection(i);
+				break;
+			}
 		}
 	}
 }
@@ -179,22 +186,12 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Edit
-			// XXX encapsulate in noteAssignTab?
-			TerpstraKey keyData;
-			keyData.noteNumber = noteAssignTab->noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-			if (keyData.noteNumber < 0) keyData.noteNumber = 0;
-			keyData.channelNumber = noteAssignTab->channelBox->getSelectedId();	// 0 for no selection or 1-16
-
+			TerpstraKey keyData = noteAssignTab->createKeyMapping();
 			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
 			terpstraKeyFields[i]->setValue(keyData);						// Display
 
 			// Send to device
 			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);
-
-			// Auto increment
-			if (noteAssignTab->noteAutoIncrButton->getToggleState())
-				noteAssignTab->noteBox->setSelectedItemIndex(noteAssignTab->noteBox->getSelectedItemIndex() + 1);
-
 			break;
 		}
 	}

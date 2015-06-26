@@ -62,7 +62,7 @@ void TerpstraMidiDriver::sendAndSaveAllParamsOfBoard(int boardIndex, TerpstraKey
 void TerpstraMidiDriver::sendAndSaveCompleteMapping(TerpstraKeyMapping mappingData)
 {
 	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		sendAndSaveAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex]);
+		sendAndSaveAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1]);
 }
 
 void TerpstraMidiDriver::storeAllToEEPROM()

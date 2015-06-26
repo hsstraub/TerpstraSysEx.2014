@@ -11,6 +11,9 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="lAtXEV" name="NoteAssignTab.cpp" compile="1" resource="0"
+            file="Source/NoteAssignTab.cpp"/>
+      <FILE id="u2aXbk" name="NoteAssignTab.h" compile="0" resource="0" file="Source/NoteAssignTab.h"/>
       <FILE id="LEN1v2" name="MidiEditArea.h" compile="0" resource="0" file="Source/MidiEditArea.h"/>
       <FILE id="c8h6UL" name="MidiEditArea.cpp" compile="1" resource="0"
             file="Source/MidiEditArea.cpp"/>
@@ -18,10 +21,6 @@
             file="Source/TerpstraMidiDriver.cpp"/>
       <FILE id="Ojhxdv" name="TerpstraMidiDriver.h" compile="0" resource="0"
             file="Source/TerpstraMidiDriver.h"/>
-      <FILE id="MnKHbv" name="EditFunctionComponents.cpp" compile="1" resource="0"
-            file="Source/EditFunctionComponents.cpp"/>
-      <FILE id="zH9GKT" name="EditFunctionComponents.h" compile="0" resource="0"
-            file="Source/EditFunctionComponents.h"/>
       <FILE id="j6lR5H" name="KeyboardDataStructure.cpp" compile="1" resource="0"
             file="Source/KeyboardDataStructure.cpp"/>
       <FILE id="Li5aMg" name="ViewConstants.h" compile="0" resource="0" file="Source/ViewConstants.h"/>

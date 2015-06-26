@@ -17,12 +17,12 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_D02B34978EAB2CCC__
-#define __JUCE_HEADER_D02B34978EAB2CCC__
+#ifndef __JUCE_HEADER_DA54242FB8EF0684__
+#define __JUCE_HEADER_DA54242FB8EF0684__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "TerpstraMidiDriver.h"
+#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -35,19 +35,18 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MidiEditArea  : public Component,
-                      public ComboBoxListener,
-                      public ButtonListener
+class NoteAssignTab  : public Component,
+                       public ComboBoxListener,
+                       public ButtonListener
 {
 public:
     //==============================================================================
-    MidiEditArea ();
-    ~MidiEditArea();
+    NoteAssignTab ();
+    ~NoteAssignTab();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void setMidiDriver(TerpstraMidiDriver* driver) { midiDriver = driver;  }
-	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll; }
+	TerpstraKey createKeyMapping();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -59,25 +58,23 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	TerpstraMidiDriver*		midiDriver;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> lblMidiInput;
-    ScopedPointer<ComboBox> cbMidiInput;
-    ScopedPointer<Label> lblMidiOutput;
-    ScopedPointer<ComboBox> cbMidiOutput;
-    ScopedPointer<ToggleButton> toggleAutoSave;
-    ScopedPointer<TextButton> buttonSendSaveEdits;
-    ScopedPointer<TextButton> buttonSendAll;
-    ScopedPointer<TextButton> buttonDiscard;
+    ScopedPointer<GroupComponent> noteAndChannelAssGroup;
+    ScopedPointer<Label> editInstructionText;
+    ScopedPointer<Label> noteLabel;
+    ScopedPointer<ComboBox> noteBox;
+    ScopedPointer<ToggleButton> noteAutoIncrButton;
+    ScopedPointer<Label> channelLabel;
+    ScopedPointer<ComboBox> channelBox;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiEditArea)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoteAssignTab)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_D02B34978EAB2CCC__
+#endif   // __JUCE_HEADER_DA54242FB8EF0684__

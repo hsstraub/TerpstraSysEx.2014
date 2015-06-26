@@ -12,10 +12,10 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "ViewComponents.h"
-#include "EditFunctionComponents.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
+#include "NoteAssignTab.h"
 
 
 //==============================================================================
