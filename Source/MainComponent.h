@@ -23,7 +23,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public ButtonListener/*, public ComboBoxListener*/
+class MainContentComponent : public Component, public ButtonListener
 {
 public:
     //==============================================================================
@@ -40,7 +40,6 @@ public:
     void resized();
 	void buttonClicked(Button *button);
 	void mouseDown(const MouseEvent &event);
-	//void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
 
 private:
 	void changeSetSelection(int newSelection);

@@ -107,6 +107,7 @@ MainContentComponent::MainContentComponent()
 	midiEditArea->setMidiDriver(&midiDriver);
 	addAndMakeVisible(midiEditArea);
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
+	midiEditArea->addSendAllButtonListener(this);
 
 	editArea = new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
 	addAndMakeVisible(editArea);
@@ -160,7 +161,7 @@ void MainContentComponent::buttonClicked(Button *button)
 {
 	if (midiEditArea->isSendAllButton(button))
 	{
-		// XXX
+		midiDriver.sendAndSaveCompleteMapping(mappingData);
 	}
 	else
 	{

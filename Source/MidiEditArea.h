@@ -48,6 +48,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void setMidiDriver(TerpstraMidiDriver* driver) { midiDriver = driver;  }
 	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll; }
+	void addSendAllButtonListener(ButtonListener* listener) { buttonSendAll->addListener(listener); }
     //[/UserMethods]
 
     void paint (Graphics& g);

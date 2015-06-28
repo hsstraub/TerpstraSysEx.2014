@@ -73,7 +73,7 @@ MidiEditArea::MidiEditArea ()
     buttonSendSaveEdits->addListener (this);
 
     addAndMakeVisible (buttonSendAll = new TextButton ("buttonSendAll"));
-    buttonSendAll->setTooltip (TRANS("Send the all key mappings to controller and save them there. NOT IMPLEMENTED YET. "));
+    buttonSendAll->setTooltip (TRANS("Send the all key mappings to controller and save them there."));
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
 
     addAndMakeVisible (buttonDiscard = new TextButton ("buttonDiscard"));
@@ -169,8 +169,8 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
 
 	// "Send and save all" is handled in MainComponent
-	
-	//[/UserbuttonClicked_Pre]
+
+    //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == toggleAutoSave)
     {
@@ -243,7 +243,7 @@ BEGIN_JUCER_METADATA
               buttonText="Send &amp; Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="200 64 150 24" tooltip="Send the all key mappings to controller and save them there. NOT IMPLEMENTED YET. "
+              virtualName="" explicitFocusOrder="0" pos="200 64 150 24" tooltip="Send the all key mappings to controller and save them there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="0"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
