@@ -129,6 +129,10 @@ public:
 		{
 			File currentFile = chooser.getResult();
 			// XXX error handling
+
+			// Window title
+			updateMainTitle(currentFile.getFileName());
+
 			// XXX StringArray format: platform-independent?
 			StringArray stringArray;
 			currentFile.readLines(stringArray);
@@ -157,9 +161,20 @@ public:
 			StringArray stringArray = keyMapping.toStringArray();
 			for (int i = 0; i < stringArray.size(); i++)
 				currentFile.appendText(stringArray[i]+"\n");
+
+			// Window title
+			updateMainTitle(currentFile.getFileName());
 		}
 
 		return true;
+	}
+
+	void updateMainTitle(String fileName)
+	{
+		String windowTitle("Terpstra Keyboard SysEx Utility");
+		if (!fileName.isEmpty() )
+			windowTitle << " - " << fileName;
+		mainWindow->setName(windowTitle);
 	}
 
 	bool AboutTerpstraSysEx()
