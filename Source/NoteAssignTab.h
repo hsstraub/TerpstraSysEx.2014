@@ -68,6 +68,8 @@ private:
     ScopedPointer<ToggleButton> noteAutoIncrButton;
     ScopedPointer<Label> channelLabel;
     ScopedPointer<ComboBox> channelBox;
+    ScopedPointer<ToggleButton> channelAutoIncrButton;
+    ScopedPointer<ComboBox> channelAutoIncrNoteBox;
 
 
     //==============================================================================
