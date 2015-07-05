@@ -58,6 +58,25 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2013>
+    <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="KQ7uKE" bigIcon="KQ7uKE">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="TerpstraSysEx"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
+                       targetName="TerpstraSysEx"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\..\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
   </EXPORTFORMATS>
   <MODULES>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
