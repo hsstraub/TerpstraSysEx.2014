@@ -19,7 +19,9 @@ class TerpstraSysExMainMenuModel : public MenuBarModel
 	public:
 		enum commandIDs {
 			openSysExMapping = 0x200010,
-			saveSysExMappingAs = 0x200011,
+			saveSysExMapping = 0x200011,
+			saveSysExMappingAs = 0x200012,
+			resetSysExMapping = 0x200013,
 
 			aboutSysEx = 0x200040
 		};

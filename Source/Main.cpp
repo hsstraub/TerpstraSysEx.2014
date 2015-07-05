@@ -42,7 +42,9 @@ public:
 		// commandLine: may contain a file name
 		if (!commandLine.isEmpty())
 		{
-			// XXX
+			// commandLine is supposed to contain a file name. Try to open it.
+			currentFile = File(commandLine);
+			openFromCurrentFile();
 		}
 	}
 
@@ -76,7 +78,9 @@ public:
 
 		const CommandID ids[] = { 
 			TerpstraSysExMainMenuModel::commandIDs::openSysExMapping,
+			TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
 			TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
+			TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
 			TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
 		};
 
@@ -92,9 +96,19 @@ public:
 			result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
 			break;
 
+		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
+			result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
+			result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
+			break;
+
 		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
-			result.setInfo("Save mapping as...", "Save the current mapping to file", "File", 0);
+			result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
 			result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
+			break;
+
+		case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
+			result.setInfo("Reset", "Close file without saving and clear all edit fields", "File", 0);
+			result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
 			break;
 
 		case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
@@ -112,72 +126,127 @@ public:
 		switch (info.commandID)
 		{
 		case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
-			return OpenSysExMapping();
+			return openSysExMapping();
+		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
+			return saveSysExMapping();
 		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
-			return SaveSysExMappingAs();
+			return saveSysExMappingAs();
+		case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
+			return resetSysExMapping();
 		case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
-			return AboutTerpstraSysEx();
+			return aboutTerpstraSysEx();
 		default:                        
 			return JUCEApplication::perform(info);
 		}
 	}
 
-	bool OpenSysExMapping()
+	bool openSysExMapping()
 	{
 		FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
 		if (chooser.browseForFileToOpen())
 		{
-			File currentFile = chooser.getResult();
-			// XXX error handling
+			currentFile = chooser.getResult();
+			return openFromCurrentFile();
+		}
+		return true;
+	}
 
-			// Window title
-			updateMainTitle(currentFile.getFileName());
+	bool saveSysExMapping()
+	{
+		if (currentFile.getFileName().isEmpty())
+			return saveSysExMappingAs();
+		else
+			return saveCurrentFile();
 
+	}
+
+	bool saveSysExMappingAs()
+	{
+		FileChooser chooser("Terpstra SysEx Key Mapping Files", File::nonexistent, "*.tsx");
+		if (chooser.browseForFileToSave(true))
+		{
+			currentFile = chooser.getResult();
+			if (saveCurrentFile() )
+			{
+				// Window title
+				updateMainTitle();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool resetSysExMapping()
+	{
+		// Clear file
+		currentFile = File();
+
+		// Clear all edit fields
+		TerpstraKeyMapping keyMapping;
+		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
+
+		// Window title
+		updateMainTitle();
+
+		return true;
+	}
+
+	// Open a SysEx mapping from the file specified in currentFile
+	bool openFromCurrentFile()
+	{
+		if (currentFile.existsAsFile())
+		{
 			// XXX StringArray format: platform-independent?
 			StringArray stringArray;
 			currentFile.readLines(stringArray);
 			TerpstraKeyMapping keyMapping;
 			keyMapping.fromStringArray(stringArray);
-			
+
 			((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
-		}
-		return true;
-	}
-
-	bool SaveSysExMappingAs()
-	{
-		FileChooser chooser("Terpstra SysEx Key Mapping Files", File::nonexistent, "*.tsx");
-		if (chooser.browseForFileToSave(true))
-		{
-			File currentFile = chooser.getResult();
-			if (currentFile.existsAsFile())
-				currentFile.deleteFile();
-			currentFile.create();
-			// XXX error handling
-
-			TerpstraKeyMapping keyMapping;
-			((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
-
-			StringArray stringArray = keyMapping.toStringArray();
-			for (int i = 0; i < stringArray.size(); i++)
-				currentFile.appendText(stringArray[i]+"\n");
 
 			// Window title
-			updateMainTitle(currentFile.getFileName());
-		}
+			updateMainTitle();
 
-		return true;
+			return true;
+		}
+		else
+		{
+			// Show error message
+			AlertWindow::showMessageBox(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
+
+			// XXX Update Window title in any case? Make file name empty/make data empty in case of error?
+			return false;
+		}
 	}
 
-	void updateMainTitle(String fileName)
+	// Saves the current mapping to file, specified in currentFile.
+	bool saveCurrentFile()
+	{
+		if (currentFile.existsAsFile())
+			currentFile.deleteFile();
+		bool retc = currentFile.create();
+		// XXX error handling
+
+		TerpstraKeyMapping keyMapping;
+		((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
+
+		StringArray stringArray = keyMapping.toStringArray();
+		for (int i = 0; i < stringArray.size(); i++)
+			currentFile.appendText(stringArray[i] + "\n");
+
+		return retc;
+	}
+
+	void updateMainTitle()
 	{
 		String windowTitle("Terpstra Keyboard SysEx Utility");
-		if (!fileName.isEmpty() )
-			windowTitle << " - " << fileName;
+		if (!currentFile.getFileName().isEmpty() )
+			windowTitle << " - " << currentFile.getFileName();
 		mainWindow->setName(windowTitle);
 	}
 
-	bool AboutTerpstraSysEx()
+	bool aboutTerpstraSysEx()
 	{	
 		String m;
 
@@ -257,6 +326,7 @@ private:
 	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
 
 	TooltipWindow	tooltipWindow;
+	File			currentFile;
 };
 
 //==============================================================================

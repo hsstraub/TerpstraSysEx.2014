@@ -26,7 +26,9 @@ StringArray TerpstraSysExMainMenuModel::getMenuBarNames()
 void TerpstraSysExMainMenuModel::createFileMenu(PopupMenu& menu)
 {
 	menu.addCommandItem(theManager, openSysExMapping);
+	menu.addCommandItem(theManager, saveSysExMapping);
 	menu.addCommandItem(theManager, saveSysExMappingAs);
+	menu.addCommandItem(theManager, resetSysExMapping);
 #if ! JUCE_MAC
 	menu.addSeparator();
 	menu.addCommandItem(theManager, StandardApplicationCommandIDs::quit);
