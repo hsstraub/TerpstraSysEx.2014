@@ -207,6 +207,7 @@ void NoteAssignTab::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+// Called from MainComponent when one of the keys  is clicked
 TerpstraKey NoteAssignTab::createKeyMapping()
 {
 	TerpstraKey keyData;
@@ -220,7 +221,8 @@ TerpstraKey NoteAssignTab::createKeyMapping()
 		int newNote = keyData.noteNumber + 1;
 
 		// Auto increment channel
-		if (channelAutoIncrButton->getToggleState() && newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
+		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
+			newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
 		{
 			newNote = 0;
 			int newChannel = keyData.channelNumber + 1;
