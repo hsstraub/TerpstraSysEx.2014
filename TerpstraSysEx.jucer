@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.2.2"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
-              jucerVersion="3.1.0" companyName="Hans Straub">
+              jucerVersion="3.2.0" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
@@ -11,6 +11,7 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="xyNXsq" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="lAtXEV" name="NoteAssignTab.cpp" compile="1" resource="0"
             file="Source/NoteAssignTab.cpp"/>
       <FILE id="u2aXbk" name="NoteAssignTab.h" compile="0" resource="0" file="Source/NoteAssignTab.h"/>

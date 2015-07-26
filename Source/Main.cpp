@@ -9,181 +9,192 @@
   ==============================================================================
 */
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "MainComponent.h"
-#include "MainMenu.h"
-#include "KeyboardDataStructure.h"
-#include "ViewConstants.h"
+#include "Main.h"
+
 
 //==============================================================================
-class TerpstraSysExApplication  : public JUCEApplication
+
+TerpstraSysExApplication::TerpstraSysExApplication() : tooltipWindow() 
 {
-public:
-    //==============================================================================
-    TerpstraSysExApplication() : tooltipWindow() {}
+}
 
-    const String getApplicationName()       { return ProjectInfo::projectName; }
-    const String getApplicationVersion()    { return ProjectInfo::versionString; }
-    bool moreThanOneInstanceAllowed()       { return true; }
+//==============================================================================
+void TerpstraSysExApplication::initialise(const String& commandLine)
+{
+    // This method is where you should put your application's initialisation code..   
+	commandManager = new ApplicationCommandManager();
+	commandManager->registerAllCommandsForTarget(this);
 
-    //==============================================================================
-    void initialise (const String& commandLine)
-    {
-        // This method is where you should put your application's initialisation code..   
-		commandManager = new ApplicationCommandManager();
-		commandManager->registerAllCommandsForTarget(this);
+	menuModel = new TerpstraSysExMainMenuModel(commandManager);
 
-		menuModel = new TerpstraSysExMainMenuModel(commandManager);
+    mainWindow = new MainWindow();
+	mainWindow->setMenuBar(menuModel);
+	mainWindow->addKeyListener(commandManager->getKeyMappings());
 
-        mainWindow = new MainWindow();
-		mainWindow->setMenuBar(menuModel);
-		mainWindow->addKeyListener(commandManager->getKeyMappings());
+	// commandLine: may contain a file name
+	if (!commandLine.isEmpty())
+	{
+		// commandLine is supposed to contain a file name. Try to open it.
+		currentFile = File(commandLine);
+		openFromCurrentFile();
+	}
+}
 
-		// commandLine: may contain a file name
-		if (!commandLine.isEmpty())
+void TerpstraSysExApplication::shutdown()
+{
+    // Add your application's shutdown code here..
+
+    mainWindow = nullptr; // (deletes our window)
+	menuModel = nullptr;
+	commandManager = nullptr;
+}
+
+//==============================================================================
+void TerpstraSysExApplication::systemRequestedQuit()
+{
+    // This is called when the app is being asked to quit: you can ignore this
+    // request and let the app carry on running, or call quit() to allow the app to close.
+    quit();
+}
+
+void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
+{
+    // When another instance of the app is launched while this one is running,
+    // this method is invoked, and the commandLine parameter tells you what
+    // the other instance's command-line arguments were.
+}
+
+void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
+{
+	JUCEApplication::getAllCommands(commands);
+
+	const CommandID ids[] = { 
+		TerpstraSysExMainMenuModel::commandIDs::openSysExMapping,
+		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
+		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
+		TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
+		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
+	};
+
+	commands.addArray(ids, numElementsInArray(ids));
+}
+
+void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
+{
+	switch (commandID)
+	{
+	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
+		result.setInfo("Load file mapping", "Open a Terpstra SysEx mapping", "File", 0);
+		result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
+		result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
+		result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
+		result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
+		result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
+		result.setInfo("Reset", "Close file without saving and clear all edit fields", "File", 0);
+		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
+		result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
+		break;
+
+	default:
+		JUCEApplication::getCommandInfo(commandID, result);
+		break;
+	}
+}
+
+bool TerpstraSysExApplication::perform(const InvocationInfo& info)
+{
+	switch (info.commandID)
+	{
+	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
+		return openSysExMapping();
+	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
+		return saveSysExMapping();
+	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
+		return saveSysExMappingAs();
+	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
+		return resetSysExMapping();
+	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
+		return aboutTerpstraSysEx();
+	default:                        
+		return JUCEApplication::perform(info);
+	}
+}
+
+bool TerpstraSysExApplication::openSysExMapping()
+{
+	FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
+	if (chooser.browseForFileToOpen())
+	{
+		currentFile = chooser.getResult();
+		return openFromCurrentFile();
+	}
+	return true;
+}
+
+bool TerpstraSysExApplication::saveSysExMapping()
+{
+	if (currentFile.getFileName().isEmpty())
+		return saveSysExMappingAs();
+	else
+		return saveCurrentFile();
+
+}
+
+bool TerpstraSysExApplication::saveSysExMappingAs()
+{
+	FileChooser chooser("Terpstra SysEx Key Mapping Files", File::nonexistent, "*.tsx");
+	if (chooser.browseForFileToSave(true))
+	{
+		currentFile = chooser.getResult();
+		if (saveCurrentFile() )
 		{
-			// commandLine is supposed to contain a file name. Try to open it.
-			currentFile = File(commandLine);
-			openFromCurrentFile();
+			// Window title
+			updateMainTitle();
+			return true;
 		}
 	}
 
-    void shutdown()
-    {
-        // Add your application's shutdown code here..
+	return false;
+}
 
-        mainWindow = nullptr; // (deletes our window)
-		menuModel = nullptr;
-		commandManager = nullptr;
-    }
+bool TerpstraSysExApplication::resetSysExMapping()
+{
+	// Clear file
+	currentFile = File();
 
-    //==============================================================================
-    void systemRequestedQuit()
-    {
-        // This is called when the app is being asked to quit: you can ignore this
-        // request and let the app carry on running, or call quit() to allow the app to close.
-        quit();
-    }
+	// Clear all edit fields
+	TerpstraKeyMapping keyMapping;
+	((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
 
-    void anotherInstanceStarted (const String& commandLine)
-    {
-        // When another instance of the app is launched while this one is running,
-        // this method is invoked, and the commandLine parameter tells you what
-        // the other instance's command-line arguments were.
-    }
+	// Window title
+	updateMainTitle();
 
-	void getAllCommands(Array <CommandID>& commands) override
+	return true;
+}
+
+	// Open a SysEx mapping from the file specified in currentFile
+bool TerpstraSysExApplication::openFromCurrentFile()
+{
+	if (currentFile.existsAsFile())
 	{
-		JUCEApplication::getAllCommands(commands);
-
-		const CommandID ids[] = { 
-			TerpstraSysExMainMenuModel::commandIDs::openSysExMapping,
-			TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
-			TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
-			TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
-			TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
-		};
-
-		commands.addArray(ids, numElementsInArray(ids));
-	}
-
-	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override
-	{
-		switch (commandID)
-		{
-		case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
-			result.setInfo("Load file mapping", "Open a Terpstra SysEx mapping", "File", 0);
-			result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
-			break;
-
-		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
-			result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
-			result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
-			break;
-
-		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
-			result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
-			result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
-			break;
-
-		case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
-			result.setInfo("Reset", "Close file without saving and clear all edit fields", "File", 0);
-			result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
-			break;
-
-		case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
-			result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
-			break;
-
-		default:
-			JUCEApplication::getCommandInfo(commandID, result);
-			break;
-		}
-	}
-
-	bool perform(const InvocationInfo& info) override
-	{
-		switch (info.commandID)
-		{
-		case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
-			return openSysExMapping();
-		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
-			return saveSysExMapping();
-		case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
-			return saveSysExMappingAs();
-		case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
-			return resetSysExMapping();
-		case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
-			return aboutTerpstraSysEx();
-		default:                        
-			return JUCEApplication::perform(info);
-		}
-	}
-
-	bool openSysExMapping()
-	{
-		FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
-		if (chooser.browseForFileToOpen())
-		{
-			currentFile = chooser.getResult();
-			return openFromCurrentFile();
-		}
-		return true;
-	}
-
-	bool saveSysExMapping()
-	{
-		if (currentFile.getFileName().isEmpty())
-			return saveSysExMappingAs();
-		else
-			return saveCurrentFile();
-
-	}
-
-	bool saveSysExMappingAs()
-	{
-		FileChooser chooser("Terpstra SysEx Key Mapping Files", File::nonexistent, "*.tsx");
-		if (chooser.browseForFileToSave(true))
-		{
-			currentFile = chooser.getResult();
-			if (saveCurrentFile() )
-			{
-				// Window title
-				updateMainTitle();
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	bool resetSysExMapping()
-	{
-		// Clear file
-		currentFile = File();
-
-		// Clear all edit fields
+		// XXX StringArray format: platform-independent?
+		StringArray stringArray;
+		currentFile.readLines(stringArray);
 		TerpstraKeyMapping keyMapping;
+		keyMapping.fromStringArray(stringArray);
+
 		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
 
 		// Window title
@@ -191,143 +202,79 @@ public:
 
 		return true;
 	}
-
-	// Open a SysEx mapping from the file specified in currentFile
-	bool openFromCurrentFile()
+	else
 	{
-		if (currentFile.existsAsFile())
-		{
-			// XXX StringArray format: platform-independent?
-			StringArray stringArray;
-			currentFile.readLines(stringArray);
-			TerpstraKeyMapping keyMapping;
-			keyMapping.fromStringArray(stringArray);
+		// Show error message
+		AlertWindow::showMessageBox(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
 
-			((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
-
-			// Window title
-			updateMainTitle();
-
-			return true;
-		}
-		else
-		{
-			// Show error message
-			AlertWindow::showMessageBox(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
-
-			// XXX Update Window title in any case? Make file name empty/make data empty in case of error?
-			return false;
-		}
+		// XXX Update Window title in any case? Make file name empty/make data empty in case of error?
+		return false;
 	}
+}
 
-	// Saves the current mapping to file, specified in currentFile.
-	bool saveCurrentFile()
-	{
-		if (currentFile.existsAsFile())
-			currentFile.deleteFile();
-		bool retc = currentFile.create();
-		// XXX error handling
+// Saves the current mapping to file, specified in currentFile.
+bool TerpstraSysExApplication::saveCurrentFile()
+{
+	if (currentFile.existsAsFile())
+		currentFile.deleteFile();
+	bool retc = currentFile.create();
+	// XXX error handling
 
-		TerpstraKeyMapping keyMapping;
-		((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
+	TerpstraKeyMapping keyMapping;
+	((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
 
-		StringArray stringArray = keyMapping.toStringArray();
-		for (int i = 0; i < stringArray.size(); i++)
-			currentFile.appendText(stringArray[i] + "\n");
+	StringArray stringArray = keyMapping.toStringArray();
+	for (int i = 0; i < stringArray.size(); i++)
+		currentFile.appendText(stringArray[i] + "\n");
 
-		return retc;
-	}
+	return retc;
+}
 
-	void updateMainTitle()
-	{
-		String windowTitle("Terpstra Keyboard SysEx Utility");
-		if (!currentFile.getFileName().isEmpty() )
-			windowTitle << " - " << currentFile.getFileName();
-		mainWindow->setName(windowTitle);
-	}
+void TerpstraSysExApplication::updateMainTitle()
+{
+	String windowTitle("Terpstra Keyboard SysEx Utility");
+	if (!currentFile.getFileName().isEmpty() )
+		windowTitle << " - " << currentFile.getFileName();
+	mainWindow->setName(windowTitle);
+}
 
-	bool aboutTerpstraSysEx()
-	{	
-		String m;
+bool TerpstraSysExApplication::aboutTerpstraSysEx()
+{	
+	String m;
 
-		// XXX Version: there are the internal constants JUCE_APP_VERSION and JUCE_APP_VERSION_HEX...
-		m << "Terpstra SysEx Utility" << newLine
-			<< newLine
-			<< "Version 0.2.2"	<< newLine
-			<< newLine
-			<< "Original design @ Dylan Horvath 2007" << newLine
-			<< "Reengineered @ Hans Straub 2014" << newLine
-			<< "Program icon based on a design by Bogdan Constantinescu" << newLine
-			<< newLine
-			<< "For help on using this program, or any questions relating to the Terpstra keyboard, go to http://terpstrakeyboard.com .";
+	// XXX Version: there are the internal constants JUCE_APP_VERSION and JUCE_APP_VERSION_HEX...
+	m << "Terpstra SysEx Utility" << newLine
+		<< newLine
+		<< "Version 0.2.2"	<< newLine
+		<< newLine
+		<< "Original design @ Dylan Horvath 2007" << newLine
+		<< "Reengineered @ Hans Straub 2014" << newLine
+		<< "Program icon based on a design by Bogdan Constantinescu" << newLine
+		<< newLine
+		<< "For help on using this program, or any questions relating to the Terpstra keyboard, go to http://terpstrakeyboard.com .";
 
-		DialogWindow::LaunchOptions options;
-		Label* label = new Label();
-		label->setText(m, dontSendNotification);
-		options.content.setOwned(label);
+	DialogWindow::LaunchOptions options;
+	Label* label = new Label();
+	label->setText(m, dontSendNotification);
+	options.content.setOwned(label);
 
-		Rectangle<int> area(0, 0, 400, 240);
-		options.content->setSize(area.getWidth(), area.getHeight());
+	Rectangle<int> area(0, 0, 400, 240);
+	options.content->setSize(area.getWidth(), area.getHeight());
 
-		options.dialogTitle = "About TerpstraSysEx";
-		options.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
-		options.escapeKeyTriggersCloseButton = true;
-		options.useNativeTitleBar = false;
-		options.resizable = true;
+	options.dialogTitle = "About TerpstraSysEx";
+	options.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	options.escapeKeyTriggersCloseButton = true;
+	options.useNativeTitleBar = false;
+	options.resizable = true;
 
-		const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
+	const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
 
-		DialogWindow* dw = options.launchAsync();
-		dw->centreWithSize(400, 300);
+	DialogWindow* dw = options.launchAsync();
+	dw->centreWithSize(400, 300);
 
-		return true;
-	}
+	return true;
+}
 
-    //==============================================================================
-    /*
-        This class implements the desktop window that contains an instance of
-        our MainContentComponent class.
-    */
-    class MainWindow    : public DocumentWindow
-    {
-    public:
-        MainWindow()  : DocumentWindow ("Terpstra Keyboard SysEx Utility",
-										Colour(MAINWINDOWBGCOLOUR),
-                                        DocumentWindow::allButtons)
-        {
-            setContentOwned (new MainContentComponent(), true);
-
-            centreWithSize (getWidth(), getHeight());
-            setVisible (true);
-        }
-
-        void closeButtonPressed()
-        {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
-            JUCEApplication::getInstance()->systemRequestedQuit();
-        }
-
-        /* Note: Be careful if you override any DocumentWindow methods - the base
-           class uses a lot of them, so by overriding you might break its functionality.
-           It's best to do all your work in your content component instead, but if
-           you really have to override any DocumentWindow methods, make sure your
-           subclass also calls the superclass's method.
-        */
-
-    private:
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
-    };
-
-private:
-    ScopedPointer<MainWindow> mainWindow;
-	ScopedPointer<ApplicationCommandManager> commandManager;
-	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
-
-	TooltipWindow	tooltipWindow;
-	File			currentFile;
-};
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
