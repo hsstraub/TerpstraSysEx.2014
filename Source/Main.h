@@ -34,6 +34,14 @@ public:
 	void systemRequestedQuit();
 	void anotherInstanceStarted(const String& commandLine);
 
+	static TerpstraSysExApplication& getApp()
+	{
+		TerpstraSysExApplication* const app = dynamic_cast<TerpstraSysExApplication*> (JUCEApplication::getInstance());
+		jassert(app != nullptr);
+		return *app;
+	}
+
+
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
@@ -47,6 +55,8 @@ public:
 	bool saveCurrentFile();
 
 	void updateMainTitle();
+	void setHasChangesToSave(bool value);
+
 	bool aboutTerpstraSysEx();
 
 	//==============================================================================
@@ -93,6 +103,7 @@ private:
 
 	TooltipWindow	tooltipWindow;
 	File			currentFile;
+	bool			hasChangesToSave;
 };
 
 

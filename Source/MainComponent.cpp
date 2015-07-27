@@ -10,6 +10,7 @@
 
 #include "MainComponent.h"
 #include "ViewConstants.h"
+#include "Main.h"
 
 
 //==============================================================================
@@ -190,6 +191,9 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			TerpstraKey keyData = noteAssignTab->createKeyMapping();
 			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
 			terpstraKeyFields[i]->setValue(keyData);						// Display
+
+			// Mark that there are changes
+			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 			// Send to device
 			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);

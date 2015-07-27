@@ -14,7 +14,8 @@
 
 //==============================================================================
 
-TerpstraSysExApplication::TerpstraSysExApplication() : tooltipWindow() 
+TerpstraSysExApplication::TerpstraSysExApplication() 
+	: tooltipWindow(), hasChangesToSave(false)
 {
 }
 
@@ -54,7 +55,26 @@ void TerpstraSysExApplication::systemRequestedQuit()
 {
     // This is called when the app is being asked to quit: you can ignore this
     // request and let the app carry on running, or call quit() to allow the app to close.
-    quit();
+
+	// If there are changes: ask for save
+	if (hasChangesToSave)
+	{
+		int retc = AlertWindow::showYesNoCancelBox(AlertWindow::AlertIconType::QuestionIcon, "Quitting the application", "Do you want to save your changes?");
+		if (retc == 0)
+		{
+			// "Cancel". Do not quit.
+			return;
+		}
+		else if (retc == 1)
+		{
+			// "Yes". Try to save. Canvel if unsuccessful
+			if (!saveSysExMapping())
+				return;
+		}
+		// retc == 2: "No" -> end without saving
+	}
+	
+	quit();
 }
 
 void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
@@ -134,6 +154,8 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
+	// XXX If there are changes: ask for saving these first? 
+
 	FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
 	if (chooser.browseForFileToOpen())
 	{
@@ -178,6 +200,8 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	TerpstraKeyMapping keyMapping;
 	((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
 
+	setHasChangesToSave(false);
+
 	// Window title
 	updateMainTitle();
 
@@ -196,6 +220,8 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		keyMapping.fromStringArray(stringArray);
 
 		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
+
+		setHasChangesToSave(false);
 
 		// Window title
 		updateMainTitle();
@@ -227,6 +253,8 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	for (int i = 0; i < stringArray.size(); i++)
 		currentFile.appendText(stringArray[i] + "\n");
 
+	setHasChangesToSave(false);
+
 	return retc;
 }
 
@@ -235,7 +263,18 @@ void TerpstraSysExApplication::updateMainTitle()
 	String windowTitle("Terpstra Keyboard SysEx Utility");
 	if (!currentFile.getFileName().isEmpty() )
 		windowTitle << " - " << currentFile.getFileName();
+	if (hasChangesToSave)
+		windowTitle << "*";
 	mainWindow->setName(windowTitle);
+}
+
+void TerpstraSysExApplication::setHasChangesToSave(bool value)
+{
+	if (value != hasChangesToSave)
+	{
+		hasChangesToSave = value;
+		updateMainTitle();
+	}
 }
 
 bool TerpstraSysExApplication::aboutTerpstraSysEx()
