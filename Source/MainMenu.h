@@ -23,6 +23,8 @@ class TerpstraSysExMainMenuModel : public MenuBarModel
 			saveSysExMappingAs = 0x200012,
 			resetSysExMapping = 0x200013,
 
+			recentFilesBaseID = 0x200100,
+
 			aboutSysEx = 0x200040
 		};
 

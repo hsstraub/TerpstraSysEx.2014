@@ -208,7 +208,15 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	return true;
 }
 
-	// Open a SysEx mapping from the file specified in currentFile
+// open a file from the "recent files" menu
+bool TerpstraSysExApplication::openRecentFile(int recentFileIndex)
+{
+	jassert(recentFileIndex >= 0 && recentFileIndex < recentFiles.getNumFiles());
+	currentFile = recentFiles.getFile(recentFileIndex);
+	return openFromCurrentFile();
+}
+
+// Open a SysEx mapping from the file specified in currentFile
 bool TerpstraSysExApplication::openFromCurrentFile()
 {
 	if (currentFile.existsAsFile())
@@ -221,10 +229,14 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 
 		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
 
+		// Mark file as unchanged
 		setHasChangesToSave(false);
 
 		// Window title
 		updateMainTitle();
+
+		// Add file to recent files list
+		recentFiles.addFile(currentFile);
 
 		return true;
 	}
@@ -254,6 +266,9 @@ bool TerpstraSysExApplication::saveCurrentFile()
 		currentFile.appendText(stringArray[i] + "\n");
 
 	setHasChangesToSave(false);
+
+	// Add file to recent files list - or put it on top of the list
+	recentFiles.addFile(currentFile);
 
 	return retc;
 }

@@ -41,6 +41,7 @@ public:
 		return *app;
 	}
 
+	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
@@ -51,6 +52,7 @@ public:
 	bool saveSysExMapping();
 	bool saveSysExMappingAs();
 	bool resetSysExMapping();
+	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
 	bool saveCurrentFile();
 
@@ -101,9 +103,10 @@ private:
 	ScopedPointer<ApplicationCommandManager> commandManager;
 	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
 
-	TooltipWindow	tooltipWindow;
-	File			currentFile;
-	bool			hasChangesToSave;
+	TooltipWindow				tooltipWindow;
+	File						currentFile;
+	RecentlyOpenedFilesList		recentFiles;
+	bool						hasChangesToSave;
 };
 
 

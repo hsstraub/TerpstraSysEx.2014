@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+#include "Main.h"
 #include "MainMenu.h"
 
 TerpstraSysExMainMenuModel::TerpstraSysExMainMenuModel(ApplicationCommandManager* commandManager)
@@ -29,6 +30,11 @@ void TerpstraSysExMainMenuModel::createFileMenu(PopupMenu& menu)
 	menu.addCommandItem(theManager, saveSysExMapping);
 	menu.addCommandItem(theManager, saveSysExMappingAs);
 	menu.addCommandItem(theManager, resetSysExMapping);
+
+	PopupMenu recentFilesMenu;
+	TerpstraSysExApplication::getApp().getRecentFileList().createPopupMenuItems(recentFilesMenu, recentFilesBaseID, true, true);
+	menu.addSubMenu("Recent Files", recentFilesMenu);
+
 #if ! JUCE_MAC
 	menu.addSeparator();
 	menu.addCommandItem(theManager, StandardApplicationCommandIDs::quit);
@@ -53,5 +59,9 @@ PopupMenu TerpstraSysExMainMenuModel::getMenuForIndex(int topLevelMenuIndex, con
 
 void TerpstraSysExMainMenuModel::menuItemSelected(int menuItemID, int topLevelMenuIndex)
 {
-	// XXX
+	if (menuItemID >= recentFilesBaseID && menuItemID < recentFilesBaseID + 100)
+	{
+		// open a file from the "recent files" menu
+		TerpstraSysExApplication::getApp().openRecentFile(menuItemID - recentFilesBaseID);
+	}
 }
