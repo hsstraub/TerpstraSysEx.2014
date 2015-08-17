@@ -102,11 +102,12 @@ private:
 	ScopedPointer<MainWindow> mainWindow;
 	ScopedPointer<ApplicationCommandManager> commandManager;
 	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
-
 	TooltipWindow				tooltipWindow;
+	bool						hasChangesToSave;
+
+	PropertiesFile*				propertiesFile;
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
-	bool						hasChangesToSave;
 };
 
 

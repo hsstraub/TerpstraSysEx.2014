@@ -17,6 +17,20 @@
 TerpstraSysExApplication::TerpstraSysExApplication() 
 	: tooltipWindow(), hasChangesToSave(false)
 {
+	PropertiesFile::Options options;
+	options.applicationName = "TerpstraSysEx";
+	options.filenameSuffix = "settings";
+	options.osxLibrarySubFolder = "Application Support";
+#if JUCE_LINUX
+	options.folderName = "~/.config/Introjucer";
+#else
+	options.folderName = "TerpstraSysEx";
+#endif
+	propertiesFile = new PropertiesFile(options);
+	jassert(propertiesFile != nullptr);
+
+	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
+	recentFiles.removeNonExistentFiles();
 }
 
 //==============================================================================
@@ -44,6 +58,14 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 void TerpstraSysExApplication::shutdown()
 {
     // Add your application's shutdown code here..
+
+	// Save recent files list
+	recentFiles.removeNonExistentFiles();
+	jassert(propertiesFile != nullptr);
+	propertiesFile->setValue("RecentFiles", recentFiles.toString());
+	propertiesFile->saveIfNeeded();
+	delete propertiesFile;
+	propertiesFile = nullptr;
 
     mainWindow = nullptr; // (deletes our window)
 	menuModel = nullptr;
