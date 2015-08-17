@@ -31,6 +31,8 @@ void TerpstraSysExMainMenuModel::createFileMenu(PopupMenu& menu)
 	menu.addCommandItem(theManager, saveSysExMappingAs);
 	menu.addCommandItem(theManager, resetSysExMapping);
 
+	menu.addSeparator();
+
 	PopupMenu recentFilesMenu;
 	TerpstraSysExApplication::getApp().getRecentFileList().createPopupMenuItems(recentFilesMenu, recentFilesBaseID, true, true);
 	menu.addSubMenu("Recent Files", recentFilesMenu);
