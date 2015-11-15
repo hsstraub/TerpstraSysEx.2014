@@ -325,7 +325,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
 		<< "Reengineered @ Hans Straub 2014" << newLine
-		<< "Program icon based on a design by Bogdan Constantinescu" << newLine
+		<< "Program icon based on a design by Bo Constantinsen" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Terpstra keyboard, go to http://terpstrakeyboard.com .";
 
