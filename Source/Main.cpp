@@ -22,7 +22,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	options.filenameSuffix = "settings";
 	options.osxLibrarySubFolder = "Application Support";
 #if JUCE_LINUX
-	options.folderName = "~/.config/Introjucer";
+	options.folderName = "~/.config/TerpstraSysEx";
 #else
 	options.folderName = "TerpstraSysEx";
 #endif
