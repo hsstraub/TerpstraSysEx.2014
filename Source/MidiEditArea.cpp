@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Projucer version: 4.2.0
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
+  Copyright (c) 2015 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -30,6 +30,9 @@
 //==============================================================================
 MidiEditArea::MidiEditArea ()
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     addAndMakeVisible (lblMidiInput = new Label ("lblMidiInput",
                                                  TRANS("MIDI Input Device")));
     lblMidiInput->setFont (Font (15.00f, Font::plain));
@@ -42,7 +45,7 @@ MidiEditArea::MidiEditArea ()
     cbMidiInput->setTooltip (TRANS("Is currently not used"));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (Justification::centredLeft);
-    cbMidiInput->setTextWhenNothingSelected (String::empty);
+    cbMidiInput->setTextWhenNothingSelected (String());
     cbMidiInput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMidiInput->addListener (this);
 
@@ -58,7 +61,7 @@ MidiEditArea::MidiEditArea ()
     cbMidiOutput->setTooltip (TRANS("Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."));
     cbMidiOutput->setEditableText (false);
     cbMidiOutput->setJustificationType (Justification::centredLeft);
-    cbMidiOutput->setTextWhenNothingSelected (String::empty);
+    cbMidiOutput->setTextWhenNothingSelected (String());
     cbMidiOutput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMidiOutput->addListener (this);
 
@@ -206,9 +209,9 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA

@@ -17,12 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_D02B34978EAB2CCC__
-#define __JUCE_HEADER_D02B34978EAB2CCC__
+#ifndef __JUCE_HEADER_730F20A4628CA114__
+#define __JUCE_HEADER_730F20A4628CA114__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "JuceHeader.h"
-#include "TerpstraMidiDriver.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 //[/Headers]
 
 
@@ -30,55 +29,40 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
+    An auto-generated component, created by the Projucer.
 
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MidiEditArea  : public Component,
-                      public ComboBoxListener,
-                      public ButtonListener
+class IsomorphicMassAssign  : public Component
 {
 public:
     //==============================================================================
-    MidiEditArea ();
-    ~MidiEditArea();
+    IsomorphicMassAssign ();
+    ~IsomorphicMassAssign();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void setMidiDriver(TerpstraMidiDriver* driver) { midiDriver = driver;  }
-	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll; }
-	void addSendAllButtonListener(ButtonListener* listener) { buttonSendAll->addListener(listener); }
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	TerpstraMidiDriver*		midiDriver;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> lblMidiInput;
-    ScopedPointer<ComboBox> cbMidiInput;
-    ScopedPointer<Label> lblMidiOutput;
-    ScopedPointer<ComboBox> cbMidiOutput;
-    ScopedPointer<ToggleButton> toggleAutoSave;
-    ScopedPointer<TextButton> buttonSendSaveEdits;
-    ScopedPointer<TextButton> buttonSendAll;
-    ScopedPointer<TextButton> buttonDiscard;
+    ScopedPointer<Label> labelComingLater;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiEditArea)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IsomorphicMassAssign)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_D02B34978EAB2CCC__
+#endif   // __JUCE_HEADER_730F20A4628CA114__

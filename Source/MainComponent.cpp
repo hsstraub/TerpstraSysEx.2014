@@ -110,13 +110,9 @@ MainContentComponent::MainContentComponent()
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 	midiEditArea->addSendAllButtonListener(this);
 
-	editArea = new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
-	addAndMakeVisible(editArea);
-	editArea->setBounds(EDITAREAFIRSTCOLPOS, 250 + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
-
-	noteAssignTab = new NoteAssignTab();
-	editArea->addTab("Assign Notes to Keys", Colour(MAINWINDOWBGCOLOUR), noteAssignTab, true);
-
+	noteEditArea = new NoteEditArea();
+	addAndMakeVisible(noteEditArea);
+	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250 + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 
 	// Select first board and first key
 	changeSetSelection(0);
@@ -188,15 +184,17 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Edit
+			/* XXX new structure, encapsulkated in NoteEditArea inc. mass assign 
 			TerpstraKey keyData = noteAssignTab->createKeyMapping();
 			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
 			terpstraKeyFields[i]->setValue(keyData);						// Display
+			*/
 
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 			// Send to device
-			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);
+			//midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);
 			break;
 		}
 	}
