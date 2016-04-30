@@ -22,6 +22,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "MappingLogic.h"
+#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -35,6 +37,7 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
+                          public MappingLogicListener,
                           public ButtonListener,
                           public ComboBoxListener
 {
@@ -45,6 +48,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// Implementation of MappingLogicListener
+	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
+
+	TerpstraKey createKeyMapping();
     //[/UserMethods]
 
     void paint (Graphics& g) override;

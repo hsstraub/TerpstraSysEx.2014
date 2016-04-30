@@ -147,8 +147,8 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
 		if (channelAutoIncrButton->getToggleState())
 		{
-			//singleChannelButton->setToggleState(false, juce::NotificationType::dontSendNotification);
 			channelBox->setVisible(false);
+			this->mappingLogic.setChannelInCaseOfSingleChannel(0);	// 0 for no selection or 1-16
 		}
         //[/UserButtonCode_channelAutoIncrButton]
     }
@@ -158,7 +158,7 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
 		if (singleChannelButton->getToggleState())
 		{
 			channelBox->setVisible(true);
-			//channelAutoIncrButton->setToggleState(false, false);
+			this->mappingLogic.setChannelInCaseOfSingleChannel(channelBox->getSelectedId());	// 0 for no selection or 1-16
 		}
         //[/UserButtonCode_singleChannelButton]
     }
@@ -175,12 +175,14 @@ void IncrMidiNotesMapping::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == channelAutoIncrNoteBox)
     {
         //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
+		this->mappingLogic.setMaxMidiNote(channelAutoIncrNoteBox->getSelectedItemIndex());	 //-1 for no selection or 0-127
         //[/UserComboBoxCode_channelAutoIncrNoteBox]
     }
     else if (comboBoxThatHasChanged == channelBox)
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_channelBox]
+		this->mappingLogic.setChannelInCaseOfSingleChannel(channelBox->getSelectedId());	// 0 for no selection or 1-16
+		//[/UserComboBoxCode_channelBox]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -191,39 +193,6 @@ void IncrMidiNotesMapping::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-// Called from MainComponent when one of the keys  is clicked
-TerpstraKey IncrMidiNotesMapping::createKeyMapping()
-{
-	TerpstraKey keyData;
-	//keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-	//if (keyData.noteNumber < 0) keyData.noteNumber = 0;
-	//keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
-
-	// Auto increment note
-	// XXX
-	//if (noteAutoIncrButton->getToggleState())
-	//{
-	//	int newNote = keyData.noteNumber + 1;
-
-	//	// Auto increment channel
-	//	if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
-	//		newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
-	//	{
-	//		newNote = 0;
-	//		int newChannel = keyData.channelNumber + 1;
-	//		if (newChannel > 16)
-	//			newChannel = 1;
-	//		channelBox->setSelectedId(newChannel);
-	//	}
-
-	//	if (newNote > 127)
-	//		newNote = 0;
-
-	//	noteBox->setSelectedItemIndex(newNote);
-	//}
-
-	return keyData;
-}
 
 //[/MiscUserCode]
 

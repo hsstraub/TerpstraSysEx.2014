@@ -134,6 +134,53 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+// Implementation of MappingLogicListener
+void SingleNoteAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
+{
+	// Fill note combo with values according to mapping logic
+	nextValueBox->clear(juce::NotificationType::dontSendNotification);
+
+	for (int i = 0; i < mappingLogicThatChanged->globalMappingSize(); i++)
+	{
+		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
+		// XXX format text
+		nextValueBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
+	}
+}
+
+// Called from MainComponent when one of the keys  is clicked
+TerpstraKey SingleNoteAssign::createKeyMapping()
+{
+	TerpstraKey keyData;
+	//keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
+	//if (keyData.noteNumber < 0) keyData.noteNumber = 0;
+	//keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
+
+	// Auto increment note
+	// XXX
+	//if (noteAutoIncrButton->getToggleState())
+	//{
+	//	int newNote = keyData.noteNumber + 1;
+
+	//	// Auto increment channel
+	//	if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
+	//		newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
+	//	{
+	//		newNote = 0;
+	//		int newChannel = keyData.channelNumber + 1;
+	//		if (newChannel > 16)
+	//			newChannel = 1;
+	//		channelBox->setSelectedId(newChannel);
+	//	}
+
+	//	if (newNote > 127)
+	//		newNote = 0;
+
+	//	noteBox->setSelectedItemIndex(newNote);
+	//}
+
+	return keyData;
+}
 
 //[/MiscUserCode]
 
@@ -148,9 +195,10 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="220">
+                 parentClasses="public Component, public MappingLogicListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
+                 initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
          virtualName="" explicitFocusOrder="0" pos="8 8 416 32" edTextCol="ff000000"

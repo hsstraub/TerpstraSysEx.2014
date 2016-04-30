@@ -10,10 +10,59 @@
 
 #include "MappingLogic.h"
 
-IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic(int newMaxMIDINote, int newChannelInCaseOfSingleChannel)
-	: maxMIDINote(newMaxMIDINote), channelInCaseOfSingleChannel(newChannelInCaseOfSingleChannel)
+
+// Base class
+
+void MappingLogicBase::addListener(MappingLogicBase::Listener* listener)
+{
+	listeners.add(listener);
+}
+
+void MappingLogicBase::removeListener(MappingLogicBase::Listener* listener)
+{
+	listeners.remove(listener);
+}
+
+// Increasing MIDI notes 
+
+IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
+	: maxMIDINote(0), channelInCaseOfSingleChannel(0)
 {
 
+}
+
+void IncrMidiNotesMappingLogic::setMaxMidiNote(int newMaxMIDINote)
+{
+	if (newMaxMIDINote != this->maxMIDINote)
+	{
+		this->maxMIDINote = newMaxMIDINote;
+
+		// Notify listeners
+		this->listeners.call(&Listener::mappingLogicChanged, this);
+	}
+}
+
+void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel)
+{
+	if (newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel)
+	{
+		this->channelInCaseOfSingleChannel = newChannelInCaseOfSingleChannel;
+
+		// Notify listeners
+		this->listeners.call(&Listener::mappingLogicChanged, this);
+	}
+}
+
+void IncrMidiNotesMappingLogic::setValues(int newMaxMIDINote, int newChannelInCaseOfSingleChannel)
+{
+	if (newMaxMIDINote != this->maxMIDINote || newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel)
+	{
+		this->maxMIDINote = newMaxMIDINote;
+		this->channelInCaseOfSingleChannel = newChannelInCaseOfSingleChannel;
+
+		// Notify listeners
+		this->listeners.call(&Listener::mappingLogicChanged, this);
+	}
 }
 
 int IncrMidiNotesMappingLogic::globalMappingSize() const

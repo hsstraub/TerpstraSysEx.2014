@@ -88,6 +88,11 @@ void IsomorphicMassAssign::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+// Implementation of MappingLogicListener
+void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
+{
+	// XXX
+}
 //[/MiscUserCode]
 
 
@@ -101,9 +106,10 @@ void IsomorphicMassAssign::resized()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="220">
+                 parentClasses="public Component, public MappingLogicListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
+                 initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="labelComingLater" id="2de0f14d7082a132" memberName="labelComingLater"
          virtualName="" explicitFocusOrder="0" pos="40 32 150 24" edTextCol="ff000000"

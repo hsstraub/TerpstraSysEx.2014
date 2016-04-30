@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "MappingLogic.h"
 //[/Headers]
 
 
@@ -34,7 +35,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class IsomorphicMassAssign  : public Component
+class IsomorphicMassAssign  : public Component,
+                              public MappingLogicListener
 {
 public:
     //==============================================================================
@@ -43,6 +45,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// Implementation of MappingLogicListener
+	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
     //[/UserMethods]
 
     void paint (Graphics& g) override;

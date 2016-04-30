@@ -90,6 +90,11 @@ NoteEditArea::NoteEditArea ()
 
 
     //[Constructor] You can add your own custom stuff here..
+
+	// MappingLogic listener
+	incrMidiNotesMapping->getMappingLogic()->addListener(singleNoteAssign);
+	incrMidiNotesMapping->getMappingLogic()->addListener(isomorphicMassAssign);
+
     //[/Constructor]
 }
 
