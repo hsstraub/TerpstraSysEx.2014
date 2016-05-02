@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "TerpstraMidiDriver.h"
 #include "IncrMidiNotesMapping.h"
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
@@ -47,6 +48,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// Edit operation when a key field has been clicked
+	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

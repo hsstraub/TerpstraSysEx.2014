@@ -196,6 +196,30 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void NoteEditArea::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver)
+{
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	int editMode = cbEditMode->getSelectedItemIndex();
+	switch (editMode)
+	{
+	case 0:
+	{
+		TerpstraKey keyData = singleNoteAssign->createKeyMapping();
+		mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
+
+		// Send to device
+		midiDriver.sendAndMaybeSaveKeyParam(setSelection+1, keySelection, keyData);
+
+		// Refresh display done in MainComponent
+		break;
+	}
+	case 1:
+		// XXX
+		break;
+	}
+}
 //[/MiscUserCode]
 
 

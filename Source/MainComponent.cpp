@@ -183,26 +183,23 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			// Select field
 			changeSingleKeySelection(i);
 
-			// Edit
-			/* XXX new structure, encapsulkated in NoteEditArea inc. mass assign 
-			TerpstraKey keyData = noteAssignTab->createKeyMapping();
-			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
-			terpstraKeyFields[i]->setValue(keyData);						// Display
-			*/
+			// Perform the edit, according to edit mode. Including sending to device
+			this->noteEditArea->PerformMouseClickEdit(mappingData, currentSetSelection, i, midiDriver);
+
+			// Refresh display
+			changeSetSelection(currentSetSelection, true);
 
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-			// Send to device
-			//midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);
 			break;
 		}
 	}
 }
 
-void MainContentComponent::changeSetSelection(int newSelection)
+void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)
 {
-	if (newSelection != currentSetSelection)
+	if (newSelection != currentSetSelection || forceRefresh)
 	{
 		// Unselect previous set
 		// saving the data was done in click event on the single key fields

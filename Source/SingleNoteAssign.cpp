@@ -30,6 +30,7 @@
 SingleNoteAssign::SingleNoteAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	this->mappingLogic = nullptr;
     //[/Constructor_pre]
 
     addAndMakeVisible (editInstructionText = new Label ("editInstructionText",
@@ -137,6 +138,8 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 // Implementation of MappingLogicListener
 void SingleNoteAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
 {
+	this->mappingLogic = mappingLogicThatChanged;
+
 	// Fill note combo with values according to mapping logic
 	nextValueBox->clear(juce::NotificationType::dontSendNotification);
 
@@ -148,36 +151,27 @@ void SingleNoteAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatCha
 	}
 }
 
-// Called from MainComponent when one of the keys  is clicked
+// Called from MainComponent when one of the keys is clicked
 TerpstraKey SingleNoteAssign::createKeyMapping()
 {
-	TerpstraKey keyData;
-	//keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-	//if (keyData.noteNumber < 0) keyData.noteNumber = 0;
-	//keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
+	TerpstraKey keyData;	// Default constructor constructs and "empty" object
 
-	// Auto increment note
-	// XXX
-	//if (noteAutoIncrButton->getToggleState())
-	//{
-	//	int newNote = keyData.noteNumber + 1;
+	// Can only be done if there is a mapping defined and a value has been selected in the combo box 
+	int noteIndex = this->nextValueBox->getSelectedItemIndex();
+	if (this->mappingLogic != nullptr && noteIndex >= 0)
+	{
+		keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
 
-	//	// Auto increment channel
-	//	if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
-	//		newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
-	//	{
-	//		newNote = 0;
-	//		int newChannel = keyData.channelNumber + 1;
-	//		if (newChannel > 16)
-	//			newChannel = 1;
-	//		channelBox->setSelectedId(newChannel);
-	//	}
+		// Auto increment note
+		if (this->noteAutoIncrButton->getToggleState())
+		{
+			noteIndex++;
+			if (noteIndex > this->mappingLogic->globalMappingSize())
+				noteIndex = -1;	// This means stop here
 
-	//	if (newNote > 127)
-	//		newNote = 0;
-
-	//	noteBox->setSelectedItemIndex(newNote);
-	//}
+			this->nextValueBox->setSelectedItemIndex(noteIndex);	// Set to "nothing" at the end
+		}
+	}
 
 	return keyData;
 }

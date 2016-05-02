@@ -44,7 +44,7 @@ public:
 	void mouseDown(const MouseEvent &event);
 
 private:
-	void changeSetSelection(int newSelection);
+	void changeSetSelection(int newSelection, bool forceRefresh=false);
 	void changeSingleKeySelection(int newSelection);
 
 private:
