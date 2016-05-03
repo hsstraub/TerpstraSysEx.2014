@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.0
+  Created with Projucer version: 4.2.1
 
   ------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ NoteEditArea::NoteEditArea ()
     cbMappingStyle->addListener (this);
 
     addAndMakeVisible (labelMappingStyle = new Label ("labelMappingStyle",
-                                                      TRANS("Style")));
+                                                      TRANS("Style:")));
     labelMappingStyle->setFont (Font (15.00f, Font::plain));
     labelMappingStyle->setJustificationType (Justification::centredLeft);
     labelMappingStyle->setEditable (false, false, false);
@@ -72,7 +72,7 @@ NoteEditArea::NoteEditArea ()
     cbEditMode->addListener (this);
 
     addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
-                                                  TRANS("Edit Mode")));
+                                                  TRANS("Edit Mode:")));
     labelEditMode->setFont (Font (15.00f, Font::plain));
     labelEditMode->setJustificationType (Justification::centredLeft);
     labelEditMode->setEditable (false, false, false);
@@ -94,6 +94,10 @@ NoteEditArea::NoteEditArea ()
 	// MappingLogic listener
 	incrMidiNotesMapping->getMappingLogic()->addListener(singleNoteAssign);
 	incrMidiNotesMapping->getMappingLogic()->addListener(isomorphicMassAssign);
+
+	// Default selection
+	// Todo: read from user settings
+	cbMappingStyle->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
 
     //[/Constructor]
 }
@@ -136,11 +140,11 @@ void NoteEditArea::resized()
 	isomorphicMassAssign->setBounds(16, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
-    cbMappingStyle->setBounds (16, 48, 392, 24);
-    labelMappingStyle->setBounds (16, 24, 150, 24);
-    cbEditMode->setBounds (16, 208, 392, 24);
-    labelEditMode->setBounds (16, 184, 150, 24);
-    groupMapping->setBounds (0, 8, 424, 168);
+    cbMappingStyle->setBounds (112, 24, 296, 24);
+    labelMappingStyle->setBounds (16, 24, 88, 24);
+    cbEditMode->setBounds (112, 176, 296, 24);
+    labelEditMode->setBounds (16, 176, 88, 24);
+    groupMapping->setBounds (8, 8, 416, 152);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -238,25 +242,25 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="428" initialHeight="480">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
-            virtualName="" explicitFocusOrder="0" pos="16 48 392 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="112 24 296 24" editable="0"
             layout="33" items="MIDI notes, increasing order&#10;MidiIntegrator mapping"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
-         virtualName="" explicitFocusOrder="0" pos="16 24 150 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Style" editableSingleClick="0" editableDoubleClick="0"
+         virtualName="" explicitFocusOrder="0" pos="16 24 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="16 208 392 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="112 176 296 24" editable="0"
             layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="16 184 150 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Edit Mode" editableSingleClick="0" editableDoubleClick="0"
+         virtualName="" explicitFocusOrder="0" pos="16 176 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Edit Mode:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
-                  virtualName="" explicitFocusOrder="0" pos="0 8 424 168" title="Mapping"/>
+                  virtualName="" explicitFocusOrder="0" pos="8 8 416 152" title="Mapping"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

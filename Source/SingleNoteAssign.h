@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.0
+  Created with Projucer version: 4.2.1
 
   ------------------------------------------------------------------------------
 
@@ -70,6 +70,7 @@ private:
     ScopedPointer<Label> editInstructionText;
     ScopedPointer<ToggleButton> noteAutoIncrButton;
     ScopedPointer<ComboBox> nextValueBox;
+    ScopedPointer<Label> labelNextValue;
 
 
     //==============================================================================

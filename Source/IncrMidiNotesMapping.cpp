@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.0
+  Created with Projucer version: 4.2.1
 
   ------------------------------------------------------------------------------
 
@@ -129,10 +129,10 @@ void IncrMidiNotesMapping::resized()
     //[/UserPreResize]
 
     channelAutoIncrButton->setBounds (8, 64, 280, 24);
-    channelAutoIncrNoteBox->setBounds (208, 8, 56, 24);
+    channelAutoIncrNoteBox->setBounds (184, 8, 56, 24);
     labelMidiNotesUntil->setBounds (8, 8, 192, 24);
     singleChannelButton->setBounds (8, 40, 160, 24);
-    channelBox->setBounds (208, 40, 56, 24);
+    channelBox->setBounds (184, 40, 56, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -182,7 +182,7 @@ void IncrMidiNotesMapping::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
 		this->mappingLogic.setChannelInCaseOfSingleChannel(channelBox->getSelectedId());	// 0 for no selection or 1-16
-		//[/UserComboBoxCode_channelBox]
+        //[/UserComboBoxCode_channelBox]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -216,7 +216,7 @@ BEGIN_JUCER_METADATA
                 buttonText="Multichannel" connectedEdges="4" needsCallback="1"
                 radioGroupId="1" state="0"/>
   <COMBOBOX name="channelAutoIncrNoteBox" id="4560285c5e467e2f" memberName="channelAutoIncrNoteBox"
-            virtualName="" explicitFocusOrder="0" pos="208 8 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"
+            virtualName="" explicitFocusOrder="0" pos="184 8 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelMidiNotesUntil" id="c566693d4c0fdb01" memberName="labelMidiNotesUntil"
          virtualName="" explicitFocusOrder="0" pos="8 8 192 24" edTextCol="ff000000"
@@ -228,7 +228,7 @@ BEGIN_JUCER_METADATA
                 buttonText="Single channel" connectedEdges="4" needsCallback="1"
                 radioGroupId="1" state="0"/>
   <COMBOBOX name="channelBox" id="3ac4d54146311c84" memberName="channelBox"
-            virtualName="" explicitFocusOrder="0" pos="208 40 56 24" tooltip="The MIDI channel (in case of single channel)"
+            virtualName="" explicitFocusOrder="0" pos="184 40 56 24" tooltip="The MIDI channel (in case of single channel)"
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 

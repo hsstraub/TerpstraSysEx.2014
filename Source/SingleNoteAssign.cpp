@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.0
+  Created with Projucer version: 4.2.1
 
   ------------------------------------------------------------------------------
 
@@ -52,6 +52,14 @@ SingleNoteAssign::SingleNoteAssign ()
     nextValueBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     nextValueBox->addListener (this);
 
+    addAndMakeVisible (labelNextValue = new Label ("labelNextValue",
+                                                   TRANS("Next value")));
+    labelNextValue->setFont (Font (15.00f, Font::plain));
+    labelNextValue->setJustificationType (Justification::centredLeft);
+    labelNextValue->setEditable (false, false, false);
+    labelNextValue->setColour (TextEditor::textColourId, Colours::black);
+    labelNextValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -71,6 +79,7 @@ SingleNoteAssign::~SingleNoteAssign()
     editInstructionText = nullptr;
     noteAutoIncrButton = nullptr;
     nextValueBox = nullptr;
+    labelNextValue = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -95,8 +104,9 @@ void SingleNoteAssign::resized()
     //[/UserPreResize]
 
     editInstructionText->setBounds (8, 8, 416, 32);
-    noteAutoIncrButton->setBounds (8, 32, 200, 24);
-    nextValueBox->setBounds (16, 72, 150, 24);
+    noteAutoIncrButton->setBounds (192, 64, 200, 24);
+    nextValueBox->setBounds (16, 64, 150, 24);
+    labelNextValue->setBounds (16, 40, 150, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -156,7 +166,7 @@ TerpstraKey SingleNoteAssign::createKeyMapping()
 {
 	TerpstraKey keyData;	// Default constructor constructs and "empty" object
 
-	// Can only be done if there is a mapping defined and a value has been selected in the combo box 
+	// Can only be done if there is a mapping defined and a value has been selected in the combo box
 	int noteIndex = this->nextValueBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && noteIndex >= 0)
 	{
@@ -200,11 +210,16 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
-                virtualName="" explicitFocusOrder="0" pos="8 32 200 24" buttonText="Auto Increment after click"
+                virtualName="" explicitFocusOrder="0" pos="192 64 200 24" buttonText="Auto Increment after click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="nextValueBox" id="d526f69bdc196fea" memberName="nextValueBox"
-            virtualName="" explicitFocusOrder="0" pos="16 72 150 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="16 64 150 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="labelNextValue" id="f3311767abde1a79" memberName="labelNextValue"
+         virtualName="" explicitFocusOrder="0" pos="16 40 150 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Next value" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

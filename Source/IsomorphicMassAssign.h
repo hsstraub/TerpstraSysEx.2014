@@ -36,7 +36,8 @@
                                                                     //[/Comments]
 */
 class IsomorphicMassAssign  : public Component,
-                              public MappingLogicListener
+                              public MappingLogicListener,
+                              public ComboBoxListener
 {
 public:
     //==============================================================================
@@ -51,6 +52,7 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -59,7 +61,15 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> labelComingLater;
+    ScopedPointer<ComboBox> startingPointeBox;
+    ScopedPointer<Label> labelStartingPoint;
+    ScopedPointer<Label> labelHorizontalSteps;
+    ScopedPointer<TextEditor> editHorizontalSteps;
+    ScopedPointer<Label> labelLeftUpwardsSteps;
+    ScopedPointer<TextEditor> editLeftUpwardsSteps;
+    ScopedPointer<Label> editInstructionText;
+    Path internalPath1;
+    Path internalPath2;
 
 
     //==============================================================================
