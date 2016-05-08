@@ -30,6 +30,7 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	mappingLogic = nullptr;
     //[/Constructor_pre]
 
     addAndMakeVisible (startingPointeBox = new ComboBox ("startingPointBox"));
@@ -65,25 +66,26 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editHorizontalSteps->setPopupMenuEnabled (true);
     editHorizontalSteps->setText (String());
 
-    addAndMakeVisible (labelLeftUpwardsSteps = new Label ("labelLeftUpwardsSteps",
-                                                          TRANS("Left upwards steps")));
-    labelLeftUpwardsSteps->setFont (Font (15.00f, Font::plain));
-    labelLeftUpwardsSteps->setJustificationType (Justification::centredLeft);
-    labelLeftUpwardsSteps->setEditable (false, false, false);
-    labelLeftUpwardsSteps->setColour (TextEditor::textColourId, Colours::black);
-    labelLeftUpwardsSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (labelRightUpwardsSteps = new Label ("labelRightUpwardsSteps",
+                                                           TRANS("Right upwards steps")));
+    labelRightUpwardsSteps->setFont (Font (15.00f, Font::plain));
+    labelRightUpwardsSteps->setJustificationType (Justification::centredLeft);
+    labelRightUpwardsSteps->setEditable (false, false, false);
+    labelRightUpwardsSteps->setColour (TextEditor::textColourId, Colours::black);
+    labelRightUpwardsSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (editLeftUpwardsSteps = new TextEditor ("editLeftUpwardsSteps"));
-    editLeftUpwardsSteps->setMultiLine (false);
-    editLeftUpwardsSteps->setReturnKeyStartsNewLine (false);
-    editLeftUpwardsSteps->setReadOnly (false);
-    editLeftUpwardsSteps->setScrollbarsShown (true);
-    editLeftUpwardsSteps->setCaretVisible (true);
-    editLeftUpwardsSteps->setPopupMenuEnabled (true);
-    editLeftUpwardsSteps->setText (String());
+    addAndMakeVisible (editRightUpwardsSteps = new TextEditor ("editRightUpwardsSteps"));
+    editRightUpwardsSteps->setMultiLine (false);
+    editRightUpwardsSteps->setReturnKeyStartsNewLine (false);
+    editRightUpwardsSteps->setReadOnly (false);
+    editRightUpwardsSteps->setScrollbarsShown (true);
+    editRightUpwardsSteps->setCaretVisible (true);
+    editRightUpwardsSteps->setPopupMenuEnabled (true);
+    editRightUpwardsSteps->setText (String());
 
     addAndMakeVisible (editInstructionText = new Label ("editInstructionText",
-                                                        TRANS("Fill a line or the whole field with constant step distances.")));
+                                                        TRANS("Fill a line or the whole field with constant step distances. \n"
+                                                        "Click on desired key field to start.")));
     editInstructionText->setFont (Font (15.00f, Font::plain));
     editInstructionText->setJustificationType (Justification::topLeft);
     editInstructionText->setEditable (false, false, false);
@@ -110,8 +112,8 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     labelStartingPoint = nullptr;
     labelHorizontalSteps = nullptr;
     editHorizontalSteps = nullptr;
-    labelLeftUpwardsSteps = nullptr;
-    editLeftUpwardsSteps = nullptr;
+    labelRightUpwardsSteps = nullptr;
+    editRightUpwardsSteps = nullptr;
     editInstructionText = nullptr;
 
 
@@ -143,22 +145,22 @@ void IsomorphicMassAssign::resized()
     //[/UserPreResize]
 
     startingPointeBox->setBounds (24, 128, 150, 24);
-    labelStartingPoint->setBounds (16, 104, 150, 24);
-    labelHorizontalSteps->setBounds (224, 104, 150, 24);
-    editHorizontalSteps->setBounds (232, 128, 40, 24);
-    labelLeftUpwardsSteps->setBounds (168, 40, 150, 24);
-    editLeftUpwardsSteps->setBounds (176, 64, 39, 24);
-    editInstructionText->setBounds (8, 8, 416, 24);
+    labelStartingPoint->setBounds (24, 104, 150, 24);
+    labelHorizontalSteps->setBounds (232, 96, 150, 24);
+    editHorizontalSteps->setBounds (232, 120, 40, 24);
+    labelRightUpwardsSteps->setBounds (160, 48, 150, 24);
+    editRightUpwardsSteps->setBounds (160, 72, 39, 24);
+    editInstructionText->setBounds (8, 8, 416, 40);
     internalPath1.clear();
     internalPath1.startNewSubPath (188.0f, 132.0f);
-    internalPath1.lineTo (220.0f, 140.0f);
-    internalPath1.lineTo (188.0f, 148.0f);
+    internalPath1.lineTo (212.0f, 136.0f);
+    internalPath1.lineTo (192.0f, 144.0f);
     internalPath1.closeSubPath();
 
     internalPath2.clear();
-    internalPath2.startNewSubPath (164.0f, 84.0f);
-    internalPath2.lineTo (140.0f, 116.0f);
-    internalPath2.lineTo (132.0f, 100.0f);
+    internalPath2.startNewSubPath (168.0f, 104.0f);
+    internalPath2.lineTo (168.0f, 120.0f);
+    internalPath2.lineTo (160.0f, 120.0f);
     internalPath2.closeSubPath();
 
     //[UserResized] Add your own custom resize handling here..
@@ -186,8 +188,47 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 // Implementation of MappingLogicListener
 void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
 {
-	// XXX
+	this->mappingLogic = mappingLogicThatChanged;
+
+	// Fill note combo with values according to mapping logic
+	// XXX Same code as in SingleNoteAssign
+	startingPointeBox->clear(juce::NotificationType::dontSendNotification);
+
+	for (int i = 0; i < mappingLogicThatChanged->globalMappingSize(); i++)
+	{
+		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
+		// XXX format text
+		startingPointeBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
+	}
 }
+
+// Called from MainComponent when one of the keys is clicked
+void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver)
+{
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	// Set value of starting point
+	int noteIndex = this->startingPointeBox->getSelectedItemIndex();
+	if (this->mappingLogic != nullptr && noteIndex >= 0)
+	{
+		TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
+
+		mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
+
+		// Send to device
+		midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+
+		// Horizontal line
+		// XXX
+
+		// Right vertical line
+		// XXX
+
+		// Two dimensional: fill whole subset
+		// XXX
+	}
+}
+
 //[/MiscUserCode]
 
 
@@ -206,38 +247,38 @@ BEGIN_JUCER_METADATA
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
                  initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de">
-    <PATH pos="0 0 100 100" fill="solid: ff010e0c" hasStroke="0" nonZeroWinding="1">s 188 132 l 220 140 l 188 148 x</PATH>
-    <PATH pos="0 0 100 100" fill="solid: ff02020e" hasStroke="0" nonZeroWinding="1">s 164 84 l 140 116 l 132 100 x</PATH>
+    <PATH pos="0 0 100 100" fill="solid: ff010e0c" hasStroke="0" nonZeroWinding="1">s 188 132 l 212 136 l 192 144 x</PATH>
+    <PATH pos="0 0 100 100" fill="solid: ff02020e" hasStroke="0" nonZeroWinding="1">s 168 104 l 168 120 l 160 120 x</PATH>
   </BACKGROUND>
   <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointeBox"
             virtualName="" explicitFocusOrder="0" pos="24 128 150 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelStartingPoint" id="5401a3246c13771e" memberName="labelStartingPoint"
-         virtualName="" explicitFocusOrder="0" pos="16 104 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
+         virtualName="" explicitFocusOrder="0" pos="24 104 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
          edTextCol="ff000000" edBkgCol="0" labelText="Starting value"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="labelHorizontalSteps" id="3e6663aecf1474c8" memberName="labelHorizontalSteps"
-         virtualName="" explicitFocusOrder="0" pos="224 104 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="232 96 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Horizontal steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editHorizontalSteps" id="8d2f5f07f337b9ef" memberName="editHorizontalSteps"
-              virtualName="" explicitFocusOrder="0" pos="232 128 40 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="232 120 40 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
-  <LABEL name="labelLeftUpwardsSteps" id="43530804741d9cb7" memberName="labelLeftUpwardsSteps"
-         virtualName="" explicitFocusOrder="0" pos="168 40 150 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Left upwards steps" editableSingleClick="0"
+  <LABEL name="labelRightUpwardsSteps" id="43530804741d9cb7" memberName="labelRightUpwardsSteps"
+         virtualName="" explicitFocusOrder="0" pos="160 48 150 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Right upwards steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="editLeftUpwardsSteps" id="3a1cf8588366e0ca" memberName="editLeftUpwardsSteps"
-              virtualName="" explicitFocusOrder="0" pos="176 64 39 24" initialText=""
+  <TEXTEDITOR name="editRightUpwardsSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardsSteps"
+              virtualName="" explicitFocusOrder="0" pos="160 72 39 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 8 416 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Fill a line or the whole field with constant step distances."
+         virtualName="" explicitFocusOrder="0" pos="8 8 416 40" edTextCol="ff000000"
+         edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
 </JUCER_COMPONENT>

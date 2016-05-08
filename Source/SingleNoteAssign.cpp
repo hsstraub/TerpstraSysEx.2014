@@ -162,28 +162,34 @@ void SingleNoteAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatCha
 }
 
 // Called from MainComponent when one of the keys is clicked
-TerpstraKey SingleNoteAssign::createKeyMapping()
+void SingleNoteAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver)
 {
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
 	TerpstraKey keyData;	// Default constructor constructs and "empty" object
 
 	// Can only be done if there is a mapping defined and a value has been selected in the combo box
 	int noteIndex = this->nextValueBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && noteIndex >= 0)
-	{
 		keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
+	// XXX set empty values, too?
 
-		// Auto increment note
-		if (this->noteAutoIncrButton->getToggleState())
-		{
-			noteIndex++;
-			if (noteIndex > this->mappingLogic->globalMappingSize())
-				noteIndex = -1;	// This means stop here
+	mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
 
-			this->nextValueBox->setSelectedItemIndex(noteIndex);	// Set to "nothing" at the end
-		}
+	// Send to device
+	midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+
+	// Auto increment note
+	if (this->noteAutoIncrButton->getToggleState())
+	{
+		noteIndex++;
+		if (noteIndex > this->mappingLogic->globalMappingSize())
+			noteIndex = -1;	// This means stop here
+
+		this->nextValueBox->setSelectedItemIndex(noteIndex);	// Set to "nothing" at the end
 	}
 
-	return keyData;
+	// Refresh display: done in MainComponent
 }
 
 //[/MiscUserCode]

@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
+#include "TerpstraMidiDriver.h"
 //[/Headers]
 
 
@@ -48,6 +49,8 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
+	// Edit operation when a key field in MainComponent has been clicked
+	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -58,6 +61,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	MappingLogicBase*	mappingLogic;
     //[/UserVariables]
 
     //==============================================================================
@@ -65,8 +69,8 @@ private:
     ScopedPointer<Label> labelStartingPoint;
     ScopedPointer<Label> labelHorizontalSteps;
     ScopedPointer<TextEditor> editHorizontalSteps;
-    ScopedPointer<Label> labelLeftUpwardsSteps;
-    ScopedPointer<TextEditor> editLeftUpwardsSteps;
+    ScopedPointer<Label> labelRightUpwardsSteps;
+    ScopedPointer<TextEditor> editRightUpwardsSteps;
     ScopedPointer<Label> editInstructionText;
     Path internalPath1;
     Path internalPath2;

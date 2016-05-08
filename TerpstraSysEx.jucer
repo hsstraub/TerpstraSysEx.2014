@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.2.2"
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.3.0"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
               jucerVersion="4.2.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
@@ -106,4 +106,7 @@
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
   <JUCEOPTIONS/>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

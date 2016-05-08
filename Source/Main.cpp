@@ -321,7 +321,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	// XXX Version: there are the internal constants JUCE_APP_VERSION and JUCE_APP_VERSION_HEX...
 	m << "Terpstra SysEx Utility" << newLine
 		<< newLine
-		<< "Version 0.2.2"	<< newLine
+		<< "Version 0.3.0"	<< newLine
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
 		<< "Reengineered @ Hans Straub 2014" << newLine

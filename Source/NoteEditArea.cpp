@@ -209,18 +209,10 @@ void NoteEditArea::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int se
 	switch (editMode)
 	{
 	case 0:
-	{
-		TerpstraKey keyData = singleNoteAssign->createKeyMapping();
-		mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
-
-		// Send to device
-		midiDriver.sendAndMaybeSaveKeyParam(setSelection+1, keySelection, keyData);
-
-		// Refresh display done in MainComponent
+		singleNoteAssign->PerformMouseClickEdit(mappingData, setSelection, keySelection, midiDriver);
 		break;
-	}
 	case 1:
-		// XXX
+		isomorphicMassAssign->PerformMouseClickEdit(mappingData, setSelection, keySelection, midiDriver);
 		break;
 	}
 }
