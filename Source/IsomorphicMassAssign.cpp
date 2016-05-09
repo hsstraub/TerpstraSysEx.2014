@@ -66,22 +66,23 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editHorizontalSteps->setPopupMenuEnabled (true);
     editHorizontalSteps->setText (String());
 
-    addAndMakeVisible (labelRightUpwardsSteps = new Label ("labelRightUpwardsSteps",
-                                                           TRANS("Right upwards steps")));
-    labelRightUpwardsSteps->setFont (Font (15.00f, Font::plain));
-    labelRightUpwardsSteps->setJustificationType (Justification::centredLeft);
-    labelRightUpwardsSteps->setEditable (false, false, false);
-    labelRightUpwardsSteps->setColour (TextEditor::textColourId, Colours::black);
-    labelRightUpwardsSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (labelRightUpwardSteps = new Label ("labelRightUpwardSteps",
+                                                          TRANS("Right upward steps")));
+    labelRightUpwardSteps->setFont (Font (15.00f, Font::plain));
+    labelRightUpwardSteps->setJustificationType (Justification::centredLeft);
+    labelRightUpwardSteps->setEditable (false, false, false);
+    labelRightUpwardSteps->setColour (TextEditor::textColourId, Colours::black);
+    labelRightUpwardSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (editRightUpwardsSteps = new TextEditor ("editRightUpwardsSteps"));
-    editRightUpwardsSteps->setMultiLine (false);
-    editRightUpwardsSteps->setReturnKeyStartsNewLine (false);
-    editRightUpwardsSteps->setReadOnly (false);
-    editRightUpwardsSteps->setScrollbarsShown (true);
-    editRightUpwardsSteps->setCaretVisible (true);
-    editRightUpwardsSteps->setPopupMenuEnabled (true);
-    editRightUpwardsSteps->setText (String());
+    addAndMakeVisible (editRightUpwardSteps = new TextEditor ("editRightUpwardSteps"));
+    editRightUpwardSteps->setTooltip (TRANS("NOT IMPLEMENTED YET"));
+    editRightUpwardSteps->setMultiLine (false);
+    editRightUpwardSteps->setReturnKeyStartsNewLine (false);
+    editRightUpwardSteps->setReadOnly (false);
+    editRightUpwardSteps->setScrollbarsShown (true);
+    editRightUpwardSteps->setCaretVisible (true);
+    editRightUpwardSteps->setPopupMenuEnabled (true);
+    editRightUpwardSteps->setText (String());
 
     addAndMakeVisible (editInstructionText = new Label ("editInstructionText",
                                                         TRANS("Fill a line or the whole field with constant step distances. \n"
@@ -100,6 +101,8 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 
     //[Constructor] You can add your own custom stuff here..
+	editHorizontalSteps->setInputRestrictions(0, "0123456789-");
+	editRightUpwardSteps->setInputRestrictions(0, "0123456789-");
     //[/Constructor]
 }
 
@@ -112,8 +115,8 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     labelStartingPoint = nullptr;
     labelHorizontalSteps = nullptr;
     editHorizontalSteps = nullptr;
-    labelRightUpwardsSteps = nullptr;
-    editRightUpwardsSteps = nullptr;
+    labelRightUpwardSteps = nullptr;
+    editRightUpwardSteps = nullptr;
     editInstructionText = nullptr;
 
 
@@ -148,8 +151,8 @@ void IsomorphicMassAssign::resized()
     labelStartingPoint->setBounds (24, 104, 150, 24);
     labelHorizontalSteps->setBounds (232, 96, 150, 24);
     editHorizontalSteps->setBounds (232, 120, 40, 24);
-    labelRightUpwardsSteps->setBounds (160, 48, 150, 24);
-    editRightUpwardsSteps->setBounds (160, 72, 39, 24);
+    labelRightUpwardSteps->setBounds (160, 48, 150, 24);
+    editRightUpwardSteps->setBounds (160, 72, 39, 24);
     editInstructionText->setBounds (8, 8, 416, 40);
     internalPath1.clear();
     internalPath1.startNewSubPath (188.0f, 132.0f);
@@ -208,24 +211,54 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
 	// Set value of starting point
-	int noteIndex = this->startingPointeBox->getSelectedItemIndex();
-	if (this->mappingLogic != nullptr && noteIndex >= 0)
+	int startNoteIndex = this->startingPointeBox->getSelectedItemIndex();
+	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
 	{
-		TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
-
+		TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(startNoteIndex);
 		mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
-
 		// Send to device
 		midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 
+		int horizStepSize = editHorizontalSteps->getText().getIntValue();
+		int rUpwStepSize = editRightUpwardSteps->getText().getIntValue();
+
 		// Horizontal line
-		// XXX
+		if (horizStepSize != 0 && rUpwStepSize == 0)
+		{
+			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
 
+			int startPos = horizLine.indexOf(keySelection);
+			int pos, noteIndex;
+			// Forward
+			for (pos = startPos + 1, noteIndex = startNoteIndex + horizStepSize;
+				pos < horizLine.size() && noteIndex < this->mappingLogic->globalMappingSize();
+				pos++, noteIndex += horizStepSize)
+			{
+				TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
+				mappingData.sets[setSelection].theKeys[horizLine[pos]] = keyData;
+				midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, horizLine[pos], keyData);
+			}
+
+			// Backward
+			for (pos = startPos - 1, noteIndex = startNoteIndex - horizStepSize;
+				pos >=0 && noteIndex >= 0;
+				pos--, noteIndex -= horizStepSize)
+			{
+				TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
+				mappingData.sets[setSelection].theKeys[horizLine[pos]] = keyData;
+				midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, horizLine[pos], keyData);
+			}
+		}
 		// Right vertical line
-		// XXX
-
+		else if (horizStepSize == 0 && rUpwStepSize != 0)
+		{
+			// XXX
+		}
 		// Two dimensional: fill whole subset
-		// XXX
+		else if (horizStepSize != 0 && rUpwStepSize != 0)
+		{
+			// XXX
+		}
 	}
 }
 
@@ -267,15 +300,15 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="232 120 40 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
-  <LABEL name="labelRightUpwardsSteps" id="43530804741d9cb7" memberName="labelRightUpwardsSteps"
+  <LABEL name="labelRightUpwardSteps" id="43530804741d9cb7" memberName="labelRightUpwardSteps"
          virtualName="" explicitFocusOrder="0" pos="160 48 150 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Right upwards steps" editableSingleClick="0"
+         edBkgCol="0" labelText="Right upward steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="editRightUpwardsSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardsSteps"
-              virtualName="" explicitFocusOrder="0" pos="160 72 39 24" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-              caret="1" popupmenu="1"/>
+  <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
+              virtualName="" explicitFocusOrder="0" pos="160 72 39 24" tooltip="NOT IMPLEMENTED YET"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
          virtualName="" explicitFocusOrder="0" pos="8 8 416 40" edTextCol="ff000000"
          edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."

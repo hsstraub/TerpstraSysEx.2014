@@ -24,6 +24,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
 #include "TerpstraMidiDriver.h"
+#include "BoardGeometry.h"
 //[/Headers]
 
 
@@ -61,7 +62,8 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	MappingLogicBase*	mappingLogic;
+	MappingLogicBase*		mappingLogic;
+	TerpstraBoardGeometry	boardGeometry;
     //[/UserVariables]
 
     //==============================================================================
@@ -69,8 +71,8 @@ private:
     ScopedPointer<Label> labelStartingPoint;
     ScopedPointer<Label> labelHorizontalSteps;
     ScopedPointer<TextEditor> editHorizontalSteps;
-    ScopedPointer<Label> labelRightUpwardsSteps;
-    ScopedPointer<TextEditor> editRightUpwardsSteps;
+    ScopedPointer<Label> labelRightUpwardSteps;
+    ScopedPointer<TextEditor> editRightUpwardSteps;
     ScopedPointer<Label> editInstructionText;
     Path internalPath1;
     Path internalPath2;
