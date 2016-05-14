@@ -75,7 +75,6 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelRightUpwardSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (editRightUpwardSteps = new TextEditor ("editRightUpwardSteps"));
-    editRightUpwardSteps->setTooltip (TRANS("NOT IMPLEMENTED YET"));
     editRightUpwardSteps->setMultiLine (false);
     editRightUpwardSteps->setReturnKeyStartsNewLine (false);
     editRightUpwardSteps->setReadOnly (false);
@@ -188,6 +187,42 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void IsomorphicMassAssign::setSaveSend(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, int noteIndex, TerpstraMidiDriver& midiDriver)
+{
+	// XXX This could be in a common base class for all assign edit components
+	TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
+
+	// Save data
+	mappingData.sets[setSelection].theKeys[keySelection] = keyData;		
+	
+	// Send to device
+	midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+}
+
+// Fill a line, Starting point ios assumed to have been set
+void IsomorphicMassAssign::fillLine(TerpstraKeyMapping& mappingData, int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize, TerpstraMidiDriver& midiDriver)
+{
+	jassert(stepSize != 0);
+
+	int pos, noteIndex;
+	// Forward
+	for (pos = startPos + 1, noteIndex = startNoteIndex + stepSize;
+		pos < line.size() && noteIndex < this->mappingLogic->globalMappingSize();
+		pos++, noteIndex += stepSize)
+	{
+		setSaveSend(mappingData, setSelection, line[pos], noteIndex, midiDriver);
+	}
+
+	// Backward
+	for (pos = startPos - 1, noteIndex = startNoteIndex - stepSize;
+		pos >= 0 && noteIndex >= 0;
+		pos--, noteIndex -= stepSize)
+	{
+		setSaveSend(mappingData, setSelection, line[pos], noteIndex, midiDriver);
+	}
+}
+
 // Implementation of MappingLogicListener
 void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
 {
@@ -210,14 +245,11 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
-	// Set value of starting point
 	int startNoteIndex = this->startingPointeBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
 	{
-		TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(startNoteIndex);
-		mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
-		// Send to device
-		midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+		// Set value of starting point
+		setSaveSend(mappingData, setSelection, keySelection, startNoteIndex, midiDriver);
 
 		int horizStepSize = editHorizontalSteps->getText().getIntValue();
 		int rUpwStepSize = editRightUpwardSteps->getText().getIntValue();
@@ -226,38 +258,43 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 		if (horizStepSize != 0 && rUpwStepSize == 0)
 		{
 			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
-
 			int startPos = horizLine.indexOf(keySelection);
-			int pos, noteIndex;
-			// Forward
-			for (pos = startPos + 1, noteIndex = startNoteIndex + horizStepSize;
-				pos < horizLine.size() && noteIndex < this->mappingLogic->globalMappingSize();
-				pos++, noteIndex += horizStepSize)
-			{
-				TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
-				mappingData.sets[setSelection].theKeys[horizLine[pos]] = keyData;
-				midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, horizLine[pos], keyData);
-			}
-
-			// Backward
-			for (pos = startPos - 1, noteIndex = startNoteIndex - horizStepSize;
-				pos >=0 && noteIndex >= 0;
-				pos--, noteIndex -= horizStepSize)
-			{
-				TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
-				mappingData.sets[setSelection].theKeys[horizLine[pos]] = keyData;
-				midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, horizLine[pos], keyData);
-			}
+			fillLine(mappingData, setSelection, horizLine, startPos, startNoteIndex, horizStepSize, midiDriver);
 		}
+
 		// Right vertical line
 		else if (horizStepSize == 0 && rUpwStepSize != 0)
 		{
-			// XXX
+			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(keySelection);
+			int startPos = rUpLine.indexOf(keySelection);
+			fillLine(mappingData, setSelection, rUpLine, startPos, startNoteIndex, rUpwStepSize, midiDriver);
 		}
+
 		// Two dimensional: fill whole subset
 		else if (horizStepSize != 0 && rUpwStepSize != 0)
 		{
-			// XXX
+			// Fill the horizontal line
+			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
+			int startPos = horizLine.indexOf(keySelection);
+			fillLine(mappingData, setSelection, horizLine, startPos, startNoteIndex, horizStepSize, midiDriver);
+
+			/*
+			for (int linepos = 0; linepos < horizLine.size(); linepos++)
+			{
+				// Fill the vertical line at this position 
+				TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLine[linepos]);
+				int startPos = rUpLine.indexOf(horizLine[linepos]);
+				// Start note index: the value that has been set to the horiziontal line element
+				// XXX mappingLogic->terpstraKeyToIndex has to be implemented
+				// XXX int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(mappingData.sets[setSelection].theKeys[startPos]);
+
+				/// XXX fillLine(mappingData, setSelection, rUpLine, startPos, rUpStartNoteIndex, rUpwStepSize, midiDriver);
+			}
+			*/
+			// XXX ad hoc: fill just one vertical line
+			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(keySelection);
+			int upwStartPos = rUpLine.indexOf(keySelection);
+			fillLine(mappingData, setSelection, rUpLine, upwStartPos, startNoteIndex, rUpwStepSize, midiDriver);
 		}
 	}
 }
@@ -306,9 +343,9 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
-              virtualName="" explicitFocusOrder="0" pos="160 72 39 24" tooltip="NOT IMPLEMENTED YET"
-              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
-              scrollbars="1" caret="1" popupmenu="1"/>
+              virtualName="" explicitFocusOrder="0" pos="160 72 39 24" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
          virtualName="" explicitFocusOrder="0" pos="8 8 416 40" edTextCol="ff000000"
          edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."

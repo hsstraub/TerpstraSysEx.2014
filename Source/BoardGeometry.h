@@ -21,6 +21,7 @@ class TerpstraBoardGeometry
 	// Types
 public:
 	typedef Array<int> StraightLine;
+	typedef Array<StraightLine> StraightLineSet;
 
 	// Construction
 public:
@@ -28,13 +29,16 @@ public:
 
 	// Methods
 public:
-	StraightLine horizontalLineOfField(int fieldIndex);
+	StraightLine horizontalLineOfField(int fieldIndex) { return getLineOfField(fieldIndex, this->horizontalLines); };
+	StraightLine rightUpwardLineOfField(int fieldIndex) { return getLineOfField(fieldIndex, this->rightUpwardLines); };
+
+private: 
+	StraightLine getLineOfField(int fieldIndex, StraightLineSet lineSet);
 
 	// Attributes
 private:
-	Array<StraightLine>	horizontalLines;
-	Array<StraightLine>	rightUpwardLines;
-
+	StraightLineSet	horizontalLines;
+	StraightLineSet	rightUpwardLines;
 };
 
 

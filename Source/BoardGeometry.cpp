@@ -28,19 +28,30 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 	this->horizontalLines.add(StraightLine({ 55 }));
 
 	// The right upward lines of a 56 key subset. From bottom to top
+	this->rightUpwardLines.add(StraightLine({ 1 }));
+	this->rightUpwardLines.add(StraightLine({ 13, 7, 0 }));
+	this->rightUpwardLines.add(StraightLine({ 25, 19, 12, 6 }));
+	this->rightUpwardLines.add(StraightLine({ 37, 31, 24, 18, 11, 5 }));
+	this->rightUpwardLines.add(StraightLine({ 49, 43, 36, 30, 23, 17, 10, 4 }));
+	this->rightUpwardLines.add(StraightLine({ 48, 42, 35, 29, 22, 16, 9, 3 }));
+	this->rightUpwardLines.add(StraightLine({ 54, 47, 41, 34, 28, 21, 15, 8, 2 }));
+	this->rightUpwardLines.add(StraightLine({ 53, 46, 40, 33, 27, 20, 14 }));
+	this->rightUpwardLines.add(StraightLine({ 52, 45, 39, 32, 26 }));
+	this->rightUpwardLines.add(StraightLine({ 51, 44, 38 }));
+	this->rightUpwardLines.add(StraightLine({ 55, 50 }));
 	// XXX
 
 
 }
 
 // returns the unique straight line that contains the given field  
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::horizontalLineOfField(int fieldIndex)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet)
 {
 	int i;
-	for (i = 0; i < this->horizontalLines.size(); i++)
+	for (i = 0; i < lineSet.size(); i++)
 	{
-		if (this->horizontalLines[i].contains(fieldIndex))
-			return this->horizontalLines[i];
+		if (lineSet[i].contains(fieldIndex))
+			return lineSet[i];
 	}
 
 	// Line must have found - we should never get here
