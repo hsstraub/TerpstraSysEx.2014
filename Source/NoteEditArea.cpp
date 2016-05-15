@@ -51,7 +51,6 @@ NoteEditArea::NoteEditArea ()
     cbMappingStyle->setTextWhenNothingSelected (String());
     cbMappingStyle->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
-    cbMappingStyle->addItem (TRANS("MidiIntegrator mapping"), 2);
     cbMappingStyle->addListener (this);
 
     addAndMakeVisible (labelMappingStyle = new Label ("labelMappingStyle",
@@ -235,8 +234,8 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
             virtualName="" explicitFocusOrder="0" pos="112 24 296 24" editable="0"
-            layout="33" items="MIDI notes, increasing order&#10;MidiIntegrator mapping"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="MIDI notes, increasing order" textWhenNonSelected=""
+            textWhenNoItems="(no choices)"/>
   <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
          virtualName="" explicitFocusOrder="0" pos="16 24 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"

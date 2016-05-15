@@ -23,6 +23,7 @@ void MappingLogicBase::removeListener(MappingLogicBase::Listener* listener)
 	listeners.remove(listener);
 }
 
+///////////////////////////////////////////////////////////
 // Increasing MIDI notes 
 
 IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
@@ -71,7 +72,6 @@ int IncrMidiNotesMappingLogic::globalMappingSize() const
 		return this->maxMIDINote+1;	// notes start at 0 and go until maxMIDINote
 	else
 		return (this->maxMIDINote+1) * 16;
-
 }
 
 TerpstraKey IncrMidiNotesMappingLogic::indexToTerpstraKey(int inx) const
@@ -96,3 +96,23 @@ TerpstraKey IncrMidiNotesMappingLogic::indexToTerpstraKey(int inx) const
 	return keyData;
 }
 
+int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
+{
+	if (keyData.isEmpty() || this->globalMappingSize() == 0)
+		return -1;
+
+	if (this->isSingleChannel())
+	{
+		if (keyData.channelNumber != this->channelInCaseOfSingleChannel || keyData.noteNumber > this->maxMIDINote )
+			return -1;
+
+		return keyData.noteNumber;
+	}
+	else
+	{
+		if (keyData.noteNumber > this->maxMIDINote)
+			return -1;
+
+		return (keyData.channelNumber - 1)*(this->maxMIDINote + 1) + keyData.noteNumber;
+	}
+}

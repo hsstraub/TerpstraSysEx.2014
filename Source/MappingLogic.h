@@ -22,6 +22,7 @@ public:
 	virtual int globalMappingSize() const = 0;
 	// Returns the Terpstra key specification fo the "inx"-th note
 	virtual TerpstraKey indexToTerpstraKey(int inx) const = 0;
+	virtual int terpstraKeyToIndex(TerpstraKey keyData) const = 0;
 
 	// Listener class, to notify changes
 	class Listener 
@@ -62,6 +63,7 @@ public:
 
 	int globalMappingSize() const override;
 	TerpstraKey indexToTerpstraKey(int inx) const override;
+	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
 
 	bool isSingleChannel() const { return this->channelInCaseOfSingleChannel > 0; }
 

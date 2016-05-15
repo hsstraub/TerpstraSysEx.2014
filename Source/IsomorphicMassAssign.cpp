@@ -194,8 +194,8 @@ void IsomorphicMassAssign::setSaveSend(TerpstraKeyMapping& mappingData, int setS
 	TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
 
 	// Save data
-	mappingData.sets[setSelection].theKeys[keySelection] = keyData;		
-	
+	mappingData.sets[setSelection].theKeys[keySelection] = keyData;
+
 	// Send to device
 	midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 }
@@ -278,23 +278,19 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 			int startPos = horizLine.indexOf(keySelection);
 			fillLine(mappingData, setSelection, horizLine, startPos, startNoteIndex, horizStepSize, midiDriver);
 
-			/*
 			for (int linepos = 0; linepos < horizLine.size(); linepos++)
 			{
-				// Fill the vertical line at this position 
+				// Fill the vertical line at this position
 				TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLine[linepos]);
-				int startPos = rUpLine.indexOf(horizLine[linepos]);
-				// Start note index: the value that has been set to the horiziontal line element
-				// XXX mappingLogic->terpstraKeyToIndex has to be implemented
-				// XXX int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(mappingData.sets[setSelection].theKeys[startPos]);
+				int rUpStartPos = rUpLine.indexOf(horizLine[linepos]);
+				
+				// Start note index: the value that has been set to the horizontal line element
+				int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(mappingData.sets[setSelection].theKeys[horizLine[linepos]]);
 
-				/// XXX fillLine(mappingData, setSelection, rUpLine, startPos, rUpStartNoteIndex, rUpwStepSize, midiDriver);
+				fillLine(mappingData, setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, rUpwStepSize, midiDriver);
 			}
-			*/
-			// XXX ad hoc: fill just one vertical line
-			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(keySelection);
-			int upwStartPos = rUpLine.indexOf(keySelection);
-			fillLine(mappingData, setSelection, rUpLine, upwStartPos, startNoteIndex, rUpwStepSize, midiDriver);
+
+			// XXX Not all fields have been filled yet - fill the rest now
 		}
 	}
 }
