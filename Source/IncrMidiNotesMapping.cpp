@@ -158,6 +158,9 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
 		if (singleChannelButton->getToggleState())
 		{
 			channelBox->setVisible(true);
+			// Make sure something is selected
+			if (channelBox->getSelectedId() <= 0)
+				channelBox->setSelectedId(1, juce::dontSendNotification);
 			this->mappingLogic.setChannelInCaseOfSingleChannel(channelBox->getSelectedId());	// 0 for no selection or 1-16
 		}
         //[/UserButtonCode_singleChannelButton]
