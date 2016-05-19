@@ -22,7 +22,6 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "TerpstraMidiDriver.h"
 //[/Headers]
 
 
@@ -46,7 +45,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void setMidiDriver(TerpstraMidiDriver* driver) { midiDriver = driver;  }
 	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll; }
 	void addSendAllButtonListener(ButtonListener* listener) { buttonSendAll->addListener(listener); }
     //[/UserMethods]
@@ -60,7 +58,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	TerpstraMidiDriver*		midiDriver;
     //[/UserVariables]
 
     //==============================================================================

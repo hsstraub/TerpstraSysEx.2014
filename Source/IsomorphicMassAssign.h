@@ -23,7 +23,6 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
-#include "TerpstraMidiDriver.h"
 #include "BoardGeometry.h"
 //[/Headers]
 
@@ -49,15 +48,15 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	// Set, save and maybe send data of one key
-	void setSaveSend(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, int noteIndex, TerpstraMidiDriver& midiDriver);
+	void setSaveSend(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, int noteIndex);
 
 	// Fill a line, Starting point ios assumed to have been set
-	void fillLine(TerpstraKeyMapping& mappingData, int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize, TerpstraMidiDriver& midiDriver);
+	void fillLine(TerpstraKeyMapping& mappingData, int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
 
 	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 	// Edit operation when a key field in MainComponent has been clicked
-	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver);
+	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

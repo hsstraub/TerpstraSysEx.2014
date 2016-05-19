@@ -200,7 +200,7 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void NoteEditArea::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver)
+void NoteEditArea::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -208,10 +208,10 @@ void NoteEditArea::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int se
 	switch (editMode)
 	{
 	case 0:
-		singleNoteAssign->PerformMouseClickEdit(mappingData, setSelection, keySelection, midiDriver);
+		singleNoteAssign->PerformMouseClickEdit(mappingData, setSelection, keySelection);
 		break;
 	case 1:
-		isomorphicMassAssign->PerformMouseClickEdit(mappingData, setSelection, keySelection, midiDriver);
+		isomorphicMassAssign->PerformMouseClickEdit(mappingData, setSelection, keySelection);
 		break;
 	}
 }

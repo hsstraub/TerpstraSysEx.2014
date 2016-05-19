@@ -16,6 +16,7 @@
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
+#include "TerpstraMidiDriver.h"
 
 
 //==============================================================================
@@ -42,6 +43,7 @@ public:
 	}
 
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
+	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
@@ -108,6 +110,9 @@ private:
 	PropertiesFile*				propertiesFile;
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
+
+	// MIDI connection
+	TerpstraMidiDriver			midiDriver;
 };
 
 

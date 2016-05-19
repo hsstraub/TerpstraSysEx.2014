@@ -105,7 +105,6 @@ MainContentComponent::MainContentComponent()
 
 	// Midi input + output
 	midiEditArea = new MidiEditArea();
-	midiEditArea->setMidiDriver(&midiDriver);
 	addAndMakeVisible(midiEditArea);
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 	midiEditArea->addSendAllButtonListener(this);
@@ -158,7 +157,7 @@ void MainContentComponent::buttonClicked(Button *button)
 {
 	if (midiEditArea->isSendAllButton(button))
 	{
-		midiDriver.sendAndSaveCompleteMapping(mappingData);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendAndSaveCompleteMapping(mappingData);
 	}
 	else
 	{
@@ -184,7 +183,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Perform the edit, according to edit mode. Including sending to device
-			this->noteEditArea->PerformMouseClickEdit(mappingData, currentSetSelection, i, midiDriver);
+			this->noteEditArea->PerformMouseClickEdit(mappingData, currentSetSelection, i);
 
 			// Refresh display
 			changeSetSelection(currentSetSelection, true);

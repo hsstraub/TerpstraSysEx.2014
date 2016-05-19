@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -162,7 +163,7 @@ void SingleNoteAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatCha
 }
 
 // Called from MainComponent when one of the keys is clicked
-void SingleNoteAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver)
+void SingleNoteAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -177,7 +178,7 @@ void SingleNoteAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, in
 	mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
 
 	// Send to device
-	midiDriver.sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 
 	// Auto increment note
 	if (this->noteAutoIncrButton->getToggleState())

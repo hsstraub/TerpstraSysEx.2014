@@ -24,7 +24,6 @@
 #include "JuceHeader.h"
 #include "MappingLogic.h"
 #include "KeyboardDataStructure.h"
-#include "TerpstraMidiDriver.h"
 //[/Headers]
 
 
@@ -53,7 +52,7 @@ public:
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 
 	// Edit operation when a key field in MainComponent has been clicked
-	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, TerpstraMidiDriver& midiDriver);
+	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection);
 	//[/UserMethods]
 
     void paint (Graphics& g) override;

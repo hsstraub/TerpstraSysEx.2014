@@ -15,7 +15,6 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
-#include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
 
@@ -74,9 +73,6 @@ private:
 	TerpstraKeyMapping	mappingData;
 	int					currentSetSelection;
 	int					currentSingleKeySelection;
-
-	// MIDI connection
-	TerpstraMidiDriver	midiDriver;
 };
 
 
