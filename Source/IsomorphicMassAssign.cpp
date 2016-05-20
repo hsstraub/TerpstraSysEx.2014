@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
+#include "MainComponent.h"
 //[/Headers]
 
 #include "IsomorphicMassAssign.h"
@@ -189,20 +190,20 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void IsomorphicMassAssign::setSaveSend(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, int noteIndex)
+void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
 {
 	// XXX This could be in a common base class for all assign edit components
 	TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
 
 	// Save data
-	mappingData.sets[setSelection].theKeys[keySelection] = keyData;
+	((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection] = keyData;
 
 	// Send to device
 	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 }
 
 // Fill a line, Starting point ios assumed to have been set
-void IsomorphicMassAssign::fillLine(TerpstraKeyMapping& mappingData, int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
+void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
 {
 	jassert(stepSize != 0);
 
@@ -212,7 +213,7 @@ void IsomorphicMassAssign::fillLine(TerpstraKeyMapping& mappingData, int setSele
 		pos < line.size() && noteIndex < this->mappingLogic->globalMappingSize();
 		pos++, noteIndex += stepSize)
 	{
-		setSaveSend(mappingData, setSelection, line[pos], noteIndex);
+		setSaveSend(setSelection, line[pos], noteIndex);
 	}
 
 	// Backward
@@ -220,7 +221,7 @@ void IsomorphicMassAssign::fillLine(TerpstraKeyMapping& mappingData, int setSele
 		pos >= 0 && noteIndex >= 0;
 		pos--, noteIndex -= stepSize)
 	{
-		setSaveSend(mappingData, setSelection, line[pos], noteIndex);
+		setSaveSend(setSelection, line[pos], noteIndex);
 	}
 }
 
@@ -242,7 +243,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 }
 
 // Called from MainComponent when one of the keys is clicked
-void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection)
+void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -250,7 +251,7 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
 	{
 		// Set value of starting point
-		setSaveSend(mappingData, setSelection, keySelection, startNoteIndex);
+		setSaveSend(setSelection, keySelection, startNoteIndex);
 
 		int horizStepSize = editHorizontalSteps->getText().getIntValue();
 		int rUpwStepSize = editRightUpwardSteps->getText().getIntValue();
@@ -260,7 +261,7 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 		{
 			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
-			fillLine(mappingData, setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
+			fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
 		}
 
 		// Right vertical line
@@ -268,7 +269,7 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 		{
 			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(keySelection);
 			int startPos = rUpLine.indexOf(keySelection);
-			fillLine(mappingData, setSelection, rUpLine, startPos, startNoteIndex, rUpwStepSize);
+			fillLine(setSelection, rUpLine, startPos, startNoteIndex, rUpwStepSize);
 		}
 
 		// Two dimensional: fill whole subset
@@ -277,7 +278,7 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 			// Fill the horizontal line
 			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
-			fillLine(mappingData, setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
+			fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
 
 			for (int linepos = 0; linepos < horizLine.size(); linepos++)
 			{
@@ -286,9 +287,10 @@ void IsomorphicMassAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData
 				int rUpStartPos = rUpLine.indexOf(horizLine[linepos]);
 				
 				// Start note index: the value that has been set to the horizontal line element
-				int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(mappingData.sets[setSelection].theKeys[horizLine[linepos]]);
+				int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
+					((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
 
-				fillLine(mappingData, setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, rUpwStepSize);
+				fillLine(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, rUpwStepSize);
 			}
 
 			// XXX Not all fields have been filled yet - fill the rest now

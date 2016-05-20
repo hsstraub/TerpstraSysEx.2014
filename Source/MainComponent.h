@@ -34,6 +34,7 @@ public:
 	// Transfer of data
 	void setData(TerpstraKeyMapping& newData);
 	void getData(TerpstraKeyMapping& newData);
+	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData;  }
 
 
 	// GUI implementation

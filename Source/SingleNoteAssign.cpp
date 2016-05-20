@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
+#include "MainComponent.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -163,7 +164,7 @@ void SingleNoteAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatCha
 }
 
 // Called from MainComponent when one of the keys is clicked
-void SingleNoteAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection)
+void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -175,7 +176,7 @@ void SingleNoteAssign::PerformMouseClickEdit(TerpstraKeyMapping& mappingData, in
 		keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
 	// XXX set empty values, too?
 
-	mappingData.sets[setSelection].theKeys[keySelection] = keyData;		// Save data
+	((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection] = keyData;		// Save data
 
 	// Send to device
 	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);

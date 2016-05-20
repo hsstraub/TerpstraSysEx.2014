@@ -48,7 +48,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	// Edit operation when a key field has been clicked
-	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection);
+	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

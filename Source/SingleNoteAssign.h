@@ -23,7 +23,6 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "MappingLogic.h"
-#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -52,7 +51,7 @@ public:
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 
 	// Edit operation when a key field in MainComponent has been clicked
-	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection);
+	void PerformMouseClickEdit(int setSelection, int keySelection);
 	//[/UserMethods]
 
     void paint (Graphics& g) override;

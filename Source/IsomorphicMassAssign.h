@@ -48,21 +48,20 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	// Set, save and maybe send data of one key
-	void setSaveSend(TerpstraKeyMapping& mappingData, int setSelection, int keySelection, int noteIndex);
+	void setSaveSend(int setSelection, int keySelection, int noteIndex);
 
 	// Fill a line, Starting point ios assumed to have been set
-	void fillLine(TerpstraKeyMapping& mappingData, int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
+	void fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
 
 	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 	// Edit operation when a key field in MainComponent has been clicked
-	void PerformMouseClickEdit(TerpstraKeyMapping& mappingData, int setSelection, int keySelection);
+	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-
 
 
 private:
