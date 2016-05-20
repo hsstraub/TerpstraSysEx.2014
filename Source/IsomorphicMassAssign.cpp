@@ -202,7 +202,7 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 }
 
-// Fill a line, Starting point ios assumed to have been set
+// Fill a line. Starting point is assumed to have been set
 void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
 {
 	jassert(stepSize != 0);
@@ -224,6 +224,69 @@ void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::Str
 		setSaveSend(setSelection, line[pos], noteIndex);
 	}
 }
+
+// Fill a horizontal line and its cutting upwards lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
+void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex, 
+	int horizStepSize, int rUpwStepSize,
+	TerpstraBoardGeometry::StraightLineSet& finishedLines)
+{
+	// Only if not done yet
+	if (!finishedLines.contains(horizLine))
+	{
+		// Fill the line itself
+		fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
+
+		// Add to list of finished lines
+		finishedLines.add(horizLine);
+
+		// Find cutting lines and fill them
+		for (int linepos = 0; linepos < horizLine.size(); linepos++)
+		{
+			// Find the vertical line at this position
+			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLine[linepos]);
+			int rUpStartPos = rUpLine.indexOf(horizLine[linepos]);
+
+			// Start note index: the value that has been set to the horizontal line element
+			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
+				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
+			
+			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+			fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+		}
+	}
+}
+
+// Fill a right upward line and its cutting horizontal lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
+void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& rUpwLine, int startPos, int startNoteIndex,
+	int horizStepSize, int rUpwStepSize,
+	TerpstraBoardGeometry::StraightLineSet& finishedLines)
+{
+	// Only if not done yet
+	if (!finishedLines.contains(rUpwLine))
+	{
+		// Fill the line itself
+		fillLine(setSelection, rUpwLine, startPos, startNoteIndex, rUpwStepSize);
+
+		// Add to list of finished lines
+		finishedLines.add(rUpwLine);
+
+		// Find cutting lines and fill them
+		for (int linepos = 0; linepos < rUpwLine.size(); linepos++)
+		{
+			// Find the vertical line at this position
+			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(rUpwLine[linepos]);
+			int horizStartPos = horizLine.indexOf(rUpwLine[linepos]);
+
+			// Start note index: the value that has been set to the horizontal line element
+			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
+				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[rUpwLine[linepos]]);
+
+			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+			fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+		}
+	}
+}
+
 
 // Implementation of MappingLogicListener
 void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
@@ -275,25 +338,14 @@ void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelect
 		// Two dimensional: fill whole subset
 		else if (horizStepSize != 0 && rUpwStepSize != 0)
 		{
-			// Fill the horizontal line
+			TerpstraBoardGeometry::StraightLineSet finishedLines;	// List of lines that have been finished, so the recursion ends
+			
+			// Find the horizontal line
 			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
-			fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
 
-			for (int linepos = 0; linepos < horizLine.size(); linepos++)
-			{
-				// Fill the vertical line at this position
-				TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLine[linepos]);
-				int rUpStartPos = rUpLine.indexOf(horizLine[linepos]);
-				
-				// Start note index: the value that has been set to the horizontal line element
-				int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-					((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
-
-				fillLine(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, rUpwStepSize);
-			}
-
-			// XXX Not all fields have been filled yet - fill the rest now
+			// Fill the board, starting from this line
+			fill2DHorizLineRecursive(setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
