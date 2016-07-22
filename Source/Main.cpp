@@ -51,7 +51,15 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	{
 		// commandLine is supposed to contain a file name. Try to open it.
 		currentFile = File(commandLine);
-		openFromCurrentFile();
+
+		if (!currentFile.existsAsFile())
+		{
+			// If file name is with quotes, try removing the quotes
+			if (commandLine.startsWithChar('"') && commandLine.endsWithChar('"'))
+				currentFile = File(commandLine.substring(1, commandLine.length() - 1));
+		}
+
+		openFromCurrentFile(); 
 	}
 }
 
@@ -321,7 +329,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	// XXX Version: there are the internal constants JUCE_APP_VERSION and JUCE_APP_VERSION_HEX...
 	m << "Terpstra SysEx Utility" << newLine
 		<< newLine
-		<< "Version 0.3.0"	<< newLine
+		<< "Version 0.3.1"	<< newLine
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
 		<< "Reengineered @ Hans Straub 2014" << newLine
