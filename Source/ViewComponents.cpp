@@ -18,23 +18,16 @@ TerpstraKeyEdit class
 */
 
 TerpstraKeyEdit::TerpstraKeyEdit()
-: isSelected(false)
+	: isSelected(false), keyColour(0)
 {
 	midiNoteLabel = new Label("midiNoteLabel", "0");
 	addAndMakeVisible(midiNoteLabel);
 	midiNoteLabel->setBounds((TERPSTRASINGLEKEYFLDSIZE - 30) / 2, TERPSTRASINGLEKEYFLDSIZE / 2 - 15, 30, STANDARDLABELHEIGTH);
 	midiNoteLabel->setFont( midiNoteLabel->getFont().boldened());
 
-	//channelTextLabel = new Label("channelTextLabel", "Ch.");
-	//addAndMakeVisible(channelTextLabel);
-	//channelTextLabel->setBounds(TERPSTRASINGLEKEYFLDSIZE / 2-10, 25, 10, 10);
-	//channelTextLabel->setText("Ch.", sendNotification);
-
 	midiChannelLabel = new Label("midiChannelLabel", "0");
 	addAndMakeVisible(midiChannelLabel);
 	midiChannelLabel->setBounds((TERPSTRASINGLEKEYFLDSIZE - 25) / 2, TERPSTRASINGLEKEYFLDSIZE / 2, 25, STANDARDLABELHEIGTH);
-
-	//channelTextLabel->attachToComponent(midiChannelLabel, true);
 }
 
 TerpstraKeyEdit::~TerpstraKeyEdit()
@@ -47,7 +40,7 @@ TerpstraKey TerpstraKeyEdit::getValue() const
 	TerpstraKey newValue;
 	newValue.noteNumber = midiNoteLabel->getText().getIntValue();
 	newValue.channelNumber = midiChannelLabel->getText().getIntValue();
-	// XXX colour
+	newValue.colour = keyColour;
 
 	return newValue;
 }
@@ -56,7 +49,7 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 {
 	midiNoteLabel->setText(String(newValue.noteNumber), juce::NotificationType::sendNotification);
 	midiChannelLabel->setText(String(newValue.channelNumber), juce::NotificationType::sendNotification);
-	// XXX colour
+	keyColour = newValue.colour;
 
 	repaint();
 }
@@ -76,14 +69,18 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	float w = this->getWidth();
 	float h = this->getHeight();
 
+	// Selected or not: color and thickness of the line
+	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
+	juce::Colour lineColor = isSelected ? Colour(TERPSTRASELECTEDFLDLINECOLOUR) : Colours::black;
+
 	// Draw hexagon
 	Path hexPath;
-	hexPath.startNewSubPath(w / 2.0f, TERPSTRASINGLEKEYFLDLINEWIDTH );
-	hexPath.lineTo(w - TERPSTRASINGLEKEYFLDLINEWIDTH, h / 4.0f);
-	hexPath.lineTo(w - TERPSTRASINGLEKEYFLDLINEWIDTH, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h - TERPSTRASINGLEKEYFLDLINEWIDTH);
-	hexPath.lineTo(TERPSTRASINGLEKEYFLDLINEWIDTH, 3.0f * h / 4.0f);
-	hexPath.lineTo(TERPSTRASINGLEKEYFLDLINEWIDTH, h / 4.0f);
+	hexPath.startNewSubPath(w / 2.0f, lineWidth);
+	hexPath.lineTo(w - lineWidth, h / 4.0f);
+	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h - lineWidth);
+	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
+	hexPath.lineTo(lineWidth, h / 4.0f);
 	hexPath.closeSubPath();
 
 	// Rotate slightly counterclockwise around the center
@@ -92,21 +89,30 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	transform = transform.translated(w / 2.0f, h / 2.0f);
 	
 	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(TERPSTRASINGLEKEYFLDLINEWIDTH, TERPSTRASINGLEKEYFLDLINEWIDTH, w - TERPSTRASINGLEKEYFLDLINEWIDTH, h - TERPSTRASINGLEKEYFLDLINEWIDTH, true );
-	// Selected or not: fill
-	if (isSelected)
-		g.setColour(Colour(MAINWINDOWSELECTEDCOLOUR));
-	else if (getValue().isEmpty() )
-		//g.setColour(Colour(MAINWINDOWBGCOLOUR).withMultipliedSaturation(0.5));
-		//g.setColour(Colour(MAINWINDOWBGCOLOUR).withMultipliedSaturation(0.5).darker());
-		g.setColour(Colour(MAINWINDOWBGCOLOUR).darker(0.08f));
-	else
-		g.setColour(Colour(MAINWINDOWBGCOLOUR));
-	// XXX yet different colour if edited
+	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
+	// Color: empty or the parametrized color
+	TerpstraKey currentValue = getValue();
+
+	// Parametrized colour
+	g.setColour(Colour(MAINWINDOWBGCOLOUR).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40)));
 
 	g.fillPath(hexPath);
-	g.setColour(Colours::black);
-	g.strokePath(hexPath, PathStrokeType(TERPSTRASINGLEKEYFLDLINEWIDTH));
+
+	// Draw line
+	g.setColour(lineColor);
+	g.strokePath(hexPath, PathStrokeType(lineWidth));
+
+	// Something parametrized or not?  
+	if (currentValue.isEmpty())
+	{
+		midiChannelLabel->setAlpha(0.3);
+		midiNoteLabel->setAlpha(0.3);
+	}
+	else
+	{
+		midiChannelLabel->setAlpha(1.0);
+		midiNoteLabel->setAlpha(1.0);
+	}
 }
 
 void TerpstraKeyEdit::resized()

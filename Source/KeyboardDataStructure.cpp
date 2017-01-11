@@ -69,8 +69,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				else
 					jassert(false);
 			}
-			else
-				jassert(false);
 		}
 		else if ((pos1 = currentLine.indexOf("Chan_")) >= 0)
 		{
@@ -79,7 +77,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			{
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE )
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 				{
 					sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
 					// XXX if keyValue is illegal: error status?
@@ -87,6 +85,23 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				else
 					jassert(false);
 			}
+		}
+		else if ((pos1 = currentLine.indexOf("Col_")) >= 0)
+		{
+			pos2 = currentLine.indexOf("=");
+			if (pos2 >= 0 && pos2 > pos1)
+			{
+				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
+				int colValue = currentLine.substring(pos2 + 1).getHexValue32();
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+				{
+					sets[boardIndex].theKeys[keyIndex].colour = colValue;
+				}
+				else
+					jassert(false);
+			}
+			else
+				jassert(false);
 		}
 	}
 }
@@ -107,6 +122,7 @@ StringArray TerpstraKeyMapping::toStringArray()
 		{
 			result.add("Key_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].noteNumber));
 			result.add("Chan_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].channelNumber));
+			result.add("Col_" + String(keyIndex) + "=" + String::toHexString( (sets[boardIndex].theKeys[keyIndex].colour)));
 		}
 	}
 

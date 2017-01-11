@@ -51,6 +51,13 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	{
 		// commandLine is supposed to contain a file name. Try to open it.
 		currentFile = File(commandLine);
+		if (!currentFile.existsAsFile())
+		{
+			// If file name is with quotes, try removing the quotes
+			if (commandLine.startsWithChar('"') && commandLine.endsWithChar('"'))
+				currentFile = File(commandLine.substring(1, commandLine.length() - 1));
+		}
+
 		openFromCurrentFile();
 	}
 }

@@ -39,8 +39,9 @@ private:
 	bool isSelected;
 
 	Label*	midiNoteLabel;
-	//Label*  channelTextLabel;
 	Label*  midiChannelLabel;
+
+	int keyColour;
 };
 
 
