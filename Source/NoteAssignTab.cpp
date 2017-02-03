@@ -1,17 +1,17 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.2.0
+  Created with Projucer version: 4.2.1
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
+  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
   Copyright (c) 2015 - ROLI Ltd.
 
   ==============================================================================
@@ -43,18 +43,10 @@ NoteAssignTab::NoteAssignTab ()
     editInstructionText->setColour (TextEditor::textColourId, Colours::black);
     editInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (noteLabel = new Label ("noteLabel",
-                                              TRANS("Note (0-127):")));
-    noteLabel->setFont (Font (15.00f, Font::plain));
-    noteLabel->setJustificationType (Justification::centredLeft);
-    noteLabel->setEditable (false, false, false);
-    noteLabel->setColour (TextEditor::textColourId, Colours::black);
-    noteLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
     addAndMakeVisible (noteBox = new ComboBox ("noteBox"));
     noteBox->setEditableText (false);
     noteBox->setJustificationType (Justification::centredLeft);
-    noteBox->setTextWhenNothingSelected (String::empty);
+    noteBox->setTextWhenNothingSelected (String());
     noteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     noteBox->addListener (this);
 
@@ -62,18 +54,10 @@ NoteAssignTab::NoteAssignTab ()
     noteAutoIncrButton->setButtonText (TRANS("Auto Increment"));
     noteAutoIncrButton->addListener (this);
 
-    addAndMakeVisible (channelLabel = new Label ("channelLabel",
-                                                 TRANS("Channel (1-16):")));
-    channelLabel->setFont (Font (15.00f, Font::plain));
-    channelLabel->setJustificationType (Justification::centredLeft);
-    channelLabel->setEditable (false, false, false);
-    channelLabel->setColour (TextEditor::textColourId, Colours::black);
-    channelLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
     addAndMakeVisible (channelBox = new ComboBox ("channelBox"));
     channelBox->setEditableText (false);
     channelBox->setJustificationType (Justification::centredLeft);
-    channelBox->setTextWhenNothingSelected (String::empty);
+    channelBox->setTextWhenNothingSelected (String());
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
@@ -85,9 +69,34 @@ NoteAssignTab::NoteAssignTab ()
     channelAutoIncrNoteBox->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0."));
     channelAutoIncrNoteBox->setEditableText (false);
     channelAutoIncrNoteBox->setJustificationType (Justification::centredLeft);
-    channelAutoIncrNoteBox->setTextWhenNothingSelected (String::empty);
+    channelAutoIncrNoteBox->setTextWhenNothingSelected (String());
     channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelAutoIncrNoteBox->addListener (this);
+
+    addAndMakeVisible (setNoteToggleButton = new ToggleButton ("setNoteToggleButton"));
+    setNoteToggleButton->setButtonText (TRANS("Note (0-127):"));
+    setNoteToggleButton->addListener (this);
+
+    addAndMakeVisible (setChannelToggleButton = new ToggleButton ("setChannelToggleButton"));
+    setChannelToggleButton->setButtonText (TRANS("Channel (1-16):"));
+    setChannelToggleButton->addListener (this);
+
+    addAndMakeVisible (setColourToggleButton = new ToggleButton ("setColourToggleButton"));
+    setColourToggleButton->setButtonText (TRANS("Colour:"));
+    setColourToggleButton->addListener (this);
+
+    addAndMakeVisible (colourTextEdit = new TextEditor ("colourTextEdit"));
+    colourTextEdit->setMultiLine (false);
+    colourTextEdit->setReturnKeyStartsNewLine (false);
+    colourTextEdit->setReadOnly (false);
+    colourTextEdit->setScrollbarsShown (true);
+    colourTextEdit->setCaretVisible (true);
+    colourTextEdit->setPopupMenuEnabled (true);
+    colourTextEdit->setText (String());
+
+    addAndMakeVisible (btnColourPicker = new TextButton ("btnColourPicker"));
+    btnColourPicker->setButtonText (TRANS("Colour picker"));
+    btnColourPicker->addListener (this);
 
 
     //[UserPreSize]
@@ -106,9 +115,10 @@ NoteAssignTab::NoteAssignTab ()
 	for (int i = 1; i <= 16; i++)
 		channelBox->addItem(String(i), i);
 
-	noteLabel->attachToComponent(noteBox, true);
-	channelLabel->attachToComponent(channelBox, true);
-    //[/Constructor]
+	setNoteToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+	//[/Constructor]
 }
 
 NoteAssignTab::~NoteAssignTab()
@@ -118,13 +128,16 @@ NoteAssignTab::~NoteAssignTab()
 
     noteAndChannelAssGroup = nullptr;
     editInstructionText = nullptr;
-    noteLabel = nullptr;
     noteBox = nullptr;
     noteAutoIncrButton = nullptr;
-    channelLabel = nullptr;
     channelBox = nullptr;
     channelAutoIncrButton = nullptr;
     channelAutoIncrNoteBox = nullptr;
+    setNoteToggleButton = nullptr;
+    setChannelToggleButton = nullptr;
+    setColourToggleButton = nullptr;
+    colourTextEdit = nullptr;
+    btnColourPicker = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -150,13 +163,16 @@ void NoteAssignTab::resized()
 
     noteAndChannelAssGroup->setBounds (0, 8, 424, 200);
     editInstructionText->setBounds (8, 32, 352, 24);
-    noteLabel->setBounds (16, 64, 96, 24);
     noteBox->setBounds (120, 64, 56, 24);
     noteAutoIncrButton->setBounds (192, 64, 160, 24);
-    channelLabel->setBounds (16, 96, 96, 24);
     channelBox->setBounds (120, 96, 56, 24);
     channelAutoIncrButton->setBounds (192, 96, 160, 24);
     channelAutoIncrNoteBox->setBounds (360, 96, 56, 24);
+    setNoteToggleButton->setBounds (8, 64, 112, 24);
+    setChannelToggleButton->setBounds (8, 96, 112, 24);
+    setColourToggleButton->setBounds (8, 128, 112, 24);
+    colourTextEdit->setBounds (120, 128, 56, 24);
+    btnColourPicker->setBounds (192, 128, 104, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -201,6 +217,36 @@ void NoteAssignTab::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
         //[/UserButtonCode_channelAutoIncrButton]
     }
+    else if (buttonThatWasClicked == setNoteToggleButton)
+    {
+        //[UserButtonCode_setNoteToggleButton] -- add your button handler code here..
+		bool fieldActive = setNoteToggleButton->getToggleState();
+		noteBox->setEnabled(fieldActive);
+		noteAutoIncrButton->setEnabled(fieldActive);
+        //[/UserButtonCode_setNoteToggleButton]
+    }
+    else if (buttonThatWasClicked == setChannelToggleButton)
+    {
+        //[UserButtonCode_setChannelToggleButton] -- add your button handler code here..
+		bool fieldActive = setChannelToggleButton->getToggleState();
+		channelBox->setEnabled(fieldActive);
+		channelAutoIncrButton->setEnabled(fieldActive);
+		channelAutoIncrNoteBox->setEnabled(fieldActive);
+		//[/UserButtonCode_setChannelToggleButton]
+    }
+    else if (buttonThatWasClicked == setColourToggleButton)
+    {
+        //[UserButtonCode_setColourToggleButton] -- add your button handler code here..
+		bool fieldActive = setColourToggleButton->getToggleState();
+		colourTextEdit->setEnabled(fieldActive);
+		btnColourPicker->setEnabled(fieldActive);
+		//[/UserButtonCode_setColourToggleButton]
+    }
+    else if (buttonThatWasClicked == btnColourPicker)
+    {
+        //[UserButtonCode_btnColourPicker] -- add your button handler code here..
+        //[/UserButtonCode_btnColourPicker]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -211,12 +257,26 @@ void NoteAssignTab::buttonClicked (Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 // Called from MainComponent when one of the keys  is clicked
-TerpstraKey NoteAssignTab::createKeyMapping()
+void NoteAssignTab::PerformMouseClickEdit(TerpstraKey& keyData)
 {
-	TerpstraKey keyData;
-	keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-	if (keyData.noteNumber < 0) keyData.noteNumber = 0;
-	keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
+	// Set note if specified
+	if (setNoteToggleButton->getToggleState())
+	{
+		keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
+		if (keyData.noteNumber < 0) keyData.noteNumber = 0;
+	}
+
+	// Set channel if specified
+	if (setChannelToggleButton->getToggleState())
+	{
+		keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
+	}
+
+	// Set colour if specified
+	if (setColourToggleButton->getToggleState())
+	{
+		// XXX
+	}
 
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())
@@ -239,8 +299,6 @@ TerpstraKey NoteAssignTab::createKeyMapping()
 
 		noteBox->setSelectedItemIndex(newNote);
 	}
-
-	return keyData;
 }
 
 //[/MiscUserCode]
@@ -248,9 +306,9 @@ TerpstraKey NoteAssignTab::createKeyMapping()
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -267,22 +325,12 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Assign these values to a key by clicking on the desired key-face."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="noteLabel" id="86c397362e81fdd" memberName="noteLabel"
-         virtualName="" explicitFocusOrder="0" pos="16 64 96 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Note (0-127):" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="noteBox" id="123cacc6155f964" memberName="noteBox" virtualName=""
             explicitFocusOrder="0" pos="120 64 56 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="192 64 160 24" buttonText="Auto Increment"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <LABEL name="channelLabel" id="13a60ce682923955" memberName="channelLabel"
-         virtualName="" explicitFocusOrder="0" pos="16 96 96 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Channel (1-16):" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="channelBox" id="208bbc8901c22319" memberName="channelBox"
             virtualName="" explicitFocusOrder="0" pos="120 96 56 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -292,6 +340,22 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="channelAutoIncrNoteBox" id="4560285c5e467e2f" memberName="channelAutoIncrNoteBox"
             virtualName="" explicitFocusOrder="0" pos="360 96 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="8 64 112 24" buttonText="Note (0-127):"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="setChannelToggleButton" id="f79f82eef6095c3c" memberName="setChannelToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Channel (1-16):"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Colour:"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TEXTEDITOR name="colourTextEdit" id="944708e57912aee5" memberName="colourTextEdit"
+              virtualName="" explicitFocusOrder="0" pos="120 128 56 24" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
+  <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
+              virtualName="" explicitFocusOrder="0" pos="192 128 104 24" buttonText="Colour picker"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

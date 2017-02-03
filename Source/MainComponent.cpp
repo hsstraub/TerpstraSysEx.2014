@@ -188,15 +188,14 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Edit
-			TerpstraKey keyData = noteAssignTab->createKeyMapping();
-			mappingData.sets[currentSetSelection].theKeys[i] = keyData;		// Save data
-			terpstraKeyFields[i]->setValue(keyData);						// Display
+			noteAssignTab->PerformMouseClickEdit(mappingData.sets[currentSetSelection].theKeys[i]);		// Save data
+			terpstraKeyFields[i]->setValue(mappingData.sets[currentSetSelection].theKeys[i]);		// Display
 
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 			// Send to device
-			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection+1, i, keyData);
+			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection + 1, i, mappingData.sets[currentSetSelection].theKeys[i]);
 			break;
 		}
 	}
