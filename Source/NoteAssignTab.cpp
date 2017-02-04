@@ -21,7 +21,7 @@
 //[/Headers]
 
 #include "NoteAssignTab.h"
-
+#include "ViewConstants.h"
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
@@ -118,6 +118,8 @@ NoteAssignTab::NoteAssignTab ()
 	setNoteToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+
+	colourTextEdit->setText("000000");
 	//[/Constructor]
 }
 
@@ -275,7 +277,8 @@ void NoteAssignTab::PerformMouseClickEdit(TerpstraKey& keyData)
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		// XXX
+		// XXX validation of colour value
+		keyData.colour = colourTextEdit->getText().getHexValue32();
 	}
 
 	// Auto increment note
