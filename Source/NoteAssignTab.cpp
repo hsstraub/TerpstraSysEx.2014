@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "MainComponent.h"
 //[/Headers]
 
 #include "NoteAssignTab.h"
@@ -258,9 +259,13 @@ void NoteAssignTab::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-// Called from MainComponent when one of the keys  is clicked
-void NoteAssignTab::PerformMouseClickEdit(TerpstraKey& keyData)
+// Called from MainComponent when one of the keys is clicked
+void NoteAssignTab::PerformMouseClickEdit(int setSelection, int keySelection)
 {
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+
 	// Set note if specified
 	if (setNoteToggleButton->getToggleState())
 	{

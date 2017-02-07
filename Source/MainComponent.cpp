@@ -188,8 +188,10 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Edit
-			noteAssignTab->PerformMouseClickEdit(mappingData.sets[currentSetSelection].theKeys[i]);		// Save data
-			terpstraKeyFields[i]->setValue(mappingData.sets[currentSetSelection].theKeys[i]);		// Display
+			noteAssignTab->PerformMouseClickEdit(currentSetSelection, i );		// Save data
+			
+			// Refresh display
+			changeSetSelection(currentSetSelection, true);
 
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -201,9 +203,9 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 	}
 }
 
-void MainContentComponent::changeSetSelection(int newSelection)
+void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)
 {
-	if (newSelection != currentSetSelection)
+	if (newSelection != currentSetSelection || forceRefresh)
 	{
 		// Unselect previous set
 		// saving the data was done in click event on the single key fields

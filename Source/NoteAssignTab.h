@@ -46,7 +46,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void PerformMouseClickEdit(TerpstraKey& keyData);
+	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

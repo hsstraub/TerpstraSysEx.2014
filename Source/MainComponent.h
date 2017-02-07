@@ -35,6 +35,7 @@ public:
 	// Transfer of data
 	void setData(TerpstraKeyMapping& newData);
 	void getData(TerpstraKeyMapping& newData);
+	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
 
 	// GUI implementation
@@ -44,7 +45,7 @@ public:
 	void mouseDown(const MouseEvent &event);
 
 private:
-	void changeSetSelection(int newSelection);
+	void changeSetSelection(int newSelection, bool forceRefresh = false);
 	void changeSingleKeySelection(int newSelection);
 
 private:
