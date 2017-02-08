@@ -17,7 +17,7 @@
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
-#include "NoteAssignTab.h"
+#include "NoteEditArea.h"
 
 
 //==============================================================================
@@ -68,8 +68,7 @@ private:
 	MidiEditArea*		midiEditArea;
 
 	// Edit fields for setting key and button parameters
-	TabbedComponent*	editArea;
-	NoteAssignTab*		noteAssignTab;
+	NoteEditArea*	noteEditArea;
 
 	//==============================================================================
 	// Data

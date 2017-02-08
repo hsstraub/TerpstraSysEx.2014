@@ -110,13 +110,9 @@ MainContentComponent::MainContentComponent()
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 	midiEditArea->addSendAllButtonListener(this);
 
-	editArea = new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
-	addAndMakeVisible(editArea);
-	editArea->setBounds(EDITAREAFIRSTCOLPOS, 250 + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
-
-	noteAssignTab = new NoteAssignTab();
-	editArea->addTab("Assign Notes to Keys", Colour(MAINWINDOWBGCOLOUR), noteAssignTab, true);
-
+	noteEditArea = new NoteEditArea();
+	addAndMakeVisible(noteEditArea);
+	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250 + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 
 	// Select first board and first key
 	changeSetSelection(0);
@@ -187,9 +183,9 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			// Select field
 			changeSingleKeySelection(i);
 
-			// Edit
-			noteAssignTab->PerformMouseClickEdit(currentSetSelection, i );		// Save data
-			
+			// Perform the edit, according to edit mode. Including sending to device
+			this->noteEditArea->PerformMouseClickEdit(currentSetSelection, i);
+
 			// Refresh display
 			changeSetSelection(currentSetSelection, true);
 
