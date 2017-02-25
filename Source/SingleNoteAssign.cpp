@@ -103,7 +103,7 @@ SingleNoteAssign::SingleNoteAssign ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (428, 220);
+    setSize (428, 325);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -324,7 +324,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="220">
+                 fixedSize="0" initialWidth="428" initialHeight="325">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <GROUPCOMPONENT name="noteAndChannelAssGroup" id="cd12ee7381d485a1" memberName="noteAndChannelAssGroup"
                   virtualName="" explicitFocusOrder="0" pos="0 8 424 176" title="Key Note and Channel Assignments"/>

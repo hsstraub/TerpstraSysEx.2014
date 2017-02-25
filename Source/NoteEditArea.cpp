@@ -34,6 +34,10 @@ NoteEditArea::NoteEditArea ()
 	singleNoteAssign = new SingleNoteAssign();
 	addAndMakeVisible(singleNoteAssign);
 	singleNoteAssign->setVisible(false);
+
+	isomorphicMassAssign = new IsomorphicMassAssign();
+	addAndMakeVisible(isomorphicMassAssign);
+	isomorphicMassAssign->setVisible(false);
     //[/Constructor_pre]
 
     addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
@@ -74,6 +78,7 @@ NoteEditArea::~NoteEditArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	singleNoteAssign = nullptr;
+	isomorphicMassAssign = nullptr;
     //[/Destructor_pre]
 
     cbEditMode = nullptr;
@@ -100,6 +105,7 @@ void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
     cbEditMode->setBounds (102, 15, 296, 24);
@@ -123,15 +129,15 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		{
 		case 0:
 			singleNoteAssign->setVisible(true);
-			//isomorphicMassAssign->setVisible(false);
+			isomorphicMassAssign->setVisible(false);
 			break;
 		case 1:
 			singleNoteAssign->setVisible(false);
-			//isomorphicMassAssign->setVisible(true);
+			isomorphicMassAssign->setVisible(true);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
-			//isomorphicMassAssign->setVisible(false);
+			isomorphicMassAssign->setVisible(false);
 			break;
 		}
         //[/UserComboBoxCode_cbEditMode]
@@ -145,6 +151,7 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+// Called from MainComponent when one of the keys is clicked
 void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
@@ -155,9 +162,9 @@ void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
 	case 0:
 		singleNoteAssign->PerformMouseClickEdit(setSelection, keySelection);
 		break;
-	//case 1:
-	//	isomorphicMassAssign->PerformMouseClickEdit(setSelection, keySelection);
-	//	break;
+	case 1:
+		isomorphicMassAssign->PerformMouseClickEdit(setSelection, keySelection);
+		break;
 	}
 }
 

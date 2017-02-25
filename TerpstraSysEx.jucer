@@ -11,6 +11,17 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="OjtwC9" name="MappingLogic.cpp" compile="1" resource="0"
+            file="Source/MappingLogic.cpp"/>
+      <FILE id="QrQZFP" name="MappingLogic.h" compile="0" resource="0" file="Source/MappingLogic.h"/>
+      <FILE id="Q7w4Rw" name="IncrMidiNotesMapping.cpp" compile="1" resource="0"
+            file="Source/IncrMidiNotesMapping.cpp"/>
+      <FILE id="JnIXBl" name="IncrMidiNotesMapping.h" compile="0" resource="0"
+            file="Source/IncrMidiNotesMapping.h"/>
+      <FILE id="zA8qLO" name="IsomorphicMassAssign.cpp" compile="1" resource="0"
+            file="Source/IsomorphicMassAssign.cpp"/>
+      <FILE id="dS56Ii" name="IsomorphicMassAssign.h" compile="0" resource="0"
+            file="Source/IsomorphicMassAssign.h"/>
       <FILE id="QYlVR1" name="NoteEditArea.cpp" compile="1" resource="0"
             file="Source/NoteEditArea.cpp"/>
       <FILE id="CK4g7A" name="NoteEditArea.h" compile="0" resource="0" file="Source/NoteEditArea.h"/>

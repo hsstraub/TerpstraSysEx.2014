@@ -17,13 +17,12 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8469F5B08F113FE2__
-#define __JUCE_HEADER_8469F5B08F113FE2__
+#ifndef __JUCE_HEADER_730F20A4628CA114__
+#define __JUCE_HEADER_730F20A4628CA114__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SingleNoteAssign.h"
-#include "IsomorphicMassAssign.h"
+#include "IncrMidiNotesMapping.h"
 //[/Headers]
 
 
@@ -36,13 +35,13 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class NoteEditArea  : public Component,
-                      public ComboBoxListener
+class IsomorphicMassAssign  : public Component,
+                              public ComboBoxListener
 {
 public:
     //==============================================================================
-    NoteEditArea ();
-    ~NoteEditArea();
+    IsomorphicMassAssign ();
+    ~IsomorphicMassAssign();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -57,20 +56,27 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<SingleNoteAssign> singleNoteAssign;
-	ScopedPointer<IsomorphicMassAssign> isomorphicMassAssign;
+	ScopedPointer<IncrMidiNotesMapping>	incrMidiNotesMapping;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ComboBox> cbEditMode;
-    ScopedPointer<Label> labelEditMode;
+    ScopedPointer<ComboBox> startingPointBox;
+    ScopedPointer<Label> labelStartingPoint;
+    ScopedPointer<Label> labelHorizontalSteps;
+    ScopedPointer<TextEditor> editHorizontalSteps;
+    ScopedPointer<Label> labelRightUpwardSteps;
+    ScopedPointer<TextEditor> editRightUpwardSteps;
+    ScopedPointer<Label> editInstructionText;
+    ScopedPointer<GroupComponent> groupMapping;
+    ScopedPointer<ComboBox> cbMappingStyle;
+    ScopedPointer<Label> labelMappingStyle;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoteEditArea)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IsomorphicMassAssign)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8469F5B08F113FE2__
+#endif   // __JUCE_HEADER_730F20A4628CA114__
