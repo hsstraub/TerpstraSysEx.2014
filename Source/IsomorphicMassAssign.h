@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MappingLogic.h"
 #include "IncrMidiNotesMapping.h"
 //[/Headers]
 
@@ -36,6 +37,7 @@
                                                                     //[/Comments]
 */
 class IsomorphicMassAssign  : public Component,
+                              public MappingLogicListener,
                               public ComboBoxListener
 {
 public:
@@ -45,6 +47,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// Implementation of MappingLogicListener
+	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
@@ -57,7 +61,9 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	ScopedPointer<IncrMidiNotesMapping>	incrMidiNotesMapping;
-    //[/UserVariables]
+
+	MappingLogicBase*		mappingLogic;
+	//[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ComboBox> startingPointBox;

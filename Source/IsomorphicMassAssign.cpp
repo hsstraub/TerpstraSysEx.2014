@@ -34,7 +34,9 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	incrMidiNotesMapping = new IncrMidiNotesMapping();
 	addAndMakeVisible(incrMidiNotesMapping);
 	incrMidiNotesMapping->setVisible(false);
-    //[/Constructor_pre]
+
+	mappingLogic = nullptr;
+	//[/Constructor_pre]
 
     addAndMakeVisible (startingPointBox = new ComboBox ("startingPointBox"));
     startingPointBox->setEditableText (false);
@@ -122,6 +124,9 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 
     //[Constructor] You can add your own custom stuff here..
+
+	incrMidiNotesMapping->getMappingLogic()->addListener(this);
+
 
 	// Default selection
 	// Todo: read from user settings
@@ -214,6 +219,22 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+// Implementation of MappingLogicListener
+void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
+{
+	this->mappingLogic = mappingLogicThatChanged;
+
+	// Fill note combo with values according to mapping logic
+	startingPointBox->clear(juce::NotificationType::dontSendNotification);
+
+	for (int i = 0; i < mappingLogicThatChanged->globalMappingSize(); i++)
+	{
+		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
+		// XXX format text
+		startingPointBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
+	}
+}
 
 // Called from MainComponent when one of the keys is clicked
 void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelection)
