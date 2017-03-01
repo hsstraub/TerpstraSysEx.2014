@@ -24,6 +24,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
 #include "IncrMidiNotesMapping.h"
+#include "BoardGeometry.h"
 //[/Headers]
 
 
@@ -48,7 +49,25 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	// Implementation of MappingLogicListener
+	// Set, save and maybe send data of one key
+	void setSaveSend(int setSelection, int keySelection, int noteIndex);
+
+	// Fill a line, Starting point is assumed to have been set
+	void fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
+
+	// Fill a horizontal line and its cutting upwards lines, recursively
+	void fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
+		int horizStepSize, int rUpwStepSize,
+		TerpstraBoardGeometry::StraightLineSet& finishedLines);
+
+	// Fill a right upward line and its cutting horizontal lines, recursively
+	void fill2DRUpwLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& rUpwLine, int startPos, int startNoteIndex,
+		int horizStepSize, int rUpwStepSize,
+		TerpstraBoardGeometry::StraightLineSet& finishedLines);
+
+	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
+
 	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
@@ -63,6 +82,7 @@ private:
 	ScopedPointer<IncrMidiNotesMapping>	incrMidiNotesMapping;
 
 	MappingLogicBase*		mappingLogic;
+	TerpstraBoardGeometry	boardGeometry;
 	//[/UserVariables]
 
     //==============================================================================

@@ -11,6 +11,9 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="iv4rRX" name="BoardGeometry.cpp" compile="1" resource="0"
+            file="Source/BoardGeometry.cpp"/>
+      <FILE id="pu1qcb" name="BoardGeometry.h" compile="0" resource="0" file="Source/BoardGeometry.h"/>
       <FILE id="OjtwC9" name="MappingLogic.cpp" compile="1" resource="0"
             file="Source/MappingLogic.cpp"/>
       <FILE id="QrQZFP" name="MappingLogic.h" compile="0" resource="0" file="Source/MappingLogic.h"/>
