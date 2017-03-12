@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
 #include "MainComponent.h"
 //[/Headers]
 
@@ -285,6 +286,9 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 		// XXX validation of colour value
 		keyData.colour = colourTextEdit->getText().getHexValue32();
 	}
+
+	// Send to device
+	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())

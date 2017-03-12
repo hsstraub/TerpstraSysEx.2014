@@ -75,9 +75,6 @@ private:
 	TerpstraKeyMapping	mappingData;
 	int					currentSetSelection;
 	int					currentSingleKeySelection;
-
-	// MIDI connection
-	TerpstraMidiDriver	midiDriver;
 };
 
 

@@ -105,7 +105,6 @@ MainContentComponent::MainContentComponent()
 
 	// Midi input + output
 	midiEditArea = new MidiEditArea();
-	midiEditArea->setMidiDriver(&midiDriver);
 	addAndMakeVisible(midiEditArea);
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 	midiEditArea->addSendAllButtonListener(this);
@@ -158,7 +157,7 @@ void MainContentComponent::buttonClicked(Button *button)
 {
 	if (midiEditArea->isSendAllButton(button))
 	{
-		midiDriver.sendAndSaveCompleteMapping(mappingData);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendAndSaveCompleteMapping(mappingData);
 	}
 	else
 	{
@@ -192,8 +191,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-			// Send to device
-			midiDriver.sendAndMaybeSaveKeyParam(currentSetSelection + 1, i, mappingData.sets[currentSetSelection].theKeys[i]);
 			break;
 		}
 	}

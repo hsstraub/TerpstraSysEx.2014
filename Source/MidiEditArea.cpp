@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "ViewConstants.h"
+#include "Main.h"
 //[/Headers]
 
 #include "MidiEditArea.h"
@@ -158,8 +159,7 @@ void MidiEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == cbMidiOutput)
     {
         //[UserComboBoxCode_cbMidiOutput] -- add your combo box handling code here..
-		if (midiDriver != nullptr)
-			midiDriver->setMidiOutput(cbMidiOutput->getSelectedItemIndex());
+		TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
         //[/UserComboBoxCode_cbMidiOutput]
     }
 
@@ -178,22 +178,19 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == toggleAutoSave)
     {
         //[UserButtonCode_toggleAutoSave] -- add your button handler code here..
-		if (midiDriver != nullptr)
-			midiDriver->setAutoSave(toggleAutoSave->getToggleState());
+		TerpstraSysExApplication::getApp().getMidiDriver().setAutoSave(toggleAutoSave->getToggleState());
         //[/UserButtonCode_toggleAutoSave]
     }
     else if (buttonThatWasClicked == buttonSendSaveEdits)
     {
         //[UserButtonCode_buttonSendSaveEdits] -- add your button handler code here..
-		if (midiDriver != nullptr)
-			midiDriver->storeAllToEEPROM();
+		TerpstraSysExApplication::getApp().getMidiDriver().storeAllToEEPROM();
         //[/UserButtonCode_buttonSendSaveEdits]
     }
     else if (buttonThatWasClicked == buttonDiscard)
     {
         //[UserButtonCode_buttonDiscard] -- add your button handler code here..
-		if (midiDriver != nullptr)
-			midiDriver->recallAllFromEEPROM();
+		TerpstraSysExApplication::getApp().getMidiDriver().recallAllFromEEPROM();
         //[/UserButtonCode_buttonDiscard]
     }
 

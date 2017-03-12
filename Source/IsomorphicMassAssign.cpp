@@ -231,7 +231,7 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 	((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection] = keyData;
 
 	// Send to device
-	// XXX TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 }
 
 // Fill a line. Starting point is assumed to have been set
