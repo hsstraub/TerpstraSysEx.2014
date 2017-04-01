@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -87,18 +87,16 @@ SingleNoteAssign::SingleNoteAssign ()
     setColourToggleButton->setButtonText (TRANS("Colour:"));
     setColourToggleButton->addListener (this);
 
-    addAndMakeVisible (colourTextEdit = new TextEditor ("colourTextEdit"));
-    colourTextEdit->setMultiLine (false);
-    colourTextEdit->setReturnKeyStartsNewLine (false);
-    colourTextEdit->setReadOnly (false);
-    colourTextEdit->setScrollbarsShown (true);
-    colourTextEdit->setCaretVisible (true);
-    colourTextEdit->setPopupMenuEnabled (true);
-    colourTextEdit->setText (String());
-
     addAndMakeVisible (btnColourPicker = new TextButton ("btnColourPicker"));
     btnColourPicker->setButtonText (TRANS("Colour picker"));
     btnColourPicker->addListener (this);
+
+    addAndMakeVisible (colourCombo = new ComboBox ("colourCombo"));
+    colourCombo->setEditableText (true);
+    colourCombo->setJustificationType (Justification::centredLeft);
+    colourCombo->setTextWhenNothingSelected (String());
+    colourCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    colourCombo->addListener (this);
 
 
     //[UserPreSize]
@@ -121,7 +119,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 
-	colourTextEdit->setText("000000");
+	colourCombo->setText("000000");
     //[/Constructor]
 }
 
@@ -140,8 +138,8 @@ SingleNoteAssign::~SingleNoteAssign()
     setNoteToggleButton = nullptr;
     setChannelToggleButton = nullptr;
     setColourToggleButton = nullptr;
-    colourTextEdit = nullptr;
     btnColourPicker = nullptr;
+    colourCombo = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -174,9 +172,9 @@ void SingleNoteAssign::resized()
     channelAutoIncrNoteBox->setBounds (360, 96, 56, 24);
     setNoteToggleButton->setBounds (8, 64, 112, 24);
     setChannelToggleButton->setBounds (8, 96, 112, 24);
-    setColourToggleButton->setBounds (8, 128, 112, 24);
-    colourTextEdit->setBounds (120, 128, 56, 24);
-    btnColourPicker->setBounds (192, 128, 104, 24);
+    setColourToggleButton->setBounds (8, 136, 112, 24);
+    btnColourPicker->setBounds (216, 136, 104, 24);
+    colourCombo->setBounds (120, 136, 79, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -200,6 +198,11 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_channelAutoIncrNoteBox]
+    }
+    else if (comboBoxThatHasChanged == colourCombo)
+    {
+        //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
+        //[/UserComboBoxCode_colourCombo]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -242,7 +245,7 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_setColourToggleButton] -- add your button handler code here..
 		bool fieldActive = setColourToggleButton->getToggleState();
-		colourTextEdit->setEnabled(fieldActive);
+		colourCombo->setEnabled(fieldActive);
 		btnColourPicker->setEnabled(fieldActive);
         //[/UserButtonCode_setColourToggleButton]
     }
@@ -284,7 +287,22 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 	if (setColourToggleButton->getToggleState())
 	{
 		// XXX validation of colour value
-		keyData.colour = colourTextEdit->getText().getHexValue32();
+		String colourString = colourCombo->getText();
+		keyData.colour = colourString.getHexValue32();
+		
+		// Add colour to combo box
+		int pos;
+		for ( pos = 0; pos < colourCombo->getNumItems(); pos++)
+		{
+			if (colourCombo->getItemText(pos) == colourString)
+				break;
+		}
+
+		if (pos >= colourCombo->getNumItems())
+		{
+			// Colour is not in list yet - add it
+			colourCombo->addItem(colourString, pos + 1);
+		}
 	}
 
 	// Send to device
@@ -359,15 +377,14 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Channel (1-16):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Colour:"
+                virtualName="" explicitFocusOrder="0" pos="8 136 112 24" buttonText="Colour:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <TEXTEDITOR name="colourTextEdit" id="944708e57912aee5" memberName="colourTextEdit"
-              virtualName="" explicitFocusOrder="0" pos="120 128 56 24" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-              caret="1" popupmenu="1"/>
   <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
-              virtualName="" explicitFocusOrder="0" pos="192 128 104 24" buttonText="Colour picker"
+              virtualName="" explicitFocusOrder="0" pos="216 136 104 24" buttonText="Colour picker"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <COMBOBOX name="colourCombo" id="86628debb1bafc04" memberName="colourCombo"
+            virtualName="" explicitFocusOrder="0" pos="120 136 79 24" editable="1"
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
