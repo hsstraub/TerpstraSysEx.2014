@@ -37,7 +37,8 @@
 */
 class SingleNoteAssign  : public Component,
                           public ComboBoxListener,
-                          public ButtonListener
+                          public ButtonListener,
+                          public ChangeListener
 {
 public:
     //==============================================================================
@@ -46,6 +47,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void changeListenerCallback(ChangeBroadcaster *source) override;
 	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
@@ -53,8 +55,6 @@ public:
     void resized() override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
     void buttonClicked (Button* buttonThatWasClicked) override;
-
-
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.

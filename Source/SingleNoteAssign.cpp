@@ -252,16 +252,39 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == btnColourPicker)
     {
         //[UserButtonCode_btnColourPicker] -- add your button handler code here..
-        //[/UserButtonCode_btnColourPicker]
+		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
+		colourSelector->setName("Colour picker");
+		colourSelector->addChangeListener(this);
+		
+		String colourString = colourCombo->getText();
+		Colour currentColor = Colour(colourString.getHexValue32());
+		
+		colourSelector->setCurrentColour(currentColor);
+
+		colourSelector->setColour(ColourSelector::backgroundColourId, Colour(colourString.getHexValue32()));
+		colourSelector->setSize(300, 400);
+
+		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
+		//[/UserButtonCode_btnColourPicker]
     }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
 }
 
-
-
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void SingleNoteAssign::changeListenerCallback(ChangeBroadcaster *source)
+{
+	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
+
+	Colour currentColor = cs->getCurrentColour();
+
+	colourCombo->setText(currentColor.toDisplayString(false));
+	// XXX Add to box
+
+}
+
 
 // Called from MainComponent when one of the keys is clicked
 void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
