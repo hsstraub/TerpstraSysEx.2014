@@ -17,14 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8469F5B08F113FE2__
-#define __JUCE_HEADER_8469F5B08F113FE2__
+#ifndef __JUCE_HEADER_3061B0123720EED2__
+#define __JUCE_HEADER_3061B0123720EED2__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SingleNoteAssign.h"
-#include "IsomorphicMassAssign.h"
-#include "MacroButtonsWindow.h"
 //[/Headers]
 
 
@@ -37,42 +34,42 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class NoteEditArea  : public Component,
-                      public ComboBoxListener
+class MacroButtonsWindow  : public Component,
+                            public ButtonListener
 {
 public:
     //==============================================================================
-    NoteEditArea ();
-    ~NoteEditArea();
+    MacroButtonsWindow ();
+    ~MacroButtonsWindow();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<SingleNoteAssign> singleNoteAssign;
-	ScopedPointer<IsomorphicMassAssign> isomorphicMassAssign;
-	ScopedPointer<MacroButtonsWindow> macroButtonsWindow;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ComboBox> cbEditMode;
-    ScopedPointer<Label> labelEditMode;
+    ScopedPointer<ToggleButton> btnEnableMacroButtons;
+    ScopedPointer<Label> lblMacroButtonsInfo;
+    ScopedPointer<Label> lblButton1;
+    ScopedPointer<TextEditor> textMacroFile1;
+    ScopedPointer<TextButton> btnFileSelectMacro1;
+    ScopedPointer<Drawable> drawable1;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoteEditArea)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MacroButtonsWindow)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8469F5B08F113FE2__
+#endif   // __JUCE_HEADER_3061B0123720EED2__

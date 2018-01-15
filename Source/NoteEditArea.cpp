@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -38,7 +38,11 @@ NoteEditArea::NoteEditArea ()
 	isomorphicMassAssign = new IsomorphicMassAssign();
 	addAndMakeVisible(isomorphicMassAssign);
 	isomorphicMassAssign->setVisible(false);
-    //[/Constructor_pre]
+
+	macroButtonsWindow = new MacroButtonsWindow();
+	addAndMakeVisible(macroButtonsWindow);
+	macroButtonsWindow->setVisible(false);
+	//[/Constructor_pre]
 
     addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
     cbEditMode->setEditableText (false);
@@ -79,6 +83,7 @@ NoteEditArea::~NoteEditArea()
     //[Destructor_pre]. You can add your own custom destruction code here..
 	singleNoteAssign = nullptr;
 	isomorphicMassAssign = nullptr;
+	macroButtonsWindow = nullptr;
     //[/Destructor_pre]
 
     cbEditMode = nullptr;
@@ -106,7 +111,8 @@ void NoteEditArea::resized()
     //[UserPreResize] Add your own custom resize code here..
 	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-    //[/UserPreResize]
+	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	//[/UserPreResize]
 
     cbEditMode->setBounds (102, 15, 296, 24);
     labelEditMode->setBounds (6, 15, 88, 24);
@@ -130,14 +136,22 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 0:
 			singleNoteAssign->setVisible(true);
 			isomorphicMassAssign->setVisible(false);
+			macroButtonsWindow->setVisible(false);
 			break;
 		case 1:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(true);
+			macroButtonsWindow->setVisible(false);
+			break;
+		case 2:
+			singleNoteAssign->setVisible(false);
+			isomorphicMassAssign->setVisible(false);
+			macroButtonsWindow->setVisible(true);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
+			macroButtonsWindow->setVisible(false);
 			break;
 		}
         //[/UserComboBoxCode_cbEditMode]
@@ -165,6 +179,8 @@ void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
 	case 1:
 		isomorphicMassAssign->PerformMouseClickEdit(setSelection, keySelection);
 		break;
+
+		// case 2 (macro buttons): no functionality for clicking on a key
 	}
 }
 
