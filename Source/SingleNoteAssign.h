@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
+#include "ViewComponents.h"
 //[/Headers]
 
 
@@ -56,6 +57,8 @@ public:
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
     void buttonClicked (Button* buttonThatWasClicked) override;
 
+
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     //[/UserVariables]
@@ -72,7 +75,7 @@ private:
     ScopedPointer<ToggleButton> setChannelToggleButton;
     ScopedPointer<ToggleButton> setColourToggleButton;
     ScopedPointer<TextButton> btnColourPicker;
-    ScopedPointer<ComboBox> colourCombo;
+    ScopedPointer<ColourComboBox> colourCombo;
 
 
     //==============================================================================

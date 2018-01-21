@@ -91,7 +91,7 @@ SingleNoteAssign::SingleNoteAssign ()
     btnColourPicker->setButtonText (TRANS("Colour picker"));
     btnColourPicker->addListener (this);
 
-    addAndMakeVisible (colourCombo = new ComboBox ("colourCombo"));
+    addAndMakeVisible (colourCombo = new ColourComboBox ("colourCombo"));
     colourCombo->setEditableText (true);
     colourCombo->setJustificationType (Justification::centredLeft);
     colourCombo->setTextWhenNothingSelected (String());
@@ -119,7 +119,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 
-	colourCombo->setText("000000");
+	//colourCombo->setTextFieldToColour(XXX);
     //[/Constructor]
 }
 
@@ -255,22 +255,23 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
 		colourSelector->setName("Colour picker");
 		colourSelector->addChangeListener(this);
-		
-		String colourString = colourCombo->getText();
-		Colour currentColor = Colour(colourString.getHexValue32());
-		
+
+		Colour currentColor = colourCombo->getColourObjectFromText(DONTADDCOLOURTOCOMBOBOX);
+
 		colourSelector->setCurrentColour(currentColor);
 
-		colourSelector->setColour(ColourSelector::backgroundColourId, Colour(colourString.getHexValue32()));
+		colourSelector->setColour(ColourSelector::backgroundColourId, currentColor );
 		colourSelector->setSize(300, 400);
 
 		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
-		//[/UserButtonCode_btnColourPicker]
+        //[/UserButtonCode_btnColourPicker]
     }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
 }
+
+
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
@@ -280,11 +281,8 @@ void SingleNoteAssign::changeListenerCallback(ChangeBroadcaster *source)
 
 	Colour currentColor = cs->getCurrentColour();
 
-	colourCombo->setText(currentColor.toDisplayString(false));
-	// XXX Add to box
-
+	colourCombo->setTextFieldToColourObject(currentColor);
 }
-
 
 // Called from MainComponent when one of the keys is clicked
 void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
@@ -309,23 +307,7 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		// XXX validation of colour value
-		String colourString = colourCombo->getText();
-		keyData.colour = colourString.getHexValue32();
-		
-		// Add colour to combo box
-		int pos;
-		for ( pos = 0; pos < colourCombo->getNumItems(); pos++)
-		{
-			if (colourCombo->getItemText(pos) == colourString)
-				break;
-		}
-
-		if (pos >= colourCombo->getNumItems())
-		{
-			// Colour is not in list yet - add it
-			colourCombo->addItem(colourString, pos + 1);
-		}
+		keyData.colour = colourCombo->getColourIDFromText(ADDCOLOURTOCOMBOBOX);
 	}
 
 	// Send to device
@@ -406,8 +388,8 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="216 136 104 24" buttonText="Colour picker"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="colourCombo" id="86628debb1bafc04" memberName="colourCombo"
-            virtualName="" explicitFocusOrder="0" pos="120 136 79 24" editable="1"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            virtualName="ColourComboBox" explicitFocusOrder="0" pos="120 136 79 24"
+            editable="1" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

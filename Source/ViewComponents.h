@@ -59,4 +59,25 @@ public:
 	void setIsSelected(bool newValue) { setToggleState(newValue, dontSendNotification); };
 };
 
+
+/*
+==============================================================================
+Combo box with colours
+==============================================================================
+*/
+
+#define ADDCOLOURTOCOMBOBOX true
+#define DONTADDCOLOURTOCOMBOBOX false
+
+class ColourComboBox : public ComboBox
+{
+public:
+	explicit ColourComboBox(const String& componentName = String());
+
+	void setTextFieldToColourObject(Colour newColour,
+		NotificationType notification = sendNotificationAsync);
+
+	int getColourIDFromText(bool addToBox);
+	Colour getColourObjectFromText(bool addToBox);
+};
 #endif  // VIEWCOMPOONENTS_H_INCLUDED

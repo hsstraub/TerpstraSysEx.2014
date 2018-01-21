@@ -144,3 +144,52 @@ TerpstraKeySetEdit::~TerpstraKeySetEdit()
 
 }
 
+/*
+==============================================================================
+ColourComboBox class
+==============================================================================
+*/
+
+ColourComboBox::ColourComboBox(const String& componentName) : ComboBox(componentName)
+{
+}
+
+void ColourComboBox::setTextFieldToColourObject(Colour newColour,	NotificationType notification)
+{
+	setText(newColour.toDisplayString(false));
+	
+	// XXX Add to box
+}
+
+int ColourComboBox::getColourIDFromText(bool addToBox)
+{
+	String colourString = getText();
+	
+	// XXX validation of colour value
+	int colourID = colourString.getHexValue32();
+
+	if (addToBox)
+	{
+		// Add colour to combo box
+		int pos;
+		for (pos = 0; pos < getNumItems(); pos++)
+		{
+			if (getItemText(pos) == colourString)
+				break;
+		}
+
+		if (pos >= getNumItems())
+		{
+			// Colour is not in list yet - add it
+			addItem(colourString, pos + 1);
+		}
+	}
+
+	return colourID;
+}
+
+Colour ColourComboBox::getColourObjectFromText(bool addToBox)
+{
+	int colourID = getColourIDFromText(addToBox);
+	return Colour(colourID);
+}
