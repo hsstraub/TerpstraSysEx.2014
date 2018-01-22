@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -38,8 +38,8 @@
                                                                     //[/Comments]
 */
 class IsomorphicMassAssign  : public Component,
-                              public MappingLogicListener,
-                              public ComboBoxListener
+                              public ComboBoxListener,
+                              public MappingLogicListener
 {
 public:
     //==============================================================================
@@ -83,7 +83,7 @@ private:
 
 	MappingLogicBase*		mappingLogic;
 	TerpstraBoardGeometry	boardGeometry;
-	//[/UserVariables]
+    //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ComboBox> startingPointBox;

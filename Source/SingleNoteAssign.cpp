@@ -255,22 +255,24 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
 		colourSelector->setName("Colour picker");
 		colourSelector->addChangeListener(this);
-		
+
 		String colourString = colourCombo->getText();
 		Colour currentColor = Colour(colourString.getHexValue32());
-		
+
 		colourSelector->setCurrentColour(currentColor);
 
 		colourSelector->setColour(ColourSelector::backgroundColourId, Colour(colourString.getHexValue32()));
 		colourSelector->setSize(300, 400);
 
 		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
-		//[/UserButtonCode_btnColourPicker]
+        //[/UserButtonCode_btnColourPicker]
     }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
 }
+
+
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
@@ -312,7 +314,7 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 		// XXX validation of colour value
 		String colourString = colourCombo->getText();
 		keyData.colour = colourString.getHexValue32();
-		
+
 		// Add colour to combo box
 		int pos;
 		for ( pos = 0; pos < colourCombo->getNumItems(); pos++)
