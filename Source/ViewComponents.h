@@ -84,6 +84,10 @@ public:
 		NotificationType notification = sendNotificationAsync);
 	int getColourAsNumberFromText(colourComboboxOptions boxOptions);
 	Colour getColourAsObjectFromText(colourComboboxOptions boxOptions);
+
+	void addColourToBox(String newColourAsString);
+	void addColourToBox(Colour newColourAsObject) { addColourToBox(newColourAsObject.toDisplayString(false)); }
+	void addColourToBox(int newColourAsNumber) { addColourToBox(Colour(newColourAsNumber)); }
 };
 
 #endif  // VIEWCOMPOONENTS_H_INCLUDED

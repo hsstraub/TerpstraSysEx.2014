@@ -146,7 +146,9 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 2:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
-			macroButtonsWindow->setVisible(true);
+			// macroButtonsWindow->setVisible(true);
+			// XXX for now: no macro buttons
+			macroButtonsWindow->setVisible(false);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
@@ -182,6 +184,12 @@ void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
 
 		// case 2 (macro buttons): no functionality for clicking on a key
 	}
+}
+
+void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
+{
+	// Add colours of the mapping to the cpolozr combo box 
+	singleNoteAssign->onSetData(newData);
 }
 
 //[/MiscUserCode]

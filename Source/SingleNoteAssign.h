@@ -50,6 +50,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 	void PerformMouseClickEdit(int setSelection, int keySelection);
+	void onSetData(TerpstraKeyMapping& newData);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

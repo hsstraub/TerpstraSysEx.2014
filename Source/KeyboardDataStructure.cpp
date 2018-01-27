@@ -128,3 +128,18 @@ StringArray TerpstraKeyMapping::toStringArray()
 
 	return result;
 }
+
+SortedSet<int> TerpstraKeyMapping::getUsedColours()
+{
+	SortedSet<int> result;
+
+	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+	{
+		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+		{
+			result.add(sets[boardIndex].theKeys[keyIndex].colour);
+		}
+	}
+
+	return result;
+}

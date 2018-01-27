@@ -169,23 +169,26 @@ int ColourComboBox::getColourAsNumberFromText(colourComboboxOptions boxOptions)
 	int colourAsNumber = colourString.getHexValue32();
 
 	if (boxOptions == colourComboboxOptions::AddColourToComboBox)
-	{
-		// Add colour to combo box
-		int pos;
-		for (pos = 0; pos < getNumItems(); pos++)
-		{
-			if (getItemText(pos) == colourString)
-				break;
-		}
-
-		if (pos >= getNumItems())
-		{
-			// Colour is not in list yet - add it
-			addItem(colourString, pos + 1);
-		}
-	}
+		addColourToBox(colourString);
 
 	return colourAsNumber;
+}
+
+// Add colour to combo box
+void ColourComboBox::addColourToBox(String newColourAsString)
+{
+	int pos;
+	for (pos = 0; pos < getNumItems(); pos++)
+	{
+		if (getItemText(pos) == newColourAsString)
+			break;
+	}
+
+	if (pos >= getNumItems())
+	{
+		// Colour is not in list yet - add it
+		addItem(newColourAsString, pos + 1);
+	}
 }
 
 Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOptions)

@@ -336,6 +336,13 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 	}
 }
 
+void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
+{
+	SortedSet<int> usedColours = newData.getUsedColours();
+	for (int pos = 0; pos < usedColours.size(); pos++)
+		colourCombo->addColourToBox(usedColours[pos]);
+}
+
 //[/MiscUserCode]
 
 
