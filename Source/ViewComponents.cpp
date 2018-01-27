@@ -154,21 +154,21 @@ ColourComboBox::ColourComboBox(const String& componentName) : ComboBox(component
 {
 }
 
-void ColourComboBox::setTextFieldToColourObject(Colour newColour,	NotificationType notification)
+void ColourComboBox::setTextFieldToColourAsObject(Colour newColourAsObject,	NotificationType notification)
 {
-	setText(newColour.toDisplayString(false));
+	setText(newColourAsObject.toDisplayString(false));
 	
 	// XXX Add to box
 }
 
-int ColourComboBox::getColourIDFromText(bool addToBox)
+int ColourComboBox::getColourAsNumberFromText(colourComboboxOptions boxOptions)
 {
 	String colourString = getText();
 	
 	// XXX validation of colour value
-	int colourID = colourString.getHexValue32();
+	int colourAsNumber = colourString.getHexValue32();
 
-	if (addToBox)
+	if (boxOptions == colourComboboxOptions::AddColourToComboBox)
 	{
 		// Add colour to combo box
 		int pos;
@@ -185,11 +185,11 @@ int ColourComboBox::getColourIDFromText(bool addToBox)
 		}
 	}
 
-	return colourID;
+	return colourAsNumber;
 }
 
-Colour ColourComboBox::getColourObjectFromText(bool addToBox)
+Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOptions)
 {
-	int colourID = getColourIDFromText(addToBox);
-	return Colour(colourID);
+	int colourAsNumber = getColourAsNumberFromText(boxOptions);
+	return Colour(colourAsNumber);
 }

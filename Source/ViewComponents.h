@@ -72,12 +72,18 @@ Combo box with colours
 class ColourComboBox : public ComboBox
 {
 public:
+	enum colourComboboxOptions
+	{
+		DoNotAddColourToCombobox = 0,
+		AddColourToComboBox
+	};
+
 	explicit ColourComboBox(const String& componentName = String());
 
-	void setTextFieldToColourObject(Colour newColour,
+	void setTextFieldToColourAsObject(Colour newColourAsObject,
 		NotificationType notification = sendNotificationAsync);
-
-	int getColourIDFromText(bool addToBox);
-	Colour getColourObjectFromText(bool addToBox);
+	int getColourAsNumberFromText(colourComboboxOptions boxOptions);
+	Colour getColourAsObjectFromText(colourComboboxOptions boxOptions);
 };
+
 #endif  // VIEWCOMPOONENTS_H_INCLUDED

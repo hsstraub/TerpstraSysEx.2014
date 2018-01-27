@@ -256,7 +256,7 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 		colourSelector->setName("Colour picker");
 		colourSelector->addChangeListener(this);
 
-		Colour currentColor = colourCombo->getColourObjectFromText(DONTADDCOLOURTOCOMBOBOX);
+		Colour currentColor = colourCombo->getColourAsObjectFromText(ColourComboBox::DoNotAddColourToCombobox);
 
 		colourSelector->setCurrentColour(currentColor);
 
@@ -281,7 +281,7 @@ void SingleNoteAssign::changeListenerCallback(ChangeBroadcaster *source)
 
 	Colour currentColor = cs->getCurrentColour();
 
-	colourCombo->setTextFieldToColourObject(currentColor);
+	colourCombo->setTextFieldToColourAsObject(currentColor);
 }
 
 // Called from MainComponent when one of the keys is clicked
@@ -307,7 +307,7 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		keyData.colour = colourCombo->getColourIDFromText(ADDCOLOURTOCOMBOBOX);
+		keyData.colour = colourCombo->getColourAsNumberFromText(ColourComboBox::AddColourToComboBox);
 	}
 
 	// Send to device
