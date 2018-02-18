@@ -15,6 +15,7 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+#include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
 
@@ -34,7 +35,7 @@ public:
 	// Transfer of data
 	void setData(TerpstraKeyMapping& newData);
 	void getData(TerpstraKeyMapping& newData);
-	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData;  }
+	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
 
 	// GUI implementation
@@ -44,7 +45,7 @@ public:
 	void mouseDown(const MouseEvent &event);
 
 private:
-	void changeSetSelection(int newSelection, bool forceRefresh=false);
+	void changeSetSelection(int newSelection, bool forceRefresh = false);
 	void changeSingleKeySelection(int newSelection);
 
 private:

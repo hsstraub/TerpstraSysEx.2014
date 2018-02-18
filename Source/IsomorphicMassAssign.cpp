@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "ViewConstants.h"
 #include "Main.h"
 #include "MainComponent.h"
 //[/Headers]
@@ -32,15 +33,19 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	incrMidiNotesMapping = new IncrMidiNotesMapping();
+	addAndMakeVisible(incrMidiNotesMapping);
+	incrMidiNotesMapping->setVisible(false);
+
 	mappingLogic = nullptr;
     //[/Constructor_pre]
 
-    addAndMakeVisible (startingPointeBox = new ComboBox ("startingPointBox"));
-    startingPointeBox->setEditableText (false);
-    startingPointeBox->setJustificationType (Justification::centredLeft);
-    startingPointeBox->setTextWhenNothingSelected (String());
-    startingPointeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    startingPointeBox->addListener (this);
+    addAndMakeVisible (startingPointBox = new ComboBox ("startingPointBox"));
+    startingPointBox->setEditableText (false);
+    startingPointBox->setJustificationType (Justification::centredLeft);
+    startingPointBox->setTextWhenNothingSelected (String());
+    startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    startingPointBox->addListener (this);
 
     addAndMakeVisible (labelStartingPoint = new Label ("labelStartingPoint",
                                                        TRANS("Starting value")));
@@ -94,6 +99,25 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editInstructionText->setColour (TextEditor::textColourId, Colours::black);
     editInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (groupMapping = new GroupComponent ("groupMapping",
+                                                          TRANS("Mapping")));
+
+    addAndMakeVisible (cbMappingStyle = new ComboBox ("cbMappingStyle"));
+    cbMappingStyle->setEditableText (false);
+    cbMappingStyle->setJustificationType (Justification::centredLeft);
+    cbMappingStyle->setTextWhenNothingSelected (String());
+    cbMappingStyle->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
+    cbMappingStyle->addListener (this);
+
+    addAndMakeVisible (labelMappingStyle = new Label ("labelMappingStyle",
+                                                      TRANS("Style:")));
+    labelMappingStyle->setFont (Font (15.00f, Font::plain));
+    labelMappingStyle->setJustificationType (Justification::centredLeft);
+    labelMappingStyle->setEditable (false, false, false);
+    labelMappingStyle->setColour (TextEditor::textColourId, Colours::black);
+    labelMappingStyle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -102,23 +126,33 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 
     //[Constructor] You can add your own custom stuff here..
-	editHorizontalSteps->setInputRestrictions(0, "0123456789-");
-	editRightUpwardSteps->setInputRestrictions(0, "0123456789-");
+
+	incrMidiNotesMapping->getMappingLogic()->addListener(this);
+
+
+	// Default selection
+	// Todo: read from user settings
+	cbMappingStyle->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
+
     //[/Constructor]
 }
 
 IsomorphicMassAssign::~IsomorphicMassAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	incrMidiNotesMapping = nullptr;
     //[/Destructor_pre]
 
-    startingPointeBox = nullptr;
+    startingPointBox = nullptr;
     labelStartingPoint = nullptr;
     labelHorizontalSteps = nullptr;
     editHorizontalSteps = nullptr;
     labelRightUpwardSteps = nullptr;
     editRightUpwardSteps = nullptr;
     editInstructionText = nullptr;
+    groupMapping = nullptr;
+    cbMappingStyle = nullptr;
+    labelMappingStyle = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -133,12 +167,6 @@ void IsomorphicMassAssign::paint (Graphics& g)
 
     g.fillAll (Colour (0xffbad0de));
 
-    g.setColour (Colour (0xff010e0c));
-    g.fillPath (internalPath1);
-
-    g.setColour (Colour (0xff02020e));
-    g.fillPath (internalPath2);
-
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
@@ -146,27 +174,19 @@ void IsomorphicMassAssign::paint (Graphics& g)
 void IsomorphicMassAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, EDITSUBWINWIDTH, MAPPINGSUBWINHEIGHT);
     //[/UserPreResize]
 
-    startingPointeBox->setBounds (24, 128, 150, 24);
-    labelStartingPoint->setBounds (24, 104, 150, 24);
-    labelHorizontalSteps->setBounds (232, 96, 150, 24);
-    editHorizontalSteps->setBounds (232, 120, 40, 24);
-    labelRightUpwardSteps->setBounds (160, 48, 150, 24);
-    editRightUpwardSteps->setBounds (160, 72, 39, 24);
-    editInstructionText->setBounds (8, 8, 416, 40);
-    internalPath1.clear();
-    internalPath1.startNewSubPath (188.0f, 132.0f);
-    internalPath1.lineTo (212.0f, 136.0f);
-    internalPath1.lineTo (192.0f, 144.0f);
-    internalPath1.closeSubPath();
-
-    internalPath2.clear();
-    internalPath2.startNewSubPath (168.0f, 104.0f);
-    internalPath2.lineTo (168.0f, 120.0f);
-    internalPath2.lineTo (160.0f, 120.0f);
-    internalPath2.closeSubPath();
-
+    startingPointBox->setBounds (12, 291, 150, 24);
+    labelStartingPoint->setBounds (12, 267, 150, 24);
+    labelHorizontalSteps->setBounds (220, 259, 150, 24);
+    editHorizontalSteps->setBounds (220, 283, 40, 24);
+    labelRightUpwardSteps->setBounds (148, 211, 150, 24);
+    editRightUpwardSteps->setBounds (148, 235, 39, 24);
+    editInstructionText->setBounds (0, 168, 416, 40);
+    groupMapping->setBounds (0, 8, 416, 152);
+    cbMappingStyle->setBounds (105, 31, 296, 24);
+    labelMappingStyle->setBounds (12, 32, 88, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -176,10 +196,22 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == startingPointeBox)
+    if (comboBoxThatHasChanged == startingPointBox)
     {
-        //[UserComboBoxCode_startingPointeBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_startingPointeBox]
+        //[UserComboBoxCode_startingPointBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_startingPointBox]
+    }
+    else if (comboBoxThatHasChanged == cbMappingStyle)
+    {
+        //[UserComboBoxCode_cbMappingStyle] -- add your combo box handling code here..
+		int mappingStyle = cbMappingStyle->getSelectedItemIndex();
+
+		// Show sub window corresponding to selected mapping style. Currently there is only one
+		if (mappingStyle == 0)
+			incrMidiNotesMapping->setVisible(true);
+		else
+			incrMidiNotesMapping->setVisible(false);
+        //[/UserComboBoxCode_cbMappingStyle]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -226,7 +258,7 @@ void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::Str
 }
 
 // Fill a horizontal line and its cutting upwards lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex, 
+void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
 	int horizStepSize, int rUpwStepSize,
 	TerpstraBoardGeometry::StraightLineSet& finishedLines)
 {
@@ -249,7 +281,7 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 			// Start note index: the value that has been set to the horizontal line element
 			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
 				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
-			
+
 			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
 			fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
@@ -287,21 +319,19 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 	}
 }
 
-
 // Implementation of MappingLogicListener
 void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged)
 {
 	this->mappingLogic = mappingLogicThatChanged;
 
 	// Fill note combo with values according to mapping logic
-	// XXX Same code as in SingleNoteAssign
-	startingPointeBox->clear(juce::NotificationType::dontSendNotification);
+	startingPointBox->clear(juce::NotificationType::dontSendNotification);
 
 	for (int i = 0; i < mappingLogicThatChanged->globalMappingSize(); i++)
 	{
 		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
 		// XXX format text
-		startingPointeBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
+		startingPointBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
 	}
 }
 
@@ -310,7 +340,7 @@ void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelect
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
-	int startNoteIndex = this->startingPointeBox->getSelectedItemIndex();
+	int startNoteIndex = this->startingPointBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
 	{
 		// Set value of starting point
@@ -339,7 +369,7 @@ void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelect
 		else if (horizStepSize != 0 && rUpwStepSize != 0)
 		{
 			TerpstraBoardGeometry::StraightLineSet finishedLines;	// List of lines that have been finished, so the recursion ends
-			
+
 			// Find the horizontal line
 			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
@@ -363,45 +393,52 @@ void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelect
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component, public MappingLogicListener"
-                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
-                 initialHeight="220">
-  <BACKGROUND backgroundColour="ffbad0de">
-    <PATH pos="0 0 100 100" fill="solid: ff010e0c" hasStroke="0" nonZeroWinding="1">s 188 132 l 212 136 l 192 144 x</PATH>
-    <PATH pos="0 0 100 100" fill="solid: ff02020e" hasStroke="0" nonZeroWinding="1">s 168 104 l 168 120 l 160 120 x</PATH>
-  </BACKGROUND>
-  <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointeBox"
-            virtualName="" explicitFocusOrder="0" pos="24 128 150 24" editable="0"
+                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="428" initialHeight="220">
+  <BACKGROUND backgroundColour="ffbad0de"/>
+  <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointBox"
+            virtualName="" explicitFocusOrder="0" pos="12 291 150 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelStartingPoint" id="5401a3246c13771e" memberName="labelStartingPoint"
-         virtualName="" explicitFocusOrder="0" pos="24 104 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
+         virtualName="" explicitFocusOrder="0" pos="12 267 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
          edTextCol="ff000000" edBkgCol="0" labelText="Starting value"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="labelHorizontalSteps" id="3e6663aecf1474c8" memberName="labelHorizontalSteps"
-         virtualName="" explicitFocusOrder="0" pos="232 96 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="220 259 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Horizontal steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editHorizontalSteps" id="8d2f5f07f337b9ef" memberName="editHorizontalSteps"
-              virtualName="" explicitFocusOrder="0" pos="232 120 40 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="220 283 40 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="labelRightUpwardSteps" id="43530804741d9cb7" memberName="labelRightUpwardSteps"
-         virtualName="" explicitFocusOrder="0" pos="160 48 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="148 211 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Right upward steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
-              virtualName="" explicitFocusOrder="0" pos="160 72 39 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="148 235 39 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 8 416 40" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 168 416 40" edTextCol="ff000000"
          edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
+  <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
+                  virtualName="" explicitFocusOrder="0" pos="0 8 416 152" title="Mapping"/>
+  <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
+            virtualName="" explicitFocusOrder="0" pos="105 31 296 24" editable="0"
+            layout="33" items="MIDI notes, increasing order" textWhenNonSelected=""
+            textWhenNoItems="(no choices)"/>
+  <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
+         virtualName="" explicitFocusOrder="0" pos="12 32 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

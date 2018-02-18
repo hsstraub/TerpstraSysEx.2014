@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -17,12 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_B85945BB76A8470__
-#define __JUCE_HEADER_B85945BB76A8470__
+#ifndef __JUCE_HEADER_3061B0123720EED2__
+#define __JUCE_HEADER_3061B0123720EED2__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MappingLogic.h"
 //[/Headers]
 
 
@@ -35,45 +34,42 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class IncrMidiNotesMapping  : public Component,
-                              public ButtonListener,
-                              public ComboBoxListener
+class MacroButtonsWindow  : public Component,
+                            public ButtonListener
 {
 public:
     //==============================================================================
-    IncrMidiNotesMapping ();
-    ~IncrMidiNotesMapping();
+    MacroButtonsWindow ();
+    ~MacroButtonsWindow();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	MappingLogicBase* getMappingLogic() { return &mappingLogic; }
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	IncrMidiNotesMappingLogic	mappingLogic;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ToggleButton> channelAutoIncrButton;
-    ScopedPointer<ComboBox> channelAutoIncrNoteBox;
-    ScopedPointer<Label> labelMidiNotesUntil;
-    ScopedPointer<ToggleButton> singleChannelButton;
-    ScopedPointer<ComboBox> channelBox;
+    ScopedPointer<ToggleButton> btnEnableMacroButtons;
+    ScopedPointer<Label> lblMacroButtonsInfo;
+    ScopedPointer<Label> lblButton1;
+    ScopedPointer<TextEditor> textMacroFile1;
+    ScopedPointer<TextButton> btnFileSelectMacro1;
+    ScopedPointer<Drawable> drawable1;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IncrMidiNotesMapping)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MacroButtonsWindow)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_B85945BB76A8470__
+#endif   // __JUCE_HEADER_3061B0123720EED2__

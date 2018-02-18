@@ -54,6 +54,8 @@ public:
 
 	void fromStringArray(const StringArray& stringArray);
 	StringArray toStringArray();
+	// The colours that are used 
+	SortedSet<int> getUsedColours();
 
 public:
 	TerpstraKeys	sets[NUMBEROFBOARDS];

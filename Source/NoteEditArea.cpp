@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -31,10 +31,6 @@
 NoteEditArea::NoteEditArea ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	incrMidiNotesMapping = new IncrMidiNotesMapping();
-	addAndMakeVisible(incrMidiNotesMapping);
-	incrMidiNotesMapping->setVisible(false);
-
 	singleNoteAssign = new SingleNoteAssign();
 	addAndMakeVisible(singleNoteAssign);
 	singleNoteAssign->setVisible(false);
@@ -43,23 +39,10 @@ NoteEditArea::NoteEditArea ()
 	addAndMakeVisible(isomorphicMassAssign);
 	isomorphicMassAssign->setVisible(false);
 
-    //[/Constructor_pre]
-
-    addAndMakeVisible (cbMappingStyle = new ComboBox ("cbMappingStyle"));
-    cbMappingStyle->setEditableText (false);
-    cbMappingStyle->setJustificationType (Justification::centredLeft);
-    cbMappingStyle->setTextWhenNothingSelected (String());
-    cbMappingStyle->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
-    cbMappingStyle->addListener (this);
-
-    addAndMakeVisible (labelMappingStyle = new Label ("labelMappingStyle",
-                                                      TRANS("Style:")));
-    labelMappingStyle->setFont (Font (15.00f, Font::plain));
-    labelMappingStyle->setJustificationType (Justification::centredLeft);
-    labelMappingStyle->setEditable (false, false, false);
-    labelMappingStyle->setColour (TextEditor::textColourId, Colours::black);
-    labelMappingStyle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+	macroButtonsWindow = new MacroButtonsWindow();
+	addAndMakeVisible(macroButtonsWindow);
+	macroButtonsWindow->setVisible(false);
+	//[/Constructor_pre]
 
     addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
     cbEditMode->setEditableText (false);
@@ -68,18 +51,16 @@ NoteEditArea::NoteEditArea ()
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Assign notes to keys one by one"), 1);
     cbEditMode->addItem (TRANS("Isomorphic mass assign"), 2);
+    cbEditMode->addItem (TRANS("Macro Buttons"), 3);
     cbEditMode->addListener (this);
 
     addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
-                                                  TRANS("Edit Mode:")));
+                                                  TRANS("Edit Function:")));
     labelEditMode->setFont (Font (15.00f, Font::plain));
     labelEditMode->setJustificationType (Justification::centredLeft);
     labelEditMode->setEditable (false, false, false);
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (groupMapping = new GroupComponent ("groupMapping",
-                                                          TRANS("Mapping")));
 
 
     //[UserPreSize]
@@ -90,13 +71,9 @@ NoteEditArea::NoteEditArea ()
 
     //[Constructor] You can add your own custom stuff here..
 
-	// MappingLogic listener
-	incrMidiNotesMapping->getMappingLogic()->addListener(singleNoteAssign);
-	incrMidiNotesMapping->getMappingLogic()->addListener(isomorphicMassAssign);
-
 	// Default selection
 	// Todo: read from user settings
-	cbMappingStyle->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
+	cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
 
     //[/Constructor]
 }
@@ -104,14 +81,13 @@ NoteEditArea::NoteEditArea ()
 NoteEditArea::~NoteEditArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	incrMidiNotesMapping = nullptr;
+	singleNoteAssign = nullptr;
+	isomorphicMassAssign = nullptr;
+	macroButtonsWindow = nullptr;
     //[/Destructor_pre]
 
-    cbMappingStyle = nullptr;
-    labelMappingStyle = nullptr;
     cbEditMode = nullptr;
     labelEditMode = nullptr;
-    groupMapping = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -133,17 +109,13 @@ void NoteEditArea::paint (Graphics& g)
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, EDITSUBWINWIDTH, MAPPINGSUBWINHEIGHT);
+	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	//[/UserPreResize]
 
-	singleNoteAssign->setBounds(16, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	isomorphicMassAssign->setBounds(16, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-    //[/UserPreResize]
-
-    cbMappingStyle->setBounds (112, 24, 296, 24);
-    labelMappingStyle->setBounds (16, 24, 88, 24);
-    cbEditMode->setBounds (112, 176, 296, 24);
-    labelEditMode->setBounds (16, 176, 88, 24);
-    groupMapping->setBounds (8, 8, 416, 152);
+    cbEditMode->setBounds (102, 15, 296, 24);
+    labelEditMode->setBounds (6, 15, 88, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -153,20 +125,7 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == cbMappingStyle)
-    {
-        //[UserComboBoxCode_cbMappingStyle] -- add your combo box handling code here..
-		int mappingStyle = cbMappingStyle->getSelectedItemIndex();
-
-		// Show sub window corresponding to selected mapping style. Currently there is only one
-		if (mappingStyle == 0)
-			incrMidiNotesMapping->setVisible(true);
-		else
-			incrMidiNotesMapping->setVisible(false);
-
-        //[/UserComboBoxCode_cbMappingStyle]
-    }
-    else if (comboBoxThatHasChanged == cbEditMode)
+    if (comboBoxThatHasChanged == cbEditMode)
     {
         //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
 		int editMode = cbEditMode->getSelectedItemIndex();
@@ -177,18 +136,26 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 0:
 			singleNoteAssign->setVisible(true);
 			isomorphicMassAssign->setVisible(false);
+			macroButtonsWindow->setVisible(false);
 			break;
 		case 1:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(true);
+			macroButtonsWindow->setVisible(false);
+			break;
+		case 2:
+			singleNoteAssign->setVisible(false);
+			isomorphicMassAssign->setVisible(false);
+			// macroButtonsWindow->setVisible(true);
+			// XXX for now: no macro buttons
+			macroButtonsWindow->setVisible(false);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
+			macroButtonsWindow->setVisible(false);
 			break;
 		}
-		// XXX
-
         //[/UserComboBoxCode_cbEditMode]
     }
 
@@ -200,6 +167,7 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+// Called from MainComponent when one of the keys is clicked
 void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
@@ -213,8 +181,17 @@ void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
 	case 1:
 		isomorphicMassAssign->PerformMouseClickEdit(setSelection, keySelection);
 		break;
+
+		// case 2 (macro buttons): no functionality for clicking on a key
 	}
 }
+
+void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
+{
+	// Add colours of the mapping to the cpolozr combo box 
+	singleNoteAssign->onSetData(newData);
+}
+
 //[/MiscUserCode]
 
 
@@ -232,26 +209,15 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="428" initialHeight="480">
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
-            virtualName="" explicitFocusOrder="0" pos="112 24 296 24" editable="0"
-            layout="33" items="MIDI notes, increasing order" textWhenNonSelected=""
-            textWhenNoItems="(no choices)"/>
-  <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
-         virtualName="" explicitFocusOrder="0" pos="16 24 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="112 176 296 24" editable="0"
-            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign"
+            virtualName="" explicitFocusOrder="0" pos="102 15 296 24" editable="0"
+            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Macro Buttons"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="16 176 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Edit Mode:" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
-  <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
-                  virtualName="" explicitFocusOrder="0" pos="8 8 416 152" title="Mapping"/>
+         virtualName="" explicitFocusOrder="0" pos="6 15 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

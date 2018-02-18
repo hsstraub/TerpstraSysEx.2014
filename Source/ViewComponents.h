@@ -39,8 +39,9 @@ private:
 	bool isSelected;
 
 	Label*	midiNoteLabel;
-	//Label*  channelTextLabel;
 	Label*  midiChannelLabel;
+
+	int keyColour;
 };
 
 
@@ -56,6 +57,37 @@ public:
 	~TerpstraKeySetEdit();
 
 	void setIsSelected(bool newValue) { setToggleState(newValue, dontSendNotification); };
+};
+
+
+/*
+==============================================================================
+Combo box with colours
+==============================================================================
+*/
+
+#define ADDCOLOURTOCOMBOBOX true
+#define DONTADDCOLOURTOCOMBOBOX false
+
+class ColourComboBox : public ComboBox
+{
+public:
+	enum colourComboboxOptions
+	{
+		DoNotAddColourToCombobox = 0,
+		AddColourToComboBox
+	};
+
+	explicit ColourComboBox(const String& componentName = String());
+
+	void setTextFieldToColourAsObject(Colour newColourAsObject,
+		NotificationType notification = sendNotificationAsync);
+	int getColourAsNumberFromText(colourComboboxOptions boxOptions);
+	Colour getColourAsObjectFromText(colourComboboxOptions boxOptions);
+
+	void addColourToBox(String newColourAsString);
+	void addColourToBox(Colour newColourAsObject) { addColourToBox(newColourAsObject.toDisplayString(false)); }
+	void addColourToBox(int newColourAsNumber) { addColourToBox(Colour(newColourAsNumber)); }
 };
 
 #endif  // VIEWCOMPOONENTS_H_INCLUDED

@@ -87,7 +87,7 @@ IncrMidiNotesMapping::IncrMidiNotesMapping ()
 		channelBox->addItem(String(i), i);
 
 	// Default: multi channel
-	// XXX (Or: latest choice by user, from settings)
+	// Todo latest choice by user, from settings
 	channelAutoIncrButton->setToggleState(true, juce::NotificationType::sendNotification);
 
 	//noteLabel->attachToComponent(noteBox, true);

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -22,7 +22,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "MappingLogic.h"
+#include "KeyboardDataStructure.h"
+#include "ViewComponents.h"
 //[/Headers]
 
 
@@ -36,9 +37,9 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public MappingLogicListener,
+                          public ComboBoxListener,
                           public ButtonListener,
-                          public ComboBoxListener
+                          public ChangeListener
 {
 public:
     //==============================================================================
@@ -47,29 +48,35 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	// Implementation of MappingLogicListener
-	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
-
-	// Edit operation when a key field in MainComponent has been clicked
+	void changeListenerCallback(ChangeBroadcaster *source) override;
 	void PerformMouseClickEdit(int setSelection, int keySelection);
-	//[/UserMethods]
+	void onSetData(TerpstraKeyMapping& newData);
+    //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
+
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	MappingLogicBase*	mappingLogic;
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<GroupComponent> noteAndChannelAssGroup;
     ScopedPointer<Label> editInstructionText;
+    ScopedPointer<ComboBox> noteBox;
     ScopedPointer<ToggleButton> noteAutoIncrButton;
-    ScopedPointer<ComboBox> nextValueBox;
-    ScopedPointer<Label> labelNextValue;
+    ScopedPointer<ComboBox> channelBox;
+    ScopedPointer<ToggleButton> channelAutoIncrButton;
+    ScopedPointer<ComboBox> channelAutoIncrNoteBox;
+    ScopedPointer<ToggleButton> setNoteToggleButton;
+    ScopedPointer<ToggleButton> setChannelToggleButton;
+    ScopedPointer<ToggleButton> setColourToggleButton;
+    ScopedPointer<TextButton> btnColourPicker;
+    ScopedPointer<ColourComboBox> colourCombo;
 
 
     //==============================================================================

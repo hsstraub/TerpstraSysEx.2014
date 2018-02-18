@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -21,10 +21,10 @@
 #define __JUCE_HEADER_8469F5B08F113FE2__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../../JuceLibraryCode/JuceHeader.h"
-#include "IncrMidiNotesMapping.h"
+#include "../JuceLibraryCode/JuceHeader.h"
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
+#include "MacroButtonsWindow.h"
 //[/Headers]
 
 
@@ -47,8 +47,9 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	// Edit operation when a key field has been clicked
 	void PerformMouseClickEdit(int setSelection, int keySelection);
+	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping. 
+	void onSetData(TerpstraKeyMapping& newData);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -59,18 +60,14 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<IncrMidiNotesMapping>	incrMidiNotesMapping;
-
 	ScopedPointer<SingleNoteAssign> singleNoteAssign;
 	ScopedPointer<IsomorphicMassAssign> isomorphicMassAssign;
+	ScopedPointer<MacroButtonsWindow> macroButtonsWindow;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ComboBox> cbMappingStyle;
-    ScopedPointer<Label> labelMappingStyle;
     ScopedPointer<ComboBox> cbEditMode;
     ScopedPointer<Label> labelEditMode;
-    ScopedPointer<GroupComponent> groupMapping;
 
 
     //==============================================================================

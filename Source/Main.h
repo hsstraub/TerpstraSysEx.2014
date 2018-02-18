@@ -78,6 +78,10 @@ public:
 			setContentOwned(new MainContentComponent(), true);
 
 			centreWithSize(getWidth(), getHeight());
+#if JUCE_ANDROID
+			setFullScreen(true);
+#endif
+
 			setVisible(true);
 		}
 

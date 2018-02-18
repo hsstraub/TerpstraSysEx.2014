@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@
 #define __JUCE_HEADER_730F20A4628CA114__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
+#include "IncrMidiNotesMapping.h"
 #include "BoardGeometry.h"
 //[/Headers]
 
@@ -37,8 +38,8 @@
                                                                     //[/Comments]
 */
 class IsomorphicMassAssign  : public Component,
-                              public MappingLogicListener,
-                              public ComboBoxListener
+                              public ComboBoxListener,
+                              public MappingLogicListener
 {
 public:
     //==============================================================================
@@ -47,6 +48,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// Implementation of MappingLogicListener
 	// Set, save and maybe send data of one key
 	void setSaveSend(int setSelection, int keySelection, int noteIndex);
 
@@ -55,7 +57,7 @@ public:
 
 	// Fill a horizontal line and its cutting upwards lines, recursively
 	void fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
-		int horizStepSize, int rUpwStepSize, 
+		int horizStepSize, int rUpwStepSize,
 		TerpstraBoardGeometry::StraightLineSet& finishedLines);
 
 	// Fill a right upward line and its cutting horizontal lines, recursively
@@ -63,10 +65,9 @@ public:
 		int horizStepSize, int rUpwStepSize,
 		TerpstraBoardGeometry::StraightLineSet& finishedLines);
 
-
 	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
-	// Edit operation when a key field in MainComponent has been clicked
+
 	void PerformMouseClickEdit(int setSelection, int keySelection);
     //[/UserMethods]
 
@@ -75,22 +76,26 @@ public:
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	ScopedPointer<IncrMidiNotesMapping>	incrMidiNotesMapping;
+
 	MappingLogicBase*		mappingLogic;
 	TerpstraBoardGeometry	boardGeometry;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ComboBox> startingPointeBox;
+    ScopedPointer<ComboBox> startingPointBox;
     ScopedPointer<Label> labelStartingPoint;
     ScopedPointer<Label> labelHorizontalSteps;
     ScopedPointer<TextEditor> editHorizontalSteps;
     ScopedPointer<Label> labelRightUpwardSteps;
     ScopedPointer<TextEditor> editRightUpwardSteps;
     ScopedPointer<Label> editInstructionText;
-    Path internalPath1;
-    Path internalPath2;
+    ScopedPointer<GroupComponent> groupMapping;
+    ScopedPointer<ComboBox> cbMappingStyle;
+    ScopedPointer<Label> labelMappingStyle;
 
 
     //==============================================================================

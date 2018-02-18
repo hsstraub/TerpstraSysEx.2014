@@ -128,6 +128,8 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData)
 {
 	mappingData = newData;
 
+	noteEditArea->onSetData(newData);
+
 	changeSetSelection(-1);
 	changeSetSelection(0);
 }
