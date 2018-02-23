@@ -14,6 +14,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
+#include "Hajulib\HajuMidiDriver.h"
 //[/Headers]
 
 /*
@@ -50,14 +51,11 @@ System exclusive command bytes
 Connection to midi, sending SysEx parameters to keyboard
 ==============================================================================
 */
-class TerpstraMidiDriver
+class TerpstraMidiDriver : public HajuMidiDriver
 {
 public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
-
-	// Open the specified device
-	void setMidiOutput(int deviceIndex);
 
 	void setAutoSave(bool value) { this->autoSave = value; }
 
@@ -97,14 +95,7 @@ private:
 
 	// Attributes
 private:
-	StringArray midiInputs;
-	StringArray midiOutputs;
-	AudioDeviceManager deviceManager;
-
-	ScopedPointer<MidiOutput> midiOutput;
 	bool autoSave;
-
 };
-
 
 #endif  // TERPSTRAMIDIDRIVER_H_INCLUDED

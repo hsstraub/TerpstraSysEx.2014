@@ -11,25 +11,13 @@
 #include "TerpstraMidiDriver.h"
 
 
-TerpstraMidiDriver::TerpstraMidiDriver()
+TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
-	midiInputs = MidiInput::getDevices();
-	midiOutputs = MidiOutput::getDevices();
-
-	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String::empty, 0);
-
-	midiOutput = nullptr;
 	autoSave = false;
 }
 
-TerpstraMidiDriver::~TerpstraMidiDriver()
+TerpstraMidiDriver::~TerpstraMidiDriver() 
 {
-	midiOutput = nullptr;
-}
-
-void TerpstraMidiDriver::setMidiOutput(int deviceIndex)
-{
-	midiOutput = MidiOutput::openDevice(deviceIndex);
 }
 
 /*
