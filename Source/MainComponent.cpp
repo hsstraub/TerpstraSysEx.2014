@@ -123,7 +123,7 @@ MainContentComponent::~MainContentComponent()
 	deleteAllChildren();
 }
 
-// Transfer of data
+// Set the current mapping to be edited to the value passed in parameter
 void MainContentComponent::setData(TerpstraKeyMapping& newData)
 {
 	mappingData = newData;
@@ -134,6 +134,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData)
 	changeSetSelection(0);
 }
 
+// Copy the edited mapping to the variable passed as parameter
 void MainContentComponent::getData(TerpstraKeyMapping& newData)
 {
 	newData = mappingData;
