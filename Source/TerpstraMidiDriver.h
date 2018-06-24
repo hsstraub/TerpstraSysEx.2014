@@ -14,7 +14,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
-#include "Hajulib\HajuMidiDriver.h"
+#include "Hajulib/HajuMidiDriver.h"
 //[/Headers]
 
 /*
