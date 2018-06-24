@@ -87,8 +87,8 @@ MidiEditArea::MidiEditArea ()
 
 
     //[UserPreSize]
-	cbMidiInput->addItemList(MidiInput::getDevices(), 1);
-	cbMidiOutput->addItemList(MidiOutput::getDevices(), 1);
+	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
+	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
     //[/UserPreSize]
 
     setSize (380, 130);

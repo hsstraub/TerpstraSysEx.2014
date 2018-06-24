@@ -27,6 +27,11 @@ public:
 	HajuMidiDriver();
 	~HajuMidiDriver();
 
+	// List of MIDI input devices
+	StringArray& getMidiInputList() { return midiInputs; }
+	// List of MIDI input devices
+	StringArray& getMidiOutputList() { return midiOutputs; }
+
 	// Open the specified device
 	void setMidiOutput(int deviceIndex);
 
@@ -35,7 +40,9 @@ private:
 	StringArray midiInputs;
 	StringArray midiOutputs;
 	AudioDeviceManager deviceManager;
+
 protected:
+	// Currently open MIDI output
 	ScopedPointer<MidiOutput> midiOutput;
 };
 
