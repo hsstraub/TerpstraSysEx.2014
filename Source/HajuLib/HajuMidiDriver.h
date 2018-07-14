@@ -29,7 +29,7 @@ public:
 
 	// List of MIDI input devices
 	StringArray& getMidiInputList() { return midiInputs; }
-	// List of MIDI input devices
+	// List of MIDI output devices
 	StringArray& getMidiOutputList() { return midiOutputs; }
 
 	// Open the specified device
