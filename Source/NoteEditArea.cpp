@@ -146,9 +146,7 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 2:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
-			// macroButtonsWindow->setVisible(true);
-			// XXX for now: no macro buttons
-			macroButtonsWindow->setVisible(false);
+			macroButtonsWindow->setVisible(true);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);

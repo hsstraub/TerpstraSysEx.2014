@@ -17,13 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_3061B0123720EED2__
-#define __JUCE_HEADER_3061B0123720EED2__
+#ifndef __JUCE_HEADER_6E043DC845DB684C__
+#define __JUCE_HEADER_6E043DC845DB684C__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-
-#include "OneMacroButtonEdit.h"
 //[/Headers]
 
 
@@ -36,16 +34,17 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MacroButtonsWindow  : public Component,
+class OneMacroButtonEdit  : public Component,
                             public ButtonListener
 {
 public:
     //==============================================================================
-    MacroButtonsWindow ();
-    ~MacroButtonsWindow();
+    OneMacroButtonEdit ();
+    ~OneMacroButtonEdit();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void setMacroButtonNumber(int value);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -56,23 +55,20 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-
-	// Sub-components for the buttons
-	ScopedPointer<OneMacroButtonEdit>	buttonComponents[10];
-
+	int		macroButtonNumber;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ToggleButton> btnEnableMacroButtons;
-    ScopedPointer<Label> lblMacroButtonsInfo;
-    ScopedPointer<Drawable> drawable1;
+    ScopedPointer<Label> lblButton;
+    ScopedPointer<TextEditor> textMacroFile;
+    ScopedPointer<TextButton> btnFileSelectMacro;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MacroButtonsWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OneMacroButtonEdit)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_3061B0123720EED2__
+#endif   // __JUCE_HEADER_6E043DC845DB684C__

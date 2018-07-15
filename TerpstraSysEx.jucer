@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.4.0"
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.4.1"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
               jucerVersion="4.3.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
@@ -13,6 +13,10 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="RXyH4V" name="OneMacroButtonEdit.cpp" compile="1" resource="0"
+            file="Source/OneMacroButtonEdit.cpp"/>
+      <FILE id="AM7nb9" name="OneMacroButtonEdit.h" compile="0" resource="0"
+            file="Source/OneMacroButtonEdit.h"/>
       <FILE id="hLpEXr" name="MacroButtonsWindow.cpp" compile="1" resource="0"
             file="Source/MacroButtonsWindow.cpp"/>
       <FILE id="txOljN" name="MacroButtonsWindow.h" compile="0" resource="0"
@@ -102,14 +106,14 @@
     </LINUX_MAKE>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
   <JUCEOPTIONS/>
 </JUCERPROJECT>

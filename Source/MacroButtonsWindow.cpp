@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "ViewConstants.h"
 //[/Headers]
 
 #include "MacroButtonsWindow.h"
@@ -44,30 +45,17 @@ MacroButtonsWindow::MacroButtonsWindow ()
     lblMacroButtonsInfo->setColour (TextEditor::textColourId, Colours::black);
     lblMacroButtonsInfo->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (lblButton1 = new Label ("lblButton1",
-                                               TRANS("1")));
-    lblButton1->setFont (Font (15.00f, Font::plain));
-    lblButton1->setJustificationType (Justification::centredLeft);
-    lblButton1->setEditable (false, false, false);
-    lblButton1->setColour (TextEditor::textColourId, Colours::black);
-    lblButton1->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (textMacroFile1 = new TextEditor ("textMacroFile1"));
-    textMacroFile1->setMultiLine (false);
-    textMacroFile1->setReturnKeyStartsNewLine (false);
-    textMacroFile1->setReadOnly (false);
-    textMacroFile1->setScrollbarsShown (true);
-    textMacroFile1->setCaretVisible (true);
-    textMacroFile1->setPopupMenuEnabled (true);
-    textMacroFile1->setText (String());
-
-    addAndMakeVisible (btnFileSelectMacro1 = new TextButton ("btnFileSelectMacro1"));
-    btnFileSelectMacro1->setButtonText (TRANS("..."));
-    btnFileSelectMacro1->addListener (this);
-
     drawable1 = Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
 
     //[UserPreSize]
+
+	for (int i = 0; i < 10; i++)
+	{
+		buttonComponents[i] = new OneMacroButtonEdit();
+		addAndMakeVisible(buttonComponents[i]);
+		buttonComponents[i]->setMacroButtonNumber(i);
+	}
+
     //[/UserPreSize]
 
     setSize (428, 400);
@@ -84,13 +72,12 @@ MacroButtonsWindow::~MacroButtonsWindow()
 
     btnEnableMacroButtons = nullptr;
     lblMacroButtonsInfo = nullptr;
-    lblButton1 = nullptr;
-    textMacroFile1 = nullptr;
-    btnFileSelectMacro1 = nullptr;
     drawable1 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
+	for (int i = 0; i < 10; i++)
+		buttonComponents[i] = nullptr;
     //[/Destructor]
 }
 
@@ -105,7 +92,7 @@ void MacroButtonsWindow::paint (Graphics& g)
     g.setColour (Colours::black);
     jassert (drawable1 != 0);
     if (drawable1 != 0)
-        drawable1->drawWithin (g, Rectangle<float> (12, 20, 100, 46),
+        drawable1->drawWithin (g, Rectangle<float> (12, 12, 100, 46),
                                RectanglePlacement::stretchToFit, 1.000f);
 
     //[UserPaint] Add your own custom painting code here..
@@ -117,13 +104,16 @@ void MacroButtonsWindow::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    btnEnableMacroButtons->setBounds (136, 24, 150, 24);
-    lblMacroButtonsInfo->setBounds (8, 80, 440, 48);
-    lblButton1->setBounds (8, 136, 31, 24);
-    textMacroFile1->setBounds (48, 136, 150, 24);
-    btnFileSelectMacro1->setBounds (208, 136, 32, 24);
+    btnEnableMacroButtons->setBounds (136, 16, 150, 24);
+    lblMacroButtonsInfo->setBounds (8, 64, 440, 48);
+
     //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
+	for (int i = 0; i < 5; i ++)
+	{
+		buttonComponents[i]->setBounds(0, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
+		buttonComponents[i + 5]->setBounds(EDITSUBWINWIDTH / 2, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
+	}
+	//[/UserResized]
 }
 
 void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
@@ -135,11 +125,6 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_btnEnableMacroButtons] -- add your button handler code here..
         //[/UserButtonCode_btnEnableMacroButtons]
-    }
-    else if (buttonThatWasClicked == btnFileSelectMacro1)
-    {
-        //[UserButtonCode_btnFileSelectMacro1] -- add your button handler code here..
-        //[/UserButtonCode_btnFileSelectMacro1]
     }
 
     //[UserbuttonClicked_Post]
@@ -166,29 +151,17 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="428" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de">
-    <IMAGE pos="12 20 100 46" resource="BinaryData::TopEdgeButton_png" opacity="1"
+    <IMAGE pos="12 12 100 46" resource="BinaryData::TopEdgeButton_png" opacity="1"
            mode="0"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="btnEnableMacroButtons" id="9e31c84073a54686" memberName="btnEnableMacroButtons"
-                virtualName="" explicitFocusOrder="0" pos="136 24 150 24" buttonText="Enable Macro Buttons"
+                virtualName="" explicitFocusOrder="0" pos="136 16 150 24" buttonText="Enable Macro Buttons"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <LABEL name="lblMacroButtonsInfo" id="199c7576a5017f09" memberName="lblMacroButtonsInfo"
-         virtualName="" explicitFocusOrder="0" pos="8 80 440 48" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="8 64 440 48" edTextCol="ff000000"
          edBkgCol="0" labelText="When the corresponding macro button is pressed, the selected key mapping file will be sent to the keyboard."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="lblButton1" id="20c692b045b913d5" memberName="lblButton1"
-         virtualName="" explicitFocusOrder="0" pos="8 136 31 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="1" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="textMacroFile1" id="b9bc5baf677ed902" memberName="textMacroFile1"
-              virtualName="" explicitFocusOrder="0" pos="48 136 150 24" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-              caret="1" popupmenu="1"/>
-  <TEXTBUTTON name="btnFileSelectMacro1" id="23cc77cbad6653d7" memberName="btnFileSelectMacro1"
-              virtualName="" explicitFocusOrder="0" pos="208 136 32 24" buttonText="..."
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
