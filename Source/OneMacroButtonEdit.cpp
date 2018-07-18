@@ -110,7 +110,12 @@ void OneMacroButtonEdit::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro)
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-        //[/UserButtonCode_btnFileSelectMacro]
+		FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
+		if (chooser.browseForFileToOpen())
+		{
+			textMacroFile->setText(chooser.getResult().getFileName());
+		}
+		//[/UserButtonCode_btnFileSelectMacro]
     }
 
     //[UserbuttonClicked_Post]
