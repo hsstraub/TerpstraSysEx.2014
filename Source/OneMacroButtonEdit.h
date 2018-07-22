@@ -45,7 +45,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void setMacroButtonNumber(int value);
-    //[/UserMethods]
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+	//[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -56,7 +58,8 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		macroButtonNumber;
-    //[/UserVariables]
+	File	currentFile;
+	//[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Label> lblButton;

@@ -42,6 +42,7 @@ public:
 		return *app;
 	}
 
+	PropertiesFile* getPropertiesFile() { return propertiesFile; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 

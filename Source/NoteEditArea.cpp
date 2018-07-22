@@ -165,8 +165,18 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	macroButtonsWindow->restoreStateFromPropertiesFile(propertiesFile);
+}
+
+void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	macroButtonsWindow->saveStateToPropertiesFile(propertiesFile);
+}
+
 // Called from MainComponent when one of the keys is clicked
-void NoteEditArea::PerformMouseClickEdit(int setSelection, int keySelection)
+void NoteEditArea::performMouseClickEdit(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 

@@ -29,8 +29,11 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
 	recentFiles.removeNonExistentFiles();
+
+	// State of main window will be read form properties file when main window is created
 }
 
 //==============================================================================
@@ -45,6 +48,8 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
     mainWindow = new MainWindow();
 	mainWindow->setMenuBar(menuModel);
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
+	
+	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 
 	// commandLine: may contain a file name
 	if (!commandLine.isEmpty())
@@ -70,6 +75,10 @@ void TerpstraSysExApplication::shutdown()
 	recentFiles.removeNonExistentFiles();
 	jassert(propertiesFile != nullptr);
 	propertiesFile->setValue("RecentFiles", recentFiles.toString());
+
+	// Save state of main window
+	((MainContentComponent*)(mainWindow->getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+
 	propertiesFile->saveIfNeeded();
 	delete propertiesFile;
 	propertiesFile = nullptr;

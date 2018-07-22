@@ -131,9 +131,20 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-
-
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void MacroButtonsWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	for (int i = 0; i < 10; i++)
+		buttonComponents[i]->restoreStateFromPropertiesFile(propertiesFile);
+}
+
+void MacroButtonsWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	for (int i = 0; i < 10; i++)
+		buttonComponents[i]->saveStateToPropertiesFile(propertiesFile);
+}
+
 //[/MiscUserCode]
 
 

@@ -113,7 +113,10 @@ void OneMacroButtonEdit::buttonClicked (Button* buttonThatWasClicked)
 		FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
 		if (chooser.browseForFileToOpen())
 		{
-			textMacroFile->setText(chooser.getResult().getFileName());
+			currentFile = chooser.getResult();
+
+			textMacroFile->setText(currentFile.getFileName());
+			textMacroFile->setTooltip(currentFile.getFullPathName());
 		}
 		//[/UserButtonCode_btnFileSelectMacro]
     }
@@ -130,6 +133,23 @@ void OneMacroButtonEdit::setMacroButtonNumber(int value)
 {
 	macroButtonNumber = value;
 	lblButton->setText(String(macroButtonNumber+1), NotificationType::dontSendNotification);
+}
+
+void OneMacroButtonEdit::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	String keyName = "MacroButton" + String(macroButtonNumber);
+	String keyValue = propertiesFile->getValue(keyName);
+	currentFile = File(keyValue);
+	textMacroFile->setText(currentFile.getFileName());
+	textMacroFile->setTooltip(currentFile.getFullPathName());
+}
+
+void OneMacroButtonEdit::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	String keyName = "MacroButton" + String(macroButtonNumber);
+	String keyValue = currentFile.getFullPathName();
+
+	propertiesFile->setValue(keyName, keyValue);
 }
 
 //[/MiscUserCode]
