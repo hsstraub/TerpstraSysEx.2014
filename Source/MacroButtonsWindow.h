@@ -48,7 +48,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	//[/UserMethods]
+    //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;

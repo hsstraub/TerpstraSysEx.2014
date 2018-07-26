@@ -62,7 +62,8 @@ MacroButtonsWindow::MacroButtonsWindow ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+	btnEnableMacroButtons->setToggleState(true, juce::NotificationType::sendNotification);
+	//[/Constructor]
 }
 
 MacroButtonsWindow::~MacroButtonsWindow()
@@ -106,14 +107,13 @@ void MacroButtonsWindow::resized()
 
     btnEnableMacroButtons->setBounds (136, 16, 150, 24);
     lblMacroButtonsInfo->setBounds (8, 64, 440, 48);
-
     //[UserResized] Add your own custom resize handling here..
 	for (int i = 0; i < 5; i ++)
 	{
 		buttonComponents[i]->setBounds(0, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
 		buttonComponents[i + 5]->setBounds(EDITSUBWINWIDTH / 2, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
 	}
-	//[/UserResized]
+    //[/UserResized]
 }
 
 void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
@@ -124,12 +124,20 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnEnableMacroButtons)
     {
         //[UserButtonCode_btnEnableMacroButtons] -- add your button handler code here..
+		bool enable = btnEnableMacroButtons->getToggleState();
+		for (int i = 0; i < 10; i++)
+		{
+			buttonComponents[i]->setVisible(enable);
+		}
+
         //[/UserButtonCode_btnEnableMacroButtons]
     }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
 }
+
+
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
