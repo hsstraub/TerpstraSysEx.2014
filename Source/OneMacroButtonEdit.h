@@ -35,6 +35,7 @@
                                                                     //[/Comments]
 */
 class OneMacroButtonEdit  : public Component,
+                            public TextEditorListener,
                             public ButtonListener
 {
 public:
@@ -47,7 +48,9 @@ public:
 	void setMacroButtonNumber(int value);
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	//[/UserMethods]
+	void textEditorFocusLost(TextEditor& textEdit) override;
+
+    //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -59,7 +62,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		macroButtonNumber;
 	File	currentFile;
-	//[/UserVariables]
+    //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Label> lblButton;

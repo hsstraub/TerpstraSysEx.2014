@@ -55,6 +55,7 @@ OneMacroButtonEdit::OneMacroButtonEdit ()
 
 
     //[UserPreSize]
+	textMacroFile->addListener(this);
     //[/UserPreSize]
 
     setSize (200, 32);
@@ -118,7 +119,7 @@ void OneMacroButtonEdit::buttonClicked (Button* buttonThatWasClicked)
 			textMacroFile->setText(currentFile.getFileName());
 			textMacroFile->setTooltip(currentFile.getFullPathName());
 		}
-		//[/UserButtonCode_btnFileSelectMacro]
+        //[/UserButtonCode_btnFileSelectMacro]
     }
 
     //[UserbuttonClicked_Post]
@@ -152,6 +153,24 @@ void OneMacroButtonEdit::saveStateToPropertiesFile(PropertiesFile* propertiesFil
 	propertiesFile->setValue(keyName, keyValue);
 }
 
+void OneMacroButtonEdit::textEditorFocusLost(TextEditor& textEdit)
+{
+	if (&textEdit == textMacroFile)
+	{
+		currentFile = File(textMacroFile->getText());
+		if (currentFile.existsAsFile())
+		{
+			textMacroFile->setTooltip(currentFile.getFullPathName());
+		}
+		else
+		{
+			textMacroFile->setTooltip("File not found");
+			// XXX Error state, p. e. color?
+		}
+
+	}
+}
+
 //[/MiscUserCode]
 
 
@@ -165,9 +184,9 @@ void OneMacroButtonEdit::saveStateToPropertiesFile(PropertiesFile* propertiesFil
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="OneMacroButtonEdit" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="200" initialHeight="32">
+                 parentClasses="public Component, public TextEditorListener" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="200" initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblButton" id="20c692b045b913d5" memberName="lblButton"
          virtualName="" explicitFocusOrder="0" pos="8 8 24 24" edTextCol="ff000000"
