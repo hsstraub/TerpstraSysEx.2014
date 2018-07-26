@@ -49,7 +49,9 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	void textEditorFocusLost(TextEditor& textEdit) override;
-
+protected:
+	void updateTextEditorFromFileObject();
+public:
     //[/UserMethods]
 
     void paint (Graphics& g) override;

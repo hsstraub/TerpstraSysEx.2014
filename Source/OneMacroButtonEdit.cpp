@@ -53,7 +53,6 @@ OneMacroButtonEdit::OneMacroButtonEdit ()
     btnFileSelectMacro->setButtonText (TRANS("..."));
     btnFileSelectMacro->addListener (this);
 
-
     //[UserPreSize]
 	textMacroFile->addListener(this);
     //[/UserPreSize]
@@ -115,9 +114,7 @@ void OneMacroButtonEdit::buttonClicked (Button* buttonThatWasClicked)
 		if (chooser.browseForFileToOpen())
 		{
 			currentFile = chooser.getResult();
-
-			textMacroFile->setText(currentFile.getFileName());
-			textMacroFile->setTooltip(currentFile.getFullPathName());
+			updateTextEditorFromFileObject();
 		}
         //[/UserButtonCode_btnFileSelectMacro]
     }
@@ -141,8 +138,7 @@ void OneMacroButtonEdit::restoreStateFromPropertiesFile(PropertiesFile* properti
 	String keyName = "MacroButton" + String(macroButtonNumber);
 	String keyValue = propertiesFile->getValue(keyName);
 	currentFile = File(keyValue);
-	textMacroFile->setText(currentFile.getFileName());
-	textMacroFile->setTooltip(currentFile.getFullPathName());
+	updateTextEditorFromFileObject();
 }
 
 void OneMacroButtonEdit::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -158,16 +154,21 @@ void OneMacroButtonEdit::textEditorFocusLost(TextEditor& textEdit)
 	if (&textEdit == textMacroFile)
 	{
 		currentFile = File(textMacroFile->getText());
-		if (currentFile.existsAsFile())
-		{
-			textMacroFile->setTooltip(currentFile.getFullPathName());
-		}
-		else
-		{
-			textMacroFile->setTooltip("File not found");
-			// XXX Error state, p. e. color?
-		}
+		updateTextEditorFromFileObject();
+	}
+}
 
+void OneMacroButtonEdit::updateTextEditorFromFileObject()
+{
+	textMacroFile->setText(currentFile.getFileName());
+	if (currentFile.existsAsFile())
+	{
+		textMacroFile->setTooltip(currentFile.getFullPathName());
+	}
+	else
+	{
+		textMacroFile->setTooltip("File not found");
+		// XXX Error state, p. e. color?
 	}
 }
 
