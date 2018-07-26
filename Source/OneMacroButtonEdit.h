@@ -50,6 +50,7 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	void textEditorFocusLost(TextEditor& textEdit) override;
 protected:
+	void updateTooltipFromFileObject();
 	void updateTextEditorFromFileObject();
 public:
     //[/UserMethods]

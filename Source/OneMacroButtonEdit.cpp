@@ -154,13 +154,13 @@ void OneMacroButtonEdit::textEditorFocusLost(TextEditor& textEdit)
 	if (&textEdit == textMacroFile)
 	{
 		currentFile = File(textMacroFile->getText());
-		updateTextEditorFromFileObject();
+		updateTooltipFromFileObject();
 	}
 }
 
-void OneMacroButtonEdit::updateTextEditorFromFileObject()
+// Set tooltip to full path of file, or "File not found"
+void OneMacroButtonEdit::updateTooltipFromFileObject()
 {
-	textMacroFile->setText(currentFile.getFileName());
 	if (currentFile.existsAsFile())
 	{
 		textMacroFile->setTooltip(currentFile.getFullPathName());
@@ -168,8 +168,14 @@ void OneMacroButtonEdit::updateTextEditorFromFileObject()
 	else
 	{
 		textMacroFile->setTooltip("File not found");
-		// XXX Error state, p. e. color?
 	}
+}
+
+// Set text editor text to file name and tooltip to full path (or "File not found")
+void OneMacroButtonEdit::updateTextEditorFromFileObject()
+{
+	textMacroFile->setText(currentFile.getFileName());
+	updateTooltipFromFileObject();
 }
 
 //[/MiscUserCode]
