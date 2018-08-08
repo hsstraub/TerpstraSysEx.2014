@@ -32,6 +32,9 @@ public:
     MainContentComponent();
     ~MainContentComponent();
 
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
 	// Transfer of data
 	void setData(TerpstraKeyMapping& newData);
 	void getData(TerpstraKeyMapping& newData);

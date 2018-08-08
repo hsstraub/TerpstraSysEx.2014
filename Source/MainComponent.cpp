@@ -123,6 +123,16 @@ MainContentComponent::~MainContentComponent()
 	deleteAllChildren();
 }
 
+void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	noteEditArea->restoreStateFromPropertiesFile(propertiesFile);
+}
+
+void MainContentComponent::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	noteEditArea->saveStateToPropertiesFile(propertiesFile);
+}
+
 // Set the current mapping to be edited to the value passed in parameter
 void MainContentComponent::setData(TerpstraKeyMapping& newData)
 {
@@ -186,7 +196,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Perform the edit, according to edit mode. Including sending to device
-			this->noteEditArea->PerformMouseClickEdit(currentSetSelection, i);
+			this->noteEditArea->performMouseClickEdit(currentSetSelection, i);
 
 			// Refresh display
 			changeSetSelection(currentSetSelection, true);

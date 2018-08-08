@@ -47,7 +47,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void PerformMouseClickEdit(int setSelection, int keySelection);
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
+	void performMouseClickEdit(int setSelection, int keySelection);
 	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping. 
 	void onSetData(TerpstraKeyMapping& newData);
     //[/UserMethods]
