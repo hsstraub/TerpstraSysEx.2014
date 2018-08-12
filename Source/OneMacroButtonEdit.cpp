@@ -53,6 +53,7 @@ OneMacroButtonEdit::OneMacroButtonEdit ()
     btnFileSelectMacro->setButtonText (TRANS("..."));
     btnFileSelectMacro->addListener (this);
 
+
     //[UserPreSize]
 	textMacroFile->addListener(this);
     //[/UserPreSize]
