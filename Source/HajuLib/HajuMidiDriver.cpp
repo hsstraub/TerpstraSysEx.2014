@@ -18,12 +18,28 @@ HajuMidiDriver::HajuMidiDriver()
 
 	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String::empty, 0);
 
+	lastInputIndex = -1;
+	lastInputCallback = nullptr;
 	midiOutput = nullptr;
 }
 
 HajuMidiDriver::~HajuMidiDriver()
 {
+	deviceManager.removeMidiInputCallback(midiInputs[lastInputIndex], lastInputCallback);
 	midiOutput = nullptr;
+}
+
+void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
+{
+	deviceManager.removeMidiInputCallback(midiInputs[lastInputIndex], lastInputCallback);
+
+	auto newInput = midiInputs[deviceIndex];
+	if (!deviceManager.isMidiInputEnabled(newInput))
+		deviceManager.setMidiInputEnabled(newInput, true);
+	deviceManager.addMidiInputCallback(newInput, callback);
+
+	lastInputIndex = deviceIndex;
+	lastInputCallback = callback;
 }
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)

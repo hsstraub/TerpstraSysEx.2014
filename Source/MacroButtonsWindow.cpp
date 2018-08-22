@@ -63,7 +63,7 @@ MacroButtonsWindow::MacroButtonsWindow ()
 
     //[Constructor] You can add your own custom stuff here..
 	btnEnableMacroButtons->setToggleState(true, juce::NotificationType::sendNotification);
-	//[/Constructor]
+    //[/Constructor]
 }
 
 MacroButtonsWindow::~MacroButtonsWindow()

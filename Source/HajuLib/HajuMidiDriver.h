@@ -32,7 +32,10 @@ public:
 	// List of MIDI output devices
 	StringArray& getMidiOutputList() { return midiOutputs; }
 
-	// Open the specified device
+	// Open the specified input device
+	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
+		
+	// Open the specified output device
 	void setMidiOutput(int deviceIndex);
 
 	// Attributes
@@ -42,6 +45,9 @@ private:
 	AudioDeviceManager deviceManager;
 
 protected:
+	int lastInputIndex;
+	MidiInputCallback* lastInputCallback;
+
 	// Currently open MIDI output
 	ScopedPointer<MidiOutput> midiOutput;
 };

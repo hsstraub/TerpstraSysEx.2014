@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 4.3.1
 
   ------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ MidiEditArea::MidiEditArea ()
     lblMidiInput->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (cbMidiInput = new ComboBox ("cbMidiInput"));
-    cbMidiInput->setTooltip (TRANS("Is currently not used"));
+    cbMidiInput->setTooltip (TRANS("receives macro button controller events to seond key mapping files to the keyboard."));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (Justification::centredLeft);
     cbMidiInput->setTextWhenNothingSelected (String());
@@ -154,6 +154,7 @@ void MidiEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cbMidiInput)
     {
         //[UserComboBoxCode_cbMidiInput] -- add your combo box handling code here..
+		TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex(), &TerpstraSysExApplication::getApp());
         //[/UserComboBoxCode_cbMidiInput]
     }
     else if (comboBoxThatHasChanged == cbMidiOutput)
@@ -224,7 +225,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbMidiInput" id="aad3610c2aac943b" memberName="cbMidiInput"
-            virtualName="" explicitFocusOrder="0" pos="8 32 184 24" tooltip="Is currently not used"
+            virtualName="" explicitFocusOrder="0" pos="8 32 184 24" tooltip="receives macro button controller events to seond key mapping files to the keyboard."
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="lblMidiOutput" id="f5bc70386d951a4a" memberName="lblMidiOutput"
          virtualName="" explicitFocusOrder="0" pos="200 8 184 16" edTextCol="ff000000"

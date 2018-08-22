@@ -20,7 +20,8 @@
 
 
 //==============================================================================
-class TerpstraSysExApplication : public JUCEApplication
+class TerpstraSysExApplication : public JUCEApplication,
+    public MidiInputCallback
 {
 public:
 	//==============================================================================
@@ -58,6 +59,8 @@ public:
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
 	bool saveCurrentFile();
+
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 
 	void updateMainTitle();
 	void setHasChangesToSave(bool value);
