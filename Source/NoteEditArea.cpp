@@ -42,7 +42,7 @@ NoteEditArea::NoteEditArea ()
 	macroButtonsWindow = new MacroButtonsWindow();
 	addAndMakeVisible(macroButtonsWindow);
 	macroButtonsWindow->setVisible(false);
-	//[/Constructor_pre]
+    //[/Constructor_pre]
 
     addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
     cbEditMode->setEditableText (false);
@@ -112,7 +112,7 @@ void NoteEditArea::resized()
 	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	//[/UserPreResize]
+    //[/UserPreResize]
 
     cbEditMode->setBounds (102, 15, 296, 24);
     labelEditMode->setBounds (6, 15, 88, 24);
@@ -194,9 +194,14 @@ void NoteEditArea::performMouseClickEdit(int setSelection, int keySelection)
 	}
 }
 
+void NoteEditArea::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+{
+	macroButtonsWindow->handleIncomingMidiMessage(source, message);
+}
+
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
-	// Add colours of the mapping to the cpolozr combo box 
+	// Add colours of the mapping to the colour combo box
 	singleNoteAssign->onSetData(newData);
 }
 
@@ -213,9 +218,9 @@ void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="480">
+                 parentClasses="public Component, public MidiInputCallback" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="480">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="102 15 296 24" editable="0"

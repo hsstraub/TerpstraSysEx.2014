@@ -37,6 +37,7 @@
                                                                     //[/Comments]
 */
 class MacroButtonsWindow  : public Component,
+                            public MidiInputCallback,
                             public ButtonListener
 {
 public:
@@ -46,6 +47,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+	// MIDI input callback
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     //[/UserMethods]

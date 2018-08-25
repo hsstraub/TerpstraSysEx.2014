@@ -141,6 +141,18 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void MacroButtonsWindow::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+{
+	if (message.isController())
+	{
+		int controllerNumber = message.getControllerNumber();
+
+		// Send the SysEx parameter file of the corresponding controller
+		// XXX
+	}
+}
+
+
 void MacroButtonsWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	for (int i = 0; i < 10; i++)
@@ -166,9 +178,9 @@ void MacroButtonsWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFil
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MacroButtonsWindow" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="400">
+                 parentClasses="public Component, public MidiInputCallback" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de">
     <IMAGE pos="12 12 100 46" resource="BinaryData::TopEdgeButton_png" opacity="1"
            mode="0"/>

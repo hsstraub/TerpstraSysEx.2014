@@ -38,6 +38,7 @@
                                                                     //[/Comments]
 */
 class NoteEditArea  : public Component,
+                      public MidiInputCallback,
                       public ComboBoxListener
 {
 public:
@@ -51,7 +52,11 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	void performMouseClickEdit(int setSelection, int keySelection);
-	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping. 
+
+	// MIDI input callback
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+
+	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping.
 	void onSetData(TerpstraKeyMapping& newData);
     //[/UserMethods]
 

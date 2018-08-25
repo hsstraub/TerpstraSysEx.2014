@@ -150,6 +150,10 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 	newData = mappingData;
 }
 
+void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+{
+	noteEditArea->handleIncomingMidiMessage(source, message);
+}
 
 void MainContentComponent::paint (Graphics& g)
 {

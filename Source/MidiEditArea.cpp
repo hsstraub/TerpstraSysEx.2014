@@ -43,7 +43,7 @@ MidiEditArea::MidiEditArea ()
     lblMidiInput->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (cbMidiInput = new ComboBox ("cbMidiInput"));
-    cbMidiInput->setTooltip (TRANS("receives macro button controller events to seond key mapping files to the keyboard."));
+    cbMidiInput->setTooltip (TRANS("Receives macro button controller events to send key mapping files to the keyboard."));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (Justification::centredLeft);
     cbMidiInput->setTextWhenNothingSelected (String());
@@ -225,7 +225,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbMidiInput" id="aad3610c2aac943b" memberName="cbMidiInput"
-            virtualName="" explicitFocusOrder="0" pos="8 32 184 24" tooltip="receives macro button controller events to seond key mapping files to the keyboard."
+            virtualName="" explicitFocusOrder="0" pos="8 32 184 24" tooltip="Receives macro button controller events to send key mapping files to the keyboard."
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="lblMidiOutput" id="f5bc70386d951a4a" memberName="lblMidiOutput"
          virtualName="" explicitFocusOrder="0" pos="200 8 184 16" edTextCol="ff000000"

@@ -25,7 +25,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public ButtonListener
+class MainContentComponent : public Component, public ButtonListener, public MidiInputCallback
 {
 public:
     //==============================================================================
@@ -40,7 +40,9 @@ public:
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
-
+	// MIDI input callback
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+	
 	// GUI implementation
     void paint (Graphics&);
     void resized();
