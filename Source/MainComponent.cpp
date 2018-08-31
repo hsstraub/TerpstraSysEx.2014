@@ -152,7 +152,16 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-	noteEditArea->handleIncomingMidiMessage(source, message);
+	if (message.isController())
+	{
+		// Highlight controller button on/off
+		int controllerNumber = message.getControllerNumber();
+		int controllerValue = message.getControllerValue();
+		// XXX
+
+		// Send parametrization file to controller, if one is specified
+		noteEditArea->handleIncomingMidiMessage(source, message);
+	}
 }
 
 void MainContentComponent::paint (Graphics& g)

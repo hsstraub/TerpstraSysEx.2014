@@ -21,7 +21,8 @@
 //[/Headers]
 
 #include "OneMacroButtonEdit.h"
-
+#include "KeyboardDataStructure.h"
+#include "Main.h"
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
@@ -156,6 +157,20 @@ void OneMacroButtonEdit::textEditorFocusLost(TextEditor& textEdit)
 	{
 		currentFile = File(textMacroFile->getText());
 		updateTooltipFromFileObject();
+	}
+}
+
+void OneMacroButtonEdit::sendParametrizationFileToDevice()
+{
+	if (currentFile.existsAsFile())
+	{
+		StringArray stringArray;
+		currentFile.readLines(stringArray);
+		TerpstraKeyMapping keyMapping;
+		keyMapping.fromStringArray(stringArray);
+
+		// XXX Send and save or only send?
+		TerpstraSysExApplication::getApp().getMidiDriver().sendAndSaveCompleteMapping(keyMapping);
 	}
 }
 

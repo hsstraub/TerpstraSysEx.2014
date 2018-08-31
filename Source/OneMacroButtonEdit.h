@@ -49,6 +49,8 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	void textEditorFocusLost(TextEditor& textEdit) override;
+	void sendParametrizationFileToDevice();
+
 protected:
 	void updateTooltipFromFileObject();
 	void updateTextEditorFromFileObject();
