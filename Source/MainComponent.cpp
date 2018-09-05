@@ -153,11 +153,17 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
 	if (message.isController())
-	{
+	{	
+		// Established that a controller change has occurred, which is due
+		// to a keyboard macro button being pressed. Now Channel will hold
+		// a value from 0 to 15, and InData1 will hold either 16 or 17.
+		// the formula to establish which button is pressed is
+		// ButtonNum = channel*2 + (InData1 - 16)
+		int buttonNo = (message.getChannel() - 1) * 2 + message.getControllerNumber() - 16;
+		jassert(buttonNo >= 0 && buttonNo < 10);
+
 		// Highlight controller button on/off
-		int controllerNumber = message.getControllerNumber();
-		int controllerValue = message.getControllerValue();
-		// XXX
+		// XXX if (message.getControllerValue() == 0x3f)
 
 		// Send parametrization file to controller, if one is specified
 		noteEditArea->handleIncomingMidiMessage(source, message);

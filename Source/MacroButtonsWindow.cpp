@@ -145,10 +145,19 @@ void MacroButtonsWindow::handleIncomingMidiMessage(MidiInput* source, const Midi
 {
 	if (message.isController())
 	{
-		int controllerNumber = message.getControllerNumber();
+		// Established that a controller change has occurred, which is due
+		// to a keyboard macro button being pressed. Now Channel will hold
+		// a value from 0 to 15, and InData1 will hold either 16 or 17.
+		// the formula to establish which button is pressed is
+		// ButtonNum = channel*2 + (InData1 - 16)
+		int buttonNo = (message.getChannel() - 1) * 2 + message.getControllerNumber() - 16;
 
-		// Send the SysEx parameter file of the corresponding controller
-		// XXX
+		if (message.getControllerValue() == 0x3f)
+		{
+			// Send the SysEx parameter file of the corresponding controller
+			jassert(buttonNo >= 0 && buttonNo < 10);
+			buttonComponents[buttonNo]->sendParametrizationFileToDevice();
+		}
 	}
 }
 
