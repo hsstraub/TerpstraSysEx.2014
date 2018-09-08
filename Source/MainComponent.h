@@ -60,8 +60,8 @@ private:
 	//==============================================================================
 	// GUI components
 
-	// Buttons for SysEx commands
-	// XXX
+	// Macro buttons
+	TerpstraMacroButton* macroButtons[NUMBEROFBOARDS];
 
 	// Sets of 56 keys
 	TerpstraKeySetEdit* terpstraSetSelectors[NUMBEROFBOARDS];

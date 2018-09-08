@@ -37,20 +37,21 @@ void TerpstraMidiDriver::sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, 
 	}
 }
 
-void TerpstraMidiDriver::sendAndSaveAllParamsOfBoard(int boardIndex, TerpstraKeys boardData)
+void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData, bool saveAfterSending)
 {
 	// XXX open question: does controller need some delay in sending several messages
 
 	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
 
-	storeToEEPROM(boardIndex);
+	if (saveAfterSending)
+		storeToEEPROM(boardIndex);
 }
 
-void TerpstraMidiDriver::sendAndSaveCompleteMapping(TerpstraKeyMapping mappingData)
+void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData, bool saveAfterSending)
 {
 	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		sendAndSaveAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1]);
+		sendAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1], saveAfterSending);
 }
 
 void TerpstraMidiDriver::storeAllToEEPROM()

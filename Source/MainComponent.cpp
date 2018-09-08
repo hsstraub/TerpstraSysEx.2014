@@ -25,7 +25,12 @@ MainContentComponent::MainContentComponent()
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		// Paint them from right to left
+		// Macro button
+		macroButtons[i] = new TerpstraMacroButton();
+		addAndMakeVisible(macroButtons[i]);
+		macroButtons[i]->setBounds(FIRSTMACROBUTTOONCOLPOS + i*TERPSTRAKEYSETFLDSPAN, MACROBUTTONYPOS, macroButtons[i]->getWidth(), macroButtons[i]->getHeight());
+
+		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
 		terpstraSetSelectors[4-i] = new TerpstraKeySetEdit();
@@ -158,12 +163,15 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
 		// to a keyboard macro button being pressed. Now Channel will hold
 		// a value from 0 to 15, and InData1 will hold either 16 or 17.
 		// the formula to establish which button is pressed is
+		// One  button subcomponent holds 2 buttons
 		// ButtonNum = channel*2 + (InData1 - 16)
-		int buttonNo = (message.getChannel() - 1) * 2 + message.getControllerNumber() - 16;
-		jassert(buttonNo >= 0 && buttonNo < 10);
+		int buttonSubwinIndex = message.getChannel()-1;
+		jassert(buttonSubwinIndex >= 0 && buttonSubwinIndex < 5);
 
-		// Highlight controller button on/off
-		// XXX if (message.getControllerValue() == 0x3f)
+		// Highlight controller button on/off. Left side, if message.getControllerNumber() == 16, right side, if it is 17
+		macroButtons[buttonSubwinIndex]->setIsSelected(
+			message.getControllerNumber() == 17 ? TerpstraMacroButton::leftbutton : TerpstraMacroButton::rightbutton,
+			message.getControllerValue() == 0x3f);
 
 		// Send parametrization file to controller, if one is specified
 		noteEditArea->handleIncomingMidiMessage(source, message);

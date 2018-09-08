@@ -45,6 +45,10 @@ MacroButtonsWindow::MacroButtonsWindow ()
     lblMacroButtonsInfo->setColour (TextEditor::textColourId, Colours::black);
     lblMacroButtonsInfo->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (btnSaveAfterSending = new ToggleButton ("btnSaveAfterSending"));
+    btnSaveAfterSending->setButtonText (TRANS("Save mapping after sending"));
+    btnSaveAfterSending->addListener (this);
+
     drawable1 = Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
 
     //[UserPreSize]
@@ -73,6 +77,7 @@ MacroButtonsWindow::~MacroButtonsWindow()
 
     btnEnableMacroButtons = nullptr;
     lblMacroButtonsInfo = nullptr;
+    btnSaveAfterSending = nullptr;
     drawable1 = nullptr;
 
 
@@ -107,6 +112,7 @@ void MacroButtonsWindow::resized()
 
     btnEnableMacroButtons->setBounds (136, 16, 150, 24);
     lblMacroButtonsInfo->setBounds (8, 64, 440, 48);
+    btnSaveAfterSending->setBounds (136, 40, 216, 24);
     //[UserResized] Add your own custom resize handling here..
 	for (int i = 0; i < 5; i ++)
 	{
@@ -131,6 +137,16 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
 		}
 
         //[/UserButtonCode_btnEnableMacroButtons]
+    }
+    else if (buttonThatWasClicked == btnSaveAfterSending)
+    {
+        //[UserButtonCode_btnSaveAfterSending] -- add your button handler code here..
+		bool saveAfterSending = btnSaveAfterSending->getToggleState();
+		for (int i = 0; i < 10; i++)
+		{
+			buttonComponents[i]->setSaveAfterSending(saveAfterSending);
+		}
+		//[/UserButtonCode_btnSaveAfterSending]
     }
 
     //[UserbuttonClicked_Post]
@@ -202,6 +218,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="When the corresponding macro button is pressed, the selected key mapping file will be sent to the keyboard."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+  <TOGGLEBUTTON name="btnSaveAfterSending" id="a23d41b7fb227aed" memberName="btnSaveAfterSending"
+                virtualName="" explicitFocusOrder="0" pos="136 40 216 24" buttonText="Save mapping after sending"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

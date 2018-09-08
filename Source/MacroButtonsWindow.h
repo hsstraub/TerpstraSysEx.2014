@@ -72,6 +72,7 @@ private:
     //==============================================================================
     ScopedPointer<ToggleButton> btnEnableMacroButtons;
     ScopedPointer<Label> lblMacroButtonsInfo;
+    ScopedPointer<ToggleButton> btnSaveAfterSending;
     ScopedPointer<Drawable> drawable1;
 
 

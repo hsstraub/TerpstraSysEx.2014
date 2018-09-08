@@ -5,6 +5,10 @@
               jucerVersion="4.3.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
+      <FILE id="mKOOP6" name="TopEdgeLightLeft.png" compile="0" resource="1"
+            file="BinaryData/TopEdgeLightLeft.png"/>
+      <FILE id="gZlHUE" name="TopEdgeLightRight.png" compile="0" resource="1"
+            file="BinaryData/TopEdgeLightRight.png"/>
       <FILE id="rp33Hj" name="TopEdgeButton.png" compile="0" resource="1"
             file="BinaryData/TopEdgeButton.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"

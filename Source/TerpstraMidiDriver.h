@@ -66,10 +66,11 @@ public:
 	void sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
 
 	// Send and save all parametrizations of one sub board
-	void sendAndSaveAllParamsOfBoard(int boardIndex, TerpstraKeys boardData);
+	void sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardDa, bool saveAfterSending);
 
 	// Send and save a complete key mapping
-	void sendAndSaveCompleteMapping(TerpstraKeyMapping mappingData);
+	void sendCompleteMapping(TerpstraKeyMapping mappingData, bool saveAfterSending);
+	void sendAndSaveCompleteMapping(TerpstraKeyMapping mappingData) { sendCompleteMapping(mappingData, true); }
 
 	// Store a sub board's sent key parametrizations permanently on device
 	void storeAllToEEPROM();

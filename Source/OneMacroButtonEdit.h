@@ -46,6 +46,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void setMacroButtonNumber(int value);
+	void setSaveAfterSending(bool value) { saveAfterSending = value; }
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	void textEditorFocusLost(TextEditor& textEdit) override;
@@ -67,6 +68,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		macroButtonNumber;
 	File	currentFile;
+	bool    saveAfterSending;
     //[/UserVariables]
 
     //==============================================================================

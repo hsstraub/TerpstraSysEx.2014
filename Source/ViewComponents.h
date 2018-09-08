@@ -59,6 +59,27 @@ public:
 	void setIsSelected(bool newValue) { setToggleState(newValue, dontSendNotification); };
 };
 
+/*
+==============================================================================
+Macro button component (holds two controller buttons)
+==============================================================================
+*/
+
+class TerpstraMacroButton : public ImageButton
+{
+public:
+	TerpstraMacroButton();
+	~TerpstraMacroButton();
+
+	typedef enum
+	{
+		leftbutton, 
+		rightbutton
+	} MACROBUTTONSUBINDEX;
+
+	void setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue);
+};
+
 
 /*
 ==============================================================================
