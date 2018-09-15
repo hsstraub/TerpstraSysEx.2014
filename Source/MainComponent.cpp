@@ -19,9 +19,6 @@ MainContentComponent::MainContentComponent()
 {
 	setSize(MAINWINDOWWIDTH, MAINWINDOWHEIGHT);
 
-	// SysEx command buttons
-	// XXX
-
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
@@ -79,7 +76,7 @@ MainContentComponent::MainContentComponent()
 		{
 			terpstraKeyFields[2 + 6 * row + i] = new TerpstraKeyEdit();
 			addAndMakeVisible(terpstraKeyFields[2 + 6 * row + i]);
-			x = xbasepos + (5-i)*TERPSTRASINGLEKEYFLDSIZE;
+			x = xbasepos + (5 - i)*TERPSTRASINGLEKEYFLDSIZE;
 			y = ybasepos;
 			transform.transformPoint(x, y);
 			terpstraKeyFields[2 + 6 * row + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
@@ -91,7 +88,7 @@ MainContentComponent::MainContentComponent()
 	{
 		terpstraKeyFields[50 + i] = new TerpstraKeyEdit();
 		addAndMakeVisible(terpstraKeyFields[50 + i]);
-		x = MAINWINDOWFIRSTCOLPOS + (2 * (4-i) + 3)*TERPSTRASINGLEKEYFLDSIZE / 2;
+		x = MAINWINDOWFIRSTCOLPOS + (2 * (4 - i) + 3)*TERPSTRASINGLEKEYFLDSIZE / 2;
 		y = TERPSTRASINGLEKEYFIELDFIRSTYPOS + 3 * 9 * TERPSTRASINGLEKEYFLDSIZE / 4;
 		transform.transformPoint(x, y);
 		terpstraKeyFields[50 + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
@@ -158,23 +155,27 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
 	if (message.isController())
-	{	
+	{
 		// Established that a controller change has occurred, which is due
 		// to a keyboard macro button being pressed. Now Channel will hold
-		// a value from 0 to 15, and InData1 will hold either 16 or 17.
-		// the formula to establish which button is pressed is
-		// One  button subcomponent holds 2 buttons
+		// a value from 0 to 15, and InData1 (controller number) will hold either 16 or 17.
+		// The formula to establish which button is pressed is
 		// ButtonNum = channel*2 + (InData1 - 16)
-		int buttonSubwinIndex = message.getChannel()-1;
-		jassert(buttonSubwinIndex >= 0 && buttonSubwinIndex < 5);
+		// One button subcomponent holds 2 buttons
+		int buttonSubwinIndex = message.getChannel() - 1;
+		if (buttonSubwinIndex >= 0 && buttonSubwinIndex < 5)
+		{
+			if (message.getControllerNumber() == 16 || message.getControllerNumber() == 17)
+			{
+				// Highlight controller button on/off. Left side, if controller == 17, right side, if it is 16
+				macroButtons[buttonSubwinIndex]->setIsSelected(
+					message.getControllerNumber() == 17 ? TerpstraMacroButton::leftbutton : TerpstraMacroButton::rightbutton,
+					message.getControllerValue() >= 0x3f);
 
-		// Highlight controller button on/off. Left side, if message.getControllerNumber() == 16, right side, if it is 17
-		macroButtons[buttonSubwinIndex]->setIsSelected(
-			message.getControllerNumber() == 17 ? TerpstraMacroButton::leftbutton : TerpstraMacroButton::rightbutton,
-			message.getControllerValue() == 0x3f);
-
-		// Send parametrization file to controller, if one is specified
-		noteEditArea->handleIncomingMidiMessage(source, message);
+				// Send parametrization file to controller, if one is specified
+				noteEditArea->handleIncomingMidiMessage(source, message);
+			}
+		}
 	}
 }
 

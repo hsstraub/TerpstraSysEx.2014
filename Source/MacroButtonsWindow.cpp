@@ -146,7 +146,7 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
 		{
 			buttonComponents[i]->setSaveAfterSending(saveAfterSending);
 		}
-		//[/UserButtonCode_btnSaveAfterSending]
+        //[/UserButtonCode_btnSaveAfterSending]
     }
 
     //[UserbuttonClicked_Post]
@@ -168,10 +168,9 @@ void MacroButtonsWindow::handleIncomingMidiMessage(MidiInput* source, const Midi
 		// ButtonNum = channel*2 + (InData1 - 16)
 		int buttonNo = (message.getChannel() - 1) * 2 + message.getControllerNumber() - 16;
 
-		if (message.getControllerValue() == 0x3f)
+		if (buttonNo >= 0 && buttonNo < 10 && message.getControllerValue() == 0x3f)
 		{
 			// Send the SysEx parameter file of the corresponding controller
-			jassert(buttonNo >= 0 && buttonNo < 10);
 			buttonComponents[buttonNo]->sendParametrizationFileToDevice();
 		}
 	}

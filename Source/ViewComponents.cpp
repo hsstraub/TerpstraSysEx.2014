@@ -153,7 +153,7 @@ TerpstraMacroButton::TerpstraMacroButton()
 {
 	setIsSelected(rightbutton, false);
 
-	setClickingTogglesState(true);	// ad hoc, to test. Will be obsolete when MIDI messages are processed
+	setClickingTogglesState(false);	// ad hoc, to test: set to true. Will be obsolete when MIDI messages are processed
 }
 
 TerpstraMacroButton::~TerpstraMacroButton()
@@ -172,7 +172,7 @@ void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newVa
 	setImages(true, true, true,
 		imgUnselected, 0.6f, Colours::transparentBlack,
 		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgSelected, 0.9f, Colours::transparentBlack,
+		imgSelected, 0.7f, Colours::transparentBlack,
 		0.5f);
 
 	setToggleState(newValue, dontSendNotification); 
