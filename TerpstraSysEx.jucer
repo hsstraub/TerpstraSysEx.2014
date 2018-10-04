@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.4.1"
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.5.0"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
               jucerVersion="4.3.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
+      <FILE id="bqg5AV" name="OctaveWithSelection.png" compile="0" resource="1"
+            file="BinaryData/OctaveWithSelection.png"/>
       <FILE id="mKOOP6" name="TopEdgeLightLeft.png" compile="0" resource="1"
             file="BinaryData/TopEdgeLightLeft.png"/>
       <FILE id="gZlHUE" name="TopEdgeLightRight.png" compile="0" resource="1"

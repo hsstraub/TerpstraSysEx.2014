@@ -128,12 +128,12 @@ TerpstraKeySetEdit class
 TerpstraKeySetEdit::TerpstraKeySetEdit()
 {
 	Image imgUnselected = ImageCache::getFromMemory(BinaryData::OctaveGraphic_png, BinaryData::OctaveGraphic_pngSize);
-	//Image imgSelected = ImageCache::getFromMemory(BinaryData::OctaveOutline_png, BinaryData::OctaveOutline_pngSize);
+	Image imgSelected = ImageCache::getFromMemory(BinaryData::OctaveWithSelection_png, BinaryData::OctaveWithSelection_pngSize);
 
 	setImages(true, true, true,
-		imgUnselected, 0.3f, Colours::transparentBlack,
+		imgUnselected, 0.5f, Colours::transparentBlack,
 		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgUnselected, 0.9f, Colour(MAINWINDOWSELECTEDCOLOUR),
+		imgSelected, 0.9f, Colours::transparentBlack,
 		0.5f);
 
 	setClickingTogglesState(true);
