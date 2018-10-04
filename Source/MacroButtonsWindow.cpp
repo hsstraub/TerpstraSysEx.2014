@@ -159,7 +159,7 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
 
 void MacroButtonsWindow::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-	if (message.isController())
+	if (message.isController() && btnEnableMacroButtons->getToggleState())
 	{
 		// Established that a controller change has occurred, which is due
 		// to a keyboard macro button being pressed. Now Channel will hold
