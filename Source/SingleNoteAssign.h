@@ -37,9 +37,9 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
+                          public ChangeListener,
                           public ComboBoxListener,
-                          public ButtonListener,
-                          public ChangeListener
+                          public ButtonListener
 {
 public:
     //==============================================================================
@@ -77,6 +77,8 @@ private:
     ScopedPointer<ToggleButton> setColourToggleButton;
     ScopedPointer<TextButton> btnColourPicker;
     ScopedPointer<ColourComboBox> colourCombo;
+    ScopedPointer<ToggleButton> keyTypeToggleButton;
+    ScopedPointer<ComboBox> keyTypeCombo;
 
 
     //==============================================================================

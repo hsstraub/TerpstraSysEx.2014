@@ -98,6 +98,17 @@ SingleNoteAssign::SingleNoteAssign ()
     colourCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     colourCombo->addListener (this);
 
+    addAndMakeVisible (keyTypeToggleButton = new ToggleButton ("keyTypeToggleButton"));
+    keyTypeToggleButton->setButtonText (TRANS("Key type:"));
+    keyTypeToggleButton->addListener (this);
+
+    addAndMakeVisible (keyTypeCombo = new ComboBox ("keyTypeCombo"));
+    keyTypeCombo->setEditableText (false);
+    keyTypeCombo->setJustificationType (Justification::centredLeft);
+    keyTypeCombo->setTextWhenNothingSelected (String());
+    keyTypeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    keyTypeCombo->addListener (this);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -118,6 +129,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setNoteToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 
 	//colourCombo->setTextFieldToColour(XXX);
     //[/Constructor]
@@ -140,6 +152,8 @@ SingleNoteAssign::~SingleNoteAssign()
     setColourToggleButton = nullptr;
     btnColourPicker = nullptr;
     colourCombo = nullptr;
+    keyTypeToggleButton = nullptr;
+    keyTypeCombo = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -163,7 +177,7 @@ void SingleNoteAssign::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    noteAndChannelAssGroup->setBounds (0, 8, 424, 176);
+    noteAndChannelAssGroup->setBounds (0, 8, 424, 208);
     editInstructionText->setBounds (8, 32, 352, 24);
     noteBox->setBounds (120, 64, 56, 24);
     noteAutoIncrButton->setBounds (192, 64, 160, 24);
@@ -175,6 +189,8 @@ void SingleNoteAssign::resized()
     setColourToggleButton->setBounds (8, 136, 112, 24);
     btnColourPicker->setBounds (216, 136, 104, 24);
     colourCombo->setBounds (120, 136, 79, 24);
+    keyTypeToggleButton->setBounds (8, 176, 112, 24);
+    keyTypeCombo->setBounds (120, 176, 192, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -203,6 +219,11 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
         //[/UserComboBoxCode_colourCombo]
+    }
+    else if (comboBoxThatHasChanged == keyTypeCombo)
+    {
+        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
+        //[/UserComboBoxCode_keyTypeCombo]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -265,6 +286,13 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 
 		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
         //[/UserButtonCode_btnColourPicker]
+    }
+    else if (buttonThatWasClicked == keyTypeToggleButton)
+    {
+        //[UserButtonCode_keyTypeToggleButton] -- add your button handler code here..
+		bool fieldActive = keyTypeToggleButton->getToggleState();
+		keyTypeCombo->setEnabled(fieldActive);
+        //[/UserButtonCode_keyTypeToggleButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -356,12 +384,12 @@ void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="325">
+                 parentClasses="public Component, public ChangeListener" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="325">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <GROUPCOMPONENT name="noteAndChannelAssGroup" id="cd12ee7381d485a1" memberName="noteAndChannelAssGroup"
-                  virtualName="" explicitFocusOrder="0" pos="0 8 424 176" title="Key Note and Channel Assignments"/>
+                  virtualName="" explicitFocusOrder="0" pos="0 8 424 208" title="Key Note and Channel Assignments"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
          virtualName="" explicitFocusOrder="0" pos="8 32 352 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Assign these values to a key by clicking on the desired key-face."
@@ -397,6 +425,12 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="colourCombo" id="86628debb1bafc04" memberName="colourCombo"
             virtualName="ColourComboBox" explicitFocusOrder="0" pos="120 136 79 24"
             editable="1" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <TOGGLEBUTTON name="keyTypeToggleButton" id="3f2eba6027c4f2f5" memberName="keyTypeToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="8 176 112 24" buttonText="Key type:"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
+            virtualName="" explicitFocusOrder="0" pos="120 176 192 24" editable="0"
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

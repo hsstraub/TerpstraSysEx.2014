@@ -18,11 +18,12 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "KeyboardDataStructure.h"
+#include "Main.h"
 //[/Headers]
 
 #include "OneMacroButtonEdit.h"
-#include "KeyboardDataStructure.h"
-#include "Main.h"
+
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
