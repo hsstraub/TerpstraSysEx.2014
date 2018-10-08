@@ -18,7 +18,7 @@ TerpstraKeyEdit class
 */
 
 TerpstraKeyEdit::TerpstraKeyEdit()
-	: isSelected(false), keyColour(0)
+	: isSelected(false), keyColour(0), keyType(TerpstraKey::noteOnNoteOff)
 {
 	midiNoteLabel = new Label("midiNoteLabel", "0");
 	addAndMakeVisible(midiNoteLabel);
@@ -41,6 +41,7 @@ TerpstraKey TerpstraKeyEdit::getValue() const
 	newValue.noteNumber = midiNoteLabel->getText().getIntValue();
 	newValue.channelNumber = midiChannelLabel->getText().getIntValue();
 	newValue.colour = keyColour;
+	newValue.keyType = keyType;
 
 	return newValue;
 }
@@ -50,6 +51,7 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	midiNoteLabel->setText(String(newValue.noteNumber), juce::NotificationType::sendNotification);
 	midiChannelLabel->setText(String(newValue.channelNumber), juce::NotificationType::sendNotification);
 	keyColour = newValue.colour;
+	keyType = newValue.keyType;
 
 	repaint();
 }
@@ -90,11 +92,24 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
+
 	// Color: empty or the parametrized color
 	TerpstraKey currentValue = getValue();
 
-	// Parametrized colour
-	g.setColour(Colour(MAINWINDOWBGCOLOUR).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40)));
+	Colour bgColour = Colour(MAINWINDOWBGCOLOUR).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
+
+	// Look depending on Key type
+	if (currentValue.keyType == TerpstraKey::continuousController)
+	{
+		// Key type is continuous controller. Set colour gradient.
+		g.setGradientFill(
+			ColourGradient(bgColour.darker(), w / 2.0f, h / 2.0f, bgColour, 0.0f, 0.0f, true));
+	}
+	else
+	{
+		// Key type is note on/note off. Just plain colour.
+		g.setColour(bgColour);
+	}
 
 	g.fillPath(hexPath);
 

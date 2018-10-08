@@ -15,17 +15,26 @@ Author:  hsstraub
 
 
 // Mapping of one key
-class TerpstraKey {
+class TerpstraKey 
+{
 public:
-	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; };
+	typedef enum
+	{
+		noteOnNoteOff = 1,
+		continuousController = 2
+	} KEYTYPE;
+
+public:
+	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
 
 	// 0 is a valid note number, but channel 0 doesn't exist 
 	bool isEmpty() const { return channelNumber == 0; }
 
 public:
-	int noteNumber;
-	int channelNumber;
-	int colour;
+	int		noteNumber;
+	int		channelNumber;
+	int		colour;
+	KEYTYPE	keyType;
 };
 
 // Subset of 56 keys
@@ -60,6 +69,5 @@ public:
 public:
 	TerpstraKeys	sets[NUMBEROFBOARDS];
 };
-
 
 #endif

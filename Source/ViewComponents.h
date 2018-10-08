@@ -41,7 +41,8 @@ private:
 	Label*	midiNoteLabel;
 	Label*  midiChannelLabel;
 
-	int keyColour;
+	int						keyColour;
+	TerpstraKey::KEYTYPE	keyType;
 };
 
 

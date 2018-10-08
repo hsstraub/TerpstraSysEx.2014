@@ -107,6 +107,8 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->setJustificationType (Justification::centredLeft);
     keyTypeCombo->setTextWhenNothingSelected (String());
     keyTypeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
+    keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
     keyTypeCombo->addListener (this);
 
 
@@ -338,6 +340,12 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 		keyData.colour = colourCombo->getColourAsNumberFromText(ColourComboBox::AddColourToComboBox);
 	}
 
+	// Set key type if specified
+	if (keyTypeToggleButton->getToggleState())
+	{
+		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
+	}
+
 	// Send to device
 	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
 
@@ -430,7 +438,8 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
             virtualName="" explicitFocusOrder="0" pos="120 176 192 24" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="Note on/Note off&#10;Continuous controller"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
