@@ -132,7 +132,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
-
+	keyTypeCombo->setSelectedId(TerpstraKey::noteOnNoteOff);
 	//colourCombo->setTextFieldToColour(XXX);
     //[/Constructor]
 }

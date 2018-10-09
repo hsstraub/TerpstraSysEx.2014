@@ -103,7 +103,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			else
 				jassert(false);
 		}
-		else if ((pos1 = currentLine.indexOf("KType_")) >= 0)
+		else if ((pos1 = currentLine.indexOf("KTyp_")) >= 0)
 		{
 			pos2 = currentLine.indexOf("=");
 			if (pos2 >= 0 && pos2 > pos1)
@@ -139,8 +139,10 @@ StringArray TerpstraKeyMapping::toStringArray()
 		{
 			result.add("Key_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].noteNumber));
 			result.add("Chan_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].channelNumber));
-			result.add("Col_" + String(keyIndex) + "=" + String::toHexString( (sets[boardIndex].theKeys[keyIndex].colour)));
-			result.add("KType_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
+			if (sets[boardIndex].theKeys[keyIndex].colour != 0)
+				result.add("Col_" + String(keyIndex) + "=" + String::toHexString((sets[boardIndex].theKeys[keyIndex].colour)));
+			if (sets[boardIndex].theKeys[keyIndex].keyType != TerpstraKey::noteOnNoteOff)
+				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
 		}
 	}
 
