@@ -84,7 +84,12 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 	// Send only if data are not empty
 	if (!keyData.isEmpty())
 	{
+		// Channel, note, key type (note on/note off or continuous controller)
 		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType, '\0');
+
+		// Colour. Values from 0x00 to 0x33 (51 decimal, 20% of 0xff == 255 decimal)
+		Colour theColour(keyData.colour);
+		sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 5, theColour.getGreen() / 5, theColour.getBlue() / 5, '\0');
 	}
 }
 

@@ -27,7 +27,8 @@ System exclusive command bytes
 #define MMID2 0x20
 #define MMID3 0xFF
 #define CHANGE_KEY_NOTE 0x00
-#define READ_KEY_NOTE 0x01
+#define READ_KEY_NOTE 0x01		// XXX not used for 2nd generation keyboard?
+#define SET_KEY_COLOUR 0x01
 #define STORE_TO_EEPROM 0x02
 #define RECALL_FROM_EEPROM 0x03
 #define READ_KEY_POSITION 0x04
