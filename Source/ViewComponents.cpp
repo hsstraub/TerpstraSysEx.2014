@@ -103,7 +103,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	{
 		// Key type is continuous controller. Set colour gradient.
 		g.setGradientFill(
-			ColourGradient(bgColour.darker(), w / 2.0f, h / 2.0f, bgColour, 0.0f, 0.0f, true));
+			ColourGradient(bgColour.darker(), w / 2.0f, h / 2.0f, bgColour.brighter(), w / 2.0f, 0.0f, true));
 	}
 	else
 	{
