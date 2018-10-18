@@ -46,3 +46,10 @@ void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
 	midiOutput = MidiOutput::openDevice(deviceIndex);
 }
+
+void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
+{
+	// Send only if output device is there
+	if (midiOutput != nullptr)
+		midiOutput->sendMessageNow(message);
+}

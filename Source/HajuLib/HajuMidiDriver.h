@@ -38,6 +38,9 @@ public:
 	// Open the specified output device
 	void setMidiOutput(int deviceIndex);
 
+	// Send a MIDI message directly 
+	void sendMessageNow(const MidiMessage& message);
+
 	// Attributes
 private:
 	StringArray midiInputs;

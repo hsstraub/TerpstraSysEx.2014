@@ -20,6 +20,10 @@
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
+        <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
+              file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>
+        <FILE id="b5aZVC" name="HajuDelayMidiDriver.h" compile="0" resource="0"
+              file="Source/HajuLib/HajuDelayMidiDriver.h"/>
         <FILE id="JYbmDZ" name="HajuMidiDriver.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuMidiDriver.cpp"/>
         <FILE id="qke01B" name="HajuMidiDriver.h" compile="0" resource="0"

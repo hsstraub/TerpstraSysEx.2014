@@ -11,7 +11,7 @@
 #include "TerpstraMidiDriver.h"
 
 
-TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
+TerpstraMidiDriver::TerpstraMidiDriver() : HajuDelayMidiDriver()
 {
 	autoSave = false;
 }
@@ -132,6 +132,6 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 		sysExData[9] = data5;
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 10);
-		midiOutput->sendMessageNow(msg);
+		sendMessageDelayed(msg);
 	}
 }
