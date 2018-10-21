@@ -51,7 +51,10 @@ public:
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 	void PerformMouseClickEdit(int setSelection, int keySelection);
 	void onSetData(TerpstraKeyMapping& newData);
-    //[/UserMethods]
+
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+	//[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;

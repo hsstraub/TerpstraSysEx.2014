@@ -379,6 +379,31 @@ void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
 		colourCombo->addColourToBox(usedColours[pos]);
 }
 
+void SingleNoteAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	setNoteToggleButton->setToggleState(
+		propertiesFile->getBoolValue("SingleNoteNoteSetActive", true), 
+		juce::NotificationType::sendNotification);
+	setChannelToggleButton->setToggleState(
+		propertiesFile->getBoolValue("SingleNoteChannelSetActive", true),
+		juce::NotificationType::sendNotification);
+	setColourToggleButton->setToggleState(
+		propertiesFile->getBoolValue("SingleNoteColourSetActive", true),
+		juce::NotificationType::sendNotification);
+	keyTypeToggleButton->setToggleState(
+		propertiesFile->getBoolValue("SingleNoteKeyTypeSetActive", true),
+		juce::NotificationType::sendNotification);
+}
+
+void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	propertiesFile->setValue("SingleNoteNoteSetActive", setNoteToggleButton->getToggleState());
+	propertiesFile->setValue("SingleNoteChannelSetActive", setChannelToggleButton->getToggleState());
+	propertiesFile->setValue("SingleNoteColourSetActive", setColourToggleButton->getToggleState());
+	propertiesFile->setValue("SingleNoteKeyTypeSetActive", keyTypeToggleButton->getToggleState());
+
+}
+
 //[/MiscUserCode]
 
 
