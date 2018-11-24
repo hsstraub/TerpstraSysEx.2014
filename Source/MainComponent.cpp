@@ -47,7 +47,7 @@ MainContentComponent::MainContentComponent()
 
 	// Rows from right to left
 	// first row
-	x = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE;
+	x = MAINWINDOWFIRSTCOLPOS;
 	y = TERPSTRASINGLEKEYFIELDFIRSTYPOS;
 	transform.transformPoint(x, y);
 	terpstraKeyFields[0] = new TerpstraKeyEdit();
@@ -56,7 +56,7 @@ MainContentComponent::MainContentComponent()
 
 	terpstraKeyFields[1] = new TerpstraKeyEdit();
 	addAndMakeVisible(terpstraKeyFields[1]);
-	x = MAINWINDOWFIRSTCOLPOS;
+	x = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE;
 	y = TERPSTRASINGLEKEYFIELDFIRSTYPOS;
 	transform.transformPoint(x, y);
 	terpstraKeyFields[1]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
@@ -76,7 +76,7 @@ MainContentComponent::MainContentComponent()
 		{
 			terpstraKeyFields[2 + 6 * row + i] = new TerpstraKeyEdit();
 			addAndMakeVisible(terpstraKeyFields[2 + 6 * row + i]);
-			x = xbasepos + (5 - i)*TERPSTRASINGLEKEYFLDSIZE;
+			x = xbasepos + i*TERPSTRASINGLEKEYFLDSIZE;
 			y = ybasepos;
 			transform.transformPoint(x, y);
 			terpstraKeyFields[2 + 6 * row + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
@@ -88,7 +88,7 @@ MainContentComponent::MainContentComponent()
 	{
 		terpstraKeyFields[50 + i] = new TerpstraKeyEdit();
 		addAndMakeVisible(terpstraKeyFields[50 + i]);
-		x = MAINWINDOWFIRSTCOLPOS + (2 * (4 - i) + 3)*TERPSTRASINGLEKEYFLDSIZE / 2;
+		x = MAINWINDOWFIRSTCOLPOS + (2 * i + 3)*TERPSTRASINGLEKEYFLDSIZE / 2;
 		y = TERPSTRASINGLEKEYFIELDFIRSTYPOS + 3 * 9 * TERPSTRASINGLEKEYFLDSIZE / 4;
 		transform.transformPoint(x, y);
 		terpstraKeyFields[50 + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
