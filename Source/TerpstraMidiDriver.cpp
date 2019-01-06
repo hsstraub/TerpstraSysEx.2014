@@ -27,14 +27,10 @@ Combined (hi-level) commands
 
 void TerpstraMidiDriver::sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
 {
-	// Send only if data are not empty
-	if (!keyData.isEmpty())
-	{
-		sendKeyParam(boardIndex, keyIndex, keyData);
+	sendKeyParam(boardIndex, keyIndex, keyData);
 
-		if (autoSave)
-			storeToEEPROM(boardIndex);
-	}
+	if (autoSave)
+		storeToEEPROM(boardIndex);
 }
 
 void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData, bool saveAfterSending)
@@ -81,16 +77,13 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 	// boardIndex is expected 1-based
 	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
 
-	// Send only if data are not empty
-	if (!keyData.isEmpty())
-	{
-		// Channel, note, key type (note on/note off or continuous controller)
+	// Channel, note, key type (note on/note off or continuous controller)
+	if (keyData.channelNumber >= 0)
 		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType, '\0');
 
-		// Colour. Values from 0x00 to 0x33 (51 decimal, 20% of 0xff == 255 decimal)
-		Colour theColour(keyData.colour);
-		sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 5, theColour.getGreen() / 5, theColour.getBlue() / 5, '\0');
-	}
+	// Colour. Values from 0x00 to 0x33 (51 decimal, 20% of 0xff == 255 decimal)
+	Colour theColour(keyData.colour);
+	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 5, theColour.getGreen() / 5, theColour.getBlue() / 5, '\0');
 }
 
 void TerpstraMidiDriver::storeToEEPROM(int boardIndex)

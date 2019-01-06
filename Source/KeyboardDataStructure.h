@@ -27,9 +27,6 @@ public:
 public:
 	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
 
-	// 0 is a valid note number, but channel 0 doesn't exist 
-	bool isEmpty() const { return channelNumber == 0; }
-
 public:
 	int		noteNumber;
 	int		channelNumber;

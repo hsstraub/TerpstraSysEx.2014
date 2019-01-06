@@ -98,7 +98,7 @@ TerpstraKey IncrMidiNotesMappingLogic::indexToTerpstraKey(int inx) const
 
 int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 {
-	if (keyData.isEmpty() || this->globalMappingSize() == 0)
+	if (keyData.channelNumber == 0|| this->globalMappingSize() == 0)
 		return -1;
 
 	if (this->isSingleChannel())

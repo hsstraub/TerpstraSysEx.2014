@@ -118,7 +118,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	g.strokePath(hexPath, PathStrokeType(lineWidth));
 
 	// Something parametrized or not?  
-	if (currentValue.isEmpty())
+	if (currentValue.channelNumber == 0)
 	{
 		midiChannelLabel->setAlpha(0.3);
 		midiNoteLabel->setAlpha(0.3);
