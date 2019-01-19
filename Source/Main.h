@@ -81,6 +81,10 @@ public:
 		{
 			setContentOwned(new MainContentComponent(), true);
 
+			setResizable(true, false);
+			// Single keys and edit area need to be whole on screen, the octave board selectors are resized at demand
+			setResizeLimits(MINIMALMAINWINDOWWIDTH, MINIMALMAINWINDOWHEIGHT, DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
+
 			centreWithSize(getWidth(), getHeight());
 #if JUCE_ANDROID
 			setFullScreen(true);

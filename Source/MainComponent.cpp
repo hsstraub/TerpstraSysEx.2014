@@ -17,7 +17,7 @@
 MainContentComponent::MainContentComponent()
 : currentSetSelection(-1), currentSingleKeySelection(-1)
 {
-	setSize(MAINWINDOWWIDTH, MAINWINDOWHEIGHT);
+	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -25,14 +25,14 @@ MainContentComponent::MainContentComponent()
 		// Macro button
 		macroButtons[i] = new TerpstraMacroButton();
 		addAndMakeVisible(macroButtons[i]);
-		macroButtons[i]->setBounds(FIRSTMACROBUTTOONCOLPOS + i*TERPSTRAKEYSETFLDSPAN, MACROBUTTONYPOS, macroButtons[i]->getWidth(), macroButtons[i]->getHeight());
+		macroButtons[i]->setBounds(FIRSTMACROBUTTOONCOLPOS + i*DEFAULTTERPSTRAKEYSETWIDTH, MACROBUTTONYPOS, macroButtons[i]->getWidth(), macroButtons[i]->getHeight());
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
 		terpstraSetSelectors[4-i] = new TerpstraKeySetEdit();
 		addAndMakeVisible(terpstraSetSelectors[4-i]);
-		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*TERPSTRAKEYSETFLDSPAN, TERPSTRAKEYSETFLDFIRSTYPOS, terpstraSetSelectors[4 - i]->getWidth(), terpstraSetSelectors[4 - i]->getHeight());
+		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*DEFAULTTERPSTRAKEYSETWIDTH, TERPSTRAKEYSETFLDFIRSTYPOS, terpstraSetSelectors[4 - i]->getWidth(), terpstraSetSelectors[4 - i]->getHeight());
 		terpstraSetSelectors[4-i]->addListener(this);
 	}
 
@@ -108,12 +108,12 @@ MainContentComponent::MainContentComponent()
 	// Midi input + output
 	midiEditArea = new MidiEditArea();
 	addAndMakeVisible(midiEditArea);
-	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
+	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, MIDIEDITAREAFIRSTROWPOS, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 	midiEditArea->addSendAllButtonListener(this);
 
 	noteEditArea = new NoteEditArea();
 	addAndMakeVisible(noteEditArea);
-	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, 250 + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
+	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, MIDIEDITAREAFIRSTROWPOS + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 
 	// Select first board and first key
 	changeSetSelection(0);
