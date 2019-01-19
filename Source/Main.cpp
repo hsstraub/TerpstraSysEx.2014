@@ -340,15 +340,15 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 {	
 	String m;
 
-	String versionString = "Version " + String(JUCE_APP_VERSION_HEX);
-
-	// XXX Version: there are the internal constants JUCE_APP_VERSION and JUCE_APP_VERSION_HEX...
 	m << "Terpstra SysEx Utility" << newLine
 		<< newLine
-		<< "Version 0.5.2" << newLine
+		<< "Version " << String((JUCE_APP_VERSION_HEX >> 16) & 0xff) << "."
+		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
+		<< String(JUCE_APP_VERSION_HEX & 0xff) << newLine
+
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
-		<< "Reengineered @ Hans Straub 2014 - 2018" << newLine
+		<< "Reengineered @ Hans Straub 2014 - 2019" << newLine
 		<< "Program icon based on a design by Bo Constantinsen" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Terpstra keyboard, go to http://terpstrakeyboard.com .";
