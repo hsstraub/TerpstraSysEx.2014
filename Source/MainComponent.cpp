@@ -159,11 +159,6 @@ void MainContentComponent::resized()
 	int newWidth = getWidth();
 	int newHeight = getHeight();
 
-	double newResizeFactor = jmin((double)newWidth / DEFAULTMAINWINDOWWIDTH, (double)newHeight / DEFAULTMAINWINDOWHEIGHT);
-	jassert(newResizeFactor > 0.0);
-	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
-	jassert(newDecreaseFactor > 0.0);
-
 	// New width and height of subset fields
 	int newSubsetWidth = (newWidth - 2 * MAINWINDOWFIRSTCOLPOS) / 5;
 	if (newSubsetWidth <= 0)
@@ -172,6 +167,11 @@ void MainContentComponent::resized()
 	int newSubsetHeight = newHeight - TERPSTRAKEYSETFLDFIRSTYPOS - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT;
 	if (newSubsetHeight < TERPSTRAKEYSETFLDFIRSTYPOS + MINIMALTERPSTRAKEYSETHEIGHT)
 		newSubsetHeight = MINIMALTERPSTRAKEYSETHEIGHT;
+
+	double newResizeFactor = jmin((double)newSubsetWidth / DEFAULTTERPSTRAKEYSETWIDTH, (double)newSubsetHeight / DEFAULTTERPSTRAKEYSETHEIGHT);
+	jassert(newResizeFactor > 0.0);
+	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
+	jassert(newDecreaseFactor > 0.0);
 
 	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
 	int newMidiEditFirstYPos = newSubsetFirstYPos + newSubsetHeight;
