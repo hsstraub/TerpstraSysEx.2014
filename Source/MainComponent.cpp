@@ -169,12 +169,13 @@ void MainContentComponent::resized()
 	if (newSubsetWidth <= 0)
 		newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH;
 
-	int newSubsetHeight = newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT;
+	int newSubsetHeight = newHeight - TERPSTRAKEYSETFLDFIRSTYPOS - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT;
 	if (newSubsetHeight < TERPSTRAKEYSETFLDFIRSTYPOS + MINIMALTERPSTRAKEYSETHEIGHT)
 		newSubsetHeight = MINIMALTERPSTRAKEYSETHEIGHT;
 
 	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
-	int newSingleKeyFieldFirstYPos = newSubsetHeight + TERPSTRASINGLEKEYFIELDRIMABOVE;
+	int newMidiEditFirstYPos = newSubsetFirstYPos + newSubsetHeight;
+	int newSingleKeyFieldFirstYPos = newMidiEditFirstYPos + TERPSTRASINGLEKEYFIELDRIMABOVE;
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -245,10 +246,10 @@ void MainContentComponent::resized()
 	terpstraKeyFields[55]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
 	// Midi input + output
-	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newSubsetHeight, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
+	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 
 	// Edit function area
-	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newSubsetHeight + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
+	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 }
 
 void MainContentComponent::buttonClicked(Button *button)
