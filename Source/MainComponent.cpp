@@ -156,23 +156,43 @@ void MainContentComponent::resized()
     // If you add any child components, this is where you should
     // update their positions.
 
+	int newWidth = getWidth();
+	int newHeight = getHeight();
+
+	double newResizeFactor = jmin((double)newWidth / DEFAULTMAINWINDOWWIDTH, (double)newHeight / DEFAULTMAINWINDOWHEIGHT);
+	jassert(newResizeFactor > 0.0);
+	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
+	jassert(newDecreaseFactor > 0.0);
+
+	// New width and height of subset fields
+	int newSubsetWidth = (newWidth - 2 * MAINWINDOWFIRSTCOLPOS) / 5;
+	if (newSubsetWidth <= 0)
+		newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH;
+
+	int newSubsetHeight = newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT;
+	if (newSubsetHeight < TERPSTRAKEYSETFLDFIRSTYPOS + MINIMALTERPSTRAKEYSETHEIGHT)
+		newSubsetHeight = MINIMALTERPSTRAKEYSETHEIGHT;
+
+	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
+	int newSingleKeyFieldFirstYPos = newSubsetHeight + TERPSTRASINGLEKEYFIELDRIMABOVE;
+
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		// Macro button
-		macroButtons[i]->setBounds(FIRSTMACROBUTTOONCOLPOS + i*DEFAULTTERPSTRAKEYSETWIDTH, MACROBUTTONYPOS, macroButtons[i]->getWidth(), macroButtons[i]->getHeight());
+		macroButtons[i]->setBounds(FIRSTMACROBUTTOONCOLPOS + i*newSubsetWidth, MACROBUTTONYPOS, DEFAULTMACROBUTTONWIDTH*newDecreaseFactor, DEFAULTMACROBUTTONHEIGHT*newDecreaseFactor);
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
-		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*DEFAULTTERPSTRAKEYSETWIDTH, TERPSTRAKEYSETFLDFIRSTYPOS, terpstraSetSelectors[4 - i]->getWidth(), terpstraSetSelectors[4 - i]->getHeight());
+		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetWidth, newSubsetFirstYPos, newSubsetWidth, newSubsetHeight);
 	}
 
 	// Single Key fields
 
 	// Transformation Rotate slightly counterclockwise
 	int x = MAINWINDOWFIRSTCOLPOS;
-	int y = TERPSTRASINGLEKEYFIELDFIRSTYPOS;
+	int y = newSingleKeyFieldFirstYPos;
 	AffineTransform transform = AffineTransform::translation(-x, -y);
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(x, y);
@@ -180,12 +200,12 @@ void MainContentComponent::resized()
 	// Rows from right to left
 	// first row
 	x = MAINWINDOWFIRSTCOLPOS;
-	y = TERPSTRASINGLEKEYFIELDFIRSTYPOS;
+	y = newSingleKeyFieldFirstYPos;
 	transform.transformPoint(x, y);
 	terpstraKeyFields[0]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
 	x = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE;
-	y = TERPSTRASINGLEKEYFIELDFIRSTYPOS;
+	y = newSingleKeyFieldFirstYPos;
 	transform.transformPoint(x, y);
 	terpstraKeyFields[1]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
@@ -198,7 +218,7 @@ void MainContentComponent::resized()
 		else
 			xbasepos = MAINWINDOWFIRSTCOLPOS;
 
-		int ybasepos = TERPSTRASINGLEKEYFIELDFIRSTYPOS + 3 * (row + 1) * TERPSTRASINGLEKEYFLDSIZE / 4;
+		int ybasepos = newSingleKeyFieldFirstYPos + 3 * (row + 1) * TERPSTRASINGLEKEYFLDSIZE / 4;
 
 		for (int i = 0; i < 6; i++)
 		{
@@ -213,22 +233,22 @@ void MainContentComponent::resized()
 	for (int i = 0; i < 5; i++)
 	{
 		x = MAINWINDOWFIRSTCOLPOS + (2 * i + 3)*TERPSTRASINGLEKEYFLDSIZE / 2;
-		y = TERPSTRASINGLEKEYFIELDFIRSTYPOS + 3 * 9 * TERPSTRASINGLEKEYFLDSIZE / 4;
+		y = newSingleKeyFieldFirstYPos + 3 * 9 * TERPSTRASINGLEKEYFLDSIZE / 4;
 		transform.transformPoint(x, y);
 		terpstraKeyFields[50 + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 	}
 
 	// 10th row
 	x = MAINWINDOWFIRSTCOLPOS + 5 * TERPSTRASINGLEKEYFLDSIZE;
-	y = TERPSTRASINGLEKEYFIELDFIRSTYPOS + 3 * 10 * TERPSTRASINGLEKEYFLDSIZE / 4;
+	y = newSingleKeyFieldFirstYPos + 3 * 10 * TERPSTRASINGLEKEYFLDSIZE / 4;
 	transform.transformPoint(x, y);
 	terpstraKeyFields[55]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
 	// Midi input + output
-	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, MIDIEDITAREAFIRSTROWPOS, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
+	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newSubsetHeight, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 
 	// Edit function area
-	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, MIDIEDITAREAFIRSTROWPOS + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
+	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newSubsetHeight + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 }
 
 void MainContentComponent::buttonClicked(Button *button)
