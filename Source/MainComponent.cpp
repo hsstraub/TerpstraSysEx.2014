@@ -156,32 +156,35 @@ void MainContentComponent::resized()
     // If you add any child components, this is where you should
     // update their positions.
 
-	int newWidth = getWidth();
 	int newHeight = getHeight();
 
-	// New width and height of subset fields
-	int newSubsetWidth = (newWidth - 2 * MAINWINDOWFIRSTCOLPOS) / 5;
-	if (newSubsetWidth <= 0)
-		newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH;
+	// New height of subset field area, with minimal value
+	int newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALSUBSETAREAHEIGHT);
 
-	int newSubsetHeight = newHeight - TERPSTRAKEYSETFLDFIRSTYPOS - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT;
-	if (newSubsetHeight < TERPSTRAKEYSETFLDFIRSTYPOS + MINIMALTERPSTRAKEYSETHEIGHT)
-		newSubsetHeight = MINIMALTERPSTRAKEYSETHEIGHT;
-
-	double newResizeFactor = jmin((double)newSubsetWidth / DEFAULTTERPSTRAKEYSETWIDTH, (double)newSubsetHeight / DEFAULTTERPSTRAKEYSETHEIGHT);
+	// Resize factor for the subset field area and the subset fields
+	double newResizeFactor = (double)newSubsetAreaHeight / DEFAULTSUBSETAREAHEIGHT;
 	jassert(newResizeFactor > 0.0);
 	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
 	jassert(newDecreaseFactor > 0.0);
 
+	// New position, width and height of subset fields
 	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
-	int newMidiEditFirstYPos = newSubsetFirstYPos + newSubsetHeight;
-	int newSingleKeyFieldFirstYPos = newMidiEditFirstYPos + TERPSTRASINGLEKEYFIELDRIMABOVE;
+	int newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
+	int newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
+	
+	// New position, width and height of macro buttons
+	int newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
+	int newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;
+	int newMacroButtonHeight = DEFAULTMACROBUTTONHEIGHT * newDecreaseFactor;
+
+	int newMidiEditFirstYPos = newSubsetAreaHeight;
+	int newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		// Macro button
-		macroButtons[i]->setBounds(FIRSTMACROBUTTOONCOLPOS + i*newSubsetWidth, MACROBUTTONYPOS, DEFAULTMACROBUTTONWIDTH*newDecreaseFactor, DEFAULTMACROBUTTONHEIGHT*newDecreaseFactor);
+		macroButtons[i]->setBounds(newFirstMacrobuttonColPos + i*newSubsetWidth, MACROBUTTONYPOS, newMacroButtonWidth, newMacroButtonHeight);
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
