@@ -159,7 +159,7 @@ void MainContentComponent::resized()
 	int newHeight = getHeight();
 
 	// New height of subset field area, with minimal value
-	int newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALSUBSETAREAHEIGHT);
+	int newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	// Resize factor for the subset field area and the subset fields
 	double newResizeFactor = (double)newSubsetAreaHeight / DEFAULTSUBSETAREAHEIGHT;
@@ -171,6 +171,7 @@ void MainContentComponent::resized()
 	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
 	int newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
 	int newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
+	int newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
 	
 	// New position, width and height of macro buttons
 	int newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
@@ -184,12 +185,11 @@ void MainContentComponent::resized()
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		// Macro button
-		macroButtons[i]->setBounds(newFirstMacrobuttonColPos + i*newSubsetWidth, MACROBUTTONYPOS, newMacroButtonWidth, newMacroButtonHeight);
+		macroButtons[i]->setBounds(newFirstMacrobuttonColPos + i*newSubsetXIncrement, MACROBUTTONYPOS, newMacroButtonWidth, newMacroButtonHeight);
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
-		// Width and heigth: were taken from image
-		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetWidth, newSubsetFirstYPos, newSubsetWidth, newSubsetHeight);
+		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement, newSubsetFirstYPos, newSubsetWidth, newSubsetHeight);
 	}
 
 	// Single Key fields
