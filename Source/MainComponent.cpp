@@ -90,11 +90,18 @@ MainContentComponent::~MainContentComponent()
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
+	setSize(
+		propertiesFile->getIntValue("MainWindowWidth", DEFAULTMAINWINDOWWIDTH), 
+		propertiesFile->getIntValue("MainWindowHeight", DEFAULTMAINWINDOWHEIGHT));
+
 	noteEditArea->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void MainContentComponent::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
+	propertiesFile->setValue("MainWindowWidth", getWidth());
+	propertiesFile->setValue("MainWindowHeight", getHeight());
+
 	noteEditArea->saveStateToPropertiesFile(propertiesFile);
 }
 
