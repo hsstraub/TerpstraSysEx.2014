@@ -162,7 +162,7 @@ void MainContentComponent::resized()
 	int newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	// Resize factor for the subset field area and the subset fields
-	double newResizeFactor = (double)newSubsetAreaHeight / DEFAULTSUBSETAREAHEIGHT;
+	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / DEFAULTSUBSETAREAHEIGHT;
 	jassert(newResizeFactor > 0.0);
 	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
 	jassert(newDecreaseFactor > 0.0);
