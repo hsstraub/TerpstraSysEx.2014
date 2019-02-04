@@ -35,8 +35,6 @@ void TerpstraMidiDriver::sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, 
 
 void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData, bool saveAfterSending)
 {
-	// XXX open question: does controller need some delay in sending several messages
-
 	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
 
@@ -52,16 +50,12 @@ void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData, boo
 
 void TerpstraMidiDriver::storeAllToEEPROM()
 {
-	// XXX open question: does controller need some delay in sending several messages
-
 	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
 		storeToEEPROM(boardIndex);
 }
 
 void TerpstraMidiDriver::recallAllFromEEPROM()
 {
-	// XXX open question: does controller need some delay in sending several messages
-
 	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
 		recallFromEEPROM(boardIndex);
 }
@@ -81,9 +75,9 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 	if (keyData.channelNumber >= 0)
 		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType, '\0');
 
-	// Colour. Values from 0x00 to 0x33 (51 decimal, 20% of 0xff == 255 decimal)
+	// Colour. Values from 0x00 to 0x7f (127 decimal, as the maximal value for data bytes is according to the MIDI standard)
 	Colour theColour(keyData.colour);
-	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 5, theColour.getGreen() / 5, theColour.getBlue() / 5, '\0');
+	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
 void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
