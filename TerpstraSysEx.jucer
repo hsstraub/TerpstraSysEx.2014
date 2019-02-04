@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.5.2"
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.6.0"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
               jucerVersion="4.3.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
