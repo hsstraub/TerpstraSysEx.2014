@@ -10,7 +10,7 @@
 */
 
 #include "Main.h"
-
+#include "OptionsWindow.h"
 
 //==============================================================================
 
@@ -131,6 +131,7 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
 		TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
+		TerpstraSysExMainMenuModel::commandIDs::optionsWindow,
 		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
 	};
 
@@ -161,6 +162,10 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
 		break;
 
+	case TerpstraSysExMainMenuModel::commandIDs::optionsWindow:
+		result.setInfo("Options", "General options", "File", 0);
+		break;
+
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
 		break;
@@ -183,6 +188,8 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return saveSysExMappingAs();
 	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
 		return resetSysExMapping();
+	case TerpstraSysExMainMenuModel::commandIDs::optionsWindow:
+		return showOptionsWindow();
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
 	default:                        
@@ -242,6 +249,26 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 	// Window title
 	updateMainTitle();
+
+	return true;
+}
+
+bool TerpstraSysExApplication::showOptionsWindow()
+{
+	DialogWindow::LaunchOptions launchOptions;
+	OptionsWindow* optionsWindow = new OptionsWindow();
+	launchOptions.content.setOwned(optionsWindow);
+
+	launchOptions.content->setSize(428, 220);
+
+	launchOptions.dialogTitle = "Options";
+	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.escapeKeyTriggersCloseButton = true;
+	launchOptions.useNativeTitleBar = false;
+	launchOptions.resizable = true;
+
+	DialogWindow* dw = launchOptions.launchAsync();
+	dw->centreWithSize(428, 220);
 
 	return true;
 }
@@ -358,7 +385,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	label->setText(m, dontSendNotification);
 	options.content.setOwned(label);
 
-	Rectangle<int> area(0, 0, 400, 240);
+	Rectangle<int> area(0, 0, 400, 200);
 	options.content->setSize(area.getWidth(), area.getHeight());
 
 	options.dialogTitle = "About TerpstraSysEx";
@@ -367,10 +394,10 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	options.useNativeTitleBar = false;
 	options.resizable = true;
 
-	const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
+	//const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
 
 	DialogWindow* dw = options.launchAsync();
-	dw->centreWithSize(400, 300);
+	dw->centreWithSize(400, 260);
 
 	return true;
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.6.0"
+<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.6.1"
               bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
               jucerVersion="4.3.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="TerpstraSysEx">
@@ -19,6 +19,9 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="EobXR1" name="OptionsWindow.cpp" compile="1" resource="0"
+            file="Source/OptionsWindow.cpp"/>
+      <FILE id="eIP1QD" name="OptionsWindow.h" compile="0" resource="0" file="Source/OptionsWindow.h"/>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
         <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>

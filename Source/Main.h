@@ -56,6 +56,7 @@ public:
 	bool saveSysExMapping();
 	bool saveSysExMappingAs();
 	bool resetSysExMapping();
+	bool showOptionsWindow();
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
 	bool saveCurrentFile();

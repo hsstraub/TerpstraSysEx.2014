@@ -37,6 +37,10 @@ void TerpstraSysExMainMenuModel::createFileMenu(PopupMenu& menu)
 	TerpstraSysExApplication::getApp().getRecentFileList().createPopupMenuItems(recentFilesMenu, recentFilesBaseID, true, true);
 	menu.addSubMenu("Recent Files", recentFilesMenu);
 
+	menu.addSeparator();
+
+	menu.addCommandItem(theManager, optionsWindow);
+
 #if ! JUCE_MAC
 	menu.addSeparator();
 	menu.addCommandItem(theManager, StandardApplicationCommandIDs::quit);
