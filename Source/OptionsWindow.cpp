@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
+#include "Main.h"
 #include "OptionsWindow.h"
 
 
@@ -82,13 +83,21 @@ OptionsWindow::OptionsWindow ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+
+	// Set values according to the properties files
+	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+
+	//[/Constructor]
 }
 
 OptionsWindow::~OptionsWindow()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-    //[/Destructor_pre]
+
+	// Save values to properties file
+	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+    
+	//[/Destructor_pre]
 
     labelExprContrSensivity = nullptr;
     txtExprCtrlSensivity = nullptr;
@@ -137,12 +146,16 @@ void OptionsWindow::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertFootCtrl)
     {
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
-        //[/UserButtonCode_btnInvertFootCtrl]
+		
+		// Send foot controller parametrization to controller
+		//TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
+		//[/UserButtonCode_btnInvertFootCtrl]
     }
     else if (buttonThatWasClicked == btnLightOnKeyStroke)
     {
         //[UserButtonCode_btnLightOnKeyStroke] -- add your button handler code here..
-        //[/UserButtonCode_btnLightOnKeyStroke]
+		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStroke(buttonThatWasClicked->getToggleState());
+		//[/UserButtonCode_btnLightOnKeyStroke]
     }
 
     //[UserbuttonClicked_Post]
@@ -152,13 +165,55 @@ void OptionsWindow::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
 void OptionsWindow::textEditorFocusLost(TextEditor& textEdit)
 {
 	if (&textEdit == txtExprCtrlSensivity)
 	{
-		// XXX
+		int newSensitvity = textEdit.getText().getIntValue();
+		if (newSensitvity < 0)
+		{
+			newSensitvity = 0;
+			textEdit.setText(String(newSensitvity));
+		}
+
+		if (newSensitvity > 0x7f)
+		{
+			newSensitvity = 0x7f;
+			textEdit.setText(String(newSensitvity));
+		}
+
+		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
 	}
 }
+
+void OptionsWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	btnInvertFootCtrl->setToggleState(
+		propertiesFile->getBoolValue("InvertFootController", false),
+		juce::NotificationType::sendNotification);
+
+	txtExprCtrlSensivity->setText(String(propertiesFile->getIntValue("ExpressionControllerSensivity", 0x7f)));
+
+	btnLightOnKeyStroke->setToggleState(
+		propertiesFile->getBoolValue("LightOnKeyStroke", false),
+		juce::NotificationType::sendNotification);
+}
+
+void OptionsWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	propertiesFile->setValue("InvertFootController", btnInvertFootCtrl->getToggleState());
+	
+	int newSensitvity = txtExprCtrlSensivity->getText().getIntValue();
+	if (newSensitvity < 0)
+		newSensitvity = 0;
+	if (newSensitvity > 0x7f)
+		newSensitvity = 0x7f;	
+	propertiesFile->setValue("ExpressionControllerSensivity", newSensitvity);
+
+	propertiesFile->setValue("LightOnKeyStroke", btnLightOnKeyStroke->getToggleState());
+}
+
 
 //[/MiscUserCode]
 

@@ -255,10 +255,11 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 bool TerpstraSysExApplication::showOptionsWindow()
 {
-	DialogWindow::LaunchOptions launchOptions;
-	OptionsWindow* optionsWindow = new OptionsWindow();
-	launchOptions.content.setOwned(optionsWindow);
 
+	OptionsWindow* optionsWindow = new OptionsWindow();
+	
+	DialogWindow::LaunchOptions launchOptions;
+	launchOptions.content.setOwned(optionsWindow);
 	launchOptions.content->setSize(428, 220);
 
 	launchOptions.dialogTitle = "Options";

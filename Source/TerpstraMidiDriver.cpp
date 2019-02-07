@@ -80,6 +80,27 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
+// Send expression pedal sensivity
+void TerpstraMidiDriver::sendExpressionPedalSensivity(unsigned char value)
+{
+	jassert(value <= 0x7f);
+
+	//sendSysEx(0, SET_FOOT_CONTROLLER_SENSITIVITY, value, '\0', '\0', '\0', '\0');
+}
+
+// Send parametrization of foot controller
+void TerpstraMidiDriver::sendInvertFootController(bool value)
+{
+	//sendSysEx(0, INVERT_FOOT_CONTROLLER, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
+}
+
+// Send parametrization of light on key strokes
+void TerpstraMidiDriver::sendLightOnKeyStroke(bool value)
+{
+	sendSysEx(0, SET_LIGHT_ON_KEYSTROKE, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
+}
+
+
 void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
 {
 	// boardIndex is expected 1-based
