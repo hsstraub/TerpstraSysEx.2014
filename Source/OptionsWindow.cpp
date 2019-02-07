@@ -148,7 +148,7 @@ void OptionsWindow::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
 		
 		// Send foot controller parametrization to controller
-		//TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
+		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
 		//[/UserButtonCode_btnInvertFootCtrl]
     }
     else if (buttonThatWasClicked == btnLightOnKeyStroke)

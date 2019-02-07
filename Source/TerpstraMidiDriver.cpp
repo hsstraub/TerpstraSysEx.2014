@@ -91,7 +91,7 @@ void TerpstraMidiDriver::sendExpressionPedalSensivity(unsigned char value)
 // Send parametrization of foot controller
 void TerpstraMidiDriver::sendInvertFootController(bool value)
 {
-	//sendSysEx(0, INVERT_FOOT_CONTROLLER, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
+	sendSysEx(0, INVERT_FOOT_CONTROLLER, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
 }
 
 // Send parametrization of light on key strokes

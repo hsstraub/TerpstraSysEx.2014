@@ -56,7 +56,9 @@ public:
 	bool saveSysExMapping();
 	bool saveSysExMappingAs();
 	bool resetSysExMapping();
-	bool showOptionsWindow();
+	bool generalOptionsDialog();
+	bool noteOnOffVelocityCurveDialog();
+	bool faderVelocityCurveDialog();
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
 	bool saveCurrentFile();

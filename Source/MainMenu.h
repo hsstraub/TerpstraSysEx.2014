@@ -22,8 +22,9 @@ class TerpstraSysExMainMenuModel : public MenuBarModel
 			saveSysExMapping = 0x200011,
 			saveSysExMappingAs = 0x200012,
 			resetSysExMapping = 0x200013,
-			optionsWindow = 0x200014,
-
+			generalOptions = 0x200014,
+			noteOnOffVelocityCurve = 0x200015,
+			faderVelocityCurve = 0x200016,
 			recentFilesBaseID = 0x200100,
 
 			aboutSysEx = 0x200040
@@ -38,6 +39,7 @@ public:
 
 protected:
 	virtual void createFileMenu(PopupMenu& menu);
+	virtual void createOptionsMenu(PopupMenu& menu);
 	virtual void createHelpMenu(PopupMenu& menu);
 
 private:

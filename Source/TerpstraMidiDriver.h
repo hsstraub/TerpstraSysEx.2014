@@ -53,6 +53,8 @@ Old definitions, for the first generation keyboard only
 #define STORE_TO_EEPROM 0x02
 #define RECALL_FROM_EEPROM 0x03
 
+#define INVERT_FOOT_CONTROLLER 0x04
+
 #define SET_LIGHT_ON_KEYSTROKE 0x07
 
 

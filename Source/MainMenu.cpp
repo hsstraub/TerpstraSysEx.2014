@@ -20,7 +20,7 @@ TerpstraSysExMainMenuModel::TerpstraSysExMainMenuModel(ApplicationCommandManager
 
 StringArray TerpstraSysExMainMenuModel::getMenuBarNames()
 {
-	const char* const names[] = { "File", "Help", nullptr };
+	const char* const names[] = { "File", "Options", "Help", nullptr };
 	return StringArray(names);
 }
 
@@ -37,14 +37,17 @@ void TerpstraSysExMainMenuModel::createFileMenu(PopupMenu& menu)
 	TerpstraSysExApplication::getApp().getRecentFileList().createPopupMenuItems(recentFilesMenu, recentFilesBaseID, true, true);
 	menu.addSubMenu("Recent Files", recentFilesMenu);
 
-	menu.addSeparator();
-
-	menu.addCommandItem(theManager, optionsWindow);
-
 #if ! JUCE_MAC
 	menu.addSeparator();
 	menu.addCommandItem(theManager, StandardApplicationCommandIDs::quit);
 #endif
+}
+
+void TerpstraSysExMainMenuModel::createOptionsMenu(PopupMenu& menu)
+{
+	menu.addCommandItem(theManager, generalOptions);
+	menu.addCommandItem(theManager, noteOnOffVelocityCurve);
+	menu.addCommandItem(theManager, faderVelocityCurve);
 }
 
 void TerpstraSysExMainMenuModel::createHelpMenu(PopupMenu& menu)
@@ -57,6 +60,7 @@ PopupMenu TerpstraSysExMainMenuModel::getMenuForIndex(int topLevelMenuIndex, con
 	PopupMenu menu;
 
 	if (menuName == "File")             createFileMenu(menu);
+	else if (menuName == "Options")		createOptionsMenu(menu);
 	else if (menuName == "Help")		createHelpMenu(menu);
 	else                                jassertfalse; // names have changed?
 

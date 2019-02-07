@@ -131,7 +131,9 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
 		TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
-		TerpstraSysExMainMenuModel::commandIDs::optionsWindow,
+		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
+		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
+		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
 		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
 	};
 
@@ -162,8 +164,16 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::optionsWindow:
-		result.setInfo("Options", "General options", "File", 0);
+	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+		result.setInfo("General options", "General options", "Options", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
+		result.setInfo("Note on/off velocity curve", "Note on/off velocity curve", "Options", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
+		result.setInfo("Fader velocity curve", "Fader velocity curve", "Options", 0);
 		break;
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
@@ -188,8 +198,12 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return saveSysExMappingAs();
 	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
 		return resetSysExMapping();
-	case TerpstraSysExMainMenuModel::commandIDs::optionsWindow:
-		return showOptionsWindow();
+	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+		return generalOptionsDialog();
+	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
+		return noteOnOffVelocityCurveDialog();
+	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
+		return faderVelocityCurveDialog();
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
 	default:                        
@@ -253,7 +267,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	return true;
 }
 
-bool TerpstraSysExApplication::showOptionsWindow()
+bool TerpstraSysExApplication::generalOptionsDialog()
 {
 
 	OptionsWindow* optionsWindow = new OptionsWindow();
@@ -262,7 +276,7 @@ bool TerpstraSysExApplication::showOptionsWindow()
 	launchOptions.content.setOwned(optionsWindow);
 	launchOptions.content->setSize(428, 220);
 
-	launchOptions.dialogTitle = "Options";
+	launchOptions.dialogTitle = "General options";
 	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
@@ -272,6 +286,18 @@ bool TerpstraSysExApplication::showOptionsWindow()
 	dw->centreWithSize(428, 220);
 
 	return true;
+}
+
+bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
+{
+	// ToDO
+	return false;
+}
+
+bool TerpstraSysExApplication::faderVelocityCurveDialog()
+{
+	// ToDO
+	return false;
 }
 
 // open a file from the "recent files" menu
