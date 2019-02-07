@@ -191,13 +191,13 @@ void OptionsWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFil
 {
 	btnInvertFootCtrl->setToggleState(
 		propertiesFile->getBoolValue("InvertFootController", false),
-		juce::NotificationType::sendNotification);
+		juce::NotificationType::dontSendNotification);
 
 	txtExprCtrlSensivity->setText(String(propertiesFile->getIntValue("ExpressionControllerSensivity", 0x7f)));
 
 	btnLightOnKeyStroke->setToggleState(
 		propertiesFile->getBoolValue("LightOnKeyStroke", false),
-		juce::NotificationType::sendNotification);
+		juce::NotificationType::dontSendNotification);
 }
 
 void OptionsWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
