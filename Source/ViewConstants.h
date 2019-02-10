@@ -13,7 +13,7 @@
 
 // General constants
 #define MAINWINDOWBGCOLOUR 0xffbad0de
-//#define MAINWINDOWSELECTEDCOLOUR 0x66ff5e00
+#define MAINWINDOWSELECTEDCOLOUR 0x66ff5e00
 #define STANDARDLABELHEIGTH 15
 
 // Main window

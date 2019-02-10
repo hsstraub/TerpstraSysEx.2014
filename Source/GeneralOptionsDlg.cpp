@@ -18,17 +18,17 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
 //[/Headers]
 
-#include "Main.h"
-#include "OptionsWindow.h"
+#include "GeneralOptionsDlg.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-OptionsWindow::OptionsWindow ()
+GeneralOptionsDlg::GeneralOptionsDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -42,6 +42,7 @@ OptionsWindow::OptionsWindow ()
     labelExprContrSensivity->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (txtExprCtrlSensivity = new TextEditor ("new text editor"));
+    txtExprCtrlSensivity->setTooltip (TRANS("Not working yet"));
     txtExprCtrlSensivity->setMultiLine (false);
     txtExprCtrlSensivity->setReturnKeyStartsNewLine (false);
     txtExprCtrlSensivity->setReadOnly (false);
@@ -87,17 +88,17 @@ OptionsWindow::OptionsWindow ()
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
 
-	//[/Constructor]
+    //[/Constructor]
 }
 
-OptionsWindow::~OptionsWindow()
+GeneralOptionsDlg::~GeneralOptionsDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 
 	// Save values to properties file
 	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-    
-	//[/Destructor_pre]
+
+    //[/Destructor_pre]
 
     labelExprContrSensivity = nullptr;
     txtExprCtrlSensivity = nullptr;
@@ -112,7 +113,7 @@ OptionsWindow::~OptionsWindow()
 }
 
 //==============================================================================
-void OptionsWindow::paint (Graphics& g)
+void GeneralOptionsDlg::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -123,13 +124,13 @@ void OptionsWindow::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void OptionsWindow::resized()
+void GeneralOptionsDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
     labelExprContrSensivity->setBounds (8, 16, 176, 24);
-	txtExprCtrlSensivity->setBounds(192, 16, 56, 24);
+    txtExprCtrlSensivity->setBounds (192, 16, 56, 24);
     btnInvertFootCtrl->setBounds (192, 48, 56, 24);
     lblInvFootCtrl->setBounds (8, 48, 176, 24);
     lblLightOnKeyStroke->setBounds (8, 80, 176, 24);
@@ -138,7 +139,7 @@ void OptionsWindow::resized()
     //[/UserResized]
 }
 
-void OptionsWindow::buttonClicked (Button* buttonThatWasClicked)
+void GeneralOptionsDlg::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -146,16 +147,16 @@ void OptionsWindow::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertFootCtrl)
     {
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
-		
+
 		// Send foot controller parametrization to controller
 		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
-		//[/UserButtonCode_btnInvertFootCtrl]
+        //[/UserButtonCode_btnInvertFootCtrl]
     }
     else if (buttonThatWasClicked == btnLightOnKeyStroke)
     {
         //[UserButtonCode_btnLightOnKeyStroke] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStroke(buttonThatWasClicked->getToggleState());
-		//[/UserButtonCode_btnLightOnKeyStroke]
+        //[/UserButtonCode_btnLightOnKeyStroke]
     }
 
     //[UserbuttonClicked_Post]
@@ -166,7 +167,7 @@ void OptionsWindow::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void OptionsWindow::textEditorFocusLost(TextEditor& textEdit)
+void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 {
 	if (&textEdit == txtExprCtrlSensivity)
 	{
@@ -187,7 +188,7 @@ void OptionsWindow::textEditorFocusLost(TextEditor& textEdit)
 	}
 }
 
-void OptionsWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+void GeneralOptionsDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	btnInvertFootCtrl->setToggleState(
 		propertiesFile->getBoolValue("InvertFootController", false),
@@ -200,15 +201,15 @@ void OptionsWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFil
 		juce::NotificationType::dontSendNotification);
 }
 
-void OptionsWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	propertiesFile->setValue("InvertFootController", btnInvertFootCtrl->getToggleState());
-	
+
 	int newSensitvity = txtExprCtrlSensivity->getText().getIntValue();
 	if (newSensitvity < 0)
 		newSensitvity = 0;
 	if (newSensitvity > 0x7f)
-		newSensitvity = 0x7f;	
+		newSensitvity = 0x7f;
 	propertiesFile->setValue("ExpressionControllerSensivity", newSensitvity);
 
 	propertiesFile->setValue("LightOnKeyStroke", btnLightOnKeyStroke->getToggleState());
@@ -227,10 +228,10 @@ void OptionsWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="OptionsWindow" componentName=""
+<JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
                  parentClasses="public Component, public TextEditorListener" constructorParams=""
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="220">
+                 overlayOpacity="0.330" fixedSize="1" initialWidth="428" initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
          virtualName="" explicitFocusOrder="0" pos="8 16 176 24" edTextCol="ff000000"
@@ -238,9 +239,9 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="new text editor" id="859fad57998470cd" memberName="txtExprCtrlSensivity"
-              virtualName="" explicitFocusOrder="0" pos="192 16 56 24" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-              caret="1" popupmenu="1"/>
+              virtualName="" explicitFocusOrder="0" pos="192 16 56 24" tooltip="Not working yet"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
   <TOGGLEBUTTON name="btnInvertFootCtrl" id="ef6e332d2b99beda" memberName="btnInvertFootCtrl"
                 virtualName="" explicitFocusOrder="0" pos="192 48 56 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>

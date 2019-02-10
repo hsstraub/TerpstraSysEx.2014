@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_C05FF3F0BD8FD120__
-#define __JUCE_HEADER_C05FF3F0BD8FD120__
+#ifndef __JUCE_HEADER_8FE00A31FE0B8946__
+#define __JUCE_HEADER_8FE00A31FE0B8946__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -34,47 +34,40 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class OptionsWindow  : public Component,
-                       public TextEditorListener,
-                       public ButtonListener
+class VelocityCurveDlg  : public Component
 {
 public:
     //==============================================================================
-    OptionsWindow ();
-    ~OptionsWindow();
+    VelocityCurveDlg ();
+    ~VelocityCurveDlg();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void textEditorFocusLost(TextEditor& textEdit) override;
-
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	//[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	int velocityValueTable[128];
+	Path velocityBeamTable[128];
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> labelExprContrSensivity;
-    ScopedPointer<TextEditor> txtExprCtrlSensivity;
-    ScopedPointer<ToggleButton> btnInvertFootCtrl;
-    ScopedPointer<Label> lblInvFootCtrl;
-    ScopedPointer<Label> lblLightOnKeyStroke;
-    ScopedPointer<ToggleButton> btnLightOnKeyStroke;
+    ScopedPointer<Label> lblDescription;
+    Path internalPath1;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OptionsWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveDlg)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_C05FF3F0BD8FD120__
+#endif   // __JUCE_HEADER_8FE00A31FE0B8946__

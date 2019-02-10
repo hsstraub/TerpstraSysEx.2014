@@ -10,7 +10,8 @@
 */
 
 #include "Main.h"
-#include "OptionsWindow.h"
+#include "GeneralOptionsDlg.h"
+#include "VelocityCurveDlg.h"
 
 //==============================================================================
 
@@ -269,8 +270,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 bool TerpstraSysExApplication::generalOptionsDialog()
 {
-
-	OptionsWindow* optionsWindow = new OptionsWindow();
+	GeneralOptionsDlg* optionsWindow = new GeneralOptionsDlg();
 	
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
@@ -290,8 +290,22 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 
 bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 {
-	// ToDO
-	return false;
+	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg();
+
+	DialogWindow::LaunchOptions launchOptions;
+	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content->setSize(428, 220);
+
+	launchOptions.dialogTitle = "Note on/off velocity curve";
+	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.escapeKeyTriggersCloseButton = true;
+	launchOptions.useNativeTitleBar = false;
+	launchOptions.resizable = true;
+
+	DialogWindow* dw = launchOptions.launchAsync();
+	dw->centreWithSize(428, 220);
+
+	return true;
 }
 
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
