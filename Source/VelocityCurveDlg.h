@@ -59,6 +59,9 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	VelocityCurveBeam* velocityBeamTable[128];
+
+	const float graphicsXPadding = 14.0f;
+	const float graphicsYPadding = 46.0f;
     //[/UserVariables]
 
     //==============================================================================

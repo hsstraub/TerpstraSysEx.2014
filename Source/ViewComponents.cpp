@@ -266,9 +266,25 @@ VelocityCurveBeam::~VelocityCurveBeam()
 void VelocityCurveBeam::setValue(int newValue)
 {
 	beamValue = newValue;
-	// XXX Neighbouring beams: change, so that the curve is monotonous. Here or in parent...
-
 	repaint();
+}
+
+void VelocityCurveBeam::setValueAtLeast(int newValue)
+{
+	if (beamValue < newValue)
+	{
+		beamValue = newValue;
+		repaint();
+	}
+}
+
+void VelocityCurveBeam::setValueAtMost(int newValue)
+{
+	if (beamValue > newValue)
+	{
+		beamValue = newValue;
+		repaint();
+	}
 }
 
 void VelocityCurveBeam::paint(Graphics& g)

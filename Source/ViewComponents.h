@@ -125,6 +125,8 @@ public:
 
 	int getValue() const { return beamValue; }
 	void setValue(int newValue);
+	void setValueAtLeast(int newValue);
+	void setValueAtMost(int newValue);
 
 	void paint(Graphics& g);
 	void resized();

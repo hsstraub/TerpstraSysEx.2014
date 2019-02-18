@@ -34,7 +34,7 @@ VelocityCurveDlg::VelocityCurveDlg ()
     //[/Constructor_pre]
 
     addAndMakeVisible (lblDescription = new Label ("lblDescription",
-                                                   TRANS("Draw velocity curve with mouse.")));
+                                                   TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
     lblDescription->setFont (Font (15.00f, Font::plain));
     lblDescription->setJustificationType (Justification::centredLeft);
     lblDescription->setEditable (false, false, false);
@@ -53,7 +53,7 @@ VelocityCurveDlg::VelocityCurveDlg ()
 
     //[/UserPreSize]
 
-    setSize (428, 220);
+    setSize (640, 320);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -102,24 +102,22 @@ void VelocityCurveDlg::resized()
     //[UserResized] Add your own custom resize handling here..
 
 	Path internalPath1;
-	internalPath1.startNewSubPath(14.0f, 46.0f);
-	internalPath1.lineTo(14.0f, h - 46.0f);
-	internalPath1.lineTo(w - 14.0f, h - 46.0f);
-	internalPath1.lineTo(w - 14.0f, 46.0f);
+	internalPath1.startNewSubPath(graphicsXPadding, graphicsYPadding);
+	internalPath1.lineTo(graphicsXPadding, h - graphicsYPadding);
+	internalPath1.lineTo(w - graphicsXPadding, h - graphicsYPadding);
+	internalPath1.lineTo(w - graphicsXPadding, graphicsYPadding);
 	internalPath1.closeSubPath();
 
-	Rectangle<float> velocityTableRect = internalPath1.getBounds();
-	Point<float> velocityTableRectTopLeft = velocityTableRect.getTopLeft();
-
-	float velocityBeamWidth = velocityTableRect.getWidth() / 128;
+	float velocityBeamWidth = (w - 2 * graphicsXPadding) / 128;
+	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
 
 	for (int x = 0; x < 128; x++)
 	{
 		velocityBeamTable[x]->setBounds(
-			velocityTableRectTopLeft.x + x*velocityBeamWidth,
-			velocityTableRectTopLeft.y,
+			graphicsXPadding + x*velocityBeamWidth,
+			graphicsYPadding,
 			velocityBeamWidth,
-			velocityTableRect.getHeight());
+			velocityGraphicsHeight);
 	}
     //[/UserResized]
 }
@@ -143,11 +141,23 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 {
+	int h = this->getHeight();
+	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
+
 	for (int x = 0; x < 128; x++)
 	{
 		if (event.eventComponent == velocityBeamTable[x] || event.eventComponent->getParentComponent() == velocityBeamTable[x])
 		{
-			// XXX
+			int newBeamValue = (velocityGraphicsHeight - event.getMouseDownY()) * 128 / velocityGraphicsHeight;
+			velocityBeamTable[x]->setValue(newBeamValue);
+
+			// Change other beams' values so curve stays monotonous
+			for(int x2 = 0; x2 < x; x2++)
+				velocityBeamTable[x2]->setValueAtMost(newBeamValue);
+
+			for (int x2 = x+1; x2 < 128; x2++)
+				velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
+
 			break;
 		}
 	}
@@ -168,13 +178,13 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="428" initialHeight="220">
+                 fixedSize="1" initialWidth="640" initialHeight="320">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
          virtualName="" explicitFocusOrder="0" pos="8 8 416 32" edTextCol="ff000000"
-         edBkgCol="0" labelText="Draw velocity curve with mouse." editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
