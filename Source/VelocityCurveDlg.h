@@ -49,7 +49,7 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	void mouseDown(const MouseEvent &event);
-	//[/UserMethods]
+    //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -57,13 +57,12 @@ public:
 
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section
+    //[UserVariables]   -- You can add your own custom variables in this section.
 	VelocityCurveBeam* velocityBeamTable[128];
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Label> lblDescription;
-    Path internalPath1;
 
 
     //==============================================================================
