@@ -31,10 +31,6 @@
 VelocityCurveDlg::VelocityCurveDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	// Initialize velocity lookup table
-	for (int x = 0; x < 128; x++)
-		velocityValueTable[x] = x;
-
 	//[/Constructor_pre]
 
     addAndMakeVisible (lblDescription = new Label ("lblDescription",
@@ -47,7 +43,15 @@ VelocityCurveDlg::VelocityCurveDlg ()
 
 
     //[UserPreSize]
-    //[/UserPreSize]
+
+	for (int x = 0; x < 128; x++)
+	{
+		velocityBeamTable[x] = new  VelocityCurveBeam();
+		addAndMakeVisible(velocityBeamTable[x]);
+		velocityBeamTable[x]->addMouseListener(this, true);
+	}
+
+	//[/UserPreSize]
 
     setSize (428, 220);
 
@@ -71,6 +75,7 @@ VelocityCurveDlg::~VelocityCurveDlg()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+	deleteAllChildren();
 	//[/Destructor]
 }
 
@@ -88,18 +93,15 @@ void VelocityCurveDlg::paint (Graphics& g)
     g.strokePath (internalPath1, PathStrokeType (1.000f));
 
     //[UserPaint] Add your own custom painting code here..
-	g.setColour(Colour(MAINWINDOWSELECTEDCOLOUR));
-	for (int x = 0; x < 128; x++)
-	{
-		g.fillPath(velocityBeamTable[x]);
-	}
 	//[/UserPaint]
 }
 
 void VelocityCurveDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-    //[/UserPreResize]
+	float w = this->getWidth();
+	float h = this->getHeight();
+	//[/UserPreResize]
 
     lblDescription->setBounds (8, 8, 416, 32);
     internalPath1.clear();
@@ -112,23 +114,17 @@ void VelocityCurveDlg::resized()
     //[UserResized] Add your own custom resize handling here..
 
 	Rectangle<float> velocityTableRect = internalPath1.getBounds();
-	Point<float> velocityTableRectBottomLeft = velocityTableRect.getBottomLeft();
+	Point<float> velocityTableRectTopLeft = velocityTableRect.getTopLeft();
 
 	float velocityBeamWidth = velocityTableRect.getWidth() / 128;
-	float velocityBeamUnitHeight = velocityTableRect.getHeight() / 128;
 
 	for (int x = 0; x < 128; x++)
 	{
-		velocityBeamTable[x].clear();
-		velocityBeamTable[x].startNewSubPath(velocityTableRectBottomLeft.x + x*velocityBeamWidth, velocityTableRectBottomLeft.y);
-		velocityBeamTable[x].lineTo(velocityTableRectBottomLeft.x + (x + 1)*velocityBeamWidth, velocityTableRectBottomLeft.y);
-		velocityBeamTable[x].lineTo(
-			velocityTableRectBottomLeft.x + (x + 1)*velocityBeamWidth, 
-			velocityTableRectBottomLeft.y - velocityValueTable[x]*velocityBeamUnitHeight);
-		velocityBeamTable[x].lineTo(
-			velocityTableRectBottomLeft.x + x*velocityBeamWidth,
-			velocityTableRectBottomLeft.y - velocityValueTable[x] * velocityBeamUnitHeight);
-		velocityBeamTable[x].closeSubPath();
+		velocityBeamTable[x]->setBounds(
+			velocityTableRectTopLeft.x + x*velocityBeamWidth,
+			velocityTableRectTopLeft.y,
+			velocityBeamWidth,
+			velocityTableRect.getHeight());
 	}
 	//[/UserResized]
 }
@@ -140,10 +136,26 @@ void VelocityCurveDlg::resized()
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	// XXX Read from propertiesFile
+
+	// XXX ad hoc Initialize velocity lookup table
+	for (int x = 0; x < 128; x++)
+		velocityBeamTable[x]->setValue(x);
 }
 
 void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
+}
+
+void VelocityCurveDlg::mouseDown(const MouseEvent &event)
+{
+	for (int x = 0; x < 128; x++)
+	{
+		if (event.eventComponent == velocityBeamTable[x] || event.eventComponent->getParentComponent() == velocityBeamTable[x])
+		{
+			// XXX
+			break;
+		}
+	}
 }
 
 //[/MiscUserCode]

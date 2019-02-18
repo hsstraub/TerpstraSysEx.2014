@@ -22,6 +22,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+
+#include "ViewComponents.h"
 //[/Headers]
 
 
@@ -45,6 +47,8 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
+	void mouseDown(const MouseEvent &event);
 	//[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -53,9 +57,8 @@ public:
 
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
-	int velocityValueTable[128];
-	Path velocityBeamTable[128];
+    //[UserVariables]   -- You can add your own custom variables in this section
+	VelocityCurveBeam* velocityBeamTable[128];
     //[/UserVariables]
 
     //==============================================================================

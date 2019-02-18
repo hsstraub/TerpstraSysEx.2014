@@ -246,3 +246,50 @@ Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOption
 	int colourAsNumber = getColourAsNumberFromText(boxOptions);
 	return Colour(colourAsNumber);
 }
+
+/*
+==============================================================================
+ class
+==============================================================================
+*/
+
+VelocityCurveBeam::VelocityCurveBeam()
+{
+	beamValue = 0;
+}
+
+VelocityCurveBeam::~VelocityCurveBeam()
+{
+
+}
+
+void VelocityCurveBeam::setValue(int newValue)
+{
+	beamValue = newValue;
+	// XXX Neighbouring beams: change, so that the curve is monotonous. Here or in parent...
+
+	repaint();
+}
+
+void VelocityCurveBeam::paint(Graphics& g)
+{
+	float w = this->getWidth();
+	float h = this->getHeight();
+
+	float velocityBeamUnitHeight = h / 128;
+
+	Path rectPath;
+	rectPath.startNewSubPath(0, h);
+	rectPath.lineTo(w, h);
+	rectPath.lineTo(w, h - beamValue * velocityBeamUnitHeight);
+	rectPath.lineTo(0, h - beamValue * velocityBeamUnitHeight);
+	rectPath.closeSubPath();
+
+	g.setColour(Colour(MAINWINDOWSELECTEDCOLOUR));
+	g.fillPath(rectPath);
+}
+
+void VelocityCurveBeam::resized()
+{
+
+}
