@@ -292,9 +292,12 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 {
 	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg();
 
+	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
+	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
+
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
-	launchOptions.content->setSize(428, 220);
+	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
 	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
@@ -303,7 +306,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	launchOptions.resizable = true;
 
 	DialogWindow* dw = launchOptions.launchAsync();
-	dw->centreWithSize(428, 220);
+	dw->centreWithSize(dlgWidth, dlgHeight);
 
 	return true;
 }

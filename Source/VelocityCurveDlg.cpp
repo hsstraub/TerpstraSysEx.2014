@@ -128,15 +128,38 @@ void VelocityCurveDlg::resized()
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	// XXX Read from propertiesFile
 
-	// XXX ad hoc Initialize velocity lookup table
-	for (int x = 0; x < 128; x++)
-		velocityBeamTable[x]->setValue(x);
+	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesFile->getValue("NoteOnOffVelocityCurveTable"), false);
+	if (velocityCurveValueArray.size() > 0)
+	{
+		jassert(velocityCurveValueArray.size() >= 128);
+
+		for (int x = 0; x < 128; x++)
+			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
+	}
+	else
+	{
+		// Initialize velocity lookup table
+		for (int x = 0; x < 128; x++)
+			velocityBeamTable[x]->setValue(x);
+	}
+
+	setSize(
+		propertiesFile->getIntValue("VelocityCurveWindowWidth", 640),
+		propertiesFile->getIntValue("VelocityCurveWindowHeight", 320));
 }
 
 void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
+	String velocityCurveString;
+
+	for (int x = 0; x < 128; x++)
+		velocityCurveString += String(velocityBeamTable[x]->getValue()) + " ";
+
+	propertiesFile->setValue("NoteOnOffVelocityCurveTable", velocityCurveString);
+
+	propertiesFile->setValue("VelocityCurveWindowWidth", getWidth());
+	propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
