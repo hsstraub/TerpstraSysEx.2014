@@ -57,6 +57,9 @@ Old definitions, for the first generation keyboard only
 
 #define SET_LIGHT_ON_KEYSTROKE 0x07
 
+#define SET_VELOCITY_CONFIG 0x08
+
+#define SET_FADER_CONFIG 0x0B
 
 /*
 ==============================================================================
@@ -96,6 +99,12 @@ public:
 	// Send parametrization of one key to the device
 	void sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
 
+	// Store a sub board's sent key parametrizations permanently on device
+	void storeToEEPROM(int boardIndex);
+
+	// Discard edits of a sub-board on device
+	void recallFromEEPROM(int boardIndex);
+
 	// Send expression pedal sensivity
 	void sendExpressionPedalSensivity(unsigned char value);
 
@@ -105,11 +114,8 @@ public:
 	// Send parametrization of light on key strokes
 	void sendLightOnKeyStroke(bool value);
 
-	// Store a sub board's sent key parametrizations permanently on device
-	void storeToEEPROM(int boardIndex);
-
-	// Discard edits of a sub-board on device
-	void recallFromEEPROM(int boardIndex);
+	// Send a value for a velocity lookup table
+	void sendVelocityConfig(TerpstraKey::KEYTYPE keyType, int dwellTick, int velocity);
 
 private:
 	// Low-level SysEx = valuemessage sending

@@ -80,6 +80,22 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
+void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
+{
+	// boardIndex is expected 1-based
+	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
+	sendSysEx(boardIndex, STORE_TO_EEPROM, '\0', '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::recallFromEEPROM(int boardIndex)
+{
+	// boardIndex is expected 1-based
+	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
+	sendSysEx(boardIndex, RECALL_FROM_EEPROM, '\0', '\0', '\0', '\0', '\0');
+}
+
 // Send expression pedal sensivity
 void TerpstraMidiDriver::sendExpressionPedalSensivity(unsigned char value)
 {
@@ -100,22 +116,13 @@ void TerpstraMidiDriver::sendLightOnKeyStroke(bool value)
 	sendSysEx(0, SET_LIGHT_ON_KEYSTROKE, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
 }
 
-
-void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
+// Send a value for a velocity lookup table
+void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, int dwellTick, int velocity)
 {
-	// boardIndex is expected 1-based
-	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-
-	sendSysEx(boardIndex, STORE_TO_EEPROM, '\0', '\0', '\0', '\0', '\0');
+	sendSysEx(0, keyType == TerpstraKey::continuousController ? SET_FADER_CONFIG : SET_VELOCITY_CONFIG, 
+		dwellTick, velocity, '\0', '\0', '\0');
 }
 
-void TerpstraMidiDriver::recallFromEEPROM(int boardIndex)
-{
-	// boardIndex is expected 1-based
-	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-
-	sendSysEx(boardIndex, RECALL_FROM_EEPROM, '\0', '\0', '\0', '\0', '\0');
-}
 
 /*
 ==============================================================================

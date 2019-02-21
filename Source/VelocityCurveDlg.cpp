@@ -31,6 +31,7 @@
 VelocityCurveDlg::VelocityCurveDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	keyType = TerpstraKey::noteOnNoteOff;
     //[/Constructor_pre]
 
     addAndMakeVisible (lblDescription = new Label ("lblDescription",
@@ -128,20 +129,21 @@ void VelocityCurveDlg::resized()
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
+	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
 
-	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesFile->getValue("NoteOnOffVelocityCurveTable"), false);
+	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesFile->getValue(keyName), false);
 	if (velocityCurveValueArray.size() > 0)
 	{
 		jassert(velocityCurveValueArray.size() >= 128);
 
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
+			setBeamValue(x, velocityCurveValueArray[x].getIntValue(), false);
 	}
 	else
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x);
+			setBeamValue(x, x, false );
 	}
 
 	setSize(
@@ -156,10 +158,41 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	for (int x = 0; x < 128; x++)
 		velocityCurveString += String(velocityBeamTable[x]->getValue()) + " ";
 
-	propertiesFile->setValue("NoteOnOffVelocityCurveTable", velocityCurveString);
+	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
+
+	propertiesFile->setValue(keyName, velocityCurveString);
 
 	propertiesFile->setValue("VelocityCurveWindowWidth", getWidth());
 	propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
+}
+
+void VelocityCurveDlg::setBeamValue(int pos, int newValue, bool sendToController)
+{
+	jassert(pos >= 0 && pos < 128 && newValue >= 0 && newValue < 128);
+
+	if (newValue != velocityBeamTable[pos]->getValue())
+	{
+		velocityBeamTable[pos]->setValue(newValue);
+
+		if (sendToController)
+			TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, pos, newValue);
+	}
+}
+
+void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue, bool sendToController)
+{
+	jassert(pos >= 0 && pos < 128 && newValue >= 0 && newValue < 128);
+
+	if (velocityBeamTable[pos]->getValue() < newValue)
+		setBeamValue(pos, newValue, sendToController);
+}
+
+void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue, bool sendToController)
+{
+	jassert(pos >= 0 && pos < 128 && newValue >= 0 && newValue < 128);
+
+	if (velocityBeamTable[pos]->getValue() > newValue)
+		setBeamValue(pos, newValue, sendToController);
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
@@ -172,14 +205,14 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 		if (event.eventComponent == velocityBeamTable[x] || event.eventComponent->getParentComponent() == velocityBeamTable[x])
 		{
 			int newBeamValue = (velocityGraphicsHeight - event.getMouseDownY()) * 128 / velocityGraphicsHeight;
-			velocityBeamTable[x]->setValue(newBeamValue);
+			setBeamValue(x, newBeamValue, true);
 
 			// Change other beams' values so curve stays monotonous
 			for(int x2 = 0; x2 < x; x2++)
-				velocityBeamTable[x2]->setValueAtMost(newBeamValue);
+				setBeamValueAtMost(x2, newBeamValue, true);
 
 			for (int x2 = x+1; x2 < 128; x2++)
-				velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
+				setBeamValueAtLeast(x2, newBeamValue, true);
 
 			break;
 		}

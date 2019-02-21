@@ -47,6 +47,9 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+	void setBeamValue(int pos, int newValue, bool sendToController);
+	void setBeamValueAtLeast(int pos, int newValue, bool sendToController);
+	void setBeamValueAtMost(int pos, int newValue, bool sendToController);
 
 	void mouseDown(const MouseEvent &event);
     //[/UserMethods]
@@ -58,6 +61,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	TerpstraKey::KEYTYPE keyType;
 	VelocityCurveBeam* velocityBeamTable[128];
 
 	const float graphicsXPadding = 14.0f;

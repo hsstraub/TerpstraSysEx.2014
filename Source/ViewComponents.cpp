@@ -265,22 +265,7 @@ VelocityCurveBeam::~VelocityCurveBeam()
 
 void VelocityCurveBeam::setValue(int newValue)
 {
-	beamValue = newValue;
-	repaint();
-}
-
-void VelocityCurveBeam::setValueAtLeast(int newValue)
-{
-	if (beamValue < newValue)
-	{
-		beamValue = newValue;
-		repaint();
-	}
-}
-
-void VelocityCurveBeam::setValueAtMost(int newValue)
-{
-	if (beamValue > newValue)
+	if (newValue != beamValue)
 	{
 		beamValue = newValue;
 		repaint();
