@@ -42,6 +42,21 @@ VelocityCurveDlg::VelocityCurveDlg ()
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (buttonSendAll = new TextButton ("buttonSendAll"));
+    buttonSendAll->setTooltip (TRANS("Send whole velocity curve map to controller and save it there."));
+    buttonSendAll->setButtonText (TRANS("Send & Save All"));
+    buttonSendAll->addListener (this);
+
+    addAndMakeVisible (buttonDiscard = new TextButton ("buttonDiscard"));
+    buttonDiscard->setTooltip (TRANS("Discard velocity curve edits on controller."));
+    buttonDiscard->setButtonText (TRANS("Discard Edits"));
+    buttonDiscard->addListener (this);
+
+    addAndMakeVisible (buttonSaveEdits = new TextButton ("buttonSaveEdits"));
+    buttonSaveEdits->setTooltip (TRANS("Save velocity curve edits that have been sent on controller"));
+    buttonSaveEdits->setButtonText (TRANS("Save Edits"));
+    buttonSaveEdits->addListener (this);
+
 
     //[UserPreSize]
 
@@ -73,6 +88,9 @@ VelocityCurveDlg::~VelocityCurveDlg()
     //[/Destructor_pre]
 
     lblDescription = nullptr;
+    buttonSendAll = nullptr;
+    buttonDiscard = nullptr;
+    buttonSaveEdits = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -100,6 +118,9 @@ void VelocityCurveDlg::resized()
     //[/UserPreResize]
 
     lblDescription->setBounds (8, 8, 416, 32);
+    buttonSendAll->setBounds (168, 288, 150, 24);
+    buttonDiscard->setBounds (328, 288, 150, 24);
+    buttonSaveEdits->setBounds (8, 288, 150, 24);
     //[UserResized] Add your own custom resize handling here..
 
 	Path internalPath1;
@@ -120,7 +141,42 @@ void VelocityCurveDlg::resized()
 			velocityBeamWidth,
 			velocityGraphicsHeight);
 	}
+
+	int buttonYPos = graphicsYPadding * 5 / 4 + velocityGraphicsHeight;
+
+	buttonSendAll->setBounds(buttonSendAll->getX(), buttonYPos,
+		buttonSendAll->getWidth(), buttonSendAll->getHeight());
+	buttonDiscard->setBounds(buttonDiscard->getX(), buttonYPos,
+		buttonDiscard->getWidth(), buttonDiscard->getHeight());
+	buttonSaveEdits->setBounds(buttonSaveEdits->getX(), buttonYPos,
+		buttonSaveEdits->getWidth(), buttonSaveEdits->getHeight());
+
     //[/UserResized]
+}
+
+void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
+{
+    //[UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
+
+    if (buttonThatWasClicked == buttonSendAll)
+    {
+        //[UserButtonCode_buttonSendAll] -- add your button handler code here..
+        //[/UserButtonCode_buttonSendAll]
+    }
+    else if (buttonThatWasClicked == buttonDiscard)
+    {
+        //[UserButtonCode_buttonDiscard] -- add your button handler code here..
+        //[/UserButtonCode_buttonDiscard]
+    }
+    else if (buttonThatWasClicked == buttonSaveEdits)
+    {
+        //[UserButtonCode_buttonSaveEdits] -- add your button handler code here..
+        //[/UserButtonCode_buttonSaveEdits]
+    }
+
+    //[UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
 }
 
 
@@ -241,6 +297,18 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+  <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
+              virtualName="" explicitFocusOrder="0" pos="168 288 150 24" tooltip="Send whole velocity curve map to controller and save it there."
+              buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
+  <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
+              virtualName="" explicitFocusOrder="0" pos="328 288 150 24" tooltip="Discard velocity curve edits on controller."
+              buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
+  <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
+              virtualName="" explicitFocusOrder="0" pos="8 288 150 24" tooltip="Save velocity curve edits that have been sent on controller"
+              buttonText="Save Edits" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

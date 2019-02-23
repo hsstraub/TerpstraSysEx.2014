@@ -36,7 +36,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class VelocityCurveDlg  : public Component
+class VelocityCurveDlg  : public Component,
+                          public ButtonListener
 {
 public:
     //==============================================================================
@@ -56,6 +57,7 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
@@ -70,6 +72,9 @@ private:
 
     //==============================================================================
     ScopedPointer<Label> lblDescription;
+    ScopedPointer<TextButton> buttonSendAll;
+    ScopedPointer<TextButton> buttonDiscard;
+    ScopedPointer<TextButton> buttonSaveEdits;
 
 
     //==============================================================================
