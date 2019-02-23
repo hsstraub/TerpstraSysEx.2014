@@ -58,6 +58,8 @@ Old definitions, for the first generation keyboard only
 #define SET_LIGHT_ON_KEYSTROKE 0x07
 
 #define SET_VELOCITY_CONFIG 0x08
+#define SAVE_VELOCITY_CONFIG 0x09
+#define RESET_VELOCITY_CONFIG 0x0A
 
 #define SET_FADER_CONFIG 0x0B
 
@@ -116,6 +118,12 @@ public:
 
 	// Send a value for a velocity lookup table
 	void sendVelocityConfig(TerpstraKey::KEYTYPE keyType, int dwellTick, int velocity);
+	
+	// Save velocity config to EEPROM
+	void saveVelocityConfig(TerpstraKey::KEYTYPE keyType);
+
+	// reset velocity config to value from EEPROM
+	void resetVelocityConfig(TerpstraKey::KEYTYPE keyType);
 
 private:
 	// Low-level SysEx = valuemessage sending

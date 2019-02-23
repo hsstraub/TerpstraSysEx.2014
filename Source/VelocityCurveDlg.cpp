@@ -162,16 +162,25 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == buttonSendAll)
     {
         //[UserButtonCode_buttonSendAll] -- add your button handler code here..
-        //[/UserButtonCode_buttonSendAll]
+		// Send all
+		for (int x = 0; x < 128; x++)
+			TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(
+				keyType, x, velocityBeamTable[x]->getValue());
+
+		// Save
+		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
+		//[/UserButtonCode_buttonSendAll]
     }
     else if (buttonThatWasClicked == buttonDiscard)
     {
         //[UserButtonCode_buttonDiscard] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().getMidiDriver().resetVelocityConfig(keyType);
         //[/UserButtonCode_buttonDiscard]
     }
     else if (buttonThatWasClicked == buttonSaveEdits)
     {
         //[UserButtonCode_buttonSaveEdits] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
         //[/UserButtonCode_buttonSaveEdits]
     }
 
