@@ -290,7 +290,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 
 bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 {
-	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg();
+	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraKey::noteOnNoteOff);
 
 	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
 	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
@@ -313,8 +313,25 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
 {
-	// ToDO
-	return false;
+	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraKey::continuousController);
+
+	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
+	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
+
+	DialogWindow::LaunchOptions launchOptions;
+	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content->setSize(dlgWidth, dlgHeight);
+
+	launchOptions.dialogTitle = "Fader velocity curve";
+	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.escapeKeyTriggersCloseButton = true;
+	launchOptions.useNativeTitleBar = false;
+	launchOptions.resizable = true;
+
+	DialogWindow* dw = launchOptions.launchAsync();
+	dw->centreWithSize(dlgWidth, dlgHeight);
+
+	return true;
 }
 
 // open a file from the "recent files" menu

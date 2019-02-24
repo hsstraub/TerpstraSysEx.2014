@@ -73,10 +73,6 @@ VelocityCurveDlg::VelocityCurveDlg ()
 
 
     //[Constructor] You can add your own custom stuff here..
-
-	// Set values according to the properties files
-	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-
     //[/Constructor]
 }
 
@@ -191,6 +187,15 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+VelocityCurveDlg::VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue)
+	: VelocityCurveDlg()
+{
+	keyType = keyTypeValue;
+
+	// Set values according to the properties files
+	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+}
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {

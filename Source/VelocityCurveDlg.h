@@ -46,6 +46,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue);
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	void setBeamValue(int pos, int newValue, bool sendToController);

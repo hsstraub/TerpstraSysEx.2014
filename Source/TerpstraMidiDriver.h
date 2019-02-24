@@ -62,6 +62,8 @@ Old definitions, for the first generation keyboard only
 #define RESET_VELOCITY_CONFIG 0x0A
 
 #define SET_FADER_CONFIG 0x0B
+#define SAVE_FADER_CONFIG 0x0C
+#define RESET_FADER_CONFIG 0x0D
 
 /*
 ==============================================================================
