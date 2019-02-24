@@ -65,6 +65,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	TerpstraKey::KEYTYPE keyType;
+	Path internalPath1;
 	VelocityCurveBeam* velocityBeamTable[128];
 
 	const float graphicsXPadding = 14.0f;

@@ -103,7 +103,9 @@ void VelocityCurveDlg::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.setColour(Colours::black);
+	g.strokePath(internalPath1, PathStrokeType(1.000f));
+	//[/UserPaint]
 }
 
 void VelocityCurveDlg::resized()
@@ -119,7 +121,7 @@ void VelocityCurveDlg::resized()
     buttonSaveEdits->setBounds (8, 288, 150, 24);
     //[UserResized] Add your own custom resize handling here..
 
-	Path internalPath1;
+	internalPath1.clear();
 	internalPath1.startNewSubPath(graphicsXPadding, graphicsYPadding);
 	internalPath1.lineTo(graphicsXPadding, h - graphicsYPadding);
 	internalPath1.lineTo(w - graphicsXPadding, h - graphicsYPadding);
@@ -195,7 +197,7 @@ VelocityCurveDlg::VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue)
 
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-}
+}	
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
