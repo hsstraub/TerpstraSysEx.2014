@@ -38,7 +38,7 @@
 */
 class MacroButtonsWindow  : public Component,
                             public MidiInputCallback,
-                            public ButtonListener
+                            public Button::Listener
 {
 public:
     //==============================================================================

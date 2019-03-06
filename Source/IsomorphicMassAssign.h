@@ -38,7 +38,7 @@
                                                                     //[/Comments]
 */
 class IsomorphicMassAssign  : public Component,
-                              public ComboBoxListener,
+                              public ComboBox::Listener,
                               public MappingLogicListener
 {
 public:

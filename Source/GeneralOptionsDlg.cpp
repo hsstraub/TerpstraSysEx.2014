@@ -229,7 +229,7 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
-                 parentClasses="public Component, public TextEditorListener" constructorParams=""
+                 parentClasses="public Component, public TextEditor::Listener" constructorParams=""
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="1" initialWidth="428" initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
