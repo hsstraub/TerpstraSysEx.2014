@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8FE00A31FE0B8946__
-#define __JUCE_HEADER_8FE00A31FE0B8946__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -73,10 +72,10 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> lblDescription;
-    ScopedPointer<TextButton> buttonSendAll;
-    ScopedPointer<TextButton> buttonDiscard;
-    ScopedPointer<TextButton> buttonSaveEdits;
+    std::unique_ptr<Label> lblDescription;
+    std::unique_ptr<TextButton> buttonSendAll;
+    std::unique_ptr<TextButton> buttonDiscard;
+    std::unique_ptr<TextButton> buttonSaveEdits;
 
 
     //==============================================================================
@@ -86,4 +85,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8FE00A31FE0B8946__

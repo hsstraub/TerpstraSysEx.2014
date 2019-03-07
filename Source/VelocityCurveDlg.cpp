@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -34,28 +34,40 @@ VelocityCurveDlg::VelocityCurveDlg ()
 	keyType = TerpstraKey::noteOnNoteOff;
     //[/Constructor_pre]
 
-    addAndMakeVisible (lblDescription = new Label ("lblDescription",
-                                                   TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
-    lblDescription->setFont (Font (15.00f, Font::plain));
+    lblDescription.reset (new Label ("lblDescription",
+                                     TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
+    addAndMakeVisible (lblDescription.get());
+    lblDescription->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblDescription->setJustificationType (Justification::centredLeft);
     lblDescription->setEditable (false, false, false);
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (buttonSendAll = new TextButton ("buttonSendAll"));
+    lblDescription->setBounds (8, 8, 416, 32);
+
+    buttonSendAll.reset (new TextButton ("buttonSendAll"));
+    addAndMakeVisible (buttonSendAll.get());
     buttonSendAll->setTooltip (TRANS("Send whole velocity curve map to controller and save it there."));
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
     buttonSendAll->addListener (this);
 
-    addAndMakeVisible (buttonDiscard = new TextButton ("buttonDiscard"));
+    buttonSendAll->setBounds (168, 288, 150, 24);
+
+    buttonDiscard.reset (new TextButton ("buttonDiscard"));
+    addAndMakeVisible (buttonDiscard.get());
     buttonDiscard->setTooltip (TRANS("Discard velocity curve edits on controller."));
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
-    addAndMakeVisible (buttonSaveEdits = new TextButton ("buttonSaveEdits"));
+    buttonDiscard->setBounds (328, 288, 150, 24);
+
+    buttonSaveEdits.reset (new TextButton ("buttonSaveEdits"));
+    addAndMakeVisible (buttonSaveEdits.get());
     buttonSaveEdits->setTooltip (TRANS("Save velocity curve edits that have been sent on controller"));
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
     buttonSaveEdits->addListener (this);
+
+    buttonSaveEdits->setBounds (8, 288, 150, 24);
 
 
     //[UserPreSize]
@@ -105,7 +117,7 @@ void VelocityCurveDlg::paint (Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 	g.setColour(Colours::black);
 	g.strokePath(internalPath1, PathStrokeType(1.000f));
-	//[/UserPaint]
+    //[/UserPaint]
 }
 
 void VelocityCurveDlg::resized()
@@ -115,10 +127,6 @@ void VelocityCurveDlg::resized()
 	int h = this->getHeight();
     //[/UserPreResize]
 
-    lblDescription->setBounds (8, 8, 416, 32);
-    buttonSendAll->setBounds (168, 288, 150, 24);
-    buttonDiscard->setBounds (328, 288, 150, 24);
-    buttonSaveEdits->setBounds (8, 288, 150, 24);
     //[UserResized] Add your own custom resize handling here..
 
 	internalPath1.clear();
@@ -157,7 +165,7 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == buttonSendAll)
+    if (buttonThatWasClicked == buttonSendAll.get())
     {
         //[UserButtonCode_buttonSendAll] -- add your button handler code here..
 		// Send all
@@ -167,15 +175,15 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 
 		// Save
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
-		//[/UserButtonCode_buttonSendAll]
+        //[/UserButtonCode_buttonSendAll]
     }
-    else if (buttonThatWasClicked == buttonDiscard)
+    else if (buttonThatWasClicked == buttonDiscard.get())
     {
         //[UserButtonCode_buttonDiscard] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().resetVelocityConfig(keyType);
         //[/UserButtonCode_buttonDiscard]
     }
-    else if (buttonThatWasClicked == buttonSaveEdits)
+    else if (buttonThatWasClicked == buttonSaveEdits.get())
     {
         //[UserButtonCode_buttonSaveEdits] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
@@ -197,7 +205,7 @@ VelocityCurveDlg::VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue)
 
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-}	
+}
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
@@ -312,7 +320,8 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="8 8 416 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="1.5e1" kerning="0" bold="0"
+         italic="0" justification="33"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
               virtualName="" explicitFocusOrder="0" pos="168 288 150 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
@@ -334,3 +343,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

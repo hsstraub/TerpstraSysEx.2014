@@ -128,7 +128,7 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="KQ7uKE">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="TerpstraSysEx"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="TerpstraSysEx"/>

@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_B85945BB76A8470__
-#define __JUCE_HEADER_B85945BB76A8470__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -62,11 +61,11 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ToggleButton> channelAutoIncrButton;
-    ScopedPointer<ComboBox> channelAutoIncrNoteBox;
-    ScopedPointer<Label> labelMidiNotesUntil;
-    ScopedPointer<ToggleButton> singleChannelButton;
-    ScopedPointer<ComboBox> channelBox;
+    std::unique_ptr<ToggleButton> channelAutoIncrButton;
+    std::unique_ptr<ComboBox> channelAutoIncrNoteBox;
+    std::unique_ptr<Label> labelMidiNotesUntil;
+    std::unique_ptr<ToggleButton> singleChannelButton;
+    std::unique_ptr<ComboBox> channelBox;
 
 
     //==============================================================================
@@ -76,4 +75,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_B85945BB76A8470__

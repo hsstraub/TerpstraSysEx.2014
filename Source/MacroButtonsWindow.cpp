@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -33,23 +33,32 @@ MacroButtonsWindow::MacroButtonsWindow ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (btnEnableMacroButtons = new ToggleButton ("btnEnableMacroButtons"));
+    btnEnableMacroButtons.reset (new ToggleButton ("btnEnableMacroButtons"));
+    addAndMakeVisible (btnEnableMacroButtons.get());
     btnEnableMacroButtons->setButtonText (TRANS("Enable Macro Buttons"));
     btnEnableMacroButtons->addListener (this);
 
-    addAndMakeVisible (lblMacroButtonsInfo = new Label ("lblMacroButtonsInfo",
-                                                        TRANS("When the corresponding macro button is pressed, the selected key mapping file will be sent to the keyboard.")));
-    lblMacroButtonsInfo->setFont (Font (15.00f, Font::plain));
+    btnEnableMacroButtons->setBounds (136, 16, 150, 24);
+
+    lblMacroButtonsInfo.reset (new Label ("lblMacroButtonsInfo",
+                                          TRANS("When the corresponding macro button is pressed, the selected key mapping file will be sent to the keyboard.")));
+    addAndMakeVisible (lblMacroButtonsInfo.get());
+    lblMacroButtonsInfo->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblMacroButtonsInfo->setJustificationType (Justification::centredLeft);
     lblMacroButtonsInfo->setEditable (false, false, false);
     lblMacroButtonsInfo->setColour (TextEditor::textColourId, Colours::black);
     lblMacroButtonsInfo->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (btnSaveAfterSending = new ToggleButton ("btnSaveAfterSending"));
+    lblMacroButtonsInfo->setBounds (8, 64, 440, 48);
+
+    btnSaveAfterSending.reset (new ToggleButton ("btnSaveAfterSending"));
+    addAndMakeVisible (btnSaveAfterSending.get());
     btnSaveAfterSending->setButtonText (TRANS("Save mapping after sending"));
     btnSaveAfterSending->addListener (this);
 
-    drawable1 = Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
+    btnSaveAfterSending->setBounds (136, 40, 216, 24);
+
+    drawable1.reset (Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize));
 
     //[UserPreSize]
 
@@ -95,11 +104,16 @@ void MacroButtonsWindow::paint (Graphics& g)
 
     g.fillAll (Colour (0xffbad0de));
 
-    g.setColour (Colours::black);
-    jassert (drawable1 != 0);
-    if (drawable1 != 0)
-        drawable1->drawWithin (g, Rectangle<float> (12, 12, 100, 46),
-                               RectanglePlacement::stretchToFit, 1.000f);
+    {
+        int x = 12, y = 12, width = 100, height = 46;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (Colours::black);
+        jassert (drawable1 != 0);
+        if (drawable1 != 0)
+            drawable1->drawWithin (g, Rectangle<float> (x, y, width, height),
+                                   RectanglePlacement::stretchToFit, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -110,9 +124,6 @@ void MacroButtonsWindow::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    btnEnableMacroButtons->setBounds (136, 16, 150, 24);
-    lblMacroButtonsInfo->setBounds (8, 64, 440, 48);
-    btnSaveAfterSending->setBounds (136, 40, 216, 24);
     //[UserResized] Add your own custom resize handling here..
 	for (int i = 0; i < 5; i ++)
 	{
@@ -127,7 +138,7 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnEnableMacroButtons)
+    if (buttonThatWasClicked == btnEnableMacroButtons.get())
     {
         //[UserButtonCode_btnEnableMacroButtons] -- add your button handler code here..
 		bool enable = btnEnableMacroButtons->getToggleState();
@@ -138,7 +149,7 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_btnEnableMacroButtons]
     }
-    else if (buttonThatWasClicked == btnSaveAfterSending)
+    else if (buttonThatWasClicked == btnSaveAfterSending.get())
     {
         //[UserButtonCode_btnSaveAfterSending] -- add your button handler code here..
 		bool saveAfterSending = btnSaveAfterSending->getToggleState();
@@ -216,7 +227,8 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="8 64 440 48" edTextCol="ff000000"
          edBkgCol="0" labelText="When the corresponding macro button is pressed, the selected key mapping file will be sent to the keyboard."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="1.5e1" kerning="0" bold="0"
+         italic="0" justification="33"/>
   <TOGGLEBUTTON name="btnSaveAfterSending" id="a23d41b7fb227aed" memberName="btnSaveAfterSending"
                 virtualName="" explicitFocusOrder="0" pos="136 40 216 24" buttonText="Save mapping after sending"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
@@ -229,3 +241,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -44,7 +44,8 @@ NoteEditArea::NoteEditArea ()
 	macroButtonsWindow->setVisible(false);
     //[/Constructor_pre]
 
-    addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
+    cbEditMode.reset (new ComboBox ("cbEditMode"));
+    addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
     cbEditMode->setJustificationType (Justification::centredLeft);
     cbEditMode->setTextWhenNothingSelected (String());
@@ -54,13 +55,18 @@ NoteEditArea::NoteEditArea ()
     cbEditMode->addItem (TRANS("Macro Buttons"), 3);
     cbEditMode->addListener (this);
 
-    addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
-                                                  TRANS("Edit Function:")));
-    labelEditMode->setFont (Font (15.00f, Font::plain));
+    cbEditMode->setBounds (102, 15, 296, 24);
+
+    labelEditMode.reset (new Label ("labelEditMode",
+                                    TRANS("Edit Function:")));
+    addAndMakeVisible (labelEditMode.get());
+    labelEditMode->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelEditMode->setJustificationType (Justification::centredLeft);
     labelEditMode->setEditable (false, false, false);
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelEditMode->setBounds (6, 15, 88, 24);
 
 
     //[UserPreSize]
@@ -114,8 +120,6 @@ void NoteEditArea::resized()
 	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
-    cbEditMode->setBounds (102, 15, 296, 24);
-    labelEditMode->setBounds (6, 15, 88, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -125,7 +129,7 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == cbEditMode)
+    if (comboBoxThatHasChanged == cbEditMode.get())
     {
         //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
 		int editMode = cbEditMode->getSelectedItemIndex();
@@ -232,7 +236,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="6 15 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="1.5e1" kerning="0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -242,3 +246,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -34,15 +34,19 @@ OneMacroButtonEdit::OneMacroButtonEdit ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (lblButton = new Label ("lblButton",
-                                              TRANS("1")));
-    lblButton->setFont (Font (15.00f, Font::plain));
+    lblButton.reset (new Label ("lblButton",
+                                TRANS("1")));
+    addAndMakeVisible (lblButton.get());
+    lblButton->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblButton->setJustificationType (Justification::centredLeft);
     lblButton->setEditable (false, false, false);
     lblButton->setColour (TextEditor::textColourId, Colours::black);
     lblButton->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (textMacroFile = new TextEditor ("textMacroFile"));
+    lblButton->setBounds (8, 8, 24, 24);
+
+    textMacroFile.reset (new TextEditor ("textMacroFile"));
+    addAndMakeVisible (textMacroFile.get());
     textMacroFile->setMultiLine (false);
     textMacroFile->setReturnKeyStartsNewLine (false);
     textMacroFile->setReadOnly (false);
@@ -51,9 +55,14 @@ OneMacroButtonEdit::OneMacroButtonEdit ()
     textMacroFile->setPopupMenuEnabled (true);
     textMacroFile->setText (String());
 
-    addAndMakeVisible (btnFileSelectMacro = new TextButton ("btnFileSelectMacro"));
+    textMacroFile->setBounds (32, 8, 136, 24);
+
+    btnFileSelectMacro.reset (new TextButton ("btnFileSelectMacro"));
+    addAndMakeVisible (btnFileSelectMacro.get());
     btnFileSelectMacro->setButtonText (TRANS("..."));
     btnFileSelectMacro->addListener (this);
+
+    btnFileSelectMacro->setBounds (176, 8, 32, 24);
 
 
     //[UserPreSize]
@@ -98,9 +107,6 @@ void OneMacroButtonEdit::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    lblButton->setBounds (8, 8, 24, 24);
-    textMacroFile->setBounds (32, 8, 136, 24);
-    btnFileSelectMacro->setBounds (176, 8, 32, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -110,7 +116,7 @@ void OneMacroButtonEdit::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnFileSelectMacro)
+    if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
 		FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
@@ -154,7 +160,7 @@ void OneMacroButtonEdit::saveStateToPropertiesFile(PropertiesFile* propertiesFil
 
 void OneMacroButtonEdit::textEditorFocusLost(TextEditor& textEdit)
 {
-	if (&textEdit == textMacroFile)
+	if (&textEdit == textMacroFile.get())
 	{
 		currentFile = File(textMacroFile->getText());
 		updateTooltipFromFileObject();
@@ -207,15 +213,16 @@ void OneMacroButtonEdit::updateTextEditorFromFileObject()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="OneMacroButtonEdit" componentName=""
-                 parentClasses="public Component, public TextEditor::Listener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="200" initialHeight="32">
+                 parentClasses="public Component, public TextEditor::Listener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="200"
+                 initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblButton" id="20c692b045b913d5" memberName="lblButton"
          virtualName="" explicitFocusOrder="0" pos="8 8 24 24" edTextCol="ff000000"
          edBkgCol="0" labelText="1" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="1.5e1"
+         kerning="0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="textMacroFile" id="b9bc5baf677ed902" memberName="textMacroFile"
               virtualName="" explicitFocusOrder="0" pos="32 8 136 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
@@ -232,3 +239,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

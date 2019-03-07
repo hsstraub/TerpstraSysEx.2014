@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_D96E78A3018B928E__
-#define __JUCE_HEADER_D96E78A3018B928E__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -62,12 +61,12 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> labelExprContrSensivity;
-    ScopedPointer<TextEditor> txtExprCtrlSensivity;
-    ScopedPointer<ToggleButton> btnInvertFootCtrl;
-    ScopedPointer<Label> lblInvFootCtrl;
-    ScopedPointer<Label> lblLightOnKeyStroke;
-    ScopedPointer<ToggleButton> btnLightOnKeyStroke;
+    std::unique_ptr<Label> labelExprContrSensivity;
+    std::unique_ptr<TextEditor> txtExprCtrlSensivity;
+    std::unique_ptr<ToggleButton> btnInvertFootCtrl;
+    std::unique_ptr<Label> lblInvFootCtrl;
+    std::unique_ptr<Label> lblLightOnKeyStroke;
+    std::unique_ptr<ToggleButton> btnLightOnKeyStroke;
 
 
     //==============================================================================
@@ -77,4 +76,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_D96E78A3018B928E__

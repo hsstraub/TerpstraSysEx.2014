@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.3
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -33,15 +33,19 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (labelExprContrSensivity = new Label ("new label",
-                                                            TRANS("Expression pedal sensivity:")));
-    labelExprContrSensivity->setFont (Font (15.00f, Font::plain));
+    labelExprContrSensivity.reset (new Label ("new label",
+                                              TRANS("Expression pedal sensivity:")));
+    addAndMakeVisible (labelExprContrSensivity.get());
+    labelExprContrSensivity->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelExprContrSensivity->setJustificationType (Justification::centredLeft);
     labelExprContrSensivity->setEditable (false, false, false);
     labelExprContrSensivity->setColour (TextEditor::textColourId, Colours::black);
     labelExprContrSensivity->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (txtExprCtrlSensivity = new TextEditor ("new text editor"));
+    labelExprContrSensivity->setBounds (8, 16, 176, 24);
+
+    txtExprCtrlSensivity.reset (new TextEditor ("new text editor"));
+    addAndMakeVisible (txtExprCtrlSensivity.get());
     txtExprCtrlSensivity->setTooltip (TRANS("Not working yet"));
     txtExprCtrlSensivity->setMultiLine (false);
     txtExprCtrlSensivity->setReturnKeyStartsNewLine (false);
@@ -51,29 +55,43 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     txtExprCtrlSensivity->setPopupMenuEnabled (true);
     txtExprCtrlSensivity->setText (String());
 
-    addAndMakeVisible (btnInvertFootCtrl = new ToggleButton ("btnInvertFootCtrl"));
+    txtExprCtrlSensivity->setBounds (192, 16, 56, 24);
+
+    btnInvertFootCtrl.reset (new ToggleButton ("btnInvertFootCtrl"));
+    addAndMakeVisible (btnInvertFootCtrl.get());
     btnInvertFootCtrl->setButtonText (String());
     btnInvertFootCtrl->addListener (this);
 
-    addAndMakeVisible (lblInvFootCtrl = new Label ("lblInvFootCtrl",
-                                                   TRANS("Invert foot controller:")));
-    lblInvFootCtrl->setFont (Font (15.00f, Font::plain));
+    btnInvertFootCtrl->setBounds (192, 48, 56, 24);
+
+    lblInvFootCtrl.reset (new Label ("lblInvFootCtrl",
+                                     TRANS("Invert foot controller:")));
+    addAndMakeVisible (lblInvFootCtrl.get());
+    lblInvFootCtrl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblInvFootCtrl->setJustificationType (Justification::centredLeft);
     lblInvFootCtrl->setEditable (false, false, false);
     lblInvFootCtrl->setColour (TextEditor::textColourId, Colours::black);
     lblInvFootCtrl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (lblLightOnKeyStroke = new Label ("lblLightOnKeyStroke",
-                                                        TRANS("Light on keystrokes:")));
-    lblLightOnKeyStroke->setFont (Font (15.00f, Font::plain));
+    lblInvFootCtrl->setBounds (8, 48, 176, 24);
+
+    lblLightOnKeyStroke.reset (new Label ("lblLightOnKeyStroke",
+                                          TRANS("Light on keystrokes:")));
+    addAndMakeVisible (lblLightOnKeyStroke.get());
+    lblLightOnKeyStroke->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblLightOnKeyStroke->setJustificationType (Justification::centredLeft);
     lblLightOnKeyStroke->setEditable (false, false, false);
     lblLightOnKeyStroke->setColour (TextEditor::textColourId, Colours::black);
     lblLightOnKeyStroke->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (btnLightOnKeyStroke = new ToggleButton ("btnLightOnKeyStroke"));
+    lblLightOnKeyStroke->setBounds (8, 80, 176, 24);
+
+    btnLightOnKeyStroke.reset (new ToggleButton ("btnLightOnKeyStroke"));
+    addAndMakeVisible (btnLightOnKeyStroke.get());
     btnLightOnKeyStroke->setButtonText (String());
     btnLightOnKeyStroke->addListener (this);
+
+    btnLightOnKeyStroke->setBounds (192, 80, 56, 24);
 
 
     //[UserPreSize]
@@ -129,12 +147,6 @@ void GeneralOptionsDlg::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    labelExprContrSensivity->setBounds (8, 16, 176, 24);
-    txtExprCtrlSensivity->setBounds (192, 16, 56, 24);
-    btnInvertFootCtrl->setBounds (192, 48, 56, 24);
-    lblInvFootCtrl->setBounds (8, 48, 176, 24);
-    lblLightOnKeyStroke->setBounds (8, 80, 176, 24);
-    btnLightOnKeyStroke->setBounds (192, 80, 56, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -144,7 +156,7 @@ void GeneralOptionsDlg::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnInvertFootCtrl)
+    if (buttonThatWasClicked == btnInvertFootCtrl.get())
     {
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
 
@@ -152,7 +164,7 @@ void GeneralOptionsDlg::buttonClicked (Button* buttonThatWasClicked)
 		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
         //[/UserButtonCode_btnInvertFootCtrl]
     }
-    else if (buttonThatWasClicked == btnLightOnKeyStroke)
+    else if (buttonThatWasClicked == btnLightOnKeyStroke.get())
     {
         //[UserButtonCode_btnLightOnKeyStroke] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStroke(buttonThatWasClicked->getToggleState());
@@ -169,7 +181,7 @@ void GeneralOptionsDlg::buttonClicked (Button* buttonThatWasClicked)
 
 void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 {
-	if (&textEdit == txtExprCtrlSensivity)
+	if (&textEdit == txtExprCtrlSensivity.get())
 	{
 		int newSensitvity = textEdit.getText().getIntValue();
 		if (newSensitvity < 0)
@@ -229,15 +241,16 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
-                 parentClasses="public Component, public TextEditor::Listener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="428" initialHeight="220">
+                 parentClasses="public Component, public TextEditor::Listener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="428"
+                 initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
          virtualName="" explicitFocusOrder="0" pos="8 16 176 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Expression pedal sensivity:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="1.5e1" kerning="0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="new text editor" id="859fad57998470cd" memberName="txtExprCtrlSensivity"
               virtualName="" explicitFocusOrder="0" pos="192 16 56 24" tooltip="Not working yet"
               initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
@@ -249,12 +262,12 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="8 48 176 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Invert foot controller:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="1.5e1" kerning="0" bold="0" italic="0" justification="33"/>
   <LABEL name="lblLightOnKeyStroke" id="d8737def929a5aa" memberName="lblLightOnKeyStroke"
          virtualName="" explicitFocusOrder="0" pos="8 80 176 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Light on keystrokes:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="1.5e1" kerning="0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="btnLightOnKeyStroke" id="85279f9e93401da3" memberName="btnLightOnKeyStroke"
                 virtualName="" explicitFocusOrder="0" pos="192 80 56 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
@@ -267,3 +280,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
