@@ -110,7 +110,7 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2013>
-    <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="KQ7uKE" bigIcon="KQ7uKE">
+    <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="" bigIcon="KQ7uKE">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="TerpstraSysEx"/>
@@ -128,7 +128,7 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="KQ7uKE">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="TerpstraSysEx"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="TerpstraSysEx"/>
