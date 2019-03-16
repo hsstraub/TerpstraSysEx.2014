@@ -104,8 +104,11 @@ void VelocityCurveDlg::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 	g.setColour(Colours::black);
-	g.strokePath(internalPath1, PathStrokeType(1.000f));
-	//[/UserPaint]
+	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
+
+	if (!drawedLine.isEmpty() )
+		g.strokePath(drawedLine, PathStrokeType(1.000f));
+    //[/UserPaint]
 }
 
 void VelocityCurveDlg::resized()
@@ -121,12 +124,14 @@ void VelocityCurveDlg::resized()
     buttonSaveEdits->setBounds (8, 288, 150, 24);
     //[UserResized] Add your own custom resize handling here..
 
-	internalPath1.clear();
-	internalPath1.startNewSubPath(graphicsXPadding, graphicsYPadding);
-	internalPath1.lineTo(graphicsXPadding, h - graphicsYPadding);
-	internalPath1.lineTo(w - graphicsXPadding, h - graphicsYPadding);
-	internalPath1.lineTo(w - graphicsXPadding, graphicsYPadding);
-	internalPath1.closeSubPath();
+	beamTableFrame.clear();
+	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPadding);
+	beamTableFrame.lineTo(graphicsXPadding, h - graphicsYPadding);
+	beamTableFrame.lineTo(w - graphicsXPadding, h - graphicsYPadding);
+	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPadding);
+	beamTableFrame.closeSubPath();
+
+	drawedLine.clear();
 
 	float velocityBeamWidth = (w - 2 * graphicsXPadding) / 128;
 	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
@@ -167,7 +172,7 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 
 		// Save
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
-		//[/UserButtonCode_buttonSendAll]
+        //[/UserButtonCode_buttonSendAll]
     }
     else if (buttonThatWasClicked == buttonDiscard)
     {
@@ -197,7 +202,7 @@ VelocityCurveDlg::VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue)
 
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-}	
+}
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
@@ -272,6 +277,9 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 	int h = this->getHeight();
 	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
 
+	drawedLine.clear();
+	drawedLine.startNewSubPath(event.position.x, event.position.y);
+	/*
 	for (int x = 0; x < 128; x++)
 	{
 		if (event.eventComponent == velocityBeamTable[x] || event.eventComponent->getParentComponent() == velocityBeamTable[x])
@@ -289,6 +297,27 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 			break;
 		}
 	}
+	*/
+}
+
+void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
+{
+	int h = this->getHeight();
+	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
+
+	drawedLine.lineTo(event.position);
+	drawedLine.closeSubPath();
+	drawedLine.startNewSubPath(event.position.x, event.position.y);
+	// XXX
+}
+
+void VelocityCurveDlg::mouseUp(const MouseEvent &event)
+{
+	int h = this->getHeight();
+	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
+
+	drawedLine.closeSubPath();
+	// XXX
 }
 
 //[/MiscUserCode]

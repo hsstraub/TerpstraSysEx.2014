@@ -54,7 +54,9 @@ public:
 	void setBeamValueAtMost(int pos, int newValue, bool sendToController);
 
 	void mouseDown(const MouseEvent &event);
-    //[/UserMethods]
+	void mouseDrag(const MouseEvent &event);
+	void mouseUp(const MouseEvent &event);
+	//[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -65,8 +67,9 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	TerpstraKey::KEYTYPE keyType;
-	Path internalPath1;
+	Path beamTableFrame;
 	VelocityCurveBeam* velocityBeamTable[128];
+	Path drawedLine;
 
 	const float graphicsXPadding = 14.0f;
 	const float graphicsYPadding = 46.0f;
