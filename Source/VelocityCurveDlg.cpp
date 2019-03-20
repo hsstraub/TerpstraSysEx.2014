@@ -277,8 +277,10 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 	int h = this->getHeight();
 	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
 
+	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+
 	drawedLine.clear();
-	drawedLine.startNewSubPath(event.position.x, event.position.y);
+	drawedLine.startNewSubPath(localPoint.x, localPoint.y);
 	/*
 	for (int x = 0; x < 128; x++)
 	{
@@ -305,18 +307,22 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 	int h = this->getHeight();
 	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
 
-	drawedLine.lineTo(event.position);
+	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+
+	drawedLine.lineTo(localPoint);
 	drawedLine.closeSubPath();
-	drawedLine.startNewSubPath(event.position.x, event.position.y);
+	repaint();
+	drawedLine.startNewSubPath(localPoint.x, localPoint.y);
 	// XXX
 }
 
 void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 {
-	int h = this->getHeight();
-	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
+	//int h = this->getHeight();
+	//float velocityGraphicsHeight = h - 2 * graphicsYPadding;
 
 	drawedLine.closeSubPath();
+	repaint();
 	// XXX
 }
 

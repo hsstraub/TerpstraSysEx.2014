@@ -56,7 +56,7 @@ public:
 	void mouseDown(const MouseEvent &event);
 	void mouseDrag(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
-	//[/UserMethods]
+    //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
