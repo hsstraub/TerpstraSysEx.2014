@@ -15,7 +15,6 @@
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
 #include "HajuLib/HajuDelayMidiDriver.h"
-
 //[/Headers]
 
 /*
