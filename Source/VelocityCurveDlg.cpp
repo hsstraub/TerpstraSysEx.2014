@@ -281,25 +281,6 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 
 	drawedLine.clear();
 	drawedLine.startNewSubPath(localPoint.x, localPoint.y);
-	/*
-	for (int x = 0; x < 128; x++)
-	{
-		if (event.eventComponent == velocityBeamTable[x] || event.eventComponent->getParentComponent() == velocityBeamTable[x])
-		{
-			int newBeamValue = (velocityGraphicsHeight - event.getMouseDownY()) * 128 / velocityGraphicsHeight;
-			setBeamValue(x, newBeamValue, true);
-
-			// Change other beams' values so curve stays monotonous
-			for(int x2 = 0; x2 < x; x2++)
-				setBeamValueAtMost(x2, newBeamValue, true);
-
-			for (int x2 = x+1; x2 < 128; x2++)
-				setBeamValueAtLeast(x2, newBeamValue, true);
-
-			break;
-		}
-	}
-	*/
 }
 
 void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
@@ -310,10 +291,25 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	drawedLine.lineTo(localPoint);
-	drawedLine.closeSubPath();
 	repaint();
-	drawedLine.startNewSubPath(localPoint.x, localPoint.y);
-	// XXX
+
+	for (int x = 0; x < 128; x++)
+	{
+		if (velocityBeamTable[x]->getBounds().contains((int)event.position.x, (int)event.position.y))
+		{
+			int newBeamValue = (velocityGraphicsHeight - event.position.y) * 128 / velocityGraphicsHeight;
+			setBeamValue(x, newBeamValue, true);
+
+			// Change other beams' values so curve stays monotonous
+			for (int x2 = 0; x2 < x; x2++)
+				setBeamValueAtMost(x2, newBeamValue, true);
+
+			for (int x2 = x + 1; x2 < 128; x2++)
+				setBeamValueAtLeast(x2, newBeamValue, true);
+		
+			break;
+		}
+	}
 }
 
 void VelocityCurveDlg::mouseUp(const MouseEvent &event)
@@ -321,9 +317,16 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 	//int h = this->getHeight();
 	//float velocityGraphicsHeight = h - 2 * graphicsYPadding;
 
-	drawedLine.closeSubPath();
-	repaint();
-	// XXX
+	// Adjust beam values
+//	for (int x = 0; x < 128; x++)
+//	{
+//		Rectangle<int> rect = velocityBeamTable[x]->getBounds();
+//
+//		Path::Iterator itr(drawedLine);
+//
+//
+//		// XXX
+//	}
 }
 
 //[/MiscUserCode]
