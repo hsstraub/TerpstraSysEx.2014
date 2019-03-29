@@ -285,9 +285,6 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 {
-	int h = this->getHeight();
-	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
-
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	drawedLine.lineTo(localPoint);
@@ -295,9 +292,10 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 	for (int x = 0; x < 128; x++)
 	{
-		if (velocityBeamTable[x]->getBounds().contains((int)event.position.x, (int)event.position.y))
+		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
+		if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
 		{
-			int newBeamValue = (velocityGraphicsHeight - event.position.y) * 128 / velocityGraphicsHeight;
+			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
 			setBeamValue(x, newBeamValue, true);
 
 			// Change other beams' values so curve stays monotonous
