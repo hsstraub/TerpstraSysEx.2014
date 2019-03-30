@@ -245,31 +245,52 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 
 void VelocityCurveDlg::setBeamValue(int pos, int newValue, bool sendToController)
 {
-	jassert(pos >= 0 && pos < 128 && newValue >= 0 && newValue < 128);
-
-	if (newValue != velocityBeamTable[pos]->getValue())
+	if (pos >= 0 && pos < 128)
 	{
-		velocityBeamTable[pos]->setValue(newValue);
+		if (newValue < 0)
+		{
+			jassertfalse;
+			newValue = 0;
+		}
 
-		if (sendToController)
-			TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, pos, newValue);
+		if (newValue > 127)
+		{
+			jassertfalse;
+			newValue = 127;
+		}
+
+		if (newValue != velocityBeamTable[pos]->getValue())
+		{
+			velocityBeamTable[pos]->setValue(newValue);
+
+			if (sendToController)
+				TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, pos, newValue);
+		}
 	}
+	else
+		jassertfalse;
 }
 
 void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue, bool sendToController)
 {
-	jassert(pos >= 0 && pos < 128 && newValue >= 0 && newValue < 128);
-
-	if (velocityBeamTable[pos]->getValue() < newValue)
-		setBeamValue(pos, newValue, sendToController);
+	if (pos >= 0 && pos < 128)
+	{
+		if (velocityBeamTable[pos]->getValue() < newValue)
+			setBeamValue(pos, newValue, sendToController);
+	}
+	else
+		jassertfalse;
 }
 
 void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue, bool sendToController)
 {
-	jassert(pos >= 0 && pos < 128 && newValue >= 0 && newValue < 128);
-
-	if (velocityBeamTable[pos]->getValue() > newValue)
-		setBeamValue(pos, newValue, sendToController);
+	if (pos >= 0 && pos < 128)
+	{
+		if (velocityBeamTable[pos]->getValue() > newValue)
+			setBeamValue(pos, newValue, sendToController);
+	}
+	else
+		jassertfalse;
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
@@ -280,21 +301,24 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	drawedLine.clear();
-	drawedLine.startNewSubPath(localPoint.x, localPoint.y);
+	if (beamTableFrame.contains(localPoint))
+	{
+		drawedLine.startNewSubPath(localPoint.x, localPoint.y);
+	}
 }
 
 void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 {
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	drawedLine.lineTo(localPoint);
-	repaint();
-
 	for (int x = 0; x < 128; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 		if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
 		{
+			drawedLine.lineTo(localPoint);
+			repaint();
+
 			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
 			setBeamValue(x, newBeamValue, true);
 
@@ -312,19 +336,8 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 {
-	//int h = this->getHeight();
-	//float velocityGraphicsHeight = h - 2 * graphicsYPadding;
-
-	// Adjust beam values
-//	for (int x = 0; x < 128; x++)
-//	{
-//		Rectangle<int> rect = velocityBeamTable[x]->getBounds();
-//
-//		Path::Iterator itr(drawedLine);
-//
-//
-//		// XXX
-//	}
+	drawedLine.clear();
+	repaint();
 }
 
 //[/MiscUserCode]
