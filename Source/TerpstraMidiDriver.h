@@ -119,7 +119,7 @@ public:
 	void sendLightOnKeyStroke(bool value);
 
 	// Send a value for a velocity lookup table
-	void sendVelocityConfig(TerpstraKey::KEYTYPE keyType, int dwellTick, int velocity);
+	void sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsigned char velocityTable[]);
 	
 	// Save velocity config to EEPROM
 	void saveVelocityConfig(TerpstraKey::KEYTYPE keyType);

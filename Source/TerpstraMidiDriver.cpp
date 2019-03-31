@@ -117,10 +117,22 @@ void TerpstraMidiDriver::sendLightOnKeyStroke(bool value)
 }
 
 // Send a value for a velocity lookup table
-void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, int dwellTick, int velocity)
+void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsigned char velocityTable[])
 {
-	sendSysEx(0, keyType == TerpstraKey::continuousController ? SET_FADER_CONFIG : SET_VELOCITY_CONFIG, 
-		dwellTick, velocity, '\0', '\0', '\0');
+	if (midiOutput != nullptr)
+	{
+		unsigned char sysExData[133];
+		sysExData[0] = MMID1;
+		sysExData[1] = MMID2;
+		sysExData[2] = MMID3;
+		sysExData[3] = '\0';
+		sysExData[4] = keyType == TerpstraKey::continuousController ? SET_FADER_CONFIG : SET_VELOCITY_CONFIG;
+		
+		memcpy_s(&sysExData[5], 128, velocityTable, 128);	// velocityTable is supposed to contain 128 entries. ToDo security?
+		
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+		sendMessageDelayed(msg);
+	}
 }
 
 // Save velocity config to EEPROM

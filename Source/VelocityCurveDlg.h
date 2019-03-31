@@ -49,9 +49,11 @@ public:
 	VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue);
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	void setBeamValue(int pos, int newValue, bool sendToController);
-	void setBeamValueAtLeast(int pos, int newValue, bool sendToController);
-	void setBeamValueAtMost(int pos, int newValue, bool sendToController);
+	void setBeamValue(int pos, int newValue/*, bool sendToController*/);
+	void setBeamValueAtLeast(int pos, int newValue/*, bool sendToController*/);
+	void setBeamValueAtMost(int pos, int newValue/*, bool sendToController*/);
+
+	void sendVelocityTableToController();
 
 	void mouseDown(const MouseEvent &event);
 	void mouseDrag(const MouseEvent &event);

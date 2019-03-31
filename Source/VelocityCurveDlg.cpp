@@ -166,9 +166,7 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonSendAll] -- add your button handler code here..
 		// Send all
-		for (int x = 0; x < 128; x++)
-			TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(
-				keyType, x, velocityBeamTable[x]->getValue());
+		sendVelocityTableToController();
 
 		// Save
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
@@ -214,13 +212,13 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 		jassert(velocityCurveValueArray.size() >= 128);
 
 		for (int x = 0; x < 128; x++)
-			setBeamValue(x, velocityCurveValueArray[x].getIntValue(), false);
+			setBeamValue(x, velocityCurveValueArray[x].getIntValue()/*, false*/);
 	}
 	else
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			setBeamValue(x, x, false );
+			setBeamValue(x, x/*, false*/ );
 	}
 
 	setSize(
@@ -243,7 +241,7 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
 }
 
-void VelocityCurveDlg::setBeamValue(int pos, int newValue, bool sendToController)
+void VelocityCurveDlg::setBeamValue(int pos, int newValue/*, bool sendToController*/)
 {
 	if (pos >= 0 && pos < 128)
 	{
@@ -263,34 +261,46 @@ void VelocityCurveDlg::setBeamValue(int pos, int newValue, bool sendToController
 		{
 			velocityBeamTable[pos]->setValue(newValue);
 
-			if (sendToController)
-				TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, pos, newValue);
+			//if (sendToController)
+			//	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, pos, newValue);
 		}
 	}
 	else
 		jassertfalse;
 }
 
-void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue, bool sendToController)
+void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue/*, bool sendToController*/)
 {
 	if (pos >= 0 && pos < 128)
 	{
 		if (velocityBeamTable[pos]->getValue() < newValue)
-			setBeamValue(pos, newValue, sendToController);
+			setBeamValue(pos, newValue/*, sendToController*/);
 	}
 	else
 		jassertfalse;
 }
 
-void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue, bool sendToController)
+void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue/*, bool sendToController*/)
 {
 	if (pos >= 0 && pos < 128)
 	{
 		if (velocityBeamTable[pos]->getValue() > newValue)
-			setBeamValue(pos, newValue, sendToController);
+			setBeamValue(pos, newValue/*, sendToController*/);
 	}
 	else
 		jassertfalse;
+}
+
+void VelocityCurveDlg::sendVelocityTableToController()
+{
+	unsigned char velocityValues[128];
+
+	for (int x = 0; x < 128; x++)
+	{
+		velocityValues[x] = velocityBeamTable[x]->getValue();
+	}
+
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, velocityValues);
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
@@ -320,14 +330,14 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 			repaint();
 
 			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
-			setBeamValue(x, newBeamValue, true);
+			setBeamValue(x, newBeamValue/*, true*/);
 
 			// Change other beams' values so curve stays monotonous
 			for (int x2 = 0; x2 < x; x2++)
-				setBeamValueAtMost(x2, newBeamValue, true);
+				setBeamValueAtMost(x2, newBeamValue/*, true*/);
 
 			for (int x2 = x + 1; x2 < 128; x2++)
-				setBeamValueAtLeast(x2, newBeamValue, true);
+				setBeamValueAtLeast(x2, newBeamValue/*, true*/);
 		
 			break;
 		}
@@ -336,6 +346,9 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 {
+	// Send velocity table to controller
+	sendVelocityTableToController();
+
 	drawedLine.clear();
 	repaint();
 }
