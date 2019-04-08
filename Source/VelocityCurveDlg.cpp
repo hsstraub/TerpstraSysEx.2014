@@ -113,6 +113,7 @@ VelocityCurveDlg::VelocityCurveDlg ()
 
 
     //[Constructor] You can add your own custom stuff here..
+	labelCurrentBeamValue->setVisible(false);
     //[/Constructor]
 }
 
@@ -288,7 +289,7 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			setBeamValue(x, x/*, false*/ );
+			setBeamValue(x, x);
 	}
 
 	setSize(
@@ -370,6 +371,21 @@ void VelocityCurveDlg::sendVelocityTableToController()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, velocityValues);
 }
 
+void VelocityCurveDlg::mouseMove(const MouseEvent &event)
+{
+	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+
+	// Show or hide the field with the current beam value
+	labelCurrentBeamValue->setVisible(beamTableFrame.contains(localPoint));
+	labelCurrentBeamValue->setBounds(
+		localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
+
+	Rectangle<int> beamRect = velocityBeamTable[0]->getBounds();
+	int beamValueOfCursor = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
+
+	labelCurrentBeamValue->setText(String(beamValueOfCursor), juce::NotificationType::sendNotification);
+}
+
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 {
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
@@ -378,12 +394,36 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 	if (beamTableFrame.contains(localPoint))
 	{
 		drawedLine.startNewSubPath(localPoint.x, localPoint.y);
+
+		for (int x = 0; x < 128; x++)
+		{
+			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
+			if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
+			{
+				int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
+				setBeamValue(x, newBeamValue);
+
+				// Change other beams' values so curve stays monotonous
+				for (int x2 = 0; x2 < x; x2++)
+					setBeamValueAtMost(x2, newBeamValue);
+
+				for (int x2 = x + 1; x2 < 128; x2++)
+					setBeamValueAtLeast(x2, newBeamValue);
+
+				break;
+			}
+		}
+
 	}
 }
 
 void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 {
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+
+	labelCurrentBeamValue->setVisible(beamTableFrame.contains(localPoint));
+	labelCurrentBeamValue->setBounds(
+		localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
 
 	for (int x = 0; x < 128; x++)
 	{
@@ -395,6 +435,7 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
 			setBeamValue(x, newBeamValue);
+			labelCurrentBeamValue->setText(String(newBeamValue), juce::NotificationType::sendNotification);
 
 			// Change other beams' values so curve stays monotonous
 			for (int x2 = 0; x2 < x; x2++)
