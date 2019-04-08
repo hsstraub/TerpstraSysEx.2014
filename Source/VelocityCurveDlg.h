@@ -37,7 +37,8 @@
                                                                     //[/Comments]
 */
 class VelocityCurveDlg  : public Component,
-                          public ButtonListener
+                          public ButtonListener,
+                          public ComboBoxListener
 {
 public:
     //==============================================================================
@@ -49,9 +50,9 @@ public:
 	VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue);
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	void setBeamValue(int pos, int newValue/*, bool sendToController*/);
-	void setBeamValueAtLeast(int pos, int newValue/*, bool sendToController*/);
-	void setBeamValueAtMost(int pos, int newValue/*, bool sendToController*/);
+	void setBeamValue(int pos, int newValue);
+	void setBeamValueAtLeast(int pos, int newValue);
+	void setBeamValueAtMost(int pos, int newValue);
 
 	void sendVelocityTableToController();
 
@@ -63,6 +64,7 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -73,8 +75,9 @@ private:
 	VelocityCurveBeam* velocityBeamTable[128];
 	Path drawedLine;
 
-	const float graphicsXPadding = 14.0f;
-	const float graphicsYPadding = 46.0f;
+	const float graphicsXPadding = 34.0f;
+	const float graphicsYPadding = 116.0f;
+	const float pushButtonAreaHeight = 36.0f;
     //[/UserVariables]
 
     //==============================================================================
@@ -82,6 +85,11 @@ private:
     ScopedPointer<TextButton> buttonSendAll;
     ScopedPointer<TextButton> buttonDiscard;
     ScopedPointer<TextButton> buttonSaveEdits;
+    ScopedPointer<ComboBox> cbEditMode;
+    ScopedPointer<Label> labelEditMode;
+    ScopedPointer<ComboBox> cbEditMode2;
+    ScopedPointer<Label> labelPresets;
+    ScopedPointer<Label> labelCurrentBeamValue;
 
 
     //==============================================================================

@@ -57,6 +57,46 @@ VelocityCurveDlg::VelocityCurveDlg ()
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
     buttonSaveEdits->addListener (this);
 
+    addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
+    cbEditMode->setEditableText (false);
+    cbEditMode->setJustificationType (Justification::centredLeft);
+    cbEditMode->setTextWhenNothingSelected (String());
+    cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbEditMode->addItem (TRANS("Free drawing"), 1);
+    cbEditMode->addListener (this);
+
+    addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
+                                                  TRANS("Edit Function:")));
+    labelEditMode->setFont (Font (15.00f, Font::plain));
+    labelEditMode->setJustificationType (Justification::centredLeft);
+    labelEditMode->setEditable (false, false, false);
+    labelEditMode->setColour (TextEditor::textColourId, Colours::black);
+    labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (cbEditMode2 = new ComboBox ("cbEditMode"));
+    cbEditMode2->setEditableText (true);
+    cbEditMode2->setJustificationType (Justification::centredLeft);
+    cbEditMode2->setTextWhenNothingSelected (String());
+    cbEditMode2->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbEditMode2->addItem (TRANS("One to one"), 1);
+    cbEditMode2->addListener (this);
+
+    addAndMakeVisible (labelPresets = new Label ("labelPresets",
+                                                 TRANS("Presets:")));
+    labelPresets->setFont (Font (15.00f, Font::plain));
+    labelPresets->setJustificationType (Justification::centredLeft);
+    labelPresets->setEditable (false, false, false);
+    labelPresets->setColour (TextEditor::textColourId, Colours::black);
+    labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (labelCurrentBeamValue = new Label ("labelCurrentBeamValue",
+                                                          TRANS("127")));
+    labelCurrentBeamValue->setFont (Font (15.00f, Font::plain));
+    labelCurrentBeamValue->setJustificationType (Justification::centredLeft);
+    labelCurrentBeamValue->setEditable (false, false, false);
+    labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
+    labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
 
     //[UserPreSize]
 
@@ -69,7 +109,7 @@ VelocityCurveDlg::VelocityCurveDlg ()
 
     //[/UserPreSize]
 
-    setSize (640, 320);
+    setSize (640, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -87,6 +127,11 @@ VelocityCurveDlg::~VelocityCurveDlg()
     buttonSendAll = nullptr;
     buttonDiscard = nullptr;
     buttonSaveEdits = nullptr;
+    cbEditMode = nullptr;
+    labelEditMode = nullptr;
+    cbEditMode2 = nullptr;
+    labelPresets = nullptr;
+    labelCurrentBeamValue = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -118,23 +163,28 @@ void VelocityCurveDlg::resized()
 	int h = this->getHeight();
     //[/UserPreResize]
 
-    lblDescription->setBounds (8, 8, 416, 32);
-    buttonSendAll->setBounds (168, 288, 150, 24);
-    buttonDiscard->setBounds (328, 288, 150, 24);
-    buttonSaveEdits->setBounds (8, 288, 150, 24);
+    lblDescription->setBounds (8, 80, 608, 32);
+    buttonSendAll->setBounds (200, 368, 150, 24);
+    buttonDiscard->setBounds (360, 368, 150, 24);
+    buttonSaveEdits->setBounds (40, 368, 150, 24);
+    cbEditMode->setBounds (136, 48, 296, 24);
+    labelEditMode->setBounds (16, 48, 103, 24);
+    cbEditMode2->setBounds (136, 8, 296, 24);
+    labelPresets->setBounds (16, 6, 107, 24);
+    labelCurrentBeamValue->setBounds (8, 128, 31, 24);
     //[UserResized] Add your own custom resize handling here..
 
 	beamTableFrame.clear();
 	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPadding);
-	beamTableFrame.lineTo(graphicsXPadding, h - graphicsYPadding);
-	beamTableFrame.lineTo(w - graphicsXPadding, h - graphicsYPadding);
+	beamTableFrame.lineTo(graphicsXPadding, h - pushButtonAreaHeight);
+	beamTableFrame.lineTo(w - graphicsXPadding, h - pushButtonAreaHeight);
 	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPadding);
 	beamTableFrame.closeSubPath();
 
 	drawedLine.clear();
 
 	float velocityBeamWidth = (w - 2 * graphicsXPadding) / 128;
-	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
+	float velocityGraphicsHeight = h - graphicsYPadding - pushButtonAreaHeight;
 
 	for (int x = 0; x < 128; x++)
 	{
@@ -145,7 +195,7 @@ void VelocityCurveDlg::resized()
 			velocityGraphicsHeight);
 	}
 
-	int buttonYPos = graphicsYPadding * 5 / 4 + velocityGraphicsHeight;
+	int buttonYPos = h - pushButtonAreaHeight + (pushButtonAreaHeight - buttonSendAll->getHeight())/2;
 
 	buttonSendAll->setBounds(buttonSendAll->getX(), buttonYPos,
 		buttonSendAll->getWidth(), buttonSendAll->getHeight());
@@ -187,6 +237,26 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
+}
+
+void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+    if (comboBoxThatHasChanged == cbEditMode)
+    {
+        //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
+        //[/UserComboBoxCode_cbEditMode]
+    }
+    else if (comboBoxThatHasChanged == cbEditMode2)
+    {
+        //[UserComboBoxCode_cbEditMode2] -- add your combo box handling code here..
+        //[/UserComboBoxCode_cbEditMode2]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
 }
 
 
@@ -241,7 +311,7 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
 }
 
-void VelocityCurveDlg::setBeamValue(int pos, int newValue/*, bool sendToController*/)
+void VelocityCurveDlg::setBeamValue(int pos, int newValue)
 {
 	if (pos >= 0 && pos < 128)
 	{
@@ -260,32 +330,29 @@ void VelocityCurveDlg::setBeamValue(int pos, int newValue/*, bool sendToControll
 		if (newValue != velocityBeamTable[pos]->getValue())
 		{
 			velocityBeamTable[pos]->setValue(newValue);
-
-			//if (sendToController)
-			//	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, pos, newValue);
 		}
 	}
 	else
 		jassertfalse;
 }
 
-void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue/*, bool sendToController*/)
+void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue)
 {
 	if (pos >= 0 && pos < 128)
 	{
 		if (velocityBeamTable[pos]->getValue() < newValue)
-			setBeamValue(pos, newValue/*, sendToController*/);
+			setBeamValue(pos, newValue);
 	}
 	else
 		jassertfalse;
 }
 
-void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue/*, bool sendToController*/)
+void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue)
 {
 	if (pos >= 0 && pos < 128)
 	{
 		if (velocityBeamTable[pos]->getValue() > newValue)
-			setBeamValue(pos, newValue/*, sendToController*/);
+			setBeamValue(pos, newValue);
 	}
 	else
 		jassertfalse;
@@ -305,9 +372,6 @@ void VelocityCurveDlg::sendVelocityTableToController()
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 {
-	int h = this->getHeight();
-	float velocityGraphicsHeight = h - 2 * graphicsYPadding;
-
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	drawedLine.clear();
@@ -330,15 +394,15 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 			repaint();
 
 			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
-			setBeamValue(x, newBeamValue/*, true*/);
+			setBeamValue(x, newBeamValue);
 
 			// Change other beams' values so curve stays monotonous
 			for (int x2 = 0; x2 < x; x2++)
-				setBeamValueAtMost(x2, newBeamValue/*, true*/);
+				setBeamValueAtMost(x2, newBeamValue);
 
 			for (int x2 = x + 1; x2 < 128; x2++)
-				setBeamValueAtLeast(x2, newBeamValue/*, true*/);
-		
+				setBeamValueAtLeast(x2, newBeamValue);
+
 			break;
 		}
 	}
@@ -368,25 +432,46 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="640" initialHeight="320">
+                 fixedSize="1" initialWidth="640" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="8 8 416 32" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="8 80 608 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="168 288 150 24" tooltip="Send whole velocity curve map to controller and save it there."
+              virtualName="" explicitFocusOrder="0" pos="200 368 150 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="328 288 150 24" tooltip="Discard velocity curve edits on controller."
+              virtualName="" explicitFocusOrder="0" pos="360 368 150 24" tooltip="Discard velocity curve edits on controller."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
-              virtualName="" explicitFocusOrder="0" pos="8 288 150 24" tooltip="Save velocity curve edits that have been sent on controller"
+              virtualName="" explicitFocusOrder="0" pos="40 368 150 24" tooltip="Save velocity curve edits that have been sent on controller"
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
+  <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
+            virtualName="" explicitFocusOrder="0" pos="136 48 296 24" editable="0"
+            layout="33" items="Free drawing" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
+         virtualName="" explicitFocusOrder="0" pos="16 48 103 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="cbEditMode" id="e5845a95b8b0cb19" memberName="cbEditMode2"
+            virtualName="" explicitFocusOrder="0" pos="136 8 296 24" editable="1"
+            layout="33" items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
+         virtualName="" explicitFocusOrder="0" pos="16 6 107 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
+  <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
+         virtualName="" explicitFocusOrder="0" pos="8 128 31 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
