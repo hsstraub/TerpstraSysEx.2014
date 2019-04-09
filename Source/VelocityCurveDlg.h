@@ -88,7 +88,7 @@ private:
     ScopedPointer<TextButton> buttonSaveEdits;
     ScopedPointer<ComboBox> cbEditMode;
     ScopedPointer<Label> labelEditMode;
-    ScopedPointer<ComboBox> cbEditMode2;
+    ScopedPointer<ComboBox> cbPreset;
     ScopedPointer<Label> labelPresets;
     ScopedPointer<Label> labelCurrentBeamValue;
 

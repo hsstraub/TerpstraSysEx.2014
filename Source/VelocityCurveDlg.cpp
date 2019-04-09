@@ -73,13 +73,13 @@ VelocityCurveDlg::VelocityCurveDlg ()
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (cbEditMode2 = new ComboBox ("cbEditMode"));
-    cbEditMode2->setEditableText (true);
-    cbEditMode2->setJustificationType (Justification::centredLeft);
-    cbEditMode2->setTextWhenNothingSelected (String());
-    cbEditMode2->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbEditMode2->addItem (TRANS("One to one"), 1);
-    cbEditMode2->addListener (this);
+    addAndMakeVisible (cbPreset = new ComboBox ("cbPreset"));
+    cbPreset->setEditableText (true);
+    cbPreset->setJustificationType (Justification::centredLeft);
+    cbPreset->setTextWhenNothingSelected (String());
+    cbPreset->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbPreset->addItem (TRANS("One to one"), 1);
+    cbPreset->addListener (this);
 
     addAndMakeVisible (labelPresets = new Label ("labelPresets",
                                                  TRANS("Presets:")));
@@ -113,6 +113,7 @@ VelocityCurveDlg::VelocityCurveDlg ()
 
 
     //[Constructor] You can add your own custom stuff here..
+	cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
 	labelCurrentBeamValue->setVisible(false);
     //[/Constructor]
 }
@@ -130,7 +131,7 @@ VelocityCurveDlg::~VelocityCurveDlg()
     buttonSaveEdits = nullptr;
     cbEditMode = nullptr;
     labelEditMode = nullptr;
-    cbEditMode2 = nullptr;
+    cbPreset = nullptr;
     labelPresets = nullptr;
     labelCurrentBeamValue = nullptr;
 
@@ -170,7 +171,7 @@ void VelocityCurveDlg::resized()
     buttonSaveEdits->setBounds (40, 368, 150, 24);
     cbEditMode->setBounds (136, 48, 296, 24);
     labelEditMode->setBounds (16, 48, 103, 24);
-    cbEditMode2->setBounds (136, 8, 296, 24);
+    cbPreset->setBounds (136, 8, 296, 24);
     labelPresets->setBounds (16, 6, 107, 24);
     labelCurrentBeamValue->setBounds (8, 128, 31, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -250,10 +251,24 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
         //[/UserComboBoxCode_cbEditMode]
     }
-    else if (comboBoxThatHasChanged == cbEditMode2)
+    else if (comboBoxThatHasChanged == cbPreset)
     {
-        //[UserComboBoxCode_cbEditMode2] -- add your combo box handling code here..
-        //[/UserComboBoxCode_cbEditMode2]
+        //[UserComboBoxCode_cbPreset] -- add your combo box handling code here..
+		
+		int presetIndex = cbPreset->getSelectedItemIndex();
+
+		// Show sub window corresponding to selected edit mode
+		switch (presetIndex)
+		{
+		case 0:
+			// Currently only preset is "one to one"
+			for (int x = 0; x < 128; x++)
+				setBeamValue(x, x);
+			sendVelocityTableToController();
+			break;
+		}
+        
+		//[/UserComboBoxCode_cbPreset]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -283,7 +298,7 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 		jassert(velocityCurveValueArray.size() >= 128);
 
 		for (int x = 0; x < 128; x++)
-			setBeamValue(x, velocityCurveValueArray[x].getIntValue()/*, false*/);
+			setBeamValue(x, velocityCurveValueArray[x].getIntValue());
 	}
 	else
 	{
@@ -410,6 +425,9 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 				for (int x2 = x + 1; x2 < 128; x2++)
 					setBeamValueAtLeast(x2, newBeamValue);
 
+				// Unselect preset
+				cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
+
 				break;
 			}
 		}
@@ -444,6 +462,9 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 			for (int x2 = x + 1; x2 < 128; x2++)
 				setBeamValueAtLeast(x2, newBeamValue);
 
+			// Unselect preset
+			cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
+		
 			break;
 		}
 	}
@@ -500,9 +521,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <COMBOBOX name="cbEditMode" id="e5845a95b8b0cb19" memberName="cbEditMode2"
-            virtualName="" explicitFocusOrder="0" pos="136 8 296 24" editable="1"
-            layout="33" items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <COMBOBOX name="cbPreset" id="e5845a95b8b0cb19" memberName="cbPreset" virtualName=""
+            explicitFocusOrder="0" pos="136 8 296 24" editable="1" layout="33"
+            items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
          virtualName="" explicitFocusOrder="0" pos="16 6 107 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
