@@ -76,7 +76,7 @@ private:
 	VelocityCurveBeam* velocityBeamTable[128];
 	Path drawedLine;
 
-	const float graphicsXPadding = 34.0f;
+	//const float graphicsXPadding = 34.0f;
 	const float graphicsYPadding = 116.0f;
 	const float pushButtonAreaHeight = 36.0f;
     //[/UserVariables]

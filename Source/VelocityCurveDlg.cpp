@@ -165,16 +165,18 @@ void VelocityCurveDlg::resized()
 	int h = this->getHeight();
     //[/UserPreResize]
 
-    lblDescription->setBounds (8, 80, 608, 32);
-    buttonSendAll->setBounds (200, 368, 150, 24);
-    buttonDiscard->setBounds (360, 368, 150, 24);
-    buttonSaveEdits->setBounds (40, 368, 150, 24);
-    cbEditMode->setBounds (136, 48, 296, 24);
-    labelEditMode->setBounds (16, 48, 103, 24);
-    cbPreset->setBounds (136, 8, 296, 24);
-    labelPresets->setBounds (16, 6, 107, 24);
-    labelCurrentBeamValue->setBounds (8, 128, 31, 24);
+    lblDescription->setBounds (32, 80, 608, 32);
+    buttonSendAll->setBounds (192, 368, 150, 24);
+    buttonDiscard->setBounds (352, 368, 150, 24);
+    buttonSaveEdits->setBounds (32, 368, 150, 24);
+    cbEditMode->setBounds (144, 48, 296, 24);
+    labelEditMode->setBounds (32, 48, 103, 24);
+    cbPreset->setBounds (144, 8, 296, 24);
+    labelPresets->setBounds (32, 8, 107, 24);
+    labelCurrentBeamValue->setBounds (0, 128, 31, 24);
     //[UserResized] Add your own custom resize handling here..
+
+	float graphicsXPadding =  buttonSaveEdits->getX();
 
 	beamTableFrame.clear();
 	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPadding);
@@ -254,7 +256,7 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == cbPreset)
     {
         //[UserComboBoxCode_cbPreset] -- add your combo box handling code here..
-		
+
 		int presetIndex = cbPreset->getSelectedItemIndex();
 
 		// Show sub window corresponding to selected edit mode
@@ -267,8 +269,8 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 			sendVelocityTableToController();
 			break;
 		}
-        
-		//[/UserComboBoxCode_cbPreset]
+
+        //[/UserComboBoxCode_cbPreset]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -464,7 +466,7 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 			// Unselect preset
 			cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
-		
+
 			break;
 		}
 	}
@@ -497,40 +499,40 @@ BEGIN_JUCER_METADATA
                  fixedSize="1" initialWidth="640" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="8 80 608 32" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 80 608 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="200 368 150 24" tooltip="Send whole velocity curve map to controller and save it there."
+              virtualName="" explicitFocusOrder="0" pos="192 368 150 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="360 368 150 24" tooltip="Discard velocity curve edits on controller."
+              virtualName="" explicitFocusOrder="0" pos="352 368 150 24" tooltip="Discard velocity curve edits on controller."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
-              virtualName="" explicitFocusOrder="0" pos="40 368 150 24" tooltip="Save velocity curve edits that have been sent on controller"
+              virtualName="" explicitFocusOrder="0" pos="32 368 150 24" tooltip="Save velocity curve edits that have been sent on controller"
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="136 48 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="144 48 296 24" editable="0"
             layout="33" items="Free drawing" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="16 48 103 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 48 103 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbPreset" id="e5845a95b8b0cb19" memberName="cbPreset" virtualName=""
-            explicitFocusOrder="0" pos="136 8 296 24" editable="1" layout="33"
+            explicitFocusOrder="0" pos="144 8 296 24" editable="1" layout="33"
             items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
-         virtualName="" explicitFocusOrder="0" pos="16 6 107 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 8 107 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="8 128 31 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 128 31 24" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
