@@ -32,6 +32,7 @@ VelocityCurveDlg::VelocityCurveDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	keyType = TerpstraKey::noteOnNoteOff;
+	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
     addAndMakeVisible (lblDescription = new Label ("lblDescription",
@@ -251,6 +252,20 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cbEditMode)
     {
         //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
+		int editModeIndex = cbEditMode->getSelectedItemIndex();
+
+		switch (editModeIndex)
+		{
+		case 0:
+			currentCurveEditStrategy = &freeDrawingStrategy;
+			// XXX Init, if necessary
+			break;
+
+		default:
+			currentCurveEditStrategy = nullptr;
+			break;
+		}
+
         //[/UserComboBoxCode_cbEditMode]
     }
     else if (comboBoxThatHasChanged == cbPreset)

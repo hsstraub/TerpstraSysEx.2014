@@ -24,6 +24,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "ViewComponents.h"
+#include "VelocityCurveEditStrategy.h"
 //[/Headers]
 
 
@@ -74,9 +75,12 @@ private:
 	TerpstraKey::KEYTYPE keyType;
 	Path beamTableFrame;
 	VelocityCurveBeam* velocityBeamTable[128];
+
+	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
+	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
+
 	Path drawedLine;
 
-	//const float graphicsXPadding = 34.0f;
 	const float graphicsYPadding = 116.0f;
 	const float pushButtonAreaHeight = 36.0f;
     //[/UserVariables]

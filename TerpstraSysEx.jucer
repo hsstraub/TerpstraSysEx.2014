@@ -19,6 +19,10 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="QI0Qip" name="VelocityCurveEditStrategy.cpp" compile="1"
+            resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
+      <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
+            file="Source/VelocityCurveEditStrategy.h"/>
       <FILE id="zD1emI" name="VelocityCurveDlg.cpp" compile="1" resource="0"
             file="Source/VelocityCurveDlg.cpp"/>
       <FILE id="OEajb7" name="VelocityCurveDlg.h" compile="0" resource="0"
