@@ -29,7 +29,7 @@
 
 //==============================================================================
 VelocityCurveDlg::VelocityCurveDlg ()
-	: freeDrawingStrategy(beamTableFrame, velocityBeamTable)
+    : freeDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	keyType = TerpstraKey::noteOnNoteOff;
@@ -448,7 +448,7 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 parentClasses="public Component" constructorParams="" variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="640" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
