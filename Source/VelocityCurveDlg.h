@@ -51,11 +51,9 @@ public:
 	VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue);
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	void setBeamValue(int pos, int newValue);
-	void setBeamValueAtLeast(int pos, int newValue);
-	void setBeamValueAtMost(int pos, int newValue);
-
 	void sendVelocityTableToController();
+
+	void showBeamValueOfMousePosition(Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
@@ -78,8 +76,6 @@ private:
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
-
-	Path drawedLine;
 
 	const float graphicsYPadding = 116.0f;
 	const float pushButtonAreaHeight = 36.0f;

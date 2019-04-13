@@ -11,16 +11,45 @@
 #ifndef VELOCITYCURVEEDITSTRATEGY_H_INCLUDED
 #define VELOCITYCURVEEDITSTRATEGY_H_INCLUDED
 
+#include "../JuceLibraryCode/JuceHeader.h"
+
+#include "ViewComponents.h"
+
+
 // Base class for velocity curve editing
 class VelocityCurveEditStrategyBase
 {
+public:
+	VelocityCurveEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
+	virtual void paint(Graphics& g) = 0;
+	// Resize functionality. Assumes that beamTableFrameRef has already been resized.
+	virtual void resized() { }
+	virtual void mouseMove(const MouseEvent &event) { };
+	// return: true if some editing was done
+	virtual bool mouseDown(Point<float> localPoint) { return false; }
+	virtual bool mouseDrag(Point<float> localPoint) { return false; };
+	virtual void mouseUp(const MouseEvent &event) { };
+
+protected:
+	Path& beamTableFrame;
+	VelocityCurveBeam** velocityBeamTable;
 };
 
 // Velocity curve editing via free drawing
 class VelocityCurveFreeDrawingStrategy : public VelocityCurveEditStrategyBase
 {
+public:
+	VelocityCurveFreeDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
+	void paint(Graphics& g) override;
+	void resized() override;
+	bool mouseDown(Point<float> localPoint) override;
+	bool mouseDrag(Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event) override;
+
+protected:
+	Path drawedLine;
 };
 
 

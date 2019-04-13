@@ -265,11 +265,35 @@ VelocityCurveBeam::~VelocityCurveBeam()
 
 void VelocityCurveBeam::setValue(int newValue)
 {
+	if (newValue < 0)
+	{
+		jassertfalse;
+		newValue = 0;
+	}
+
+	if (newValue > 127)
+	{
+		jassertfalse;
+		newValue = 127;
+	}
+
 	if (newValue != beamValue)
 	{
 		beamValue = newValue;
 		repaint();
 	}
+}
+
+void VelocityCurveBeam::setValueAtLeast(int newValue)
+{
+	if (getValue() < newValue)
+		setValue(newValue);
+}
+
+void VelocityCurveBeam::setValueAtMost(int newValue)
+{
+	if (getValue() > newValue)
+		setValue(newValue);
 }
 
 void VelocityCurveBeam::paint(Graphics& g)

@@ -29,6 +29,7 @@
 
 //==============================================================================
 VelocityCurveDlg::VelocityCurveDlg ()
+	: freeDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	keyType = TerpstraKey::noteOnNoteOff;
@@ -154,8 +155,8 @@ void VelocityCurveDlg::paint (Graphics& g)
 	g.setColour(Colours::black);
 	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
-	if (!drawedLine.isEmpty() )
-		g.strokePath(drawedLine, PathStrokeType(1.000f));
+	if (currentCurveEditStrategy != nullptr)
+		currentCurveEditStrategy->paint(g);
     //[/UserPaint]
 }
 
@@ -186,7 +187,8 @@ void VelocityCurveDlg::resized()
 	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPadding);
 	beamTableFrame.closeSubPath();
 
-	drawedLine.clear();
+	if (currentCurveEditStrategy != nullptr)
+		currentCurveEditStrategy->resized();
 
 	float velocityBeamWidth = (w - 2 * graphicsXPadding) / 128;
 	float velocityGraphicsHeight = h - graphicsYPadding - pushButtonAreaHeight;
@@ -280,7 +282,7 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 0:
 			// Currently only preset is "one to one"
 			for (int x = 0; x < 128; x++)
-				setBeamValue(x, x);
+				velocityBeamTable[x]->setValue(x);
 			sendVelocityTableToController();
 			break;
 		}
@@ -315,13 +317,13 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 		jassert(velocityCurveValueArray.size() >= 128);
 
 		for (int x = 0; x < 128; x++)
-			setBeamValue(x, velocityCurveValueArray[x].getIntValue());
+			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
 	}
 	else
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			setBeamValue(x, x);
+			velocityBeamTable[x]->setValue(x);
 	}
 
 	setSize(
@@ -344,53 +346,6 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
 }
 
-void VelocityCurveDlg::setBeamValue(int pos, int newValue)
-{
-	if (pos >= 0 && pos < 128)
-	{
-		if (newValue < 0)
-		{
-			jassertfalse;
-			newValue = 0;
-		}
-
-		if (newValue > 127)
-		{
-			jassertfalse;
-			newValue = 127;
-		}
-
-		if (newValue != velocityBeamTable[pos]->getValue())
-		{
-			velocityBeamTable[pos]->setValue(newValue);
-		}
-	}
-	else
-		jassertfalse;
-}
-
-void VelocityCurveDlg::setBeamValueAtLeast(int pos, int newValue)
-{
-	if (pos >= 0 && pos < 128)
-	{
-		if (velocityBeamTable[pos]->getValue() < newValue)
-			setBeamValue(pos, newValue);
-	}
-	else
-		jassertfalse;
-}
-
-void VelocityCurveDlg::setBeamValueAtMost(int pos, int newValue)
-{
-	if (pos >= 0 && pos < 128)
-	{
-		if (velocityBeamTable[pos]->getValue() > newValue)
-			setBeamValue(pos, newValue);
-	}
-	else
-		jassertfalse;
-}
-
 void VelocityCurveDlg::sendVelocityTableToController()
 {
 	unsigned char velocityValues[128];
@@ -403,52 +358,51 @@ void VelocityCurveDlg::sendVelocityTableToController()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, velocityValues);
 }
 
+void VelocityCurveDlg::showBeamValueOfMousePosition(Point<float> localPoint)
+{
+	if (beamTableFrame.contains(localPoint))
+	{
+		// Show the field with the current beam value
+		labelCurrentBeamValue->setVisible(true);
+		labelCurrentBeamValue->setBounds(
+			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
+
+		// Value
+		Rectangle<int> beamRect = velocityBeamTable[0]->getBounds();	// Height of first rect. (All rects of table are the same)
+		int beamValueOfCursor = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
+
+		labelCurrentBeamValue->setText(String(beamValueOfCursor), juce::NotificationType::sendNotification);
+	}
+	else
+		// Hide field
+		labelCurrentBeamValue->setVisible(false);
+}
+
 void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 {
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	// Show or hide the field with the current beam value
-	labelCurrentBeamValue->setVisible(beamTableFrame.contains(localPoint));
-	labelCurrentBeamValue->setBounds(
-		localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
+	showBeamValueOfMousePosition(localPoint);
 
-	Rectangle<int> beamRect = velocityBeamTable[0]->getBounds();
-	int beamValueOfCursor = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
-
-	labelCurrentBeamValue->setText(String(beamValueOfCursor), juce::NotificationType::sendNotification);
+	if (currentCurveEditStrategy != nullptr)
+		currentCurveEditStrategy->mouseMove(event);
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 {
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	drawedLine.clear();
-	if (beamTableFrame.contains(localPoint))
+	showBeamValueOfMousePosition(localPoint);
+
+	if (currentCurveEditStrategy != nullptr)
 	{
-		drawedLine.startNewSubPath(localPoint.x, localPoint.y);
-
-		for (int x = 0; x < 128; x++)
+		if (currentCurveEditStrategy->mouseDown(localPoint))
 		{
-			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
-			if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
-			{
-				int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
-				setBeamValue(x, newBeamValue);
+			repaint();
 
-				// Change other beams' values so curve stays monotonous
-				for (int x2 = 0; x2 < x; x2++)
-					setBeamValueAtMost(x2, newBeamValue);
-
-				for (int x2 = x + 1; x2 < 128; x2++)
-					setBeamValueAtLeast(x2, newBeamValue);
-
-				// Unselect preset
-				cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
-
-				break;
-			}
+			// If something was edited: Unselect preset
+			cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
 		}
-
 	}
 }
 
@@ -456,33 +410,16 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 {
 	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	labelCurrentBeamValue->setVisible(beamTableFrame.contains(localPoint));
-	labelCurrentBeamValue->setBounds(
-		localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
+	showBeamValueOfMousePosition(localPoint);
 
-	for (int x = 0; x < 128; x++)
+	if (currentCurveEditStrategy != nullptr)
 	{
-		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
-		if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
+		if (currentCurveEditStrategy->mouseDrag(localPoint))
 		{
-			drawedLine.lineTo(localPoint);
 			repaint();
 
-			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
-			setBeamValue(x, newBeamValue);
-			labelCurrentBeamValue->setText(String(newBeamValue), juce::NotificationType::sendNotification);
-
-			// Change other beams' values so curve stays monotonous
-			for (int x2 = 0; x2 < x; x2++)
-				setBeamValueAtMost(x2, newBeamValue);
-
-			for (int x2 = x + 1; x2 < 128; x2++)
-				setBeamValueAtLeast(x2, newBeamValue);
-
-			// Unselect preset
+			// If something was edited: Unselect preset
 			cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
-
-			break;
 		}
 	}
 }
@@ -492,7 +429,9 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 	// Send velocity table to controller
 	sendVelocityTableToController();
 
-	drawedLine.clear();
+	if (currentCurveEditStrategy != nullptr)
+		currentCurveEditStrategy->mouseUp(event);
+
 	repaint();
 }
 
