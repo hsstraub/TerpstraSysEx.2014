@@ -28,11 +28,11 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveDlg::VelocityCurveDlg ()
+VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
     : freeDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	keyType = TerpstraKey::noteOnNoteOff;
+	keyType = keyTypeValue;
 	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
@@ -117,7 +117,10 @@ VelocityCurveDlg::VelocityCurveDlg ()
     //[Constructor] You can add your own custom stuff here..
 	cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
 	labelCurrentBeamValue->setVisible(false);
-    //[/Constructor]
+
+	// Set values according to the properties files
+	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+	//[/Constructor]
 }
 
 VelocityCurveDlg::~VelocityCurveDlg()
@@ -298,15 +301,6 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-VelocityCurveDlg::VelocityCurveDlg(TerpstraKey::KEYTYPE keyTypeValue)
-	: VelocityCurveDlg()
-{
-	keyType = keyTypeValue;
-
-	// Set values according to the properties files
-	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-}
-
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
@@ -448,7 +442,8 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)"
+                 parentClasses="public Component" constructorParams="TerpstraKey::KEYTYPE keyTypeValue"
+                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="640" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
