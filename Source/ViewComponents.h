@@ -112,27 +112,4 @@ public:
 	void addColourToBox(int newColourAsNumber) { addColourToBox(Colour(newColourAsNumber)); }
 };
 
-/*
-==============================================================================
-Display of one beam in a velocity curve table
-==============================================================================
-*/
-class VelocityCurveBeam : public Component
-{
-public:
-	VelocityCurveBeam();
-	~VelocityCurveBeam();
-
-	int getValue() const { return beamValue; }
-	void setValue(int newValue);
-	void setValueAtLeast(int newValue);
-	void setValueAtMost(int newValue);
-
-	void paint(Graphics& g);
-	void resized();
-
-private:
-	int beamValue;
-};
-
 #endif  // VIEWCOMPOONENTS_H_INCLUDED

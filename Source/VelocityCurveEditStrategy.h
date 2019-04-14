@@ -13,7 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "ViewComponents.h"
+#include "VelocityCurveComponents.h"
 
 
 // Base class for velocity curve editing
