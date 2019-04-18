@@ -74,6 +74,7 @@ private:
 	VelocityCurveBeam* velocityBeamTable[128];
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
+	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
 
 	const float graphicsYPadding = 116.0f;

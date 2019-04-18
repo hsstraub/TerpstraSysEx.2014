@@ -107,3 +107,28 @@ void VelocityCurveFreeDrawingStrategy::mouseUp(const MouseEvent &event)
 	drawedLine.clear();
 }
 
+/*
+==============================================================================
+VelocityCurveLinearDrawingStrategy class
+==============================================================================
+*/
+
+VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
+	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+{
+}
+
+void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
+{
+	g.setColour(Colours::black);
+
+	// Lines from point to point
+	// XXX
+
+	// Circles around points, one of them possibly selected
+	// XXX
+}
+
+//void VelocityCurveLinearDrawingStrategy::resized()
+//{
+//}

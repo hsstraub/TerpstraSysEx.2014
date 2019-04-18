@@ -16,7 +16,11 @@
 #include "VelocityCurveComponents.h"
 
 
-// Base class for velocity curve editing
+/*
+==============================================================================
+Base class for velocity curve editing
+==============================================================================
+*/
 class VelocityCurveEditStrategyBase
 {
 public:
@@ -36,7 +40,11 @@ protected:
 	VelocityCurveBeam** velocityBeamTable;
 };
 
-// Velocity curve editing via free drawing
+/*
+==============================================================================
+Velocity curve editing via free drawing
+==============================================================================
+*/
 class VelocityCurveFreeDrawingStrategy : public VelocityCurveEditStrategyBase
 {
 public:
@@ -52,6 +60,23 @@ protected:
 	Path drawedLine;
 };
 
+/*
+==============================================================================
+Velocity curve editing via line segments
+==============================================================================
+*/
+
+class VelocityCurveLinearDrawingStrategy : public VelocityCurveEditStrategyBase
+{
+public:
+	VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+
+	void paint(Graphics& g) override;
+	//void resized() override;
+	//bool mouseDown(Point<float> localPoint) override;
+	//bool mouseDrag(Point<float> localPoint) override;
+	//void mouseUp(const MouseEvent &event) override;
+};
 
 
 #endif  // VELOCITYCURVEEDITSTRATEGY_H_INCLUDED

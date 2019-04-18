@@ -29,7 +29,8 @@
 
 //==============================================================================
 VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
-    : freeDrawingStrategy(beamTableFrame, velocityBeamTable)
+    : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
+      linearDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	keyType = keyTypeValue;
@@ -65,6 +66,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
     cbEditMode->setTextWhenNothingSelected (String());
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Free drawing"), 1);
+    cbEditMode->addItem (TRANS("Linear"), 2);
     cbEditMode->addListener (this);
 
     addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
@@ -120,7 +122,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
 
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-	//[/Constructor]
+    //[/Constructor]
 }
 
 VelocityCurveDlg::~VelocityCurveDlg()
@@ -263,7 +265,10 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		{
 		case 0:
 			currentCurveEditStrategy = &freeDrawingStrategy;
-			// XXX Init, if necessary
+			break;
+
+		case 1:
+			currentCurveEditStrategy = &linearDrawingStrategy;
 			break;
 
 		default:
@@ -443,7 +448,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
                  parentClasses="public Component" constructorParams="TerpstraKey::KEYTYPE keyTypeValue"
-                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)"
+                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="640" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
@@ -466,7 +471,8 @@ BEGIN_JUCER_METADATA
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="144 48 296 24" editable="0"
-            layout="33" items="Free drawing" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="Free drawing&#10;Linear" textWhenNonSelected=""
+            textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
          virtualName="" explicitFocusOrder="0" pos="32 48 103 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
