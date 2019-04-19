@@ -144,9 +144,18 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 			pt = velocityBeamTable[x]->getBottomMid();
 			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
 			drawedLine.lineTo(pt);
+		}
+	}
 
-			// Circle around the point
-			drawedLine.addEllipse(pt.x, pt.y, 8, 8);
+	// Circles around the point
+	for (int x = 0; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			pt = velocityBeamTable[x]->getBottomMid();
+			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
+
+			drawedLine.addEllipse(pt.x-4, pt.y-4, 8, 8);
 		}
 	}
 
@@ -231,5 +240,31 @@ void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event)
 {
 	draggedOriginalXPosition = -1;
 
-	// ToDo change values of velocityBeamTable
+	// Change values of velocityBeamTable
+	
+	// First position
+	int lineStartXPosition = 0;
+	velocityBeamTable[0]->setValue(fixPointBeamHeights[0]);	// Must have a valid value
+	
+	int lineStopXPosition = -1;
+	for (int x = 1; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			// New fixed point found
+			lineStopXPosition = x;
+
+			// Calculate positions in-between and end
+			for (int x2 = lineStartXPosition + 1; x2 <= lineStopXPosition; x2++)
+			{
+				velocityBeamTable[x2]->setValue(
+					fixPointBeamHeights[lineStartXPosition] +
+					(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
+						* ((x2 - lineStartXPosition)) / (lineStopXPosition - lineStartXPosition));
+			}
+
+			// Current end position becomes new start position
+			lineStartXPosition = lineStopXPosition;
+		}
+	}
 }
