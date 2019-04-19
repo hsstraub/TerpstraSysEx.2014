@@ -115,8 +115,14 @@ VelocityCurveLinearDrawingStrategy class
 
 VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
 	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
-	, leftPoint(0, 0), rightPoint(127, 127)
+	, draggedOriginalXPosition(-1)
 {
+	fixPointBeamHeights[0] = 0;
+	
+	for (int x = 1; x < 127; x++)
+		fixPointBeamHeights[x] = -1;
+
+	fixPointBeamHeights[127] = 127;
 }
 
 void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
@@ -125,25 +131,105 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 
 	// First point
 	Point<float> pt = velocityBeamTable[0]->getBottomMid();
-	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(leftPoint.y));
+	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(fixPointBeamHeights[0]));
 
 	Path drawedLine;
 	drawedLine.startNewSubPath(pt);
 	
 	// points in-between
-	// XXX
+	for (int x = 1; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			pt = velocityBeamTable[x]->getBottomMid();
+			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
+			drawedLine.lineTo(pt);
 
-	// Last point
-	pt = velocityBeamTable[127]->getBottomMid();
-	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(rightPoint.y));
-	drawedLine.lineTo(pt);
+			// Circle around the point
+			drawedLine.addEllipse(pt.x, pt.y, 8, 8);
+		}
+	}
 
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
-
-	// Circles around points, one of them possibly selected
-	// XXX
 }
 
-//void VelocityCurveLinearDrawingStrategy::resized()
-//{
-//}
+bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
+{
+	// Find position to drag
+	draggedOriginalXPosition = -1;
+	for (int x = 0; x < 128; x++)
+	{
+		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
+		if (beamRect.contains(localPoint.toInt()))
+		{
+			draggedOriginalXPosition = x;
+			break;
+		}
+	}
+
+	if (draggedOriginalXPosition >= 0)
+	{
+		// First and last position cannot be dragged horizontally
+		if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == 127)
+		{
+			minDragXPosition = draggedOriginalXPosition;
+			maxDragXPosition = draggedOriginalXPosition;
+		}
+		else
+		{
+			// for now: now dragging inside
+			// ToDO
+			draggedOriginalXPosition = -1;
+		}
+	}
+
+	if (draggedOriginalXPosition >= 0)
+	{
+		fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
+		return true;
+	}
+
+	return false;
+}
+
+bool VelocityCurveLinearDrawingStrategy::mouseDrag(Point<float> localPoint)
+{
+	if (isDragging())
+	{
+		int currentDraggedXPosition = -1;
+		for (int x = 0; x < 128; x++)
+		{
+			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
+			if (beamRect.contains(localPoint.toInt()))
+			{
+				currentDraggedXPosition = x;
+				break;
+			}
+		}
+
+		if (currentDraggedXPosition != -1)
+		{
+			if (currentDraggedXPosition < minDragXPosition)
+				currentDraggedXPosition = minDragXPosition;
+			else if (currentDraggedXPosition > maxDragXPosition)
+				currentDraggedXPosition = maxDragXPosition;
+
+			// If x-position changed: remove point of original position
+			if (currentDraggedXPosition != draggedOriginalXPosition)
+				fixPointBeamHeights[draggedOriginalXPosition] = -1;
+
+			fixPointBeamHeights[currentDraggedXPosition] = velocityBeamTable[currentDraggedXPosition]->getBeamValueFromLocalPoint(localPoint);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event)
+{
+	draggedOriginalXPosition = -1;
+
+	// ToDo change values of velocityBeamTable
+}

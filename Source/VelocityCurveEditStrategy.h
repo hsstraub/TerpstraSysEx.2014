@@ -73,15 +73,19 @@ public:
 
 	void paint(Graphics& g) override;
 	//void resized() override;
-	//bool mouseDown(Point<float> localPoint) override;
-	//bool mouseDrag(Point<float> localPoint) override;
-	//void mouseUp(const MouseEvent &event) override;
+	bool mouseDown(Point<float> localPoint) override;
+	bool mouseDrag(Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event) override;
 
 protected:
-	// x-component always 0
-	Point<int>	leftPoint;
-	// x-component always 127
-	Point<int>	rightPoint;
+	bool isDragging() { return draggedOriginalXPosition >= 0; }
+
+	// y-components of vector line point, -1 if no line points
+	int fixPointBeamHeights[128];
+
+	int draggedOriginalXPosition;
+	int minDragXPosition;
+	int maxDragXPosition;
 };
 
 
