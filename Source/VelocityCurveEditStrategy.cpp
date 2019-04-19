@@ -57,7 +57,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(Point<float> localPoint)
 			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 			if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
 			{
-				int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
+				int newBeamValue = velocityBeamTable[x]->getBeamValueFromLocalPoint(localPoint);
 				velocityBeamTable[x]->setValue(newBeamValue);
 
 				// Change other beams' values so curve stays monotonous
@@ -85,7 +85,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDrag(Point<float> localPoint)
 		{
 			drawedLine.lineTo(localPoint);
 
-			int newBeamValue = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
+			int newBeamValue = velocityBeamTable[x]->getBeamValueFromLocalPoint(localPoint);
 			velocityBeamTable[x]->setValue(newBeamValue);
 
 			// Change other beams' values so curve stays monotonous
@@ -115,6 +115,7 @@ VelocityCurveLinearDrawingStrategy class
 
 VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
 	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+	, leftPoint(0, 0), rightPoint(127, 127)
 {
 }
 
@@ -122,8 +123,22 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 {
 	g.setColour(Colours::black);
 
-	// Lines from point to point
+	// First point
+	Point<float> pt = velocityBeamTable[0]->getBottomMid();
+	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(leftPoint.y));
+
+	Path drawedLine;
+	drawedLine.startNewSubPath(pt);
+	
+	// points in-between
 	// XXX
+
+	// Last point
+	pt = velocityBeamTable[127]->getBottomMid();
+	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(rightPoint.y));
+	drawedLine.lineTo(pt);
+
+	g.strokePath(drawedLine, PathStrokeType(1.000f));
 
 	// Circles around points, one of them possibly selected
 	// XXX

@@ -275,7 +275,8 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 			currentCurveEditStrategy = nullptr;
 			break;
 		}
-
+		
+		repaint();
         //[/UserComboBoxCode_cbEditMode]
     }
     else if (comboBoxThatHasChanged == cbPreset)
@@ -367,10 +368,11 @@ void VelocityCurveDlg::showBeamValueOfMousePosition(Point<float> localPoint)
 			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
 
 		// Value
-		Rectangle<int> beamRect = velocityBeamTable[0]->getBounds();	// Height of first rect. (All rects of table are the same)
-		int beamValueOfCursor = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
+		//Rectangle<int> beamRect = velocityBeamTable[0]->getBounds();	// Height of first rect. (All rects of table are the same)
+		//int beamValueOfCursor = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
 
-		labelCurrentBeamValue->setText(String(beamValueOfCursor), juce::NotificationType::sendNotification);
+		//labelCurrentBeamValue->setText(String(beamValueOfCursor), juce::NotificationType::sendNotification);
+		labelCurrentBeamValue->setText(String(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
 	}
 	else
 		// Hide field

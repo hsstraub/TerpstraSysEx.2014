@@ -64,14 +64,13 @@ void VelocityCurveBeam::paint(Graphics& g)
 {
 	float w = this->getWidth();
 	float h = this->getHeight();
-
-	float velocityBeamUnitHeight = h / 128;
+	float beamHeight = getBeamHeightFromValue();
 
 	Path rectPath;
 	rectPath.startNewSubPath(0, h);
 	rectPath.lineTo(w, h);
-	rectPath.lineTo(w, h - beamValue * velocityBeamUnitHeight);
-	rectPath.lineTo(0, h - beamValue * velocityBeamUnitHeight);
+	rectPath.lineTo(w, h - beamHeight);
+	rectPath.lineTo(0, h - beamHeight);
 	rectPath.closeSubPath();
 
 	g.setColour(Colour(MAINWINDOWSELECTEDCOLOUR));
@@ -81,4 +80,22 @@ void VelocityCurveBeam::paint(Graphics& g)
 void VelocityCurveBeam::resized()
 {
 
+}
+
+Point<float> VelocityCurveBeam::getBottomMid()
+{
+	Point<float> pt = this->getBoundsInParent().getBottomLeft().toFloat();
+	pt.addXY(this->getWidth() / 2.0, 0);
+
+	return pt;
+}
+
+float VelocityCurveBeam::getBeamHeightFromValue(int value)
+{
+	return value * this->getHeight() / 128;
+}
+
+int VelocityCurveBeam::getBeamValueFromLocalPoint(Point<float> localPoint)
+{
+	return (getBottom() - localPoint.y) * 128 / getHeight();
 }

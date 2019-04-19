@@ -33,6 +33,14 @@ public:
 	void paint(Graphics& g);
 	void resized();
 
+	Point<float> getBottomMid();
+	
+	float getBeamHeightFromValue(int value);
+	float getBeamHeightFromValue() { return getBeamHeightFromValue(beamValue); }
+
+	int getBeamValueFromLocalPoint(Point<float> localPoint);
+	void setBeamValueFromLocalPoint(Point<float> localPoint) { setValue(getBeamValueFromLocalPoint(localPoint)); }
+
 private:
 	int beamValue;
 };

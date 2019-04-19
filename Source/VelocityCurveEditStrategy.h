@@ -76,6 +76,12 @@ public:
 	//bool mouseDown(Point<float> localPoint) override;
 	//bool mouseDrag(Point<float> localPoint) override;
 	//void mouseUp(const MouseEvent &event) override;
+
+protected:
+	// x-component always 0
+	Point<int>	leftPoint;
+	// x-component always 127
+	Point<int>	rightPoint;
 };
 
 
