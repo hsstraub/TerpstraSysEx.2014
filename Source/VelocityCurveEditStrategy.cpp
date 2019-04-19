@@ -186,9 +186,11 @@ bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
 		}
 		else
 		{
-			// for now: now dragging inside
+			// Dragging would be psosible until next line point
+			// for now: no horizontal dragging
 			// ToDO
-			draggedOriginalXPosition = -1;
+			minDragXPosition = draggedOriginalXPosition;
+			maxDragXPosition = draggedOriginalXPosition;
 		}
 	}
 
