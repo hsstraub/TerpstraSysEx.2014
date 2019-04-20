@@ -125,6 +125,17 @@ VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& bea
 	fixPointBeamHeights[127] = 127;
 }
 
+void VelocityCurveLinearDrawingStrategy::Initialize()
+{
+	// Take segments from current beam values, with superfluous points removed
+	for (int x = 0; x < 128; x++)
+	{
+		fixPointBeamHeights[x] = velocityBeamTable[x]->getValue();
+	}
+
+	ClearSuperfluousPoints();
+}
+
 void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 {
 	g.setColour(Colours::black);
@@ -267,6 +278,66 @@ void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event)
 
 			// Current end position becomes new start position
 			lineStartXPosition = lineStopXPosition;
+		}
+	}
+
+	ClearSuperfluousPoints();
+}
+
+void VelocityCurveLinearDrawingStrategy::ClearSuperfluousPoints()
+{
+	int lineStartXPosition = 0;
+	int lineStopXPosition = -1;
+	float previousLineSegmentRiseRatio;
+
+	// Identify first segment
+	for (int x = 1; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			// New fixed point found
+			lineStopXPosition = x;
+
+			previousLineSegmentRiseRatio = (float)(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
+				/ (float)(lineStopXPosition - lineStartXPosition);
+
+			break;
+		}
+	}
+
+	jassert(lineStopXPosition != -1);
+
+	// Current end position becomes new start position
+	int previousLineStartXPosition = lineStartXPosition;
+	lineStartXPosition = lineStopXPosition;
+
+	// Following segments
+	for (int x = lineStartXPosition + 1; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			// New fixed point found
+			lineStopXPosition = x;
+
+			float newLineSegmentRiseRatio = (float)(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
+				/ (float)(lineStopXPosition - lineStartXPosition);
+
+			if (newLineSegmentRiseRatio == previousLineSegmentRiseRatio)
+			{
+				// New segment is direct continuation of previous segment. Remove segment start point, if it is not the first.
+				if (lineStartXPosition > 0)		// may be == 0 if previously a segment was cleared, making the first segment the current one 
+				{
+					fixPointBeamHeights[lineStartXPosition] = -1;
+					lineStartXPosition = previousLineStartXPosition;
+				}
+			}
+			else
+			{
+				// New segment has started. Current end position becomes new start position.
+				previousLineStartXPosition = lineStartXPosition;
+				lineStartXPosition = lineStopXPosition;
+				previousLineSegmentRiseRatio = newLineSegmentRiseRatio;
+			}
 		}
 	}
 }

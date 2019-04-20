@@ -117,7 +117,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
 
 
     //[Constructor] You can add your own custom stuff here..
-	cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
+	//cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
 	labelCurrentBeamValue->setVisible(false);
 
 	// Set values according to the properties files
@@ -275,6 +275,9 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 			currentCurveEditStrategy = nullptr;
 			break;
 		}
+
+		if (currentCurveEditStrategy != nullptr)
+			currentCurveEditStrategy->Initialize();
 		
 		repaint();
         //[/UserComboBoxCode_cbEditMode]
@@ -295,6 +298,10 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 			sendVelocityTableToController();
 			break;
 		}
+
+		if (currentCurveEditStrategy != nullptr)
+			currentCurveEditStrategy->Initialize();
+		repaint();
 
         //[/UserComboBoxCode_cbPreset]
     }
@@ -368,10 +375,6 @@ void VelocityCurveDlg::showBeamValueOfMousePosition(Point<float> localPoint)
 			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
 
 		// Value
-		//Rectangle<int> beamRect = velocityBeamTable[0]->getBounds();	// Height of first rect. (All rects of table are the same)
-		//int beamValueOfCursor = (beamRect.getBottom() - localPoint.y) * 128 / beamRect.getHeight();
-
-		//labelCurrentBeamValue->setText(String(beamValueOfCursor), juce::NotificationType::sendNotification);
 		labelCurrentBeamValue->setText(String(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
 	}
 	else

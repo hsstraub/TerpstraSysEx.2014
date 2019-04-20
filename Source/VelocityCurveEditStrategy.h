@@ -26,6 +26,7 @@ class VelocityCurveEditStrategyBase
 public:
 	VelocityCurveEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
+	virtual void Initialize() {}
 	virtual void paint(Graphics& g) = 0;
 	// Resize functionality. Assumes that beamTableFrameRef has already been resized.
 	virtual void resized() { }
@@ -71,6 +72,7 @@ class VelocityCurveLinearDrawingStrategy : public VelocityCurveEditStrategyBase
 public:
 	VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
+	void Initialize() override;
 	void paint(Graphics& g) override;
 	//void resized() override;
 	bool mouseDown(Point<float> localPoint) override;
@@ -79,6 +81,8 @@ public:
 
 protected:
 	bool isDragging() { return draggedOriginalXPosition >= 0; }
+	// Points that are part of a straight line can be removed
+	void ClearSuperfluousPoints();
 
 	// y-components of vector line point, -1 if no line points
 	int fixPointBeamHeights[128];
