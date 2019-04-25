@@ -288,7 +288,7 @@ void VelocityCurveLinearDrawingStrategy::ClearSuperfluousPoints()
 {
 	int lineStartXPosition = 0;
 	int lineStopXPosition = -1;
-	float previousLineSegmentRiseRatio;
+	int previousLineSegmentRiseRatio;
 
 	// Identify first segment
 	for (int x = 1; x < 128; x++)
@@ -298,8 +298,8 @@ void VelocityCurveLinearDrawingStrategy::ClearSuperfluousPoints()
 			// New fixed point found
 			lineStopXPosition = x;
 
-			previousLineSegmentRiseRatio = (float)(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
-				/ (float)(lineStopXPosition - lineStartXPosition);
+			previousLineSegmentRiseRatio = (fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])*128
+				/ (lineStopXPosition - lineStartXPosition);
 
 			break;
 		}
@@ -319,25 +319,21 @@ void VelocityCurveLinearDrawingStrategy::ClearSuperfluousPoints()
 			// New fixed point found
 			lineStopXPosition = x;
 
-			float newLineSegmentRiseRatio = (float)(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
-				/ (float)(lineStopXPosition - lineStartXPosition);
+			int newLineSegmentRiseRatio = (fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])*128
+				/ (lineStopXPosition - lineStartXPosition);
 
 			if (newLineSegmentRiseRatio == previousLineSegmentRiseRatio)
 			{
-				// New segment is direct continuation of previous segment. Remove segment start point, if it is not the first.
-				if (lineStartXPosition > 0)		// may be == 0 if previously a segment was cleared, making the first segment the current one 
-				{
-					fixPointBeamHeights[lineStartXPosition] = -1;
-					lineStartXPosition = previousLineStartXPosition;
-				}
+				// New segment is direct continuation of previous segment. Remove segment start point.
+				fixPointBeamHeights[lineStartXPosition] = -1;
 			}
 			else
 			{
-				// New segment has started. Current end position becomes new start position.
-				previousLineStartXPosition = lineStartXPosition;
-				lineStartXPosition = lineStopXPosition;
+				// New segment has a different rise ratio than the preiouvs, must stay
 				previousLineSegmentRiseRatio = newLineSegmentRiseRatio;
 			}
+
+			lineStartXPosition = lineStopXPosition;		// Current position becomes new start position 
 		}
 	}
 }
