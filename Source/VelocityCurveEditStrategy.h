@@ -26,9 +26,17 @@ class VelocityCurveEditStrategyBase
 public:
 	VelocityCurveEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
-	virtual void Initialize() {}
+	// Takes a given velocity table and tries to extract edit parameters. Returns whether it was successful.
+	virtual bool setEditConfigFromVelocityTable() { return true; }
+	// Sets velocity table values from edit parameters
+	virtual void setVelocityTableValuesFromEditConfig() {}
+	// Parse a saved configuration. return whether parsing was successful. 
+	virtual bool setEditConfigFromSavedString(String propertiesString) = 0;
+	// save current configuration in a string, for saving
+	virtual String createPropertiesStringForSaving() = 0;
+
 	virtual void paint(Graphics& g) = 0;
-	// Resize functionality. Assumes that beamTableFrameRef has already been resized.
+	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
 	virtual void mouseMove(const MouseEvent &event) { };
 	// return: true if some editing was done
@@ -51,6 +59,9 @@ class VelocityCurveFreeDrawingStrategy : public VelocityCurveEditStrategyBase
 public:
 	VelocityCurveFreeDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
+	bool setEditConfigFromSavedString(String propertiesString) override;
+	String createPropertiesStringForSaving() override;
+	
 	void paint(Graphics& g) override;
 	void resized() override;
 	bool mouseDown(Point<float> localPoint) override;
@@ -72,17 +83,21 @@ class VelocityCurveLinearDrawingStrategy : public VelocityCurveEditStrategyBase
 public:
 	VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
 
-	void Initialize() override;
+	bool setEditConfigFromVelocityTable() override;
+	void setVelocityTableValuesFromEditConfig() override;
+	bool setEditConfigFromSavedString(String propertiesString) override;
+	String createPropertiesStringForSaving() override;
+
 	void paint(Graphics& g) override;
-	//void resized() override;
 	bool mouseDown(Point<float> localPoint) override;
 	bool mouseDrag(Point<float> localPoint) override;
 	void mouseUp(const MouseEvent &event) override;
 
 protected:
 	bool isDragging() { return draggedOriginalXPosition >= 0; }
+
 	// Points that are part of a straight line can be removed
-	void ClearSuperfluousPoints();
+	void clearSuperfluousPoints();
 
 	// y-components of vector line point, -1 if no line points
 	int fixPointBeamHeights[128];

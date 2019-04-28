@@ -117,7 +117,6 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
 
 
     //[Constructor] You can add your own custom stuff here..
-	//cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
 	labelCurrentBeamValue->setVisible(false);
 
 	// Set values according to the properties files
@@ -263,11 +262,11 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 		switch (editModeIndex)
 		{
-		case 0:
+		case EDITSTRATEGYINDEX::freeDrawing:
 			currentCurveEditStrategy = &freeDrawingStrategy;
 			break;
 
-		case 1:
+		case EDITSTRATEGYINDEX::linearSegments:
 			currentCurveEditStrategy = &linearDrawingStrategy;
 			break;
 
@@ -276,9 +275,10 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 			break;
 		}
 
+		// Set edit config according to current values of velocity table, of possible
 		if (currentCurveEditStrategy != nullptr)
-			currentCurveEditStrategy->Initialize();
-		
+			currentCurveEditStrategy->setEditConfigFromVelocityTable();
+
 		repaint();
         //[/UserComboBoxCode_cbEditMode]
     }
@@ -300,7 +300,8 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		}
 
 		if (currentCurveEditStrategy != nullptr)
-			currentCurveEditStrategy->Initialize();
+			currentCurveEditStrategy->setEditConfigFromVelocityTable();
+		
 		repaint();
 
         //[/UserComboBoxCode_cbPreset]
@@ -318,20 +319,32 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 {
 	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
 
-	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesFile->getValue(keyName), false);
-	if (velocityCurveValueArray.size() > 0)
-	{
-		jassert(velocityCurveValueArray.size() >= 128);
+	String propertiesString = propertiesFile->getValue(keyName);
 
-		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
+	// Format of properties string includes edit strategy. Parse values incl. edit strategy. Free drawing (default) last  
+
+	if (linearDrawingStrategy.setEditConfigFromSavedString(propertiesString))
+	{
+		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::linearSegments, juce::NotificationType::dontSendNotification);
+		currentCurveEditStrategy = &linearDrawingStrategy;
+	}
+	else if (freeDrawingStrategy.setEditConfigFromSavedString(propertiesString))
+	{
+		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
+		currentCurveEditStrategy = &freeDrawingStrategy;
 	}
 	else
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
 			velocityBeamTable[x]->setValue(x);
+
+		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
+		currentCurveEditStrategy = nullptr;
 	}
+
+	if (currentCurveEditStrategy != nullptr)
+		currentCurveEditStrategy->setVelocityTableValuesFromEditConfig();
 
 	setSize(
 		propertiesFile->getIntValue("VelocityCurveWindowWidth", 640),
@@ -342,8 +355,15 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	String velocityCurveString;
 
-	for (int x = 0; x < 128; x++)
-		velocityCurveString += String(velocityBeamTable[x]->getValue()) + " ";
+	if (currentCurveEditStrategy != nullptr)
+	{
+		velocityCurveString = currentCurveEditStrategy->createPropertiesStringForSaving();
+	}
+	else
+	{
+		jassertfalse;
+		velocityCurveString = String::empty;
+	}
 
 	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
 

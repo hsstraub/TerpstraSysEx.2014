@@ -34,6 +34,36 @@ VelocityCurveFreeDrawingStrategy::VelocityCurveFreeDrawingStrategy(Path& beamTab
 {
 }
 
+bool VelocityCurveFreeDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
+{
+	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString, false);
+	if (velocityCurveValueArray.size() > 0)
+	{
+		jassert(velocityCurveValueArray.size() >= 128);
+
+		for (int x = 0; x < 128; x++)
+			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
+	}
+	else
+	{
+		// Initialize velocity lookup table
+		for (int x = 0; x < 128; x++)
+			velocityBeamTable[x]->setValue(x);
+	}
+
+	return true;
+}
+
+String VelocityCurveFreeDrawingStrategy::createPropertiesStringForSaving()
+{
+	String velocityCurveString;
+
+	for (int x = 0; x < 128; x++)
+		velocityCurveString += String(velocityBeamTable[x]->getValue()) + " ";
+
+	return velocityCurveString;
+}
+
 void VelocityCurveFreeDrawingStrategy::paint(Graphics& g)
 {
 	if (!drawedLine.isEmpty())
@@ -125,7 +155,7 @@ VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& bea
 	fixPointBeamHeights[127] = 127;
 }
 
-void VelocityCurveLinearDrawingStrategy::Initialize()
+bool VelocityCurveLinearDrawingStrategy::setEditConfigFromVelocityTable()
 {
 	// Take segments from current beam values, with superfluous points removed
 	for (int x = 0; x < 128; x++)
@@ -133,7 +163,77 @@ void VelocityCurveLinearDrawingStrategy::Initialize()
 		fixPointBeamHeights[x] = velocityBeamTable[x]->getValue();
 	}
 
-	ClearSuperfluousPoints();
+	clearSuperfluousPoints();
+
+	return true;	// This works always
+}
+
+void VelocityCurveLinearDrawingStrategy::setVelocityTableValuesFromEditConfig()
+{
+	// First position
+	int lineStartXPosition = 0;
+	velocityBeamTable[0]->setValue(fixPointBeamHeights[0]);	// Must have a valid value
+
+	int lineStopXPosition = -1;
+	for (int x = 1; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			// New fixed point found
+			lineStopXPosition = x;
+
+			// Calculate positions in-between and end
+			for (int x2 = lineStartXPosition + 1; x2 <= lineStopXPosition; x2++)
+			{
+				velocityBeamTable[x2]->setValue(
+					fixPointBeamHeights[lineStartXPosition] +
+					(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
+					* ((x2 - lineStartXPosition)) / (lineStopXPosition - lineStartXPosition));
+			}
+
+			// Current end position becomes new start position
+			lineStartXPosition = lineStopXPosition;
+		}
+	}
+
+	clearSuperfluousPoints();
+}
+
+bool VelocityCurveLinearDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
+{
+	if (propertiesString.startsWith("LINEAR"))
+	{
+		StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString.substring(6), false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				fixPointBeamHeights[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize segment table
+			for (int x = 0; x < 128; x++)
+				fixPointBeamHeights[x] = -1;
+		}
+
+		setVelocityTableValuesFromEditConfig();
+
+		return true;
+	}
+	else
+		return false;
+}
+
+String VelocityCurveLinearDrawingStrategy::createPropertiesStringForSaving()
+{
+	String velocityCurveString = "LINEAR";
+
+	for (int x = 0; x < 128; x++)
+		velocityCurveString += String(fixPointBeamHeights[x]) + " ";
+
+	return velocityCurveString;
 }
 
 void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
@@ -254,37 +354,11 @@ void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event)
 	draggedOriginalXPosition = -1;
 
 	// Change values of velocityBeamTable
+	setVelocityTableValuesFromEditConfig();
 	
-	// First position
-	int lineStartXPosition = 0;
-	velocityBeamTable[0]->setValue(fixPointBeamHeights[0]);	// Must have a valid value
-	
-	int lineStopXPosition = -1;
-	for (int x = 1; x < 128; x++)
-	{
-		if (fixPointBeamHeights[x] != -1)
-		{
-			// New fixed point found
-			lineStopXPosition = x;
-
-			// Calculate positions in-between and end
-			for (int x2 = lineStartXPosition + 1; x2 <= lineStopXPosition; x2++)
-			{
-				velocityBeamTable[x2]->setValue(
-					fixPointBeamHeights[lineStartXPosition] +
-					(fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])
-						* ((x2 - lineStartXPosition)) / (lineStopXPosition - lineStartXPosition));
-			}
-
-			// Current end position becomes new start position
-			lineStartXPosition = lineStopXPosition;
-		}
-	}
-
-	ClearSuperfluousPoints();
 }
 
-void VelocityCurveLinearDrawingStrategy::ClearSuperfluousPoints()
+void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 {
 	int lineStartXPosition = 0;
 	int lineStopXPosition = -1;

@@ -69,6 +69,14 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	typedef enum
+	{
+		none = -1,
+		freeDrawing = 0,
+		linearSegments = 1
+	} EDITSTRATEGYINDEX;
+
+
 	TerpstraKey::KEYTYPE keyType;
 	Path beamTableFrame;
 	VelocityCurveBeam* velocityBeamTable[128];
