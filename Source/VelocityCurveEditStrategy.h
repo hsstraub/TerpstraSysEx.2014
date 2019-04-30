@@ -38,7 +38,7 @@ public:
 	virtual void paint(Graphics& g) = 0;
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
-	virtual void mouseMove(const MouseEvent &event) { };
+	virtual void mouseMove(Point<float> localPoint) { };
 	// return: true if some editing was done
 	virtual bool mouseDown(Point<float> localPoint) { return false; }
 	virtual bool mouseDrag(Point<float> localPoint) { return false; };
@@ -89,6 +89,7 @@ public:
 	String createPropertiesStringForSaving() override;
 
 	void paint(Graphics& g) override;
+	void mouseMove(Point<float> localPoint) override;
 	bool mouseDown(Point<float> localPoint) override;
 	bool mouseDrag(Point<float> localPoint) override;
 	void mouseUp(const MouseEvent &event) override;
@@ -102,6 +103,7 @@ protected:
 	// y-components of vector line point, -1 if no line points
 	int fixPointBeamHeights[128];
 
+	int mouseXPosition;
 	int draggedOriginalXPosition;
 	int minDragXPosition;
 	int maxDragXPosition;

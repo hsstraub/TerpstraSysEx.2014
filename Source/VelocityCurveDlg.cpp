@@ -301,7 +301,7 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 		if (currentCurveEditStrategy != nullptr)
 			currentCurveEditStrategy->setEditConfigFromVelocityTable();
-		
+
 		repaint();
 
         //[/UserComboBoxCode_cbPreset]
@@ -321,7 +321,7 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 
 	String propertiesString = propertiesFile->getValue(keyName);
 
-	// Format of properties string includes edit strategy. Parse values incl. edit strategy. Free drawing (default) last  
+	// Format of properties string includes edit strategy. Parse values incl. edit strategy. Free drawing (default) last
 
 	if (linearDrawingStrategy.setEditConfigFromSavedString(propertiesString))
 	{
@@ -409,7 +409,7 @@ void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 	showBeamValueOfMousePosition(localPoint);
 
 	if (currentCurveEditStrategy != nullptr)
-		currentCurveEditStrategy->mouseMove(event);
+		currentCurveEditStrategy->mouseMove(localPoint);
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)

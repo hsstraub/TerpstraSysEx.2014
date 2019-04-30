@@ -145,7 +145,7 @@ VelocityCurveLinearDrawingStrategy class
 
 VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
 	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
-	, draggedOriginalXPosition(-1)
+	, mouseXPosition(-1), draggedOriginalXPosition(-1)
 {
 	fixPointBeamHeights[0] = 0;
 	
@@ -266,26 +266,34 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 			pt = velocityBeamTable[x]->getBottomMid();
 			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
 
-			drawedLine.addEllipse(pt.x-4, pt.y-4, 8, 8);
+			if ( x == mouseXPosition)
+				drawedLine.addEllipse(pt.x - 5, pt.y - 5, 10, 10);
+			else
+				drawedLine.addEllipse(pt.x - 4, pt.y - 4, 8, 8);
 		}
 	}
 
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }
 
-bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
+void VelocityCurveLinearDrawingStrategy::mouseMove(Point<float> localPoint)
 {
-	// Find position to drag
-	draggedOriginalXPosition = -1;
+	mouseXPosition = -1;
 	for (int x = 0; x < 128; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 		if (beamRect.contains(localPoint.toInt()))
 		{
-			draggedOriginalXPosition = x;
+			mouseXPosition = x;
 			break;
 		}
 	}
+}
+
+bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
+{
+	// Start position to drag
+	draggedOriginalXPosition = mouseXPosition;
 
 	if (draggedOriginalXPosition >= 0)
 	{
