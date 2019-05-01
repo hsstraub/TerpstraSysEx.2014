@@ -409,7 +409,10 @@ void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 	showBeamValueOfMousePosition(localPoint);
 
 	if (currentCurveEditStrategy != nullptr)
-		currentCurveEditStrategy->mouseMove(localPoint);
+	{
+		if (currentCurveEditStrategy->mouseMove(localPoint))
+			repaint();
+	}
 }
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)

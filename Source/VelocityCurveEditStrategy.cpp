@@ -266,8 +266,14 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 			pt = velocityBeamTable[x]->getBottomMid();
 			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
 
-			if ( x == mouseXPosition)
-				drawedLine.addEllipse(pt.x - 5, pt.y - 5, 10, 10);
+			if (x == mouseXPosition)
+			{
+				// Emphasize current point
+				Path currentNodePath;
+				currentNodePath.startNewSubPath(pt);
+				currentNodePath.addEllipse(pt.x - 5.5, pt.y - 5.5, 11, 11);
+				g.strokePath(currentNodePath, PathStrokeType(2.000f));
+			}
 			else
 				drawedLine.addEllipse(pt.x - 4, pt.y - 4, 8, 8);
 		}
@@ -276,18 +282,26 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }
 
-void VelocityCurveLinearDrawingStrategy::mouseMove(Point<float> localPoint)
+bool VelocityCurveLinearDrawingStrategy::mouseMove(Point<float> localPoint)
 {
-	mouseXPosition = -1;
+	int newMouseXPosition = -1;
 	for (int x = 0; x < 128; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 		if (beamRect.contains(localPoint.toInt()))
 		{
-			mouseXPosition = x;
+			newMouseXPosition = x;
 			break;
 		}
 	}
+
+	if (newMouseXPosition != mouseXPosition)
+	{
+		mouseXPosition = newMouseXPosition;
+		return true;
+	}
+	else
+		return false;
 }
 
 bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
@@ -390,7 +404,6 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 	jassert(lineStopXPosition != -1);
 
 	// Current end position becomes new start position
-	int previousLineStartXPosition = lineStartXPosition;
 	lineStartXPosition = lineStopXPosition;
 
 	// Following segments

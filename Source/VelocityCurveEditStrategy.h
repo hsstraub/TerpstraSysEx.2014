@@ -35,10 +35,11 @@ public:
 	// save current configuration in a string, for saving
 	virtual String createPropertiesStringForSaving() = 0;
 
-	virtual void paint(Graphics& g) = 0;
+	virtual void paint(Graphics& g) { };
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
-	virtual void mouseMove(Point<float> localPoint) { };
+	// return: true if a repainting is to be done
+	virtual bool mouseMove(Point<float> localPoint) { return false; };
 	// return: true if some editing was done
 	virtual bool mouseDown(Point<float> localPoint) { return false; }
 	virtual bool mouseDrag(Point<float> localPoint) { return false; };
@@ -89,7 +90,7 @@ public:
 	String createPropertiesStringForSaving() override;
 
 	void paint(Graphics& g) override;
-	void mouseMove(Point<float> localPoint) override;
+	bool mouseMove(Point<float> localPoint) override;
 	bool mouseDown(Point<float> localPoint) override;
 	bool mouseDrag(Point<float> localPoint) override;
 	void mouseUp(const MouseEvent &event) override;
