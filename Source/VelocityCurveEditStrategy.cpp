@@ -319,11 +319,12 @@ bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
 		}
 		else
 		{
-			// Dragging would be psosible until next line point
-			// for now: no horizontal dragging
-			// ToDO
-			minDragXPosition = draggedOriginalXPosition;
-			maxDragXPosition = draggedOriginalXPosition;
+			// Dragging possible until next line point
+			for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
+				minDragXPosition = x;
+
+			for (int x2 = draggedOriginalXPosition + 1; x2 < 127 && fixPointBeamHeights[x2] == -1; x2++)
+				maxDragXPosition = x2;
 		}
 	}
 
@@ -360,7 +361,10 @@ bool VelocityCurveLinearDrawingStrategy::mouseDrag(Point<float> localPoint)
 
 			// If x-position changed: remove point of original position
 			if (currentDraggedXPosition != draggedOriginalXPosition)
+			{
 				fixPointBeamHeights[draggedOriginalXPosition] = -1;
+				draggedOriginalXPosition = currentDraggedXPosition;
+			}
 
 			fixPointBeamHeights[currentDraggedXPosition] = velocityBeamTable[currentDraggedXPosition]->getBeamValueFromLocalPoint(localPoint);
 
