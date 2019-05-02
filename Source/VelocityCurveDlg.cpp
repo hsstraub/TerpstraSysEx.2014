@@ -410,7 +410,7 @@ void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 
 	if (currentCurveEditStrategy != nullptr)
 	{
-		if (currentCurveEditStrategy->mouseMove(localPoint))
+		if (currentCurveEditStrategy->mouseMove(event, localPoint))
 			repaint();
 	}
 }
@@ -423,7 +423,7 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 
 	if (currentCurveEditStrategy != nullptr)
 	{
-		if (currentCurveEditStrategy->mouseDown(localPoint))
+		if (currentCurveEditStrategy->mouseDown(event, localPoint))
 		{
 			repaint();
 
@@ -441,7 +441,7 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 	if (currentCurveEditStrategy != nullptr)
 	{
-		if (currentCurveEditStrategy->mouseDrag(localPoint))
+		if (currentCurveEditStrategy->mouseDrag(event, localPoint))
 		{
 			repaint();
 
@@ -453,11 +453,13 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 {
+	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+
 	// Send velocity table to controller
 	sendVelocityTableToController();
 
 	if (currentCurveEditStrategy != nullptr)
-		currentCurveEditStrategy->mouseUp(event);
+		currentCurveEditStrategy->mouseUp(event, localPoint);
 
 	repaint();
 }

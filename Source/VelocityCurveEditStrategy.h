@@ -39,11 +39,11 @@ public:
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
 	// return: true if a repainting is to be done
-	virtual bool mouseMove(Point<float> localPoint) { return false; };
+	virtual bool mouseMove(const MouseEvent &event, Point<float> localPoint) { return false; };
 	// return: true if some editing was done
-	virtual bool mouseDown(Point<float> localPoint) { return false; }
-	virtual bool mouseDrag(Point<float> localPoint) { return false; };
-	virtual void mouseUp(const MouseEvent &event) { };
+	virtual bool mouseDown(const MouseEvent &event, Point<float> localPoint) { return false; }
+	virtual bool mouseDrag(const MouseEvent &event, Point<float> localPoint) { return false; };
+	virtual void mouseUp(const MouseEvent &event, Point<float> localPoint) { };
 
 protected:
 	Path& beamTableFrame;
@@ -65,9 +65,9 @@ public:
 	
 	void paint(Graphics& g) override;
 	void resized() override;
-	bool mouseDown(Point<float> localPoint) override;
-	bool mouseDrag(Point<float> localPoint) override;
-	void mouseUp(const MouseEvent &event) override;
+	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event, Point<float> localPoint) override;
 
 protected:
 	Path drawedLine;
@@ -90,10 +90,10 @@ public:
 	String createPropertiesStringForSaving() override;
 
 	void paint(Graphics& g) override;
-	bool mouseMove(Point<float> localPoint) override;
-	bool mouseDown(Point<float> localPoint) override;
-	bool mouseDrag(Point<float> localPoint) override;
-	void mouseUp(const MouseEvent &event) override;
+	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event, Point<float> localPoint) override;
 
 protected:
 	bool isDragging() { return draggedOriginalXPosition >= 0; }

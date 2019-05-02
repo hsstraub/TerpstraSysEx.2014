@@ -75,7 +75,7 @@ void VelocityCurveFreeDrawingStrategy::resized()
 	drawedLine.clear();
 }
 
-bool VelocityCurveFreeDrawingStrategy::mouseDown(Point<float> localPoint)
+bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, Point<float> localPoint)
 {
 	drawedLine.clear();
 	if (beamTableFrame.contains(localPoint))
@@ -106,7 +106,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(Point<float> localPoint)
 
 }
 
-bool VelocityCurveFreeDrawingStrategy::mouseDrag(Point<float> localPoint)
+bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, Point<float> localPoint)
 {
 	for (int x = 0; x < 128; x++)
 	{
@@ -132,7 +132,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDrag(Point<float> localPoint)
 	return false;
 }
 
-void VelocityCurveFreeDrawingStrategy::mouseUp(const MouseEvent &event)
+void VelocityCurveFreeDrawingStrategy::mouseUp(const MouseEvent &event, Point<float> localPoint)
 {
 	drawedLine.clear();
 }
@@ -282,7 +282,7 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }
 
-bool VelocityCurveLinearDrawingStrategy::mouseMove(Point<float> localPoint)
+bool VelocityCurveLinearDrawingStrategy::mouseMove(const MouseEvent &event, Point<float> localPoint)
 {
 	int newMouseXPosition = -1;
 	for (int x = 0; x < 128; x++)
@@ -304,40 +304,54 @@ bool VelocityCurveLinearDrawingStrategy::mouseMove(Point<float> localPoint)
 		return false;
 }
 
-bool VelocityCurveLinearDrawingStrategy::mouseDown(Point<float> localPoint)
+bool VelocityCurveLinearDrawingStrategy::mouseDown(const MouseEvent &event, Point<float> localPoint)
 {
-	// Start position to drag
-	draggedOriginalXPosition = mouseXPosition;
-
-	if (draggedOriginalXPosition >= 0)
+	if (event.mods.isLeftButtonDown())
 	{
-		// First and last position cannot be dragged horizontally
-		if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == 127)
+		// Start position to drag
+		draggedOriginalXPosition = mouseXPosition;
+
+		if (draggedOriginalXPosition >= 0)
 		{
-			minDragXPosition = draggedOriginalXPosition;
-			maxDragXPosition = draggedOriginalXPosition;
+			// First and last position cannot be dragged horizontally
+			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == 127)
+			{
+				minDragXPosition = draggedOriginalXPosition;
+				maxDragXPosition = draggedOriginalXPosition;
+			}
+			else
+			{
+				// Dragging possible until next line point
+				for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
+					minDragXPosition = x;
+
+				for (int x2 = draggedOriginalXPosition + 1; x2 < 127 && fixPointBeamHeights[x2] == -1; x2++)
+					maxDragXPosition = x2;
+			}
+		}
+
+		if (draggedOriginalXPosition >= 0)
+		{
+			fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
+			return true;
 		}
 		else
-		{
-			// Dragging possible until next line point
-			for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
-				minDragXPosition = x;
-
-			for (int x2 = draggedOriginalXPosition + 1; x2 < 127 && fixPointBeamHeights[x2] == -1; x2++)
-				maxDragXPosition = x2;
-		}
+			return false;
 	}
-
-	if (draggedOriginalXPosition >= 0)
+	else if (event.mods.isRightButtonDown())
 	{
-		fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
-		return true;
+		// If mouse is on an interior segment point, remove it
+		if (mouseXPosition > 0 && mouseXPosition < 127 && fixPointBeamHeights[mouseXPosition] != -1)
+		{
+			fixPointBeamHeights[mouseXPosition] = -1;
+			return true;
+		}
+		else
+			return false;
 	}
-
-	return false;
 }
 
-bool VelocityCurveLinearDrawingStrategy::mouseDrag(Point<float> localPoint)
+bool VelocityCurveLinearDrawingStrategy::mouseDrag(const MouseEvent &event, Point<float> localPoint)
 {
 	if (isDragging())
 	{
@@ -375,7 +389,7 @@ bool VelocityCurveLinearDrawingStrategy::mouseDrag(Point<float> localPoint)
 	return false;
 }
 
-void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event)
+void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event, Point<float> localPoint)
 {
 	draggedOriginalXPosition = -1;
 
