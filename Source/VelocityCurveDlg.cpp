@@ -160,7 +160,10 @@ void VelocityCurveDlg::paint (Graphics& g)
 	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
 	if (currentCurveEditStrategy != nullptr)
+	{
+		lblDescription->setText(currentCurveEditStrategy->getDescriptionText(), juce::NotificationType::dontSendNotification);
 		currentCurveEditStrategy->paint(g);
+	}
     //[/UserPaint]
 }
 

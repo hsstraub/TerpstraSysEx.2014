@@ -35,6 +35,8 @@ public:
 	// save current configuration in a string, for saving
 	virtual String createPropertiesStringForSaving() = 0;
 
+	virtual String getDescriptionText() { return "Click with the mouse in the graphics to draw the velocity curve."; }
+
 	virtual void paint(Graphics& g) { };
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
@@ -88,6 +90,9 @@ public:
 	void setVelocityTableValuesFromEditConfig() override;
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
+
+	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
+
 
 	void paint(Graphics& g) override;
 	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
