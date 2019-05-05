@@ -96,6 +96,8 @@ public:
 protected:
 	bool isDragging() { return draggedOriginalXPosition >= 0; }
 
+	Array<Point<float>> getSegmentPoints();
+
 	// y-components of vector line point, -1 if no line points
 	int fixPointBeamHeights[128];
 
@@ -126,6 +128,26 @@ public:
 protected:
 	// Points that are part of a straight line can be removed
 	void clearSuperfluousPoints();
+};
+
+
+/*
+==============================================================================
+Velocity curve editing via quadratic curves
+==============================================================================
+*/
+
+class VelocityCurveQuadraticDrawingStrategy : public VelocityCurveSegmentEditStrategyBase
+{
+public:
+	VelocityCurveQuadraticDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+
+	bool setEditConfigFromVelocityTable() override;
+	void setVelocityTableValuesFromEditConfig() override;
+	bool setEditConfigFromSavedString(String propertiesString) override;
+	String createPropertiesStringForSaving() override;
+
+	void paint(Graphics& g) override;
 };
 
 

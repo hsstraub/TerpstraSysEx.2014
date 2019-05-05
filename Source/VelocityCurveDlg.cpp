@@ -29,8 +29,9 @@
 
 //==============================================================================
 VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
-    : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
-      linearDrawingStrategy(beamTableFrame, velocityBeamTable)
+    : freeDrawingStrategy(beamTableFrame, velocityBeamTable)
+	, linearDrawingStrategy(beamTableFrame, velocityBeamTable)
+	, quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	keyType = keyTypeValue;
@@ -67,6 +68,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Free drawing"), 1);
     cbEditMode->addItem (TRANS("Linear"), 2);
+    cbEditMode->addItem (TRANS("Quadratic"), 3);
     cbEditMode->addListener (this);
 
     addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
@@ -271,6 +273,10 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 		case EDITSTRATEGYINDEX::linearSegments:
 			currentCurveEditStrategy = &linearDrawingStrategy;
+			break;
+
+		case EDITSTRATEGYINDEX::quadraticCurves:
+			currentCurveEditStrategy = &quadraticDrawingStrategy;
 			break;
 
 		default:
@@ -504,7 +510,7 @@ BEGIN_JUCER_METADATA
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="144 48 296 24" editable="0"
-            layout="33" items="Free drawing&#10;Linear" textWhenNonSelected=""
+            layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
          virtualName="" explicitFocusOrder="0" pos="32 48 103 24" edTextCol="ff000000"

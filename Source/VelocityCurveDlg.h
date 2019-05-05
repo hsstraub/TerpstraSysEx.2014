@@ -73,7 +73,8 @@ private:
 	{
 		none = -1,
 		freeDrawing = 0,
-		linearSegments = 1
+		linearSegments = 1,
+		quadraticCurves = 2
 	} EDITSTRATEGYINDEX;
 
 
@@ -83,6 +84,7 @@ private:
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
+	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
 	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
 
 	const float graphicsYPadding = 116.0f;

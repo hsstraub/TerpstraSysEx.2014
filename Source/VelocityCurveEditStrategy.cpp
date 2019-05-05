@@ -208,8 +208,6 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, Po
 			fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
 			return true;
 		}
-		else
-			return false;
 	}
 	else if (event.mods.isRightButtonDown())
 	{
@@ -219,9 +217,9 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, Po
 			fixPointBeamHeights[mouseXPosition] = -1;
 			return true;
 		}
-		else
-			return false;
 	}
+
+	return false;
 }
 
 bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, Point<float> localPoint)
@@ -270,6 +268,29 @@ void VelocityCurveSegmentEditStrategyBase::mouseUp(const MouseEvent &event, Poin
 	setVelocityTableValuesFromEditConfig();
 }
 
+Array<Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
+{
+	Array<Point<float>> result;
+
+	// First point
+	Point<float> pt = velocityBeamTable[0]->getBottomMid();
+	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(fixPointBeamHeights[0]));
+
+	result.add(pt);
+
+	// points in-between
+	for (int x = 1; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			pt = velocityBeamTable[x]->getBottomMid();
+			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
+			result.add(pt);
+		}
+	}
+
+	return result;
+}
 
 /*
 ==============================================================================
@@ -365,24 +386,15 @@ String VelocityCurveLinearDrawingStrategy::createPropertiesStringForSaving()
 
 void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 {
-	g.setColour(Colours::black);
-
-	// First point
-	Point<float> pt = velocityBeamTable[0]->getBottomMid();
-	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(fixPointBeamHeights[0]));
+	Array<Point<float>> segmentPoints = getSegmentPoints();	g.setColour(Colours::black);
 
 	Path drawedLine;
-	drawedLine.startNewSubPath(pt);
+	drawedLine.startNewSubPath(segmentPoints[0]);
 	
 	// points in-between
-	for (int x = 1; x < 128; x++)
+	for (int x = 1; x < segmentPoints.size(); x++)
 	{
-		if (fixPointBeamHeights[x] != -1)
-		{
-			pt = velocityBeamTable[x]->getBottomMid();
-			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
-			drawedLine.lineTo(pt);
-		}
+		drawedLine.lineTo(segmentPoints[x]);
 	}
 
 	// Circles around the point
@@ -390,7 +402,7 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
-			pt = velocityBeamTable[x]->getBottomMid();
+			Point<float> pt = velocityBeamTable[x]->getBottomMid();
 			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
 
 			if (x == mouseXPosition)
@@ -460,4 +472,111 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 			lineStartXPosition = lineStopXPosition;		// Current position becomes new start position 
 		}
 	}
+}
+
+/*
+==============================================================================
+VelocityCurveQuadraticDrawingStrategy class
+==============================================================================
+*/
+
+VelocityCurveQuadraticDrawingStrategy::VelocityCurveQuadraticDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
+	: VelocityCurveSegmentEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+{
+}
+
+bool VelocityCurveQuadraticDrawingStrategy::setEditConfigFromVelocityTable()
+{
+	// ToDo
+
+
+	return true;	// This works always
+}
+
+void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig()
+{
+	// ToDo
+}
+
+bool VelocityCurveQuadraticDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
+{
+	if (propertiesString.startsWith("Quadratic"))
+	{
+		StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString.substring(6), false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				fixPointBeamHeights[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize segment table
+			for (int x = 0; x < 128; x++)
+				fixPointBeamHeights[x] = -1;
+		}
+
+		setVelocityTableValuesFromEditConfig();
+
+		return true;
+	}
+	else
+		return false;
+}
+
+String VelocityCurveQuadraticDrawingStrategy::createPropertiesStringForSaving()
+{
+	String velocityCurveString = "Quadratic";
+
+	for (int x = 0; x < 128; x++)
+		velocityCurveString += String(fixPointBeamHeights[x]) + " ";
+
+	return velocityCurveString;
+}
+
+void VelocityCurveQuadraticDrawingStrategy::paint(Graphics& g)
+{
+	Array<Point<float>> segmentPoints = getSegmentPoints();
+
+	g.setColour(Colours::black);
+
+	Path drawedLine;
+	drawedLine.startNewSubPath(segmentPoints[0]);
+
+	// points in-between
+	int x;
+	for (x = 1; x < segmentPoints.size()-1; x += 2)
+	{
+		drawedLine.quadraticTo(segmentPoints[x], segmentPoints[x+1]);
+	}
+
+	// If last segment is not complete, draw it as line
+	if (segmentPoints.size() % 2 == 0)
+	{
+		drawedLine.lineTo(segmentPoints.getLast());
+	}
+
+	// Circles around the points
+	for (int x = 0; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			Point<float> pt = velocityBeamTable[x]->getBottomMid();
+			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
+
+			if (x == mouseXPosition)
+			{
+				// Emphasize current point
+				Path currentNodePath;
+				currentNodePath.startNewSubPath(pt);
+				currentNodePath.addEllipse(pt.x - 5.5, pt.y - 5.5, 11, 11);
+				g.strokePath(currentNodePath, PathStrokeType(2.000f));
+			}
+			else
+				drawedLine.addEllipse(pt.x - 4, pt.y - 4, 8, 8);
+		}
+	}
+
+	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }
