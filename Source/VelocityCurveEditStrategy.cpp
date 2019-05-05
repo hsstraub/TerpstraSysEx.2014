@@ -139,11 +139,11 @@ void VelocityCurveFreeDrawingStrategy::mouseUp(const MouseEvent &event, Point<fl
 
 /*
 ==============================================================================
-VelocityCurveLinearDrawingStrategy class
+VelocityCurveSegmentEditStrategyBase class
 ==============================================================================
 */
 
-VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
+VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
 	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
 	, mouseXPosition(-1), draggedOriginalXPosition(-1)
 {
@@ -153,6 +153,133 @@ VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& bea
 		fixPointBeamHeights[x] = -1;
 
 	fixPointBeamHeights[127] = 127;
+}
+
+bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, Point<float> localPoint)
+{
+	int newMouseXPosition = -1;
+	for (int x = 0; x < 128; x++)
+	{
+		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
+		if (beamRect.contains(localPoint.toInt()))
+		{
+			newMouseXPosition = x;
+			break;
+		}
+	}
+
+	if (newMouseXPosition != mouseXPosition)
+	{
+		mouseXPosition = newMouseXPosition;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, Point<float> localPoint)
+{
+	if (event.mods.isLeftButtonDown())
+	{
+		// Start position to drag
+		draggedOriginalXPosition = mouseXPosition;
+
+		if (draggedOriginalXPosition >= 0)
+		{
+			// First and last position cannot be dragged horizontally
+			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == 127)
+			{
+				minDragXPosition = draggedOriginalXPosition;
+				maxDragXPosition = draggedOriginalXPosition;
+			}
+			else
+			{
+				// Dragging possible until next line point
+				for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
+					minDragXPosition = x;
+
+				for (int x2 = draggedOriginalXPosition + 1; x2 < 127 && fixPointBeamHeights[x2] == -1; x2++)
+					maxDragXPosition = x2;
+			}
+		}
+
+		if (draggedOriginalXPosition >= 0)
+		{
+			fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
+			return true;
+		}
+		else
+			return false;
+	}
+	else if (event.mods.isRightButtonDown())
+	{
+		// If mouse is on an interior segment point, remove it
+		if (mouseXPosition > 0 && mouseXPosition < 127 && fixPointBeamHeights[mouseXPosition] != -1)
+		{
+			fixPointBeamHeights[mouseXPosition] = -1;
+			return true;
+		}
+		else
+			return false;
+	}
+}
+
+bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, Point<float> localPoint)
+{
+	if (isDragging())
+	{
+		int currentDraggedXPosition = -1;
+		for (int x = 0; x < 128; x++)
+		{
+			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
+			if (beamRect.contains(localPoint.toInt()))
+			{
+				currentDraggedXPosition = x;
+				break;
+			}
+		}
+
+		if (currentDraggedXPosition >= 0)
+		{
+			if (currentDraggedXPosition < minDragXPosition)
+				currentDraggedXPosition = minDragXPosition;
+			else if (currentDraggedXPosition > maxDragXPosition)
+				currentDraggedXPosition = maxDragXPosition;
+
+			// If x-position changed: remove point of original position
+			if (currentDraggedXPosition != draggedOriginalXPosition)
+			{
+				fixPointBeamHeights[draggedOriginalXPosition] = -1;
+				draggedOriginalXPosition = currentDraggedXPosition;
+			}
+
+			fixPointBeamHeights[currentDraggedXPosition] = velocityBeamTable[currentDraggedXPosition]->getBeamValueFromLocalPoint(localPoint);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void VelocityCurveSegmentEditStrategyBase::mouseUp(const MouseEvent &event, Point<float> localPoint)
+{
+	draggedOriginalXPosition = -1;
+
+	// Change values of velocityBeamTable
+	setVelocityTableValuesFromEditConfig();
+}
+
+
+/*
+==============================================================================
+VelocityCurveLinearDrawingStrategy class
+==============================================================================
+*/
+
+VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr)
+	: VelocityCurveSegmentEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+{
 }
 
 bool VelocityCurveLinearDrawingStrategy::setEditConfigFromVelocityTable()
@@ -280,122 +407,6 @@ void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
 	}
 
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
-}
-
-bool VelocityCurveLinearDrawingStrategy::mouseMove(const MouseEvent &event, Point<float> localPoint)
-{
-	int newMouseXPosition = -1;
-	for (int x = 0; x < 128; x++)
-	{
-		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
-		if (beamRect.contains(localPoint.toInt()))
-		{
-			newMouseXPosition = x;
-			break;
-		}
-	}
-
-	if (newMouseXPosition != mouseXPosition)
-	{
-		mouseXPosition = newMouseXPosition;
-		return true;
-	}
-	else
-		return false;
-}
-
-bool VelocityCurveLinearDrawingStrategy::mouseDown(const MouseEvent &event, Point<float> localPoint)
-{
-	if (event.mods.isLeftButtonDown())
-	{
-		// Start position to drag
-		draggedOriginalXPosition = mouseXPosition;
-
-		if (draggedOriginalXPosition >= 0)
-		{
-			// First and last position cannot be dragged horizontally
-			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == 127)
-			{
-				minDragXPosition = draggedOriginalXPosition;
-				maxDragXPosition = draggedOriginalXPosition;
-			}
-			else
-			{
-				// Dragging possible until next line point
-				for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
-					minDragXPosition = x;
-
-				for (int x2 = draggedOriginalXPosition + 1; x2 < 127 && fixPointBeamHeights[x2] == -1; x2++)
-					maxDragXPosition = x2;
-			}
-		}
-
-		if (draggedOriginalXPosition >= 0)
-		{
-			fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
-			return true;
-		}
-		else
-			return false;
-	}
-	else if (event.mods.isRightButtonDown())
-	{
-		// If mouse is on an interior segment point, remove it
-		if (mouseXPosition > 0 && mouseXPosition < 127 && fixPointBeamHeights[mouseXPosition] != -1)
-		{
-			fixPointBeamHeights[mouseXPosition] = -1;
-			return true;
-		}
-		else
-			return false;
-	}
-}
-
-bool VelocityCurveLinearDrawingStrategy::mouseDrag(const MouseEvent &event, Point<float> localPoint)
-{
-	if (isDragging())
-	{
-		int currentDraggedXPosition = -1;
-		for (int x = 0; x < 128; x++)
-		{
-			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
-			if (beamRect.contains(localPoint.toInt()))
-			{
-				currentDraggedXPosition = x;
-				break;
-			}
-		}
-
-		if (currentDraggedXPosition != -1)
-		{
-			if (currentDraggedXPosition < minDragXPosition)
-				currentDraggedXPosition = minDragXPosition;
-			else if (currentDraggedXPosition > maxDragXPosition)
-				currentDraggedXPosition = maxDragXPosition;
-
-			// If x-position changed: remove point of original position
-			if (currentDraggedXPosition != draggedOriginalXPosition)
-			{
-				fixPointBeamHeights[draggedOriginalXPosition] = -1;
-				draggedOriginalXPosition = currentDraggedXPosition;
-			}
-
-			fixPointBeamHeights[currentDraggedXPosition] = velocityBeamTable[currentDraggedXPosition]->getBeamValueFromLocalPoint(localPoint);
-
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void VelocityCurveLinearDrawingStrategy::mouseUp(const MouseEvent &event, Point<float> localPoint)
-{
-	draggedOriginalXPosition = -1;
-
-	// Change values of velocityBeamTable
-	setVelocityTableValuesFromEditConfig();
-	
 }
 
 void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()

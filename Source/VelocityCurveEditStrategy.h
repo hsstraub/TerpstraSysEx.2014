@@ -77,11 +77,41 @@ protected:
 
 /*
 ==============================================================================
+Base class for velocity curve editing with segments
+==============================================================================
+*/
+
+class VelocityCurveSegmentEditStrategyBase : public VelocityCurveEditStrategyBase
+{
+public:
+	VelocityCurveSegmentEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+
+	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
+
+	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event, Point<float> localPoint) override;
+
+protected:
+	bool isDragging() { return draggedOriginalXPosition >= 0; }
+
+	// y-components of vector line point, -1 if no line points
+	int fixPointBeamHeights[128];
+
+	int mouseXPosition;
+	int draggedOriginalXPosition;
+	int minDragXPosition;
+	int maxDragXPosition;
+};
+
+/*
+==============================================================================
 Velocity curve editing via line segments
 ==============================================================================
 */
 
-class VelocityCurveLinearDrawingStrategy : public VelocityCurveEditStrategyBase
+class VelocityCurveLinearDrawingStrategy : public VelocityCurveSegmentEditStrategyBase
 {
 public:
 	VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
@@ -91,28 +121,11 @@ public:
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
 
-	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
-
-
 	void paint(Graphics& g) override;
-	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
-	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
-	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
-	void mouseUp(const MouseEvent &event, Point<float> localPoint) override;
 
 protected:
-	bool isDragging() { return draggedOriginalXPosition >= 0; }
-
 	// Points that are part of a straight line can be removed
 	void clearSuperfluousPoints();
-
-	// y-components of vector line point, -1 if no line points
-	int fixPointBeamHeights[128];
-
-	int mouseXPosition;
-	int draggedOriginalXPosition;
-	int minDragXPosition;
-	int maxDragXPosition;
 };
 
 
