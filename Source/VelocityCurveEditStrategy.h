@@ -88,6 +88,7 @@ public:
 
 	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
 
+	void paint(Graphics& g) override;
 	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
 	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
 	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
@@ -97,6 +98,10 @@ protected:
 	bool isDragging() { return draggedOriginalXPosition >= 0; }
 
 	Array<Point<float>> getSegmentPoints();
+	virtual Path createCurveToDraw() = 0;
+
+	void drawSegmentPoints(Graphics& g);
+	void drawCurve(Graphics& g);
 
 	// y-components of vector line point, -1 if no line points
 	int fixPointBeamHeights[128];
@@ -123,9 +128,9 @@ public:
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
 
-	void paint(Graphics& g) override;
-
 protected:
+	Path createCurveToDraw() override;
+
 	// Points that are part of a straight line can be removed
 	void clearSuperfluousPoints();
 };
@@ -147,7 +152,8 @@ public:
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
 
-	void paint(Graphics& g) override;
+protected:
+	Path createCurveToDraw() override;
 };
 
 

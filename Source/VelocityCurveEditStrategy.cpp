@@ -155,6 +155,14 @@ VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(Path&
 	fixPointBeamHeights[127] = 127;
 }
 
+void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g)
+{
+	drawCurve(g);
+
+	// Segment points
+	drawSegmentPoints(g);
+}
+
 bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, Point<float> localPoint)
 {
 	int newMouseXPosition = -1;
@@ -292,6 +300,43 @@ Array<Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
 	return result;
 }
 
+void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g)
+{
+	g.setColour(Colours::black);
+
+	// Circles around the point
+	for (int x = 0; x < 128; x++)
+	{
+		if (fixPointBeamHeights[x] != -1)
+		{
+			Point<float> pt = velocityBeamTable[x]->getBottomMid();
+			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
+			
+			Path currentNodePath;
+			currentNodePath.startNewSubPath(pt);
+
+			if (x == mouseXPosition)
+			{
+				// Emphasize current point
+				currentNodePath.addEllipse(pt.x - 5.5, pt.y - 5.5, 11, 11);
+				g.strokePath(currentNodePath, PathStrokeType(2.000f));
+			}
+			else
+			{
+				currentNodePath.addEllipse(pt.x - 4, pt.y - 4, 8, 8);
+				g.strokePath(currentNodePath, PathStrokeType(1.000f));
+			}
+		}
+	}
+}
+
+void VelocityCurveSegmentEditStrategyBase::drawCurve(Graphics& g)
+{
+	g.setColour(Colours::black);
+	Path drawedLine = createCurveToDraw();
+	g.strokePath(drawedLine, PathStrokeType(1.000f));
+}
+
 /*
 ==============================================================================
 VelocityCurveLinearDrawingStrategy class
@@ -384,41 +429,18 @@ String VelocityCurveLinearDrawingStrategy::createPropertiesStringForSaving()
 	return velocityCurveString;
 }
 
-void VelocityCurveLinearDrawingStrategy::paint(Graphics& g)
+Path VelocityCurveLinearDrawingStrategy::createCurveToDraw()
 {
-	Array<Point<float>> segmentPoints = getSegmentPoints();	g.setColour(Colours::black);
+	Array<Point<float>> segmentPoints = getSegmentPoints();
 
-	Path drawedLine;
-	drawedLine.startNewSubPath(segmentPoints[0]);
-	
+	Path drawedCurve;
+	drawedCurve.startNewSubPath(segmentPoints[0]);
+
 	// points in-between
 	for (int x = 1; x < segmentPoints.size(); x++)
-	{
-		drawedLine.lineTo(segmentPoints[x]);
-	}
+		drawedCurve.lineTo(segmentPoints[x]);
 
-	// Circles around the point
-	for (int x = 0; x < 128; x++)
-	{
-		if (fixPointBeamHeights[x] != -1)
-		{
-			Point<float> pt = velocityBeamTable[x]->getBottomMid();
-			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
-
-			if (x == mouseXPosition)
-			{
-				// Emphasize current point
-				Path currentNodePath;
-				currentNodePath.startNewSubPath(pt);
-				currentNodePath.addEllipse(pt.x - 5.5, pt.y - 5.5, 11, 11);
-				g.strokePath(currentNodePath, PathStrokeType(2.000f));
-			}
-			else
-				drawedLine.addEllipse(pt.x - 4, pt.y - 4, 8, 8);
-		}
-	}
-
-	g.strokePath(drawedLine, PathStrokeType(1.000f));
+	return drawedCurve;
 }
 
 void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
@@ -535,48 +557,25 @@ String VelocityCurveQuadraticDrawingStrategy::createPropertiesStringForSaving()
 	return velocityCurveString;
 }
 
-void VelocityCurveQuadraticDrawingStrategy::paint(Graphics& g)
+Path VelocityCurveQuadraticDrawingStrategy::createCurveToDraw()
 {
 	Array<Point<float>> segmentPoints = getSegmentPoints();
 
-	g.setColour(Colours::black);
-
-	Path drawedLine;
-	drawedLine.startNewSubPath(segmentPoints[0]);
+	Path drawedCurve;
+	drawedCurve.startNewSubPath(segmentPoints[0]);
 
 	// points in-between
 	int x;
 	for (x = 1; x < segmentPoints.size()-1; x += 2)
 	{
-		drawedLine.quadraticTo(segmentPoints[x], segmentPoints[x+1]);
+		drawedCurve.quadraticTo(segmentPoints[x], segmentPoints[x + 1]);
 	}
 
 	// If last segment is not complete, draw it as line
 	if (segmentPoints.size() % 2 == 0)
 	{
-		drawedLine.lineTo(segmentPoints.getLast());
+		drawedCurve.lineTo(segmentPoints.getLast());
 	}
 
-	// Circles around the points
-	for (int x = 0; x < 128; x++)
-	{
-		if (fixPointBeamHeights[x] != -1)
-		{
-			Point<float> pt = velocityBeamTable[x]->getBottomMid();
-			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
-
-			if (x == mouseXPosition)
-			{
-				// Emphasize current point
-				Path currentNodePath;
-				currentNodePath.startNewSubPath(pt);
-				currentNodePath.addEllipse(pt.x - 5.5, pt.y - 5.5, 11, 11);
-				g.strokePath(currentNodePath, PathStrokeType(2.000f));
-			}
-			else
-				drawedLine.addEllipse(pt.x - 4, pt.y - 4, 8, 8);
-		}
-	}
-
-	g.strokePath(drawedLine, PathStrokeType(1.000f));
+	return drawedCurve;
 }
