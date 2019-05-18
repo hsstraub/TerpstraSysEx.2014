@@ -337,6 +337,11 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::linearSegments, juce::NotificationType::dontSendNotification);
 		currentCurveEditStrategy = &linearDrawingStrategy;
 	}
+	else if (quadraticDrawingStrategy.setEditConfigFromSavedString(propertiesString))
+	{
+		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::quadraticCurves, juce::NotificationType::dontSendNotification);
+		currentCurveEditStrategy = &quadraticDrawingStrategy;
+	}
 	else if (freeDrawingStrategy.setEditConfigFromSavedString(propertiesString))
 	{
 		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);

@@ -161,6 +161,21 @@ void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g)
 
 	// Segment points
 	drawSegmentPoints(g);
+
+	// Debugging
+	/*
+	Path drawedclosedLine = createCurveToDraw();
+
+	Point<float> ptLeftBottom = velocityBeamTable[0]->getBottomMid();
+	Point<float> ptRightBottom = velocityBeamTable[127]->getBottomMid();
+
+	drawedclosedLine.lineTo(ptRightBottom);
+	drawedclosedLine.lineTo(ptLeftBottom);
+	drawedclosedLine.closeSubPath();
+
+	g.setColour(Colours::beige);
+	g.fillPath(drawedclosedLine);
+	*/
 }
 
 bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, Point<float> localPoint)
@@ -511,13 +526,37 @@ bool VelocityCurveQuadraticDrawingStrategy::setEditConfigFromVelocityTable()
 {
 	// ToDo
 
-
 	return true;	// This works always
 }
 
 void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig()
 {
-	// ToDo
+	Path drawedclosedLine = createCurveToDraw();
+
+	Point<float> ptLeftBottom = velocityBeamTable[0]->getBottomMid();
+	ptLeftBottom.addXY(-1, 1);	// To make sure the testLines start inside the drawedClosedLine
+	Point<float> ptRightBottom = velocityBeamTable[127]->getBottomMid();
+	ptRightBottom.addXY(1, 1);
+
+	drawedclosedLine.lineTo(ptRightBottom);
+	drawedclosedLine.lineTo(ptLeftBottom);
+	drawedclosedLine.closeSubPath();
+
+	int velTableHeight = velocityBeamTable[0]->getHeight()+1;	// +1 to make sure testLines end outside the drawedClosedLine
+
+	for (int x = 0; x < 128; x++)
+	{
+		Point<float> ptBot = velocityBeamTable[x]->getBottomMid();
+		Point<float> ptTop = ptBot;
+		ptTop.addXY(0, -velTableHeight);
+		
+		juce::Line<float> testLine(ptBot, ptTop);
+
+		juce::Line<float> clippedLine = drawedclosedLine.getClippedLine(testLine, false);
+
+		int newBeamValue = velocityBeamTable[x]->getBeamValueFromLocalPoint(clippedLine.getEnd());
+		velocityBeamTable[x]->setValue(newBeamValue);
+	}
 }
 
 bool VelocityCurveQuadraticDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
