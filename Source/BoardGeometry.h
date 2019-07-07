@@ -15,6 +15,20 @@
 
 
 //==============================================================================
+// Basic board geometry constants
+
+class TerpstraBoardBasicConstants
+{
+public:
+	static const int SubBoardRowCount = 11;
+
+	// Number of keys in each row of a subboard
+	static const int SubBoardRowSizes[SubBoardRowCount];
+
+	TerpstraBoardBasicConstants();
+};
+
+//==============================================================================
 // Manages the geometry of the board - used to create isomorphic key mappings 
 class TerpstraBoardGeometry
 {

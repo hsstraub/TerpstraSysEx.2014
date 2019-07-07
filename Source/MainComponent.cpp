@@ -33,38 +33,12 @@ MainContentComponent::MainContentComponent()
 	}
 
 	// Single Key fields
-
-	// Rows from right to left
-	// first row
-	terpstraKeyFields[0] = new TerpstraKeyEdit();
-	addAndMakeVisible(terpstraKeyFields[0]);
-
-	terpstraKeyFields[1] = new TerpstraKeyEdit();
-	addAndMakeVisible(terpstraKeyFields[1]);
-
-	// 8 identical rows
-	for (int row = 0; row < 8; row++)
-	{
-		for (int i = 0; i < 6; i++)
-		{
-			terpstraKeyFields[2 + 6 * row + i] = new TerpstraKeyEdit();
-			addAndMakeVisible(terpstraKeyFields[2 + 6 * row + i]);
-		}
-	}
-
-	// 9th row
-	for (int i = 0; i < 5; i++)
-	{
-		terpstraKeyFields[50 + i] = new TerpstraKeyEdit();
-		addAndMakeVisible(terpstraKeyFields[50 + i]);
-	}
-
-	// 10th row
-	terpstraKeyFields[55] = new TerpstraKeyEdit();
-	addAndMakeVisible(terpstraKeyFields[55]);
-
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i] = new TerpstraKeyEdit();
+		addAndMakeVisible(terpstraKeyFields[i]);
 		terpstraKeyFields[i]->addMouseListener(this, true);
+	}
 
 	// Midi input + output
 	midiEditArea = new MidiEditArea();
@@ -208,7 +182,19 @@ void MainContentComponent::resized()
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(x, y);
 
-	// Rows from right to left
+	TerpstraBoardBasicConstants terpstraBoardBasicConstants;
+	// Rows
+	int keyIndex = 0;
+	for (int rowIndex = 0; rowIndex < TerpstraBoardBasicConstants::SubBoardRowCount; rowIndex++)
+	{
+		for (int posInRow = 0; posInRow < terpstraBoardBasicConstants.SubBoardRowSizes[rowIndex]; posInRow++)
+		{
+			// XXX
+			keyIndex++;
+		}
+	}
+
+
 	// first row
 	x = MAINWINDOWFIRSTCOLPOS;
 	y = newSingleKeyFieldFirstYPos;
@@ -221,22 +207,22 @@ void MainContentComponent::resized()
 	terpstraKeyFields[1]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
 	// 8 identical rows
-	for (int row = 0; row < 8; row++)
+	for (int row = 1; row < 9; row++)
 	{
 		int xbasepos;
 		if (row % 2 == 0)
-			xbasepos = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE / 2;
-		else
 			xbasepos = MAINWINDOWFIRSTCOLPOS;
+		else
+			xbasepos = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE / 2;
 
-		int ybasepos = newSingleKeyFieldFirstYPos + 3 * (row + 1) * TERPSTRASINGLEKEYFLDSIZE / 4;
+		int ybasepos = newSingleKeyFieldFirstYPos + 3 * row * TERPSTRASINGLEKEYFLDSIZE / 4;
 
 		for (int i = 0; i < 6; i++)
 		{
 			x = xbasepos + i*TERPSTRASINGLEKEYFLDSIZE;
 			y = ybasepos;
 			transform.transformPoint(x, y);
-			terpstraKeyFields[2 + 6 * row + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+			terpstraKeyFields[2 + 6 * (row-1) + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 		}
 	}
 
