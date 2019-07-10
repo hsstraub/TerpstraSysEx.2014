@@ -210,54 +210,6 @@ void MainContentComponent::resized()
 
 	jassert(TERPSTRABOARDSIZE == keyIndex);
 
-	/*
-	// first row
-	x = MAINWINDOWFIRSTCOLPOS;
-	y = newSingleKeyFieldFirstYPos;
-	transform.transformPoint(x, y);
-	terpstraKeyFields[0]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-
-	x = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE;
-	y = newSingleKeyFieldFirstYPos;
-	transform.transformPoint(x, y);
-	terpstraKeyFields[1]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-
-	// 8 identical rows
-	for (int row = 1; row < 9; row++)
-	{
-		int xbasepos;
-		if (row % 2 == 0)
-			xbasepos = MAINWINDOWFIRSTCOLPOS;
-		else
-			xbasepos = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE / 2;
-
-		int ybasepos = newSingleKeyFieldFirstYPos + 3 * row * TERPSTRASINGLEKEYFLDSIZE / 4;
-
-		for (int i = 0; i < 6; i++)
-		{
-			x = xbasepos + i*TERPSTRASINGLEKEYFLDSIZE;
-			y = ybasepos;
-			transform.transformPoint(x, y);
-			terpstraKeyFields[2 + 6 * (row-1) + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-		}
-	}
-
-	// 9th row
-	for (int i = 0; i < 5; i++)
-	{
-		x = MAINWINDOWFIRSTCOLPOS + (2 * i + 3)*TERPSTRASINGLEKEYFLDSIZE / 2;
-		y = newSingleKeyFieldFirstYPos + 3 * 9 * TERPSTRASINGLEKEYFLDSIZE / 4;
-		transform.transformPoint(x, y);
-		terpstraKeyFields[50 + i]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-	}
-
-	// 10th row
-	x = MAINWINDOWFIRSTCOLPOS + 5 * TERPSTRASINGLEKEYFLDSIZE;
-	y = newSingleKeyFieldFirstYPos + 3 * 10 * TERPSTRASINGLEKEYFLDSIZE / 4;
-	transform.transformPoint(x, y);
-	terpstraKeyFields[55]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-	*/
-
 	// Midi input + output
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
 
