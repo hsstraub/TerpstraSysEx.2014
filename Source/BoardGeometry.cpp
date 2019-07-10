@@ -9,6 +9,28 @@
 */
 
 #include "BoardGeometry.h"
+#include "KeyboardDataStructure.h"
+
+//==============================================================================
+// TerpstraBoardBasicConstants class
+
+const int TerpstraBoardBasicConstants::SubBoardRowSizes[TerpstraBoardBasicConstants::SubBoardRowCount] =
+{
+	2, 6, 6, 6, 6, 6, 6, 6, 6, 5, 1
+};
+
+TerpstraBoardBasicConstants::TerpstraBoardBasicConstants()
+{
+	// Security: check consistency of the number of defined keys 
+	int calculatedKeyCount = 0;
+	for (int rowIndex = 0; rowIndex < SubBoardRowCount; rowIndex++)
+		calculatedKeyCount += SubBoardRowSizes[rowIndex];
+
+	jassert(TERPSTRABOARDSIZE == calculatedKeyCount);
+}
+
+//==============================================================================
+// TerpstraBoardGeometry class
 
 TerpstraBoardGeometry::TerpstraBoardGeometry()
 {
