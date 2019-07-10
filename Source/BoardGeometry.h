@@ -15,20 +15,6 @@
 
 
 //==============================================================================
-// Basic board geometry constants
-
-class TerpstraBoardBasicConstants
-{
-public:
-	static const int SubBoardRowCount = 11;
-
-	// Number of keys in each row of a subboard
-	static const int SubBoardRowSizes[SubBoardRowCount];
-
-	TerpstraBoardBasicConstants();
-};
-
-//==============================================================================
 // Manages the geometry of the board - used to create isomorphic key mappings 
 class TerpstraBoardGeometry
 {
@@ -46,6 +32,10 @@ public:
 	StraightLine horizontalLineOfField(int fieldIndex) { return getLineOfField(fieldIndex, this->horizontalLines); };
 	StraightLine rightUpwardLineOfField(int fieldIndex) { return getLineOfField(fieldIndex, this->rightUpwardLines); };
 
+	int horizontaLineCount() { return this->horizontalLines.size(); }
+	int horizontalLineSize(int rowIndex) { return (rowIndex >= 0 && rowIndex < horizontaLineCount()) ? this->horizontalLines[rowIndex].size() : 0; }
+	int firstColumnOffset(int rowIndex) { return (rowIndex >= 0 && rowIndex < firstColumnOffsets.size()) ? this->firstColumnOffsets[rowIndex] : 0; }
+
 private: 
 	StraightLine getLineOfField(int fieldIndex, StraightLineSet lineSet);
 
@@ -53,6 +43,7 @@ private:
 private:
 	StraightLineSet	horizontalLines;
 	StraightLineSet	rightUpwardLines;
+	Array<int>		firstColumnOffsets;
 };
 
 

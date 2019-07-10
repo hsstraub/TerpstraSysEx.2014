@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "ViewComponents.h"
+#include "BoardGeometry.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
@@ -68,6 +69,9 @@ private:
 
 	// Editing single keys (of the selected 56-key set)
 	TerpstraKeyEdit*	terpstraKeyFields[TERPSTRABOARDSIZE];
+
+	// Geometry settings 
+	TerpstraBoardGeometry	boardGeometry;
 
 	// Midi devices
 	MidiEditArea*		midiEditArea;

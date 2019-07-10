@@ -182,19 +182,35 @@ void MainContentComponent::resized()
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(x, y);
 
-	TerpstraBoardBasicConstants terpstraBoardBasicConstants;
-	// Rows
 	int keyIndex = 0;
-	for (int rowIndex = 0; rowIndex < TerpstraBoardBasicConstants::SubBoardRowCount; rowIndex++)
+
+	// Rows
+	int rowCount = boardGeometry.horizontaLineCount();
+	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
-		for (int posInRow = 0; posInRow < terpstraBoardBasicConstants.SubBoardRowSizes[rowIndex]; posInRow++)
+		int xbasepos;
+		if (rowIndex % 2 == 0)
+			xbasepos = MAINWINDOWFIRSTCOLPOS;
+		else
+			xbasepos = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE / 2;
+
+		int ybasepos = newSingleKeyFieldFirstYPos + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
+
+		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
+		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
 		{
-			// XXX
+			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
+			y = ybasepos;
+			transform.transformPoint(x, y);
+			terpstraKeyFields[keyIndex]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+
 			keyIndex++;
 		}
 	}
 
+	jassert(TERPSTRABOARDSIZE == keyIndex);
 
+	/*
 	// first row
 	x = MAINWINDOWFIRSTCOLPOS;
 	y = newSingleKeyFieldFirstYPos;
@@ -240,6 +256,7 @@ void MainContentComponent::resized()
 	y = newSingleKeyFieldFirstYPos + 3 * 10 * TERPSTRASINGLEKEYFLDSIZE / 4;
 	transform.transformPoint(x, y);
 	terpstraKeyFields[55]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+	*/
 
 	// Midi input + output
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
