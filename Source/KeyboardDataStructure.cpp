@@ -39,6 +39,11 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
+	// Buffe data in case stringArray is from an older 56-keys subset 
+	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
+	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		fiftysixthKeys[boardIndex] = TerpstraKey();
+
 	int boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
 	{
@@ -61,10 +66,14 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			{
 				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
-					sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
-					// XXX if keyValue is illegal: error status?
+					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+						sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
+					else if (keyIndex == 55)
+						fiftysixthKeys[boardIndex].noteNumber = keyValue;
+					else
+						jassert(false);
 				}
 				else
 					jassert(false);
@@ -77,10 +86,14 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			{
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
-					sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
-					// XXX if keyValue is illegal: error status?
+					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
+					else if (keyIndex == 55)
+						fiftysixthKeys[boardIndex].channelNumber = keyValue;
+					else
+						jassert(false);
 				}
 				else
 					jassert(false);
@@ -93,9 +106,14 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			{
 				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
 				int colValue = currentLine.substring(pos2 + 1).getHexValue32();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
-					sets[boardIndex].theKeys[keyIndex].colour = colValue;
+					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+						sets[boardIndex].theKeys[keyIndex].colour = colValue;
+					else if (keyIndex == 55)
+						fiftysixthKeys[boardIndex].colour = colValue;
+					else
+						jassert(false);
 				}
 				else
 					jassert(false);
@@ -110,15 +128,36 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			{
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
-					sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
+					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+						sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
+					else if (keyIndex == 55)
+						fiftysixthKeys[boardIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
+					else
+						jassert(false);
 				}
 				else
 					jassert(false);
 			}
 			else
 				jassert(false);
+		}
+	}
+
+	// If it was a 56-key layout, convert to 55-key layout
+	bool fromFiftySixKeys = false;
+	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
+		fromFiftySixKeys |= (!fiftysixthKeys[boardIndex].isEmpty());
+
+	if (fromFiftySixKeys)
+	{
+		for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		{
+			for (int keyIndex = 7; keyIndex < 54; keyIndex++)
+				sets[boardIndex].theKeys[keyIndex] = sets[boardIndex].theKeys[keyIndex + 1];
+
+			sets[boardIndex].theKeys[54] = fiftysixthKeys[boardIndex];
 		}
 	}
 }

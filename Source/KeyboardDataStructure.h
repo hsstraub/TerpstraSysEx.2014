@@ -26,6 +26,7 @@ public:
 
 public:
 	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
+	bool isEmpty() const { return channelNumber == 0; }
 
 public:
 	int		noteNumber;
@@ -34,8 +35,8 @@ public:
 	KEYTYPE	keyType;
 };
 
-// Subset of 56 keys
-#define TERPSTRABOARDSIZE 56
+// Subset of 55 keys
+#define TERPSTRABOARDSIZE 55
 
 struct TerpstraKeys {
 	TerpstraKey		theKeys[TERPSTRABOARDSIZE];
