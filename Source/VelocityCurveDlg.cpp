@@ -29,9 +29,9 @@
 
 //==============================================================================
 VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
-    : freeDrawingStrategy(beamTableFrame, velocityBeamTable)
-	, linearDrawingStrategy(beamTableFrame, velocityBeamTable)
-	, quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
+    : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
+      linearDrawingStrategy(beamTableFrame, velocityBeamTable),
+      quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	keyType = keyTypeValue;
@@ -492,7 +492,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
                  parentClasses="public Component" constructorParams="TerpstraKey::KEYTYPE keyTypeValue"
-                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)"
+                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="640" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
