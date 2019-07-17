@@ -41,6 +41,11 @@ public:
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
+	// Board ddit operations
+	bool deleteCurrentSubBoardData();
+	bool copyCurrentSubBoardData();
+	bool pasteCurrentSubBoardData();
+
 	// MIDI input callback
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 	
@@ -84,6 +89,9 @@ private:
 	TerpstraKeyMapping	mappingData;
 	int					currentSetSelection;
 	int					currentSingleKeySelection;
+
+	// Buffer for copy/paste of sub board data
+	TerpstraKeys		copiedSubBoardData;
 };
 
 

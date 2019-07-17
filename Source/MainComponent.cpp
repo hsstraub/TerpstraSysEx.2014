@@ -15,7 +15,7 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
-: currentSetSelection(-1), currentSingleKeySelection(-1)
+	: currentSetSelection(-1), currentSingleKeySelection(-1), copiedSubBoardData()
 {
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -94,6 +94,37 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData)
 void MainContentComponent::getData(TerpstraKeyMapping& newData)
 {
 	newData = mappingData;
+}
+
+bool MainContentComponent::deleteCurrentSubBoardData()
+{
+	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	{
+		// Delete subboard data
+		mappingData.sets[currentSetSelection] = TerpstraKeys();
+		
+		// Refresh display
+		changeSetSelection(currentSetSelection, true);
+
+		// Mark that there are changes
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+		return true;
+	}
+	else
+		return false;
+}
+
+bool MainContentComponent::copyCurrentSubBoardData()
+{
+	// ToDo
+	return false;
+}
+
+bool MainContentComponent::pasteCurrentSubBoardData()
+{
+	// ToDo
+	return false;
 }
 
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)

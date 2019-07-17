@@ -25,6 +25,9 @@ class TerpstraSysExMainMenuModel : public MenuBarModel
 			generalOptions = 0x200014,
 			noteOnOffVelocityCurve = 0x200015,
 			faderVelocityCurve = 0x200016,
+			deleteOctaveBoard = 0x200017,
+			copyOctaveBoard = 0x200018,
+			pasteOctaveBoard = 0x200019,
 			recentFilesBaseID = 0x200100,
 
 			aboutSysEx = 0x200040
@@ -39,6 +42,7 @@ public:
 
 protected:
 	virtual void createFileMenu(PopupMenu& menu);
+	virtual void createEditMenu(PopupMenu& menu);
 	virtual void createOptionsMenu(PopupMenu& menu);
 	virtual void createHelpMenu(PopupMenu& menu);
 
