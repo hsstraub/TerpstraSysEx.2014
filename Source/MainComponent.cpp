@@ -117,14 +117,32 @@ bool MainContentComponent::deleteCurrentSubBoardData()
 
 bool MainContentComponent::copyCurrentSubBoardData()
 {
-	// ToDo
-	return false;
+	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	{
+		copiedSubBoardData = mappingData.sets[currentSetSelection];
+		return true;
+	}
+	else
+		return false;
 }
 
 bool MainContentComponent::pasteCurrentSubBoardData()
 {
-	// ToDo
-	return false;
+	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	{
+		// ToDO only if copiedSubBoardData is not empty
+		mappingData.sets[currentSetSelection] = copiedSubBoardData;
+
+		// Refresh display
+		changeSetSelection(currentSetSelection, true);
+
+		// Mark that there are changes
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+		return true;
+	}
+	else
+		return false;
 }
 
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
