@@ -173,7 +173,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
 		result.setInfo("Delete", "Delete subboard data", "Edit", 0);
-		// ToDo addDefaultKeypress "DEL"
+		result.addDefaultKeypress(KeyPress::deleteKey, ModifierKeys::noModifiers);
 		break;
 
 	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:

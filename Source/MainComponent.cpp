@@ -130,15 +130,16 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 {
 	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
 	{
-		// ToDO only if copiedSubBoardData is not empty
-		mappingData.sets[currentSetSelection] = copiedSubBoardData;
+		if (!copiedSubBoardData.isEmpty())
+		{
+			mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
-		// Refresh display
-		changeSetSelection(currentSetSelection, true);
+			// Refresh display
+			changeSetSelection(currentSetSelection, true);
 
-		// Mark that there are changes
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
+			// Mark that there are changes
+			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		}
 		return true;
 	}
 	else
