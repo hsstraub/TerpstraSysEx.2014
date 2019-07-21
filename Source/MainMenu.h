@@ -40,7 +40,7 @@ public:
 	PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
 	void menuItemSelected(int menuItemID, int topLevelMenuIndex);
 
-protected:
+//protected:
 	virtual void createFileMenu(PopupMenu& menu);
 	virtual void createEditMenu(PopupMenu& menu);
 	virtual void createOptionsMenu(PopupMenu& menu);

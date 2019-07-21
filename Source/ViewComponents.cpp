@@ -10,6 +10,7 @@
 
 #include "ViewComponents.h"
 #include "ViewConstants.h"
+#include "Main.h"
 
 /*
 ==============================================================================
@@ -157,6 +158,19 @@ TerpstraKeySetEdit::TerpstraKeySetEdit()
 TerpstraKeySetEdit::~TerpstraKeySetEdit()
 {
 
+}
+
+void TerpstraKeySetEdit::mouseDown(const MouseEvent& e)
+{
+	ImageButton::mouseDown(e);
+
+	// If right mouse click: popup menu
+	if (e.mods.isRightButtonDown())
+	{
+		PopupMenu menu;
+		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
+		menu.show();
+	}
 }
 
 /*

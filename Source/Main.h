@@ -46,6 +46,7 @@ public:
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel; }
 
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
