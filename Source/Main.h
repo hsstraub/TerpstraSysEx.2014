@@ -46,6 +46,7 @@ public:
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel; }
 
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
@@ -56,9 +57,15 @@ public:
 	bool saveSysExMapping();
 	bool saveSysExMappingAs();
 	bool resetSysExMapping();
+
+	bool deleteSubBoardData();
+	bool copySubBoardData();
+	bool pasteSubBoardData();
+
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
+
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
 	bool saveCurrentFile();

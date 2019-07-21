@@ -132,9 +132,15 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
 		TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
+
+		TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard,
+		TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard,
+		TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard,
+
 		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
 		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
 		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
+
 		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
 	};
 
@@ -165,8 +171,19 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
-		result.setInfo("General options", "General options", "Options", 0);
+	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
+		result.setInfo("Delete", "Delete subboard data", "Edit", 0);
+		result.addDefaultKeypress(KeyPress::deleteKey, ModifierKeys::noModifiers);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:
+		result.setInfo("Copy", "Copy subboard data", "Edit", 0);
+		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
+		result.setInfo("Paste", "Paste subboard data", "Edit", 0);
+		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
 	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
@@ -179,6 +196,10 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+		result.setInfo("General options", "General options", "Options", 0);
 		break;
 
 	default:
@@ -199,12 +220,21 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return saveSysExMappingAs();
 	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
 		return resetSysExMapping();
+
+	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
+		return deleteSubBoardData();
+	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:
+		return copySubBoardData();
+	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
+		return pasteSubBoardData();
+
 	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
 		return generalOptionsDialog();
 	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
 		return noteOnOffVelocityCurveDialog();
 	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
 		return faderVelocityCurveDialog();
+
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
 	default:                        
@@ -266,6 +296,21 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	updateMainTitle();
 
 	return true;
+}
+
+bool TerpstraSysExApplication::deleteSubBoardData()
+{
+	return ((MainContentComponent*)(mainWindow->getContentComponent()))->deleteCurrentSubBoardData();
+}
+
+bool TerpstraSysExApplication::copySubBoardData()
+{
+	return ((MainContentComponent*)(mainWindow->getContentComponent()))->copyCurrentSubBoardData();
+}
+
+bool TerpstraSysExApplication::pasteSubBoardData()
+{
+	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()

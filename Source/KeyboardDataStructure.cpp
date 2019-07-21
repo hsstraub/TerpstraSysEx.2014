@@ -19,6 +19,23 @@ TerpstraKeys::TerpstraKeys()
 
 }
 
+bool TerpstraKeys::isEmpty() const
+{
+	TerpstraKey emptyKeyData = TerpstraKey();
+
+	bool setIsEmpty = true;
+	for (int i = 0; i < TERPSTRABOARDSIZE && setIsEmpty; i++)
+	{
+		if (theKeys[i] != emptyKeyData)
+		{
+			setIsEmpty = false;
+			break;
+		}
+	}
+
+	return setIsEmpty;
+}
+
 TerpstraKeyMapping::TerpstraKeyMapping()
 {
 	clearAll();

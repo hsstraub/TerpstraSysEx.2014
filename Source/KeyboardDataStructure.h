@@ -28,6 +28,8 @@ public:
 	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
 	bool isEmpty() const { return channelNumber == 0; }
 
+	bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType; }
+
 public:
 	int		noteNumber;
 	int		channelNumber;
@@ -44,6 +46,8 @@ struct TerpstraKeys {
 	int				key_idx;
 
 	TerpstraKeys();
+
+	bool isEmpty() const;
 };
 
 /*

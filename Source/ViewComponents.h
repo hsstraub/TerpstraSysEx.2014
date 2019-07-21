@@ -58,6 +58,8 @@ public:
 	~TerpstraKeySetEdit();
 
 	void setIsSelected(bool newValue) { setToggleState(newValue, dontSendNotification); };
+
+	void mouseDown(const MouseEvent& e) override;
 };
 
 /*
