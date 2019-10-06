@@ -31,6 +31,13 @@
 GeneralOptionsDlg::GeneralOptionsDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	inactiveMacroButtonColourEdit = new ColourEditComponent();
+	addAndMakeVisible(inactiveMacroButtonColourEdit);
+	inactiveMacroButtonColourEdit->setVisible(true);
+
+	activeMacroButtonColourEdit = new ColourEditComponent();
+	addAndMakeVisible(activeMacroButtonColourEdit);
+	activeMacroButtonColourEdit->setVisible(true);
     //[/Constructor_pre]
 
     addAndMakeVisible (labelExprContrSensivity = new Label ("new label",
@@ -75,12 +82,28 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     btnLightOnKeyStroke->setButtonText (String());
     btnLightOnKeyStroke->addListener (this);
 
+    addAndMakeVisible (lblColourInactiveMacroButton = new Label ("lblColourInactiveMacroButton",
+                                                                 TRANS("Colour of inactive macro buttons:")));
+    lblColourInactiveMacroButton->setFont (Font (15.00f, Font::plain));
+    lblColourInactiveMacroButton->setJustificationType (Justification::centredLeft);
+    lblColourInactiveMacroButton->setEditable (false, false, false);
+    lblColourInactiveMacroButton->setColour (TextEditor::textColourId, Colours::black);
+    lblColourInactiveMacroButton->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (lblColourActiveMacroButton = new Label ("lblColourActiveMacroButton",
+                                                               TRANS("Colour of active macro buttons:")));
+    lblColourActiveMacroButton->setFont (Font (15.00f, Font::plain));
+    lblColourActiveMacroButton->setJustificationType (Justification::centredLeft);
+    lblColourActiveMacroButton->setEditable (false, false, false);
+    lblColourActiveMacroButton->setColour (TextEditor::textColourId, Colours::black);
+    lblColourActiveMacroButton->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
 
     //[UserPreSize]
 	txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
-    setSize (428, 220);
+    setSize (480, 220);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -98,6 +121,8 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
 	// Save values to properties file
 	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
 
+	inactiveMacroButtonColourEdit = nullptr;
+	activeMacroButtonColourEdit = nullptr;
     //[/Destructor_pre]
 
     labelExprContrSensivity = nullptr;
@@ -106,6 +131,8 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
     lblInvFootCtrl = nullptr;
     lblLightOnKeyStroke = nullptr;
     btnLightOnKeyStroke = nullptr;
+    lblColourInactiveMacroButton = nullptr;
+    lblColourActiveMacroButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -127,14 +154,18 @@ void GeneralOptionsDlg::paint (Graphics& g)
 void GeneralOptionsDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+	inactiveMacroButtonColourEdit->setBounds(240, 112, 196, 32);
+	activeMacroButtonColourEdit->setBounds(240, 144, 196, 32);
     //[/UserPreResize]
 
     labelExprContrSensivity->setBounds (8, 16, 176, 24);
-    txtExprCtrlSensivity->setBounds (192, 16, 56, 24);
-    btnInvertFootCtrl->setBounds (192, 48, 56, 24);
+    txtExprCtrlSensivity->setBounds (240, 8, 56, 24);
+    btnInvertFootCtrl->setBounds (240, 40, 56, 24);
     lblInvFootCtrl->setBounds (8, 48, 176, 24);
     lblLightOnKeyStroke->setBounds (8, 80, 176, 24);
-    btnLightOnKeyStroke->setBounds (192, 80, 56, 24);
+    btnLightOnKeyStroke->setBounds (240, 72, 56, 24);
+    lblColourInactiveMacroButton->setBounds (8, 112, 224, 24);
+    lblColourActiveMacroButton->setBounds (8, 144, 224, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -231,7 +262,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
                  parentClasses="public Component, public TextEditorListener" constructorParams=""
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="428" initialHeight="220">
+                 overlayOpacity="0.330" fixedSize="1" initialWidth="480" initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
          virtualName="" explicitFocusOrder="0" pos="8 16 176 24" edTextCol="ff000000"
@@ -239,11 +270,11 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="new text editor" id="859fad57998470cd" memberName="txtExprCtrlSensivity"
-              virtualName="" explicitFocusOrder="0" pos="192 16 56 24" tooltip="Not working yet"
+              virtualName="" explicitFocusOrder="0" pos="240 8 56 24" tooltip="Not working yet"
               initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="1" caret="1" popupmenu="1"/>
   <TOGGLEBUTTON name="btnInvertFootCtrl" id="ef6e332d2b99beda" memberName="btnInvertFootCtrl"
-                virtualName="" explicitFocusOrder="0" pos="192 48 56 24" buttonText=""
+                virtualName="" explicitFocusOrder="0" pos="240 40 56 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <LABEL name="lblInvFootCtrl" id="6d42082683bab36c" memberName="lblInvFootCtrl"
          virtualName="" explicitFocusOrder="0" pos="8 48 176 24" edTextCol="ff000000"
@@ -256,8 +287,18 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="btnLightOnKeyStroke" id="85279f9e93401da3" memberName="btnLightOnKeyStroke"
-                virtualName="" explicitFocusOrder="0" pos="192 80 56 24" buttonText=""
+                virtualName="" explicitFocusOrder="0" pos="240 72 56 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <LABEL name="lblColourInactiveMacroButton" id="9c5cddfcc2966280" memberName="lblColourInactiveMacroButton"
+         virtualName="" explicitFocusOrder="0" pos="8 112 224 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Colour of inactive macro buttons:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
+  <LABEL name="lblColourActiveMacroButton" id="79f93468a20f174" memberName="lblColourActiveMacroButton"
+         virtualName="" explicitFocusOrder="0" pos="8 144 224 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Colour of active macro buttons:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
