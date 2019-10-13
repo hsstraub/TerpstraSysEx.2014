@@ -98,6 +98,18 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnColourPicker)
     {
         //[UserButtonCode_btnColourPicker] -- add your button handler code here..
+		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
+		colourSelector->setName("Colour picker");
+		colourSelector->addChangeListener(this);
+
+		Colour currentColor = colourCombo->getColourAsObjectFromText(ColourComboBox::DoNotAddColourToCombobox);
+
+		colourSelector->setCurrentColour(currentColor);
+
+		colourSelector->setColour(ColourSelector::backgroundColourId, currentColor);
+		colourSelector->setSize(300, 400);
+
+		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
         //[/UserButtonCode_btnColourPicker]
     }
 
@@ -123,6 +135,16 @@ void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void ColourEditComponent::changeListenerCallback(ChangeBroadcaster *source)
+{
+	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
+
+	Colour currentColor = cs->getCurrentColour();
+
+	colourCombo->setTextFieldToColourAsObject(currentColor);
+}
+
 //[/MiscUserCode]
 
 
@@ -136,9 +158,9 @@ void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ColourEditComponent" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="196" initialHeight="32">
+                 parentClasses="public Component, public ChangeListener" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="1" initialWidth="196" initialHeight="32">
   <BACKGROUND backgroundColour="ffb8d0de"/>
   <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
               virtualName="" explicitFocusOrder="0" pos="88 0 104 24" buttonText="Colour picker"
