@@ -24,6 +24,70 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+/*
+==============================================================================
+ColourComboBox class
+==============================================================================
+*/
+
+ColourComboBox::ColourComboBox(const String& componentName) : ComboBox(componentName)
+{
+}
+
+void ColourComboBox::setTextFieldToColourAsObject(Colour newColourAsObject, NotificationType notification)
+{
+	setText(newColourAsObject.toDisplayString(false));
+
+	// XXX Add to box
+}
+
+String ColourComboBox::getColourAsStringFromText(colourComboboxOptions boxOptions)
+{
+	String colourAsString = getText();
+
+	// XXX validation of colour value
+
+	if (boxOptions == colourComboboxOptions::AddColourToComboBox)
+		addColourToBox(colourAsString);
+
+	return colourAsString;
+}
+
+int ColourComboBox::getColourAsNumberFromText(colourComboboxOptions boxOptions)
+{
+	String colourString = getColourAsStringFromText(boxOptions);
+
+	// XXX validation of colour value
+	
+	int colourAsNumber = colourString.getHexValue32();
+
+	return colourAsNumber;
+}
+
+// Add colour to combo box
+void ColourComboBox::addColourToBox(String newColourAsString)
+{
+	int pos;
+	for (pos = 0; pos < getNumItems(); pos++)
+	{
+		if (getItemText(pos) == newColourAsString)
+			break;
+	}
+
+	if (pos >= getNumItems())
+	{
+		// Colour is not in list yet - add it
+		addItem(newColourAsString, pos + 1);
+	}
+}
+
+Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOptions)
+{
+	int colourAsNumber = getColourAsNumberFromText(boxOptions);
+	return Colour(colourAsNumber);
+}
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -143,6 +207,24 @@ void ColourEditComponent::changeListenerCallback(ChangeBroadcaster *source)
 	Colour currentColor = cs->getCurrentColour();
 
 	colourCombo->setTextFieldToColourAsObject(currentColor);
+}
+
+void ColourEditComponent::setColour(String colourAsString)
+{
+	jassert(colourCombo != nullptr);
+
+	// XXX validation of colour value
+
+	colourCombo->setText(colourAsString);
+
+	// XXX Add to box
+}
+
+String ColourEditComponent::getColour()
+{
+	jassert(colourCombo != nullptr);
+
+	return colourCombo->getColourAsStringFromText(ColourComboBox::AddColourToComboBox);
 }
 
 //[/MiscUserCode]

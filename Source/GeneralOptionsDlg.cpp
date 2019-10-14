@@ -230,6 +230,13 @@ void GeneralOptionsDlg::restoreStateFromPropertiesFile(PropertiesFile* propertie
 	btnLightOnKeyStroke->setToggleState(
 		propertiesFile->getBoolValue("LightOnKeyStroke", false),
 		juce::NotificationType::dontSendNotification);
+
+	inactiveMacroButtonColourEdit->setColour(
+		propertiesFile->getValue("InactiveMacroButtonColour", "000000"));
+
+	activeMacroButtonColourEdit->setColour(
+		propertiesFile->getValue("ActiveMacroButtonColour", "FFFFFF"));
+
 }
 
 void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -244,6 +251,10 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 	propertiesFile->setValue("ExpressionControllerSensivity", newSensitvity);
 
 	propertiesFile->setValue("LightOnKeyStroke", btnLightOnKeyStroke->getToggleState());
+
+	propertiesFile->setValue("InactiveMacroButtonColour", inactiveMacroButtonColourEdit->getColour());
+	propertiesFile->setValue("ActiveMacroButtonColour", activeMacroButtonColourEdit->getColour());
+	// XXX Sent to Midi controller
 }
 
 

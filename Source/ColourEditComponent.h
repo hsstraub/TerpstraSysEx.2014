@@ -22,7 +22,38 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "ViewComponents.h"
+
+/*
+==============================================================================
+Combo box with colours
+==============================================================================
+*/
+
+#define ADDCOLOURTOCOMBOBOX true
+#define DONTADDCOLOURTOCOMBOBOX false
+
+class ColourComboBox : public ComboBox
+{
+public:
+	enum colourComboboxOptions
+	{
+		DoNotAddColourToCombobox = 0,
+		AddColourToComboBox
+	};
+
+	explicit ColourComboBox(const String& componentName = String());
+
+	void setTextFieldToColourAsObject(Colour newColourAsObject,
+		NotificationType notification = sendNotificationAsync);
+	String getColourAsStringFromText(colourComboboxOptions boxOptions);
+	int getColourAsNumberFromText(colourComboboxOptions boxOptions);
+	Colour getColourAsObjectFromText(colourComboboxOptions boxOptions);
+
+	void addColourToBox(String newColourAsString);
+	void addColourToBox(Colour newColourAsObject) { addColourToBox(newColourAsObject.toDisplayString(false)); }
+	void addColourToBox(int newColourAsNumber) { addColourToBox(Colour(newColourAsNumber)); }
+};
+
 //[/Headers]
 
 
@@ -48,6 +79,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void changeListenerCallback(ChangeBroadcaster *source) override;
+
+	void setColour(String colourAsString);
+	String getColour();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
