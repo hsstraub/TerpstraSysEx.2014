@@ -252,9 +252,13 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 
 	propertiesFile->setValue("LightOnKeyStroke", btnLightOnKeyStroke->getToggleState());
 
-	propertiesFile->setValue("InactiveMacroButtonColour", inactiveMacroButtonColourEdit->getColour());
-	propertiesFile->setValue("ActiveMacroButtonColour", activeMacroButtonColourEdit->getColour());
-	// XXX Sent to Midi controller
+	String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColour();
+	propertiesFile->setValue("InactiveMacroButtonColour", inactiveMacroButtonColour);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
+
+	String activeMacroButtonColour = activeMacroButtonColourEdit->getColour();
+	propertiesFile->setValue("ActiveMacroButtonColour", activeMacroButtonColour);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonActiveColour(activeMacroButtonColour);
 }
 
 
