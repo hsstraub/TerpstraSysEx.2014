@@ -55,6 +55,9 @@ Old definitions, for the first generation keyboard only
 
 #define INVERT_FOOT_CONTROLLER 0x04
 
+#define MACROBUTTON_COLOUR_ON 0x05
+#define MACROBUTTON_COLOUR_OFF 0x06
+
 #define SET_LIGHT_ON_KEYSTROKE 0x07
 
 #define SET_VELOCITY_CONFIG 0x08
@@ -114,6 +117,12 @@ public:
 
 	// Send parametrization of foot controller
 	void sendInvertFootController(bool value);
+
+	// Colour for macro button in active state
+	void sendMacroButtonActiveColour(String colourAsString);
+
+	// Colour for macro button in inactive state
+	void sendMacroButtonInactiveColour(String colourAsString);
 
 	// Send parametrization of light on key strokes
 	void sendLightOnKeyStroke(bool value);

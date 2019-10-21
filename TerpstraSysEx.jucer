@@ -19,6 +19,10 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="fToFTX" name="ColourEditComponent.cpp" compile="1" resource="0"
+            file="Source/ColourEditComponent.cpp"/>
+      <FILE id="VbJRS2" name="ColourEditComponent.h" compile="0" resource="0"
+            file="Source/ColourEditComponent.h"/>
       <FILE id="d2WrQZ" name="VelocityCurveComponents.cpp" compile="1" resource="0"
             file="Source/VelocityCurveComponents.cpp"/>
       <FILE id="oGCzej" name="VelocityCurveComponents.h" compile="0" resource="0"

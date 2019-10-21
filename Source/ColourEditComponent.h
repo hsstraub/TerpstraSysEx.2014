@@ -17,12 +17,43 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_D96E78A3018B928E__
-#define __JUCE_HEADER_D96E78A3018B928E__
+#ifndef __JUCE_HEADER_D7C4FD8ABEF2B526__
+#define __JUCE_HEADER_D7C4FD8ABEF2B526__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "ColourEditComponent.h"
+
+/*
+==============================================================================
+Combo box with colours
+==============================================================================
+*/
+
+#define ADDCOLOURTOCOMBOBOX true
+#define DONTADDCOLOURTOCOMBOBOX false
+
+class ColourComboBox : public ComboBox
+{
+public:
+	enum colourComboboxOptions
+	{
+		DoNotAddColourToCombobox = 0,
+		AddColourToComboBox
+	};
+
+	explicit ColourComboBox(const String& componentName = String());
+
+	void setTextFieldToColourAsObject(Colour newColourAsObject,
+		NotificationType notification = sendNotificationAsync);
+	String getColourAsStringFromText(colourComboboxOptions boxOptions);
+	int getColourAsNumberFromText(colourComboboxOptions boxOptions);
+	Colour getColourAsObjectFromText(colourComboboxOptions boxOptions);
+
+	void addColourToBox(String newColourAsString);
+	void addColourToBox(Colour newColourAsObject) { addColourToBox(newColourAsObject.toDisplayString(false)); }
+	void addColourToBox(int newColourAsNumber) { addColourToBox(Colour(newColourAsNumber)); }
+};
+
 //[/Headers]
 
 
@@ -35,51 +66,45 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class GeneralOptionsDlg  : public Component,
-                           public TextEditorListener,
-                           public ButtonListener
+class ColourEditComponent  : public Component,
+                             public ChangeListener,
+                             public ButtonListener,
+                             public ComboBoxListener
 {
 public:
     //==============================================================================
-    GeneralOptionsDlg ();
-    ~GeneralOptionsDlg();
+    ColourEditComponent ();
+    ~ColourEditComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void textEditorFocusLost(TextEditor& textEdit) override;
+	void changeListenerCallback(ChangeBroadcaster *source) override;
 
-	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+	void setColour(String colourAsString);
+	String getColour();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<ColourEditComponent> inactiveMacroButtonColourEdit;
-	ScopedPointer<ColourEditComponent> activeMacroButtonColourEdit;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> labelExprContrSensivity;
-    ScopedPointer<TextEditor> txtExprCtrlSensivity;
-    ScopedPointer<ToggleButton> btnInvertFootCtrl;
-    ScopedPointer<Label> lblInvFootCtrl;
-    ScopedPointer<Label> lblLightOnKeyStroke;
-    ScopedPointer<ToggleButton> btnLightOnKeyStroke;
-    ScopedPointer<Label> lblColourInactiveMacroButton;
-    ScopedPointer<Label> lblColourActiveMacroButton;
+    ScopedPointer<TextButton> btnColourPicker;
+    ScopedPointer<ColourComboBox> colourCombo;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneralOptionsDlg)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourEditComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_D96E78A3018B928E__
+#endif   // __JUCE_HEADER_D7C4FD8ABEF2B526__
