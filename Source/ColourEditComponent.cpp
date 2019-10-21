@@ -59,7 +59,7 @@ int ColourComboBox::getColourAsNumberFromText(colourComboboxOptions boxOptions)
 	String colourString = getColourAsStringFromText(boxOptions);
 
 	// XXX validation of colour value
-	
+
 	int colourAsNumber = colourString.getHexValue32();
 
 	return colourAsNumber;

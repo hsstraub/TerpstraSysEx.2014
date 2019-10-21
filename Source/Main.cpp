@@ -328,7 +328,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	launchOptions.resizable = true;
 
 	DialogWindow* dw = launchOptions.launchAsync();
-	dw->centreWithSize(428, 220);
+	dw->centreWithSize(480, 220);
 
 	return true;
 }
