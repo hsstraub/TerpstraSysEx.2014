@@ -81,7 +81,9 @@ public:
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	void setColour(String colourAsString);
-	String getColour();
+	String getColourAsString();
+	int getColourAsNumber();
+	void addColourToBox(int newColourAsNumber);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
