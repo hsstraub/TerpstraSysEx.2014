@@ -220,11 +220,24 @@ void ColourEditComponent::setColour(String colourAsString)
 	// XXX Add to box
 }
 
-String ColourEditComponent::getColour()
+String ColourEditComponent::getColourAsString()
 {
 	jassert(colourCombo != nullptr);
 
 	return colourCombo->getColourAsStringFromText(ColourComboBox::AddColourToComboBox);
+}
+
+int ColourEditComponent::getColourAsNumber()
+{
+	jassert(colourCombo != nullptr);
+
+	return colourCombo->getColourAsNumberFromText(ColourComboBox::AddColourToComboBox);
+}
+
+void ColourEditComponent::addColourToBox(int newColourAsNumber)
+{
+	jassert(colourCombo != nullptr);
+	colourCombo->addColourToBox(newColourAsNumber);
 }
 
 //[/MiscUserCode]

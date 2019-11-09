@@ -32,7 +32,9 @@
 SingleNoteAssign::SingleNoteAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	colourSubwindow = new ColourEditComponent();
+	addAndMakeVisible(colourSubwindow);
+	//[/Constructor_pre]
 
     addAndMakeVisible (noteAndChannelAssGroup = new GroupComponent ("noteAndChannelAssGroup",
                                                                     TRANS("Key Note and Channel Assignments")));
@@ -87,17 +89,6 @@ SingleNoteAssign::SingleNoteAssign ()
     setColourToggleButton->setButtonText (TRANS("Colour:"));
     setColourToggleButton->addListener (this);
 
-    addAndMakeVisible (btnColourPicker = new TextButton ("btnColourPicker"));
-    btnColourPicker->setButtonText (TRANS("Colour picker"));
-    btnColourPicker->addListener (this);
-
-    addAndMakeVisible (colourCombo = new ColourComboBox ("colourCombo"));
-    colourCombo->setEditableText (true);
-    colourCombo->setJustificationType (Justification::centredLeft);
-    colourCombo->setTextWhenNothingSelected (String());
-    colourCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    colourCombo->addListener (this);
-
     addAndMakeVisible (keyTypeToggleButton = new ToggleButton ("keyTypeToggleButton"));
     keyTypeToggleButton->setButtonText (TRANS("Key type:"));
     keyTypeToggleButton->addListener (this);
@@ -140,6 +131,7 @@ SingleNoteAssign::SingleNoteAssign ()
 SingleNoteAssign::~SingleNoteAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	colourSubwindow = nullptr;
     //[/Destructor_pre]
 
     noteAndChannelAssGroup = nullptr;
@@ -152,8 +144,6 @@ SingleNoteAssign::~SingleNoteAssign()
     setNoteToggleButton = nullptr;
     setChannelToggleButton = nullptr;
     setColourToggleButton = nullptr;
-    btnColourPicker = nullptr;
-    colourCombo = nullptr;
     keyTypeToggleButton = nullptr;
     keyTypeCombo = nullptr;
 
@@ -177,6 +167,7 @@ void SingleNoteAssign::paint (Graphics& g)
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+	colourSubwindow->setBounds(120, 136, 196, 32);
     //[/UserPreResize]
 
     noteAndChannelAssGroup->setBounds (0, 8, 424, 208);
@@ -189,8 +180,6 @@ void SingleNoteAssign::resized()
     setNoteToggleButton->setBounds (8, 64, 112, 24);
     setChannelToggleButton->setBounds (8, 96, 112, 24);
     setColourToggleButton->setBounds (8, 136, 112, 24);
-    btnColourPicker->setBounds (216, 136, 104, 24);
-    colourCombo->setBounds (120, 136, 79, 24);
     keyTypeToggleButton->setBounds (8, 176, 112, 24);
     keyTypeCombo->setBounds (120, 176, 192, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -216,11 +205,6 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_channelAutoIncrNoteBox]
-    }
-    else if (comboBoxThatHasChanged == colourCombo)
-    {
-        //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
-        //[/UserComboBoxCode_colourCombo]
     }
     else if (comboBoxThatHasChanged == keyTypeCombo)
     {
@@ -268,26 +252,8 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_setColourToggleButton] -- add your button handler code here..
 		bool fieldActive = setColourToggleButton->getToggleState();
-		colourCombo->setEnabled(fieldActive);
-		btnColourPicker->setEnabled(fieldActive);
+		colourSubwindow->setEnabled(fieldActive);
         //[/UserButtonCode_setColourToggleButton]
-    }
-    else if (buttonThatWasClicked == btnColourPicker)
-    {
-        //[UserButtonCode_btnColourPicker] -- add your button handler code here..
-		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
-		colourSelector->setName("Colour picker");
-		colourSelector->addChangeListener(this);
-
-		Colour currentColor = colourCombo->getColourAsObjectFromText(ColourComboBox::DoNotAddColourToCombobox);
-
-		colourSelector->setCurrentColour(currentColor);
-
-		colourSelector->setColour(ColourSelector::backgroundColourId, currentColor );
-		colourSelector->setSize(300, 400);
-
-		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
-        //[/UserButtonCode_btnColourPicker]
     }
     else if (buttonThatWasClicked == keyTypeToggleButton)
     {
@@ -304,15 +270,6 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-void SingleNoteAssign::changeListenerCallback(ChangeBroadcaster *source)
-{
-	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
-
-	Colour currentColor = cs->getCurrentColour();
-
-	colourCombo->setTextFieldToColourAsObject(currentColor);
-}
 
 // Called from MainComponent when one of the keys is clicked
 void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
@@ -337,7 +294,7 @@ void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		keyData.colour = colourCombo->getColourAsNumberFromText(ColourComboBox::AddColourToComboBox);
+		keyData.colour = colourSubwindow->getColourAsNumber();
 	}
 
 	// Set key type if specified
@@ -376,13 +333,13 @@ void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
 {
 	SortedSet<int> usedColours = newData.getUsedColours();
 	for (int pos = 0; pos < usedColours.size(); pos++)
-		colourCombo->addColourToBox(usedColours[pos]);
+		colourSubwindow->addColourToBox(usedColours[pos]);
 }
 
 void SingleNoteAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	setNoteToggleButton->setToggleState(
-		propertiesFile->getBoolValue("SingleNoteNoteSetActive", true), 
+		propertiesFile->getBoolValue("SingleNoteNoteSetActive", true),
 		juce::NotificationType::sendNotification);
 	setChannelToggleButton->setToggleState(
 		propertiesFile->getBoolValue("SingleNoteChannelSetActive", true),
@@ -417,9 +374,9 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
-                 parentClasses="public Component, public ChangeListener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="325">
+                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="428" initialHeight="325">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <GROUPCOMPONENT name="noteAndChannelAssGroup" id="cd12ee7381d485a1" memberName="noteAndChannelAssGroup"
                   virtualName="" explicitFocusOrder="0" pos="0 8 424 208" title="Key Note and Channel Assignments"/>
@@ -452,12 +409,6 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 136 112 24" buttonText="Colour:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
-              virtualName="" explicitFocusOrder="0" pos="216 136 104 24" buttonText="Colour picker"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <COMBOBOX name="colourCombo" id="86628debb1bafc04" memberName="colourCombo"
-            virtualName="ColourComboBox" explicitFocusOrder="0" pos="120 136 79 24"
-            editable="1" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="keyTypeToggleButton" id="3f2eba6027c4f2f5" memberName="keyTypeToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 176 112 24" buttonText="Key type:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>

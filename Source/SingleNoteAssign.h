@@ -37,7 +37,6 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public ChangeListener,
                           public ComboBoxListener,
                           public ButtonListener
 {
@@ -48,7 +47,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void changeListenerCallback(ChangeBroadcaster *source) override;
 	void PerformMouseClickEdit(int setSelection, int keySelection);
 	void onSetData(TerpstraKeyMapping& newData);
 
@@ -65,6 +63,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	ScopedPointer<ColourEditComponent> colourSubwindow;
     //[/UserVariables]
 
     //==============================================================================
@@ -78,8 +77,6 @@ private:
     ScopedPointer<ToggleButton> setNoteToggleButton;
     ScopedPointer<ToggleButton> setChannelToggleButton;
     ScopedPointer<ToggleButton> setColourToggleButton;
-    ScopedPointer<TextButton> btnColourPicker;
-    ScopedPointer<ColourComboBox> colourCombo;
     ScopedPointer<ToggleButton> keyTypeToggleButton;
     ScopedPointer<ComboBox> keyTypeCombo;
 
