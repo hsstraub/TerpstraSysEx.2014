@@ -319,7 +319,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
-	launchOptions.content->setSize(428, 220);
+	launchOptions.content->setSize(480, 220);
 
 	launchOptions.dialogTitle = "General options";
 	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
@@ -328,7 +328,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	launchOptions.resizable = true;
 
 	DialogWindow* dw = launchOptions.launchAsync();
-	dw->centreWithSize(428, 220);
+	dw->centreWithSize(480, 220);
 
 	return true;
 }

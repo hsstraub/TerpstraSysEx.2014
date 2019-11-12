@@ -37,6 +37,7 @@
 */
 class GeneralOptionsDlg  : public Component,
                            public TextEditorListener,
+                           public ChangeListener,
                            public ButtonListener
 {
 public:
@@ -47,6 +48,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void textEditorFocusLost(TextEditor& textEdit) override;
+	void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);

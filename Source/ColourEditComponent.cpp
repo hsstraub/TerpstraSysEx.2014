@@ -189,7 +189,11 @@ void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == colourCombo)
     {
         //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
-        //[/UserComboBoxCode_colourCombo]
+		
+		// Notify parent that value has changed and can be sent to MIDI controller
+		sendChangeMessage();
+		
+		//[/UserComboBoxCode_colourCombo]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -203,10 +207,9 @@ void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 void ColourEditComponent::changeListenerCallback(ChangeBroadcaster *source)
 {
 	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
-
 	Colour currentColor = cs->getCurrentColour();
-
 	colourCombo->setTextFieldToColourAsObject(currentColor);
+
 }
 
 void ColourEditComponent::setColour(String colourAsString)
@@ -253,9 +256,10 @@ void ColourEditComponent::addColourToBox(int newColourAsNumber)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ColourEditComponent" componentName=""
-                 parentClasses="public Component, public ChangeListener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="196" initialHeight="32">
+                 parentClasses="public Component, public ChangeListener, public ChangeBroadcaster"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="196"
+                 initialHeight="32">
   <BACKGROUND backgroundColour="ffb8d0de"/>
   <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
               virtualName="" explicitFocusOrder="0" pos="88 0 104 24" buttonText="Colour picker"
