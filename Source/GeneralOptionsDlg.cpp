@@ -34,11 +34,13 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 	inactiveMacroButtonColourEdit = new ColourEditComponent();
 	addAndMakeVisible(inactiveMacroButtonColourEdit);
 	inactiveMacroButtonColourEdit->setVisible(true);
+	inactiveMacroButtonColourEdit->addChangeListener(this);
 
 	activeMacroButtonColourEdit = new ColourEditComponent();
 	addAndMakeVisible(activeMacroButtonColourEdit);
 	activeMacroButtonColourEdit->setVisible(true);
-    //[/Constructor_pre]
+	activeMacroButtonColourEdit->addChangeListener(this);
+	//[/Constructor_pre]
 
     addAndMakeVisible (labelExprContrSensivity = new Label ("new label",
                                                             TRANS("Expression pedal sensivity:")));
@@ -219,6 +221,20 @@ void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 	}
 }
 
+void GeneralOptionsDlg::changeListenerCallback(ChangeBroadcaster *source)
+{
+	if (source == inactiveMacroButtonColourEdit)
+	{
+		String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
+		TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
+	}
+	else if (source == activeMacroButtonColourEdit)
+	{
+		String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
+		TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonActiveColour(activeMacroButtonColour);
+	}
+}
+
 void GeneralOptionsDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	btnInvertFootCtrl->setToggleState(
@@ -254,11 +270,9 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 
 	String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
 	propertiesFile->setValue("InactiveMacroButtonColour", inactiveMacroButtonColour);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
 
 	String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
 	propertiesFile->setValue("ActiveMacroButtonColour", activeMacroButtonColour);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonActiveColour(activeMacroButtonColour);
 }
 
 
@@ -275,9 +289,10 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
-                 parentClasses="public Component, public TextEditorListener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="480" initialHeight="220">
+                 parentClasses="public Component, public TextEditorListener, public ChangeListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="480"
+                 initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
          virtualName="" explicitFocusOrder="0" pos="8 16 176 24" edTextCol="ff000000"
