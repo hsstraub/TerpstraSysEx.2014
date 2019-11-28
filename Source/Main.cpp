@@ -30,6 +30,24 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	// Colour scheme
+	// Turquoise
+	//lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xffbad0de));
+	//lookAndFeel.setColour(juce::TextEditor::textColourId, Colours::black));
+	//lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
+
+	//lookAndFeel.setColour(juce::Label::backgroundColourId, Colour(0x00000000));
+	//lookAndFeel.setColour(juce::Label::textColourId, Colours::black);
+
+	// Dark
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xff2f2f2f));
+	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(juce::Label::backgroundColourId, Colour(0x00000000));
+	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xffd7d9da));
+
+
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
 	recentFiles.removeNonExistentFiles();
@@ -47,6 +65,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	menuModel = new TerpstraSysExMainMenuModel(commandManager);
 
     mainWindow = new MainWindow();
+	mainWindow->setLookAndFeel(&lookAndFeel);
 	mainWindow->setMenuBar(menuModel);
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	
@@ -322,7 +341,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	launchOptions.content->setSize(480, 220);
 
 	launchOptions.dialogTitle = "General options";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -345,7 +364,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -368,7 +387,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -495,7 +514,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	options.content->setSize(area.getWidth(), area.getHeight());
 
 	options.dialogTitle = "About TerpstraSysEx";
-	options.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	options.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;
 	options.resizable = true;

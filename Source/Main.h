@@ -44,6 +44,7 @@ public:
 	}
 
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
+	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel; }
@@ -86,7 +87,7 @@ public:
 	{
 	public:
 		MainWindow() : DocumentWindow("Terpstra Keyboard SysEx Utility",
-			Colour(MAINWINDOWBGCOLOUR),
+			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(TextEditor::backgroundColourId)),
 			DocumentWindow::allButtons)
 		{
 			setContentOwned(new MainContentComponent(), true);
@@ -124,6 +125,7 @@ private:
 	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+	LookAndFeel_V3				lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;

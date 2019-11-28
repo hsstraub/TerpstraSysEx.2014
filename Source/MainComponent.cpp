@@ -175,7 +175,7 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
 
 void MainContentComponent::paint (Graphics& g)
 {
-	g.fillAll(Colour(MAINWINDOWBGCOLOUR));
+	g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));
 
     g.setFont (Font (16.0f));
     g.setColour (Colours::black);
