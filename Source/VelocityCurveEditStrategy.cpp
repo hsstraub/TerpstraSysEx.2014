@@ -64,7 +64,7 @@ String VelocityCurveFreeDrawingStrategy::createPropertiesStringForSaving()
 	return velocityCurveString;
 }
 
-void VelocityCurveFreeDrawingStrategy::paint(Graphics& g)
+void VelocityCurveFreeDrawingStrategy::paint(Graphics& g, LookAndFeel& lookAndFeel)
 {
 	if (!drawedLine.isEmpty())
 		g.strokePath(drawedLine, PathStrokeType(1.000f));
@@ -155,27 +155,12 @@ VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(Path&
 	fixPointBeamHeights[127] = 127;
 }
 
-void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g)
+void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookAndFeel)
 {
-	drawCurve(g);
+	drawCurve(g, lookAndFeel);
 
 	// Segment points
-	drawSegmentPoints(g);
-
-	// Debugging
-	/*
-	Path drawedclosedLine = createCurveToDraw();
-
-	Point<float> ptLeftBottom = velocityBeamTable[0]->getBottomMid();
-	Point<float> ptRightBottom = velocityBeamTable[127]->getBottomMid();
-
-	drawedclosedLine.lineTo(ptRightBottom);
-	drawedclosedLine.lineTo(ptLeftBottom);
-	drawedclosedLine.closeSubPath();
-
-	g.setColour(Colours::beige);
-	g.fillPath(drawedclosedLine);
-	*/
+	drawSegmentPoints(g, lookAndFeel);
 }
 
 bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, Point<float> localPoint)
@@ -315,9 +300,9 @@ Array<Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
 	return result;
 }
 
-void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g)
+void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g, LookAndFeel& lookAndFeel)
 {
-	g.setColour(Colours::black);
+	g.setColour(lookAndFeel.findColour(GroupComponent::outlineColourId));
 
 	// Circles around the point
 	for (int x = 0; x < 128; x++)
@@ -345,9 +330,9 @@ void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g)
 	}
 }
 
-void VelocityCurveSegmentEditStrategyBase::drawCurve(Graphics& g)
+void VelocityCurveSegmentEditStrategyBase::drawCurve(Graphics& g, LookAndFeel& lookAndFeel)
 {
-	g.setColour(Colours::black);
+	g.setColour(lookAndFeel.findColour(GroupComponent::outlineColourId));
 	Path drawedLine = createCurveToDraw();
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }

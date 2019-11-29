@@ -103,7 +103,8 @@ void NoteEditArea::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(getLookAndFeel().findColour(juce::TextEditor::backgroundColourId));
+	//[/UserPaint]
 }
 
 void NoteEditArea::resized()

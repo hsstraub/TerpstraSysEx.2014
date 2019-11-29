@@ -74,7 +74,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Selected or not: color and thickness of the line
 	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
-	juce::Colour lineColor = isSelected ? Colour(TERPSTRASELECTEDFLDLINECOLOUR) : Colours::black;
+	juce::Colour lineColor = getLookAndFeel().findColour(isSelected ? TextEditor::highlightColourId : GroupComponent::outlineColourId);
 
 	// Draw hexagon
 	Path hexPath;

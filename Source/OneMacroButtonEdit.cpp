@@ -90,6 +90,7 @@ void OneMacroButtonEdit::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
+	g.fillAll(getLookAndFeel().findColour(juce::TextEditor::backgroundColourId));
     //[/UserPaint]
 }
 
