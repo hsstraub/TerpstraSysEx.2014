@@ -175,7 +175,7 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
 
 void MainContentComponent::paint (Graphics& g)
 {
-	g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
 }
 
 void MainContentComponent::resized()

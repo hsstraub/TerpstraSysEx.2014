@@ -158,9 +158,9 @@ void VelocityCurveDlg::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
 
-	g.setColour(getLookAndFeel().findColour(GroupComponent::outlineColourId));
+	g.setColour(findColour(GroupComponent::outlineColourId));
 	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
 	if (currentCurveEditStrategy != nullptr)

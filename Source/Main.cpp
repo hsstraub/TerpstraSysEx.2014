@@ -32,36 +32,54 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	// Colour scheme
 	// Turquoise
+
+	// Basic window background
+	//lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xffbad0de));
+
+	// Window subelement (i. e. edit fields) background
 	//lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xffbad0de));
-	//lookAndFeel.setColour(juce::TextEditor::textColourId, Colours::black));
-	//lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
-
-	//lookAndFeel.setColour(juce::Label::textColourId, Colours::black);
-
-	//lookAndFeel.setColour(juce::ToggleButton::textColourId, Colours::black);
-
-	//lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colours::black);
-	//lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colours::black);
-
 	//lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xffbad0de));
+
+	// Text, drawn lines
+	//lookAndFeel.setColour(juce::TextEditor::textColourId, Colours::black));
+	//lookAndFeel.setColour(juce::Label::textColourId, Colours::black);
+	//lookAndFeel.setColour(juce::ToggleButton::textColourId, Colours::black);
+	//lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colours::black);
+	//lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colours::black);
+	
 	//lookAndFeel.setColour(juce::ComboBox::textColourId, Colours::black));
 	//lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colours::black));
 
+	// Selected/highlighted text/lines (medium highlight)
+	//lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
+
+	// Strong highlight
+	// 0xfff7990d
+
 	// Dark
+
+	// Basic window background
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xff373737));
+
+	// Window subelement (i. e. edit fields) background
 	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xff2f2f2f));
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xff2f2f2f));
+
+	// Text, drawn lines
 	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xfff7990d));
-
 	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xffd7d9da));
-
 	lookAndFeel.setColour(juce::ToggleButton::textColourId, Colour(0xffd7d9da));
-
 	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0xffd7d9da));
 	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xffd7d9da));
-
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xff2f2f2f));
 	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xffb98c3d));
+
+	// Selected/highlighted text/lines (medium highlight)
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0x66ff5e00));
+
+	// Strong highlight
+	// 0xfff7990d
 
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
@@ -357,7 +375,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	launchOptions.content->setSize(480, 220);
 
 	launchOptions.dialogTitle = "General options";
-	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -381,7 +399,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
-	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -405,7 +423,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
-	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -533,7 +551,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	options.content->setSize(area.getWidth(), area.getHeight());
 
 	options.dialogTitle = "About TerpstraSysEx";
-	options.dialogBackgroundColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
+	options.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;

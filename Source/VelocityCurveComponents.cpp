@@ -73,7 +73,7 @@ void VelocityCurveBeam::paint(Graphics& g)
 	rectPath.lineTo(0, h - beamHeight);
 	rectPath.closeSubPath();
 
-	g.setColour(Colour(MAINWINDOWSELECTEDCOLOUR));
+	g.setColour(findColour(TextEditor::highlightColourId));
 	g.fillPath(rectPath);
 }
 

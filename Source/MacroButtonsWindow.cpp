@@ -102,7 +102,7 @@ void MacroButtonsWindow::paint (Graphics& g)
                                RectanglePlacement::stretchToFit, 1.000f);
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(getLookAndFeel().findColour(juce::TextEditor::backgroundColourId));
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
 
 	g.setColour(Colours::black);
 	jassert(drawable1 != 0);
