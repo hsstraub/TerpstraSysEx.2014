@@ -302,7 +302,7 @@ Array<Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
 
 void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g, LookAndFeel& lookAndFeel)
 {
-	g.setColour(lookAndFeel.findColour(GroupComponent::outlineColourId));
+	g.setColour(lookAndFeel.findColour(VelocityCurveBeam::outlineColourId));
 
 	// Circles around the point
 	for (int x = 0; x < 128; x++)
@@ -332,7 +332,7 @@ void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g, LookAn
 
 void VelocityCurveSegmentEditStrategyBase::drawCurve(Graphics& g, LookAndFeel& lookAndFeel)
 {
-	g.setColour(lookAndFeel.findColour(GroupComponent::outlineColourId));
+	g.setColour(lookAndFeel.findColour(VelocityCurveBeam::outlineColourId));
 	Path drawedLine = createCurveToDraw();
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }

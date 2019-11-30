@@ -35,6 +35,12 @@ public:
 	void paint(Graphics& g);
 	void resized();
 
+	enum ColourIds
+	{
+		outlineColourId = 0x2000101,
+		selectedKeyOutlineId = 0x2000102
+	};
+
 private:
 	bool isSelected;
 

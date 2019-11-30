@@ -355,11 +355,16 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xff000000));
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xff000000));
 
-	// Selected/highlighted text/lines (medium highlight)
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
+	// Selected/highlighted text/lines
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
 
-	// Strong highlight
-	// 0xfff7990d
+	// Key edit
+	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colours::black);
+	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
+
+	// Velocity curve bar
+	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colours::black);
 
 	if (repaintAndSave)
 	{
@@ -388,13 +393,20 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xffd7d9da));
 	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xffd7d9da));
 
-	// Selected/highlighted text/lines (medium highlight)
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0x66ff5e00));
-	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0x66ff5e00));
+	// Selected/highlighted text/lines
+	// medium highlight: 0x66ff5e00
+	// strong highlight: 0xfff7990d
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xfff7990d));
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
 
-	// Strong highlight
-	// 0xfff7990d
+	// Key edit
+	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
+
+	// Velocity curve bar
+	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
 
 	if (repaintAndSave)
 	{

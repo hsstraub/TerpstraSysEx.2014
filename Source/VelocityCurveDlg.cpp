@@ -160,7 +160,7 @@ void VelocityCurveDlg::paint (Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
 
-	g.setColour(findColour(GroupComponent::outlineColourId));
+	g.setColour(findColour(VelocityCurveBeam::outlineColourId));
 	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
 	if (currentCurveEditStrategy != nullptr)
