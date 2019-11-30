@@ -30,56 +30,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
-	// Colour scheme
-	// Turquoise
-
-	// Basic window background
-	//lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xffbad0de));
-
-	// Window subelement (i. e. edit fields) background
-	//lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xffbad0de));
-	//lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xffbad0de));
-
-	// Text, drawn lines
-	//lookAndFeel.setColour(juce::TextEditor::textColourId, Colours::black));
-	//lookAndFeel.setColour(juce::Label::textColourId, Colours::black);
-	//lookAndFeel.setColour(juce::ToggleButton::textColourId, Colours::black);
-	//lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colours::black);
-	//lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colours::black);
-	
-	//lookAndFeel.setColour(juce::ComboBox::textColourId, Colours::black));
-	//lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colours::black));
-
-	// Selected/highlighted text/lines (medium highlight)
-	//lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
-
-	// Strong highlight
-	// 0xfff7990d
-
-	// Dark
-
-	// Basic window background
-	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xff373737));
-
-	// Window subelement (i. e. edit fields) background
-	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xff2f2f2f));
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xff2f2f2f));
-
-	// Text, drawn lines
-	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::ToggleButton::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xffd7d9da));
-
-	// Selected/highlighted text/lines (medium highlight)
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0x66ff5e00));
-	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0x66ff5e00));
-
-	// Strong highlight
-	// 0xfff7990d
+	// XXX Colour scheme from settings file 
+	applyLightColourScheme(false);
 
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
@@ -189,6 +141,9 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard,
 		TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard,
 
+		TerpstraSysExMainMenuModel::commandIDs::lightColourScheme,
+		TerpstraSysExMainMenuModel::commandIDs::darkColourScheme,
+
 		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
 		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
 		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
@@ -238,6 +193,18 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
+	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
+		result.setInfo("Light", "Light colour scheme", "View", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
+		result.setInfo("Dark", "Dark colour scheme", "View", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+		result.setInfo("General options", "General options", "Options", 0);
+		break;
+
 	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
 		result.setInfo("Note on/off velocity curve", "Note on/off velocity curve", "Options", 0);
 		break;
@@ -248,10 +215,6 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
-		result.setInfo("General options", "General options", "Options", 0);
 		break;
 
 	default:
@@ -279,6 +242,11 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return copySubBoardData();
 	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+
+	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
+		return applyLightColourScheme(true);
+	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
+		return applyDarkColourScheme(true);
 
 	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
 		return generalOptionsDialog();
@@ -363,6 +331,79 @@ bool TerpstraSysExApplication::copySubBoardData()
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
+}
+
+bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
+{
+	// Basic window background
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xffbad0de));
+
+	// Window subelement (i. e. edit fields) background
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colours::white);
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colours::white);
+
+	// Groupbox drawn lines
+	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
+
+	// Text, other drawn lines
+	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xff000000));
+	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xff000000));
+	lookAndFeel.setColour(juce::ToggleButton::textColourId, Colour(0xff000000));
+	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xff000000));
+
+	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xff000000));
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xff000000));
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xff000000));
+
+	// Selected/highlighted text/lines (medium highlight)
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
+
+	// Strong highlight
+	// 0xfff7990d
+
+	if (repaintAndSave)
+	{
+		mainWindow->repaint();
+
+		// XXX Save the choice in settings file
+	}
+
+	return true;
+}
+
+bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
+{
+	// Basic window background
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xff373737));
+
+	// Window subelement (i. e. edit fields) background
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xff2f2f2f));
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xff2f2f2f));
+
+	// Text, drawn lines
+	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(juce::ToggleButton::textColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xffd7d9da));
+
+	// Selected/highlighted text/lines (medium highlight)
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0x66ff5e00));
+
+	// Strong highlight
+	// 0xfff7990d
+
+	if (repaintAndSave)
+	{
+		mainWindow->repaint();
+
+		// XXX Save the choice in settings file
+	}
+
+	return true;
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()

@@ -28,6 +28,9 @@ class TerpstraSysExMainMenuModel : public MenuBarModel
 			deleteOctaveBoard = 0x200017,
 			copyOctaveBoard = 0x200018,
 			pasteOctaveBoard = 0x200019,
+			lightColourScheme = 0x200020,
+			darkColourScheme = 0x200021,
+
 			recentFilesBaseID = 0x200100,
 
 			aboutSysEx = 0x200040
@@ -43,6 +46,7 @@ public:
 //protected:
 	virtual void createFileMenu(PopupMenu& menu);
 	virtual void createEditMenu(PopupMenu& menu);
+	virtual void createViewMenu(PopupMenu& menu);
 	virtual void createOptionsMenu(PopupMenu& menu);
 	virtual void createHelpMenu(PopupMenu& menu);
 
