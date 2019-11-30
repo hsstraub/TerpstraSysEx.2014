@@ -335,34 +335,31 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 
 bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 {
-	// Basic window background
-	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xffbad0de));
+	Colour windowBackgroundColour(0xffbad0de);
+	Colour editFieldBackgroundColour = Colours::white;
+	Colour textColour(0xff000000);
 
-	// Window subelement (i. e. edit fields) background
-	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colours::white);
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colours::white);
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
 
-	// Groupbox drawn lines
-	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
-
-	// Text, other drawn lines
-	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xff000000));
-	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xff000000));
-	lookAndFeel.setColour(juce::ToggleButton::textColourId, Colour(0xff000000));
-	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xff000000));
-
-	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xff000000));
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xff000000));
-	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xff000000));
-
-	// Selected/highlighted text/lines
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
 	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
 
-	// Key edit
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, textColour);
+
+	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
+	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, textColour);
+
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colours::black);
 	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
 
-	// Velocity curve bar
 	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
 	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colours::black);
 
@@ -378,33 +375,31 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 
 bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 {
-	// Basic window background
-	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, Colour(0xff373737));
+	Colour windowBackgroundColour(0xff373737);
+	Colour editFieldBackgroundColour(0xff2f2f2f);
+	Colour textColour(0xffd7d9da);
 
-	// Window subelement (i. e. edit fields) background
-	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, Colour(0xff2f2f2f));
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, Colour(0xff2f2f2f));
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
 
-	// Text, drawn lines
-	lookAndFeel.setColour(juce::TextEditor::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::Label::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::ToggleButton::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::GroupComponent::textColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(juce::ComboBox::textColourId, Colour(0xffd7d9da));
-
-	// Selected/highlighted text/lines
-	// medium highlight: 0x66ff5e00
-	// strong highlight: 0xfff7990d
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
 	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
 
-	// Key edit
+	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, textColour);
+	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
+
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
 	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
 
-	// Velocity curve bar
 	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
 	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
 
