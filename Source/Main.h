@@ -89,7 +89,7 @@ public:
 	class MainWindow : public DocumentWindow
 	{
 	public:
-		MainWindow() : DocumentWindow("Terpstra Keyboard SysEx Utility",
+		MainWindow() : DocumentWindow("Lumatone Keyboard Setup Utility",
 			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(DocumentWindow::backgroundColourId)),
 			DocumentWindow::allButtons)
 		{

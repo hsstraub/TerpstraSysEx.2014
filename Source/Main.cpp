@@ -19,13 +19,14 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	: tooltipWindow(), hasChangesToSave(false)
 {
 	PropertiesFile::Options options;
-	options.applicationName = "TerpstraSysEx";
+	options.applicationName = "LumatoneSetup";
 	options.filenameSuffix = "settings";
 	options.osxLibrarySubFolder = "Application Support";
+	// XXX Folder name before rebranding: TerpstraSysEx 
 #if JUCE_LINUX
-	options.folderName = "~/.config/TerpstraSysEx";
+	options.folderName = "~/.config/LumatoneSetup";
 #else
-	options.folderName = "TerpstraSysEx";
+	options.folderName = "LumatoneSetup";
 #endif
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
@@ -167,7 +168,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 	switch (commandID)
 	{
 	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
-		result.setInfo("Load file mapping", "Open a Terpstra SysEx mapping", "File", 0);
+		result.setInfo("Load file mapping", "Open a Lumatone key mapping", "File", 0);
 		result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
 		break;
 
@@ -222,7 +223,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		break;
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
-		result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
+		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
 		break;
 
 	default:
@@ -274,7 +275,7 @@ bool TerpstraSysExApplication::openSysExMapping()
 {
 	// XXX If there are changes: ask for saving these first? 
 
-	FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
+	FileChooser chooser("Open a Lumatone key mapping", File::nonexistent, "*.tsx");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -294,7 +295,7 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Terpstra SysEx Key Mapping Files", File::nonexistent, "*.tsx");
+	FileChooser chooser("Lumatone Key Mapping Files", File::nonexistent, "*.tsx");
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();
@@ -573,7 +574,7 @@ void TerpstraSysExApplication::handleIncomingMidiMessage(MidiInput* source, cons
 
 void TerpstraSysExApplication::updateMainTitle()
 {
-	String windowTitle("Terpstra Keyboard SysEx Utility");
+	String windowTitle("Lumatone Setup Utility");
 	if (!currentFile.getFileName().isEmpty() )
 		windowTitle << " - " << currentFile.getFileName();
 	if (hasChangesToSave)
@@ -594,7 +595,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 {	
 	String m;
 
-	m << "Terpstra SysEx Utility" << newLine
+	m << "Lumatone Keyboard Setup Utility" << newLine
 		<< newLine
 		<< "Version " << String((JUCE_APP_VERSION_HEX >> 16) & 0xff) << "."
 		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
@@ -605,7 +606,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< "Reengineered @ Hans Straub 2014 - 2019" << newLine
 		<< "Program icon based on a design by Bo Constantinsen" << newLine
 		<< newLine
-		<< "For help on using this program, or any questions relating to the Terpstra keyboard, go to http://terpstrakeyboard.com .";
+		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to http://lumatone.io .";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
@@ -616,7 +617,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	Rectangle<int> area(0, 0, 400, 200);
 	options.content->setSize(area.getWidth(), area.getHeight());
 
-	options.dialogTitle = "About TerpstraSysEx";
+	options.dialogTitle = "About LumatoneSetup";
 	options.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 
 	options.escapeKeyTriggersCloseButton = true;
