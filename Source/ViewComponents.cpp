@@ -97,7 +97,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	// Color: empty or the parametrized color
 	TerpstraKey currentValue = getValue();
 
-	Colour bgColour = findColour(ResizableWindow::backgroundColourId).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
+	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
 
 	// Look depending on Key type
 	if (currentValue.keyType == TerpstraKey::continuousController)

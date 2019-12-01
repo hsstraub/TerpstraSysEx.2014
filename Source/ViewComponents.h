@@ -37,6 +37,7 @@ public:
 
 	enum ColourIds
 	{
+		backgroundColourId = 0x2000100,
 		outlineColourId = 0x2000101,
 		selectedKeyOutlineId = 0x2000102
 	};

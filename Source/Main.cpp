@@ -367,6 +367,7 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, textColour);
 
+	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colours::black);
 	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
 
@@ -396,7 +397,7 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 
 	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
 	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xfff7990d));
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
 
 	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
 	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
@@ -410,6 +411,7 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, textColour);
 	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
 
+	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
 	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
 
