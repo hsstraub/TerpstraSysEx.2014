@@ -38,8 +38,8 @@
                                                                     //[/Comments]
 */
 class IsomorphicMassAssign  : public Component,
-                              public ComboBoxListener,
-                              public MappingLogicListener
+                              public MappingLogicListener,
+                              public ComboBoxListener
 {
 public:
     //==============================================================================

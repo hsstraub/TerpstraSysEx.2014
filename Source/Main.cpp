@@ -30,6 +30,17 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	switch (propertiesFile->getIntValue("ColourScheme"))
+	{
+	case 1:
+		applyDarkColourScheme(false);
+		break;
+
+	default:
+		applyLightColourScheme(false);
+		break;
+	}
+
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
 	recentFiles.removeNonExistentFiles();
@@ -47,6 +58,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	menuModel = new TerpstraSysExMainMenuModel(commandManager);
 
     mainWindow = new MainWindow();
+	mainWindow->setLookAndFeel(&lookAndFeel);
 	mainWindow->setMenuBar(menuModel);
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	
@@ -137,6 +149,9 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard,
 		TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard,
 
+		TerpstraSysExMainMenuModel::commandIDs::lightColourScheme,
+		TerpstraSysExMainMenuModel::commandIDs::darkColourScheme,
+
 		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
 		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
 		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
@@ -186,6 +201,18 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
+	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
+		result.setInfo("Light", "Light colour scheme", "View", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
+		result.setInfo("Dark", "Dark colour scheme", "View", 0);
+		break;
+
+	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+		result.setInfo("General options", "General options", "Options", 0);
+		break;
+
 	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
 		result.setInfo("Note on/off velocity curve", "Note on/off velocity curve", "Options", 0);
 		break;
@@ -196,10 +223,6 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		result.setInfo("About TerpstraSysEx", "Shows version and copyright", "Help", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
-		result.setInfo("General options", "General options", "Options", 0);
 		break;
 
 	default:
@@ -227,6 +250,11 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return copySubBoardData();
 	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+
+	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
+		return applyLightColourScheme(true);
+	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
+		return applyDarkColourScheme(true);
 
 	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
 		return generalOptionsDialog();
@@ -313,16 +341,105 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
 }
 
+bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
+{
+	Colour windowBackgroundColour(0xffbad0de);
+	Colour editFieldBackgroundColour = Colours::white;
+	Colour textColour(0xff000000);
+
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
+	
+	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
+
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
+
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, textColour);
+
+	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
+	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, textColour);
+
+	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
+	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colours::black);
+	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colours::black);
+
+	if (repaintAndSave)
+	{
+		mainWindow->repaint();
+
+		// Save the choice in settings file
+		propertiesFile->setValue("ColourScheme", 0);
+	}
+
+	return true;
+}
+
+bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
+{
+	Colour windowBackgroundColour(0xff373737);
+	Colour editFieldBackgroundColour(0xff2f2f2f);
+	Colour textColour(0xffd7d9da);
+
+	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
+
+	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
+
+	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
+	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
+
+	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
+	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, textColour);
+	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
+
+	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
+	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
+
+	if (repaintAndSave)
+	{
+		mainWindow->repaint();
+
+		// Save the choice in settings file
+		propertiesFile->setValue("ColourScheme", 1);
+	}
+
+	return true;
+}
+
 bool TerpstraSysExApplication::generalOptionsDialog()
 {
 	GeneralOptionsDlg* optionsWindow = new GeneralOptionsDlg();
-	
+	optionsWindow->setLookAndFeel(&lookAndFeel);
+
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
 	launchOptions.content->setSize(480, 220);
 
 	launchOptions.dialogTitle = "General options";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -336,6 +453,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 {
 	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraKey::noteOnNoteOff);
+	optionsWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
 	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
@@ -345,7 +463,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -359,6 +477,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
 {
 	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraKey::continuousController);
+	optionsWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
 	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
@@ -368,7 +487,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -488,6 +607,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
+	label->setLookAndFeel(&lookAndFeel);
 	label->setText(m, dontSendNotification);
 	options.content.setOwned(label);
 
@@ -495,7 +615,8 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	options.content->setSize(area.getWidth(), area.getHeight());
 
 	options.dialogTitle = "About TerpstraSysEx";
-	options.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	options.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
+
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;
 	options.resizable = true;

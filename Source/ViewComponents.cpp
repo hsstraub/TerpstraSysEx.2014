@@ -74,7 +74,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Selected or not: color and thickness of the line
 	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
-	juce::Colour lineColor = isSelected ? Colour(TERPSTRASELECTEDFLDLINECOLOUR) : Colours::black;
+	juce::Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
 
 	// Draw hexagon
 	Path hexPath;
@@ -97,7 +97,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	// Color: empty or the parametrized color
 	TerpstraKey currentValue = getValue();
 
-	Colour bgColour = Colour(MAINWINDOWBGCOLOUR).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
+	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
 
 	// Look depending on Key type
 	if (currentValue.keyType == TerpstraKey::continuousController)

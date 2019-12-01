@@ -37,7 +37,7 @@ public:
 
 	virtual String getDescriptionText() { return "Click with the mouse in the graphics to draw the velocity curve."; }
 
-	virtual void paint(Graphics& g) { };
+	virtual void paint(Graphics& g, LookAndFeel& lookAndFeel) { };
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
 	// return: true if a repainting is to be done
@@ -65,7 +65,7 @@ public:
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
 	
-	void paint(Graphics& g) override;
+	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
 	void resized() override;
 	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
 	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
@@ -88,7 +88,7 @@ public:
 
 	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
 
-	void paint(Graphics& g) override;
+	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
 	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
 	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
 	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
@@ -100,8 +100,8 @@ protected:
 	Array<Point<float>> getSegmentPoints();
 	virtual Path createCurveToDraw() = 0;
 
-	void drawSegmentPoints(Graphics& g);
-	void drawCurve(Graphics& g);
+	void drawSegmentPoints(Graphics& g, LookAndFeel& lookAndFeel);
+	void drawCurve(Graphics& g, LookAndFeel& lookAndFeel);
 
 	// y-components of vector line point, -1 if no line points
 	int fixPointBeamHeights[128];

@@ -41,6 +41,12 @@ public:
 	int getBeamValueFromLocalPoint(Point<float> localPoint);
 	void setBeamValueFromLocalPoint(Point<float> localPoint) { setValue(getBeamValueFromLocalPoint(localPoint)); }
 
+	enum ColourIds
+	{
+		beamColourId = 0x2000111,
+		outlineColourId = 0x2000121
+	};
+
 private:
 	int beamValue;
 };

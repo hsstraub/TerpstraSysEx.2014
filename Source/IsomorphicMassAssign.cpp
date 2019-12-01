@@ -168,6 +168,7 @@ void IsomorphicMassAssign::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
@@ -393,9 +394,10 @@ void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelect
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="220">
+                 parentClasses="public Component, public MappingLogicListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
+                 initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointBox"
             virtualName="" explicitFocusOrder="0" pos="12 291 150 24" editable="0"

@@ -20,7 +20,7 @@ TerpstraSysExMainMenuModel::TerpstraSysExMainMenuModel(ApplicationCommandManager
 
 StringArray TerpstraSysExMainMenuModel::getMenuBarNames()
 {
-	const char* const names[] = { "File", "Edit", "Options", "Help", nullptr };
+	const char* const names[] = { "File", "Edit", "View", "Options", "Help", nullptr };
 	return StringArray(names);
 }
 
@@ -50,6 +50,15 @@ void TerpstraSysExMainMenuModel::createEditMenu(PopupMenu& menu)
 	menu.addCommandItem(theManager, pasteOctaveBoard);
 }
 
+void TerpstraSysExMainMenuModel::createViewMenu(PopupMenu& menu)
+{
+	PopupMenu colourSchemesMenu;
+	colourSchemesMenu.addCommandItem(theManager, lightColourScheme);
+	colourSchemesMenu.addCommandItem(theManager, darkColourScheme);
+
+	menu.addSubMenu("Colour Scheme", colourSchemesMenu);
+}
+
 void TerpstraSysExMainMenuModel::createOptionsMenu(PopupMenu& menu)
 {
 	menu.addCommandItem(theManager, generalOptions);
@@ -68,6 +77,7 @@ PopupMenu TerpstraSysExMainMenuModel::getMenuForIndex(int topLevelMenuIndex, con
 
 	if (menuName == "File")             createFileMenu(menu);
 	else if (menuName == "Edit")		createEditMenu(menu);
+	else if (menuName == "View")		createViewMenu(menu);
 	else if (menuName == "Options")		createOptionsMenu(menu);
 	else if (menuName == "Help")		createHelpMenu(menu);
 	else                                jassertfalse; // names have changed?
