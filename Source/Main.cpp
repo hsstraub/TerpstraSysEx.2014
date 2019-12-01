@@ -30,8 +30,16 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
-	// XXX Colour scheme from settings file 
-	applyLightColourScheme(false);
+	switch (propertiesFile->getIntValue("ColourScheme"))
+	{
+	case 1:
+		applyDarkColourScheme(false);
+		break;
+
+	default:
+		applyLightColourScheme(false);
+		break;
+	}
 
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
@@ -340,6 +348,8 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	Colour textColour(0xff000000);
 
 	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
+	
+	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
 
 	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
 	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
@@ -367,7 +377,8 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	{
 		mainWindow->repaint();
 
-		// XXX Save the choice in settings file
+		// Save the choice in settings file
+		propertiesFile->setValue("ColourScheme", 0);
 	}
 
 	return true;
@@ -380,6 +391,8 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 	Colour textColour(0xffd7d9da);
 
 	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
+
+	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
 
 	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
 	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
@@ -407,7 +420,8 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 	{
 		mainWindow->repaint();
 
-		// XXX Save the choice in settings file
+		// Save the choice in settings file
+		propertiesFile->setValue("ColourScheme", 1);
 	}
 
 	return true;
