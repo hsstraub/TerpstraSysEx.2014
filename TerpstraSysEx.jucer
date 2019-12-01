@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="TerpstraSysEx" projectType="guiapp" version="0.8.1"
-              bundleIdentifier="HansStraub.Terpstra.TerpstraSysEx" includeBinaryInAppConfig="1"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.8.2"
+              bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               jucerVersion="4.3.1" companyName="Hans Straub">
-  <MAINGROUP id="obWLli" name="TerpstraSysEx">
+  <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="bqg5AV" name="OctaveWithSelection.png" compile="0" resource="1"
             file="BinaryData/OctaveWithSelection.png"/>
@@ -107,9 +107,9 @@
     <VS2013 targetFolder="Builds/VisualStudio2013" bigIcon="KQ7uKE">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="TerpstraSysEx"/>
+                       isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="TerpstraSysEx"/>
+                       isDebug="0" optimisation="2" targetName="LumatoneSetup"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -125,9 +125,9 @@
     <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="" bigIcon="KQ7uKE">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="TerpstraSysEx"/>
+                       targetName="LumatoneSetup"/>
         <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
-                       targetName="TerpstraSysEx"/>
+                       targetName="LumatoneSetup"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -142,8 +142,8 @@
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="KQ7uKE">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="TerpstraSysEx"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="TerpstraSysEx"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>

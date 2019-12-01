@@ -34,7 +34,7 @@ SingleNoteAssign::SingleNoteAssign ()
     //[Constructor_pre] You can add your own custom stuff here..
 	colourSubwindow = new ColourEditComponent();
 	addAndMakeVisible(colourSubwindow);
-	//[/Constructor_pre]
+    //[/Constructor_pre]
 
     addAndMakeVisible (noteAndChannelAssGroup = new GroupComponent ("noteAndChannelAssGroup",
                                                                     TRANS("Key Note and Channel Assignments")));
@@ -162,7 +162,7 @@ void SingleNoteAssign::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
-	//[/UserPaint]
+    //[/UserPaint]
 }
 
 void SingleNoteAssign::resized()
