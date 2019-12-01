@@ -90,7 +90,7 @@ public:
 	{
 	public:
 		MainWindow() : DocumentWindow("Terpstra Keyboard SysEx Utility",
-			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(TextEditor::backgroundColourId)),
+			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(DocumentWindow::backgroundColourId)),
 			DocumentWindow::allButtons)
 		{
 			setContentOwned(new MainContentComponent(), true);
