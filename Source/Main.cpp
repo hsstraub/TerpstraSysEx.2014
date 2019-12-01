@@ -376,6 +376,7 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 
 	if (repaintAndSave)
 	{
+		mainWindow->setBackgroundColour(windowBackgroundColour);
 		mainWindow->repaint();
 
 		// Save the choice in settings file
@@ -420,6 +421,7 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 
 	if (repaintAndSave)
 	{
+		mainWindow->setBackgroundColour(windowBackgroundColour);
 		mainWindow->repaint();
 
 		// Save the choice in settings file
