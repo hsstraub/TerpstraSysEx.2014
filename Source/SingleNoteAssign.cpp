@@ -273,7 +273,7 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 // Called from MainComponent when one of the keys is clicked
-void SingleNoteAssign::PerformMouseClickEdit(int setSelection, int keySelection)
+void SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 

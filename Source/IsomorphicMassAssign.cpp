@@ -337,7 +337,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 }
 
 // Called from MainComponent when one of the keys is clicked
-void IsomorphicMassAssign::PerformMouseClickEdit(int setSelection, int keySelection)
+void IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 

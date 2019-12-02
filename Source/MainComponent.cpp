@@ -294,7 +294,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Perform the edit, according to edit mode. Including sending to device
-			this->noteEditArea->performMouseClickEdit(currentSetSelection, i);
+			this->noteEditArea->performMouseDown(currentSetSelection, i);
 
 			// Refresh display
 			changeSetSelection(currentSetSelection, true);
@@ -305,6 +305,11 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			break;
 		}
 	}
+}
+
+void MainContentComponent::mouseUp(const MouseEvent &event)
+{
+	// ToDO
 }
 
 void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)

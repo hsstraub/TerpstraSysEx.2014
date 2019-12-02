@@ -25,6 +25,7 @@
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
 #include "MacroButtonsWindow.h"
+#include "PlayVirtualKeyboard.h"
 //[/Headers]
 
 
@@ -51,7 +52,8 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-	void performMouseClickEdit(int setSelection, int keySelection);
+	void performMouseDown(int setSelection, int keySelection);
+	void performMouseUp(int setSelection, int keySelection);
 
 	// MIDI input callback
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
@@ -71,6 +73,7 @@ private:
 	ScopedPointer<SingleNoteAssign> singleNoteAssign;
 	ScopedPointer<IsomorphicMassAssign> isomorphicMassAssign;
 	ScopedPointer<MacroButtonsWindow> macroButtonsWindow;
+	ScopedPointer<PlayVirtualKeyboard> playVirtualKeyboardWindow;
     //[/UserVariables]
 
     //==============================================================================

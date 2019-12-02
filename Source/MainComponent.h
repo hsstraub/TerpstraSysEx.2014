@@ -54,6 +54,7 @@ public:
     void resized();
 	void buttonClicked(Button *button);
 	void mouseDown(const MouseEvent &event);
+	void mouseUp(const MouseEvent &event);
 
 private:
 	void changeSetSelection(int newSelection, bool forceRefresh = false);

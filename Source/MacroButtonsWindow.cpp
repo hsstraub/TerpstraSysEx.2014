@@ -109,7 +109,7 @@ void MacroButtonsWindow::paint (Graphics& g)
 	if (drawable1 != 0)
 		drawable1->drawWithin(g, Rectangle<float>(12, 12, 100, 46),
 		RectanglePlacement::stretchToFit, 1.000f);
-	//[/UserPaint]
+    //[/UserPaint]
 }
 
 void MacroButtonsWindow::resized()

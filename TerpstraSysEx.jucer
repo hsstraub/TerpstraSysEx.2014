@@ -19,6 +19,10 @@
             file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
+            file="Source/PlayVirtualKeyboard.cpp"/>
+      <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"
+            file="Source/PlayVirtualKeyboard.h"/>
       <FILE id="fToFTX" name="ColourEditComponent.cpp" compile="1" resource="0"
             file="Source/ColourEditComponent.cpp"/>
       <FILE id="VbJRS2" name="ColourEditComponent.h" compile="0" resource="0"

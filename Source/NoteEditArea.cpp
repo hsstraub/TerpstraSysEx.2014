@@ -42,6 +42,10 @@ NoteEditArea::NoteEditArea ()
 	macroButtonsWindow = new MacroButtonsWindow();
 	addAndMakeVisible(macroButtonsWindow);
 	macroButtonsWindow->setVisible(false);
+
+	playVirtualKeyboardWindow = new PlayVirtualKeyboard();
+	addAndMakeVisible(playVirtualKeyboardWindow);
+	playVirtualKeyboardWindow->setVisible(false);
     //[/Constructor_pre]
 
     addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
@@ -52,6 +56,7 @@ NoteEditArea::NoteEditArea ()
     cbEditMode->addItem (TRANS("Assign notes to keys one by one"), 1);
     cbEditMode->addItem (TRANS("Isomorphic mass assign"), 2);
     cbEditMode->addItem (TRANS("Macro Buttons"), 3);
+    cbEditMode->addItem (TRANS("Play virtual keyboard"), 4);
     cbEditMode->addListener (this);
 
     addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
@@ -84,6 +89,7 @@ NoteEditArea::~NoteEditArea()
 	singleNoteAssign = nullptr;
 	isomorphicMassAssign = nullptr;
 	macroButtonsWindow = nullptr;
+	playVirtualKeyboardWindow = nullptr;
     //[/Destructor_pre]
 
     cbEditMode = nullptr;
@@ -104,7 +110,7 @@ void NoteEditArea::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
-	//[/UserPaint]
+    //[/UserPaint]
 }
 
 void NoteEditArea::resized()
@@ -113,6 +119,7 @@ void NoteEditArea::resized()
 	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	playVirtualKeyboardWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
     cbEditMode->setBounds (102, 15, 296, 24);
@@ -138,21 +145,31 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 			singleNoteAssign->setVisible(true);
 			isomorphicMassAssign->setVisible(false);
 			macroButtonsWindow->setVisible(false);
+			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		case 1:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(true);
 			macroButtonsWindow->setVisible(false);
+			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		case 2:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
 			macroButtonsWindow->setVisible(true);
+			playVirtualKeyboardWindow->setVisible(false);
+			break;
+		case 3:
+			singleNoteAssign->setVisible(false);
+			isomorphicMassAssign->setVisible(false);
+			macroButtonsWindow->setVisible(false);
+			playVirtualKeyboardWindow->setVisible(true);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
 			macroButtonsWindow->setVisible(false);
+			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		}
         //[/UserComboBoxCode_cbEditMode]
@@ -179,7 +196,7 @@ void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 }
 
 // Called from MainComponent when one of the keys is clicked
-void NoteEditArea::performMouseClickEdit(int setSelection, int keySelection)
+void NoteEditArea::performMouseDown(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -187,14 +204,29 @@ void NoteEditArea::performMouseClickEdit(int setSelection, int keySelection)
 	switch (editMode)
 	{
 	case 0:
-		singleNoteAssign->PerformMouseClickEdit(setSelection, keySelection);
+		singleNoteAssign->performMouseDown(setSelection, keySelection);
 		break;
 	case 1:
-		isomorphicMassAssign->PerformMouseClickEdit(setSelection, keySelection);
+		isomorphicMassAssign->performMouseDown(setSelection, keySelection);
 		break;
 
 		// case 2 (macro buttons): no functionality for clicking on a key
+
+	case 3:
+		playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
+		break;
 	}
+}
+
+void NoteEditArea::performMouseUp(int setSelection, int keySelection)
+{
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	int editMode = cbEditMode->getSelectedItemIndex();
+
+	// Mouse up functionality: only for playing on virtual keyboard
+	if ( editMode == 3)
+		playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
 }
 
 void NoteEditArea::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
@@ -227,7 +259,7 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="102 15 296 24" editable="0"
-            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Macro Buttons"
+            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Macro Buttons&#10;Play virtual keyboard"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
          virtualName="" explicitFocusOrder="0" pos="6 15 88 24" edTextCol="ff000000"
