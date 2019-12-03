@@ -53,3 +53,15 @@ void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
 	if (midiOutput != nullptr)
 		midiOutput->sendMessageNow(message);
 }
+
+void HajuMidiDriver::sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity)
+{
+	if (channelNumber > 0 && noteNumber >= 0)
+		sendMessageNow(MidiMessage::noteOn(channelNumber, noteNumber, velocity));
+}
+
+void HajuMidiDriver::sendNoteOffMessage(int noteNumber, int channelNumber, uint8 velocity)
+{
+	if (channelNumber > 0 && noteNumber >= 0)
+		sendMessageNow(MidiMessage::noteOff(channelNumber, noteNumber, velocity));
+}

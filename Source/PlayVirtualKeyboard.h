@@ -43,8 +43,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void performMouseDown(int setSelection, int keySelection);
-	void performMouseUp(int setSelection, int keySelection);
+	bool performMouseDown(int setSelection, int keySelection);
+	bool performMouseUp(int setSelection, int keySelection);
 	//[/UserMethods]
 
     void paint (Graphics& g) override;

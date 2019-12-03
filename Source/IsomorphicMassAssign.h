@@ -68,7 +68,7 @@ public:
 	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 
-	void performMouseDown(int setSelection, int keySelection);
+	bool performMouseDown(int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

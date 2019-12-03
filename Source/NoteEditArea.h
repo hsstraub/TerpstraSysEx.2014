@@ -52,8 +52,8 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-	void performMouseDown(int setSelection, int keySelection);
-	void performMouseUp(int setSelection, int keySelection);
+	bool performMouseDown(int setSelection, int keySelection);
+	bool performMouseUp(int setSelection, int keySelection);
 
 	// MIDI input callback
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;

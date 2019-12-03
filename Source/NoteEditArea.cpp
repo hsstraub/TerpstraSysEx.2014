@@ -195,8 +195,9 @@ void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	macroButtonsWindow->saveStateToPropertiesFile(propertiesFile);
 }
 
-// Called from MainComponent when one of the keys is clicked
-void NoteEditArea::performMouseDown(int setSelection, int keySelection)
+/// <summary>Called from MainComponent when one of the keys is clicked</summary>
+/// <returns>Mapping was changed yes/no</returns>
+bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -204,21 +205,20 @@ void NoteEditArea::performMouseDown(int setSelection, int keySelection)
 	switch (editMode)
 	{
 	case 0:
-		singleNoteAssign->performMouseDown(setSelection, keySelection);
-		break;
+		return singleNoteAssign->performMouseDown(setSelection, keySelection);
 	case 1:
-		isomorphicMassAssign->performMouseDown(setSelection, keySelection);
-		break;
-
+		return isomorphicMassAssign->performMouseDown(setSelection, keySelection);
+	case 2:
 		// case 2 (macro buttons): no functionality for clicking on a key
-
+		return false;
 	case 3:
-		playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
-		break;
+		return playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
 	}
 }
 
-void NoteEditArea::performMouseUp(int setSelection, int keySelection)
+/// <summary>Called from MainComponent when a previously clicked key is released</summary>
+/// <returns>Mapping was changed yes/no</returns>
+bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
@@ -226,7 +226,7 @@ void NoteEditArea::performMouseUp(int setSelection, int keySelection)
 
 	// Mouse up functionality: only for playing on virtual keyboard
 	if ( editMode == 3)
-		playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
+		return playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
 }
 
 void NoteEditArea::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)

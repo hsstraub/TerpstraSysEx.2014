@@ -18,6 +18,8 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
+#include "MainComponent.h"
 //[/Headers]
 
 #include "PlayVirtualKeyboard.h"
@@ -89,16 +91,44 @@ void PlayVirtualKeyboard::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-// Called from MainComponent when one of the keys is clicked
-void PlayVirtualKeyboard::performMouseDown(int setSelection, int keySelection)
+/// <summary>Called from MainComponent when one of the keys is clicked</summary>
+/// <returns>Mapping was changed yes/no</returns>
+bool PlayVirtualKeyboard::performMouseDown(int setSelection, int keySelection)
 {
-	// ToDo
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+
+	if (keyData.channelNumber > 0)
+	{
+		if (keyData.keyType == TerpstraKey::noteOnNoteOff)
+		{
+			// Send "note on" event
+			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData.noteNumber, keyData.channelNumber, 60);
+		}
+		// ToDo if keyType is "continuous controller": send controller event? 
+	}
+
+	return false;
 }
 
-// Called from MainComponent when a previously clikeced key is released
-void PlayVirtualKeyboard::performMouseUp(int setSelection, int keySelection)
+/// <summary>Called from MainComponent when a previously clicked key is released</summary>
+/// <returns>Mapping was changed yes/no</returns>
+bool PlayVirtualKeyboard::performMouseUp(int setSelection, int keySelection)
 {
-	// ToDo
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+
+	if (keyData.channelNumber > 0)
+	{
+		if (keyData.keyType == TerpstraKey::noteOnNoteOff)
+		{
+			// Send "note off" event
+			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData.noteNumber, keyData.channelNumber, 60);
+		}
+	}
+	return false;
 }
 
 

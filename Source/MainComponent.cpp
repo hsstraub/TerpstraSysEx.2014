@@ -285,6 +285,8 @@ void MainContentComponent::buttonClicked(Button *button)
 
 void MainContentComponent::mouseDown(const MouseEvent &event)
 {
+	bool mappingChanged = false;
+
 	// Selection of single key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
@@ -294,13 +296,14 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			changeSingleKeySelection(i);
 
 			// Perform the edit, according to edit mode. Including sending to device
-			this->noteEditArea->performMouseDown(currentSetSelection, i);
+			mappingChanged = this->noteEditArea->performMouseDown(currentSetSelection, i);
 
 			// Refresh display
 			changeSetSelection(currentSetSelection, true);
 
 			// Mark that there are changes
-			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+			if (mappingChanged)
+				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 			break;
 		}
@@ -309,7 +312,26 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 
 void MainContentComponent::mouseUp(const MouseEvent &event)
 {
-	// ToDO
+	bool mappingChanged = false;
+
+	// Selection of single key fields
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		if (event.eventComponent == terpstraKeyFields[i] || event.eventComponent->getParentComponent() == terpstraKeyFields[i])
+		{
+			// Perform the edit, according to edit mode. Including sending to device
+			mappingChanged = this->noteEditArea->performMouseUp(currentSetSelection, i);
+
+			// Refresh display
+			changeSetSelection(currentSetSelection, true);
+
+			// Mark that there are changes
+			if (mappingChanged)
+				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+			break;
+		}
+	}
 }
 
 void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)

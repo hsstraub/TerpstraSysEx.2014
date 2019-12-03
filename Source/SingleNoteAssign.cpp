@@ -272,9 +272,11 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-// Called from MainComponent when one of the keys is clicked
-void SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
+/// <summary>Called from MainComponent when one of the keys is clicked</summary>
+/// <returns>Mapping was changed yes/no</returns>
+bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 {
+	bool mappingChanged = false;
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
 	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
@@ -284,24 +286,28 @@ void SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	{
 		keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
 		if (keyData.noteNumber < 0) keyData.noteNumber = 0;
+		mappingChanged = true;
 	}
 
 	// Set channel if specified
 	if (setChannelToggleButton->getToggleState())
 	{
 		keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
+		mappingChanged = true;
 	}
 
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
 		keyData.colour = colourSubwindow->getColourAsNumber();
+		mappingChanged = true;
 	}
 
 	// Set key type if specified
 	if (keyTypeToggleButton->getToggleState())
 	{
 		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
+		mappingChanged = true;
 	}
 
 	// Send to device
@@ -328,6 +334,8 @@ void SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 
 		noteBox->setSelectedItemIndex(newNote);
 	}
+
+	return mappingChanged;
 }
 
 void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)

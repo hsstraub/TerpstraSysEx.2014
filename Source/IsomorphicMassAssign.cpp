@@ -336,9 +336,11 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 	}
 }
 
-// Called from MainComponent when one of the keys is clicked
-void IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
+/// <summary>Called from MainComponent when one of the keys is clicked</summary>
+/// <returns>Mapping was changed yes/no</returns>
+bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 {
+	bool mappingChanged = false;
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
 	int startNoteIndex = this->startingPointBox->getSelectedItemIndex();
@@ -356,6 +358,7 @@ void IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
 			fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
+			mappingChanged = true;
 		}
 
 		// Right vertical line
@@ -364,6 +367,7 @@ void IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(keySelection);
 			int startPos = rUpLine.indexOf(keySelection);
 			fillLine(setSelection, rUpLine, startPos, startNoteIndex, rUpwStepSize);
+			mappingChanged = true;
 		}
 
 		// Two dimensional: fill whole subset
@@ -377,8 +381,12 @@ void IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 
 			// Fill the board, starting from this line
 			fill2DHorizLineRecursive(setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+
+			mappingChanged = true;
 		}
 	}
+
+	return mappingChanged;
 }
 
 //[/MiscUserCode]

@@ -41,6 +41,11 @@ public:
 	// Send a MIDI message directly 
 	void sendMessageNow(const MidiMessage& message);
 
+	// Higher level commands
+	void sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity);
+	void sendNoteOffMessage(int noteNumber, int channelNumber, uint8 velocity);
+
+
 	// Attributes
 private:
 	StringArray midiInputs;
