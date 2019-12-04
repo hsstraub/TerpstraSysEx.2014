@@ -45,7 +45,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	bool performMouseDown(int setSelection, int keySelection);
 	bool performMouseUp(int setSelection, int keySelection);
-	//[/UserMethods]
+    //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -57,7 +57,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> lblInstructionText;
+    ScopedPointer<TextEditor> textInstructionText;
 
 
     //==============================================================================

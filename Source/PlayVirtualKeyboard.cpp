@@ -34,13 +34,14 @@ PlayVirtualKeyboard::PlayVirtualKeyboard ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (lblInstructionText = new Label ("lblInstructionText",
-                                                       TRANS("Clicking on the keys will send a note on MIDI command to the output channel.")));
-    lblInstructionText->setFont (Font (15.00f, Font::plain));
-    lblInstructionText->setJustificationType (Justification::centredLeft);
-    lblInstructionText->setEditable (false, false, false);
-    lblInstructionText->setColour (TextEditor::textColourId, Colours::black);
-    lblInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (textInstructionText = new TextEditor ("textInstructionText"));
+    textInstructionText->setMultiLine (true);
+    textInstructionText->setReturnKeyStartsNewLine (false);
+    textInstructionText->setReadOnly (true);
+    textInstructionText->setScrollbarsShown (false);
+    textInstructionText->setCaretVisible (false);
+    textInstructionText->setPopupMenuEnabled (false);
+    textInstructionText->setText (TRANS("Click on the keys to send note on/off MIDI commands to the output channel."));
 
 
     //[UserPreSize]
@@ -58,7 +59,7 @@ PlayVirtualKeyboard::~PlayVirtualKeyboard()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    lblInstructionText = nullptr;
+    textInstructionText = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -74,6 +75,10 @@ void PlayVirtualKeyboard::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+
+	// Instruction text is coded as TextEditor (for multiline display) but should look like a label
+	textInstructionText->setColour(TextEditor::backgroundColourId, findColour(Label::backgroundColourId));
     //[/UserPaint]
 }
 
@@ -82,7 +87,7 @@ void PlayVirtualKeyboard::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    lblInstructionText->setBounds (16, 16, 440, 72);
+    textInstructionText->setBounds (8, 16, 360, 88);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -106,7 +111,7 @@ bool PlayVirtualKeyboard::performMouseDown(int setSelection, int keySelection)
 			// Send "note on" event
 			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData.noteNumber, keyData.channelNumber, 60);
 		}
-		// ToDo if keyType is "continuous controller": send controller event? 
+		// ToDo if keyType is "continuous controller": send controller event?
 	}
 
 	return false;
@@ -149,11 +154,10 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="428" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <LABEL name="lblInstructionText" id="199c7576a5017f09" memberName="lblInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="16 16 440 72" edTextCol="ff000000"
-         edBkgCol="0" labelText="Clicking on the keys will send a note on MIDI command to the output channel."
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+  <TEXTEDITOR name="textInstructionText" id="ab84427977a3ee81" memberName="textInstructionText"
+              virtualName="" explicitFocusOrder="0" pos="8 16 360 88" initialText="Click on the keys to send note on/off MIDI commands to the output channel."
+              multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="0"
+              caret="0" popupmenu="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
