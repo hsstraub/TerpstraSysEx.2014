@@ -213,6 +213,8 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 		return false;
 	case 3:
 		return playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
+	default:
+		return false;
 	}
 }
 
@@ -227,6 +229,8 @@ bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 	// Mouse up functionality: only for playing on virtual keyboard
 	if ( editMode == 3)
 		return playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
+
+	return false;
 }
 
 void NoteEditArea::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
