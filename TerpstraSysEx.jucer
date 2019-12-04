@@ -5,6 +5,8 @@
               jucerVersion="4.3.1" companyName="Hans Straub">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
+      <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
+            file="BinaryData/LumatoneIcon.png"/>
       <FILE id="bqg5AV" name="OctaveWithSelection.png" compile="0" resource="1"
             file="BinaryData/OctaveWithSelection.png"/>
       <FILE id="mKOOP6" name="TopEdgeLightLeft.png" compile="0" resource="1"
@@ -108,7 +110,7 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <VS2013 targetFolder="Builds/VisualStudio2013" bigIcon="KQ7uKE">
+    <VS2013 targetFolder="Builds/VisualStudio2013" bigIcon="nhV3bK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
@@ -126,7 +128,7 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2013>
-    <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="" bigIcon="KQ7uKE">
+    <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="" bigIcon="nhV3bK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="LumatoneSetup"/>
@@ -144,7 +146,7 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="KQ7uKE">
+    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="nhV3bK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"/>
