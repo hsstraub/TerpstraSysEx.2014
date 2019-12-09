@@ -114,7 +114,7 @@ void OneMacroButtonEdit::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro)
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-		FileChooser chooser("Open a Terpstra SysEx mapping", File::nonexistent, "*.tsx");
+		FileChooser chooser("Open a Terpstra SysEx mapping", File(), "*.tsx");
 		if (chooser.browseForFileToOpen())
 		{
 			currentFile = chooser.getResult();
@@ -208,7 +208,7 @@ void OneMacroButtonEdit::updateTextEditorFromFileObject()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="OneMacroButtonEdit" componentName=""
-                 parentClasses="public Component, public TextEditorListener" constructorParams=""
+                 parentClasses="public Component, public TextEditor::Listener" constructorParams=""
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="200" initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>

@@ -26,7 +26,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public ButtonListener, public MidiInputCallback
+class MainContentComponent : public Component, public Button::Listener, public MidiInputCallback
 {
 public:
     //==============================================================================

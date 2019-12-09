@@ -35,8 +35,8 @@
                                                                     //[/Comments]
 */
 class MidiEditArea  : public Component,
-                      public ComboBoxListener,
-                      public ButtonListener
+                      public ComboBox::Listener,
+                      public Button::Listener
 {
 public:
     //==============================================================================
@@ -45,8 +45,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll; }
-	void addSendAllButtonListener(ButtonListener* listener) { buttonSendAll->addListener(listener); }
+	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll.get(); }
+	void addSendAllButtonListener(Button::Listener* listener) { buttonSendAll->addListener(listener); }
     //[/UserMethods]
 
     void paint (Graphics& g) override;

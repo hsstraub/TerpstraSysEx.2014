@@ -69,8 +69,8 @@ public:
 class ColourEditComponent  : public Component,
                              public ChangeListener,
                              public ChangeBroadcaster,
-                             public ButtonListener,
-                             public ComboBoxListener
+                             public Button::Listener,
+                             public ComboBox::Listener
 {
 public:
     //==============================================================================

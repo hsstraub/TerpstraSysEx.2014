@@ -16,7 +16,7 @@ HajuMidiDriver::HajuMidiDriver()
 	midiInputs = MidiInput::getDevices();
 	midiOutputs = MidiOutput::getDevices();
 
-	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String::empty, 0);
+	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String(), 0);
 
 	lastInputIndex = -1;
 	lastInputCallback = nullptr;
