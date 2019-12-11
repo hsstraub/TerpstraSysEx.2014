@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_9AB3AB1026C8BC32__
-#define __JUCE_HEADER_9AB3AB1026C8BC32__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -67,18 +66,18 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<GroupComponent> noteAndChannelAssGroup;
-    ScopedPointer<Label> editInstructionText;
-    ScopedPointer<ComboBox> noteBox;
-    ScopedPointer<ToggleButton> noteAutoIncrButton;
-    ScopedPointer<ComboBox> channelBox;
-    ScopedPointer<ToggleButton> channelAutoIncrButton;
-    ScopedPointer<ComboBox> channelAutoIncrNoteBox;
-    ScopedPointer<ToggleButton> setNoteToggleButton;
-    ScopedPointer<ToggleButton> setChannelToggleButton;
-    ScopedPointer<ToggleButton> setColourToggleButton;
-    ScopedPointer<ToggleButton> keyTypeToggleButton;
-    ScopedPointer<ComboBox> keyTypeCombo;
+    std::unique_ptr<GroupComponent> noteAndChannelAssGroup;
+    std::unique_ptr<Label> editInstructionText;
+    std::unique_ptr<ComboBox> noteBox;
+    std::unique_ptr<ToggleButton> noteAutoIncrButton;
+    std::unique_ptr<ComboBox> channelBox;
+    std::unique_ptr<ToggleButton> channelAutoIncrButton;
+    std::unique_ptr<ComboBox> channelAutoIncrNoteBox;
+    std::unique_ptr<ToggleButton> setNoteToggleButton;
+    std::unique_ptr<ToggleButton> setChannelToggleButton;
+    std::unique_ptr<ToggleButton> setColourToggleButton;
+    std::unique_ptr<ToggleButton> keyTypeToggleButton;
+    std::unique_ptr<ComboBox> keyTypeCombo;
 
 
     //==============================================================================
@@ -88,4 +87,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_9AB3AB1026C8BC32__

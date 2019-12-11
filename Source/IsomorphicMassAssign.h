@@ -86,16 +86,16 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ComboBox> startingPointBox;
-    ScopedPointer<Label> labelStartingPoint;
-    ScopedPointer<Label> labelHorizontalSteps;
-    ScopedPointer<TextEditor> editHorizontalSteps;
-    ScopedPointer<Label> labelRightUpwardSteps;
-    ScopedPointer<TextEditor> editRightUpwardSteps;
-    ScopedPointer<Label> editInstructionText;
-    ScopedPointer<GroupComponent> groupMapping;
-    ScopedPointer<ComboBox> cbMappingStyle;
-    ScopedPointer<Label> labelMappingStyle;
+	std::unique_ptr<ComboBox> startingPointBox;
+	std::unique_ptr<Label> labelStartingPoint;
+	std::unique_ptr<Label> labelHorizontalSteps;
+	std::unique_ptr<TextEditor> editHorizontalSteps;
+	std::unique_ptr<Label> labelRightUpwardSteps;
+	std::unique_ptr<TextEditor> editRightUpwardSteps;
+	std::unique_ptr<Label> editInstructionText;
+	std::unique_ptr<GroupComponent> groupMapping;
+	std::unique_ptr<ComboBox> cbMappingStyle;
+	std::unique_ptr<Label> labelMappingStyle;
 
 
     //==============================================================================

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -36,40 +36,59 @@ SingleNoteAssign::SingleNoteAssign ()
 	addAndMakeVisible(colourSubwindow);
     //[/Constructor_pre]
 
-    addAndMakeVisible (noteAndChannelAssGroup = new GroupComponent ("noteAndChannelAssGroup",
-                                                                    TRANS("Key Note and Channel Assignments")));
+    noteAndChannelAssGroup.reset (new GroupComponent ("noteAndChannelAssGroup",
+                                                      TRANS("Key Note and Channel Assignments")));
+    addAndMakeVisible (noteAndChannelAssGroup.get());
 
-    addAndMakeVisible (editInstructionText = new Label ("editInstructionText",
-                                                        TRANS("Assign these values to a key by clicking on the desired key-face.")));
-    editInstructionText->setFont (Font (15.00f, Font::plain));
+    noteAndChannelAssGroup->setBounds (0, 8, 424, 208);
+
+    editInstructionText.reset (new Label ("editInstructionText",
+                                          TRANS("Assign these values to a key by clicking on the desired key-face.")));
+    addAndMakeVisible (editInstructionText.get());
+    editInstructionText->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     editInstructionText->setJustificationType (Justification::centredLeft);
     editInstructionText->setEditable (false, false, false);
     editInstructionText->setColour (TextEditor::textColourId, Colours::black);
     editInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (noteBox = new ComboBox ("noteBox"));
+    editInstructionText->setBounds (8, 32, 352, 24);
+
+    noteBox.reset (new ComboBox ("noteBox"));
+    addAndMakeVisible (noteBox.get());
     noteBox->setEditableText (false);
     noteBox->setJustificationType (Justification::centredLeft);
     noteBox->setTextWhenNothingSelected (String());
     noteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     noteBox->addListener (this);
 
-    addAndMakeVisible (noteAutoIncrButton = new ToggleButton ("noteAutoIncrButton"));
+    noteBox->setBounds (120, 64, 56, 24);
+
+    noteAutoIncrButton.reset (new ToggleButton ("noteAutoIncrButton"));
+    addAndMakeVisible (noteAutoIncrButton.get());
     noteAutoIncrButton->setButtonText (TRANS("Auto Increment"));
     noteAutoIncrButton->addListener (this);
 
-    addAndMakeVisible (channelBox = new ComboBox ("channelBox"));
+    noteAutoIncrButton->setBounds (192, 64, 160, 24);
+
+    channelBox.reset (new ComboBox ("channelBox"));
+    addAndMakeVisible (channelBox.get());
     channelBox->setEditableText (false);
     channelBox->setJustificationType (Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (String());
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
-    addAndMakeVisible (channelAutoIncrButton = new ToggleButton ("channelAutoIncrButton"));
+    channelBox->setBounds (120, 96, 56, 24);
+
+    channelAutoIncrButton.reset (new ToggleButton ("channelAutoIncrButton"));
+    addAndMakeVisible (channelAutoIncrButton.get());
     channelAutoIncrButton->setButtonText (TRANS("Increment after Note #"));
     channelAutoIncrButton->addListener (this);
 
-    addAndMakeVisible (channelAutoIncrNoteBox = new ComboBox ("channelAutoIncrNoteBox"));
+    channelAutoIncrButton->setBounds (192, 96, 160, 24);
+
+    channelAutoIncrNoteBox.reset (new ComboBox ("channelAutoIncrNoteBox"));
+    addAndMakeVisible (channelAutoIncrNoteBox.get());
     channelAutoIncrNoteBox->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0."));
     channelAutoIncrNoteBox->setEditableText (false);
     channelAutoIncrNoteBox->setJustificationType (Justification::centredLeft);
@@ -77,23 +96,38 @@ SingleNoteAssign::SingleNoteAssign ()
     channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelAutoIncrNoteBox->addListener (this);
 
-    addAndMakeVisible (setNoteToggleButton = new ToggleButton ("setNoteToggleButton"));
+    channelAutoIncrNoteBox->setBounds (360, 96, 56, 24);
+
+    setNoteToggleButton.reset (new ToggleButton ("setNoteToggleButton"));
+    addAndMakeVisible (setNoteToggleButton.get());
     setNoteToggleButton->setButtonText (TRANS("Note (0-127):"));
     setNoteToggleButton->addListener (this);
 
-    addAndMakeVisible (setChannelToggleButton = new ToggleButton ("setChannelToggleButton"));
+    setNoteToggleButton->setBounds (8, 64, 112, 24);
+
+    setChannelToggleButton.reset (new ToggleButton ("setChannelToggleButton"));
+    addAndMakeVisible (setChannelToggleButton.get());
     setChannelToggleButton->setButtonText (TRANS("Channel (1-16):"));
     setChannelToggleButton->addListener (this);
 
-    addAndMakeVisible (setColourToggleButton = new ToggleButton ("setColourToggleButton"));
+    setChannelToggleButton->setBounds (8, 96, 112, 24);
+
+    setColourToggleButton.reset (new ToggleButton ("setColourToggleButton"));
+    addAndMakeVisible (setColourToggleButton.get());
     setColourToggleButton->setButtonText (TRANS("Colour:"));
     setColourToggleButton->addListener (this);
 
-    addAndMakeVisible (keyTypeToggleButton = new ToggleButton ("keyTypeToggleButton"));
+    setColourToggleButton->setBounds (8, 136, 112, 24);
+
+    keyTypeToggleButton.reset (new ToggleButton ("keyTypeToggleButton"));
+    addAndMakeVisible (keyTypeToggleButton.get());
     keyTypeToggleButton->setButtonText (TRANS("Key type:"));
     keyTypeToggleButton->addListener (this);
 
-    addAndMakeVisible (keyTypeCombo = new ComboBox ("keyTypeCombo"));
+    keyTypeToggleButton->setBounds (8, 176, 112, 24);
+
+    keyTypeCombo.reset (new ComboBox ("keyTypeCombo"));
+    addAndMakeVisible (keyTypeCombo.get());
     keyTypeCombo->setEditableText (false);
     keyTypeCombo->setJustificationType (Justification::centredLeft);
     keyTypeCombo->setTextWhenNothingSelected (String());
@@ -101,6 +135,8 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
     keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
     keyTypeCombo->addListener (this);
+
+    keyTypeCombo->setBounds (120, 176, 192, 24);
 
 
     //[UserPreSize]
@@ -171,18 +207,6 @@ void SingleNoteAssign::resized()
 	colourSubwindow->setBounds(120, 136, 196, 32);
     //[/UserPreResize]
 
-    noteAndChannelAssGroup->setBounds (0, 8, 424, 208);
-    editInstructionText->setBounds (8, 32, 352, 24);
-    noteBox->setBounds (120, 64, 56, 24);
-    noteAutoIncrButton->setBounds (192, 64, 160, 24);
-    channelBox->setBounds (120, 96, 56, 24);
-    channelAutoIncrButton->setBounds (192, 96, 160, 24);
-    channelAutoIncrNoteBox->setBounds (360, 96, 56, 24);
-    setNoteToggleButton->setBounds (8, 64, 112, 24);
-    setChannelToggleButton->setBounds (8, 96, 112, 24);
-    setColourToggleButton->setBounds (8, 136, 112, 24);
-    keyTypeToggleButton->setBounds (8, 176, 112, 24);
-    keyTypeCombo->setBounds (120, 176, 192, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -192,22 +216,22 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == noteBox)
+    if (comboBoxThatHasChanged == noteBox.get())
     {
         //[UserComboBoxCode_noteBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_noteBox]
     }
-    else if (comboBoxThatHasChanged == channelBox)
+    else if (comboBoxThatHasChanged == channelBox.get())
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_channelBox]
     }
-    else if (comboBoxThatHasChanged == channelAutoIncrNoteBox)
+    else if (comboBoxThatHasChanged == channelAutoIncrNoteBox.get())
     {
         //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_channelAutoIncrNoteBox]
     }
-    else if (comboBoxThatHasChanged == keyTypeCombo)
+    else if (comboBoxThatHasChanged == keyTypeCombo.get())
     {
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
         //[/UserComboBoxCode_keyTypeCombo]
@@ -222,17 +246,17 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == noteAutoIncrButton)
+    if (buttonThatWasClicked == noteAutoIncrButton.get())
     {
         //[UserButtonCode_noteAutoIncrButton] -- add your button handler code here..
         //[/UserButtonCode_noteAutoIncrButton]
     }
-    else if (buttonThatWasClicked == channelAutoIncrButton)
+    else if (buttonThatWasClicked == channelAutoIncrButton.get())
     {
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
         //[/UserButtonCode_channelAutoIncrButton]
     }
-    else if (buttonThatWasClicked == setNoteToggleButton)
+    else if (buttonThatWasClicked == setNoteToggleButton.get())
     {
         //[UserButtonCode_setNoteToggleButton] -- add your button handler code here..
 		bool fieldActive = setNoteToggleButton->getToggleState();
@@ -240,7 +264,7 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 		noteAutoIncrButton->setEnabled(fieldActive);
         //[/UserButtonCode_setNoteToggleButton]
     }
-    else if (buttonThatWasClicked == setChannelToggleButton)
+    else if (buttonThatWasClicked == setChannelToggleButton.get())
     {
         //[UserButtonCode_setChannelToggleButton] -- add your button handler code here..
 		bool fieldActive = setChannelToggleButton->getToggleState();
@@ -249,14 +273,14 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 		channelAutoIncrNoteBox->setEnabled(fieldActive);
         //[/UserButtonCode_setChannelToggleButton]
     }
-    else if (buttonThatWasClicked == setColourToggleButton)
+    else if (buttonThatWasClicked == setColourToggleButton.get())
     {
         //[UserButtonCode_setColourToggleButton] -- add your button handler code here..
 		bool fieldActive = setColourToggleButton->getToggleState();
 		colourSubwindow->setEnabled(fieldActive);
         //[/UserButtonCode_setColourToggleButton]
     }
-    else if (buttonThatWasClicked == keyTypeToggleButton)
+    else if (buttonThatWasClicked == keyTypeToggleButton.get())
     {
         //[UserButtonCode_keyTypeToggleButton] -- add your button handler code here..
 		bool fieldActive = keyTypeToggleButton->getToggleState();
@@ -393,7 +417,8 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="8 32 352 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Assign these values to a key by clicking on the desired key-face."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <COMBOBOX name="noteBox" id="123cacc6155f964" memberName="noteBox" virtualName=""
             explicitFocusOrder="0" pos="120 64 56 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -434,3 +459,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

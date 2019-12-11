@@ -99,8 +99,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextButton> btnColourPicker;
-    ScopedPointer<ColourComboBox> colourCombo;
+	std::unique_ptr<TextButton> btnColourPicker;
+	std::unique_ptr<ColourComboBox> colourCombo;
 
 
     //==============================================================================
