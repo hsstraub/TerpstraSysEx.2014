@@ -36,9 +36,9 @@
                                                                     //[/Comments]
 */
 class GeneralOptionsDlg  : public Component,
-                           public TextEditorListener,
+                           public TextEditor::Listener,
                            public ChangeListener,
-                           public ButtonListener
+                           public Button::Listener
 {
 public:
     //==============================================================================

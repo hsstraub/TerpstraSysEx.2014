@@ -40,7 +40,7 @@
 */
 class NoteEditArea  : public Component,
                       public MidiInputCallback,
-                      public ComboBoxListener
+                      public ComboBox::Listener
 {
 public:
     //==============================================================================

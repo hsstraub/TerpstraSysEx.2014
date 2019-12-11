@@ -38,7 +38,7 @@
 */
 class MacroButtonsWindow  : public Component,
                             public MidiInputCallback,
-                            public ButtonListener
+                            public Button::Listener
 {
 public:
     //==============================================================================
@@ -73,7 +73,7 @@ private:
     ScopedPointer<ToggleButton> btnEnableMacroButtons;
     ScopedPointer<Label> lblMacroButtonsInfo;
     ScopedPointer<ToggleButton> btnSaveAfterSending;
-    ScopedPointer<Drawable> drawable1;
+    std::unique_ptr<Drawable> drawable1;
 
 
     //==============================================================================

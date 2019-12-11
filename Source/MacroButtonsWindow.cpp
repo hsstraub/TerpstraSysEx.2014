@@ -49,7 +49,11 @@ MacroButtonsWindow::MacroButtonsWindow ()
     btnSaveAfterSending->setButtonText (TRANS("Save mapping after sending"));
     btnSaveAfterSending->addListener (this);
 
-    drawable1 = Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
+    // For some reason this is a compiler error on Mac, swap instead?
+//        drawable1.reset(Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize));
+
+    std::unique_ptr<Drawable> swappableButton = Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
+    drawable1.swap(swappableButton);
 
     //[UserPreSize]
 

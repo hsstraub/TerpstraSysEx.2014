@@ -275,7 +275,7 @@ bool TerpstraSysExApplication::openSysExMapping()
 {
 	// XXX If there are changes: ask for saving these first? 
 
-	FileChooser chooser("Open a Lumatone key mapping", File::nonexistent, "*.tsx");
+	FileChooser chooser("Open a Lumatone key mapping", File(), "*.tsx");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -295,7 +295,7 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Lumatone Key Mapping Files", File::nonexistent, "*.tsx");
+	FileChooser chooser("Lumatone Key Mapping Files", File(), "*.tsx");
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();

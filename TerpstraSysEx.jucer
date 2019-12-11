@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.8.2"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              jucerVersion="4.3.1" companyName="Hans Straub">
+              jucerVersion="5.4.5" companyName="Hans Straub" headerPath="../../../JUCE/modules">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
@@ -174,4 +174,7 @@
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
   <JUCEOPTIONS/>
+  <LIVE_SETTINGS>
+    <OSX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

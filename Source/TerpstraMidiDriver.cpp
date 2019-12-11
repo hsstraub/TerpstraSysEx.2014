@@ -145,8 +145,11 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsign
 		sysExData[3] = '\0';
 		sysExData[4] = keyType == TerpstraKey::continuousController ? SET_FADER_CONFIG : SET_VELOCITY_CONFIG;
 		
-		memcpy_s(&sysExData[5], 128, velocityTable, 128);	// velocityTable is supposed to contain 128 entries. ToDo security?
-		
+    //memcpy_s is windows specific
+//    memcpy_s(&sysExData[5], 128, velocityTable, 128);  // velocityTable is supposed to contain 128 entries. ToDo security?
+    
+		memmove(&sysExData[5], velocityTable, 128);
+    
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
 		sendMessageDelayed(msg);
 	}

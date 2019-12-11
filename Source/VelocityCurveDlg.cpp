@@ -378,7 +378,7 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	else
 	{
 		jassertfalse;
-		velocityCurveString = String::empty;
+		velocityCurveString = String();
 	}
 
 	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";

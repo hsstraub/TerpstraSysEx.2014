@@ -57,7 +57,7 @@ protected:
 	MidiInputCallback* lastInputCallback;
 
 	// Currently open MIDI output
-	ScopedPointer<MidiOutput> midiOutput;
+  std::unique_ptr<MidiOutput> midiOutput;
 };
 
 #endif  // HAJUMIDIDRIVER_H_INCLUDED
