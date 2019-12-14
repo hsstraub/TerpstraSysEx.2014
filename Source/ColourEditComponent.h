@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_D7C4FD8ABEF2B526__
-#define __JUCE_HEADER_D7C4FD8ABEF2B526__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -99,8 +98,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-	std::unique_ptr<TextButton> btnColourPicker;
-	std::unique_ptr<ColourComboBox> colourCombo;
+    std::unique_ptr<TextButton> btnColourPicker;
+    std::unique_ptr<ColourComboBox> colourCombo;
 
 
     //==============================================================================
@@ -110,4 +109,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_D7C4FD8ABEF2B526__

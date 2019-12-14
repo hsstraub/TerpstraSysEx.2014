@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_730F20A4628CA114__
-#define __JUCE_HEADER_730F20A4628CA114__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -86,16 +85,16 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-	std::unique_ptr<ComboBox> startingPointBox;
-	std::unique_ptr<Label> labelStartingPoint;
-	std::unique_ptr<Label> labelHorizontalSteps;
-	std::unique_ptr<TextEditor> editHorizontalSteps;
-	std::unique_ptr<Label> labelRightUpwardSteps;
-	std::unique_ptr<TextEditor> editRightUpwardSteps;
-	std::unique_ptr<Label> editInstructionText;
-	std::unique_ptr<GroupComponent> groupMapping;
-	std::unique_ptr<ComboBox> cbMappingStyle;
-	std::unique_ptr<Label> labelMappingStyle;
+    std::unique_ptr<ComboBox> startingPointBox;
+    std::unique_ptr<Label> labelStartingPoint;
+    std::unique_ptr<Label> labelHorizontalSteps;
+    std::unique_ptr<TextEditor> editHorizontalSteps;
+    std::unique_ptr<Label> labelRightUpwardSteps;
+    std::unique_ptr<TextEditor> editRightUpwardSteps;
+    std::unique_ptr<Label> editInstructionText;
+    std::unique_ptr<GroupComponent> groupMapping;
+    std::unique_ptr<ComboBox> cbMappingStyle;
+    std::unique_ptr<Label> labelMappingStyle;
 
 
     //==============================================================================
@@ -105,4 +104,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_730F20A4628CA114__

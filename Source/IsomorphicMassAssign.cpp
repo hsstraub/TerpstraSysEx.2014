@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -40,31 +40,41 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	mappingLogic = nullptr;
     //[/Constructor_pre]
 
-    addAndMakeVisible (startingPointBox = new ComboBox ("startingPointBox"));
+    startingPointBox.reset (new ComboBox ("startingPointBox"));
+    addAndMakeVisible (startingPointBox.get());
     startingPointBox->setEditableText (false);
     startingPointBox->setJustificationType (Justification::centredLeft);
     startingPointBox->setTextWhenNothingSelected (String());
     startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     startingPointBox->addListener (this);
 
-    addAndMakeVisible (labelStartingPoint = new Label ("labelStartingPoint",
-                                                       TRANS("Starting value")));
+    startingPointBox->setBounds (12, 291, 150, 24);
+
+    labelStartingPoint.reset (new Label ("labelStartingPoint",
+                                         TRANS("Starting value")));
+    addAndMakeVisible (labelStartingPoint.get());
     labelStartingPoint->setTooltip (TRANS("Value that will be assigned to the key at mouse pposition when clicking"));
-    labelStartingPoint->setFont (Font (15.00f, Font::plain));
+    labelStartingPoint->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelStartingPoint->setJustificationType (Justification::centredLeft);
     labelStartingPoint->setEditable (false, false, false);
     labelStartingPoint->setColour (TextEditor::textColourId, Colours::black);
     labelStartingPoint->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (labelHorizontalSteps = new Label ("labelHorizontalSteps",
-                                                         TRANS("Horizontal steps")));
-    labelHorizontalSteps->setFont (Font (15.00f, Font::plain));
+    labelStartingPoint->setBounds (12, 267, 150, 24);
+
+    labelHorizontalSteps.reset (new Label ("labelHorizontalSteps",
+                                           TRANS("Horizontal steps")));
+    addAndMakeVisible (labelHorizontalSteps.get());
+    labelHorizontalSteps->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelHorizontalSteps->setJustificationType (Justification::centredLeft);
     labelHorizontalSteps->setEditable (false, false, false);
     labelHorizontalSteps->setColour (TextEditor::textColourId, Colours::black);
     labelHorizontalSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (editHorizontalSteps = new TextEditor ("editHorizontalSteps"));
+    labelHorizontalSteps->setBounds (220, 259, 150, 24);
+
+    editHorizontalSteps.reset (new TextEditor ("editHorizontalSteps"));
+    addAndMakeVisible (editHorizontalSteps.get());
     editHorizontalSteps->setMultiLine (false);
     editHorizontalSteps->setReturnKeyStartsNewLine (false);
     editHorizontalSteps->setReadOnly (false);
@@ -73,15 +83,21 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editHorizontalSteps->setPopupMenuEnabled (true);
     editHorizontalSteps->setText (String());
 
-    addAndMakeVisible (labelRightUpwardSteps = new Label ("labelRightUpwardSteps",
-                                                          TRANS("Right upward steps")));
-    labelRightUpwardSteps->setFont (Font (15.00f, Font::plain));
+    editHorizontalSteps->setBounds (220, 283, 40, 24);
+
+    labelRightUpwardSteps.reset (new Label ("labelRightUpwardSteps",
+                                            TRANS("Right upward steps")));
+    addAndMakeVisible (labelRightUpwardSteps.get());
+    labelRightUpwardSteps->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelRightUpwardSteps->setJustificationType (Justification::centredLeft);
     labelRightUpwardSteps->setEditable (false, false, false);
     labelRightUpwardSteps->setColour (TextEditor::textColourId, Colours::black);
     labelRightUpwardSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (editRightUpwardSteps = new TextEditor ("editRightUpwardSteps"));
+    labelRightUpwardSteps->setBounds (148, 211, 150, 24);
+
+    editRightUpwardSteps.reset (new TextEditor ("editRightUpwardSteps"));
+    addAndMakeVisible (editRightUpwardSteps.get());
     editRightUpwardSteps->setMultiLine (false);
     editRightUpwardSteps->setReturnKeyStartsNewLine (false);
     editRightUpwardSteps->setReadOnly (false);
@@ -90,19 +106,28 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editRightUpwardSteps->setPopupMenuEnabled (true);
     editRightUpwardSteps->setText (String());
 
-    addAndMakeVisible (editInstructionText = new Label ("editInstructionText",
-                                                        TRANS("Fill a line or the whole field with constant step distances. \n"
-                                                        "Click on desired key field to start.")));
-    editInstructionText->setFont (Font (15.00f, Font::plain));
+    editRightUpwardSteps->setBounds (148, 235, 39, 24);
+
+    editInstructionText.reset (new Label ("editInstructionText",
+                                          TRANS("Fill a line or the whole field with constant step distances. \n"
+                                          "Click on desired key field to start.")));
+    addAndMakeVisible (editInstructionText.get());
+    editInstructionText->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     editInstructionText->setJustificationType (Justification::topLeft);
     editInstructionText->setEditable (false, false, false);
     editInstructionText->setColour (TextEditor::textColourId, Colours::black);
     editInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (groupMapping = new GroupComponent ("groupMapping",
-                                                          TRANS("Mapping")));
+    editInstructionText->setBounds (0, 168, 416, 40);
 
-    addAndMakeVisible (cbMappingStyle = new ComboBox ("cbMappingStyle"));
+    groupMapping.reset (new GroupComponent ("groupMapping",
+                                            TRANS("Mapping")));
+    addAndMakeVisible (groupMapping.get());
+
+    groupMapping->setBounds (0, 8, 416, 152);
+
+    cbMappingStyle.reset (new ComboBox ("cbMappingStyle"));
+    addAndMakeVisible (cbMappingStyle.get());
     cbMappingStyle->setEditableText (false);
     cbMappingStyle->setJustificationType (Justification::centredLeft);
     cbMappingStyle->setTextWhenNothingSelected (String());
@@ -110,13 +135,18 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
     cbMappingStyle->addListener (this);
 
-    addAndMakeVisible (labelMappingStyle = new Label ("labelMappingStyle",
-                                                      TRANS("Style:")));
-    labelMappingStyle->setFont (Font (15.00f, Font::plain));
+    cbMappingStyle->setBounds (105, 31, 296, 24);
+
+    labelMappingStyle.reset (new Label ("labelMappingStyle",
+                                        TRANS("Style:")));
+    addAndMakeVisible (labelMappingStyle.get());
+    labelMappingStyle->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelMappingStyle->setJustificationType (Justification::centredLeft);
     labelMappingStyle->setEditable (false, false, false);
     labelMappingStyle->setColour (TextEditor::textColourId, Colours::black);
     labelMappingStyle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelMappingStyle->setBounds (12, 32, 88, 24);
 
 
     //[UserPreSize]
@@ -178,16 +208,6 @@ void IsomorphicMassAssign::resized()
 	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, EDITSUBWINWIDTH, MAPPINGSUBWINHEIGHT);
     //[/UserPreResize]
 
-    startingPointBox->setBounds (12, 291, 150, 24);
-    labelStartingPoint->setBounds (12, 267, 150, 24);
-    labelHorizontalSteps->setBounds (220, 259, 150, 24);
-    editHorizontalSteps->setBounds (220, 283, 40, 24);
-    labelRightUpwardSteps->setBounds (148, 211, 150, 24);
-    editRightUpwardSteps->setBounds (148, 235, 39, 24);
-    editInstructionText->setBounds (0, 168, 416, 40);
-    groupMapping->setBounds (0, 8, 416, 152);
-    cbMappingStyle->setBounds (105, 31, 296, 24);
-    labelMappingStyle->setBounds (12, 32, 88, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -197,12 +217,12 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == startingPointBox)
+    if (comboBoxThatHasChanged == startingPointBox.get())
     {
         //[UserComboBoxCode_startingPointBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_startingPointBox]
     }
-    else if (comboBoxThatHasChanged == cbMappingStyle)
+    else if (comboBoxThatHasChanged == cbMappingStyle.get())
     {
         //[UserComboBoxCode_cbMappingStyle] -- add your combo box handling code here..
 		int mappingStyle = cbMappingStyle->getSelectedItemIndex();
@@ -414,12 +434,13 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="12 267 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
          edTextCol="ff000000" edBkgCol="0" labelText="Starting value"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="labelHorizontalSteps" id="3e6663aecf1474c8" memberName="labelHorizontalSteps"
          virtualName="" explicitFocusOrder="0" pos="220 259 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Horizontal steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editHorizontalSteps" id="8d2f5f07f337b9ef" memberName="editHorizontalSteps"
               virtualName="" explicitFocusOrder="0" pos="220 283 40 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
@@ -428,7 +449,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="148 211 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Right upward steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
               virtualName="" explicitFocusOrder="0" pos="148 235 39 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
@@ -437,7 +458,8 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="0 168 416 40" edTextCol="ff000000"
          edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="9"/>
   <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
                   virtualName="" explicitFocusOrder="0" pos="0 8 416 152" title="Mapping"/>
   <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
@@ -447,8 +469,8 @@ BEGIN_JUCER_METADATA
   <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
          virtualName="" explicitFocusOrder="0" pos="12 32 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -458,3 +480,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

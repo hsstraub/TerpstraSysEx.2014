@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -96,16 +96,22 @@ ColourEditComponent::ColourEditComponent ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (btnColourPicker = new TextButton ("btnColourPicker"));
+    btnColourPicker.reset (new TextButton ("btnColourPicker"));
+    addAndMakeVisible (btnColourPicker.get());
     btnColourPicker->setButtonText (TRANS("Colour picker"));
     btnColourPicker->addListener (this);
 
-    addAndMakeVisible (colourCombo = new ColourComboBox ("colourCombo"));
+    btnColourPicker->setBounds (88, 0, 104, 24);
+
+    colourCombo.reset (new ColourComboBox ("colourCombo"));
+    addAndMakeVisible (colourCombo.get());
     colourCombo->setEditableText (true);
     colourCombo->setJustificationType (Justification::centredLeft);
     colourCombo->setTextWhenNothingSelected (String());
     colourCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     colourCombo->addListener (this);
+
+    colourCombo->setBounds (0, 0, 79, 24);
 
 
     //[UserPreSize]
@@ -141,7 +147,7 @@ void ColourEditComponent::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
-	//[/UserPaint]
+    //[/UserPaint]
 }
 
 void ColourEditComponent::resized()
@@ -149,8 +155,6 @@ void ColourEditComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    btnColourPicker->setBounds (88, 0, 104, 24);
-    colourCombo->setBounds (0, 0, 79, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -160,7 +164,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnColourPicker)
+    if (buttonThatWasClicked == btnColourPicker.get())
     {
         //[UserButtonCode_btnColourPicker] -- add your button handler code here..
 		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
@@ -187,14 +191,14 @@ void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == colourCombo)
+    if (comboBoxThatHasChanged == colourCombo.get())
     {
         //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
-		
+
 		// Notify parent that value has changed and can be sent to MIDI controller
 		sendChangeMessage();
-		
-		//[/UserComboBoxCode_colourCombo]
+
+        //[/UserComboBoxCode_colourCombo]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -277,3 +281,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
