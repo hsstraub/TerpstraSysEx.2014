@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -38,30 +38,43 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
 	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
-    addAndMakeVisible (lblDescription = new Label ("lblDescription",
-                                                   TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
-    lblDescription->setFont (Font (15.00f, Font::plain));
+    lblDescription.reset (new Label ("lblDescription",
+                                     TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
+    addAndMakeVisible (lblDescription.get());
+    lblDescription->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblDescription->setJustificationType (Justification::centredLeft);
     lblDescription->setEditable (false, false, false);
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (buttonSendAll = new TextButton ("buttonSendAll"));
+    lblDescription->setBounds (32, 80, 608, 32);
+
+    buttonSendAll.reset (new TextButton ("buttonSendAll"));
+    addAndMakeVisible (buttonSendAll.get());
     buttonSendAll->setTooltip (TRANS("Send whole velocity curve map to controller and save it there."));
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
     buttonSendAll->addListener (this);
 
-    addAndMakeVisible (buttonDiscard = new TextButton ("buttonDiscard"));
+    buttonSendAll->setBounds (192, 368, 150, 24);
+
+    buttonDiscard.reset (new TextButton ("buttonDiscard"));
+    addAndMakeVisible (buttonDiscard.get());
     buttonDiscard->setTooltip (TRANS("Discard velocity curve edits on controller."));
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
-    addAndMakeVisible (buttonSaveEdits = new TextButton ("buttonSaveEdits"));
+    buttonDiscard->setBounds (352, 368, 150, 24);
+
+    buttonSaveEdits.reset (new TextButton ("buttonSaveEdits"));
+    addAndMakeVisible (buttonSaveEdits.get());
     buttonSaveEdits->setTooltip (TRANS("Save velocity curve edits that have been sent on controller"));
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
     buttonSaveEdits->addListener (this);
 
-    addAndMakeVisible (cbEditMode = new ComboBox ("cbEditMode"));
+    buttonSaveEdits->setBounds (32, 368, 150, 24);
+
+    cbEditMode.reset (new ComboBox ("cbEditMode"));
+    addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
     cbEditMode->setJustificationType (Justification::centredLeft);
     cbEditMode->setTextWhenNothingSelected (String());
@@ -71,15 +84,21 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
     cbEditMode->addItem (TRANS("Quadratic"), 3);
     cbEditMode->addListener (this);
 
-    addAndMakeVisible (labelEditMode = new Label ("labelEditMode",
-                                                  TRANS("Edit Function:")));
-    labelEditMode->setFont (Font (15.00f, Font::plain));
+    cbEditMode->setBounds (144, 48, 296, 24);
+
+    labelEditMode.reset (new Label ("labelEditMode",
+                                    TRANS("Edit Function:")));
+    addAndMakeVisible (labelEditMode.get());
+    labelEditMode->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelEditMode->setJustificationType (Justification::centredLeft);
     labelEditMode->setEditable (false, false, false);
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (cbPreset = new ComboBox ("cbPreset"));
+    labelEditMode->setBounds (32, 48, 103, 24);
+
+    cbPreset.reset (new ComboBox ("cbPreset"));
+    addAndMakeVisible (cbPreset.get());
     cbPreset->setEditableText (true);
     cbPreset->setJustificationType (Justification::centredLeft);
     cbPreset->setTextWhenNothingSelected (String());
@@ -87,21 +106,29 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
     cbPreset->addItem (TRANS("One to one"), 1);
     cbPreset->addListener (this);
 
-    addAndMakeVisible (labelPresets = new Label ("labelPresets",
-                                                 TRANS("Presets:")));
-    labelPresets->setFont (Font (15.00f, Font::plain));
+    cbPreset->setBounds (144, 8, 296, 24);
+
+    labelPresets.reset (new Label ("labelPresets",
+                                   TRANS("Presets:")));
+    addAndMakeVisible (labelPresets.get());
+    labelPresets->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelPresets->setJustificationType (Justification::centredLeft);
     labelPresets->setEditable (false, false, false);
     labelPresets->setColour (TextEditor::textColourId, Colours::black);
     labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (labelCurrentBeamValue = new Label ("labelCurrentBeamValue",
-                                                          TRANS("127")));
-    labelCurrentBeamValue->setFont (Font (15.00f, Font::plain));
+    labelPresets->setBounds (32, 8, 107, 24);
+
+    labelCurrentBeamValue.reset (new Label ("labelCurrentBeamValue",
+                                            TRANS("127")));
+    addAndMakeVisible (labelCurrentBeamValue.get());
+    labelCurrentBeamValue->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelCurrentBeamValue->setJustificationType (Justification::centredLeft);
     labelCurrentBeamValue->setEditable (false, false, false);
     labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
     labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelCurrentBeamValue->setBounds (0, 128, 31, 24);
 
 
     //[UserPreSize]
@@ -178,15 +205,6 @@ void VelocityCurveDlg::resized()
 	int h = this->getHeight();
     //[/UserPreResize]
 
-    lblDescription->setBounds (32, 80, 608, 32);
-    buttonSendAll->setBounds (192, 368, 150, 24);
-    buttonDiscard->setBounds (352, 368, 150, 24);
-    buttonSaveEdits->setBounds (32, 368, 150, 24);
-    cbEditMode->setBounds (144, 48, 296, 24);
-    labelEditMode->setBounds (32, 48, 103, 24);
-    cbPreset->setBounds (144, 8, 296, 24);
-    labelPresets->setBounds (32, 8, 107, 24);
-    labelCurrentBeamValue->setBounds (0, 128, 31, 24);
     //[UserResized] Add your own custom resize handling here..
 
 	float graphicsXPadding =  buttonSaveEdits->getX();
@@ -230,7 +248,7 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == buttonSendAll)
+    if (buttonThatWasClicked == buttonSendAll.get())
     {
         //[UserButtonCode_buttonSendAll] -- add your button handler code here..
 		// Send all
@@ -240,13 +258,13 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
         //[/UserButtonCode_buttonSendAll]
     }
-    else if (buttonThatWasClicked == buttonDiscard)
+    else if (buttonThatWasClicked == buttonDiscard.get())
     {
         //[UserButtonCode_buttonDiscard] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().resetVelocityConfig(keyType);
         //[/UserButtonCode_buttonDiscard]
     }
-    else if (buttonThatWasClicked == buttonSaveEdits)
+    else if (buttonThatWasClicked == buttonSaveEdits.get())
     {
         //[UserButtonCode_buttonSaveEdits] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
@@ -262,7 +280,7 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == cbEditMode)
+    if (comboBoxThatHasChanged == cbEditMode.get())
     {
         //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
 		int editModeIndex = cbEditMode->getSelectedItemIndex();
@@ -293,7 +311,7 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		repaint();
         //[/UserComboBoxCode_cbEditMode]
     }
-    else if (comboBoxThatHasChanged == cbPreset)
+    else if (comboBoxThatHasChanged == cbPreset.get())
     {
         //[UserComboBoxCode_cbPreset] -- add your combo box handling code here..
 
@@ -502,7 +520,8 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="32 80 608 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
               virtualName="" explicitFocusOrder="0" pos="192 368 150 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
@@ -523,20 +542,20 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="32 48 103 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbPreset" id="e5845a95b8b0cb19" memberName="cbPreset" virtualName=""
             explicitFocusOrder="0" pos="144 8 296 24" editable="1" layout="33"
             items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
          virtualName="" explicitFocusOrder="0" pos="32 8 107 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
          virtualName="" explicitFocusOrder="0" pos="0 128 31 24" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -546,3 +565,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -34,7 +34,8 @@ PlayVirtualKeyboard::PlayVirtualKeyboard ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (textInstructionText = new TextEditor ("textInstructionText"));
+    textInstructionText.reset (new TextEditor ("textInstructionText"));
+    addAndMakeVisible (textInstructionText.get());
     textInstructionText->setMultiLine (true);
     textInstructionText->setReturnKeyStartsNewLine (false);
     textInstructionText->setReadOnly (true);
@@ -42,6 +43,8 @@ PlayVirtualKeyboard::PlayVirtualKeyboard ()
     textInstructionText->setCaretVisible (false);
     textInstructionText->setPopupMenuEnabled (false);
     textInstructionText->setText (TRANS("Click on the keys to send note on/off MIDI commands to the output channel."));
+
+    textInstructionText->setBounds (8, 16, 360, 88);
 
 
     //[UserPreSize]
@@ -87,7 +90,6 @@ void PlayVirtualKeyboard::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    textInstructionText->setBounds (8, 16, 360, 88);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -167,3 +169,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

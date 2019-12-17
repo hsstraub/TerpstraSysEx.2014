@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_D02B34978EAB2CCC__
-#define __JUCE_HEADER_D02B34978EAB2CCC__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -61,14 +60,14 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> lblMidiInput;
-    ScopedPointer<ComboBox> cbMidiInput;
-    ScopedPointer<Label> lblMidiOutput;
-    ScopedPointer<ComboBox> cbMidiOutput;
-    ScopedPointer<ToggleButton> toggleAutoSave;
-    ScopedPointer<TextButton> buttonSendSaveEdits;
-    ScopedPointer<TextButton> buttonSendAll;
-    ScopedPointer<TextButton> buttonDiscard;
+    std::unique_ptr<Label> lblMidiInput;
+    std::unique_ptr<ComboBox> cbMidiInput;
+    std::unique_ptr<Label> lblMidiOutput;
+    std::unique_ptr<ComboBox> cbMidiOutput;
+    std::unique_ptr<ToggleButton> toggleAutoSave;
+    std::unique_ptr<TextButton> buttonSendSaveEdits;
+    std::unique_ptr<TextButton> buttonSendAll;
+    std::unique_ptr<TextButton> buttonDiscard;
 
 
     //==============================================================================
@@ -78,4 +77,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_D02B34978EAB2CCC__

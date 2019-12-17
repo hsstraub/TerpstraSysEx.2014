@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 5.4.5
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -32,14 +32,18 @@ IncrMidiNotesMapping::IncrMidiNotesMapping ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (channelAutoIncrButton = new ToggleButton ("channelAutoIncrButton"));
+    channelAutoIncrButton.reset (new ToggleButton ("channelAutoIncrButton"));
+    addAndMakeVisible (channelAutoIncrButton.get());
     channelAutoIncrButton->setTooltip (TRANS("Auto-increment channel after maximal note is reached"));
     channelAutoIncrButton->setButtonText (TRANS("Multichannel"));
     channelAutoIncrButton->setConnectedEdges (Button::ConnectedOnTop);
     channelAutoIncrButton->setRadioGroupId (1);
     channelAutoIncrButton->addListener (this);
 
-    addAndMakeVisible (channelAutoIncrNoteBox = new ComboBox ("channelAutoIncrNoteBox"));
+    channelAutoIncrButton->setBounds (8, 64, 280, 24);
+
+    channelAutoIncrNoteBox.reset (new ComboBox ("channelAutoIncrNoteBox"));
+    addAndMakeVisible (channelAutoIncrNoteBox.get());
     channelAutoIncrNoteBox->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"));
     channelAutoIncrNoteBox->setEditableText (false);
     channelAutoIncrNoteBox->setJustificationType (Justification::centredLeft);
@@ -47,28 +51,39 @@ IncrMidiNotesMapping::IncrMidiNotesMapping ()
     channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelAutoIncrNoteBox->addListener (this);
 
-    addAndMakeVisible (labelMidiNotesUntil = new Label ("labelMidiNotesUntil",
-                                                        TRANS("MIDI notes from 0 until")));
-    labelMidiNotesUntil->setFont (Font (15.00f, Font::plain));
+    channelAutoIncrNoteBox->setBounds (184, 8, 56, 24);
+
+    labelMidiNotesUntil.reset (new Label ("labelMidiNotesUntil",
+                                          TRANS("MIDI notes from 0 until")));
+    addAndMakeVisible (labelMidiNotesUntil.get());
+    labelMidiNotesUntil->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     labelMidiNotesUntil->setJustificationType (Justification::centredLeft);
     labelMidiNotesUntil->setEditable (false, false, false);
     labelMidiNotesUntil->setColour (TextEditor::textColourId, Colours::black);
     labelMidiNotesUntil->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (singleChannelButton = new ToggleButton ("singleChannelButton"));
+    labelMidiNotesUntil->setBounds (8, 8, 192, 24);
+
+    singleChannelButton.reset (new ToggleButton ("singleChannelButton"));
+    addAndMakeVisible (singleChannelButton.get());
     singleChannelButton->setTooltip (TRANS("Only the MIDI notes from a single channel"));
     singleChannelButton->setButtonText (TRANS("Single channel"));
     singleChannelButton->setConnectedEdges (Button::ConnectedOnTop);
     singleChannelButton->setRadioGroupId (1);
     singleChannelButton->addListener (this);
 
-    addAndMakeVisible (channelBox = new ComboBox ("channelBox"));
+    singleChannelButton->setBounds (8, 40, 160, 24);
+
+    channelBox.reset (new ComboBox ("channelBox"));
+    addAndMakeVisible (channelBox.get());
     channelBox->setTooltip (TRANS("The MIDI channel (in case of single channel)"));
     channelBox->setEditableText (false);
     channelBox->setJustificationType (Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (String());
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
+
+    channelBox->setBounds (184, 40, 56, 24);
 
 
     //[UserPreSize]
@@ -129,11 +144,6 @@ void IncrMidiNotesMapping::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    channelAutoIncrButton->setBounds (8, 64, 280, 24);
-    channelAutoIncrNoteBox->setBounds (184, 8, 56, 24);
-    labelMidiNotesUntil->setBounds (8, 8, 192, 24);
-    singleChannelButton->setBounds (8, 40, 160, 24);
-    channelBox->setBounds (184, 40, 56, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -143,7 +153,7 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == channelAutoIncrButton)
+    if (buttonThatWasClicked == channelAutoIncrButton.get())
     {
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
 		if (channelAutoIncrButton->getToggleState())
@@ -153,7 +163,7 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
 		}
         //[/UserButtonCode_channelAutoIncrButton]
     }
-    else if (buttonThatWasClicked == singleChannelButton)
+    else if (buttonThatWasClicked == singleChannelButton.get())
     {
         //[UserButtonCode_singleChannelButton] -- add your button handler code here..
 		if (singleChannelButton->getToggleState())
@@ -176,13 +186,13 @@ void IncrMidiNotesMapping::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == channelAutoIncrNoteBox)
+    if (comboBoxThatHasChanged == channelAutoIncrNoteBox.get())
     {
         //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
 		this->mappingLogic.setMaxMidiNote(channelAutoIncrNoteBox->getSelectedItemIndex());	 //-1 for no selection or 0-127
         //[/UserComboBoxCode_channelAutoIncrNoteBox]
     }
-    else if (comboBoxThatHasChanged == channelBox)
+    else if (comboBoxThatHasChanged == channelBox.get())
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
 		this->mappingLogic.setChannelInCaseOfSingleChannel(channelBox->getSelectedId());	// 0 for no selection or 1-16
@@ -226,7 +236,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="8 8 192 24" edTextCol="ff000000"
          edBkgCol="0" labelText="MIDI notes from 0 until" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="singleChannelButton" id="c96447a8b1eacf35" memberName="singleChannelButton"
                 virtualName="" explicitFocusOrder="0" pos="8 40 160 24" tooltip="Only the MIDI notes from a single channel"
                 buttonText="Single channel" connectedEdges="4" needsCallback="1"
@@ -243,3 +253,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
