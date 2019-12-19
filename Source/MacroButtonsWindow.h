@@ -64,7 +64,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
 	// Sub-components for the buttons
-	ScopedPointer<OneMacroButtonEdit>	buttonComponents[10];
+	std::unique_ptr<OneMacroButtonEdit>	buttonComponents[10];
 
     //[/UserVariables]
 

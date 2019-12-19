@@ -64,8 +64,8 @@ MacroButtonsWindow::MacroButtonsWindow ()
 
 	for (int i = 0; i < 10; i++)
 	{
-		buttonComponents[i] = new OneMacroButtonEdit();
-		addAndMakeVisible(buttonComponents[i]);
+		buttonComponents[i].reset(new OneMacroButtonEdit());
+		addAndMakeVisible(buttonComponents[i].get());
 		buttonComponents[i]->setMacroButtonNumber(i);
 	}
 
