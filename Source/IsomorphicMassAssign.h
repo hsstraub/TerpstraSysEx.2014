@@ -78,7 +78,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<IncrMidiNotesMapping>	incrMidiNotesMapping;
+	std::unique_ptr<IncrMidiNotesMapping>	incrMidiNotesMapping;
 
 	MappingLogicBase*		mappingLogic;
 	TerpstraBoardGeometry	boardGeometry;

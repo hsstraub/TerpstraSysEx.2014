@@ -33,8 +33,8 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	incrMidiNotesMapping = new IncrMidiNotesMapping();
-	addAndMakeVisible(incrMidiNotesMapping);
+	incrMidiNotesMapping.reset(new IncrMidiNotesMapping());
+	addAndMakeVisible(incrMidiNotesMapping.get());
 	incrMidiNotesMapping->setVisible(false);
 
 	mappingLogic = nullptr;
