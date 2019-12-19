@@ -31,20 +31,20 @@
 NoteEditArea::NoteEditArea ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	singleNoteAssign = new SingleNoteAssign();
-	addAndMakeVisible(singleNoteAssign);
+	singleNoteAssign.reset(new SingleNoteAssign());
+	addAndMakeVisible(singleNoteAssign.get());
 	singleNoteAssign->setVisible(false);
 
-	isomorphicMassAssign = new IsomorphicMassAssign();
-	addAndMakeVisible(isomorphicMassAssign);
+	isomorphicMassAssign.reset(new IsomorphicMassAssign());
+	addAndMakeVisible(isomorphicMassAssign.get());
 	isomorphicMassAssign->setVisible(false);
 
-	macroButtonsWindow = new MacroButtonsWindow();
-	addAndMakeVisible(macroButtonsWindow);
+	macroButtonsWindow.reset(new MacroButtonsWindow());
+	addAndMakeVisible(macroButtonsWindow.get());
 	macroButtonsWindow->setVisible(false);
 
-	playVirtualKeyboardWindow = new PlayVirtualKeyboard();
-	addAndMakeVisible(playVirtualKeyboardWindow);
+	playVirtualKeyboardWindow.reset(new PlayVirtualKeyboard());
+	addAndMakeVisible(playVirtualKeyboardWindow.get());
 	playVirtualKeyboardWindow->setVisible(false);
     //[/Constructor_pre]
 

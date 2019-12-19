@@ -69,10 +69,10 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<SingleNoteAssign> singleNoteAssign;
-	ScopedPointer<IsomorphicMassAssign> isomorphicMassAssign;
-	ScopedPointer<MacroButtonsWindow> macroButtonsWindow;
-	ScopedPointer<PlayVirtualKeyboard> playVirtualKeyboardWindow;
+	std::unique_ptr<SingleNoteAssign> singleNoteAssign;
+	std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
+	std::unique_ptr<MacroButtonsWindow> macroButtonsWindow;
+	std::unique_ptr<PlayVirtualKeyboard> playVirtualKeyboardWindow;
     //[/UserVariables]
 
     //==============================================================================
