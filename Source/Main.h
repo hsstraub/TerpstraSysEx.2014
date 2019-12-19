@@ -47,7 +47,7 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel; }
+	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel.get(); }
 
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
@@ -123,9 +123,9 @@ public:
 	};
 
 private:
-	ScopedPointer<MainWindow> mainWindow;
-	ScopedPointer<ApplicationCommandManager> commandManager;
-	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
+	std::unique_ptr<MainWindow> mainWindow;
+	std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<TerpstraSysExMainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LookAndFeel_V3				lookAndFeel;

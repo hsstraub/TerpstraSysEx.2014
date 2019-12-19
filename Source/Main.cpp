@@ -53,14 +53,14 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 void TerpstraSysExApplication::initialise(const String& commandLine)
 {
     // This method is where you should put your application's initialisation code..   
-	commandManager = new ApplicationCommandManager();
+	commandManager.reset(new ApplicationCommandManager());
 	commandManager->registerAllCommandsForTarget(this);
 
-	menuModel = new TerpstraSysExMainMenuModel(commandManager);
+	menuModel.reset(new TerpstraSysExMainMenuModel(commandManager.get()));
 
-    mainWindow = new MainWindow();
+    mainWindow.reset(new MainWindow());
 	mainWindow->setLookAndFeel(&lookAndFeel);
-	mainWindow->setMenuBar(menuModel);
+	mainWindow->setMenuBar(menuModel.get());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	
 	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
