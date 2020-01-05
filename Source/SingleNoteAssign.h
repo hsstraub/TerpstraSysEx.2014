@@ -62,7 +62,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	ScopedPointer<ColourEditComponent> colourSubwindow;
+	std::unique_ptr<ColourEditComponent> colourSubwindow;
     //[/UserVariables]
 
     //==============================================================================

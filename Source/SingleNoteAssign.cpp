@@ -32,8 +32,8 @@
 SingleNoteAssign::SingleNoteAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	colourSubwindow = new ColourEditComponent();
-	addAndMakeVisible(colourSubwindow);
+	colourSubwindow.reset(new ColourEditComponent());
+	addAndMakeVisible(colourSubwindow.get());
     //[/Constructor_pre]
 
     noteAndChannelAssGroup.reset (new GroupComponent ("noteAndChannelAssGroup",
