@@ -55,22 +55,6 @@ private:
 
 /*
 ==============================================================================
-Display representant of a key set of 56 keys
-==============================================================================
-*/
-class TerpstraKeySetEdit : public ImageButton
-{
-public:
-	TerpstraKeySetEdit();
-	~TerpstraKeySetEdit();
-
-	void setIsSelected(bool newValue) { setToggleState(newValue, dontSendNotification); };
-
-	void mouseDown(const MouseEvent& e) override;
-};
-
-/*
-==============================================================================
 Macro button component (holds two controller buttons)
 ==============================================================================
 */

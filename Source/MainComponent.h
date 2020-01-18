@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "OctaveBoardComponent.h"
 #include "ViewComponents.h"
 #include "BoardGeometry.h"
 #include "KeyboardDataStructure.h"
@@ -71,7 +72,7 @@ private:
 	TerpstraMacroButton* macroButtons[NUMBEROFBOARDS];
 
 	// Sets of 56 keys
-	TerpstraKeySetEdit* terpstraSetSelectors[NUMBEROFBOARDS];
+	OctaveBoardComponent* terpstraSetSelectors[NUMBEROFBOARDS];
 
 	// Editing single keys (of the selected 56-key set)
 	TerpstraKeyEdit*	terpstraKeyFields[TERPSTRABOARDSIZE];

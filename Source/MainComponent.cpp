@@ -27,9 +27,9 @@ MainContentComponent::MainContentComponent()
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
-		terpstraSetSelectors[4-i] = new TerpstraKeySetEdit();
+		terpstraSetSelectors[4-i] = new OctaveBoardComponent();
 		addAndMakeVisible(terpstraSetSelectors[4-i]);
-		terpstraSetSelectors[4-i]->addListener(this);
+		terpstraSetSelectors[4 - i]->addMouseListener(this, false);
 	}
 
 	// Single Key fields
@@ -270,6 +270,7 @@ void MainContentComponent::buttonClicked(Button *button)
 	{
 		TerpstraSysExApplication::getApp().getMidiDriver().sendAndSaveCompleteMapping(mappingData);
 	}
+	/*
 	else
 	{
 		for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -281,11 +282,22 @@ void MainContentComponent::buttonClicked(Button *button)
 			}
 		}
 	}
+	*/
 }
 
 void MainContentComponent::mouseDown(const MouseEvent &event)
 {
 	bool mappingChanged = false;
+
+	// Selection of subset components
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	{
+		if (event.eventComponent == terpstraSetSelectors[i])
+		{
+			changeSetSelection(i);
+			return;
+		}
+	}
 
 	// Selection of single key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)

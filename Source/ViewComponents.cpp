@@ -137,44 +137,6 @@ void TerpstraKeyEdit::resized()
 
 /*
 ==============================================================================
-TerpstraKeySetEdit class
-==============================================================================
-*/
-
-TerpstraKeySetEdit::TerpstraKeySetEdit()
-{
-	Image imgUnselected = ImageCache::getFromMemory(BinaryData::OctaveGraphic_png, BinaryData::OctaveGraphic_pngSize);
-	Image imgSelected = ImageCache::getFromMemory(BinaryData::OctaveWithSelection_png, BinaryData::OctaveWithSelection_pngSize);
-
-	setImages(true, true, true,
-		imgUnselected, 0.5f, Colours::transparentBlack,
-		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgSelected, 0.9f, Colours::transparentBlack,
-		0.5f);
-
-	setClickingTogglesState(true);
-}
-
-TerpstraKeySetEdit::~TerpstraKeySetEdit()
-{
-
-}
-
-void TerpstraKeySetEdit::mouseDown(const MouseEvent& e)
-{
-	ImageButton::mouseDown(e);
-
-	// If right mouse click: popup menu
-	if (e.mods.isRightButtonDown())
-	{
-		PopupMenu menu;
-		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
-	}
-}
-
-/*
-==============================================================================
 TerpstraMacroButton class
 ==============================================================================
 */
