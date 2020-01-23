@@ -21,8 +21,8 @@ MainContentComponent::MainContentComponent()
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		// Macro button
-		macroButtons[i] = new TerpstraMacroButton();
-		addAndMakeVisible(macroButtons[i]);
+		macroButtons[i].reset(new TerpstraMacroButton());
+		addAndMakeVisible(macroButtons[i].get());
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)

@@ -69,7 +69,7 @@ private:
 	// GUI components
 
 	// Macro buttons
-	TerpstraMacroButton* macroButtons[NUMBEROFBOARDS];
+	std::unique_ptr<TerpstraMacroButton> macroButtons[NUMBEROFBOARDS];
 
 	// Sets of 56 keys
 	OctaveBoardComponent* terpstraSetSelectors[NUMBEROFBOARDS];
