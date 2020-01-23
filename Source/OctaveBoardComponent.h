@@ -12,6 +12,26 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "KeyboardDataStructure.h"
+#include "BoardGeometry.h"
+
+//==============================================================================
+
+// Representation of a key inside the octaveboardcomponent
+class KeyMiniDisplayInsideOctaveBoardComponent : public Component
+{
+public:
+	KeyMiniDisplayInsideOctaveBoardComponent();
+	~KeyMiniDisplayInsideOctaveBoardComponent();
+
+	void paint(Graphics&) override;
+	void resized() override;
+
+private:
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideOctaveBoardComponent)
+};
+
+
 //==============================================================================
 
 class OctaveBoardComponent    : public Component
@@ -27,6 +47,11 @@ public:
 	void setIsSelected(bool newValue);
 
 private:
+	std::unique_ptr<KeyMiniDisplayInsideOctaveBoardComponent>	keyMiniDisplay[TERPSTRABOARDSIZE];
+
+	// Geometry settings (same as main component XXX) 
+	TerpstraBoardGeometry	boardGeometry;
+
 	bool isSelected = false;
 
 private:
