@@ -100,6 +100,7 @@ public:
 #if JUCE_ANDROID
 			setFullScreen(true);
 #endif
+			setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel());
 			setVisible(true);
 		}
 

@@ -46,7 +46,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
 	recentFiles.removeNonExistentFiles();
 
-	// State of main window will be read form properties file when main window is created
+	// State of main window will be read from properties file when main window is created
 }
 
 //==============================================================================
@@ -59,7 +59,6 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	menuModel.reset(new TerpstraSysExMainMenuModel(commandManager.get()));
 
     mainWindow.reset(new MainWindow());
-	mainWindow->setLookAndFeel(&lookAndFeel);
 	mainWindow->setMenuBar(menuModel.get());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	

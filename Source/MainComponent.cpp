@@ -27,16 +27,16 @@ MainContentComponent::MainContentComponent()
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
-		terpstraSetSelectors[4-i] = new OctaveBoardComponent();
-		addAndMakeVisible(terpstraSetSelectors[4-i]);
+		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent());
+		addAndMakeVisible(terpstraSetSelectors[4-i].get());
 		terpstraSetSelectors[4 - i]->addMouseListener(this, false);
 	}
 
 	// Single Key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		terpstraKeyFields[i] = new TerpstraKeyEdit();
-		addAndMakeVisible(terpstraKeyFields[i]);
+		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
+		addAndMakeVisible(terpstraKeyFields[i].get());
 		terpstraKeyFields[i]->addMouseListener(this, true);
 	}
 
@@ -59,6 +59,17 @@ MainContentComponent::MainContentComponent()
 
 MainContentComponent::~MainContentComponent()
 {
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	{
+		macroButtons[i] = nullptr;
+		terpstraSetSelectors[i] = nullptr;
+	}
+
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i] = nullptr;
+	}
+
 	deleteAllChildren();
 }
 
@@ -292,7 +303,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 	// Selection of subset components
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		if (event.eventComponent == terpstraSetSelectors[i])
+		if (event.eventComponent == terpstraSetSelectors[i].get())
 		{
 			changeSetSelection(i);
 			return;
@@ -302,7 +313,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 	// Selection of single key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		if (event.eventComponent == terpstraKeyFields[i] || event.eventComponent->getParentComponent() == terpstraKeyFields[i])
+		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
 		{
 			// Select field
 			changeSingleKeySelection(i);
@@ -329,7 +340,7 @@ void MainContentComponent::mouseUp(const MouseEvent &event)
 	// Selection of single key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		if (event.eventComponent == terpstraKeyFields[i] || event.eventComponent->getParentComponent() == terpstraKeyFields[i])
+		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
 		{
 			// Perform the edit, according to edit mode. Including sending to device
 			mappingChanged = this->noteEditArea->performMouseUp(currentSetSelection, i);

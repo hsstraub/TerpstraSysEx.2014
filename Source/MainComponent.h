@@ -72,10 +72,10 @@ private:
 	std::unique_ptr<TerpstraMacroButton> macroButtons[NUMBEROFBOARDS];
 
 	// Sets of 56 keys
-	OctaveBoardComponent* terpstraSetSelectors[NUMBEROFBOARDS];
+	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
 
 	// Editing single keys (of the selected 56-key set)
-	TerpstraKeyEdit*	terpstraKeyFields[TERPSTRABOARDSIZE];
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
 	// Geometry settings 
 	TerpstraBoardGeometry	boardGeometry;
