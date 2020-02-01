@@ -33,16 +33,33 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	You should replace everything in this method with your own
 	drawing code..
 	*/
+	float w = this->getWidth();
+	float h = this->getHeight();
 
-	g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));   // clear the background
+	float lineWidth = TERPSTRASINGLEKEYFLDLINEWIDTH;
 
-	g.setColour(Colours::grey);
-	g.drawRect(getLocalBounds(), 1);   // draw an outline around the component
+	// Draw hexagon
+	Path hexPath;
+	hexPath.startNewSubPath(w / 2.0f, lineWidth);
+	hexPath.lineTo(w - lineWidth, h / 4.0f);
+	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h - lineWidth);
+	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
+	hexPath.lineTo(lineWidth, h / 4.0f);
+	hexPath.closeSubPath();
+	
+	// Rotate slightly counterclockwise around the center
+	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
+	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
+	transform = transform.translated(w / 2.0f, h / 2.0f);
 
-	g.setColour(Colours::white);
-	g.setFont(14.0f);
-	g.drawText("KeyMiniDisplayInsideOctaveBoardComponent", getLocalBounds(),
-		Justification::centred, true);   // draw some placeholder text
+	hexPath.applyTransform(transform);
+	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
+
+	g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));   // clear the background
+
+	g.setColour(findColour(TerpstraKeyEdit::outlineColourId));
+	g.strokePath(hexPath, PathStrokeType(lineWidth));
 }
 
 void KeyMiniDisplayInsideOctaveBoardComponent::resized()
@@ -97,7 +114,7 @@ void OctaveBoardComponent::resized()
 	int newHeight = getHeight();
 	int newWidth = getWidth();
 
-	// SIngle key field size
+	// Single key field size
 	// ToDo better logic
 	int newSingleKeySize = jmin(newWidth / 8, newHeight/8);
 
@@ -109,7 +126,7 @@ void OctaveBoardComponent::resized()
 	transform = transform.translated(x, y);
 
 	int keyIndex = 0;
-
+	int mostBottomKeyPos = 0;
 	// Rows
 	int rowCount = boardGeometry.horizontaLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
@@ -130,8 +147,20 @@ void OctaveBoardComponent::resized()
 			transform.transformPoint(x, y);
 			keyMiniDisplay[keyIndex]->setBounds(x, y, newSingleKeySize, newSingleKeySize);
 
+			mostBottomKeyPos = jmax(mostBottomKeyPos, keyMiniDisplay[keyIndex]->getBottom());
+
 			keyIndex++;
 		}
+	}
+
+	// Move key fields to bottom
+	if ( mostBottomKeyPos < newHeight)
+	{ 
+		int ydispacement = newHeight - mostBottomKeyPos;
+		int maxKeyIndex = keyIndex;
+		for (keyIndex = 0; keyIndex < maxKeyIndex; keyIndex++)
+			keyMiniDisplay[keyIndex]->setTopLeftPosition(
+				juce::Point<int>(keyMiniDisplay[keyIndex]->getX(), keyMiniDisplay[keyIndex]->getY() + ydispacement));
 	}
 }
 

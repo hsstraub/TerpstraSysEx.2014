@@ -29,7 +29,7 @@ MainContentComponent::MainContentComponent()
 		// Width and heigth: were taken from image
 		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent());
 		addAndMakeVisible(terpstraSetSelectors[4-i].get());
-		terpstraSetSelectors[4 - i]->addMouseListener(this, false);
+		terpstraSetSelectors[4 - i]->addMouseListener(this, true);
 	}
 
 	// Single Key fields
@@ -301,9 +301,10 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 	bool mappingChanged = false;
 
 	// Selection of subset components
+	auto eventComponentParent = event.eventComponent->getParentComponent();
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		if (event.eventComponent == terpstraSetSelectors[i].get())
+		if (event.eventComponent == terpstraSetSelectors[i].get() || eventComponentParent == terpstraSetSelectors[i].get())
 		{
 			changeSetSelection(i);
 			return;
