@@ -41,6 +41,7 @@ public:
 	void setData(TerpstraKeyMapping& newData);
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
+	TerpstraBoardGeometry& getBoardGeometry() { return this->boardGeometry; }
 
 	// Board ddit operations
 	bool deleteCurrentSubBoardData();
@@ -49,7 +50,7 @@ public:
 
 	// MIDI input callback
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
-	
+
 	// GUI implementation
     void paint (Graphics&);
     void resized();
@@ -77,7 +78,7 @@ private:
 	// Editing single keys (of the selected 56-key set)
 	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
-	// Geometry settings 
+	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;
 
 	// Midi devices

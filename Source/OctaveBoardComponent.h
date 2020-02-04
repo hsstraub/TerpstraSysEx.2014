@@ -21,7 +21,7 @@
 class KeyMiniDisplayInsideOctaveBoardComponent : public Component
 {
 public:
-	KeyMiniDisplayInsideOctaveBoardComponent();
+	KeyMiniDisplayInsideOctaveBoardComponent(int newKeyIndex);
 	~KeyMiniDisplayInsideOctaveBoardComponent();
 
 	void paint(Graphics&) override;
@@ -29,6 +29,10 @@ public:
 
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideOctaveBoardComponent)
+
+	Colour getKeyColour();
+
+	int keyIndex = -1;
 };
 
 
@@ -37,7 +41,7 @@ private:
 class OctaveBoardComponent    : public Component
 {
 public:
-    OctaveBoardComponent();
+    OctaveBoardComponent(int newOctaveBoardIndex);
     ~OctaveBoardComponent();
 
     void paint (Graphics&) override;
@@ -46,12 +50,12 @@ public:
 
 	void setIsSelected(bool newValue);
 
+	TerpstraKeys* getKeyData();
+
 private:
 	std::unique_ptr<KeyMiniDisplayInsideOctaveBoardComponent>	keyMiniDisplay[TERPSTRABOARDSIZE];
 
-	// Geometry settings (same as main component XXX) 
-	TerpstraBoardGeometry	boardGeometry;
-
+	int octaveBoardIndex = -1;
 	bool isSelected = false;
 
 private:

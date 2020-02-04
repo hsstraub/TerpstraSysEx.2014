@@ -27,7 +27,7 @@ MainContentComponent::MainContentComponent()
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
-		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent());
+		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
 		addAndMakeVisible(terpstraSetSelectors[4-i].get());
 		terpstraSetSelectors[4 - i]->addMouseListener(this, true);
 	}
@@ -49,7 +49,7 @@ MainContentComponent::MainContentComponent()
 	noteEditArea = new NoteEditArea();
 	addAndMakeVisible(noteEditArea);
 
-	// Initial size 
+	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Select first board and first key
@@ -76,7 +76,7 @@ MainContentComponent::~MainContentComponent()
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	setSize(
-		propertiesFile->getIntValue("MainWindowWidth", DEFAULTMAINWINDOWWIDTH), 
+		propertiesFile->getIntValue("MainWindowWidth", DEFAULTMAINWINDOWWIDTH),
 		propertiesFile->getIntValue("MainWindowHeight", DEFAULTMAINWINDOWHEIGHT));
 
 	noteEditArea->restoreStateFromPropertiesFile(propertiesFile);
@@ -113,7 +113,7 @@ bool MainContentComponent::deleteCurrentSubBoardData()
 	{
 		// Delete subboard data
 		mappingData.sets[currentSetSelection] = TerpstraKeys();
-		
+
 		// Refresh display
 		changeSetSelection(currentSetSelection, true);
 
@@ -211,7 +211,7 @@ void MainContentComponent::resized()
 	int newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
 	int newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
 	int newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
-	
+
 	// New position, width and height of macro buttons
 	int newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
 	int newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;

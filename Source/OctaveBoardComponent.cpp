@@ -14,10 +14,11 @@
 
 
 //==============================================================================
-KeyMiniDisplayInsideOctaveBoardComponent::KeyMiniDisplayInsideOctaveBoardComponent()
+KeyMiniDisplayInsideOctaveBoardComponent::KeyMiniDisplayInsideOctaveBoardComponent(int newKeyIndex)
 {
 	// In your constructor, you should add any child components, and
 	// initialise any special settings that your component needs.
+	keyIndex = newKeyIndex;
 
 }
 
@@ -47,7 +48,7 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
 	hexPath.lineTo(lineWidth, h / 4.0f);
 	hexPath.closeSubPath();
-	
+
 	// Rotate slightly counterclockwise around the center
 	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
@@ -56,7 +57,10 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
 
-	g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));   // clear the background
+	//g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));   // clear the background
+
+	g.setColour(getKeyColour());
+	g.fillPath(hexPath);
 
 	g.setColour(findColour(TerpstraKeyEdit::outlineColourId));
 	g.strokePath(hexPath, PathStrokeType(lineWidth));
@@ -69,16 +73,28 @@ void KeyMiniDisplayInsideOctaveBoardComponent::resized()
 
 }
 
+Colour KeyMiniDisplayInsideOctaveBoardComponent::getKeyColour()
+{
+    if ( keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+    {
+        TerpstraKeys* pCurrentOctaveBoardData = ((OctaveBoardComponent*)getParentComponent())->getKeyData();
+        if ( pCurrentOctaveBoardData != nullptr)
+            return Colour(pCurrentOctaveBoardData->theKeys[keyIndex].colour).withAlpha((uint8)0xff);
+    }
+
+    return findColour(TerpstraKeyEdit::backgroundColourId);
+}
 
 //==============================================================================
-OctaveBoardComponent::OctaveBoardComponent()
+OctaveBoardComponent::OctaveBoardComponent(int newOctaveBoardIndex)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
+    octaveBoardIndex = newOctaveBoardIndex;
 
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		keyMiniDisplay[i].reset(new KeyMiniDisplayInsideOctaveBoardComponent());
+		keyMiniDisplay[i].reset(new KeyMiniDisplayInsideOctaveBoardComponent(i));
 		addAndMakeVisible(keyMiniDisplay[i].get());
 	}
 }
@@ -100,7 +116,8 @@ void OctaveBoardComponent::paint (Graphics& g)
        drawing code..
     */
 
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));   // clear the background
+    Colour bgColour = getLookAndFeel().findColour (ResizableWindow::backgroundColourId)/*.withAlpha((uint8)0xff)*/;
+    g.fillAll(bgColour);   // clear the background
 
     g.setColour ( isSelected ?  Colours::orange : Colours::grey);
     g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
@@ -127,6 +144,8 @@ void OctaveBoardComponent::resized()
 
 	int keyIndex = 0;
 	int mostBottomKeyPos = 0;
+
+	auto boardGeometry = ((MainContentComponent*)getParentComponent())->getBoardGeometry();
 	// Rows
 	int rowCount = boardGeometry.horizontaLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
@@ -155,7 +174,7 @@ void OctaveBoardComponent::resized()
 
 	// Move key fields to bottom
 	if ( mostBottomKeyPos < newHeight)
-	{ 
+	{
 		int ydispacement = newHeight - mostBottomKeyPos;
 		int maxKeyIndex = keyIndex;
 		for (keyIndex = 0; keyIndex < maxKeyIndex; keyIndex++)
@@ -184,6 +203,16 @@ void OctaveBoardComponent::setIsSelected(bool newValue)
 		isSelected = newValue;
 		repaint();
 	}
+}
+
+TerpstraKeys* OctaveBoardComponent::getKeyData()
+{
+     if ( octaveBoardIndex >= 0 && octaveBoardIndex < TERPSTRABOARDSIZE)
+    {
+        return &((MainContentComponent*)(getParentComponent()))->getMappingInEdit().sets[octaveBoardIndex];
+    }
+    else
+        return nullptr;
 }
 
 /*
