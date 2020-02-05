@@ -57,9 +57,11 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
 
+    Colour bgColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour().withAlpha((uint8)0x40));
+
 	//g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));   // clear the background
 
-	g.setColour(getKeyColour());
+	g.setColour(bgColour);
 	g.fillPath(hexPath);
 
 	g.setColour(findColour(TerpstraKeyEdit::outlineColourId));
@@ -79,7 +81,7 @@ Colour KeyMiniDisplayInsideOctaveBoardComponent::getKeyColour()
     {
         TerpstraKeys* pCurrentOctaveBoardData = ((OctaveBoardComponent*)getParentComponent())->getKeyData();
         if ( pCurrentOctaveBoardData != nullptr)
-            return Colour(pCurrentOctaveBoardData->theKeys[keyIndex].colour).withAlpha((uint8)0xff);
+            return Colour(pCurrentOctaveBoardData->theKeys[keyIndex].colour);
     }
 
     return findColour(TerpstraKeyEdit::backgroundColourId);

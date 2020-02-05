@@ -97,6 +97,9 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData)
 
 	noteEditArea->onSetData(newData);
 
+	for ( int i = 0; i < NUMBEROFBOARDS; i++)
+        terpstraSetSelectors[i]->repaint();
+
 	changeSetSelection(-1);
 	changeSetSelection(0);
 }
