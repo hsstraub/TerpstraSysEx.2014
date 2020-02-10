@@ -48,6 +48,7 @@ public:
     void resized() override;
 	void mouseDown(const MouseEvent& e) override;
 
+	bool getIsSelected() { return isSelected; }
 	void setIsSelected(bool newValue);
 
 	TerpstraKeys* getKeyData();

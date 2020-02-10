@@ -78,19 +78,19 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Draw hexagon
 	Path hexPath;
-	hexPath.startNewSubPath(w / 2.0f, lineWidth);
-	hexPath.lineTo(w - lineWidth, h / 4.0f);
-	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h - lineWidth);
-	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(lineWidth, h / 4.0f);
+	hexPath.startNewSubPath(w / 2.0f, 0);
+	hexPath.lineTo(w, h / 4.0f);
+	hexPath.lineTo(w, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h);
+	hexPath.lineTo(0, 3.0f * h / 4.0f);
+	hexPath.lineTo(0, h / 4.0f);
 	hexPath.closeSubPath();
 
 	// Rotate slightly counterclockwise around the center
 	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(w / 2.0f, h / 2.0f);
-	
+
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
 
@@ -118,7 +118,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	g.setColour(lineColor);
 	g.strokePath(hexPath, PathStrokeType(lineWidth));
 
-	// Something parametrized or not?  
+	// Something parametrized or not?
 	if (currentValue.isEmpty())
 	{
 		midiChannelLabel->setAlpha(0.3);
@@ -152,7 +152,7 @@ TerpstraMacroButton::~TerpstraMacroButton()
 
 }
 
-void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue) 
+void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue)
 {
 	Image imgUnselected = ImageCache::getFromMemory(BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
 
@@ -166,6 +166,6 @@ void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newVa
 		imgSelected, 0.7f, Colours::transparentBlack,
 		0.5f);
 
-	setToggleState(newValue, dontSendNotification); 
+	setToggleState(newValue, dontSendNotification);
 };
 

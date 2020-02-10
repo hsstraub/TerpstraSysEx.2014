@@ -28,25 +28,21 @@ KeyMiniDisplayInsideOctaveBoardComponent::~KeyMiniDisplayInsideOctaveBoardCompon
 
 void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 {
-	/* This demo code just fills the component's background and
-	draws some placeholder text to get you started.
+	bool isSelected = ((OctaveBoardComponent*)getParentComponent())->getIsSelected();
 
-	You should replace everything in this method with your own
-	drawing code..
-	*/
 	float w = this->getWidth();
 	float h = this->getHeight();
 
-	float lineWidth = TERPSTRASINGLEKEYFLDLINEWIDTH;
+	float marginOffset = 3.0;
 
 	// Draw hexagon
 	Path hexPath;
-	hexPath.startNewSubPath(w / 2.0f, lineWidth);
-	hexPath.lineTo(w - lineWidth, h / 4.0f);
-	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h - lineWidth);
-	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(lineWidth, h / 4.0f);
+	hexPath.startNewSubPath(w / 2.0f, 0);
+	hexPath.lineTo(w, h / 4.0f);
+	hexPath.lineTo(w, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h);
+	hexPath.lineTo(0, 3.0f * h / 4.0f);
+	hexPath.lineTo(0, h / 4.0f);
 	hexPath.closeSubPath();
 
 	// Rotate slightly counterclockwise around the center
@@ -55,17 +51,23 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	transform = transform.translated(w / 2.0f, h / 2.0f);
 
 	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
+	hexPath.scaleToFit(marginOffset, marginOffset, w - marginOffset, h - marginOffset, true);
 
-    Colour bgColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour().withAlpha((uint8)0x40));
+	/*
+    if ( isSelected)
+    {
+        Colour bgColour = getLookAndFeel().findColour(TerpstraKeyEdit::selectedKeyOutlineId);
+        g.fillAll(bgColour);
+    }
+    */
 
-	//g.fillAll(getLookAndFeel().findColour(TextEditor::backgroundColourId));   // clear the background
-
-	g.setColour(bgColour);
+    Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour().withAlpha(
+        isSelected ? (uint8)0x60 : (uint8)0x20));
+	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
 	g.setColour(findColour(TerpstraKeyEdit::outlineColourId));
-	g.strokePath(hexPath, PathStrokeType(lineWidth));
+	g.strokePath(hexPath, PathStrokeType(1));
 }
 
 void KeyMiniDisplayInsideOctaveBoardComponent::resized()
@@ -111,18 +113,15 @@ OctaveBoardComponent::~OctaveBoardComponent()
 
 void OctaveBoardComponent::paint (Graphics& g)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
-
-       You should replace everything in this method with your own
-       drawing code..
-    */
-
-    Colour bgColour = getLookAndFeel().findColour (ResizableWindow::backgroundColourId)/*.withAlpha((uint8)0xff)*/;
+    /*
+    Colour bgColour = getLookAndFeel().findColour (ResizableWindow::backgroundColourId)
+    //.withAlpha((uint8)0xff)
+    ;
     g.fillAll(bgColour);   // clear the background
 
     g.setColour ( isSelected ?  Colours::orange : Colours::grey);
     g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
+    */
 }
 
 void OctaveBoardComponent::resized()
@@ -135,7 +134,7 @@ void OctaveBoardComponent::resized()
 
 	// Single key field size
 	// ToDo better logic
-	int newSingleKeySize = jmin(newWidth / 8, newHeight/8);
+	int newSingleKeySize = jmin(newWidth*2/17, newHeight/8);
 
 	// Transformation Rotate slightly counterclockwise
 	int x = 0;
