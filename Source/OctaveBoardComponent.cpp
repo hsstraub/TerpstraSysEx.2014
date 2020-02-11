@@ -53,16 +53,8 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(marginOffset, marginOffset, w - marginOffset, h - marginOffset, true);
 
-	/*
-    if ( isSelected)
-    {
-        Colour bgColour = getLookAndFeel().findColour(TerpstraKeyEdit::selectedKeyOutlineId);
-        g.fillAll(bgColour);
-    }
-    */
-
-    Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour().withAlpha(
-        isSelected ? (uint8)0x60 : (uint8)0x20));
+    Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
+        .withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
@@ -113,15 +105,6 @@ OctaveBoardComponent::~OctaveBoardComponent()
 
 void OctaveBoardComponent::paint (Graphics& g)
 {
-    /*
-    Colour bgColour = getLookAndFeel().findColour (ResizableWindow::backgroundColourId)
-    //.withAlpha((uint8)0xff)
-    ;
-    g.fillAll(bgColour);   // clear the background
-
-    g.setColour ( isSelected ?  Colours::orange : Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-    */
 }
 
 void OctaveBoardComponent::resized()

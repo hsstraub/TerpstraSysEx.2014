@@ -97,7 +97,12 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	// Color: empty or the parametrized color
 	TerpstraKey currentValue = getValue();
 
-	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
+	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
+        .withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
+    Colour textColour = bgColour.contrasting(1.0);
+
+    midiChannelLabel->setColour(juce::Label::textColourId, textColour);
+    midiNoteLabel->setColour(juce::Label::textColourId, textColour);
 
 	// Look depending on Key type
 	if (currentValue.keyType == TerpstraKey::continuousController)
