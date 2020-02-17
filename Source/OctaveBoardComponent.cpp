@@ -58,7 +58,10 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
-	g.setColour(findColour(TerpstraKeyEdit::outlineColourId));
+	Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
+	if ( !isSelected)
+        lineColour = lineColour.withAlpha(TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA);
+;	g.setColour(lineColour);
 	g.strokePath(hexPath, PathStrokeType(1));
 }
 
