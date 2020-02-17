@@ -30,13 +30,27 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 {
 	bool isSelected = ((OctaveBoardComponent*)getParentComponent())->getIsSelected();
 
+    Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
+        .withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+	g.setColour(hexagonColour);
+	g.fillPath(hexPath);
+
+	Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
+	if ( !isSelected)
+        lineColour = lineColour.withAlpha(TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA);
+	g.setColour(lineColour);
+	g.strokePath(hexPath, PathStrokeType(1));
+}
+
+void KeyMiniDisplayInsideOctaveBoardComponent::resized()
+{
 	float w = this->getWidth();
 	float h = this->getHeight();
 
 	float marginOffset = 3.0;
 
-	// Draw hexagon
-	Path hexPath;
+	// recalculate position and size of hexagon
+	hexPath.clear();
 	hexPath.startNewSubPath(w / 2.0f, 0);
 	hexPath.lineTo(w, h / 4.0f);
 	hexPath.lineTo(w, 3.0f * h / 4.0f);
@@ -52,24 +66,6 @@ void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(marginOffset, marginOffset, w - marginOffset, h - marginOffset, true);
-
-    Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-        .withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
-	g.setColour(hexagonColour);
-	g.fillPath(hexPath);
-
-	Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
-	if ( !isSelected)
-        lineColour = lineColour.withAlpha(TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA);
-;	g.setColour(lineColour);
-	g.strokePath(hexPath, PathStrokeType(1));
-}
-
-void KeyMiniDisplayInsideOctaveBoardComponent::resized()
-{
-	// This method is where you should set the bounds of any child
-	// components that your component contains..
-
 }
 
 Colour KeyMiniDisplayInsideOctaveBoardComponent::getKeyColour()

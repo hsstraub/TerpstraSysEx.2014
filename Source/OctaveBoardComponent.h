@@ -33,6 +33,7 @@ private:
 	Colour getKeyColour();
 
 	int keyIndex = -1;
+	Path hexPath;
 };
 
 
