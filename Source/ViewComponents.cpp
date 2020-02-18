@@ -9,7 +9,6 @@
 */
 
 #include "ViewComponents.h"
-#include "ViewConstants.h"
 #include "Main.h"
 
 /*
@@ -68,35 +67,12 @@ void TerpstraKeyEdit::setIsSelected(bool newValue)
 
 void TerpstraKeyEdit::paint(Graphics& g)
 {
-	// Both values are set in calling function when constructing this, are supposed to be TERPSTRASINGLEKEYFLDSIZE
-	float w = this->getWidth();
-	float h = this->getHeight();
-
-	// Selected or not: color and thickness of the line
-	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
-	juce::Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
-
-	// Draw hexagon
-	Path hexPath;
-	hexPath.startNewSubPath(w / 2.0f, 0);
-	hexPath.lineTo(w, h / 4.0f);
-	hexPath.lineTo(w, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h);
-	hexPath.lineTo(0, 3.0f * h / 4.0f);
-	hexPath.lineTo(0, h / 4.0f);
-	hexPath.closeSubPath();
-
-	// Rotate slightly counterclockwise around the center
-	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(w / 2.0f, h / 2.0f);
-
-	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
-
-	// Color: empty or the parametrized color
 	TerpstraKey currentValue = getValue();
 
+	// Selected or not: color and thickness of the line
+	Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
+
+	// Color: empty or the parametrized color
 	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
         .withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
     Colour textColour = bgColour.contrasting(1.0);
@@ -108,6 +84,8 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	if (currentValue.keyType == TerpstraKey::continuousController)
 	{
 		// Key type is continuous controller. Set colour gradient.
+        float w = this->getWidth();
+        float h = this->getHeight();
 		g.setGradientFill(
 			ColourGradient(bgColour.darker(), w / 2.0f, h / 2.0f, bgColour.brighter(), w / 2.0f, 0.0f, true));
 	}
@@ -121,7 +99,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Draw line
 	g.setColour(lineColor);
-	g.strokePath(hexPath, PathStrokeType(lineWidth));
+	g.strokePath(hexPath, PathStrokeType(getLineWidth()));
 
 	// Something parametrized or not?
 	if (currentValue.isEmpty())
@@ -138,6 +116,28 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 void TerpstraKeyEdit::resized()
 {
+	// Both values are set in calling function when constructing this, are supposed to be TERPSTRASINGLEKEYFLDSIZE
+	float w = this->getWidth();
+	float h = this->getHeight();
+
+	// Draw hexagon
+	hexPath.clear();
+	hexPath.startNewSubPath(w / 2.0f, 0);
+	hexPath.lineTo(w, h / 4.0f);
+	hexPath.lineTo(w, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h);
+	hexPath.lineTo(0, 3.0f * h / 4.0f);
+	hexPath.lineTo(0, h / 4.0f);
+	hexPath.closeSubPath();
+
+	// Rotate slightly counterclockwise around the center
+	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
+	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
+	transform = transform.translated(w / 2.0f, h / 2.0f);
+
+	hexPath.applyTransform(transform);
+	auto lineWidth = getLineWidth();
+	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
 }
 
 /*
