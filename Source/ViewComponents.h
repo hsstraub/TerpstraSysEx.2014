@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "KeyboardDataStructure.h"
+#include "ViewConstants.h"
 
 
 /*
@@ -43,8 +44,11 @@ public:
 	};
 
 private:
-	bool isSelected;
+    int getLineWidth() { return isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH; }
 
+	bool    isSelected;
+
+	Path    hexPath;
 	Label*	midiNoteLabel;
 	Label*  midiChannelLabel;
 
@@ -83,7 +87,7 @@ public:
 
 	typedef enum
 	{
-		leftbutton, 
+		leftbutton,
 		rightbutton
 	} MACROBUTTONSUBINDEX;
 

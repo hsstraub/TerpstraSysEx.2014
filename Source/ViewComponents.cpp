@@ -9,7 +9,6 @@
 */
 
 #include "ViewComponents.h"
-#include "ViewConstants.h"
 #include "Main.h"
 
 /*
@@ -68,41 +67,24 @@ void TerpstraKeyEdit::setIsSelected(bool newValue)
 
 void TerpstraKeyEdit::paint(Graphics& g)
 {
-	// Both values are set in calling function when constructing this, are supposed to be TERPSTRASINGLEKEYFLDSIZE
-	float w = this->getWidth();
-	float h = this->getHeight();
-
-	// Selected or not: color and thickness of the line
-	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
-	juce::Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
-
-	// Draw hexagon
-	Path hexPath;
-	hexPath.startNewSubPath(w / 2.0f, lineWidth);
-	hexPath.lineTo(w - lineWidth, h / 4.0f);
-	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h - lineWidth);
-	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(lineWidth, h / 4.0f);
-	hexPath.closeSubPath();
-
-	// Rotate slightly counterclockwise around the center
-	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(w / 2.0f, h / 2.0f);
-	
-	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
-
-	// Color: empty or the parametrized color
 	TerpstraKey currentValue = getValue();
 
-	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour).withAlpha((uint8)0x40));
+	juce::Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
+
+	// Color: empty or the parametrized color
+	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
+        .withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
+    Colour textColour = bgColour.contrasting(1.0);
+
+    midiChannelLabel->setColour(juce::Label::textColourId, textColour);
+    midiNoteLabel->setColour(juce::Label::textColourId, textColour);
 
 	// Look depending on Key type
 	if (currentValue.keyType == TerpstraKey::continuousController)
 	{
 		// Key type is continuous controller. Set colour gradient.
+        float w = this->getWidth();
+        float h = this->getHeight();
 		g.setGradientFill(
 			ColourGradient(bgColour.darker(), w / 2.0f, h / 2.0f, bgColour.brighter(), w / 2.0f, 0.0f, true));
 	}
@@ -116,9 +98,9 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Draw line
 	g.setColour(lineColor);
-	g.strokePath(hexPath, PathStrokeType(lineWidth));
+	g.strokePath(hexPath, PathStrokeType(getLineWidth()));
 
-	// Something parametrized or not?  
+	// Something parametrized or not?
 	if (currentValue.isEmpty())
 	{
 		midiChannelLabel->setAlpha(0.3);
@@ -133,6 +115,27 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 void TerpstraKeyEdit::resized()
 {
+	// Both values are set in calling function when constructing this, are supposed to be TERPSTRASINGLEKEYFLDSIZE
+	float w = this->getWidth();
+	float h = this->getHeight();
+    auto lineWidth = getLineWidth();
+
+	hexPath.clear();
+	hexPath.startNewSubPath(w / 2.0f, lineWidth);
+	hexPath.lineTo(w - lineWidth, h / 4.0f);
+	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h - lineWidth);
+	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
+	hexPath.lineTo(lineWidth, h / 4.0f);
+	hexPath.closeSubPath();
+
+	// Rotate slightly counterclockwise around the center
+	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
+	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
+	transform = transform.translated(w / 2.0f, h / 2.0f);
+
+	hexPath.applyTransform(transform);
+	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
 }
 
 /*
@@ -190,7 +193,7 @@ TerpstraMacroButton::~TerpstraMacroButton()
 
 }
 
-void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue) 
+void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue)
 {
 	Image imgUnselected = ImageCache::getFromMemory(BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
 
@@ -204,6 +207,6 @@ void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newVa
 		imgSelected, 0.7f, Colours::transparentBlack,
 		0.5f);
 
-	setToggleState(newValue, dontSendNotification); 
+	setToggleState(newValue, dontSendNotification);
 };
 
