@@ -15,14 +15,14 @@
 
 //==============================================================================
 
-TerpstraSysExApplication::TerpstraSysExApplication() 
+TerpstraSysExApplication::TerpstraSysExApplication()
 	: tooltipWindow(), hasChangesToSave(false)
 {
 	PropertiesFile::Options options;
 	options.applicationName = "LumatoneSetup";
 	options.filenameSuffix = "settings";
 	options.osxLibrarySubFolder = "Application Support";
-	// XXX Folder name before rebranding: TerpstraSysEx 
+	// XXX Folder name before rebranding: TerpstraSysEx
 #if JUCE_LINUX
 	options.folderName = "~/.config/LumatoneSetup";
 #else
@@ -52,17 +52,16 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 //==============================================================================
 void TerpstraSysExApplication::initialise(const String& commandLine)
 {
-    // This method is where you should put your application's initialisation code..   
+    // This method is where you should put your application's initialisation code..
 	commandManager.reset(new ApplicationCommandManager());
 	commandManager->registerAllCommandsForTarget(this);
 
 	menuModel.reset(new TerpstraSysExMainMenuModel(commandManager.get()));
 
     mainWindow.reset(new MainWindow());
-	mainWindow->setLookAndFeel(&lookAndFeel);
 	mainWindow->setMenuBar(menuModel.get());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
-	
+
 	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 
 	// commandLine: may contain a file name
@@ -125,7 +124,7 @@ void TerpstraSysExApplication::systemRequestedQuit()
 		}
 		// retc == 2: "No" -> end without saving
 	}
-	
+
 	quit();
 }
 
@@ -140,7 +139,7 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 {
 	JUCEApplication::getAllCommands(commands);
 
-	const CommandID ids[] = { 
+	const CommandID ids[] = {
 		TerpstraSysExMainMenuModel::commandIDs::openSysExMapping,
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
 		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
@@ -266,14 +265,14 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
-	default:                        
+	default:
 		return JUCEApplication::perform(info);
 	}
 }
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	// XXX If there are changes: ask for saving these first? 
+	// XXX If there are changes: ask for saving these first?
 
 	FileChooser chooser("Open a Lumatone key mapping", File(), "*.tsx");
 	if (chooser.browseForFileToOpen())
@@ -349,7 +348,7 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	Colour textColour(0xff000000);
 
 	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
-	
+
 	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
 
 	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
@@ -592,7 +591,7 @@ void TerpstraSysExApplication::setHasChangesToSave(bool value)
 }
 
 bool TerpstraSysExApplication::aboutTerpstraSysEx()
-{	
+{
 	String m;
 
 	m << "Lumatone Keyboard Setup Utility" << newLine
