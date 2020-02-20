@@ -47,7 +47,7 @@ void KeyMiniDisplayInsideOctaveBoardComponent::resized()
 	float w = this->getWidth();
 	float h = this->getHeight();
 
-	float marginOffset = 3.0;
+	float marginOffset = 1.5;
 
 	// recalculate position and size of hexagon
 	hexPath.clear();
@@ -65,7 +65,7 @@ void KeyMiniDisplayInsideOctaveBoardComponent::resized()
 	transform = transform.translated(w / 2.0f, h / 2.0f);
 
 	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(marginOffset, marginOffset, w - marginOffset, h - marginOffset, true);
+	hexPath.scaleToFit(marginOffset, marginOffset, w - 2*marginOffset, h - 2*marginOffset, true);
 }
 
 Colour KeyMiniDisplayInsideOctaveBoardComponent::getKeyColour()
@@ -119,11 +119,9 @@ void OctaveBoardComponent::resized()
 	int newSingleKeySize = jmin(newWidth*2/17, newHeight/8);
 
 	// Transformation Rotate slightly counterclockwise
-	int x = 0;
-	int y = 0;
-	AffineTransform transform = AffineTransform::translation(-x, -y);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(x, y);
+	float x = 0.0;
+	float y = 0.0;
+	AffineTransform transform = AffineTransform::rotation(TERPSTRASINGLEKEYROTATIONANGLE);
 
 	int keyIndex = 0;
 	int mostBottomKeyPos = 0;
@@ -133,13 +131,13 @@ void OctaveBoardComponent::resized()
 	int rowCount = boardGeometry.horizontaLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
-		int xbasepos;
+		float xbasepos;
 		if (rowIndex % 2 == 0)
-			xbasepos = 0;
+			xbasepos = 0.0;
 		else
-			xbasepos = 0 + newSingleKeySize / 2;
+			xbasepos = 0.0 + newSingleKeySize / 2.0;
 
-		int ybasepos = 0 + 3 * rowIndex * newSingleKeySize / 4;
+		float ybasepos = 0.0 + 3.0 * rowIndex * newSingleKeySize / 4.0;
 
 		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
 		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
@@ -147,7 +145,7 @@ void OctaveBoardComponent::resized()
 			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*newSingleKeySize;
 			y = ybasepos;
 			transform.transformPoint(x, y);
-			keyMiniDisplay[keyIndex]->setBounds(x, y, newSingleKeySize, newSingleKeySize);
+			keyMiniDisplay[keyIndex]->setBounds(roundToInt(x), roundToInt(y), newSingleKeySize, newSingleKeySize);
 
 			mostBottomKeyPos = jmax(mostBottomKeyPos, keyMiniDisplay[keyIndex]->getBottom());
 

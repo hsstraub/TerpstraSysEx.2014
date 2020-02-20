@@ -44,8 +44,6 @@ public:
 	};
 
 private:
-    int getLineWidth() { return isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH; }
-
 	bool isSelected;
 
     Path    hexPath;

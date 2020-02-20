@@ -201,7 +201,7 @@ void MainContentComponent::resized()
 	int newHeight = getHeight();
 
 	// New height of subset field area, with minimal value
-	int newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	float newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	// Resize factor for the subset field area and the subset fields
 	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / DEFAULTSUBSETAREAHEIGHT;
@@ -210,18 +210,18 @@ void MainContentComponent::resized()
 	jassert(newDecreaseFactor > 0.0);
 
 	// New position, width and height of subset fields
-	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
-	int newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
-	int newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
-	int newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
+	float newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
+	float newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
+	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
+	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
 
 	// New position, width and height of macro buttons
-	int newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
-	int newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;
-	int newMacroButtonHeight = DEFAULTMACROBUTTONHEIGHT * newDecreaseFactor;
+	float newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
+	float newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;
+	float newMacroButtonHeight = DEFAULTMACROBUTTONHEIGHT * newDecreaseFactor;
 
-	int newMidiEditFirstYPos = newSubsetAreaHeight;
-	int newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
+	float newMidiEditFirstYPos = newSubsetAreaHeight;
+	float newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -231,14 +231,16 @@ void MainContentComponent::resized()
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
-		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement, newSubsetFirstYPos, newSubsetWidth, newSubsetHeight);
+		terpstraSetSelectors[4 - i]->setBounds(
+            roundToInt(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement),
+            roundToInt(newSubsetFirstYPos), newSubsetWidth, newSubsetHeight);
 	}
 
 	// Single Key fields
 
 	// Transformation Rotate slightly counterclockwise
-	int x = MAINWINDOWFIRSTCOLPOS;
-	int y = newSingleKeyFieldFirstYPos;
+	float x = MAINWINDOWFIRSTCOLPOS;
+	float y = newSingleKeyFieldFirstYPos;
 	AffineTransform transform = AffineTransform::translation(-x, -y);
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(x, y);
@@ -249,7 +251,7 @@ void MainContentComponent::resized()
 	int rowCount = boardGeometry.horizontaLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
-		int xbasepos;
+		float xbasepos;
 		if (rowIndex % 2 == 0)
 			xbasepos = MAINWINDOWFIRSTCOLPOS;
 		else
@@ -263,7 +265,7 @@ void MainContentComponent::resized()
 			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
 			y = ybasepos;
 			transform.transformPoint(x, y);
-			terpstraKeyFields[keyIndex]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
 			keyIndex++;
 		}

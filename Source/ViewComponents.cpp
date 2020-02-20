@@ -70,6 +70,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	TerpstraKey currentValue = getValue();
 
 	// Selected or not: color and thickness of the line
+	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
 	Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
 
 	// Color: empty or the parametrized color
@@ -99,7 +100,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Draw line
 	g.setColour(lineColor);
-	g.strokePath(hexPath, PathStrokeType(getLineWidth()));
+	g.strokePath(hexPath, PathStrokeType(lineWidth));
 
 	// Something parametrized or not?
 	if (currentValue.isEmpty())
@@ -136,8 +137,9 @@ void TerpstraKeyEdit::resized()
 	transform = transform.translated(w / 2.0f, h / 2.0f);
 
 	hexPath.applyTransform(transform);
-	auto lineWidth = getLineWidth();
-	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
+	hexPath.scaleToFit(
+                    TERPSTRASINGLEKEYFLDMARGIN, TERPSTRASINGLEKEYFLDMARGIN,
+                    w - 2*TERPSTRASINGLEKEYFLDMARGIN, h - 2*TERPSTRASINGLEKEYFLDMARGIN, true);
 }
 
 /*
