@@ -44,11 +44,9 @@ public:
 	};
 
 private:
-    int getLineWidth() { return isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH; }
+	bool isSelected;
 
-	bool    isSelected;
-
-	Path    hexPath;
+    Path    hexPath;
 	Label*	midiNoteLabel;
 	Label*  midiChannelLabel;
 
@@ -56,22 +54,6 @@ private:
 	TerpstraKey::KEYTYPE	keyType;
 };
 
-
-/*
-==============================================================================
-Display representant of a key set of 56 keys
-==============================================================================
-*/
-class TerpstraKeySetEdit : public ImageButton
-{
-public:
-	TerpstraKeySetEdit();
-	~TerpstraKeySetEdit();
-
-	void setIsSelected(bool newValue) { setToggleState(newValue, dontSendNotification); };
-
-	void mouseDown(const MouseEvent& e) override;
-};
 
 /*
 ==============================================================================

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.8.2"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.0"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               jucerVersion="5.4.5" companyName="Hans Straub" headerPath="../../../JUCE/modules">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
             file="BinaryData/LumatoneIcon.png"/>
-      <FILE id="bqg5AV" name="OctaveWithSelection.png" compile="0" resource="1"
-            file="BinaryData/OctaveWithSelection.png"/>
       <FILE id="mKOOP6" name="TopEdgeLightLeft.png" compile="0" resource="1"
             file="BinaryData/TopEdgeLightLeft.png"/>
       <FILE id="gZlHUE" name="TopEdgeLightRight.png" compile="0" resource="1"
@@ -17,10 +15,12 @@
             file="BinaryData/TopEdgeButton.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
             file="BinaryData/TerpstraIcon.png"/>
-      <FILE id="SxzwMb" name="OctaveGraphic.png" compile="0" resource="1"
-            file="BinaryData/OctaveGraphic.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="zObTAR" name="OctaveBoardComponent.cpp" compile="1" resource="0"
+            file="Source/OctaveBoardComponent.cpp"/>
+      <FILE id="Pe60oV" name="OctaveBoardComponent.h" compile="0" resource="0"
+            file="Source/OctaveBoardComponent.h"/>
       <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
             file="Source/PlayVirtualKeyboard.cpp"/>
       <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"

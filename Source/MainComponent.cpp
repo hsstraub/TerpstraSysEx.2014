@@ -21,22 +21,22 @@ MainContentComponent::MainContentComponent()
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		// Macro button
-		macroButtons[i] = new TerpstraMacroButton();
-		addAndMakeVisible(macroButtons[i]);
+		macroButtons[i].reset(new TerpstraMacroButton());
+		addAndMakeVisible(macroButtons[i].get());
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
-		terpstraSetSelectors[4-i] = new TerpstraKeySetEdit();
-		addAndMakeVisible(terpstraSetSelectors[4-i]);
-		terpstraSetSelectors[4-i]->addListener(this);
+		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
+		addAndMakeVisible(terpstraSetSelectors[4-i].get());
+		terpstraSetSelectors[4 - i]->addMouseListener(this, true);
 	}
 
 	// Single Key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		terpstraKeyFields[i] = new TerpstraKeyEdit();
-		addAndMakeVisible(terpstraKeyFields[i]);
+		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
+		addAndMakeVisible(terpstraKeyFields[i].get());
 		terpstraKeyFields[i]->addMouseListener(this, true);
 	}
 
@@ -49,7 +49,7 @@ MainContentComponent::MainContentComponent()
 	noteEditArea = new NoteEditArea();
 	addAndMakeVisible(noteEditArea);
 
-	// Initial size 
+	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Select first board and first key
@@ -59,13 +59,24 @@ MainContentComponent::MainContentComponent()
 
 MainContentComponent::~MainContentComponent()
 {
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	{
+		macroButtons[i] = nullptr;
+		terpstraSetSelectors[i] = nullptr;
+	}
+
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i] = nullptr;
+	}
+
 	deleteAllChildren();
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	setSize(
-		propertiesFile->getIntValue("MainWindowWidth", DEFAULTMAINWINDOWWIDTH), 
+		propertiesFile->getIntValue("MainWindowWidth", DEFAULTMAINWINDOWWIDTH),
 		propertiesFile->getIntValue("MainWindowHeight", DEFAULTMAINWINDOWHEIGHT));
 
 	noteEditArea->restoreStateFromPropertiesFile(propertiesFile);
@@ -86,6 +97,9 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData)
 
 	noteEditArea->onSetData(newData);
 
+	for ( int i = 0; i < NUMBEROFBOARDS; i++)
+        terpstraSetSelectors[i]->repaint();
+
 	changeSetSelection(-1);
 	changeSetSelection(0);
 }
@@ -102,7 +116,7 @@ bool MainContentComponent::deleteCurrentSubBoardData()
 	{
 		// Delete subboard data
 		mappingData.sets[currentSetSelection] = TerpstraKeys();
-		
+
 		// Refresh display
 		changeSetSelection(currentSetSelection, true);
 
@@ -187,7 +201,7 @@ void MainContentComponent::resized()
 	int newHeight = getHeight();
 
 	// New height of subset field area, with minimal value
-	int newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	float newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	// Resize factor for the subset field area and the subset fields
 	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / DEFAULTSUBSETAREAHEIGHT;
@@ -196,18 +210,18 @@ void MainContentComponent::resized()
 	jassert(newDecreaseFactor > 0.0);
 
 	// New position, width and height of subset fields
-	int newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
-	int newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
-	int newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
-	int newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
-	
-	// New position, width and height of macro buttons
-	int newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
-	int newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;
-	int newMacroButtonHeight = DEFAULTMACROBUTTONHEIGHT * newDecreaseFactor;
+	float newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
+	float newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
+	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
+	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
 
-	int newMidiEditFirstYPos = newSubsetAreaHeight;
-	int newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
+	// New position, width and height of macro buttons
+	float newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
+	float newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;
+	float newMacroButtonHeight = DEFAULTMACROBUTTONHEIGHT * newDecreaseFactor;
+
+	float newMidiEditFirstYPos = newSubsetAreaHeight;
+	float newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -217,14 +231,16 @@ void MainContentComponent::resized()
 
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
-		terpstraSetSelectors[4 - i]->setBounds(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement, newSubsetFirstYPos, newSubsetWidth, newSubsetHeight);
+		terpstraSetSelectors[4 - i]->setBounds(
+            roundToInt(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement),
+            roundToInt(newSubsetFirstYPos), newSubsetWidth, newSubsetHeight);
 	}
 
 	// Single Key fields
 
 	// Transformation Rotate slightly counterclockwise
-	int x = MAINWINDOWFIRSTCOLPOS;
-	int y = newSingleKeyFieldFirstYPos;
+	float x = MAINWINDOWFIRSTCOLPOS;
+	float y = newSingleKeyFieldFirstYPos;
 	AffineTransform transform = AffineTransform::translation(-x, -y);
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(x, y);
@@ -235,7 +251,7 @@ void MainContentComponent::resized()
 	int rowCount = boardGeometry.horizontaLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
-		int xbasepos;
+		float xbasepos;
 		if (rowIndex % 2 == 0)
 			xbasepos = MAINWINDOWFIRSTCOLPOS;
 		else
@@ -249,7 +265,7 @@ void MainContentComponent::resized()
 			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
 			y = ybasepos;
 			transform.transformPoint(x, y);
-			terpstraKeyFields[keyIndex]->setBounds(x, y, TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
 			keyIndex++;
 		}
@@ -270,6 +286,7 @@ void MainContentComponent::buttonClicked(Button *button)
 	{
 		TerpstraSysExApplication::getApp().getMidiDriver().sendAndSaveCompleteMapping(mappingData);
 	}
+	/*
 	else
 	{
 		for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -281,16 +298,28 @@ void MainContentComponent::buttonClicked(Button *button)
 			}
 		}
 	}
+	*/
 }
 
 void MainContentComponent::mouseDown(const MouseEvent &event)
 {
 	bool mappingChanged = false;
 
+	// Selection of subset components
+	auto eventComponentParent = event.eventComponent->getParentComponent();
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	{
+		if (event.eventComponent == terpstraSetSelectors[i].get() || eventComponentParent == terpstraSetSelectors[i].get())
+		{
+			changeSetSelection(i);
+			return;
+		}
+	}
+
 	// Selection of single key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		if (event.eventComponent == terpstraKeyFields[i] || event.eventComponent->getParentComponent() == terpstraKeyFields[i])
+		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
 		{
 			// Select field
 			changeSingleKeySelection(i);
@@ -317,7 +346,7 @@ void MainContentComponent::mouseUp(const MouseEvent &event)
 	// Selection of single key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
-		if (event.eventComponent == terpstraKeyFields[i] || event.eventComponent->getParentComponent() == terpstraKeyFields[i])
+		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
 		{
 			// Perform the edit, according to edit mode. Including sending to device
 			mappingChanged = this->noteEditArea->performMouseUp(currentSetSelection, i);

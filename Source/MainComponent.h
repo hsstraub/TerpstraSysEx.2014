@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "OctaveBoardComponent.h"
 #include "ViewComponents.h"
 #include "BoardGeometry.h"
 #include "KeyboardDataStructure.h"
@@ -40,6 +41,7 @@ public:
 	void setData(TerpstraKeyMapping& newData);
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
+	TerpstraBoardGeometry& getBoardGeometry() { return this->boardGeometry; }
 
 	// Board ddit operations
 	bool deleteCurrentSubBoardData();
@@ -48,7 +50,7 @@ public:
 
 	// MIDI input callback
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
-	
+
 	// GUI implementation
     void paint (Graphics&);
     void resized();
@@ -68,15 +70,15 @@ private:
 	// GUI components
 
 	// Macro buttons
-	TerpstraMacroButton* macroButtons[NUMBEROFBOARDS];
+	std::unique_ptr<TerpstraMacroButton> macroButtons[NUMBEROFBOARDS];
 
 	// Sets of 56 keys
-	TerpstraKeySetEdit* terpstraSetSelectors[NUMBEROFBOARDS];
+	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
 
 	// Editing single keys (of the selected 56-key set)
-	TerpstraKeyEdit*	terpstraKeyFields[TERPSTRABOARDSIZE];
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
-	// Geometry settings 
+	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;
 
 	// Midi devices

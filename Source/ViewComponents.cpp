@@ -69,7 +69,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 {
 	TerpstraKey currentValue = getValue();
 
-	juce::Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
+	Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
 
 	// Color: empty or the parametrized color
 	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
@@ -136,44 +136,26 @@ void TerpstraKeyEdit::resized()
 
 	hexPath.applyTransform(transform);
 	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
-}
 
-/*
-==============================================================================
-TerpstraKeySetEdit class
-==============================================================================
-*/
+	// Draw hexagon
+	hexPath.clear();
+	hexPath.startNewSubPath(w / 2.0f, 0);
+	hexPath.lineTo(w, h / 4.0f);
+	hexPath.lineTo(w, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h);
+	hexPath.lineTo(0, 3.0f * h / 4.0f);
+	hexPath.lineTo(0, h / 4.0f);
+	hexPath.closeSubPath();
 
-TerpstraKeySetEdit::TerpstraKeySetEdit()
-{
-	Image imgUnselected = ImageCache::getFromMemory(BinaryData::OctaveGraphic_png, BinaryData::OctaveGraphic_pngSize);
-	Image imgSelected = ImageCache::getFromMemory(BinaryData::OctaveWithSelection_png, BinaryData::OctaveWithSelection_pngSize);
+	// Rotate slightly counterclockwise around the center
+	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
+	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
+	transform = transform.translated(w / 2.0f, h / 2.0f);
 
-	setImages(true, true, true,
-		imgUnselected, 0.5f, Colours::transparentBlack,
-		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgSelected, 0.9f, Colours::transparentBlack,
-		0.5f);
-
-	setClickingTogglesState(true);
-}
-
-TerpstraKeySetEdit::~TerpstraKeySetEdit()
-{
-
-}
-
-void TerpstraKeySetEdit::mouseDown(const MouseEvent& e)
-{
-	ImageButton::mouseDown(e);
-
-	// If right mouse click: popup menu
-	if (e.mods.isRightButtonDown())
-	{
-		PopupMenu menu;
-		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
-	}
+	hexPath.applyTransform(transform);
+	hexPath.scaleToFit(
+                    TERPSTRASINGLEKEYFLDMARGIN, TERPSTRASINGLEKEYFLDMARGIN,
+                    w - 2*TERPSTRASINGLEKEYFLDMARGIN, h - 2*TERPSTRASINGLEKEYFLDMARGIN, true);
 }
 
 /*

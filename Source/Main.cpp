@@ -46,7 +46,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
 	recentFiles.removeNonExistentFiles();
 
-	// State of main window will be read form properties file when main window is created
+	// State of main window will be read from properties file when main window is created
 }
 
 //==============================================================================
