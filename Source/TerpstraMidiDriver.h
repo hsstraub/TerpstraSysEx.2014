@@ -26,7 +26,13 @@ System exclusive command bytes
 /*
 Old definitions, for the first generation keyboard only
 
+// Manufacturer Id
+#define MMID1 0x00
+#define MMID2 0x20
+#define MMID3 0xff
+
 #define READ_KEY_NOTE 0x01
+#define STORE_TO_EEPROM 0x02
 #define RECALL_FROM_EEPROM 0x03
 #define READ_KEY_POSITION 0x04
 #define SET_KEY_MAX_MIN 0x05
@@ -45,9 +51,11 @@ Old definitions, for the first generation keyboard only
 
 */
 
+// Manufacturer Id
 #define MMID1 0x00
-#define MMID2 0x20
-#define MMID3 0xFF
+#define MMID2 0x21
+#define MMID3 0x50
+
 #define CHANGE_KEY_NOTE 0x00
 #define SET_KEY_COLOUR 0x01
 #define STORE_TO_EEPROM 0x02
@@ -129,7 +137,7 @@ public:
 
 	// Send a value for a velocity lookup table
 	void sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsigned char velocityTable[]);
-	
+
 	// Save velocity config to EEPROM
 	void saveVelocityConfig(TerpstraKey::KEYTYPE keyType);
 
