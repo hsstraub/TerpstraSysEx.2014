@@ -570,6 +570,12 @@ void TerpstraSysExApplication::handleIncomingMidiMessage(MidiInput* source, cons
 	((MainContentComponent*)(mainWindow->getContentComponent()))->handleIncomingMidiMessage(source, message);
 }
 
+void TerpstraSysExApplication::sendCurrentMappingToDevice()
+{
+    getMidiDriver().sendCompleteMapping(
+        ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit()
+    );
+}
 
 void TerpstraSysExApplication::updateMainTitle()
 {

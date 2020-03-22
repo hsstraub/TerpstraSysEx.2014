@@ -177,7 +177,7 @@ void OneMacroButtonEdit::sendParametrizationFileToDevice()
 		TerpstraKeyMapping keyMapping;
 		keyMapping.fromStringArray(stringArray);
 
-		TerpstraSysExApplication::getApp().getMidiDriver().sendCompleteMapping(keyMapping, saveAfterSending);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendCompleteMapping(keyMapping);
 	}
 }
 

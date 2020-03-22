@@ -76,6 +76,8 @@ public:
 
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 
+	void sendCurrentMappingToDevice();
+
 	void updateMainTitle();
 	void setHasChangesToSave(bool value);
 

@@ -58,9 +58,8 @@ Old definitions, for the first generation keyboard only
 
 #define CHANGE_KEY_NOTE 0x00
 #define SET_KEY_COLOUR 0x01
-#define STORE_TO_EEPROM 0x02
-#define RECALL_FROM_EEPROM 0x03
 
+#define SET_FOOT_CONTROLLER_SENSITIVITY 0x03
 #define INVERT_FOOT_CONTROLLER 0x04
 
 #define MACROBUTTON_COLOUR_ON 0x05
@@ -75,6 +74,12 @@ Old definitions, for the first generation keyboard only
 #define SET_FADER_CONFIG 0x0B
 #define SAVE_FADER_CONFIG 0x0C
 #define RESET_FADER_CONFIG 0x0D
+
+#define SET_AFTERTOUCH_FLAG 0x0E
+#define CALIBRATE_AFTERTOUCH 0x0F
+#define SET_AFTERTOUCH_CONFIG 0x10
+#define SAVE_AFTERTOUCH_CONFIG 0x11
+#define RESET_AFTERTOCUH_CONFIG 0x12
 
 /*
 ==============================================================================
@@ -92,21 +97,11 @@ public:
 	//////////////////////////////////
 	// Combined (hi-level) commands
 
-	// Send parametrization of one key to the device and save it there, if autosave is active
-	void sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
-
-	// Send and save all parametrizations of one sub board
-	void sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardDa, bool saveAfterSending);
+	// Send all parametrizations of one sub board
+	void sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData);
 
 	// Send and save a complete key mapping
-	void sendCompleteMapping(TerpstraKeyMapping mappingData, bool saveAfterSending);
-	void sendAndSaveCompleteMapping(TerpstraKeyMapping mappingData) { sendCompleteMapping(mappingData, true); }
-
-	// Store a sub board's sent key parametrizations permanently on device
-	void storeAllToEEPROM();
-
-	// Discard edits of a sub-board on device
-	void recallAllFromEEPROM();
+	void sendCompleteMapping(TerpstraKeyMapping mappingData);
 
 	//////////////////////////////////
 	// Single (mid-level) commands
@@ -115,10 +110,10 @@ public:
 	void sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
 
 	// Store a sub board's sent key parametrizations permanently on device
-	void storeToEEPROM(int boardIndex);
+	//void storeToEEPROM(int boardIndex);
 
 	// Discard edits of a sub-board on device
-	void recallFromEEPROM(int boardIndex);
+	//void recallFromEEPROM(int boardIndex);
 
 	// Send expression pedal sensivity
 	void sendExpressionPedalSensivity(unsigned char value);

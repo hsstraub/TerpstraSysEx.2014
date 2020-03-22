@@ -335,7 +335,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	}
 
 	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendAndMaybeSaveKeyParam(setSelection + 1, keySelection, keyData);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
 
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())

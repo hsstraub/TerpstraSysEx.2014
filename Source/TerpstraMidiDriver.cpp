@@ -16,7 +16,7 @@ TerpstraMidiDriver::TerpstraMidiDriver() : HajuDelayMidiDriver()
 	autoSave = false;
 }
 
-TerpstraMidiDriver::~TerpstraMidiDriver() 
+TerpstraMidiDriver::~TerpstraMidiDriver()
 {
 }
 
@@ -25,41 +25,20 @@ TerpstraMidiDriver::~TerpstraMidiDriver()
 Combined (hi-level) commands
 */
 
-void TerpstraMidiDriver::sendAndMaybeSaveKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
-{
-	sendKeyParam(boardIndex, keyIndex, keyData);
-
-	if (autoSave)
-		storeToEEPROM(boardIndex);
-}
-
-void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData, bool saveAfterSending)
+void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData)
 {
 	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
 
-	if (saveAfterSending)
-		storeToEEPROM(boardIndex);
+	//if (saveAfterSending)
+	//	storeToEEPROM(boardIndex);
 }
 
-void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData, bool saveAfterSending)
+void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData)
 {
 	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		sendAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1], saveAfterSending);
+		sendAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1]);
 }
-
-void TerpstraMidiDriver::storeAllToEEPROM()
-{
-	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		storeToEEPROM(boardIndex);
-}
-
-void TerpstraMidiDriver::recallAllFromEEPROM()
-{
-	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		recallFromEEPROM(boardIndex);
-}
-
 
 /*
 ==============================================================================
@@ -80,28 +59,12 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
-void TerpstraMidiDriver::storeToEEPROM(int boardIndex)
-{
-	// boardIndex is expected 1-based
-	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-
-	sendSysEx(boardIndex, STORE_TO_EEPROM, '\0', '\0', '\0', '\0', '\0');
-}
-
-void TerpstraMidiDriver::recallFromEEPROM(int boardIndex)
-{
-	// boardIndex is expected 1-based
-	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-
-	sendSysEx(boardIndex, RECALL_FROM_EEPROM, '\0', '\0', '\0', '\0', '\0');
-}
-
 // Send expression pedal sensivity
 void TerpstraMidiDriver::sendExpressionPedalSensivity(unsigned char value)
 {
 	jassert(value <= 0x7f);
 
-	//sendSysEx(0, SET_FOOT_CONTROLLER_SENSITIVITY, value, '\0', '\0', '\0', '\0');
+	sendSysEx(0, SET_FOOT_CONTROLLER_SENSITIVITY, value, '\0', '\0', '\0', '\0');
 }
 
 // Send parametrization of foot controller
@@ -144,12 +107,12 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsign
 		sysExData[2] = MMID3;
 		sysExData[3] = '\0';
 		sysExData[4] = keyType == TerpstraKey::continuousController ? SET_FADER_CONFIG : SET_VELOCITY_CONFIG;
-		
+
     //memcpy_s is windows specific
 //    memcpy_s(&sysExData[5], 128, velocityTable, 128);  // velocityTable is supposed to contain 128 entries. ToDo security?
-    
+
 		memmove(&sysExData[5], velocityTable, 128);
-    
+
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
 		sendMessageDelayed(msg);
 	}
@@ -172,7 +135,7 @@ void TerpstraMidiDriver::resetVelocityConfig(TerpstraKey::KEYTYPE keyType)
 
 /*
 ==============================================================================
-Low-level SysEx calls 
+Low-level SysEx calls
 */
 
 void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5)

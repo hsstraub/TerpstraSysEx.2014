@@ -44,8 +44,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	bool isSendAllButton(Component* subcomponent) { return subcomponent == buttonSendAll.get(); }
-	void addSendAllButtonListener(Button::Listener* listener) { buttonSendAll->addListener(listener); }
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -64,10 +62,7 @@ private:
     std::unique_ptr<ComboBox> cbMidiInput;
     std::unique_ptr<Label> lblMidiOutput;
     std::unique_ptr<ComboBox> cbMidiOutput;
-    std::unique_ptr<ToggleButton> toggleAutoSave;
-    std::unique_ptr<TextButton> buttonSendSaveEdits;
     std::unique_ptr<TextButton> buttonSendAll;
-    std::unique_ptr<TextButton> buttonDiscard;
 
 
     //==============================================================================

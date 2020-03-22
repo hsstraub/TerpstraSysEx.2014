@@ -43,7 +43,6 @@ MainContentComponent::MainContentComponent()
 	// Midi input + output
 	midiEditArea = new MidiEditArea();
 	addAndMakeVisible(midiEditArea);
-	midiEditArea->addSendAllButtonListener(this);
 
 	// Edit function area
 	noteEditArea = new NoteEditArea();
@@ -278,27 +277,6 @@ void MainContentComponent::resized()
 
 	// Edit function area
 	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
-}
-
-void MainContentComponent::buttonClicked(Button *button)
-{
-	if (midiEditArea->isSendAllButton(button))
-	{
-		TerpstraSysExApplication::getApp().getMidiDriver().sendAndSaveCompleteMapping(mappingData);
-	}
-	/*
-	else
-	{
-		for (int i = 0; i < NUMBEROFBOARDS; i++)
-		{
-			if (button == terpstraSetSelectors[i])
-			{
-				changeSetSelection(i);
-				break;
-			}
-		}
-	}
-	*/
 }
 
 void MainContentComponent::mouseDown(const MouseEvent &event)

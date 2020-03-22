@@ -71,7 +71,6 @@ private:
     //==============================================================================
     std::unique_ptr<ToggleButton> btnEnableMacroButtons;
     std::unique_ptr<Label> lblMacroButtonsInfo;
-    std::unique_ptr<ToggleButton> btnSaveAfterSending;
     std::unique_ptr<Drawable> drawable1;
 
 

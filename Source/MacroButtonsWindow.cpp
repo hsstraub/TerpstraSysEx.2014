@@ -51,13 +51,6 @@ MacroButtonsWindow::MacroButtonsWindow ()
 
     lblMacroButtonsInfo->setBounds (8, 64, 440, 48);
 
-    btnSaveAfterSending.reset (new ToggleButton ("btnSaveAfterSending"));
-    addAndMakeVisible (btnSaveAfterSending.get());
-    btnSaveAfterSending->setButtonText (TRANS("Save mapping after sending"));
-    btnSaveAfterSending->addListener (this);
-
-    btnSaveAfterSending->setBounds (136, 40, 216, 24);
-
     drawable1 = Drawable::createFromImageData (BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
 
     //[UserPreSize]
@@ -86,7 +79,6 @@ MacroButtonsWindow::~MacroButtonsWindow()
 
     btnEnableMacroButtons = nullptr;
     lblMacroButtonsInfo = nullptr;
-    btnSaveAfterSending = nullptr;
     drawable1 = nullptr;
 
 
@@ -155,16 +147,6 @@ void MacroButtonsWindow::buttonClicked (Button* buttonThatWasClicked)
 		}
 
         //[/UserButtonCode_btnEnableMacroButtons]
-    }
-    else if (buttonThatWasClicked == btnSaveAfterSending.get())
-    {
-        //[UserButtonCode_btnSaveAfterSending] -- add your button handler code here..
-		bool saveAfterSending = btnSaveAfterSending->getToggleState();
-		for (int i = 0; i < 10; i++)
-		{
-			buttonComponents[i]->setSaveAfterSending(saveAfterSending);
-		}
-        //[/UserButtonCode_btnSaveAfterSending]
     }
 
     //[UserbuttonClicked_Post]
@@ -236,9 +218,6 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
-  <TOGGLEBUTTON name="btnSaveAfterSending" id="a23d41b7fb227aed" memberName="btnSaveAfterSending"
-                virtualName="" explicitFocusOrder="0" pos="136 40 216 24" buttonText="Save mapping after sending"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
