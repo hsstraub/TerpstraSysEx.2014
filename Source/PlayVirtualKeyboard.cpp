@@ -82,6 +82,7 @@ void PlayVirtualKeyboard::paint (Graphics& g)
 
 	// Instruction text is coded as TextEditor (for multiline display) but should look like a label
 	textInstructionText->setColour(TextEditor::backgroundColourId, findColour(Label::backgroundColourId));
+	textInstructionText->applyColourToAllText(findColour(Label::textColourId), true);
     //[/UserPaint]
 }
 
