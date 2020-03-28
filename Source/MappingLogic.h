@@ -20,12 +20,12 @@ class MappingLogicBase
 public:
 	// Global number of notes in the mapping
 	virtual int globalMappingSize() const = 0;
-	// Returns the Terpstra key specification fo the "inx"-th note
+	// Returns the Terpstra key specification for the "inx"-th note
 	virtual TerpstraKey indexToTerpstraKey(int inx) const = 0;
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const = 0;
 
 	// Listener class, to notify changes
-	class Listener 
+	class Listener
 	{
 	public:
 		// Destructor
@@ -71,6 +71,19 @@ private:
 	// Maximal MIDI note (global max in case of single channel. In case of multiple channel followed by note 0 of next channel.)
 	int maxMIDINote;
 	int channelInCaseOfSingleChannel;
+};
+
+// Mapping logic for KBM files
+class KBMFilesMappingLogic: public MappingLogicBase
+{
+public:
+    KBMFilesMappingLogic();
+
+ 	int globalMappingSize() const override;
+	TerpstraKey indexToTerpstraKey(int inx) const override;
+	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
+
+
 };
 
 

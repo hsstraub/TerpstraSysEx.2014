@@ -23,6 +23,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
 #include "IncrMidiNotesMapping.h"
+#include "KBMMappingDlg.h"
 #include "BoardGeometry.h"
 //[/Headers]
 
@@ -79,6 +80,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<IncrMidiNotesMapping>	incrMidiNotesMapping;
+	std::unique_ptr<KBMMappingDlg>          kbmMappingDlg;
 
 	MappingLogicBase*		mappingLogic;
 	TerpstraBoardGeometry	boardGeometry;
