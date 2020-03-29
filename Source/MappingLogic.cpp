@@ -11,6 +11,7 @@
 #include "MappingLogic.h"
 
 
+//==============================================================================
 // Base class
 
 void MappingLogicBase::addListener(MappingLogicBase::Listener* listener)
@@ -23,13 +24,12 @@ void MappingLogicBase::removeListener(MappingLogicBase::Listener* listener)
 	listeners.remove(listener);
 }
 
-///////////////////////////////////////////////////////////
+//==============================================================================
 // Increasing MIDI notes
 
 IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
 	: maxMIDINote(0), channelInCaseOfSingleChannel(0)
 {
-
 }
 
 void IncrMidiNotesMappingLogic::setMaxMidiNote(int newMaxMIDINote)
@@ -117,32 +117,32 @@ int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 	}
 }
 
-///////////////////////////////////////////////////////////
+
+//==============================================================================
 // KBM files
 
 KBMFilesMappingLogic::KBMFilesMappingLogic()
 {
-
 }
 
- 	int KBMFilesMappingLogic::globalMappingSize() const
- 	{
- 	    // ToDo
- 	    return 127;
- 	}
+int KBMFilesMappingLogic::globalMappingSize() const
+{
+    // ToDo
+    return 127;
+}
 
-	TerpstraKey KBMFilesMappingLogic::indexToTerpstraKey(int inx) const
-	{
- 	    // ToDo
- 	    TerpstraKey keyData;
- 	    keyData.channelNumber = 1;
- 	    keyData.noteNumber = inx;
+TerpstraKey KBMFilesMappingLogic::indexToTerpstraKey(int inx) const
+{
+    // ToDo
+    TerpstraKey keyData;
+    keyData.channelNumber = 1;
+    keyData.noteNumber = inx;
 
- 	    return keyData;
-	}
+    return keyData;
+}
 
-	int KBMFilesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
-	{
-	    // ToDo
-	    return keyData.noteNumber;
-	}
+int KBMFilesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
+{
+    // ToDo
+    return keyData.noteNumber;
+}

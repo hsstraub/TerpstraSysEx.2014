@@ -34,7 +34,7 @@ KBMMappingDlg::KBMMappingDlg ()
     //[/Constructor_pre]
 
     lblChannel.reset (new Label ("lblChannel",
-                                 TRANS("MIDI chnl")));
+                                 TRANS("Chnl")));
     addAndMakeVisible (lblChannel.get());
     lblChannel->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     lblChannel->setJustificationType (Justification::centredLeft);
@@ -42,7 +42,7 @@ KBMMappingDlg::KBMMappingDlg ()
     lblChannel->setColour (TextEditor::textColourId, Colours::black);
     lblChannel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblChannel->setBounds (8, 8, 72, 24);
+    lblChannel->setBounds (0, 8, 40, 24);
 
     lblMappingFile.reset (new Label ("lblMappingFile",
                                      TRANS("Mapping file")));
@@ -53,7 +53,29 @@ KBMMappingDlg::KBMMappingDlg ()
     lblMappingFile->setColour (TextEditor::textColourId, Colours::black);
     lblMappingFile->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblMappingFile->setBounds (88, 8, 96, 24);
+    lblMappingFile->setBounds (48, 8, 104, 24);
+
+    lblChannel2.reset (new Label ("lblChannel2",
+                                  TRANS("Chnl")));
+    addAndMakeVisible (lblChannel2.get());
+    lblChannel2->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    lblChannel2->setJustificationType (Justification::centredLeft);
+    lblChannel2->setEditable (false, false, false);
+    lblChannel2->setColour (TextEditor::textColourId, Colours::black);
+    lblChannel2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    lblChannel2->setBounds (200, 7, 40, 24);
+
+    lblMappingFile2.reset (new Label ("lblMappingFile2",
+                                      TRANS("Mapping file")));
+    addAndMakeVisible (lblMappingFile2.get());
+    lblMappingFile2->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    lblMappingFile2->setJustificationType (Justification::centredLeft);
+    lblMappingFile2->setEditable (false, false, false);
+    lblMappingFile2->setColour (TextEditor::textColourId, Colours::black);
+    lblMappingFile2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    lblMappingFile2->setBounds (248, 8, 104, 24);
 
 
     //[UserPreSize]
@@ -78,9 +100,13 @@ KBMMappingDlg::~KBMMappingDlg()
 
     lblChannel = nullptr;
     lblMappingFile = nullptr;
+    lblChannel2 = nullptr;
+    lblMappingFile2 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
+	for (int i = 0; i < 4; i++)
+		channelMappingComponents[i] = nullptr;
     //[/Destructor]
 }
 
@@ -93,8 +119,7 @@ void KBMMappingDlg::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-	for (int i = 0; i < 4; i++)
-		channelMappingComponents[i] = nullptr;
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
@@ -104,12 +129,15 @@ void KBMMappingDlg::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    auto col1 = lblChannel->getX();
+    auto col2 = lblChannel2->getX();
+
  	for (int i = 0; i < 2; i ++)
 	{
-		channelMappingComponents[i]->setBounds(0, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
-		channelMappingComponents[i + 2]->setBounds(EDITSUBWINWIDTH / 2, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
+		channelMappingComponents[i]->setBounds(col1, 32 + 32 * i, channelMappingComponents[i]->getWidth(), 32);
+		channelMappingComponents[i + 2]->setBounds(col2, 32 + 32 * i, channelMappingComponents[i+2]->getWidth(), 32);
 	}
-   //[/UserResized]
+    //[/UserResized]
 }
 
 
@@ -133,12 +161,22 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="416" initialHeight="220">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblChannel" id="dda6cf104269f7ea" memberName="lblChannel"
-         virtualName="" explicitFocusOrder="0" pos="8 8 72 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="MIDI chnl" editableSingleClick="0" editableDoubleClick="0"
+         virtualName="" explicitFocusOrder="0" pos="0 8 40 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Chnl" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="lblMappingFile" id="3fd88d602009452e" memberName="lblMappingFile"
-         virtualName="" explicitFocusOrder="0" pos="88 8 96 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="48 8 104 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Mapping file" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="lblChannel2" id="d3e62a70b82307b5" memberName="lblChannel2"
+         virtualName="" explicitFocusOrder="0" pos="200 7 40 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Chnl" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="lblMappingFile2" id="e16bc6743135450d" memberName="lblMappingFile2"
+         virtualName="" explicitFocusOrder="0" pos="248 8 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Mapping file" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>

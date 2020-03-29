@@ -34,6 +34,7 @@
                                                                     //[/Comments]
 */
 class KBMForOneChannel  : public Component,
+                          public TextEditor::Listener,
                           public ComboBox::Listener,
                           public Button::Listener
 {
@@ -44,6 +45,13 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    void textEditorFocusLost(TextEditor& textEdit) override;
+
+protected:
+	void updateTooltipFromFileObject();
+	void updateTextEditorFromFileObject();
+
+public:
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -55,6 +63,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	File	currentFile;
     //[/UserVariables]
 
     //==============================================================================

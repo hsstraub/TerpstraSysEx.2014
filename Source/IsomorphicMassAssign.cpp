@@ -439,7 +439,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component, public MappingLogicListener"
+                 parentClasses="public Component, public MappingLogicBase::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
                  initialHeight="220">

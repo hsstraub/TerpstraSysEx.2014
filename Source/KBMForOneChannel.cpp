@@ -40,7 +40,7 @@ KBMForOneChannel::KBMForOneChannel ()
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
-    channelBox->setBounds (8, 8, 56, 24);
+    channelBox->setBounds (0, 8, 48, 24);
 
     textMappingFile.reset (new TextEditor ("textMappingFile"));
     addAndMakeVisible (textMappingFile.get());
@@ -52,14 +52,14 @@ KBMForOneChannel::KBMForOneChannel ()
     textMappingFile->setPopupMenuEnabled (true);
     textMappingFile->setText (String());
 
-    textMappingFile->setBounds (88, 8, 136, 24);
+    textMappingFile->setBounds (56, 8, 104, 24);
 
     btnFileSelectMacro.reset (new TextButton ("btnFileSelectMacro"));
     addAndMakeVisible (btnFileSelectMacro.get());
     btnFileSelectMacro->setButtonText (TRANS("..."));
     btnFileSelectMacro->addListener (this);
 
-    btnFileSelectMacro->setBounds (232, 8, 32, 24);
+    btnFileSelectMacro->setBounds (168, 8, 32, 24);
 
 
     //[UserPreSize]
@@ -95,6 +95,7 @@ void KBMForOneChannel::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
@@ -104,6 +105,8 @@ void KBMForOneChannel::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    for (int i = 1; i <= 16; i++)
+        channelBox->addItem(String(i), i);
     //[/UserResized]
 }
 
@@ -130,6 +133,12 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
+		FileChooser chooser("Open a Scala KBM mapping", File(), "*.kbm");
+		if (chooser.browseForFileToOpen())
+		{
+			currentFile = chooser.getResult();
+			updateTextEditorFromFileObject();
+		}
         //[/UserButtonCode_btnFileSelectMacro]
     }
 
@@ -140,6 +149,36 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void KBMForOneChannel::textEditorFocusLost(TextEditor& textEdit)
+{
+	if (&textEdit == textMappingFile.get())
+	{
+		currentFile = File(textMappingFile->getText());
+		updateTooltipFromFileObject();
+	}
+}
+
+// Set tooltip to full path of file, or "File not found"
+void KBMForOneChannel::updateTooltipFromFileObject()
+{
+	if (currentFile.existsAsFile())
+	{
+		textMappingFile->setTooltip(currentFile.getFullPathName());
+	}
+	else
+	{
+		textMappingFile->setTooltip("File not found");
+	}
+}
+
+// Set text editor text to file name and tooltip to full path (or "File not found")
+void KBMForOneChannel::updateTextEditorFromFileObject()
+{
+	textMappingFile->setText(currentFile.getFileName());
+	updateTooltipFromFileObject();
+}
+
 //[/MiscUserCode]
 
 
@@ -153,19 +192,20 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="KBMForOneChannel" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="200" initialHeight="32">
+                 parentClasses="public Component, public TextEditor::Listener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="200"
+                 initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="channelBox" id="250a1dde474111c4" memberName="channelBox"
-            virtualName="" explicitFocusOrder="0" pos="8 8 56 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="0 8 48 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TEXTEDITOR name="textMappingFile" id="b9bc5baf677ed902" memberName="textMappingFile"
-              virtualName="" explicitFocusOrder="0" pos="88 8 136 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="56 8 104 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <TEXTBUTTON name="btnFileSelectMacro" id="23cc77cbad6653d7" memberName="btnFileSelectMacro"
-              virtualName="" explicitFocusOrder="0" pos="232 8 32 24" buttonText="..."
+              virtualName="" explicitFocusOrder="0" pos="168 8 32 24" buttonText="..."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

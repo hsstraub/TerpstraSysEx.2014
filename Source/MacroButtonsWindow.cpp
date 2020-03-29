@@ -124,10 +124,12 @@ void MacroButtonsWindow::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    auto firstSubCompY = lblMacroButtonsInfo->getBottom();
+
 	for (int i = 0; i < 5; i ++)
 	{
-		buttonComponents[i]->setBounds(0, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
-		buttonComponents[i + 5]->setBounds(EDITSUBWINWIDTH / 2, 112 + 40 * i, EDITSUBWINWIDTH / 2, 40);
+		buttonComponents[i]->setBounds(0, firstSubCompY + 40 * i, EDITSUBWINWIDTH / 2, 40);
+		buttonComponents[i + 5]->setBounds(EDITSUBWINWIDTH / 2, firstSubCompY + 40 * i, EDITSUBWINWIDTH / 2, 40);
 	}
     //[/UserResized]
 }

@@ -56,11 +56,13 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<KBMForOneChannel>	channelMappingComponents[4];
    	KBMFilesMappingLogic	mappingLogic;
-//[/UserVariables]
+    //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<Label> lblChannel;
     std::unique_ptr<Label> lblMappingFile;
+    std::unique_ptr<Label> lblChannel2;
+    std::unique_ptr<Label> lblMappingFile2;
 
 
     //==============================================================================

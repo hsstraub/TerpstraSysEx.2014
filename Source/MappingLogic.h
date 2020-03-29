@@ -14,6 +14,7 @@
 #include "KeyboardDataStructure.h"
 
 
+//==============================================================================
 // Logic for the transformation between an abstract index and the concrete MIDI specifications, depending on the chosen mapping
 class MappingLogicBase
 {
@@ -45,12 +46,13 @@ protected:
 	ListenerList<Listener> listeners;
 };
 
-#ifndef DOXYGEN
+//#ifndef DOXYGEN
 /** This typedef is just for compatibility with old code and VC6 - newer code should use Button::Listener instead. */
-typedef MappingLogicBase::Listener MappingLogicListener;
-#endif
+//typedef MappingLogicBase::Listener MappingLogicListener;
+//#endif
 
 
+//==============================================================================
 // Mapping logic for MIDI notes, increasing order
 class IncrMidiNotesMappingLogic : public MappingLogicBase
 {
@@ -73,6 +75,8 @@ private:
 	int channelInCaseOfSingleChannel;
 };
 
+
+//==============================================================================
 // Mapping logic for KBM files
 class KBMFilesMappingLogic: public MappingLogicBase
 {
