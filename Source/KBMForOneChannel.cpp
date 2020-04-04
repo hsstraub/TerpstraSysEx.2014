@@ -59,7 +59,7 @@ KBMForOneChannel::KBMForOneChannel ()
     btnFileSelectMacro->setButtonText (TRANS("..."));
     btnFileSelectMacro->addListener (this);
 
-    btnFileSelectMacro->setBounds (168, 8, 32, 24);
+    btnFileSelectMacro->setBounds (168, 8, 24, 24);
 
 
     //[UserPreSize]
@@ -150,6 +150,22 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void KBMForOneChannel::restoreStateFromPropertiesFile(int subDlgIndex, PropertiesFile* propertiesFile)
+{
+	String keyName = "KBMFile" + String(subDlgIndex);
+	String keyValue = propertiesFile->getValue(keyName);
+	currentFile = File(keyValue);
+	updateTextEditorFromFileObject();
+}
+
+void KBMForOneChannel::saveStateToPropertiesFile(int subDlgIndex, PropertiesFile* propertiesFile)
+{
+	String keyName = "KBMFile" + String(subDlgIndex);
+	String keyValue = currentFile.getFullPathName();
+
+	propertiesFile->setValue(keyName, keyValue);
+}
+
 void KBMForOneChannel::textEditorFocusLost(TextEditor& textEdit)
 {
 	if (&textEdit == textMappingFile.get())
@@ -205,7 +221,7 @@ BEGIN_JUCER_METADATA
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <TEXTBUTTON name="btnFileSelectMacro" id="23cc77cbad6653d7" memberName="btnFileSelectMacro"
-              virtualName="" explicitFocusOrder="0" pos="168 8 32 24" buttonText="..."
+              virtualName="" explicitFocusOrder="0" pos="168 8 24 24" buttonText="..."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

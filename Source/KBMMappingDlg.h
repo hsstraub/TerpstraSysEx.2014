@@ -45,6 +45,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	MappingLogicBase* getMappingLogic() { return &mappingLogic; }
+
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     //[/UserMethods]
 
     void paint (Graphics& g) override;

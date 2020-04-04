@@ -143,6 +143,20 @@ void KBMMappingDlg::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+
+void KBMMappingDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	for (int i = 0; i < 4; i++)
+		channelMappingComponents[i]->restoreStateFromPropertiesFile(i, propertiesFile);
+}
+
+void KBMMappingDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	for (int i = 0; i < 4; i++)
+		channelMappingComponents[i]->saveStateToPropertiesFile(i, propertiesFile);
+}
+
 //[/MiscUserCode]
 
 

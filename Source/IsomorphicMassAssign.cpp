@@ -260,6 +260,16 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+    kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
+}
+
+void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+    kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
+}
+
 void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
 {
 	// XXX This could be in a common base class for all assign edit components

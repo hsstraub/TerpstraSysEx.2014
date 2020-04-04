@@ -49,6 +49,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	// Implementation of MappingLogicListener
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
 	// Set, save and maybe send data of one key
 	void setSaveSend(int setSelection, int keySelection, int noteIndex);
 

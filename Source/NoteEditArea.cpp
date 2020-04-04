@@ -190,12 +190,14 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	singleNoteAssign->restoreStateFromPropertiesFile(propertiesFile);
+	isomorphicMassAssign->restoreStateFromPropertiesFile(propertiesFile);
 	macroButtonsWindow->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	singleNoteAssign->saveStateToPropertiesFile(propertiesFile);
+	isomorphicMassAssign->saveStateToPropertiesFile(propertiesFile);
 	macroButtonsWindow->saveStateToPropertiesFile(propertiesFile);
 }
 
