@@ -21,6 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../../TerpstraSysEx.2014/JuceLibraryCode/JuceHeader.h"
+
+#include "MappingLogic.h"
 //[/Headers]
 
 
@@ -40,12 +42,11 @@ class KBMForOneChannel  : public Component,
 {
 public:
     //==============================================================================
-    KBMForOneChannel ();
+    KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic);
     ~KBMForOneChannel();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void setSubDlgIndex(int value) { subDlgIndex = value; };
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     void textEditorFocusLost(TextEditor& textEdit) override;
@@ -53,6 +54,8 @@ public:
 protected:
 	void updateTooltipFromFileObject();
 	void updateTextEditorFromFileObject();
+
+	void updateMappingLogic();
 
 public:
     //[/UserMethods]
@@ -68,6 +71,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		subDlgIndex;
 	File	currentFile;
+    KBMFilesMappingLogic*	pMappingLogic;
     //[/UserVariables]
 
     //==============================================================================

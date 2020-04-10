@@ -12,6 +12,7 @@
 #define MAPPINGLOGIC_H_INCLUDED
 
 #include "KeyboardDataStructure.h"
+#include "KBMMappingDataStructure.h"
 
 
 //==============================================================================
@@ -59,9 +60,15 @@ class IncrMidiNotesMappingLogic : public MappingLogicBase
 public:
 	IncrMidiNotesMappingLogic();
 
+    //===============================
+	// Set parameters
+
 	void setMaxMidiNote(int newMaxMIDINote);
 	void setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel);
 	void setValues(int newMaxMIDINote, int newChannelInCaseOfSingleChannel);
+
+    //===============================
+	// Access mapping data (overrides)
 
 	int globalMappingSize() const override;
 	TerpstraKey indexToTerpstraKey(int inx) const override;
@@ -82,6 +89,14 @@ class KBMFilesMappingLogic: public MappingLogicBase
 {
 public:
     KBMFilesMappingLogic();
+
+    //===============================
+	// Set parameters
+
+	void setMapping(int subDlgIndex, int midiChannel, KBMMappingDataStructure kbmMappingStructure);
+
+    //===============================
+	// Access mapping data (overrides)
 
  	int globalMappingSize() const override;
 	TerpstraKey indexToTerpstraKey(int inx) const override;

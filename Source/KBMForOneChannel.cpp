@@ -27,9 +27,11 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-KBMForOneChannel::KBMForOneChannel ()
+KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    this->subDlgIndex = subDlgIndex;
+    this->pMappingLogic = &mappingLogic;
     //[/Constructor_pre]
 
     channelBox.reset (new ComboBox ("channelBox"));
@@ -69,6 +71,10 @@ KBMForOneChannel::KBMForOneChannel ()
 
 
     //[Constructor] You can add your own custom stuff here..
+    channelBox->addItem("none", -1);      // Empty value
+
+    for (int i = 1; i <= 16; i++)
+        channelBox->addItem(String(i), i);
     //[/Constructor]
 }
 
@@ -105,8 +111,6 @@ void KBMForOneChannel::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-    for (int i = 1; i <= 16; i++)
-        channelBox->addItem(String(i), i);
     //[/UserResized]
 }
 
@@ -118,6 +122,21 @@ void KBMForOneChannel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == channelBox.get())
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
+
+        // If a channel is selected: enable file fields
+        if ( channelBox->getSelectedId() > 0 )
+        {
+            textMappingFile->setEnabled(true);
+            btnFileSelectMacro->setEnabled(true);
+        }
+        else
+        {
+            textMappingFile->setEnabled(false);
+            btnFileSelectMacro->setEnabled(false);
+        }
+
+        updateMappingLogic();
+
         //[/UserComboBoxCode_channelBox]
     }
 
@@ -138,6 +157,7 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 		{
 			currentFile = chooser.getResult();
 			updateTextEditorFromFileObject();
+			updateMappingLogic();
 		}
         //[/UserButtonCode_btnFileSelectMacro]
     }
@@ -152,21 +172,28 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 
 void KBMForOneChannel::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-    // ToDO MIDI channel
+	String keyName = "KBMChannel" + String(subDlgIndex);
+	int midiChannel = propertiesFile->getIntValue(keyName);
+	channelBox->setSelectedId(midiChannel, juce::dontSendNotification);
 
-	String keyName = "KBMFile" + String(subDlgIndex);
+	keyName = "KBMFile" + String(subDlgIndex);
 	String keyValue = propertiesFile->getValue(keyName);
+
 	currentFile = File(keyValue);
+
 	updateTextEditorFromFileObject();
+
+	updateMappingLogic();
 }
 
 void KBMForOneChannel::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-    // ToDO MIDI channel
+    int midiChannel = channelBox->getSelectedId();
+	String keyName = "KBMChannel" + String(subDlgIndex);
+	propertiesFile->setValue(keyName, midiChannel);
 
-	String keyName = "KBMFile" + String(subDlgIndex);
+	keyName = "KBMFile" + String(subDlgIndex);
 	String keyValue = currentFile.getFullPathName();
-
 	propertiesFile->setValue(keyName, keyValue);
 }
 
@@ -199,6 +226,24 @@ void KBMForOneChannel::updateTextEditorFromFileObject()
 	updateTooltipFromFileObject();
 }
 
+void KBMForOneChannel::updateMappingLogic()
+{
+    int midiChannel = channelBox->getSelectedId();
+    KBMMappingDataStructure kbmMappingStructure;
+
+
+    if (currentFile.existsAsFile())
+    {
+        StringArray stringArray;
+        currentFile.readLines(stringArray);
+        kbmMappingStructure.fromStringArray(stringArray);   // returns success yes/no. ToDO Something to do with this?
+    }
+
+    // Both midiChannel and kbmMappingStructure may be empty.
+    if (pMappingLogic != nullptr)
+        pMappingLogic->setMapping(subDlgIndex, midiChannel, kbmMappingStructure);
+}
+
 //[/MiscUserCode]
 
 
@@ -213,9 +258,9 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="KBMForOneChannel" componentName=""
                  parentClasses="public Component, public TextEditor::Listener"
-                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="200"
-                 initialHeight="32">
+                 constructorParams="int&#9;&#9;subDlgIndex, KBMFilesMappingLogic&amp;&#9;mappingLogic"
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="200" initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="channelBox" id="250a1dde474111c4" memberName="channelBox"
             virtualName="" explicitFocusOrder="0" pos="0 8 48 24" editable="0"

@@ -32,6 +32,9 @@ IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
 {
 }
 
+//===============================
+// Set parameters
+
 void IncrMidiNotesMappingLogic::setMaxMidiNote(int newMaxMIDINote)
 {
 	if (newMaxMIDINote != this->maxMIDINote)
@@ -65,6 +68,9 @@ void IncrMidiNotesMappingLogic::setValues(int newMaxMIDINote, int newChannelInCa
 		this->listeners.call(&Listener::mappingLogicChanged, this);
 	}
 }
+
+//================================
+// Access mapping data (overrides)
 
 int IncrMidiNotesMappingLogic::globalMappingSize() const
 {
@@ -124,6 +130,18 @@ int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 KBMFilesMappingLogic::KBMFilesMappingLogic()
 {
 }
+
+//===============================
+// Set parameters
+
+void KBMFilesMappingLogic::setMapping(int subDlgIndex, int midiChannel, KBMMappingDataStructure kbmMappingStructure)
+{
+    // ToDO
+
+}
+
+//================================
+// Access mapping data (overrides)
 
 int KBMFilesMappingLogic::globalMappingSize() const
 {

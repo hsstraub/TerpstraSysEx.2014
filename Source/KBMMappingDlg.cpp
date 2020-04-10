@@ -81,9 +81,8 @@ KBMMappingDlg::KBMMappingDlg ()
     //[UserPreSize]
 	for (int i = 0; i < 4; i++)
 	{
-		channelMappingComponents[i].reset(new KBMForOneChannel());
+		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic));
 		addAndMakeVisible(channelMappingComponents[i].get());
-		channelMappingComponents[i]->setSubDlgIndex(i);
 	}
     //[/UserPreSize]
 
