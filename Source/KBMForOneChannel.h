@@ -45,8 +45,9 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void restoreStateFromPropertiesFile(int subDlgIndex, PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(int subDlgIndex, PropertiesFile* propertiesFile);
+	void setSubDlgIndex(int value) { subDlgIndex = value; };
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     void textEditorFocusLost(TextEditor& textEdit) override;
 
 protected:
@@ -65,6 +66,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	int		subDlgIndex;
 	File	currentFile;
     //[/UserVariables]
 

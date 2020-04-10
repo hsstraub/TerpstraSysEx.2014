@@ -83,6 +83,7 @@ KBMMappingDlg::KBMMappingDlg ()
 	{
 		channelMappingComponents[i].reset(new KBMForOneChannel());
 		addAndMakeVisible(channelMappingComponents[i].get());
+		channelMappingComponents[i]->setSubDlgIndex(i);
 	}
     //[/UserPreSize]
 
@@ -148,13 +149,13 @@ void KBMMappingDlg::resized()
 void KBMMappingDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	for (int i = 0; i < 4; i++)
-		channelMappingComponents[i]->restoreStateFromPropertiesFile(i, propertiesFile);
+		channelMappingComponents[i]->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void KBMMappingDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	for (int i = 0; i < 4; i++)
-		channelMappingComponents[i]->saveStateToPropertiesFile(i, propertiesFile);
+		channelMappingComponents[i]->saveStateToPropertiesFile(propertiesFile);
 }
 
 //[/MiscUserCode]

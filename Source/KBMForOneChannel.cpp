@@ -150,16 +150,20 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void KBMForOneChannel::restoreStateFromPropertiesFile(int subDlgIndex, PropertiesFile* propertiesFile)
+void KBMForOneChannel::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
+    // ToDO MIDI channel
+
 	String keyName = "KBMFile" + String(subDlgIndex);
 	String keyValue = propertiesFile->getValue(keyName);
 	currentFile = File(keyValue);
 	updateTextEditorFromFileObject();
 }
 
-void KBMForOneChannel::saveStateToPropertiesFile(int subDlgIndex, PropertiesFile* propertiesFile)
+void KBMForOneChannel::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
+    // ToDO MIDI channel
+
 	String keyName = "KBMFile" + String(subDlgIndex);
 	String keyValue = currentFile.getFullPathName();
 
