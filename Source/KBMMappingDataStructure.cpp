@@ -21,7 +21,25 @@ KBMMappingDataStructure::KBMMappingDataStructure()
     referenceNoteFrequency = 440.0;
     scaleSize = 12;
 
-    theMapping = Array<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
+    noteMappingTable = Array<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
+}
+
+// Returns a descriptive error message if format is not valid, or an empty string
+String KBMMappingDataStructure::getErrorMessage() const
+{
+    if (firstMIDINoteNr > lastMIDINoteNr)
+        return "First MIDI note is higher than lastMIDINote";
+
+    if (noteMappingTable.size() > mapSize)
+        return "Mapping table larger than mapping size";
+
+    if (mapSize == 0)
+        return "Map size 0 is not supported at the moment";
+
+    if (noteMappingTable[mappingIndexOfReferenceNote()] < 0)
+        return ("No mapping specified for reference note");
+
+    return "";
 }
 
 // Read from a string array as it stands in a KBM file. Returns true if successful
@@ -48,9 +66,9 @@ bool KBMMappingDataStructure::fromStringArray(const StringArray& stringArray)
     scaleSize = valuesWithoutComments[6].getIntValue();
 
     // The mapping is supposed to contain at most mapSizer entries. We just read them all here.
-    theMapping.clear();
+    noteMappingTable.clear();
     for ( int i = 7; i < valuesWithoutComments.size(); i++)
-        theMapping.add(valuesWithoutComments[i].indexOf("x") >= 0 ? -1 : valuesWithoutComments[i].getIntValue());
+        noteMappingTable.add(valuesWithoutComments[i].indexOf("x") >= 0 ? -1 : valuesWithoutComments[i].getIntValue());
 
     return true;
 }
@@ -81,8 +99,40 @@ StringArray KBMMappingDataStructure::toStringArray(const String& description)
 	result.add("! the given middle note, the next for subsequent higher keys.");
 	result.add("For an unmapped key, put in an 'x'. At the end, unmapped keys may be left out.");
 
-	for ( int i = 0; i<theMapping.size(); i++ )
-        result.add(theMapping[i] >= 0 ? String(theMapping[i]) : "x");
+	for ( int i = 0; i<noteMappingTable.size(); i++ )
+        result.add(noteMappingTable[i] >= 0 ? String(noteMappingTable[i]) : "x");
 
 	return result;
+}
+
+int KBMMappingDataStructure::mappingIndexOFMIDINote(int midiNoteNr) const
+{
+    // ToDO Logic for mapSize == 0
+    return (midiNoteNr - noteNrWhereMappingStarts) % mapSize;
+}
+
+// Create note - frequency table
+KBMMappingDataStructure::NoteAndFrequencyTable KBMMappingDataStructure::createNoteFrequencyTable() const
+{
+    KBMMappingDataStructure::NoteAndFrequencyTable result;
+
+    if (!isValid() || isEmpty())
+        return result;
+
+    for ( int midiNoteNr = firstMIDINoteNr; midiNoteNr <= lastMIDINoteNr; midiNoteNr++)
+    {
+        // ToDo special logic with mapSize == 0
+        int indexFromStartOfMap = mappingIndexOFMIDINote(midiNoteNr);
+        int mappingValue = noteMappingTable[indexFromStartOfMap];
+        if (mappingValue < 0)
+            continue;   // Not mapped
+
+        int indexFromReferenceNote = midiNoteNr - referenceNoteNr;
+
+        int currentStartOfMap =  midiNoteNr - indexFromStartOfMap;
+
+        // ToDO
+    }
+
+    return result;
 }

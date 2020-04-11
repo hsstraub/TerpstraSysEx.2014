@@ -57,7 +57,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::unique_ptr<KBMForOneChannel>	channelMappingComponents[4];
+    std::unique_ptr<KBMForOneChannel>	channelMappingComponents[KBMFilesMappingLogic::noOfChannels];
    	KBMFilesMappingLogic	mappingLogic;
     //[/UserVariables]
 

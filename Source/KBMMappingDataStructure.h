@@ -13,17 +13,35 @@
 
 class KBMMappingDataStructure
 {
+    // Types
+public:
+    struct noteAndFrequency
+    {
+        int midiNote;
+        float frequency;
+    };
+
+    typedef Array<noteAndFrequency> NoteAndFrequencyTable;
+
 public:
     KBMMappingDataStructure();
 
-    bool isValid() const { return firstMIDINoteNr <= lastMIDINoteNr && theMapping.size() <= mapSize; }
+    String getErrorMessage() const;
+    bool isValid() const { return getErrorMessage().isEmpty(); };
     bool isEmpty() const { return firstMIDINoteNr > lastMIDINoteNr; }
 
     // Read from a string array as it stands in a KBM file
 	bool fromStringArray(const StringArray& stringArray);
 
 	// Convert to string array, to be written to a KBM file
-	StringArray toStringArray(const String& description);
+    StringArray toStringArray(const String& description);
+
+	// Create note - frequency table
+	NoteAndFrequencyTable createNoteFrequencyTable() const;
+
+protected:
+    int mappingIndexOFMIDINote(int midiNoteNr) const;
+    int mappingIndexOfReferenceNote() const { return mappingIndexOFMIDINote(referenceNoteNr); }
 
 // Attributes
 public:
@@ -52,6 +70,5 @@ public:
    // The numbers represent scale degrees mapped to keys. The first entry is for
    // the given middle note, the next for subsequent higher keys.
    // A value of -1 means an unmapped key. At the end, unmapped keys may be left out.
-   Array<int> theMapping;
-
+   Array<int> noteMappingTable;
 };

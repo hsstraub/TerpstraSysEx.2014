@@ -79,7 +79,7 @@ KBMMappingDlg::KBMMappingDlg ()
 
 
     //[UserPreSize]
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
 	{
 		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic));
 		addAndMakeVisible(channelMappingComponents[i].get());
@@ -105,7 +105,7 @@ KBMMappingDlg::~KBMMappingDlg()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
 		channelMappingComponents[i] = nullptr;
     //[/Destructor]
 }
@@ -132,10 +132,11 @@ void KBMMappingDlg::resized()
     auto col1 = lblChannel->getX();
     auto col2 = lblChannel2->getX();
 
- 	for (int i = 0; i < 2; i ++)
+    int noOfRows = KBMFilesMappingLogic::noOfChannels/2;
+ 	for (int i = 0; i < noOfRows; i ++)
 	{
 		channelMappingComponents[i]->setBounds(col1, 32 + 32 * i, channelMappingComponents[i]->getWidth(), 32);
-		channelMappingComponents[i + 2]->setBounds(col2, 32 + 32 * i, channelMappingComponents[i+2]->getWidth(), 32);
+		channelMappingComponents[noOfRows + i]->setBounds(col2, 32 + 32 * i, channelMappingComponents[noOfRows + i]->getWidth(), 32);
 	}
     //[/UserResized]
 }
@@ -147,13 +148,13 @@ void KBMMappingDlg::resized()
 
 void KBMMappingDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
 		channelMappingComponents[i]->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void KBMMappingDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
 		channelMappingComponents[i]->saveStateToPropertiesFile(propertiesFile);
 }
 

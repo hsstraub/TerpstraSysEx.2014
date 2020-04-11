@@ -98,10 +98,25 @@ public:
     //===============================
 	// Access mapping data (overrides)
 
+
  	int globalMappingSize() const override;
 	TerpstraKey indexToTerpstraKey(int inx) const override;
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
 
+    //===============================
+    // Attributes
+
+    // Number of channels that can have a KBM file specified (Limited by the amount of space on the screen)
+    static const int noOfChannels = 4;
+
+private:
+    struct KBMMappingWithChannel
+    {
+        int channel;
+        KBMMappingDataStructure mapping;
+    };
+
+    KBMMappingWithChannel mappingData[noOfChannels];
 
 };
 

@@ -32,7 +32,7 @@ IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
 {
 }
 
-//===============================
+//=============================================================
 // Set parameters
 
 void IncrMidiNotesMappingLogic::setMaxMidiNote(int newMaxMIDINote)
@@ -69,7 +69,7 @@ void IncrMidiNotesMappingLogic::setValues(int newMaxMIDINote, int newChannelInCa
 	}
 }
 
-//================================
+//============================================================
 // Access mapping data (overrides)
 
 int IncrMidiNotesMappingLogic::globalMappingSize() const
@@ -131,16 +131,24 @@ KBMFilesMappingLogic::KBMFilesMappingLogic()
 {
 }
 
-//===============================
+//==============================================================
 // Set parameters
 
 void KBMFilesMappingLogic::setMapping(int subDlgIndex, int midiChannel, KBMMappingDataStructure kbmMappingStructure)
 {
+    jassert(subDlgIndex >= 0 && subDlgIndex < noOfChannels);
+
+    KBMMappingWithChannel mapping;
+    mapping.channel = midiChannel;
+    mapping.mapping = kbmMappingStructure;
+
+    mappingData[subDlgIndex] = mapping;
+
     // ToDO
 
 }
 
-//================================
+//=================================================================
 // Access mapping data (overrides)
 
 int KBMFilesMappingLogic::globalMappingSize() const
