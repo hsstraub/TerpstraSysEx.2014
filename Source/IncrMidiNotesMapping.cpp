@@ -171,8 +171,7 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
 			channelBox->setVisible(true);
 			// Make sure something is selected
 			if (channelBox->getSelectedId() <= 0)
-				channelBox->setSelectedId(1, juce::dontSendNotification);
-			this->mappingLogic.setChannelInCaseOfSingleChannel(channelBox->getSelectedId());	// 0 for no selection or 1-16
+				channelBox->setSelectedId(1);   // This will generate an uppdate of the mapping logic via comboBoxChanged
 		}
         //[/UserButtonCode_singleChannelButton]
     }

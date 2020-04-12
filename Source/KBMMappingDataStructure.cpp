@@ -36,7 +36,7 @@ String KBMMappingDataStructure::getErrorMessage() const
     if (mapSize == 0)
         return "Map size 0 is not supported at the moment";
 
-    if (noteMappingTable[mappingIndexOfReferenceNote()] < 0)
+    if (noteMappingTable[getMappingIndexOfReferenceNote()] < 0)
         return ("No mapping specified for reference note");
 
     return "";
@@ -48,7 +48,7 @@ bool KBMMappingDataStructure::fromStringArray(const StringArray& stringArray)
     StringArray valuesWithoutComments;
 
         // Omit comment lines
-    for ( int i; i < stringArray.size(); i++)
+    for ( int i = 0; i < stringArray.size(); i++)
     {
         if (stringArray[i].indexOf("!") < 0)
             valuesWithoutComments.add(stringArray[i]);
@@ -105,7 +105,7 @@ StringArray KBMMappingDataStructure::toStringArray(const String& description)
 	return result;
 }
 
-int KBMMappingDataStructure::mappingIndexOFMIDINote(int midiNoteNr) const
+int KBMMappingDataStructure::getMappingIndexOFMIDINote(int midiNoteNr) const
 {
     // ToDO Logic for mapSize == 0
     return (midiNoteNr - noteNrWhereMappingStarts) % mapSize;
@@ -119,19 +119,65 @@ KBMMappingDataStructure::NoteAndFrequencyTable KBMMappingDataStructure::createNo
     if (!isValid() || isEmpty())
         return result;
 
+    // ToDo special logic with mapSize == 0
+    jassert(mapSize > 0);
+
+    int mapStartIndexOfReferenceNote = getMapStartIndexOfReferenceNote();
+    int mapValueOfReferenceNote = noteMappingTable[getMappingIndexOfReferenceNote()];   // Supposed to have a value (was checked in isValid())
+    float scaleStepInterval = pow(2, 1/scaleSize);
+
     for ( int midiNoteNr = firstMIDINoteNr; midiNoteNr <= lastMIDINoteNr; midiNoteNr++)
     {
-        // ToDo special logic with mapSize == 0
-        int indexFromStartOfMap = mappingIndexOFMIDINote(midiNoteNr);
-        int mappingValue = noteMappingTable[indexFromStartOfMap];
-        if (mappingValue < 0)
+        int indexFromStartOfMap = getMappingIndexOFMIDINote(midiNoteNr);
+        int currentMappingValue = noteMappingTable[indexFromStartOfMap];
+        if (currentMappingValue < 0)
             continue;   // Not mapped
 
-        int indexFromReferenceNote = midiNoteNr - referenceNoteNr;
+        int currentStartOfMap =  getMapStartIndexOfMIDINote(midiNoteNr);
+        int octaveDifference = (currentStartOfMap - mapStartIndexOfReferenceNote) / mapSize;
 
-        int currentStartOfMap =  midiNoteNr - indexFromStartOfMap;
+        int relativeMapValueDifference = currentMappingValue - mapValueOfReferenceNote;
 
-        // ToDO
+        noteAndFrequency resultValue;
+        resultValue.midiNote = midiNoteNr;
+        resultValue.frequency = referenceNoteFrequency;
+
+        if (octaveDifference >= 0)
+        {
+            while ( octaveDifference > 0)
+            {
+                resultValue.frequency *= 2;
+                octaveDifference--;
+            }
+        }
+        else
+        {
+            while ( octaveDifference < 0)
+            {
+                resultValue.frequency /= 2;
+                octaveDifference++;
+            }
+        }
+
+
+        if ( relativeMapValueDifference > 0)
+        {
+            while ( relativeMapValueDifference > 0)
+            {
+                resultValue.frequency *= scaleStepInterval;
+                relativeMapValueDifference--;
+            }
+        }
+        else
+        {
+            while ( relativeMapValueDifference < 0)
+            {
+                resultValue.frequency /= scaleStepInterval;
+                relativeMapValueDifference++;
+            }
+        }
+
+        result.add(resultValue);
     }
 
     return result;

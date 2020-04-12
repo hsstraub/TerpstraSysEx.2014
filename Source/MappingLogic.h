@@ -94,11 +94,12 @@ public:
 	// Set parameters
 
 	void setMapping(int subDlgIndex, int midiChannel, KBMMappingDataStructure kbmMappingStructure);
+protected:
+    void createMappingTable();
 
     //===============================
 	// Access mapping data (overrides)
-
-
+public:
  	int globalMappingSize() const override;
 	TerpstraKey indexToTerpstraKey(int inx) const override;
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
@@ -112,11 +113,14 @@ public:
 private:
     struct KBMMappingWithChannel
     {
-        int channel;
+        int channel = 0;
         KBMMappingDataStructure mapping;
     };
 
-    KBMMappingWithChannel mappingData[noOfChannels];
+    KBMMappingWithChannel channelMappingData[noOfChannels];
+
+    // Frequency to key definition mapping. Key must be integer for the default hash funciton to work
+    HashMap<int, TerpstraKey> mappingTable;
 
 };
 

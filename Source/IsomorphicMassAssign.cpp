@@ -378,7 +378,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 	for (int i = 0; i < mappingLogicThatChanged->globalMappingSize(); i++)
 	{
 		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
-		// XXX format text
+
 		startingPointBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
 	}
 }

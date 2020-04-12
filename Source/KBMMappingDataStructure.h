@@ -40,8 +40,12 @@ public:
 	NoteAndFrequencyTable createNoteFrequencyTable() const;
 
 protected:
-    int mappingIndexOFMIDINote(int midiNoteNr) const;
-    int mappingIndexOfReferenceNote() const { return mappingIndexOFMIDINote(referenceNoteNr); }
+    int getMappingIndexOFMIDINote(int midiNoteNr) const;
+
+    int getMapStartIndexOfMIDINote(int midiNoteNr) const { return midiNoteNr - getMappingIndexOFMIDINote(midiNoteNr); }
+
+    int getMappingIndexOfReferenceNote() const { return getMappingIndexOFMIDINote(referenceNoteNr); }
+    int getMapStartIndexOfReferenceNote() const { return getMapStartIndexOfMIDINote(referenceNoteNr); }
 
 // Attributes
 public:

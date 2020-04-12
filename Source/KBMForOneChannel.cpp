@@ -133,6 +133,9 @@ void KBMForOneChannel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         {
             textMappingFile->setEnabled(false);
             btnFileSelectMacro->setEnabled(false);
+
+            currentFile = File();
+			updateTextEditorFromFileObject();
         }
 
         updateMappingLogic();

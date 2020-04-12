@@ -138,37 +138,82 @@ void KBMFilesMappingLogic::setMapping(int subDlgIndex, int midiChannel, KBMMappi
 {
     jassert(subDlgIndex >= 0 && subDlgIndex < noOfChannels);
 
-    KBMMappingWithChannel mapping;
-    mapping.channel = midiChannel;
-    mapping.mapping = kbmMappingStructure;
+    KBMMappingWithChannel channelMapping;
+    channelMapping.channel = midiChannel;
+    channelMapping.mapping = kbmMappingStructure;
 
-    mappingData[subDlgIndex] = mapping;
+    channelMappingData[subDlgIndex] = channelMapping;
 
-    // ToDO
-
+    createMappingTable();
 }
+
+void KBMFilesMappingLogic::createMappingTable()
+{
+    mappingTable.clear();
+
+    for ( int subTableIndex = 0; subTableIndex < noOfChannels; subTableIndex++)
+    {
+        if (channelMappingData[subTableIndex].channel > 0)
+        {
+            KBMMappingDataStructure::NoteAndFrequencyTable noteAndFrequencyTable =
+                channelMappingData[subTableIndex].mapping.createNoteFrequencyTable();
+
+            for ( int k = 0; k < noteAndFrequencyTable.size(); k++)
+            {
+                // Key in mapping table must be integer
+                int keyInTable = roundToInt(noteAndFrequencyTable[k].frequency*1000);
+                if (!mappingTable.contains(keyInTable))
+                {
+                    TerpstraKey keyData;
+                    keyData.channelNumber = channelMappingData[subTableIndex].channel;
+                    keyData.noteNumber = noteAndFrequencyTable[k].midiNote;
+
+                    mappingTable.set(keyInTable, keyData);
+                }
+                // else: more than one key are defined for the same frequency. We just choose one of them
+            }
+        }
+    }
+
+    // Notify listeners
+    this->listeners.call(&Listener::mappingLogicChanged, this);
+}
+
 
 //=================================================================
 // Access mapping data (overrides)
 
 int KBMFilesMappingLogic::globalMappingSize() const
 {
-    // ToDo
-    return 127;
+    return mappingTable.size();
 }
 
 TerpstraKey KBMFilesMappingLogic::indexToTerpstraKey(int inx) const
 {
-    // ToDo
-    TerpstraKey keyData;
-    keyData.channelNumber = 1;
-    keyData.noteNumber = inx;
+	if (inx < 0 || inx >= this->globalMappingSize())
+		return TerpstraKey();	// Empty value
 
-    return keyData;
+    HashMap<int, TerpstraKey>::Iterator itr(mappingTable);
+    for ( int i = 0; i < inx; i++)
+        itr.next();
+
+    return itr.getValue();
 }
 
 int KBMFilesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 {
-    // ToDo
-    return keyData.noteNumber;
+	if (keyData.isEmpty() || this->globalMappingSize() == 0)
+		return -1;
+
+    int resultInx = -1;
+    int localInx = -1;
+    HashMap<int, TerpstraKey>::Iterator itr(mappingTable);
+    while (itr.next() && resultInx < 0)
+    {
+        localInx++;
+        if ( itr.getValue().channelNumber == keyData.channelNumber && itr.getValue().noteNumber == keyData.noteNumber )
+            resultInx = localInx;
+    }
+
+    return resultInx;
 }
