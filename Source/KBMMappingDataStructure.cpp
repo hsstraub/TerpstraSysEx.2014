@@ -47,10 +47,10 @@ bool KBMMappingDataStructure::fromStringArray(const StringArray& stringArray)
 {
     StringArray valuesWithoutComments;
 
-        // Omit comment lines
+        // Omit empty and comment lines
     for ( int i = 0; i < stringArray.size(); i++)
     {
-        if (stringArray[i].indexOf("!") < 0)
+        if (stringArray[i].indexOf("!") < 0 && !stringArray[i].trim().isEmpty())
             valuesWithoutComments.add(stringArray[i]);
     }
 
@@ -124,7 +124,7 @@ KBMMappingDataStructure::NoteAndFrequencyTable KBMMappingDataStructure::createNo
 
     int mapStartIndexOfReferenceNote = getMapStartIndexOfReferenceNote();
     int mapValueOfReferenceNote = noteMappingTable[getMappingIndexOfReferenceNote()];   // Supposed to have a value (was checked in isValid())
-    float scaleStepInterval = pow(2, 1/scaleSize);
+    float scaleStepInterval = pow(2, 1.0/scaleSize);
 
     for ( int midiNoteNr = firstMIDINoteNr; midiNoteNr <= lastMIDINoteNr; midiNoteNr++)
     {
@@ -139,7 +139,7 @@ KBMMappingDataStructure::NoteAndFrequencyTable KBMMappingDataStructure::createNo
         int relativeMapValueDifference = currentMappingValue - mapValueOfReferenceNote;
 
         noteAndFrequency resultValue;
-        resultValue.midiNote = midiNoteNr;
+        resultValue.noteNumber = midiNoteNr;
         resultValue.frequency = referenceNoteFrequency;
 
         if (octaveDifference >= 0)

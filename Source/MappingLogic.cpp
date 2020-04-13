@@ -139,7 +139,7 @@ void KBMFilesMappingLogic::setMapping(int subDlgIndex, int midiChannel, KBMMappi
     jassert(subDlgIndex >= 0 && subDlgIndex < noOfChannels);
 
     KBMMappingWithChannel channelMapping;
-    channelMapping.channel = midiChannel;
+    channelMapping.channelNumber = midiChannel;
     channelMapping.mapping = kbmMappingStructure;
 
     channelMappingData[subDlgIndex] = channelMapping;
@@ -153,24 +153,19 @@ void KBMFilesMappingLogic::createMappingTable()
 
     for ( int subTableIndex = 0; subTableIndex < noOfChannels; subTableIndex++)
     {
-        if (channelMappingData[subTableIndex].channel > 0)
+        if (channelMappingData[subTableIndex].channelNumber > 0)
         {
             KBMMappingDataStructure::NoteAndFrequencyTable noteAndFrequencyTable =
                 channelMappingData[subTableIndex].mapping.createNoteFrequencyTable();
 
             for ( int k = 0; k < noteAndFrequencyTable.size(); k++)
             {
-                // Key in mapping table must be integer
-                int keyInTable = roundToInt(noteAndFrequencyTable[k].frequency*1000);
-                if (!mappingTable.contains(keyInTable))
-                {
-                    TerpstraKey keyData;
-                    keyData.channelNumber = channelMappingData[subTableIndex].channel;
-                    keyData.noteNumber = noteAndFrequencyTable[k].midiNote;
+                KBMMappingTableEntry tableEntry;
+                tableEntry.channelNumber = channelMappingData[subTableIndex].channelNumber;
+                tableEntry.noteNumber = noteAndFrequencyTable[k].noteNumber;
+                tableEntry.frequency = noteAndFrequencyTable[k].frequency;
 
-                    mappingTable.set(keyInTable, keyData);
-                }
-                // else: more than one key are defined for the same frequency. We just choose one of them
+                mappingTable.add(tableEntry);   // This adds entry only if there is no other entry woth the same frequency.
             }
         }
     }
@@ -190,30 +185,27 @@ int KBMFilesMappingLogic::globalMappingSize() const
 
 TerpstraKey KBMFilesMappingLogic::indexToTerpstraKey(int inx) const
 {
-	if (inx < 0 || inx >= this->globalMappingSize())
+	if (inx < 0 || inx >= globalMappingSize())
 		return TerpstraKey();	// Empty value
 
-    HashMap<int, TerpstraKey>::Iterator itr(mappingTable);
-    for ( int i = 0; i < inx; i++)
-        itr.next();
+	TerpstraKey keyData;
+    keyData.channelNumber = mappingTable[inx].channelNumber;
+    keyData.noteNumber = mappingTable[inx].noteNumber;
 
-    return itr.getValue();
+    return keyData;
 }
 
 int KBMFilesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 {
-	if (keyData.isEmpty() || this->globalMappingSize() == 0)
+	if (keyData.isEmpty() || globalMappingSize() == 0)
 		return -1;
 
-    int resultInx = -1;
-    int localInx = -1;
-    HashMap<int, TerpstraKey>::Iterator itr(mappingTable);
-    while (itr.next() && resultInx < 0)
+	int inx;
+    for ( inx = 0; inx < globalMappingSize(); inx++)
     {
-        localInx++;
-        if ( itr.getValue().channelNumber == keyData.channelNumber && itr.getValue().noteNumber == keyData.noteNumber )
-            resultInx = localInx;
+        if ( mappingTable[inx].channelNumber == keyData.channelNumber && mappingTable[inx].noteNumber == keyData.noteNumber )
+            break;
     }
 
-    return resultInx;
+    return inx < globalMappingSize() ? inx : -1;
 }

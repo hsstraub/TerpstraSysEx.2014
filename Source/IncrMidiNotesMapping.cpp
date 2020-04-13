@@ -202,6 +202,19 @@ void IncrMidiNotesMapping::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[/UsercomboBoxChanged_Post]
 }
 
+void IncrMidiNotesMapping::visibilityChanged()
+{
+    //[UserCode_visibilityChanged] -- Add your code here...
+    if ( isVisible())
+    {
+        // Re-fill note combo box according to mapping logic
+        this->mappingLogic.setValues(
+            channelAutoIncrNoteBox->getSelectedItemIndex(),
+            channelAutoIncrButton->getToggleState() ? channelBox->getSelectedId() : 0);
+    }
+    //[/UserCode_visibilityChanged]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -223,6 +236,9 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="416" initialHeight="220">
+  <METHODS>
+    <METHOD name="visibilityChanged()"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ffb8d0de"/>
   <TOGGLEBUTTON name="channelAutoIncrButton" id="1749290d10236ec3" memberName="channelAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 64 280 24" tooltip="Auto-increment channel after maximal note is reached"

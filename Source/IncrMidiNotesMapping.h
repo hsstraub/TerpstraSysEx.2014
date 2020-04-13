@@ -52,6 +52,7 @@ public:
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void visibilityChanged() override;
 
 
 

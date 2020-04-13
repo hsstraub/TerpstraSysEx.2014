@@ -17,7 +17,7 @@ class KBMMappingDataStructure
 public:
     struct noteAndFrequency
     {
-        int midiNote;
+        int noteNumber;
         float frequency;
     };
 

@@ -33,13 +33,15 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+
+    // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
 	incrMidiNotesMapping.reset(new IncrMidiNotesMapping());
-	addAndMakeVisible(incrMidiNotesMapping.get());
 	incrMidiNotesMapping->setVisible(false);
+	addChildComponent(incrMidiNotesMapping.get());
 
 	kbmMappingDlg.reset(new KBMMappingDlg());
-	addAndMakeVisible(kbmMappingDlg.get());
 	kbmMappingDlg->setVisible(false);
+	addChildComponent(kbmMappingDlg.get());
 
 	mappingLogic = nullptr;
     //[/Constructor_pre]
@@ -378,6 +380,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 	for (int i = 0; i < mappingLogicThatChanged->globalMappingSize(); i++)
 	{
 		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
+		jassert(!keyData.isEmpty());
 
 		startingPointBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
 	}

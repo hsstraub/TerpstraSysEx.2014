@@ -141,6 +141,18 @@ void KBMMappingDlg::resized()
     //[/UserResized]
 }
 
+void KBMMappingDlg::visibilityChanged()
+{
+    //[UserCode_visibilityChanged] -- Add your code here...
+    if (isVisible())
+    {
+         // Re-fill note combo box according to mapping logic
+       	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i ++)
+            channelMappingComponents[i]->updateMappingLogic();
+    }
+    //[/UserCode_visibilityChanged]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -174,6 +186,9 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="416" initialHeight="220">
+  <METHODS>
+    <METHOD name="visibilityChanged()"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblChannel" id="dda6cf104269f7ea" memberName="lblChannel"
          virtualName="" explicitFocusOrder="0" pos="0 8 40 24" edTextCol="ff000000"

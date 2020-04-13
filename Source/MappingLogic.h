@@ -87,6 +87,29 @@ private:
 // Mapping logic for KBM files
 class KBMFilesMappingLogic: public MappingLogicBase
 {
+    //===============================
+    // Types
+private:
+    struct KBMMappingWithChannel
+    {
+        int channelNumber = 0;
+        KBMMappingDataStructure mapping;
+    };
+
+    class KBMMappingTableEntry : public KBMMappingDataStructure::noteAndFrequency
+    {
+    public:
+        int channelNumber;
+
+    public:
+        // Comparison operators, so a list of it can be sorted
+        bool operator==(const KBMMappingTableEntry& second) const { return this->frequency == second.frequency; }
+        bool operator<(const KBMMappingTableEntry& second) const { return this->frequency < second.frequency; }
+        bool operator>(const KBMMappingTableEntry& second) const { return this->frequency > second.frequency; }
+        bool operator<=(const KBMMappingTableEntry& second) const { return this->frequency <= second.frequency; }
+        bool operator>=(const KBMMappingTableEntry& second) const { return this->frequency >= second.frequency; }
+    };
+
 public:
     KBMFilesMappingLogic();
 
@@ -111,16 +134,10 @@ public:
     static const int noOfChannels = 4;
 
 private:
-    struct KBMMappingWithChannel
-    {
-        int channel = 0;
-        KBMMappingDataStructure mapping;
-    };
-
     KBMMappingWithChannel channelMappingData[noOfChannels];
 
     // Frequency to key definition mapping. Key must be integer for the default hash funciton to work
-    HashMap<int, TerpstraKey> mappingTable;
+    SortedSet<KBMMappingTableEntry> mappingTable;
 
 };
 

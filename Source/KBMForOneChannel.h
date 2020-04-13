@@ -51,11 +51,11 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     void textEditorFocusLost(TextEditor& textEdit) override;
 
+	void updateMappingLogic();
+
 protected:
 	void updateTooltipFromFileObject();
 	void updateTextEditorFromFileObject();
-
-	void updateMappingLogic();
 
 public:
     //[/UserMethods]

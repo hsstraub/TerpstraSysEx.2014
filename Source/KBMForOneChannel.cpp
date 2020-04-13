@@ -186,7 +186,8 @@ void KBMForOneChannel::restoreStateFromPropertiesFile(PropertiesFile* properties
 
 	updateTextEditorFromFileObject();
 
-	updateMappingLogic();
+	if ( this->isVisible() && this->getParentComponent()->isVisible())
+        updateMappingLogic();
 }
 
 void KBMForOneChannel::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
