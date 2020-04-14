@@ -51,11 +51,7 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     void textEditorFocusLost(TextEditor& textEdit) override;
 
-	void updateMappingLogic();
-
-protected:
-	void updateTooltipFromFileObject();
-	void updateTextEditorFromFileObject();
+	void updateFieldsAndMappingLogic();
 
 public:
     //[/UserMethods]
@@ -71,6 +67,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		subDlgIndex;
 	File	currentFile;
+	KBMMappingDataStructure kbmMappingStructure;
     KBMFilesMappingLogic*	pMappingLogic;
     //[/UserVariables]
 

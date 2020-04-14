@@ -148,7 +148,7 @@ void KBMMappingDlg::visibilityChanged()
     {
          // Re-fill note combo box according to mapping logic
        	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i ++)
-            channelMappingComponents[i]->updateMappingLogic();
+            channelMappingComponents[i]->updateFieldsAndMappingLogic();
     }
     //[/UserCode_visibilityChanged]
 }

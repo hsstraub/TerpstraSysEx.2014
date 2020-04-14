@@ -135,10 +135,9 @@ void KBMForOneChannel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
             btnFileSelectMacro->setEnabled(false);
 
             currentFile = File();
-			updateTextEditorFromFileObject();
         }
 
-        updateMappingLogic();
+        updateFieldsAndMappingLogic();
 
         //[/UserComboBoxCode_channelBox]
     }
@@ -159,8 +158,7 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
 		if (chooser.browseForFileToOpen())
 		{
 			currentFile = chooser.getResult();
-			updateTextEditorFromFileObject();
-			updateMappingLogic();
+			updateFieldsAndMappingLogic();
 		}
         //[/UserButtonCode_btnFileSelectMacro]
     }
@@ -184,10 +182,8 @@ void KBMForOneChannel::restoreStateFromPropertiesFile(PropertiesFile* properties
 
 	currentFile = File(keyValue);
 
-	updateTextEditorFromFileObject();
-
 	if ( this->isVisible() && this->getParentComponent()->isVisible())
-        updateMappingLogic();
+        updateFieldsAndMappingLogic();
 }
 
 void KBMForOneChannel::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -206,42 +202,37 @@ void KBMForOneChannel::textEditorFocusLost(TextEditor& textEdit)
 	if (&textEdit == textMappingFile.get())
 	{
 		currentFile = File(textMappingFile->getText());
-		updateTooltipFromFileObject();
+		updateFieldsAndMappingLogic();
 	}
 }
 
-// Set tooltip to full path of file, or "File not found"
-void KBMForOneChannel::updateTooltipFromFileObject()
-{
-	if (currentFile.existsAsFile())
-	{
-		textMappingFile->setTooltip(currentFile.getFullPathName());
-	}
-	else
-	{
-		textMappingFile->setTooltip("File not found");
-	}
-}
-
-// Set text editor text to file name and tooltip to full path (or "File not found")
-void KBMForOneChannel::updateTextEditorFromFileObject()
-{
-	textMappingFile->setText(currentFile.getFileName());
-	updateTooltipFromFileObject();
-}
-
-void KBMForOneChannel::updateMappingLogic()
+void KBMForOneChannel::updateFieldsAndMappingLogic()
 {
     int midiChannel = channelBox->getSelectedId();
-    KBMMappingDataStructure kbmMappingStructure;
 
+    // Edit field: file name (without full path), to save space
+	textMappingFile->setText(currentFile.getFileName());
 
     if (currentFile.existsAsFile())
     {
         StringArray stringArray;
         currentFile.readLines(stringArray);
-        kbmMappingStructure.fromStringArray(stringArray);   // returns success yes/no. ToDO Something to do with this?
+        kbmMappingStructure.fromStringArray(stringArray);
+
+        // Tooltip: either the file name with full path or an error message
+        String errorMsg = kbmMappingStructure.getErrorMessage();
+        if (!errorMsg.isEmpty())
+            textMappingFile->setTooltip(errorMsg);
+        else
+            textMappingFile->setTooltip(currentFile.getFullPathName());
+
+        // ToDO in case of error: also different colour of edit field  or skimilar...
     }
+	else
+	{
+		textMappingFile->setTooltip("File not found");
+		kbmMappingStructure = KBMMappingDataStructure();
+	}
 
     // Both midiChannel and kbmMappingStructure may be empty.
     if (pMappingLogic != nullptr)

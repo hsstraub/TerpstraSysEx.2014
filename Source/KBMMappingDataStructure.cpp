@@ -28,7 +28,7 @@ KBMMappingDataStructure::KBMMappingDataStructure()
 String KBMMappingDataStructure::getErrorMessage() const
 {
     if (firstMIDINoteNr > lastMIDINoteNr)
-        return "First MIDI note is higher than lastMIDINote";
+        return "First MIDI note is higher than last MIDINote";
 
     if (noteMappingTable.size() > mapSize)
         return "Mapping table larger than mapping size";
@@ -65,10 +65,15 @@ bool KBMMappingDataStructure::fromStringArray(const StringArray& stringArray)
     referenceNoteFrequency = valuesWithoutComments[5].getFloatValue();
     scaleSize = valuesWithoutComments[6].getIntValue();
 
-    // The mapping is supposed to contain at most mapSizer entries. We just read them all here.
+    // The mapping is supposed to contain at most mapSize entries. We just read them all here.
     noteMappingTable.clear();
-    for ( int i = 7; i < valuesWithoutComments.size(); i++)
+    int i;
+    for ( i = 7; i < valuesWithoutComments.size(); i++)
         noteMappingTable.add(valuesWithoutComments[i].indexOf("x") >= 0 ? -1 : valuesWithoutComments[i].getIntValue());
+
+    // If there are less entries than specified in mapSize, the rest is supposed to be "x"
+    for ( ; i < mapSize+7; i++)
+        noteMappingTable.add(-1);
 
     return true;
 }
