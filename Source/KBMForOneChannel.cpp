@@ -229,7 +229,7 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
             // Error colour
             textMappingFile->setColour(
                 TextEditor::backgroundColourId,
-                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::red).withAlpha(0.2f));
+                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::red).withAlpha(0.5f));
         }
         else
         {
@@ -246,7 +246,7 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
 		if ( midiChannel > 0 )
             textMappingFile->setColour(
                 TextEditor::backgroundColourId,
-                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::yellow).withAlpha(0.2f));
+                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::yellow).withAlpha(0.5f));
         else
             textMappingFile->setColour(TextEditor::backgroundColourId, findColour(TextEditor::backgroundColourId));
 	}
