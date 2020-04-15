@@ -75,6 +75,8 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
 
     for (int i = 1; i <= 16; i++)
         channelBox->addItem(String(i), i);
+
+    textMappingFile->addListener(this);
     //[/Constructor]
 }
 
@@ -222,16 +224,31 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         // Tooltip: either the file name with full path or an error message
         String errorMsg = kbmMappingStructure.getErrorMessage();
         if (!errorMsg.isEmpty())
+        {
             textMappingFile->setTooltip(errorMsg);
+            // Error colour
+            textMappingFile->setColour(
+                TextEditor::backgroundColourId,
+                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::red).withAlpha(0.2f));
+        }
         else
+        {
             textMappingFile->setTooltip(currentFile.getFullPathName());
-
-        // ToDO in case of error: also different colour of edit field  or skimilar...
+            textMappingFile->setColour(TextEditor::backgroundColourId, findColour(TextEditor::backgroundColourId));
+        }
     }
 	else
 	{
-		textMappingFile->setTooltip("File not found");
 		kbmMappingStructure = KBMMappingDataStructure();
+		textMappingFile->setTooltip("File not found");
+
+		// If MIDI channel specified: warning colour
+		if ( midiChannel > 0 )
+            textMappingFile->setColour(
+                TextEditor::backgroundColourId,
+                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::yellow).withAlpha(0.2f));
+        else
+            textMappingFile->setColour(TextEditor::backgroundColourId, findColour(TextEditor::backgroundColourId));
 	}
 
     // Both midiChannel and kbmMappingStructure may be empty.

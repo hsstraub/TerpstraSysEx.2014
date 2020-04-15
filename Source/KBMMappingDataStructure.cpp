@@ -34,7 +34,7 @@ String KBMMappingDataStructure::getErrorMessage() const
         return "Mapping table larger than mapping size";
 
     if (mapSize == 0)
-        return "Map size 0 is not supported at the moment";
+        return "Map size is specified as 0, which is not supported by the tool at the moment";
 
     if (noteMappingTable[getMappingIndexOfReferenceNote()] < 0)
         return ("No mapping specified for reference note");

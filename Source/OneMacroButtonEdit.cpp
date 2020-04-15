@@ -66,13 +66,13 @@ OneMacroButtonEdit::OneMacroButtonEdit ()
 
 
     //[UserPreSize]
-	textMacroFile->addListener(this);
     //[/UserPreSize]
 
     setSize (200, 32);
 
 
     //[Constructor] You can add your own custom stuff here..
+	textMacroFile->addListener(this);
     //[/Constructor]
 }
 
