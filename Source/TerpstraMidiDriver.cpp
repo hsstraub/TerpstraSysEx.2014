@@ -121,7 +121,7 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsign
 // Save velocity config to EEPROM
 void TerpstraMidiDriver::saveVelocityConfig(TerpstraKey::KEYTYPE keyType)
 {
-	sendSysEx(0, keyType == TerpstraKey::continuousController ? SAVE_VELOCITY_CONFIG : SAVE_FADER_CONFIG,
+	sendSysEx(0, keyType == TerpstraKey::continuousController ? SAVE_FADER_CONFIG : SAVE_VELOCITY_CONFIG,
 		'\0', '\0', '\0', '\0', '\0');
 }
 
@@ -129,7 +129,7 @@ void TerpstraMidiDriver::saveVelocityConfig(TerpstraKey::KEYTYPE keyType)
 void TerpstraMidiDriver::resetVelocityConfig(TerpstraKey::KEYTYPE keyType)
 {
 	// XXX keyType == TerpstraKey::continuousController ?
-	sendSysEx(0, keyType == TerpstraKey::continuousController ? RESET_VELOCITY_CONFIG : RESET_FADER_CONFIG,
+	sendSysEx(0, keyType == TerpstraKey::continuousController ? RESET_FADER_CONFIG : RESET_VELOCITY_CONFIG,
 		'\0', '\0', '\0', '\0', '\0');
 }
 
