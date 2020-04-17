@@ -39,7 +39,8 @@
 */
 class IsomorphicMassAssign  : public Component,
                               public MappingLogicBase::Listener,
-                              public ComboBox::Listener
+                              public ComboBox::Listener,
+                              public Button::Listener
 {
 public:
     //==============================================================================
@@ -77,6 +78,7 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
@@ -99,7 +101,12 @@ private:
     std::unique_ptr<Label> editInstructionText;
     std::unique_ptr<GroupComponent> groupMapping;
     std::unique_ptr<ComboBox> cbMappingStyle;
-    std::unique_ptr<Label> labelMappingStyle;
+    std::unique_ptr<Label> labelMappingType;
+    std::unique_ptr<Label> labelPreset;
+    std::unique_ptr<ComboBox> presetBox;
+    std::unique_ptr<TextButton> btnFileSelectMacro;
+    std::unique_ptr<ComboBox> scaleSizeBox;
+    std::unique_ptr<Label> labelScaleSize;
 
 
     //==============================================================================

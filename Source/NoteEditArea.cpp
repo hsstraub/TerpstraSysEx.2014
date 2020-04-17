@@ -60,7 +60,7 @@ NoteEditArea::NoteEditArea ()
     cbEditMode->addItem (TRANS("Play virtual keyboard"), 4);
     cbEditMode->addListener (this);
 
-    cbEditMode->setBounds (102, 15, 296, 24);
+    cbEditMode->setBounds (104, 16, 304, 24);
 
     labelEditMode.reset (new Label ("labelEditMode",
                                     TRANS("Edit Function:")));
@@ -268,7 +268,7 @@ BEGIN_JUCER_METADATA
                  overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="480">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="102 15 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="104 16 304 24" editable="0"
             layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Macro Buttons&#10;Play virtual keyboard"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"

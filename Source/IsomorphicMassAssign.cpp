@@ -54,7 +54,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     startingPointBox->addListener (this);
 
-    startingPointBox->setBounds (12, 291, 150, 24);
+    startingPointBox->setBounds (8, 320, 150, 24);
 
     labelStartingPoint.reset (new Label ("labelStartingPoint",
                                          TRANS("Starting value")));
@@ -66,7 +66,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelStartingPoint->setColour (TextEditor::textColourId, Colours::black);
     labelStartingPoint->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelStartingPoint->setBounds (12, 267, 150, 24);
+    labelStartingPoint->setBounds (8, 296, 150, 24);
 
     labelHorizontalSteps.reset (new Label ("labelHorizontalSteps",
                                            TRANS("Horizontal steps")));
@@ -77,7 +77,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelHorizontalSteps->setColour (TextEditor::textColourId, Colours::black);
     labelHorizontalSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelHorizontalSteps->setBounds (220, 259, 150, 24);
+    labelHorizontalSteps->setBounds (304, 296, 136, 24);
 
     editHorizontalSteps.reset (new TextEditor ("editHorizontalSteps"));
     addAndMakeVisible (editHorizontalSteps.get());
@@ -89,7 +89,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editHorizontalSteps->setPopupMenuEnabled (true);
     editHorizontalSteps->setText (String());
 
-    editHorizontalSteps->setBounds (220, 283, 40, 24);
+    editHorizontalSteps->setBounds (312, 320, 40, 24);
 
     labelRightUpwardSteps.reset (new Label ("labelRightUpwardSteps",
                                             TRANS("Right upward steps")));
@@ -100,7 +100,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelRightUpwardSteps->setColour (TextEditor::textColourId, Colours::black);
     labelRightUpwardSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelRightUpwardSteps->setBounds (148, 211, 150, 24);
+    labelRightUpwardSteps->setBounds (176, 280, 136, 24);
 
     editRightUpwardSteps.reset (new TextEditor ("editRightUpwardSteps"));
     addAndMakeVisible (editRightUpwardSteps.get());
@@ -112,7 +112,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editRightUpwardSteps->setPopupMenuEnabled (true);
     editRightUpwardSteps->setText (String());
 
-    editRightUpwardSteps->setBounds (148, 235, 39, 24);
+    editRightUpwardSteps->setBounds (184, 304, 39, 24);
 
     editInstructionText.reset (new Label ("editInstructionText",
                                           TRANS("Fill a line or the whole field with constant step distances. \n"
@@ -124,13 +124,13 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editInstructionText->setColour (TextEditor::textColourId, Colours::black);
     editInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    editInstructionText->setBounds (0, 168, 416, 40);
+    editInstructionText->setBounds (8, 200, 416, 40);
 
     groupMapping.reset (new GroupComponent ("groupMapping",
                                             TRANS("Mapping")));
     addAndMakeVisible (groupMapping.get());
 
-    groupMapping->setBounds (0, 8, 416, 152);
+    groupMapping->setBounds (8, 40, 416, 152);
 
     cbMappingStyle.reset (new ComboBox ("cbMappingStyle"));
     addAndMakeVisible (cbMappingStyle.get());
@@ -142,24 +142,75 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     cbMappingStyle->addItem (TRANS("Scala KBM mappings"), 2);
     cbMappingStyle->addListener (this);
 
-    cbMappingStyle->setBounds (105, 31, 296, 24);
+    cbMappingStyle->setBounds (104, 64, 304, 24);
 
-    labelMappingStyle.reset (new Label ("labelMappingStyle",
-                                        TRANS("Style:")));
-    addAndMakeVisible (labelMappingStyle.get());
-    labelMappingStyle->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelMappingStyle->setJustificationType (Justification::centredLeft);
-    labelMappingStyle->setEditable (false, false, false);
-    labelMappingStyle->setColour (TextEditor::textColourId, Colours::black);
-    labelMappingStyle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelMappingType.reset (new Label ("labelMappingType",
+                                       TRANS("Type:")));
+    addAndMakeVisible (labelMappingType.get());
+    labelMappingType->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelMappingType->setJustificationType (Justification::centredLeft);
+    labelMappingType->setEditable (false, false, false);
+    labelMappingType->setColour (TextEditor::textColourId, Colours::black);
+    labelMappingType->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelMappingStyle->setBounds (12, 32, 88, 24);
+    labelMappingType->setBounds (20, 64, 88, 24);
+
+    labelPreset.reset (new Label ("labelPreset",
+                                  TRANS("Colour scheme/steps preset:")));
+    addAndMakeVisible (labelPreset.get());
+    labelPreset->setTooltip (TRANS("Value that will be assigned to the key at mouse pposition when clicking"));
+    labelPreset->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelPreset->setJustificationType (Justification::centredLeft);
+    labelPreset->setEditable (false, false, false);
+    labelPreset->setColour (TextEditor::textColourId, Colours::black);
+    labelPreset->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelPreset->setBounds (8, 248, 160, 24);
+
+    presetBox.reset (new ComboBox ("presetBox"));
+    addAndMakeVisible (presetBox.get());
+    presetBox->setEditableText (false);
+    presetBox->setJustificationType (Justification::centredLeft);
+    presetBox->setTextWhenNothingSelected (String());
+    presetBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    presetBox->addListener (this);
+
+    presetBox->setBounds (168, 248, 232, 24);
+
+    btnFileSelectMacro.reset (new TextButton ("btnFileSelectMacro"));
+    addAndMakeVisible (btnFileSelectMacro.get());
+    btnFileSelectMacro->setButtonText (TRANS("..."));
+    btnFileSelectMacro->addListener (this);
+
+    btnFileSelectMacro->setBounds (408, 248, 32, 24);
+
+    scaleSizeBox.reset (new ComboBox ("scaleSizeBox"));
+    addAndMakeVisible (scaleSizeBox.get());
+    scaleSizeBox->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"));
+    scaleSizeBox->setEditableText (false);
+    scaleSizeBox->setJustificationType (Justification::centredLeft);
+    scaleSizeBox->setTextWhenNothingSelected (String());
+    scaleSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    scaleSizeBox->addListener (this);
+
+    scaleSizeBox->setBounds (104, 8, 56, 24);
+
+    labelScaleSize.reset (new Label ("labelScaleSize",
+                                     TRANS("Scale size:")));
+    addAndMakeVisible (labelScaleSize.get());
+    labelScaleSize->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelScaleSize->setJustificationType (Justification::centredLeft);
+    labelScaleSize->setEditable (false, false, false);
+    labelScaleSize->setColour (TextEditor::textColourId, Colours::black);
+    labelScaleSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelScaleSize->setBounds (16, 8, 88, 24);
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (428, 220);
+    setSize (428, 352);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -190,7 +241,12 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     editInstructionText = nullptr;
     groupMapping = nullptr;
     cbMappingStyle = nullptr;
-    labelMappingStyle = nullptr;
+    labelMappingType = nullptr;
+    labelPreset = nullptr;
+    presetBox = nullptr;
+    btnFileSelectMacro = nullptr;
+    scaleSizeBox = nullptr;
+    labelScaleSize = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -253,9 +309,34 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		}
         //[/UserComboBoxCode_cbMappingStyle]
     }
+    else if (comboBoxThatHasChanged == presetBox.get())
+    {
+        //[UserComboBoxCode_presetBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_presetBox]
+    }
+    else if (comboBoxThatHasChanged == scaleSizeBox.get())
+    {
+        //[UserComboBoxCode_scaleSizeBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_scaleSizeBox]
+    }
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
+}
+
+void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
+{
+    //[UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
+
+    if (buttonThatWasClicked == btnFileSelectMacro.get())
+    {
+        //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
+        //[/UserButtonCode_btnFileSelectMacro]
+    }
+
+    //[UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
 }
 
 
@@ -455,52 +536,72 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public MappingLogicBase::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
-                 initialHeight="220">
+                 initialHeight="352">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointBox"
-            virtualName="" explicitFocusOrder="0" pos="12 291 150 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="8 320 150 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelStartingPoint" id="5401a3246c13771e" memberName="labelStartingPoint"
-         virtualName="" explicitFocusOrder="0" pos="12 267 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
+         virtualName="" explicitFocusOrder="0" pos="8 296 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
          edTextCol="ff000000" edBkgCol="0" labelText="Starting value"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <LABEL name="labelHorizontalSteps" id="3e6663aecf1474c8" memberName="labelHorizontalSteps"
-         virtualName="" explicitFocusOrder="0" pos="220 259 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="304 296 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Horizontal steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editHorizontalSteps" id="8d2f5f07f337b9ef" memberName="editHorizontalSteps"
-              virtualName="" explicitFocusOrder="0" pos="220 283 40 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="312 320 40 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="labelRightUpwardSteps" id="43530804741d9cb7" memberName="labelRightUpwardSteps"
-         virtualName="" explicitFocusOrder="0" pos="148 211 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="176 280 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Right upward steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
-              virtualName="" explicitFocusOrder="0" pos="148 235 39 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="184 304 39 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="0 168 416 40" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="8 200 416 40" edTextCol="ff000000"
          edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="9"/>
   <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
-                  virtualName="" explicitFocusOrder="0" pos="0 8 416 152" title="Mapping"/>
+                  virtualName="" explicitFocusOrder="0" pos="8 40 416 152" title="Mapping"/>
   <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
-            virtualName="" explicitFocusOrder="0" pos="105 31 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="104 64 304 24" editable="0"
             layout="33" items="MIDI notes, increasing order&#10;Scala KBM mappings"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
-         virtualName="" explicitFocusOrder="0" pos="12 32 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"
+  <LABEL name="labelMappingType" id="d77d8a4b80130afc" memberName="labelMappingType"
+         virtualName="" explicitFocusOrder="0" pos="20 64 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Type:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="labelPreset" id="d7173343cde6c226" memberName="labelPreset"
+         virtualName="" explicitFocusOrder="0" pos="8 248 160 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
+         edTextCol="ff000000" edBkgCol="0" labelText="Colour scheme/steps preset:"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
+  <COMBOBOX name="presetBox" id="b36dd3e573b7d51f" memberName="presetBox"
+            virtualName="" explicitFocusOrder="0" pos="168 248 232 24" editable="0"
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <TEXTBUTTON name="btnFileSelectMacro" id="23cc77cbad6653d7" memberName="btnFileSelectMacro"
+              virtualName="" explicitFocusOrder="0" pos="408 248 32 24" buttonText="..."
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <COMBOBOX name="scaleSizeBox" id="4560285c5e467e2f" memberName="scaleSizeBox"
+            virtualName="" explicitFocusOrder="0" pos="104 8 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"
+            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="labelScaleSize" id="c2aeb9a3f194ed5b" memberName="labelScaleSize"
+         virtualName="" explicitFocusOrder="0" pos="16 8 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Scale size:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
