@@ -186,7 +186,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     scaleSizeBox.reset (new ComboBox ("scaleSizeBox"));
     addAndMakeVisible (scaleSizeBox.get());
-    scaleSizeBox->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"));
+    scaleSizeBox->setTooltip (TRANS("Number of tones per octave"));
     scaleSizeBox->setEditableText (false);
     scaleSizeBox->setJustificationType (Justification::centredLeft);
     scaleSizeBox->setTextWhenNothingSelected (String());
@@ -595,7 +595,7 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="408 248 32 24" buttonText="..."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="scaleSizeBox" id="4560285c5e467e2f" memberName="scaleSizeBox"
-            virtualName="" explicitFocusOrder="0" pos="104 8 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0 (in case of multichannel)"
+            virtualName="" explicitFocusOrder="0" pos="104 8 56 24" tooltip="Number of tones per octave"
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelScaleSize" id="c2aeb9a3f194ed5b" memberName="labelScaleSize"
          virtualName="" explicitFocusOrder="0" pos="16 8 88 24" edTextCol="ff000000"
