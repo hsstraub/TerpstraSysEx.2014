@@ -88,6 +88,15 @@ Connection to midi, sending SysEx parameters to keyboard
 */
 class TerpstraMidiDriver : public HajuDelayMidiDriver
 {
+    // Types
+public:
+ 	typedef enum
+	{
+		noteOnNoteOff = 1,
+		fader = 2,
+		afterTouch = 3
+	} VelocityCurveType;
+
 public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
@@ -131,13 +140,17 @@ public:
 	void sendLightOnKeyStroke(bool value);
 
 	// Send a value for a velocity lookup table
-	void sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsigned char velocityTable[]);
+	void sendVelocityConfig(VelocityCurveType velocityCurveType, unsigned char velocityTable[]);
 
 	// Save velocity config to EEPROM
-	void saveVelocityConfig(TerpstraKey::KEYTYPE keyType);
+	void saveVelocityConfig(VelocityCurveType velocityCurveType);
 
 	// reset velocity config to value from EEPROM
-	void resetVelocityConfig(TerpstraKey::KEYTYPE keyType);
+	void resetVelocityConfig(VelocityCurveType velocityCurveType);
+
+	void sendAfterTouchActivation(bool value);
+
+	void sendCalibrateAfterTouch();
 
 private:
 	// Low-level SysEx = valuemessage sending

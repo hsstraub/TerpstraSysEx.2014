@@ -97,7 +97,7 @@ void TerpstraMidiDriver::sendLightOnKeyStroke(bool value)
 }
 
 // Send a value for a velocity lookup table
-void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsigned char velocityTable[])
+void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType, unsigned char velocityTable[])
 {
 	if (midiOutput != nullptr)
 	{
@@ -106,7 +106,22 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsign
 		sysExData[1] = MMID2;
 		sysExData[2] = MMID3;
 		sysExData[3] = '\0';
-		sysExData[4] = keyType == TerpstraKey::continuousController ? SET_FADER_CONFIG : SET_VELOCITY_CONFIG;
+
+		switch(velocityCurveType)
+		{
+		    case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+                sysExData[4] = SET_VELOCITY_CONFIG;
+                break;
+            case TerpstraMidiDriver::VelocityCurveType::fader:
+                sysExData[4] = SET_FADER_CONFIG;
+                break;
+            case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+                sysExData[4] = SET_AFTERTOUCH_CONFIG;
+                break;
+            default:
+                jassert(false);
+                break;
+		}
 
     //memcpy_s is windows specific
 //    memcpy_s(&sysExData[5], 128, velocityTable, 128);  // velocityTable is supposed to contain 128 entries. ToDo security?
@@ -119,18 +134,55 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraKey::KEYTYPE keyType, unsign
 }
 
 // Save velocity config to EEPROM
-void TerpstraMidiDriver::saveVelocityConfig(TerpstraKey::KEYTYPE keyType)
+void TerpstraMidiDriver::saveVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType)
 {
-	sendSysEx(0, keyType == TerpstraKey::continuousController ? SAVE_VELOCITY_CONFIG : SAVE_FADER_CONFIG,
-		'\0', '\0', '\0', '\0', '\0');
+    switch(velocityCurveType)
+    {
+        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+            sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::fader:
+            sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+            sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            break;
+        default:
+            jassert(false);
+            break;
+    }
 }
 
 // reset velocity config to value from EEPROM
-void TerpstraMidiDriver::resetVelocityConfig(TerpstraKey::KEYTYPE keyType)
+void TerpstraMidiDriver::resetVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType)
 {
-	// XXX keyType == TerpstraKey::continuousController ?
-	sendSysEx(0, keyType == TerpstraKey::continuousController ? RESET_VELOCITY_CONFIG : RESET_FADER_CONFIG,
-		'\0', '\0', '\0', '\0', '\0');
+    switch(velocityCurveType)
+    {
+        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+            sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::fader:
+            sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+            sendSysEx(0, RESET_AFTERTOCUH_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            break;
+        default:
+            jassert(false);
+            break;
+    }
+}
+
+// Enable or disable aftertouch functionality
+void TerpstraMidiDriver::sendAfterTouchActivation(bool value)
+{
+	sendSysEx(0, SET_AFTERTOUCH_FLAG, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
+}
+
+// Initiate aftertouch calibration routine
+void TerpstraMidiDriver::sendCalibrateAfterTouch()
+{
+	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0', '\0');
 }
 
 /*

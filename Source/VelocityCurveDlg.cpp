@@ -28,13 +28,13 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveDlg::VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue)
+VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue)
     : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
       linearDrawingStrategy(beamTableFrame, velocityBeamTable),
       quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	keyType = keyTypeValue;
+	velocityCurveType = typeValue;
 	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
@@ -255,19 +255,19 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 		sendVelocityTableToController();
 
 		// Save
-		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
+		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(velocityCurveType);
         //[/UserButtonCode_buttonSendAll]
     }
     else if (buttonThatWasClicked == buttonDiscard.get())
     {
         //[UserButtonCode_buttonDiscard] -- add your button handler code here..
-		TerpstraSysExApplication::getApp().getMidiDriver().resetVelocityConfig(keyType);
+		TerpstraSysExApplication::getApp().getMidiDriver().resetVelocityConfig(velocityCurveType);
         //[/UserButtonCode_buttonDiscard]
     }
     else if (buttonThatWasClicked == buttonSaveEdits.get())
     {
         //[UserButtonCode_buttonSaveEdits] -- add your button handler code here..
-		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(keyType);
+		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(velocityCurveType);
         //[/UserButtonCode_buttonSaveEdits]
     }
 
@@ -346,7 +346,22 @@ void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
+	String keyName;
+    switch(velocityCurveType)
+    {
+        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+            keyName = "NoteOnOffVelocityCurveTable";
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::fader:
+            keyName = "FaderVelocityCurveTable";
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+            keyName = "AfterTouchCurveTable";
+            break;
+        default:
+            jassert(false);
+            break;
+    }
 
 	String propertiesString = propertiesFile->getValue(keyName);
 
@@ -399,7 +414,22 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 		velocityCurveString = String();
 	}
 
-	String keyName = keyType == TerpstraKey::continuousController ? "FaderVelocityCurveTable" : "NoteOnOffVelocityCurveTable";
+	String keyName;
+    switch(velocityCurveType)
+    {
+        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+            keyName = "NoteOnOffVelocityCurveTable";
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::fader:
+            keyName = "FaderVelocityCurveTable";
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+            keyName = "AfterTouchCurveTable";
+            break;
+        default:
+            jassert(false);
+            break;
+    }
 
 	propertiesFile->setValue(keyName, velocityCurveString);
 
@@ -416,7 +446,7 @@ void VelocityCurveDlg::sendVelocityTableToController()
 		velocityValues[x] = velocityBeamTable[x]->getValue();
 	}
 
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(keyType, velocityValues);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
 }
 
 void VelocityCurveDlg::showBeamValueOfMousePosition(Point<float> localPoint)
@@ -511,7 +541,7 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
-                 parentClasses="public Component" constructorParams="TerpstraKey::KEYTYPE keyTypeValue"
+                 parentClasses="public Component" constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
                  variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="640" initialHeight="400">

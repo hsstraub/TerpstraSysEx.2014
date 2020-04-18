@@ -42,7 +42,7 @@ class VelocityCurveDlg  : public Component,
 {
 public:
     //==============================================================================
-    VelocityCurveDlg (TerpstraKey::KEYTYPE keyTypeValue);
+    VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue);
     ~VelocityCurveDlg();
 
     //==============================================================================
@@ -77,7 +77,7 @@ private:
 	} EDITSTRATEGYINDEX;
 
 
-	TerpstraKey::KEYTYPE keyType;
+	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
 	VelocityCurveBeam* velocityBeamTable[128];
 
