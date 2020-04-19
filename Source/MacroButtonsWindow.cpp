@@ -128,8 +128,8 @@ void MacroButtonsWindow::resized()
 
 	for (int i = 0; i < 5; i ++)
 	{
-		buttonComponents[i]->setBounds(0, firstSubCompY + 40 * i, EDITSUBWINWIDTH / 2, 40);
-		buttonComponents[i + 5]->setBounds(EDITSUBWINWIDTH / 2, firstSubCompY + 40 * i, EDITSUBWINWIDTH / 2, 40);
+		buttonComponents[i]->setBounds(0, firstSubCompY + 40 * i, EDITAREAWIDTH / 2, 40);
+		buttonComponents[i + 5]->setBounds(EDITAREAWIDTH / 2, firstSubCompY + 40 * i, EDITAREAWIDTH / 2, 40);
 	}
     //[/UserResized]
 }

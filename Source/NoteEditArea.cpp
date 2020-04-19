@@ -122,10 +122,10 @@ void NoteEditArea::paint (Graphics& g)
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	playVirtualKeyboardWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITSUBWINWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
+	playVirtualKeyboardWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
