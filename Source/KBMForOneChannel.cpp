@@ -127,19 +127,9 @@ void KBMForOneChannel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
 
-        // If a channel is selected: enable file fields
-        if ( channelBox->getSelectedId() > 0 )
-        {
-            textMappingFile->setEnabled(true);
-            btnFileSelectMacro->setEnabled(true);
-        }
-        else
-        {
-            textMappingFile->setEnabled(false);
-            btnFileSelectMacro->setEnabled(false);
-
+        // If no channel is selected: clear file object
+        if ( channelBox->getSelectedId() <= 0 )
             currentFile = File();
-        }
 
         updateFieldsAndMappingLogic();
 
@@ -250,7 +240,19 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
             "File not found");
 	}
 
-    // Both midiChannel and kbmMappingStructure may be empty.
+    // Enable or disable file fields
+    if ( midiChannel > 0 )
+    {
+        textMappingFile->setEnabled(true);
+        btnFileSelectMacro->setEnabled(true);
+    }
+    else
+    {
+        textMappingFile->setEnabled(false);
+        btnFileSelectMacro->setEnabled(false);
+    }
+
+    // Update mapping logic. Both midiChannel and kbmMappingStructure may be empty.
     if (pMappingLogic != nullptr)
         pMappingLogic->setMapping(subDlgIndex, midiChannel, kbmMappingStructure);
 }
