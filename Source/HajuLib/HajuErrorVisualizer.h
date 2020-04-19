@@ -24,7 +24,14 @@ public:
 		error = 2
 	} ErrorLevel;
 
+public:
+    HajuErrorVisualizer(LookAndFeel& lookAndFeelValue);
+
 	// Methods
 public:
-    static void setErrorLevel(TextEditor& textEdit, ErrorLevel errorLevel, String toolTipText);
+    void setErrorLevel(TextEditor& textEdit, ErrorLevel errorLevel, String toolTipText);
+
+// Attributes
+private:
+    LookAndFeel& lookAndFeel;
 };

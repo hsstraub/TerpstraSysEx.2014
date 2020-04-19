@@ -10,9 +10,14 @@
 
 #include "HajuErrorVisualizer.h"
 
+HajuErrorVisualizer::HajuErrorVisualizer(LookAndFeel& lookAndFeelValue)
+: lookAndFeel(lookAndFeelValue)
+{
+}
+
 void HajuErrorVisualizer::setErrorLevel(TextEditor& textEdit, ErrorLevel errorLevel, String toolTipText)
 {
-    Colour bgColour = textEdit.findColour(TextEditor::backgroundColourId);
+    Colour bgColour = lookAndFeel.findColour(TextEditor::backgroundColourId);
 
     switch(errorLevel)
     {
