@@ -61,6 +61,10 @@
               file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>
         <FILE id="b5aZVC" name="HajuDelayMidiDriver.h" compile="0" resource="0"
               file="Source/HajuLib/HajuDelayMidiDriver.h"/>
+        <FILE id="cCH9ZE" name="HajuErrorVisualizer.cpp" compile="1" resource="0"
+              file="Source/HajuLib/HajuErrorVisualizer.cpp"/>
+        <FILE id="yWeaxC" name="HajuErrorVisualizer.h" compile="0" resource="0"
+              file="Source/HajuLib/HajuErrorVisualizer.h"/>
         <FILE id="JYbmDZ" name="HajuMidiDriver.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuMidiDriver.cpp"/>
         <FILE id="qke01B" name="HajuMidiDriver.h" compile="0" resource="0"

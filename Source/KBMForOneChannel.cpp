@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "HajuLib/HajuErrorVisualizer.h"
 //[/Headers]
 
 #include "KBMForOneChannel.h"
@@ -225,30 +226,27 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         String errorMsg = kbmMappingStructure.getErrorMessage();
         if (!errorMsg.isEmpty())
         {
-            textMappingFile->setTooltip(errorMsg);
-            // Error colour
-            textMappingFile->setColour(
-                TextEditor::backgroundColourId,
-                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::red).withAlpha(0.5f));
+            HajuErrorVisualizer::setErrorLevel(
+                *textMappingFile.get(),
+                HajuErrorVisualizer::ErrorLevel::error,
+                errorMsg);
         }
         else
         {
-            textMappingFile->setTooltip(currentFile.getFullPathName());
-            textMappingFile->setColour(TextEditor::backgroundColourId, findColour(TextEditor::backgroundColourId));
+            HajuErrorVisualizer::setErrorLevel(
+                *textMappingFile.get(),
+                HajuErrorVisualizer::ErrorLevel::noError,
+                currentFile.getFullPathName());
         }
     }
 	else
 	{
 		kbmMappingStructure = KBMMappingDataStructure();
-		textMappingFile->setTooltip("File not found");
 
-		// If MIDI channel specified: warning colour
-		if ( midiChannel > 0 )
-            textMappingFile->setColour(
-                TextEditor::backgroundColourId,
-                findColour(TextEditor::backgroundColourId).overlaidWith(Colours::yellow).withAlpha(0.5f));
-        else
-            textMappingFile->setColour(TextEditor::backgroundColourId, findColour(TextEditor::backgroundColourId));
+        HajuErrorVisualizer::setErrorLevel(
+            *textMappingFile.get(),
+            midiChannel > 0 ? HajuErrorVisualizer::ErrorLevel::warning : HajuErrorVisualizer::ErrorLevel::noError,
+            "File not found");
 	}
 
     // Both midiChannel and kbmMappingStructure may be empty.
