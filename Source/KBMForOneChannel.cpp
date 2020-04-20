@@ -195,8 +195,16 @@ void KBMForOneChannel::textEditorFocusLost(TextEditor& textEdit)
 {
 	if (&textEdit == textMappingFile.get())
 	{
-		currentFile = File(textMappingFile->getText());
-		updateFieldsAndMappingLogic();
+	    auto newFileName = textMappingFile->getText();
+	    auto newFile = File(newFileName);
+
+        // Attention to the case where textEdit contains just the file name (without the path) of an existing file,
+        // which is specified in currentFile
+	    if (newFile.existsAsFile() || currentFile.getFileName() != newFileName)
+        {
+            currentFile = newFile;
+            updateFieldsAndMappingLogic();
+        }
 	}
 }
 
