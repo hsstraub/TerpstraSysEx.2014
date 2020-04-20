@@ -163,8 +163,16 @@ void OneMacroButtonEdit::textEditorFocusLost(TextEditor& textEdit)
 {
 	if (&textEdit == textMacroFile.get())
 	{
-		currentFile = File(textMacroFile->getText());
-		updateTooltipFromFileObject();
+	    auto newFileName = textMacroFile->getText();
+	    auto newFile = File(newFileName);
+
+        // Attention to the case where textEdit contains just the file name (without the path) of an existing file,
+        // which is specified in currentFile
+	    if (newFile.existsAsFile() || currentFile.getFileName() != newFileName)
+        {
+            currentFile = newFile;
+            updateTooltipFromFileObject();
+        }
 	}
 }
 
