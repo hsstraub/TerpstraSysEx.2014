@@ -18,7 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "HajuLib/HajuErrorVisualizer.h"
+#include "Main.h"
 //[/Headers]
 
 #include "KBMForOneChannel.h"
@@ -29,6 +29,7 @@
 
 //==============================================================================
 KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic)
+    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     //[Constructor_pre] You can add your own custom stuff here..
     this->subDlgIndex = subDlgIndex;
@@ -226,14 +227,14 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         String errorMsg = kbmMappingStructure.getErrorMessage();
         if (!errorMsg.isEmpty())
         {
-            HajuErrorVisualizer::setErrorLevel(
+            errorVisualizer.setErrorLevel(
                 *textMappingFile.get(),
                 HajuErrorVisualizer::ErrorLevel::error,
                 errorMsg);
         }
         else
         {
-            HajuErrorVisualizer::setErrorLevel(
+            errorVisualizer.setErrorLevel(
                 *textMappingFile.get(),
                 HajuErrorVisualizer::ErrorLevel::noError,
                 currentFile.getFullPathName());
@@ -243,7 +244,7 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
 	{
 		kbmMappingStructure = KBMMappingDataStructure();
 
-        HajuErrorVisualizer::setErrorLevel(
+        errorVisualizer.setErrorLevel(
             *textMappingFile.get(),
             midiChannel > 0 ? HajuErrorVisualizer::ErrorLevel::warning : HajuErrorVisualizer::ErrorLevel::noError,
             "File not found");
@@ -269,8 +270,9 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="KBMForOneChannel" componentName=""
                  parentClasses="public Component, public TextEditor::Listener"
                  constructorParams="int&#9;&#9;subDlgIndex, KBMFilesMappingLogic&amp;&#9;mappingLogic"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="200" initialHeight="32">
+                 variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="200" initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="channelBox" id="250a1dde474111c4" memberName="channelBox"
             virtualName="" explicitFocusOrder="0" pos="0 8 48 24" editable="0"
