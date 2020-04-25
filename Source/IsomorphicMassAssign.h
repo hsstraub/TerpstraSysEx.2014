@@ -101,7 +101,7 @@ private:
     std::unique_ptr<TextEditor> editRightUpwardSteps;
     std::unique_ptr<Label> editInstructionText;
     std::unique_ptr<GroupComponent> groupMapping;
-    std::unique_ptr<ComboBox> cbMappingStyle;
+    std::unique_ptr<ComboBox> cbMappingType;
     std::unique_ptr<Label> labelMappingType;
     std::unique_ptr<Label> labelPreset;
     std::unique_ptr<ComboBox> presetBox;

@@ -67,11 +67,11 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		subDlgIndex;
-   	int&    scaleSize;
 	File	currentFile;
 	KBMMappingDataStructure kbmMappingStructure;
     KBMFilesMappingLogic*	pMappingLogic;
     HajuErrorVisualizer     errorVisualizer;
+   	int&    scaleSize;
     //[/UserVariables]
 
     //==============================================================================

@@ -132,17 +132,17 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     groupMapping->setBounds (8, 40, 416, 152);
 
-    cbMappingStyle.reset (new ComboBox ("cbMappingStyle"));
-    addAndMakeVisible (cbMappingStyle.get());
-    cbMappingStyle->setEditableText (false);
-    cbMappingStyle->setJustificationType (Justification::centredLeft);
-    cbMappingStyle->setTextWhenNothingSelected (String());
-    cbMappingStyle->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
-    cbMappingStyle->addItem (TRANS("Scala KBM mappings"), 2);
-    cbMappingStyle->addListener (this);
+    cbMappingType.reset (new ComboBox ("cbMappingType"));
+    addAndMakeVisible (cbMappingType.get());
+    cbMappingType->setEditableText (false);
+    cbMappingType->setJustificationType (Justification::centredLeft);
+    cbMappingType->setTextWhenNothingSelected (String());
+    cbMappingType->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbMappingType->addItem (TRANS("MIDI notes, increasing order"), 1);
+    cbMappingType->addItem (TRANS("Scala KBM mappings"), 2);
+    cbMappingType->addListener (this);
 
-    cbMappingStyle->setBounds (104, 64, 304, 24);
+    cbMappingType->setBounds (104, 64, 304, 24);
 
     labelMappingType.reset (new Label ("labelMappingType",
                                        TRANS("Type:")));
@@ -223,10 +223,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 	kbmMappingDlg->getMappingLogic()->addListener(this);
 
-	// Default selection
-	// Todo: read from user settings
-	cbMappingStyle->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
-
+	// cbMappingStyle default selection: will be read from user settings
     //[/Constructor]
 }
 
@@ -245,7 +242,7 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     editRightUpwardSteps = nullptr;
     editInstructionText = nullptr;
     groupMapping = nullptr;
-    cbMappingStyle = nullptr;
+    cbMappingType = nullptr;
     labelMappingType = nullptr;
     labelPreset = nullptr;
     presetBox = nullptr;
@@ -292,13 +289,12 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_startingPointBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_startingPointBox]
     }
-    else if (comboBoxThatHasChanged == cbMappingStyle.get())
+    else if (comboBoxThatHasChanged == cbMappingType.get())
     {
-        //[UserComboBoxCode_cbMappingStyle] -- add your combo box handling code here..
-		int mappingStyle = cbMappingStyle->getSelectedItemIndex();
+		int mappingType = cbMappingType->getSelectedItemIndex();
 
 		// Show sub window corresponding to selected mapping style
-		switch(mappingStyle)
+		switch(mappingType)
 		{
         case 0:
             incrMidiNotesMapping->setVisible(true);
@@ -313,6 +309,8 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
             kbmMappingDlg->setVisible(false);
 		}
         //[/UserComboBoxCode_cbMappingStyle]
+        //[UserComboBoxCode_cbMappingType] -- add your combo box handling code here..
+        //[/UserComboBoxCode_cbMappingType]
     }
     else if (comboBoxThatHasChanged == presetBox.get())
     {
@@ -353,11 +351,22 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
+    scaleSizeBox->setSelectedId(
+        propertiesFile->getIntValue("ScaleSize", 0),
+        juce::NotificationType::sendNotification);
+
+	cbMappingType->setSelectedItemIndex(
+        propertiesFile->getIntValue("MappingType", 0),
+        juce::NotificationType::sendNotification);
+
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
+    propertiesFile->setValue("ScaleSize", scaleSizeBox->getSelectedId());
+    propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
+
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
 }
 
@@ -581,7 +590,7 @@ BEGIN_JUCER_METADATA
          italic="0" justification="9"/>
   <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
                   virtualName="" explicitFocusOrder="0" pos="8 40 416 152" title="Mapping"/>
-  <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
+  <COMBOBOX name="cbMappingType" id="a7825b65cfb78392" memberName="cbMappingType"
             virtualName="" explicitFocusOrder="0" pos="104 64 304 24" editable="0"
             layout="33" items="MIDI notes, increasing order&#10;Scala KBM mappings"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
