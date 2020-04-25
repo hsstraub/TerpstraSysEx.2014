@@ -291,6 +291,7 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     }
     else if (comboBoxThatHasChanged == cbMappingType.get())
     {
+        //[UserComboBoxCode_cbMappingType] -- add your combo box handling code here..
 		int mappingType = cbMappingType->getSelectedItemIndex();
 
 		// Show sub window corresponding to selected mapping style
@@ -308,7 +309,6 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
             incrMidiNotesMapping->setVisible(false);
             kbmMappingDlg->setVisible(false);
 		}
-        //[UserComboBoxCode_cbMappingType] -- add your combo box handling code here..
         //[/UserComboBoxCode_cbMappingType]
     }
     else if (comboBoxThatHasChanged == presetBox.get())
