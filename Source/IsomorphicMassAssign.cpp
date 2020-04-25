@@ -308,7 +308,6 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
             incrMidiNotesMapping->setVisible(false);
             kbmMappingDlg->setVisible(false);
 		}
-        //[/UserComboBoxCode_cbMappingStyle]
         //[UserComboBoxCode_cbMappingType] -- add your combo box handling code here..
         //[/UserComboBoxCode_cbMappingType]
     }
