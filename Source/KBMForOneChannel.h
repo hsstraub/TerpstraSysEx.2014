@@ -43,7 +43,7 @@ class KBMForOneChannel  : public Component,
 {
 public:
     //==============================================================================
-    KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic);
+    KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic, int& scaleSizeReference);
     ~KBMForOneChannel();
 
     //==============================================================================
@@ -67,6 +67,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int		subDlgIndex;
+   	int&    scaleSize;
 	File	currentFile;
 	KBMMappingDataStructure kbmMappingStructure;
     KBMFilesMappingLogic*	pMappingLogic;

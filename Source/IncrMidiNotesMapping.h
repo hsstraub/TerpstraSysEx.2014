@@ -40,12 +40,13 @@ class IncrMidiNotesMapping  : public Component,
 {
 public:
     //==============================================================================
-    IncrMidiNotesMapping ();
+    IncrMidiNotesMapping (int& scaleSizeReference);
     ~IncrMidiNotesMapping();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	MappingLogicBase* getMappingLogic() { return &mappingLogic; }
+	void onUpdateScaleSize();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -59,11 +60,11 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	IncrMidiNotesMappingLogic	mappingLogic;
+	int& scaleSize;
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<ToggleButton> channelAutoIncrButton;
-    std::unique_ptr<ComboBox> channelAutoIncrNoteBox;
     std::unique_ptr<Label> labelMidiNotesUntil;
     std::unique_ptr<ToggleButton> singleChannelButton;
     std::unique_ptr<ComboBox> channelBox;

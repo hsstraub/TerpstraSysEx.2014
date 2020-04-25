@@ -33,13 +33,13 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-
+    scaleSize = 0;
     // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
-	incrMidiNotesMapping.reset(new IncrMidiNotesMapping());
+	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(scaleSize));
 	incrMidiNotesMapping->setVisible(false);
 	addChildComponent(incrMidiNotesMapping.get());
 
-	kbmMappingDlg.reset(new KBMMappingDlg());
+	kbmMappingDlg.reset(new KBMMappingDlg(scaleSize));
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
@@ -215,6 +215,11 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     //[Constructor] You can add your own custom stuff here..
 
+	for (int i = 1; i <= 128; i++)
+	{
+		scaleSizeBox->addItem(String(i), i);
+	}
+
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 	kbmMappingDlg->getMappingLogic()->addListener(this);
 
@@ -317,6 +322,9 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == scaleSizeBox.get())
     {
         //[UserComboBoxCode_scaleSizeBox] -- add your combo box handling code here..
+        scaleSize = comboBoxThatHasChanged->getSelectedId();
+        incrMidiNotesMapping->onUpdateScaleSize();
+        kbmMappingDlg->onUpdateScaleSize();
         //[/UserComboBoxCode_scaleSizeBox]
     }
 

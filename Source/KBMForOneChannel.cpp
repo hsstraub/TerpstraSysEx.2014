@@ -28,8 +28,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic)
-    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
+KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic, int& scaleSizeReference)
+    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), scaleSize(scaleSizeReference)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     this->subDlgIndex = subDlgIndex;
@@ -232,10 +232,17 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         }
         else
         {
-            errorVisualizer.setErrorLevel(
-                *textMappingFile.get(),
-                HajuErrorVisualizer::ErrorLevel::noError,
-                currentFile.getFullPathName());
+            // Warning if the kbm file's scale size doesn't match the global scaleSize
+            if (kbmMappingStructure.scaleSize != this->scaleSize)
+                errorVisualizer.setErrorLevel(
+                    *textMappingFile.get(),
+                    HajuErrorVisualizer::ErrorLevel::warning,
+                    "Scale size of KBM file does not match");
+            else
+                errorVisualizer.setErrorLevel(
+                    *textMappingFile.get(),
+                    HajuErrorVisualizer::ErrorLevel::noError,
+                    currentFile.getFullPathName());
         }
     }
 	else
@@ -279,8 +286,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="KBMForOneChannel" componentName=""
                  parentClasses="public Component, public TextEditor::Listener"
-                 constructorParams="int&#9;&#9;subDlgIndex, KBMFilesMappingLogic&amp;&#9;mappingLogic"
-                 variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
+                 constructorParams="int&#9;&#9;subDlgIndex, KBMFilesMappingLogic&amp;&#9;mappingLogic, int&amp; scaleSizeReference"
+                 variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), scaleSize(scaleSizeReference)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="200" initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>

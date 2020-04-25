@@ -88,6 +88,7 @@ private:
 	std::unique_ptr<KBMMappingDlg>          kbmMappingDlg;
 
 	MappingLogicBase*		mappingLogic;
+	int                     scaleSize;
 	TerpstraBoardGeometry	boardGeometry;
     //[/UserVariables]
 

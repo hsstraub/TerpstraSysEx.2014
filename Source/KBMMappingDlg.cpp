@@ -28,7 +28,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-KBMMappingDlg::KBMMappingDlg ()
+KBMMappingDlg::KBMMappingDlg (int& scaleSizeReference)
+    : scaleSize(scaleSizeReference)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -81,7 +82,7 @@ KBMMappingDlg::KBMMappingDlg ()
     //[UserPreSize]
 	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
 	{
-		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic));
+		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic, scaleSize));
 		addAndMakeVisible(channelMappingComponents[i].get());
 	}
     //[/UserPreSize]
@@ -157,6 +158,15 @@ void KBMMappingDlg::visibilityChanged()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void KBMMappingDlg::onUpdateScaleSize()
+{
+    if (isVisible())
+    {
+         // Re-fill note combo box according to mapping logic
+       	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i ++)
+            channelMappingComponents[i]->updateFieldsAndMappingLogic();
+    }
+}
 
 void KBMMappingDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
@@ -183,9 +193,10 @@ void KBMMappingDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="KBMMappingDlg" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="416" initialHeight="220">
+                 parentClasses="public Component" constructorParams="int&amp; scaleSizeReference"
+                 variableInitialisers="scaleSize(scaleSizeReference)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
+                 initialWidth="416" initialHeight="220">
   <METHODS>
     <METHOD name="visibilityChanged()"/>
   </METHODS>
