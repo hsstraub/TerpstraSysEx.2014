@@ -132,28 +132,28 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     groupMapping->setBounds (0, 8, 416, 152);
 
-    cbMappingStyle.reset (new ComboBox ("cbMappingStyle"));
-    addAndMakeVisible (cbMappingStyle.get());
-    cbMappingStyle->setEditableText (false);
-    cbMappingStyle->setJustificationType (Justification::centredLeft);
-    cbMappingStyle->setTextWhenNothingSelected (String());
-    cbMappingStyle->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
-    cbMappingStyle->addItem (TRANS("Scala KBM mappings"), 2);
-    cbMappingStyle->addListener (this);
+    cbMappingType.reset (new ComboBox ("cbMappingType"));
+    addAndMakeVisible (cbMappingType.get());
+    cbMappingType->setEditableText (false);
+    cbMappingType->setJustificationType (Justification::centredLeft);
+    cbMappingType->setTextWhenNothingSelected (String());
+    cbMappingType->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbMappingType->addItem (TRANS("MIDI notes, increasing order"), 1);
+    cbMappingType->addItem (TRANS("Scala KBM mappings"), 2);
+    cbMappingType->addListener (this);
 
-    cbMappingStyle->setBounds (105, 31, 296, 24);
+    cbMappingType->setBounds (105, 31, 296, 24);
 
-    labelMappingStyle.reset (new Label ("labelMappingStyle",
-                                        TRANS("Style:")));
-    addAndMakeVisible (labelMappingStyle.get());
-    labelMappingStyle->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelMappingStyle->setJustificationType (Justification::centredLeft);
-    labelMappingStyle->setEditable (false, false, false);
-    labelMappingStyle->setColour (TextEditor::textColourId, Colours::black);
-    labelMappingStyle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelMappingType.reset (new Label ("labelMappingType",
+                                       TRANS("Type:")));
+    addAndMakeVisible (labelMappingType.get());
+    labelMappingType->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelMappingType->setJustificationType (Justification::centredLeft);
+    labelMappingType->setEditable (false, false, false);
+    labelMappingType->setColour (TextEditor::textColourId, Colours::black);
+    labelMappingType->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelMappingStyle->setBounds (12, 32, 88, 24);
+    labelMappingType->setBounds (12, 32, 88, 24);
 
 
     //[UserPreSize]
@@ -167,9 +167,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 	kbmMappingDlg->getMappingLogic()->addListener(this);
 
-	// Default selection
-	// Todo: read from user settings
-	cbMappingStyle->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
+    // cbMappingStyle default selection: will be read from user settings
 
     //[/Constructor]
 }
@@ -189,8 +187,8 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     editRightUpwardSteps = nullptr;
     editInstructionText = nullptr;
     groupMapping = nullptr;
-    cbMappingStyle = nullptr;
-    labelMappingStyle = nullptr;
+    cbMappingType = nullptr;
+    labelMappingType = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -231,13 +229,13 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_startingPointBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_startingPointBox]
     }
-    else if (comboBoxThatHasChanged == cbMappingStyle.get())
+    else if (comboBoxThatHasChanged == cbMappingType.get())
     {
-        //[UserComboBoxCode_cbMappingStyle] -- add your combo box handling code here..
-		int mappingStyle = cbMappingStyle->getSelectedItemIndex();
+        //[UserComboBoxCode_cbMappingType] -- add your combo box handling code here..
+		int mappingType = cbMappingType->getSelectedItemIndex();
 
 		// Show sub window corresponding to selected mapping style
-		switch(mappingStyle)
+		switch(mappingType)
 		{
         case 0:
             incrMidiNotesMapping->setVisible(true);
@@ -251,7 +249,7 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
             incrMidiNotesMapping->setVisible(false);
             kbmMappingDlg->setVisible(false);
 		}
-        //[/UserComboBoxCode_cbMappingStyle]
+        //[/UserComboBoxCode_cbMappingType]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -264,11 +262,17 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
+	cbMappingType->setSelectedItemIndex(
+        propertiesFile->getIntValue("MappingType", 0),
+        juce::NotificationType::sendNotification);
+
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
+    propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
+
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
 }
 
@@ -492,13 +496,13 @@ BEGIN_JUCER_METADATA
          italic="0" justification="9"/>
   <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
                   virtualName="" explicitFocusOrder="0" pos="0 8 416 152" title="Mapping"/>
-  <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
+  <COMBOBOX name="cbMappingType" id="a7825b65cfb78392" memberName="cbMappingType"
             virtualName="" explicitFocusOrder="0" pos="105 31 296 24" editable="0"
             layout="33" items="MIDI notes, increasing order&#10;Scala KBM mappings"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
+  <LABEL name="labelMappingType" id="d77d8a4b80130afc" memberName="labelMappingType"
          virtualName="" explicitFocusOrder="0" pos="12 32 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"
+         edBkgCol="0" labelText="Type:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
