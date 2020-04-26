@@ -33,5 +33,5 @@ void HajuErrorVisualizer::setErrorLevel(TextEditor& textEdit, ErrorLevel errorLe
 
     textEdit.setTooltip(toolTipText);
     textEdit.setColour(TextEditor::backgroundColourId, bgColour);
-
+    textEdit.repaint();
 }
