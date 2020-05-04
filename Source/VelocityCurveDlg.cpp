@@ -449,7 +449,7 @@ void VelocityCurveDlg::sendVelocityTableToController()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
 }
 
-void VelocityCurveDlg::showBeamValueOfMousePosition(Point<float> localPoint)
+void VelocityCurveDlg::showBeamValueOfMousePosition(juce::Point<float> localPoint)
 {
 	if (beamTableFrame.contains(localPoint))
 	{
@@ -468,7 +468,7 @@ void VelocityCurveDlg::showBeamValueOfMousePosition(Point<float> localPoint)
 
 void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 {
-	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	showBeamValueOfMousePosition(localPoint);
 
@@ -481,7 +481,7 @@ void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 {
-	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	showBeamValueOfMousePosition(localPoint);
 
@@ -499,7 +499,7 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 {
-	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	showBeamValueOfMousePosition(localPoint);
 
@@ -517,7 +517,7 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 
 void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 {
-	Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
+	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
 	// Send velocity table to controller
 	sendVelocityTableToController();
