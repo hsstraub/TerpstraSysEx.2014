@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -37,12 +37,13 @@
 class GeneralOptionsDlg  : public Component,
                            public TextEditor::Listener,
                            public ChangeListener,
-                           public Button::Listener
+                           public Button::Listener,
+                           public ComboBox::Listener
 {
 public:
     //==============================================================================
     GeneralOptionsDlg ();
-    ~GeneralOptionsDlg();
+    ~GeneralOptionsDlg() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -56,6 +57,7 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -74,6 +76,8 @@ private:
     std::unique_ptr<ToggleButton> btnLightOnKeyStroke;
     std::unique_ptr<Label> lblColourInactiveMacroButton;
     std::unique_ptr<Label> lblColourActiveMacroButton;
+    std::unique_ptr<Label> lblManufacturerId;
+    std::unique_ptr<ComboBox> manufacturerIdBox;
 
 
     //==============================================================================

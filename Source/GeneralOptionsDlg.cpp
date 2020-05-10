@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -124,12 +124,35 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     lblColourActiveMacroButton->setBounds (8, 144, 224, 24);
 
+    lblManufacturerId.reset (new Label ("lblManufacturerId",
+                                        TRANS("Manufacturer Id:")));
+    addAndMakeVisible (lblManufacturerId.get());
+    lblManufacturerId->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    lblManufacturerId->setJustificationType (Justification::centredLeft);
+    lblManufacturerId->setEditable (false, false, false);
+    lblManufacturerId->setColour (TextEditor::textColourId, Colours::black);
+    lblManufacturerId->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    lblManufacturerId->setBounds (16, 176, 224, 24);
+
+    manufacturerIdBox.reset (new ComboBox ("manufacturerIdBox"));
+    addAndMakeVisible (manufacturerIdBox.get());
+    manufacturerIdBox->setEditableText (false);
+    manufacturerIdBox->setJustificationType (Justification::centredLeft);
+    manufacturerIdBox->setTextWhenNothingSelected (String());
+    manufacturerIdBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    manufacturerIdBox->addItem (TRANS("0020FF"), 1);
+    manufacturerIdBox->addItem (TRANS("002150"), 2);
+    manufacturerIdBox->addListener (this);
+
+    manufacturerIdBox->setBounds (240, 176, 96, 24);
+
 
     //[UserPreSize]
 	txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
-    setSize (480, 220);
+    setSize (480, 240);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -159,6 +182,8 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
     btnLightOnKeyStroke = nullptr;
     lblColourInactiveMacroButton = nullptr;
     lblColourActiveMacroButton = nullptr;
+    lblManufacturerId = nullptr;
+    manufacturerIdBox = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -211,6 +236,23 @@ void GeneralOptionsDlg::buttonClicked (Button* buttonThatWasClicked)
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
+}
+
+void GeneralOptionsDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+    if (comboBoxThatHasChanged == manufacturerIdBox.get())
+    {
+        //[UserComboBoxCode_manufacturerIdBox] -- add your combo box handling code here..
+        int manufacturerId =  manufacturerIdBox->getItemText(manufacturerIdBox->getSelectedItemIndex()).getHexValue32();
+        TerpstraSysExApplication::getApp().getMidiDriver().setManufacturerId(manufacturerId);
+        //[/UserComboBoxCode_manufacturerIdBox]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
 }
 
 
@@ -270,6 +312,16 @@ void GeneralOptionsDlg::restoreStateFromPropertiesFile(PropertiesFile* propertie
 	activeMacroButtonColourEdit->setColour(
 		propertiesFile->getValue("ActiveMacroButtonColour", "FFFFFF"));
 
+    String manufacturerIdText = String::toHexString(propertiesFile->getIntValue("ManufacturerId", 0x002150));
+
+    for ( int i = 0; i < manufacturerIdBox->getNumItems(); i++)
+    {
+        if (manufacturerIdBox->getItemText(i) == manufacturerIdText)
+        {
+            manufacturerIdBox->setSelectedItemIndex(i);
+            break;
+        }
+    }
 }
 
 void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -290,6 +342,9 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 
 	String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
 	propertiesFile->setValue("ActiveMacroButtonColour", activeMacroButtonColour);
+
+    int manufacturerId = manufacturerIdBox->getItemText(manufacturerIdBox->getSelectedItemIndex()).getHexValue32();
+    propertiesFile->setValue("ManufacturerId", manufacturerId);
 }
 
 
@@ -309,7 +364,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public TextEditor::Listener, public ChangeListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="480"
-                 initialHeight="220">
+                 initialHeight="240">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
          virtualName="" explicitFocusOrder="0" pos="8 16 176 24" edTextCol="ff000000"
@@ -346,6 +401,15 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Colour of active macro buttons:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="lblManufacturerId" id="10618e2f30d0f8f9" memberName="lblManufacturerId"
+         virtualName="" explicitFocusOrder="0" pos="16 176 224 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Manufacturer Id:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="manufacturerIdBox" id="4cf52bc6db0440a6" memberName="manufacturerIdBox"
+            virtualName="" explicitFocusOrder="0" pos="240 176 96 24" editable="0"
+            layout="33" items="0020FF&#10;002150" textWhenNonSelected=""
+            textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

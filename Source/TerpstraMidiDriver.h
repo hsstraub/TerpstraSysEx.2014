@@ -51,11 +51,6 @@ Old definitions, for the first generation keyboard only
 
 */
 
-// Manufacturer Id
-#define MMID1 0x00
-#define MMID2 0x21
-#define MMID3 0x50
-
 #define CHANGE_KEY_NOTE 0x00
 #define SET_KEY_COLOUR 0x01
 
@@ -102,6 +97,8 @@ public:
 	~TerpstraMidiDriver();
 
 	void setAutoSave(bool value) { this->autoSave = value; }
+
+	void setManufacturerId(int value) { manufacturerId = value; }
 
 	//////////////////////////////////
 	// Combined (hi-level) commands
@@ -159,6 +156,8 @@ private:
 	// Attributes
 private:
 	bool autoSave;
+
+	int manufacturerId = 0x002150;
 };
 
 #endif  // TERPSTRAMIDIDRIVER_H_INCLUDED
