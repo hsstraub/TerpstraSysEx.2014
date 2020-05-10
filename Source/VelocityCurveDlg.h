@@ -51,7 +51,7 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 	void sendVelocityTableToController();
 
-	void showBeamValueOfMousePosition(Point<float> localPoint);
+	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);

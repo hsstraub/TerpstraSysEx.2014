@@ -82,9 +82,9 @@ void VelocityCurveBeam::resized()
 
 }
 
-Point<float> VelocityCurveBeam::getBottomMid()
+juce::Point<float> VelocityCurveBeam::getBottomMid()
 {
-	Point<float> pt = this->getBoundsInParent().getBottomLeft().toFloat();
+	juce::Point<float> pt = this->getBoundsInParent().getBottomLeft().toFloat();
 	pt.addXY(this->getWidth() / 2.0, 0);
 
 	return pt;
@@ -95,7 +95,7 @@ float VelocityCurveBeam::getBeamHeightFromValue(int value)
 	return value * this->getHeight() / 128;
 }
 
-int VelocityCurveBeam::getBeamValueFromLocalPoint(Point<float> localPoint)
+int VelocityCurveBeam::getBeamValueFromLocalPoint(juce::Point<float> localPoint)
 {
 	return (getBottom() - localPoint.y) * 128 / getHeight();
 }

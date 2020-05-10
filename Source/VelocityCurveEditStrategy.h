@@ -41,11 +41,11 @@ public:
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
 	// return: true if a repainting is to be done
-	virtual bool mouseMove(const MouseEvent &event, Point<float> localPoint) { return false; };
+	virtual bool mouseMove(const MouseEvent &event, juce::Point<float> localPoint) { return false; };
 	// return: true if some editing was done
-	virtual bool mouseDown(const MouseEvent &event, Point<float> localPoint) { return false; }
-	virtual bool mouseDrag(const MouseEvent &event, Point<float> localPoint) { return false; };
-	virtual void mouseUp(const MouseEvent &event, Point<float> localPoint) { };
+	virtual bool mouseDown(const MouseEvent &event, juce::Point<float> localPoint) { return false; }
+	virtual bool mouseDrag(const MouseEvent &event, juce::Point<float> localPoint) { return false; };
+	virtual void mouseUp(const MouseEvent &event, juce::Point<float> localPoint) { };
 
 protected:
 	Path& beamTableFrame;
@@ -67,9 +67,9 @@ public:
 	
 	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
 	void resized() override;
-	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
-	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
-	void mouseUp(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseDown(const MouseEvent &event, juce::Point<float> localPoint) override;
+	bool mouseDrag(const MouseEvent &event, juce::Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event, juce::Point<float> localPoint) override;
 
 protected:
 	Path drawedLine;
@@ -89,15 +89,15 @@ public:
 	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
 
 	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
-	bool mouseMove(const MouseEvent &event, Point<float> localPoint) override;
-	bool mouseDown(const MouseEvent &event, Point<float> localPoint) override;
-	bool mouseDrag(const MouseEvent &event, Point<float> localPoint) override;
-	void mouseUp(const MouseEvent &event, Point<float> localPoint) override;
+	bool mouseMove(const MouseEvent &event, juce::Point<float> localPoint) override;
+	bool mouseDown(const MouseEvent &event, juce::Point<float> localPoint) override;
+	bool mouseDrag(const MouseEvent &event, juce::Point<float> localPoint) override;
+	void mouseUp(const MouseEvent &event, juce::Point<float> localPoint) override;
 
 protected:
 	bool isDragging() { return draggedOriginalXPosition >= 0; }
 
-	Array<Point<float>> getSegmentPoints();
+	Array<juce::Point<float>> getSegmentPoints();
 	virtual Path createCurveToDraw() = 0;
 
 	void drawSegmentPoints(Graphics& g, LookAndFeel& lookAndFeel);
