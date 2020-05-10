@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.2"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              jucerVersion="5.4.5" companyName="Hans Straub" headerPath="../../../JUCE/modules">
+              jucerVersion="5.4.7" companyName="Hans Straub" headerPath="../../../JUCE/modules">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
@@ -125,24 +125,6 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <VS2013 targetFolder="Builds/VisualStudio2013" bigIcon="nhV3bK">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="LumatoneSetup"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_basics" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_graphics" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_events" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_data_structures" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_core" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_devices" path="..\..\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
-      </MODULEPATHS>
-    </VS2013>
     <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="" bigIcon="nhV3bK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
@@ -193,7 +175,8 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
-    <CODEBLOCKS_WINDOWS targetFolder="Builds/CodeBlocksWindows" smallIcon="nhV3bK" bigIcon="nhV3bK">
+    <CODEBLOCKS_WINDOWS targetFolder="Builds/CodeBlocksWindows" smallIcon="nhV3bK" bigIcon="nhV3bK"
+                        extraCompilerFlags="-Wa,-mbig-obj">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
