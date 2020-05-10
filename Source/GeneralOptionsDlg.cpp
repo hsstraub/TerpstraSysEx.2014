@@ -133,7 +133,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     lblManufacturerId->setColour (TextEditor::textColourId, Colours::black);
     lblManufacturerId->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblManufacturerId->setBounds (16, 176, 224, 24);
+    lblManufacturerId->setBounds (8, 176, 224, 24);
 
     manufacturerIdBox.reset (new ComboBox ("manufacturerIdBox"));
     addAndMakeVisible (manufacturerIdBox.get());
@@ -312,8 +312,9 @@ void GeneralOptionsDlg::restoreStateFromPropertiesFile(PropertiesFile* propertie
 	activeMacroButtonColourEdit->setColour(
 		propertiesFile->getValue("ActiveMacroButtonColour", "FFFFFF"));
 
-    String manufacturerIdText = String::toHexString(propertiesFile->getIntValue("ManufacturerId", 0x002150));
-
+    String manufacturerIdText = String::toHexString(propertiesFile->getIntValue("ManufacturerId", 0x002150))
+		.paddedLeft('0', 6).toUpperCase();
+	// ToDO This is a little low-Level...?
     for ( int i = 0; i < manufacturerIdBox->getNumItems(); i++)
     {
         if (manufacturerIdBox->getItemText(i) == manufacturerIdText)
@@ -402,7 +403,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="lblManufacturerId" id="10618e2f30d0f8f9" memberName="lblManufacturerId"
-         virtualName="" explicitFocusOrder="0" pos="16 176 224 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="8 176 224 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Manufacturer Id:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
