@@ -31,6 +31,9 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
+	midiDriver.setManufacturerId(manufacturerId);
+
 	switch (propertiesFile->getIntValue("ColourScheme"))
 	{
 	case 1:
@@ -438,7 +441,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
-	launchOptions.content->setSize(480, 220);
+	launchOptions.content->setSize(480, 240);
 
 	launchOptions.dialogTitle = "General options";
 	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId);
@@ -447,7 +450,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	launchOptions.resizable = true;
 
 	DialogWindow* dw = launchOptions.launchAsync();
-	dw->centreWithSize(480, 220);
+	dw->centreWithSize(480, 240);
 
 	return true;
 }

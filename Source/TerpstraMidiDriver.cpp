@@ -102,9 +102,9 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
 	if (midiOutput != nullptr)
 	{
 		unsigned char sysExData[133];
-		sysExData[0] = MMID1;
-		sysExData[1] = MMID2;
-		sysExData[2] = MMID3;
+		sysExData[0] = (manufacturerId >> 16) & 0xff;
+		sysExData[1] = (manufacturerId >> 8) & 0xff;
+		sysExData[2] = manufacturerId & 0xff;
 		sysExData[3] = '\0';
 
 		switch(velocityCurveType)
@@ -196,9 +196,9 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 	if (midiOutput != nullptr)
 	{
 		unsigned char sysExData[10];
-		sysExData[0] = MMID1;
-		sysExData[1] = MMID2;
-		sysExData[2] = MMID3;
+		sysExData[0] = (manufacturerId >> 16) & 0xff;
+		sysExData[1] = (manufacturerId >> 8) & 0xff;
+		sysExData[2] = manufacturerId & 0xff;
 		sysExData[3] = boardIndex;
 		sysExData[4] = cmd;
 		sysExData[5] = data1;

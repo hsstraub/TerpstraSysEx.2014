@@ -13,7 +13,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-
 /*
 ==============================================================================
 Display of one beam in a velocity curve table
@@ -33,13 +32,13 @@ public:
 	void paint(Graphics& g);
 	void resized();
 
-	Point<float> getBottomMid();
+  juce::Point<float> getBottomMid();
 	
 	float getBeamHeightFromValue(int value);
 	float getBeamHeightFromValue() { return getBeamHeightFromValue(beamValue); }
 
-	int getBeamValueFromLocalPoint(Point<float> localPoint);
-	void setBeamValueFromLocalPoint(Point<float> localPoint) { setValue(getBeamValueFromLocalPoint(localPoint)); }
+	int getBeamValueFromLocalPoint(juce::Point<float> localPoint);
+	void setBeamValueFromLocalPoint(juce::Point<float> localPoint) { setValue(getBeamValueFromLocalPoint(localPoint)); }
 
 	enum ColourIds
 	{

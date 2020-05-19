@@ -10,7 +10,6 @@
 
 #include "VelocityCurveEditStrategy.h"
 
-
 /*
 ==============================================================================
 VelocityCurveEditStrategyBase class
@@ -75,7 +74,7 @@ void VelocityCurveFreeDrawingStrategy::resized()
 	drawedLine.clear();
 }
 
-bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, Point<float> localPoint)
+bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	drawedLine.clear();
 	if (beamTableFrame.contains(localPoint))
@@ -106,7 +105,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, Point<
 
 }
 
-bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, Point<float> localPoint)
+bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	for (int x = 0; x < 128; x++)
 	{
@@ -132,7 +131,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, Point<
 	return false;
 }
 
-void VelocityCurveFreeDrawingStrategy::mouseUp(const MouseEvent &event, Point<float> localPoint)
+void VelocityCurveFreeDrawingStrategy::mouseUp(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	drawedLine.clear();
 }
@@ -163,7 +162,7 @@ void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookA
 	drawSegmentPoints(g, lookAndFeel);
 }
 
-bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, Point<float> localPoint)
+bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	int newMouseXPosition = -1;
 	for (int x = 0; x < 128; x++)
@@ -185,7 +184,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, Po
 		return false;
 }
 
-bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, Point<float> localPoint)
+bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	if (event.mods.isLeftButtonDown())
 	{
@@ -230,7 +229,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, Po
 	return false;
 }
 
-bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, Point<float> localPoint)
+bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	if (isDragging())
 	{
@@ -268,7 +267,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, Po
 	return false;
 }
 
-void VelocityCurveSegmentEditStrategyBase::mouseUp(const MouseEvent &event, Point<float> localPoint)
+void VelocityCurveSegmentEditStrategyBase::mouseUp(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	draggedOriginalXPosition = -1;
 
@@ -276,12 +275,12 @@ void VelocityCurveSegmentEditStrategyBase::mouseUp(const MouseEvent &event, Poin
 	setVelocityTableValuesFromEditConfig();
 }
 
-Array<Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
+Array<juce::Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
 {
-	Array<Point<float>> result;
+	Array<juce::Point<float>> result;
 
 	// First point
-	Point<float> pt = velocityBeamTable[0]->getBottomMid();
+	juce::Point<float> pt = velocityBeamTable[0]->getBottomMid();
 	pt.setY(pt.y - velocityBeamTable[0]->getBeamHeightFromValue(fixPointBeamHeights[0]));
 
 	result.add(pt);
@@ -309,7 +308,7 @@ void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g, LookAn
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
-			Point<float> pt = velocityBeamTable[x]->getBottomMid();
+			juce::Point<float> pt = velocityBeamTable[x]->getBottomMid();
 			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
 			
 			Path currentNodePath;
@@ -431,7 +430,7 @@ String VelocityCurveLinearDrawingStrategy::createPropertiesStringForSaving()
 
 Path VelocityCurveLinearDrawingStrategy::createCurveToDraw()
 {
-	Array<Point<float>> segmentPoints = getSegmentPoints();
+	Array<juce::Point<float>> segmentPoints = getSegmentPoints();
 
 	Path drawedCurve;
 	drawedCurve.startNewSubPath(segmentPoints[0]);
@@ -518,9 +517,9 @@ void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig
 {
 	Path drawedclosedLine = createCurveToDraw();
 
-	Point<float> ptLeftBottom = velocityBeamTable[0]->getBottomMid();
+	juce::Point<float> ptLeftBottom = velocityBeamTable[0]->getBottomMid();
 	ptLeftBottom.addXY(-1, 1);	// To make sure the testLines start inside the drawedClosedLine
-	Point<float> ptRightBottom = velocityBeamTable[127]->getBottomMid();
+	juce::Point<float> ptRightBottom = velocityBeamTable[127]->getBottomMid();
 	ptRightBottom.addXY(1, 1);
 
 	drawedclosedLine.lineTo(ptRightBottom);
@@ -531,8 +530,8 @@ void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig
 
 	for (int x = 0; x < 128; x++)
 	{
-		Point<float> ptBot = velocityBeamTable[x]->getBottomMid();
-		Point<float> ptTop = ptBot;
+		juce::Point<float> ptBot = velocityBeamTable[x]->getBottomMid();
+		juce::Point<float> ptTop = ptBot;
 		ptTop.addXY(0, -velTableHeight);
 		
 		juce::Line<float> testLine(ptBot, ptTop);
@@ -583,7 +582,7 @@ String VelocityCurveQuadraticDrawingStrategy::createPropertiesStringForSaving()
 
 Path VelocityCurveQuadraticDrawingStrategy::createCurveToDraw()
 {
-	Array<Point<float>> segmentPoints = getSegmentPoints();
+	Array<juce::Point<float>> segmentPoints = getSegmentPoints();
 
 	Path drawedCurve;
 	drawedCurve.startNewSubPath(segmentPoints[0]);
