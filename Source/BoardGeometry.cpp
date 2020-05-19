@@ -46,7 +46,7 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 	this->firstColumnOffsets = Array<int>({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5});
 }
 
-// returns the unique straight line that contains the given field  
+// returns the unique straight line that contains the given field
 TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet)
 {
 	int i;
@@ -60,3 +60,24 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fi
 	jassert(false);
 	return StraightLine();	// Defensive code: return empty object
 }
+
+// Returns the line that is a continuation of the given horizontal line in another octave board
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset)
+{
+    int currentLineIndex = this->horizontalLines.indexOf(line);
+    if ( currentLineIndex < 0)
+    {
+        jassert(false);         // Should not happen
+        return StraightLine();	// return empty object
+    }
+
+    int otherSubBoardLineIndex = currentLineIndex - 2 * octaveBoardOffset;
+    if (otherSubBoardLineIndex < 0 || otherSubBoardLineIndex >= horizontaLineCount())
+    {
+        // Line does not continue on other octave board
+        return StraightLine();
+    }
+
+    return this->horizontalLines[otherSubBoardLineIndex];
+}
+

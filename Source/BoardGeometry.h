@@ -15,7 +15,7 @@
 
 
 //==============================================================================
-// Manages the geometry of the board - used to create isomorphic key mappings 
+// Manages the geometry of the board - used to create isomorphic key mappings
 class TerpstraBoardGeometry
 {
 	// Types
@@ -36,7 +36,9 @@ public:
 	int horizontalLineSize(int rowIndex) { return (rowIndex >= 0 && rowIndex < horizontaLineCount()) ? this->horizontalLines[rowIndex].size() : 0; }
 	int firstColumnOffset(int rowIndex) { return (rowIndex >= 0 && rowIndex < firstColumnOffsets.size()) ? this->firstColumnOffsets[rowIndex] : 0; }
 
-private: 
+	StraightLine continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset);
+
+private:
 	StraightLine getLineOfField(int fieldIndex, StraightLineSet lineSet);
 
 	// Attributes
