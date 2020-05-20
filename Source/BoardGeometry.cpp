@@ -81,3 +81,42 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizon
     return this->horizontalLines[otherSubBoardLineIndex];
 }
 
+// Returns the unique horizontal line that contains the given field, over all octave boards
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLineOfField(int setSelection, int fieldIndex)
+{
+    jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+
+    StraightLineSet result;
+
+    int octaveBoardIndex = 0;
+
+    // Initialize line segments before current octave board
+    for (; octaveBoardIndex < setSelection; octaveBoardIndex++)
+    {
+        result.add(StraightLine());
+    }
+
+    // The line for the given field in the given octave board
+    StraightLine line = horizontalLineOfField(fieldIndex);
+    result.add(line);
+    octaveBoardIndex++;
+
+    // Line segments in succeeding octave boards (further right)
+    for (; octaveBoardIndex < NUMBEROFBOARDS && !line.isEmpty(); octaveBoardIndex++)
+    {
+        line = continuationOfHorizontalLine(line, 1);
+        result.add(line);
+    }
+
+    // Line segments in preceding octave boards
+    line = result[setSelection];
+    octaveBoardIndex = setSelection-1;
+
+    for (; octaveBoardIndex >=0 && !line.isEmpty(); octaveBoardIndex--)
+    {
+        line = continuationOfHorizontalLine(line, -1);
+        result[octaveBoardIndex] = line;
+    }
+
+    return result;
+}

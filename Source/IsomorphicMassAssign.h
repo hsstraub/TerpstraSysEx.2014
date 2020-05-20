@@ -58,6 +58,9 @@ public:
 	// Fill a line, Starting point is assumed to have been set
 	void fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
 
+// Fill a horizontal line over all octave boards. Starting point is assumed to have been set.
+	void fillGlobalHorizLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize);
+
 	// Fill a horizontal line and its cutting upwards lines, recursively
 	void fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
 		int horizStepSize, int rUpwStepSize,

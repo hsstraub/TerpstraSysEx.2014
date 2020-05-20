@@ -37,6 +37,7 @@ public:
 	int firstColumnOffset(int rowIndex) { return (rowIndex >= 0 && rowIndex < firstColumnOffsets.size()) ? this->firstColumnOffsets[rowIndex] : 0; }
 
 	StraightLine continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset);
+	StraightLineSet globalHorizontalLineOfField(int setSelection, int fieldIndex);
 
 private:
 	StraightLine getLineOfField(int fieldIndex, StraightLineSet lineSet);

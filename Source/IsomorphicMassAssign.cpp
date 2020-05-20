@@ -288,7 +288,7 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
 }
 
-// Fill a line. Starting point is assumed to have been set
+// Fill a line in current octave board. Starting point is assumed to have been set
 void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
 {
 	jassert(stepSize != 0);
@@ -309,6 +309,48 @@ void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::Str
 	{
 		setSaveSend(setSelection, line[pos], noteIndex);
 	}
+}
+
+// Fill a horizontal line over all octave boards. Starting point is assumed to have been set.
+void IsomorphicMassAssign::fillGlobalHorizLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize)
+{
+	jassert(stepSize != 0);
+
+	int pos;
+
+	// Forward
+	// Line belonging to current octave board
+	int noteIndex = startNoteIndex + stepSize;
+
+	for (pos = startPos + 1;
+		pos < globalLine[setSelection].size() && noteIndex < this->mappingLogic->globalMappingSize();
+		pos++, noteIndex += stepSize)
+	{
+		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
+	}
+
+	// Following octave boards
+	for ( int octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
+    {
+        for (pos = 0;
+            pos < globalLine[octaveBoardIndex].size() && noteIndex < this->mappingLogic->globalMappingSize();
+            pos++, noteIndex += stepSize)
+        {
+            setSaveSend(octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
+        }
+    }
+
+	// Backward
+	// Current octave board
+	noteIndex = startNoteIndex - stepSize;
+
+	for (pos = startPos - 1; pos >= 0 && noteIndex >= 0; pos--, noteIndex -= stepSize)
+	{
+		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
+	}
+
+	// Preceding octave boards
+	// ToDO
 }
 
 // Fill a horizontal line and its cutting upwards lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
@@ -409,9 +451,10 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		// Horizontal line
 		if (horizStepSize != 0 && rUpwStepSize == 0)
 		{
-			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
-			int startPos = horizLine.indexOf(keySelection);
-			fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
+			TerpstraBoardGeometry::StraightLineSet globalHorizLine = boardGeometry.globalHorizontalLineOfField(setSelection, keySelection);
+			int startPos = globalHorizLine[setSelection].indexOf(keySelection);
+			fillGlobalHorizLine(setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
+
 			mappingChanged = true;
 		}
 
