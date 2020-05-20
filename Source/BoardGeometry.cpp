@@ -115,7 +115,7 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLi
     for (; octaveBoardIndex >=0 && !line.isEmpty(); octaveBoardIndex--)
     {
         line = continuationOfHorizontalLine(line, -1);
-        result[octaveBoardIndex] = line;
+        result.set(octaveBoardIndex, line);
     }
 
     return result;

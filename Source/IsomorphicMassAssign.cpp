@@ -316,7 +316,7 @@ void IsomorphicMassAssign::fillGlobalHorizLine(int setSelection, TerpstraBoardGe
 {
 	jassert(stepSize != 0);
 
-	int pos;
+	int pos, octaveBoardIndex;
 
 	// Forward
 	// Line belonging to current octave board
@@ -330,7 +330,7 @@ void IsomorphicMassAssign::fillGlobalHorizLine(int setSelection, TerpstraBoardGe
 	}
 
 	// Following octave boards
-	for ( int octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
+	for (octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
     {
         for (pos = 0;
             pos < globalLine[octaveBoardIndex].size() && noteIndex < this->mappingLogic->globalMappingSize();
@@ -349,8 +349,16 @@ void IsomorphicMassAssign::fillGlobalHorizLine(int setSelection, TerpstraBoardGe
 		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
 	}
 
-	// Preceding octave boards
-	// ToDO
+    // Preceding octave boards
+	for (octaveBoardIndex = setSelection-1; octaveBoardIndex >= 0; octaveBoardIndex--)
+    {
+        for (pos = globalLine[octaveBoardIndex].size()-1;
+            pos >=0  && noteIndex >= 0;
+            pos--, noteIndex -= stepSize)
+        {
+            setSaveSend(octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
+        }
+    }
 }
 
 // Fill a horizontal line and its cutting upwards lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
