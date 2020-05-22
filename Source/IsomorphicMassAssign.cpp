@@ -312,7 +312,7 @@ void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::Str
 }
 
 // Fill a horizontal line over all octave boards. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fillGlobalHorizLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize)
+void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize)
 {
 	jassert(stepSize != 0);
 
@@ -461,7 +461,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		{
 			TerpstraBoardGeometry::StraightLineSet globalHorizLine = boardGeometry.globalHorizontalLineOfField(setSelection, keySelection);
 			int startPos = globalHorizLine[setSelection].indexOf(keySelection);
-			fillGlobalHorizLine(setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
+			fillGlobalLine(setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
 
 			mappingChanged = true;
 		}
@@ -469,9 +469,9 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		// Right vertical line
 		else if (horizStepSize == 0 && rUpwStepSize != 0)
 		{
-			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(keySelection);
-			int startPos = rUpLine.indexOf(keySelection);
-			fillLine(setSelection, rUpLine, startPos, startNoteIndex, rUpwStepSize);
+			TerpstraBoardGeometry::StraightLineSet globalRUpLine = boardGeometry.globalRightUpwardLineOfField(setSelection, keySelection);
+			int startPos = globalRUpLine[setSelection].indexOf(keySelection);
+			fillGlobalLine(setSelection, globalRUpLine, startPos, startNoteIndex, rUpwStepSize);
 			mappingChanged = true;
 		}
 

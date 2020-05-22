@@ -247,7 +247,7 @@ void MainContentComponent::resized()
 	int keyIndex = 0;
 
 	// Rows
-	int rowCount = boardGeometry.horizontaLineCount();
+	int rowCount = boardGeometry.horizontalLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
 		float xbasepos;
