@@ -25,6 +25,7 @@
 #include "IncrMidiNotesMapping.h"
 #include "KBMMappingDlg.h"
 #include "BoardGeometry.h"
+#include "ScaleStructureController/ScaleStructureComponent.h"
 //[/Headers]
 
 
@@ -39,6 +40,7 @@
 */
 class IsomorphicMassAssign  : public Component,
                               public MappingLogicBase::Listener,
+                              public ScaleStructureComponent::Listener,
                               public ComboBox::Listener,
                               public Button::Listener
 {
@@ -72,6 +74,9 @@ public:
 	// Implementation of MappingLogicListener
 	void mappingLogicChanged(MappingLogicBase* mappingLogicThatChanged) override;
 
+	// Implementation of ScaleStructureComponent::Listener
+	void scaleStructurePeriodChanged(int newPeriod) override;
+
 	bool performMouseDown(int setSelection, int keySelection);
     //[/UserMethods]
 
@@ -84,12 +89,27 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::unique_ptr<IncrMidiNotesMapping>	incrMidiNotesMapping;
-	std::unique_ptr<KBMMappingDlg>          kbmMappingDlg;
+	std::unique_ptr<IncrMidiNotesMapping>	 incrMidiNotesMapping;
+	std::unique_ptr<KBMMappingDlg>           kbmMappingDlg;
+	std::unique_ptr<ScaleStructureComponent> scaleDesignControls;
 
 	MappingLogicBase*		mappingLogic;
 	int                     scaleSize;
 	TerpstraBoardGeometry	boardGeometry;
+	ScaleStructure			scaleStructure;
+
+	// Can be replaced, but ScaleStructureComponent currently needs a reference to a list of Colours
+	// to use and update them automatically in realtime
+	Array<Colour>			colourTable =
+	{
+		Colours::white,
+		Colours::red,
+		Colours::blue,
+		Colours::yellow,
+		Colours::green,
+		Colours::rebeccapurple,
+		Colours::orange
+	};
     //[/UserVariables]
 
     //==============================================================================

@@ -56,6 +56,27 @@
             file="Source/GeneralOptionsDlg.cpp"/>
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
             file="Source/GeneralOptionsDlg.h"/>
+      <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
+        <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
+              file="Source/ScaleStructureController/GroupingCircle.cpp"/>
+        <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
+              file="Source/ScaleStructureController/GroupingCircle.h"/>
+        <FILE id="hym7zK" name="NumberSelector.cpp" compile="1" resource="0"
+              file="Source/ScaleStructureController/NumberSelector.cpp"/>
+        <FILE id="qahnqb" name="NumberSelector.h" compile="0" resource="0"
+              file="Source/ScaleStructureController/NumberSelector.h"/>
+        <FILE id="om2FKu" name="ScaleMath.h" compile="0" resource="0" file="Source/ScaleStructureController/ScaleMath.h"/>
+        <FILE id="n7TF6S" name="ScaleStructure.cpp" compile="1" resource="0"
+              file="Source/ScaleStructureController/ScaleStructure.cpp"/>
+        <FILE id="hhs9PL" name="ScaleStructure.h" compile="0" resource="0"
+              file="Source/ScaleStructureController/ScaleStructure.h"/>
+        <FILE id="a0Z3Sh" name="ScaleStructureComponent.cpp" compile="1" resource="0"
+              file="Source/ScaleStructureController/ScaleStructureComponent.cpp"/>
+        <FILE id="B3DDLV" name="ScaleStructureComponent.h" compile="0" resource="0"
+              file="Source/ScaleStructureController/ScaleStructureComponent.h"/>
+        <FILE id="xUZ6gr" name="TransparentDropDown.h" compile="0" resource="0"
+              file="Source/ScaleStructureController/TransparentDropDown.h"/>
+      </GROUP>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
         <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>

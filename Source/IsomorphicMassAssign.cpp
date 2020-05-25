@@ -43,6 +43,8 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
+	scaleDesignControls.reset(new ScaleStructureComponent(scaleStructure, colourTable));
+
 	mappingLogic = nullptr;
     //[/Constructor_pre]
 
@@ -222,6 +224,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 	kbmMappingDlg->getMappingLogic()->addListener(this);
+	scaleDesignControls->addListener(this);
 
 	// cbMappingStyle default selection: will be read from user settings
     //[/Constructor]
@@ -232,6 +235,7 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     //[Destructor_pre]. You can add your own custom destruction code here..
 	incrMidiNotesMapping = nullptr;
 	kbmMappingDlg = nullptr;
+	scaleDesignControls = nullptr;
     //[/Destructor_pre]
 
     startingPointBox = nullptr;
@@ -322,6 +326,9 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         scaleSize = comboBoxThatHasChanged->getSelectedId();
         incrMidiNotesMapping->onUpdateScaleSize();
         kbmMappingDlg->onUpdateScaleSize();
+
+		scaleStructure.resetToPeriod(scaleSize);
+		scaleDesignControls->onPeriodChange(false);
         //[/UserComboBoxCode_scaleSizeBox]
     }
 
@@ -337,6 +344,12 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
+		DialogWindow::showDialog(
+			"Scale Designer",
+			scaleDesignControls.get(),
+			this, findColour(ResizableWindow::backgroundColourId),
+			true
+		);
         //[/UserButtonCode_btnFileSelectMacro]
     }
 
@@ -483,6 +496,13 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 	}
 }
 
+void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
+{
+	scaleSizeBox->setSelectedId(newPeriod, dontSendNotification);
+	incrMidiNotesMapping->onUpdateScaleSize();
+	kbmMappingDlg->onUpdateScaleSize();
+}
+
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
 /// <returns>Mapping was changed yes/no</returns>
 bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
@@ -549,7 +569,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component, public MappingLogicBase::Listener"
+                 parentClasses="public Component, public MappingLogicBase::Listener, public ScaleStructureComponent::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
                  initialHeight="352">
