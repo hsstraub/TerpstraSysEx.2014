@@ -43,8 +43,6 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
-	scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
-
 	mappingLogic = nullptr;
     //[/Constructor_pre]
 
@@ -224,7 +222,6 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 	kbmMappingDlg->getMappingLogic()->addListener(this);
-	scaleDesignWindow->addScaleDesignerListener(this);
 
 	// cbMappingStyle default selection: will be read from user settings
     //[/Constructor]
@@ -327,7 +324,9 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         incrMidiNotesMapping->onUpdateScaleSize();
         kbmMappingDlg->onUpdateScaleSize();
 
-		scaleDesignWindow->setPeriod(scaleSize);
+		scaleStructure.resetToPeriod(scaleSize);
+		if (scaleDesignWindow.get())
+			scaleDesignWindow->loadScaleStructureSettings();
         //[/UserComboBoxCode_scaleSizeBox]
     }
 
@@ -343,6 +342,14 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
+
+		// Initialize this here to allow the ScaleStructure settings to be loaded first
+		if (scaleDesignWindow.get() == nullptr)
+		{
+			scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
+			scaleDesignWindow->addScaleDesignerListener(this);
+		}
+
 		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
         //[/UserButtonCode_btnFileSelectMacro]
     }

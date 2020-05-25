@@ -40,7 +40,6 @@
                                                                     //[/Comments]
 */
 class ScaleStructureComponent  : public Component,
-                                 public ChangeBroadcaster,
                                  private NumberSelector::Listener,
                                  private GroupingCircle::Listener,
                                  private Button::Listener
@@ -57,17 +56,23 @@ public:
 	void buttonClicked(Button* buttonThatWasClicked) override;
 	void selectorValueChanged(NumberSelector* selectorThatHasChanged) override;
 
+	// GroupingCircle::Listener Implementation
 	void offsetChanged(int newOffset) override;
 	void degreeAltered(int degreeIndex, int chromasMoved) override;
+
+	void loadScaleStructureSettings();
 
 	void updateGenerators();
 	void updateScaleSizes();
 	void updatePeriodFactors();
-	void updateOffsetLimit();
 
-	void setPeriod(int newPeriod); // temporary function for editScaleSizeBox recall
-	void onPeriodChange(bool sendNotification=true);
+	void setPeriod(int newPeriod);
+
+	void onPeriodChange(bool sendNotification = true);
 	void onPeriodFactorChange(int factorIndexIn);
+
+	void onGeneratorChange(bool sendNotifcation = true);
+	void onScaleSizeChange(bool sendNotification = true);
 
 	void updatePGLabel();
 	void updateLsLabel();
@@ -83,6 +88,9 @@ public:
 
 		// Called whenever step sizes change
 		virtual void scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize) {};
+
+		// Called when any property changes
+		virtual void scaleStructureChanged() {};
 	};
 
 	void addListener(Listener* listenerIn);

@@ -20,7 +20,7 @@ public:
 	~ScaleDesignWindow();
 
 	void addScaleDesignerListener(ScaleStructureComponent::Listener* listenerIn);
-	void setPeriod(int newPeriod);
+	void loadScaleStructureSettings();
 
 	void closeButtonPressed() override;
 	void resized() override;

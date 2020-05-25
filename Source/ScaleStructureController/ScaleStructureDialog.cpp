@@ -23,9 +23,9 @@ ScaleDesignWindow::~ScaleDesignWindow()
 	scaleDesigner = nullptr;
 }
 
-void ScaleDesignWindow::setPeriod(int newPeriod)
+void ScaleDesignWindow::loadScaleStructureSettings()
 {
-	scaleDesigner->setPeriod(newPeriod);
+	scaleDesigner->loadScaleStructureSettings();
 }
 
 void ScaleDesignWindow::addScaleDesignerListener(ScaleStructureComponent::Listener* listenerIn)

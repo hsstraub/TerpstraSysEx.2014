@@ -108,14 +108,11 @@ NumberSelector::IntList NumberSelector::getList() const
 void NumberSelector::increment()
 {
 	int newIndex = indexSelected + 1;
+	setIndex(newIndex);
 
-	if (selectionType == SelectionType::Range && selectionRange.contains(newIndex))
+	if (selectionType == SelectionType::List && indexSelected < selectionList.size() - 1)
 	{
-		setIndex(newIndex);
-	}
-	else if (selectionType == SelectionType::List && indexSelected < selectionList.size() - 1)
-	{
-		listValueLabel->setSelectedId(newIndex + 1);
+		listValueLabel->setSelectedId(newIndex + 1, dontSendNotification);
 	}
 }
 
@@ -123,14 +120,11 @@ void NumberSelector::increment()
 void NumberSelector::decrement()
 {
 	int newIndex = indexSelected - 1;
+	setIndex(newIndex);
 
-	if (selectionType == SelectionType::Range && selectionRange.contains(newIndex))
+	if (selectionType == SelectionType::List && indexSelected > 0)
 	{
-		setIndex(newIndex);
-	}
-	else if (selectionType == SelectionType::List && indexSelected > 0)
-	{
-		listValueLabel->setSelectedId(newIndex + 1);
+		listValueLabel->setSelectedId(newIndex + 1, dontSendNotification);
 	}
 }
 
@@ -181,7 +175,10 @@ void NumberSelector::setIndex(int indexIn, bool sendNotification)
 		updateTextBox();
 
 	if (sendNotification)
+	{
+		DBG('\n' + getName() + " LISTENERS CALLED FOR UPDATE");
 		listeners.call(&NumberSelector::Listener::selectorValueChanged, this);
+	}
 }
 
 void NumberSelector::setRange(IntRange rangeIn, bool updateValueAndIndex, bool sendNotification)
@@ -204,7 +201,7 @@ void NumberSelector::setList(IntList listIn, bool updateValueAndIndex, bool send
 {
 	selectionList = listIn;
 
-	listValueLabel->clear();
+	listValueLabel->clear(dontSendNotification);
 	for (int i = 0; i < selectionList.size(); i++)
 		listValueLabel->addItem(String(selectionList[i]), i + 1);
 	

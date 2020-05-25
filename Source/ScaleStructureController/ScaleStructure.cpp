@@ -11,36 +11,28 @@
 
 #include "ScaleStructure.h"
 
-ScaleStructure::ScaleStructure(int periodIn)
+ScaleStructure::ScaleStructure()
 {
-	resetToPeriod(periodIn);
+	period = 0;
+	generatorIndex = -1;
+	sizeIndexSelected = -1;
 }
 
-ScaleStructure::ScaleStructure(int periodIn, int genIndexIn, int sizeIndexIn, Array<int> degreeGroupsIn)
+ScaleStructure::ScaleStructure(
+	int periodIn,
+	int genIndexIn,
+	int sizeIndexIn,
+	int genOffsetIn,
+	int periodFactorIndexIn,
+	Array<int> degreeGroupsIn,
+	Array<int> chromaAlterationsIn)
 {
-	resetToPeriod(periodIn);
-	setGeneratorIndex(genIndexIn);
-	setSizeIndex(sizeIndexIn);
-	
-	if (degreeGroupsIn.size() > 0)
-	{
-		degreeGroupIndexedSizes = degreeGroupsIn;
-		// TODO: check and fill
-	}
-	else
-	{
-		useSuggestedSizeGrouping();
-	}
+	setAll(periodIn, genIndexIn, sizeIndexIn, genOffsetIn, periodFactorIndexIn, degreeGroupsIn, chromaAlterationsIn);
 }
 
 void ScaleStructure::resetToPeriod(int periodIn)
 {
-	period = periodIn;
-	generatorIndex = -1;
-	sizeIndexSelected = -1;
-
-	periodFactors = getFactors(period);
-	setPeriodFactorIndex(0);
+	setAll(periodIn, -1, -1);
 }
 
 void ScaleStructure::setAll(
@@ -52,21 +44,34 @@ void ScaleStructure::setAll(
 	Array<int> degreeGroupSizeIndiciesIn,
 	Array<int> chromaAlterationsIn)
 {
-	period = periodIn;
-	
-	periodFactors = getFactors(period);
-	periodFactorIndexSelected = jlimit(0, periodFactors.size() - 1, periodFactorIndexIn);
-	periodFactorSelected = periodFactors[periodFactorIndexSelected];
-	fPeriod = period / periodFactorSelected;
+	bool fPeriodChanged = false;
 
-	validGenerators = getCoprimes(fPeriod);
+	if (period != periodIn)
+	{
+		period = periodIn;
+		periodFactors = getFactors(period);
+		fPeriodChanged = true;
+	}
+
+	if (fPeriodChanged || periodFactorIndexSelected != periodFactorIndexIn)
+	{
+		periodFactorIndexSelected = jlimit(0, periodFactors.size() - 1, periodFactorIndexIn);
+		periodFactorSelected = periodFactors[periodFactorIndexSelected];
+		fPeriod = period / periodFactorSelected;
+
+		validGenerators = getCoprimes(fPeriod);
+	}
+
 	// if generator index is invalid, default to suggested
-	if (generatorIndexIn < 0 || generatorIndexIn >= validGenerators.size())
-		generatorIndex = getSuggestedGeneratorIndex();
-	else
-		generatorIndex = generatorIndexIn;
+	if (fPeriodChanged || generatorIndex != generatorIndexIn)
+	{
+		if (generatorIndexIn < 0 || generatorIndexIn >= validGenerators.size())
+			generatorIndex = getSuggestedGeneratorIndex();
+		else
+			generatorIndex = generatorIndexIn;
 
-	calculateProperties();
+		calculateProperties();
+	}
 
 	// if size index is invalid, default to suggested
 	if (sizeIndexIn < 0 || sizeIndexIn >= scaleSizes.size())
@@ -217,17 +222,7 @@ Array<int> ScaleStructure::getGroupingIndexedSizes() const
 	return degreeGroupIndexedSizes;
 }
 
-const Array<int>& ScaleStructure::getGroupingSizesReference()
-{
-	return degreeGroupScaleSizes;
-}
-
 Array<Array<int>> ScaleStructure::getDegreeGroupings() const
-{
-	return degreeGroupings;
-}
-
-const Array<Array<int>>& ScaleStructure::getDegreeGroupingsReference() const
 {
 	return degreeGroupings;
 }
@@ -360,17 +355,15 @@ void ScaleStructure::setPeriodFactorIndex(int index)
 	}
 }
 
-void ScaleStructure::setGeneratorIndex(int index)
-{
-	generatorIndex = index;
-	calculateProperties();
-	calculateGeneratorChain();
-}
-
 void ScaleStructure::setSizeIndex(int index)
 {
 	sizeIndexSelected = index;
-	useSuggestedSizeGrouping();
+
+	// Restrict GeneratorOffset to valid value
+	if (generatorOffset >= getScaleSize())
+		setGeneratorOffset(getScaleSize() - 1);
+	else
+		useSuggestedSizeGrouping();
 }
 
 void ScaleStructure::setGeneratorOffset(int offsetIn)
@@ -394,6 +387,7 @@ bool ScaleStructure::setChromaAlterations(Array<int> chromaAlterationsIn)
 
 void ScaleStructure::calculateProperties()
 {
+	DBG("~~~ ScaleStructure is calculating properties ~~~");
 	// Clear all data dependent on Generator and Size choices
 	scaleSizes.clear();
 	keyboardTypes.clear();
@@ -445,7 +439,7 @@ void ScaleStructure::calculateProperties()
 		dbgstr += "(" + s.toString() + "), ";
 	}
 
-	DBG("Sizes available: " + dbgstr);
+	DBG("\tSizes available: " + dbgstr);
 
 	calculateStepSizes();
 }
@@ -512,7 +506,7 @@ void ScaleStructure::calculateGeneratorChain()
 		}
 	}
 
-	DBG("Generator Chain: " + dbgstr);
+	DBG("SS Generator Chain: " + dbgstr);
 }
 
 void ScaleStructure::fillGroupingSymmetrically()
@@ -559,9 +553,9 @@ void ScaleStructure::fillGroupingSymmetrically()
 		sum += size;
 	}
 	dbgstr += " = " + String(sum);
-	DBG("Using this size grouping: " + dbgstr);
+	DBG("SS Updated grouping: " + dbgstr);
 
-	dbgstr = "";
+	dbgstr = "\t";
 	for (int group = 0; group < grouping.size(); group++)
 	{
 		Array<int> degreeGroup = degreeGroupings[group];
@@ -570,10 +564,12 @@ void ScaleStructure::fillGroupingSymmetrically()
 		{
 			dbgstr += String(degreeGroup[deg]) + ", ";
 		}
-		dbgstr += "\n";
+
+		if (group + 1 < degreeGroupIndexedSizes.size())
+			dbgstr += "\n\t";
 	}
 
-	DBG("Degree groupings: ");
+	DBG("SS Degree groupings: ");
 	DBG(dbgstr);
 }
 
@@ -608,9 +604,9 @@ void ScaleStructure::fillSymmetricGrouping()
 		sum += size;
 	}
 	dbgstr += " = " + String(sum);
-	DBG("Using this size grouping: " + dbgstr);
+	DBG("SS Updated grouping: " + dbgstr);
 
-	dbgstr = "";
+	dbgstr = "\t";
 	for (int group = 0; group < degreeGroupIndexedSizes.size(); group++)
 	{
 		Array<int> degreeGroup = degreeGroupings[group];
@@ -619,10 +615,12 @@ void ScaleStructure::fillSymmetricGrouping()
 		{
 			dbgstr += String(degreeGroup[deg]) + ", ";
 		}
-		dbgstr += "\n";
+
+		if (group + 1 < degreeGroupIndexedSizes.size())
+			dbgstr += "\n\t";
 	}
 
-	DBG("Degree groupings: ");
+	DBG("SS Degree groupings: ");
 	DBG(dbgstr);
 }
 
@@ -662,7 +660,7 @@ void ScaleStructure::applyChromaAlterations()
 	{
 		dbgstr += String(alteration) + ", ";
 	}
-	DBG("MODMOS Properties:\n" + dbgstr);
+	DBG("SS MODMOS Properties:\n" + dbgstr);
 }
 
 
@@ -781,11 +779,11 @@ Array<int> ScaleStructure::getNestedSizeGrouping()
 		subSize = scaleSizes[--subSizeInd];
 	}
 
-	DBG("Nested group:");
-	String dbgstr = "";
-	for (int i = 0; i < grouping.size(); i++)
-		dbgstr += String(scaleSizes[grouping[i]]) + ", ";
-	DBG(dbgstr);
+	//DBG("Nested group:");
+	//String dbgstr = "";
+	//for (int i = 0; i < grouping.size(); i++)
+	//	dbgstr += String(scaleSizes[grouping[i]]) + ", ";
+	//DBG(dbgstr);
 
 	return grouping;
 }
@@ -854,11 +852,11 @@ Array<int> ScaleStructure::getComplimentarySizeGrouping()
 		}
 	}
 	
-	DBG("Complimentary group:");
-	String dbgstr = "";
-	for (int i = 0; i < grouping.size(); i++)
-		dbgstr += String(scaleSizes[grouping[i]]) + ", ";
-	DBG(dbgstr);
+	//DBG("Complimentary group:");
+	//String dbgstr = "";
+	//for (int i = 0; i < grouping.size(); i++)
+	//	dbgstr += String(scaleSizes[grouping[i]]) + ", ";
+	//DBG(dbgstr);
 
 	return grouping;
 }
@@ -897,28 +895,31 @@ void ScaleStructure::useSuggestedSizeGrouping()
 			degreeGroupScaleSizes.add(scaleSizes[i]);
 		}
 
-	DBG("Symmetric group:");
-	String dbgstr = "";
-	for (int i = 0; i < degreeGroupIndexedSizes.size(); i++)
-		dbgstr += String(scaleSizes[degreeGroupIndexedSizes[i]]) + ", ";
-	DBG(dbgstr);
+	//DBG("Symmetric group:");
+	//String dbgstr = "";
+	//for (int i = 0; i < degreeGroupIndexedSizes.size(); i++)
+	//	dbgstr += String(scaleSizes[degreeGroupIndexedSizes[i]]) + ", ";
+	//DBG(dbgstr);
 
 	fillSymmetricGrouping();
 }
 
 bool ScaleStructure::isValid() const
 {
-	if (generatorIndex < 0 || generatorIndex > validGenerators.size())
-	{
-		DBG("Invalid generator");
-		return false;
-	}
+	// Period is not selected yet
+	jassert(period >= 1);
 
-	if (sizeIndexSelected < 0 || sizeIndexSelected >= scaleSizes.size())
-	{
-		DBG("Invalid scale size");
-		return false;
-	}
+	// Invalid period factor index
+	jassert(periodFactorIndexSelected >= 0 && periodFactorIndexSelected < periodFactors.size());
+
+	// Invalid generator index
+	jassert(generatorIndex >= 0 && generatorIndex < validGenerators.size());
+
+	// Invalid scale size index
+	jassert(sizeIndexSelected >= 0 && sizeIndexSelected < scaleSizes.size());
+
+	// Invalid generator offset
+	jassert(generatorOffset >= 0 && generatorOffset < scaleSizes.size());
 
 	int sum = 0;
 	for (int s = 0; s < degreeGroupIndexedSizes.size(); s++)
@@ -926,11 +927,8 @@ bool ScaleStructure::isValid() const
 		sum += scaleSizes[degreeGroupIndexedSizes[s]] * periodFactorSelected;
 	}
 
-	if (sum != period)
-	{
-		DBG("Invalid scale groupings");
-		return false;
-	}
+	// Scale degree groupings do not have correct amount of degrees
+	jassert(sum == period);
 
 	return true;
 }

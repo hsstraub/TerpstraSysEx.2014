@@ -39,32 +39,17 @@ ScaleStructureComponent::ScaleStructureComponent (ScaleStructure& scaleStructure
 
 
     //[UserPreSize]
-
-	// TODO: more proper ScaleStructure initialization
-	if (scaleStructure.getPeriod() < 5 || scaleStructure.getPeriod() > 275)
-		scaleStructure.resetToPeriod(12);
-	if (scaleStructure.getGeneratorIndex() < 0)
-		scaleStructure.setAll(scaleStructure.getPeriod(), -1, -1);
-
 	// Set up components
 	periodSlider.reset(new NumberSelector("Period"));
 	addAndMakeVisible(periodSlider.get());
 	periodSlider->showNameLabel();
 	periodSlider->setRange(5, 275, true, false);
-	periodSlider->setValue(scaleStructure.getPeriod());
 	periodSlider->addListener(this);
-
-	periodCents = log2f(periodRatio / scaleStructure.getPeriodFactor()) * 1200;
-	degreeCents = periodCents / scaleStructure.getPeriod();
 
 	generatorSlider.reset(new NumberSelector("Generator", NumberSelector::SelectionType::List));
 	addAndMakeVisible(generatorSlider.get());
 	generatorSlider->showNameLabel();
-	updateGenerators();
-	generatorSlider->setIndex(scaleStructure.getGeneratorIndex());
 	generatorSlider->addListener(this);
-
-	generatorCents = degreeCents * scaleStructure.getGenerator();
 
 	generatorLookAndFeel.reset(new TransparentDropDown());
 	// TODO: add SSC colour ids
@@ -80,14 +65,12 @@ ScaleStructureComponent::ScaleStructureComponent (ScaleStructure& scaleStructure
 	generatorValueLbl->setColour(TextEditor::textColourId, Colours::black);
 	generatorValueLbl->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
 	generatorValueLbl->setInterceptsMouseClicks(false, false);
-	updatePGLabel();
 
 	sizeSelector.reset(new NumberSelector("Scale Size", NumberSelector::SelectionType::List, colourTable[0].contrasting(0.8f)));
 	//sizeSelector->setColour(NumberSelector::ColourIds::valueTextColourId, colourTable[0].contrasting(1.0));
 	/*sizeSelector->setColour(NumberSelector::ColourIds::, colourTable[0].contrasting(1.0));*/
 	addAndMakeVisible(sizeSelector.get());
 	sizeSelector->showNameLabel();
-	updateScaleSizes();
 	sizeSelector->addListener(this);
 
 	sizeLookAndFeel.reset(new TransparentDropDown());
@@ -104,30 +87,26 @@ ScaleStructureComponent::ScaleStructureComponent (ScaleStructure& scaleStructure
 	stepSizePatternLbl->setColour(TextEditor::textColourId, Colours::black);
 	stepSizePatternLbl->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
 	stepSizePatternLbl->setInterceptsMouseClicks(false, false);
-	updateLsLabel();
 
 	offsetLabel.reset(new Label("offsetLabel"));
 	offsetLabel->setJustificationType(Justification::centred);
 	offsetLabel->setColour(Label::ColourIds::textColourId, Colours::white);
 	addAndMakeVisible(offsetLabel.get());
-	updateOffsetLabel();
 
 	// TODO: add SSC component colour ids
 	//periodFactorLookAndFeel.setBaseColour(findColour(ColourIds::backgroundColourId));
 	periodFactorButton.reset(new ShapeButton("periodFactorButton", Colours::white, Colours::white.contrasting(0.125f), Colours::white.contrasting(0.25f)));
 	periodFactorButton->setTooltip("Number of periods.");
 	addChildComponent(periodFactorButton.get());
-	updatePeriodFactors();
 	periodFactorButton->addListener(this);
 
 	periodFactorLookAndFeel.reset(new TransparentDropDown());
 	periodFactorMenu.setLookAndFeel(periodFactorLookAndFeel.get());
 
 	circle = dynamic_cast<GroupingCircle*>(circleComponent.get());
-	circle->updatePeriod();
-	circle->updateGenerator();
 	circle->addListener(this);
 
+	loadScaleStructureSettings();
     //[/UserPreSize]
 
     setSize (600, 600);
@@ -265,12 +244,11 @@ void ScaleStructureComponent::selectorValueChanged(NumberSelector* selectorThatH
 	else if (selectorThatHasChanged == generatorSlider.get())
 	{
 		generatorSelected = generatorSlider->getIndex();
-		scaleStructure.setGeneratorIndex(generatorSelected);
-		DBG("SSC: Generator changed to: " + String(scaleStructure.getGenerator()));
+		DBG("\nSSC: Generator index set to: " + String(generatorSelected));
+		scaleStructure.setAll(periodSelected, generatorSelected, -1, generatorOffset, periodFactorSelected);
 
+		generatorOffset = scaleStructure.getGeneratorOffset();
 		generatorCents = degreeCents * scaleStructure.getGenerator();
-
-		scaleStructure.setSizeIndex(scaleStructure.getSuggestedSizeIndex());
 
 		updatePGLabel();
 		updateScaleSizes();
@@ -278,30 +256,30 @@ void ScaleStructureComponent::selectorValueChanged(NumberSelector* selectorThatH
 
 	else if (selectorThatHasChanged == sizeSelector.get())
 	{
+		DBG("\nSSC: Size index set to: " + String(sizeSelector->getIndex() + 1));
 		scaleStructure.setSizeIndex(sizeSelector->getIndex() + 1);
-		DBG("SSC: Size changed to: " + String(scaleStructure.getScaleSize()));
 	}
 
 	listeners.call(&ScaleStructureComponent::Listener::scaleStructureStepSizesChanged,
 		scaleStructure.getStepSize().x,
 		scaleStructure.getStepSize().y);
 
-	updateOffsetLimit();
+	generatorOffset = scaleStructure.getGeneratorOffset();
 	circle->updateGenerator();
 
 	updateLsLabel();
-	sendChangeMessage();
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
 }
 
 void ScaleStructureComponent::offsetChanged(int newOffset)
 {
+	DBG("\nSSC: Generator Offset set to: " + String(newOffset));
 	generatorOffset = newOffset;
 	scaleStructure.setGeneratorOffset(generatorOffset);
-	DBG("SSC: Generator Offset changed to: " + String(scaleStructure.getGeneratorOffset()));
 
 	updateOffsetLabel();
 	updateLsLabel();
-	sendChangeMessage();
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
 }
 
 void ScaleStructureComponent::degreeAltered(int degreeIndex, int chromaAmount)
@@ -311,21 +289,47 @@ void ScaleStructureComponent::degreeAltered(int degreeIndex, int chromaAmount)
 	else
 		scaleStructure.resetAlterationOfDegree(degreeIndex);
 
-	DBG("Degree swapped: " + String(degreeIndex) + " Chromas: " + String(chromaAmount));
+	DBG("\nSSC: Degree swapped: " + String(degreeIndex) + " Chromas: " + String(chromaAmount));
 	circle->updateGenerator();
-	sendChangeMessage();
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
+}
+
+void ScaleStructureComponent::loadScaleStructureSettings()
+{
+	if (scaleStructure.isValid())
+	{
+		periodSelected = scaleStructure.getPeriod();
+
+		periodSlider->setValue(periodSelected, false);
+		periodCents = log2f(periodRatio / scaleStructure.getPeriodFactor()) * 1200;
+		degreeCents = periodCents / periodSelected;
+
+		updatePeriodFactors();
+		updateGenerators();
+		updatePGLabel();
+		updateScaleSizes();
+		updateLsLabel();
+		updateOffsetLabel();
+
+		circle->updatePeriod();
+		circle->updateGenerator();
+	}
 }
 
 void ScaleStructureComponent::updateGenerators()
 {
-	generatorSlider->setList(scaleStructure.getValidGenerators(), true, false);
-	generatorSlider->setIndex(scaleStructure.getGeneratorIndex(), false);
+	generatorSlider->setList(scaleStructure.getValidGenerators(), false, false);
+
+	generatorSelected = scaleStructure.getGeneratorIndex();
+	generatorSlider->setIndex(generatorSelected, false);
+
+	generatorCents = degreeCents * scaleStructure.getGenerator();
 }
 
 void ScaleStructureComponent::updateScaleSizes()
 {
 	Array<int> sizes = scaleStructure.getScaleSizes();
-	sizes.remove(0);
+	sizes.remove(0); // First size is redundant size of 1
 	if (scaleStructure.getPeriodFactor() > 1)
 	{
 		for (int i = 0; i < sizes.size(); i++)
@@ -334,7 +338,7 @@ void ScaleStructureComponent::updateScaleSizes()
 		}
 	}
 
-	sizeSelector->setList(sizes, true, false);
+	sizeSelector->setList(sizes, false, false);
 	sizeSelector->setIndex(jlimit(0, sizes.size(), scaleStructure.getScaleSizeIndex() - 1), false);
 }
 
@@ -357,15 +361,12 @@ void ScaleStructureComponent::setPeriod(int newPeriod)
 void ScaleStructureComponent::onPeriodChange(bool sendNotification)
 {
 	periodSelected = periodSlider->getValue();
-
-	scaleStructure.setAll(periodSelected, -1, -1, 0, 0);
-	DBG("SSC: Period changed to: " + String(scaleStructure.getPeriod()));
-
+	DBG("\nSSC: Period set to: " + String(periodSelected));
+	scaleStructure.setAll(periodSelected, -1, -1, generatorOffset, 0);
 	updatePeriodFactors();
 
 	periodCents = log2f(periodRatio / scaleStructure.getPeriodFactor()) * 1200;
 	degreeCents = periodCents / scaleStructure.getPeriod();
-	generatorCents = degreeCents * scaleStructure.getGenerator();
 
 	updateGenerators();
 	updateScaleSizes();
@@ -379,30 +380,30 @@ void ScaleStructureComponent::onPeriodChange(bool sendNotification)
 
 void ScaleStructureComponent::onPeriodFactorChange(int factorIndexIn)
 {
-	if (factorIndexIn > -1)
-		periodFactorSelected = factorIndexIn;
-	else
-		periodFactorSelected = 0;
-
-	scaleStructure.setAll(scaleStructure.getPeriod(), -1, -1, generatorOffset, periodFactorSelected);
-	DBG("SSC: Num periods changed to: " + String(scaleStructure.getPeriodFactor()));
+	DBG("\nSSC: Period factor index set to: " + String(factorIndexIn));
+	scaleStructure.setAll(scaleStructure.getPeriod(), -1, -1, generatorOffset, factorIndexIn);
+	periodFactorSelected = scaleStructure.getPeriodFactorIndex();
+	generatorOffset = scaleStructure.getGeneratorOffset();
 
 	periodCents = log2f(periodRatio) * 1200 / scaleStructure.getPeriodFactor();
 
-	updateOffsetLimit();
 	updateGenerators();
 	updateScaleSizes();
+	updateOffsetLabel();
 	updatePGLabel();
-	sendChangeMessage();
-
 	circle->updateGenerator();
+
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
 }
 
-void ScaleStructureComponent::updateOffsetLimit()
+void ScaleStructureComponent::onGeneratorChange(bool sendNotifcation)
 {
-	generatorOffset = jlimit(0, scaleStructure.getScaleSize() - 1, generatorOffset);
-	scaleStructure.setGeneratorOffset(generatorOffset);
-	updateOffsetLabel();
+
+}
+
+void ScaleStructureComponent::onScaleSizeChange(bool sendNotification)
+{
+
 }
 
 void ScaleStructureComponent::updatePGLabel()
@@ -443,7 +444,7 @@ void ScaleStructureComponent::removeListener(Listener* listenerIn)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ScaleStructureComponent"
-                 componentName="" parentClasses="public Component, public ChangeBroadcaster, private NumberSelector::Listener, private GroupingCircle::Listener, private Button::Listener"
+                 componentName="" parentClasses="public Component, private NumberSelector::Listener, private GroupingCircle::Listener, private Button::Listener"
                  constructorParams="ScaleStructure&amp; scaleStructureIn, Array&lt;Colour&gt;&amp; colourTableIn"
                  variableInitialisers="scaleStructure(scaleStructureIn), colourTable(colourTableIn)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"

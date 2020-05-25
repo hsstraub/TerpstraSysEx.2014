@@ -20,7 +20,7 @@ class ScaleStructure
 	int sizeIndexSelected = -1;
 	int generatorOffset = 0;
 
-	int periodFactorSelected;
+	int periodFactorSelected; // The factor by which the period is reduced
 	int fPeriod; // The fractional period, if a period factor greater than one is chosen
 
 	Array<int> periodFactors; // Used for fractional period scales
@@ -31,11 +31,21 @@ class ScaleStructure
 	Array<PointPair<int>> pgCoords; // Hex Coordinates of period and generator
 	Array<Point<int>> stepSizes; // Hex step sizes
 
+	// A list of scale degrees from the generator stacked period number of times. Takes offset into account.
+	// For fractional periods, 
 	Array<int> generatorChain;
+
+	// Array of indicies referring to the support scale sizes
 	Array<int> degreeGroupIndexedSizes;
+
+	// Array of the real sizes of the degree groups
 	Array<int> degreeGroupScaleSizes;
+
+	// Array of groups of degrees, which refer to the colour index they should use
 	Array<Array<int>> degreeGroupings;
 
+	// How many chroma alterations per degree in the generator chain
+	// TODO: support multiple chroma levels
 	Array<int> chromaAlterations;
 
 	// Calculates the properties related to the Period & Generator combo
@@ -60,12 +70,22 @@ class ScaleStructure
 
 public:
 
-	ScaleStructure() {};
-	ScaleStructure(int periodIn);
-	ScaleStructure(int periodIn, int genIndexIn, int sizeIndexIn, Array<int> degreeGroupsIn = Array<int>());
+	ScaleStructure();
+	ScaleStructure(
+		int periodIn, 
+		int genIndexIn, 
+		int sizeIndexIn, 
+		int genOffsetIn,
+		int periodFactorIndexIn = 0, 
+		Array<int> degreeGroupsIn = Array<int>(),
+		Array<int> chromaAlterationsIn = Array<int>()
+	);
 	ScaleStructure(const ScaleStructure& scaleToCopy);
 	ScaleStructure(ValueTree scaleStructureProperties);
 
+	/*
+		Set the period and use suggested and default values for everything else
+	*/
 	void resetToPeriod(int periodIn);
 
 	/*
@@ -78,7 +98,8 @@ public:
 		int generatorOffsetIn = 0,
 		int periodFactorIndexIn = 0,
 		Array<int> degreeGroupSizeIndiciesIn = Array<int>(),
-		Array<int> chromaAlterationsIn = Array<int>());
+		Array<int> chromaAlterationsIn = Array<int>()
+	);
 
 	/*
 		Returns the chosen period. If 'true' is passed in, the period is divided by
@@ -122,13 +143,18 @@ public:
 	// Returns an array of indicies reffering to scale sizes of degree groups
 	Array<int> getGroupingIndexedSizes() const;
 
-	// Returns an array of actual group sizes, for visualization use
-	const Array<int>& getGroupingSizesReference();
-
+	/*
+		Returns an array of scale sizes referring to the degree group sizes
+	*/
 	Array<Array<int>> getDegreeGroupings() const;
-	const Array<Array<int>>& getDegreeGroupingsReference() const;
+
+	/* 
+		Returns the index of the group the scale degree is a part of.
+		Used for determining the colour of the scale degree 
+	*/
 	int getGroupOfDegree(int scaleDegreeIn) const;
 
+	// Finds the generator chain indices a given degree can be altered to
 	Array<int> findDegreeMods(int degreeIndex, int chromaLevels) const;
 	
 	Array<int> getChromaAlterations() const;
@@ -142,7 +168,6 @@ public:
 	bool isValid() const;
 
 	void setPeriodFactorIndex(int index);
-	void setGeneratorIndex(int index);
 	void setSizeIndex(int index);
 	void setGeneratorOffset(int offsetIn);
 

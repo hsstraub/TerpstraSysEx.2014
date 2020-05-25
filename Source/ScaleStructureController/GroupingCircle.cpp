@@ -245,8 +245,6 @@ void GroupingCircle::resized()
 			groupAngleFrom = angleTo;
 		}
 	}
-
-	DBG("Circle: Resized");
 }
 
 void GroupingCircle::mouseMove(const MouseEvent& event)
@@ -416,7 +414,7 @@ void GroupingCircle::removeListener(Listener* listenerToRemove)
 
 void GroupingCircle::updatePeriod()
 {
-	DBG("Circle: Updating");
+	DBG("CIRCLE: Updating Period.");
 
 	removeAllChildren();
 
@@ -438,6 +436,7 @@ void GroupingCircle::updatePeriod()
 
 void GroupingCircle::updateGenerator()
 {
+	DBG("CIRCLE: Updating degree ring.");
 	cancelDegreeMods();
 	alterations = scaleStructure.getChromaAlterations();
 
@@ -460,7 +459,7 @@ void GroupingCircle::updateGenerator()
 		}
 	}
 
-	DBG("CIRCLE: Chain: " + dbgstr);
+	//DBG("CIRCLE: Chain: " + dbgstr);
 
 	groupSizeLabels.clear();
 	for (int i = 0; i < groupSizes.size(); i++)
