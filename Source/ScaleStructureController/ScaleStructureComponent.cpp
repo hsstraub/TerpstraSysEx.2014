@@ -40,8 +40,11 @@ ScaleStructureComponent::ScaleStructureComponent (ScaleStructure& scaleStructure
 
     //[UserPreSize]
 
-	// Initialize ScaleStructure
-	scaleStructure.setAll(12, 4, 5, 1, 0);
+	// TODO: more proper ScaleStructure initialization
+	if (scaleStructure.getPeriod() < 5 || scaleStructure.getPeriod() > 275)
+		scaleStructure.resetToPeriod(12);
+	if (scaleStructure.getGeneratorIndex() < 0)
+		scaleStructure.setAll(scaleStructure.getPeriod(), -1, -1);
 
 	// Set up components
 	periodSlider.reset(new NumberSelector("Period"));
@@ -279,6 +282,10 @@ void ScaleStructureComponent::selectorValueChanged(NumberSelector* selectorThatH
 		DBG("SSC: Size changed to: " + String(scaleStructure.getScaleSize()));
 	}
 
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureStepSizesChanged,
+		scaleStructure.getStepSize().x,
+		scaleStructure.getStepSize().y);
+
 	updateOffsetLimit();
 	circle->updateGenerator();
 
@@ -340,6 +347,11 @@ void ScaleStructureComponent::updatePeriodFactors()
 		periodFactorButton->setVisible(false);
 	else
 		periodFactorButton->setVisible(true);
+}
+
+void ScaleStructureComponent::setPeriod(int newPeriod)
+{
+	periodSlider->setValue(newPeriod);
 }
 
 void ScaleStructureComponent::onPeriodChange(bool sendNotification)

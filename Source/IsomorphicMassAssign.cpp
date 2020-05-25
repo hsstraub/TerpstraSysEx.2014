@@ -43,7 +43,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
-	scaleDesignControls.reset(new ScaleStructureComponent(scaleStructure, colourTable));
+	scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
 
 	mappingLogic = nullptr;
     //[/Constructor_pre]
@@ -224,7 +224,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 	kbmMappingDlg->getMappingLogic()->addListener(this);
-	scaleDesignControls->addListener(this);
+	scaleDesignWindow->addScaleDesignerListener(this);
 
 	// cbMappingStyle default selection: will be read from user settings
     //[/Constructor]
@@ -235,7 +235,7 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     //[Destructor_pre]. You can add your own custom destruction code here..
 	incrMidiNotesMapping = nullptr;
 	kbmMappingDlg = nullptr;
-	scaleDesignControls = nullptr;
+	scaleDesignWindow = nullptr;
     //[/Destructor_pre]
 
     startingPointBox = nullptr;
@@ -327,8 +327,7 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         incrMidiNotesMapping->onUpdateScaleSize();
         kbmMappingDlg->onUpdateScaleSize();
 
-		scaleStructure.resetToPeriod(scaleSize);
-		scaleDesignControls->onPeriodChange(false);
+		scaleDesignWindow->setPeriod(scaleSize);
         //[/UserComboBoxCode_scaleSizeBox]
     }
 
@@ -344,12 +343,7 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-		DialogWindow::showDialog(
-			"Scale Designer",
-			scaleDesignControls.get(),
-			this, findColour(ResizableWindow::backgroundColourId),
-			true
-		);
+		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
         //[/UserButtonCode_btnFileSelectMacro]
     }
 
@@ -372,6 +366,8 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
         juce::NotificationType::sendNotification);
 
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
+
+	// TODO: Full scaleStructure state recall
 }
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -380,6 +376,8 @@ void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesF
     propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
 
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
+
+	// TODO: Save full ScaleStructure state
 }
 
 void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
@@ -501,6 +499,12 @@ void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
 	scaleSizeBox->setSelectedId(newPeriod, dontSendNotification);
 	incrMidiNotesMapping->onUpdateScaleSize();
 	kbmMappingDlg->onUpdateScaleSize();
+}
+
+void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)
+{
+	editRightUpwardSteps->setText(String(rightUpwardSize));
+	editHorizontalSteps->setText(String(horizontalSize));
 }
 
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>

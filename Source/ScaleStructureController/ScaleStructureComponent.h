@@ -65,6 +65,7 @@ public:
 	void updatePeriodFactors();
 	void updateOffsetLimit();
 
+	void setPeriod(int newPeriod); // temporary function for editScaleSizeBox recall
 	void onPeriodChange(bool sendNotification=true);
 	void onPeriodFactorChange(int factorIndexIn);
 
@@ -79,6 +80,9 @@ public:
 
 		// Called when period changes
 		virtual void scaleStructurePeriodChanged(int newPeriod) {};
+
+		// Called whenever step sizes change
+		virtual void scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize) {};
 	};
 
 	void addListener(Listener* listenerIn);
@@ -104,8 +108,6 @@ private:
 	Array<Colour>& colourTable;
 
 	GroupingCircle* circle;
-
-	TooltipWindow tooltipWindow;
 
 	// Components
 	std::unique_ptr<NumberSelector> generatorSlider;
