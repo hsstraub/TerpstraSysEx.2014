@@ -8,10 +8,10 @@
   ==============================================================================
 */
 
-#include "ScaleStructureDialog.h"
+#include "ScaleDesignWindow.h"
 
 ScaleDesignWindow::ScaleDesignWindow(ScaleStructure& scaleStructure, Array<Colour>& colourTable, Colour backgroundColour)
-	: DocumentWindow("Scale Designer", backgroundColour, DocumentWindow::closeButton, true)
+	: DocumentWindow("Scale Colour Designer", backgroundColour, DocumentWindow::closeButton, true)
 {
 	scaleDesigner.reset(new ScaleStructureComponent(scaleStructure, colourTable));
 	setContentComponent(scaleDesigner.get());

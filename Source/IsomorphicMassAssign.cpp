@@ -503,9 +503,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 
 void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
 {
-	scaleSizeBox->setSelectedId(newPeriod, dontSendNotification);
-	incrMidiNotesMapping->onUpdateScaleSize();
-	kbmMappingDlg->onUpdateScaleSize();
+	scaleSizeBox->setSelectedId(newPeriod);
 }
 
 void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)

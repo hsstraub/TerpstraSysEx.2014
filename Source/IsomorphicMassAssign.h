@@ -26,7 +26,7 @@
 #include "KBMMappingDlg.h"
 #include "BoardGeometry.h"
 #include "ScaleStructureController/ScaleStructureComponent.h"
-#include "ScaleStructureController/ScaleStructureDialog.h"
+#include "ScaleStructureController/ScaleDesignWindow.h"
 //[/Headers]
 
 

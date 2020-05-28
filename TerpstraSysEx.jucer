@@ -74,10 +74,10 @@
               file="Source/ScaleStructureController/ScaleStructureComponent.cpp"/>
         <FILE id="B3DDLV" name="ScaleStructureComponent.h" compile="0" resource="0"
               file="Source/ScaleStructureController/ScaleStructureComponent.h"/>
-        <FILE id="Sa714M" name="ScaleStructureDialog.cpp" compile="1" resource="0"
-              file="Source/ScaleStructureController/ScaleStructureDialog.cpp"/>
-        <FILE id="SDuUlL" name="ScaleStructureDialog.h" compile="0" resource="0"
-              file="Source/ScaleStructureController/ScaleStructureDialog.h"/>
+        <FILE id="BG8pGM" name="ScaleDesignWindow.cpp" compile="1" resource="0"
+              file="Source/ScaleStructureController/ScaleDesignWindow.cpp"/>
+        <FILE id="Md2Fua" name="ScaleDesignWindow.h" compile="0" resource="0"
+              file="Source/ScaleStructureController/ScaleDesignWindow.h"/>
         <FILE id="xUZ6gr" name="TransparentDropDown.h" compile="0" resource="0"
               file="Source/ScaleStructureController/TransparentDropDown.h"/>
       </GROUP>
