@@ -108,10 +108,14 @@ NumberSelector::IntList NumberSelector::getList() const
 void NumberSelector::increment()
 {
 	int newIndex = indexSelected + 1;
-	setIndex(newIndex);
 
-	if (selectionType == SelectionType::List && indexSelected < selectionList.size() - 1)
+	if (selectionType == SelectionType::Range && selectionRange.contains(newIndex))
 	{
+		setIndex(newIndex);
+	}
+	else if (selectionType == SelectionType::List && indexSelected < selectionList.size() - 1)
+	{	
+		setIndex(newIndex);
 		listValueLabel->setSelectedId(newIndex + 1, dontSendNotification);
 	}
 }
@@ -120,10 +124,14 @@ void NumberSelector::increment()
 void NumberSelector::decrement()
 {
 	int newIndex = indexSelected - 1;
-	setIndex(newIndex);
 
-	if (selectionType == SelectionType::List && indexSelected > 0)
+	if (selectionType == SelectionType::Range && selectionRange.contains(newIndex))
 	{
+		setIndex(newIndex);
+	}
+	else if (selectionType == SelectionType::List && indexSelected > 0)
+	{
+		setIndex(newIndex);
 		listValueLabel->setSelectedId(newIndex + 1, dontSendNotification);
 	}
 }

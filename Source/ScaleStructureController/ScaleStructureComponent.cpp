@@ -282,16 +282,21 @@ void ScaleStructureComponent::offsetChanged(int newOffset)
 	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
 }
 
-void ScaleStructureComponent::degreeAltered(int degreeIndex, int chromaAmount)
+void ScaleStructureComponent::degreeIndexAltered(int degreeIndex, Point<int> alteration)
 {
-	if (chromaAmount != 0)
-		scaleStructure.setAlterationOfDegree(degreeIndex, chromaAmount);
+	DBG("\nSSC: Degree Index swapped: " + String(degreeIndex) + " (" + alteration.toString() + ")");
+
+	if (alteration.x >= 0 && alteration.y != 0)
+		scaleStructure.setAlterationOfDegree(degreeIndex, alteration);
 	else
 		scaleStructure.resetAlterationOfDegree(degreeIndex);
 
-	DBG("\nSSC: Degree swapped: " + String(degreeIndex) + " Chromas: " + String(chromaAmount));
-	circle->updateGenerator();
 	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
+}
+
+void ScaleStructureComponent::allModificationsReset()
+{
+	scaleStructure.setChromaAlterations(Array<Point<int>>());
 }
 
 void ScaleStructureComponent::loadScaleStructureSettings()

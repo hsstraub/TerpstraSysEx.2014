@@ -44,9 +44,25 @@ class ScaleStructure
 	// Array of groups of degrees, which refer to the colour index they should use
 	Array<Array<int>> degreeGroupings;
 
-	// How many chroma alterations per degree in the generator chain
-	// TODO: support multiple chroma levels
-	Array<int> chromaAlterations;
+	// List of scale degrees of how they're grouped - different than generatorChain for fractional periods
+	Array<int> groupChain;
+
+	// List of user-chosen alterations by group chain index
+	// X-value is chroma level, Y-value is alteration amount
+	// A chroma level of -1 is used if there is no alteration
+	Array<Point<int>> chromaAlterations;
+	
+	// List of chroma alterations of each scale degree
+	Array<Point<int>> degreeAlterations;
+
+	// An option for handling degree alterations when offset is changed
+	// May removed one method if one is determined to be objectively wrong
+	bool alterationsAttachedToDegree = false;
+
+private:
+	/*
+		Private methods
+	*/
 
 	// Calculates the properties related to the Period & Generator combo
 	void calculateProperties();
@@ -63,7 +79,7 @@ class ScaleStructure
 	void fillGroupingSymmetrically();
 
 	// Takes an already 'symmetricized' group size array and fills groups of degrees based on this.
-	void fillSymmetricGrouping();
+	void fillSymmetricGrouping(bool applyAlterations=true);
 
 	// Swaps degrees in generator chain based off of modifications
 	void applyChromaAlterations();
@@ -78,7 +94,7 @@ public:
 		int genOffsetIn,
 		int periodFactorIndexIn = 0, 
 		Array<int> degreeGroupsIn = Array<int>(),
-		Array<int> chromaAlterationsIn = Array<int>()
+		Array<Point<int>> chromaAlterationsIn = Array<Point<int>>()
 	);
 	ScaleStructure(const ScaleStructure& scaleToCopy);
 	ScaleStructure(ValueTree scaleStructureProperties);
@@ -98,8 +114,13 @@ public:
 		int generatorOffsetIn = 0,
 		int periodFactorIndexIn = 0,
 		Array<int> degreeGroupSizeIndiciesIn = Array<int>(),
-		Array<int> chromaAlterationsIn = Array<int>()
+		Array<Point<int>> chromaAlterationsIn = Array<Point<int>>()
 	);
+
+	/*
+		Checks if the ScaleStructure has necessary data to be used
+	*/
+	bool isValid() const;
 
 	/*
 		Returns the chosen period. If 'true' is passed in, the period is divided by
@@ -138,34 +159,67 @@ public:
 	Point<int> getStepSize() const;
 
 	Array<int> getGeneratorChain() const;
-	const Array<int>& getGeneratorChainReference();
+	Array<int> getGroupChain() const;
 
 	// Returns an array of indicies reffering to scale sizes of degree groups
 	Array<int> getGroupingIndexedSizes() const;
 
 	/*
+		Returns a list of actual group sizes
+	*/
+	Array<int> getDegreeGroupSizes() const;
+
+	/*
 		Returns an array of scale sizes referring to the degree group sizes
 	*/
 	Array<Array<int>> getDegreeGroupings() const;
-
+	
 	/* 
 		Returns the index of the group the scale degree is a part of.
 		Used for determining the colour of the scale degree 
 	*/
 	int getGroupOfDegree(int scaleDegreeIn) const;
 
-	// Finds the generator chain indices a given degree can be altered to
-	Array<int> findDegreeMods(int degreeIndex, int chromaLevels) const;
+	/*
+		Finds the generator chain indices a given degree can be altered to
+	*/
+	Array<Point<int>> findDegreeMods(int degreeIndex, int chromaLevels) const;
 	
-	Array<int> getChromaAlterations() const;
-	int getAlterationOfDegree(int degreeIn) const;
-	int getDegreeIndexOfAlteration(int degreeIn, int alteration) const;
+	/*
+		Returns the list of user-chosen alterations of scale degrees
+	*/
+	Array<Point<int>> getChromaAlterations() const;
 
-	void setAlterationOfDegree(int degreeIn, int alteration);
-	void addAlterationToDegree(int degreeIn, int alterSize);
-	void resetAlterationOfDegree(int degreeIn);
+	/*
+		Returns the list of alterations per scale degree
+	*/
+	Array<Point<int>> getDegreeAlterations() const;
 
-	bool isValid() const;
+	/*
+		Returns the chroma alteration of a given scale degree
+	*/
+	Array<Point<int>> getAlterationOfDegree(int degreeIn) const;
+	
+	/*
+		Given a group chain index and chroma alteration, this returns the altered degree's group chain index
+	*/
+	int findIndexedAlterationOfDegree(int degreeIndexIn, Point<int> alteration) const;
+
+	/*
+		Given a scale degree and chroma alteration, this returns the altered scale degree
+	*/
+	int findAlterationOfDegree(int degreeIn, Point<int> alteration) const;
+
+	/*
+		Toggles whether or not alterations move with altered degree or stay in place (of chain index) with offset changes.
+		If true, patterns are not consistent when offset changes.
+		This can mutate the original alterations if called after offset has been changed.
+	*/
+	void attachAlterationsToDegree(bool isAttachedToDegree);
+
+
+	void setAlterationOfDegree(int degreeIndexIn, Point<int> alteration);
+	void resetAlterationOfDegree(int degreeIndexIn);
 
 	void setPeriodFactorIndex(int index);
 	void setSizeIndex(int index);
@@ -173,10 +227,9 @@ public:
 
 	/*
 		Input a mapping of scale degrees and chroma alteration values.
-		Index refers to generator chain degree, and value is how many chromas it's moved by
 		Must be equal to size of period
 	*/
-	bool setChromaAlterations(Array<int> modmosPropertiesIn);
+	bool setChromaAlterations(Array<Point<int>> chromaAlterationsIn);
 
 	// Returns the index whose generator is closest to a perfect fifth
 	int getSuggestedGeneratorIndex();

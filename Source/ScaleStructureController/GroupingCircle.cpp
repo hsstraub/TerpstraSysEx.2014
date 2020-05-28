@@ -107,8 +107,7 @@ void GroupingCircle::paint (Graphics& g)
 		{
 			degreeColour = groupColour;
 
-			// TODO: improve condition
-			if (degreeIndexToMod > -1 && degreeModCandidates[degIndex] != 0)
+			if (degreeIndexToMod > -1 && isDegreeSectorIndexModCandidate(degIndex))
 			{
 				// Maybe outline instead of recolor
 				degreeColour = groupColour.contrasting(Colours::mediumvioletred, 1.0f / 3);
@@ -149,7 +148,7 @@ void GroupingCircle::resized()
 	groupInnerCircleBounds = groupOuterCircleBounds.reduced(groupRingWidth);
 	degreeInnerCircleBounds = groupInnerCircleBounds.reduced(degreeRingWidth);
 	
-	angleIncrement = 2 * double_Pi / generatorChain.size();
+	angleIncrement = 2 * double_Pi / groupChain.size();
 	angleHalf = angleIncrement / 2.0f;
 
 	// determine circle offset, based off of middle angle of first degree group
@@ -167,7 +166,8 @@ void GroupingCircle::resized()
 	Path degreePath, groupPath;
 	TextEditor* degreeLabel;
 	String degreeText;
-	int degreeAlteration;
+	int degree;
+	Point<int> alteration;
 
 	Label* groupLabel;
 	float degreeLabelWidth, groupLabelWidth;
@@ -192,18 +192,18 @@ void GroupingCircle::resized()
 		degreeLabel->setFont(Font().withHeight(degreeLabelSize));
 
 		// fill labels with text
-		degreeLabel->insertTextAtCaret(String(generatorChain[i]));
-
-		degreeAlteration = alterations[i];
-
-		if (degreeAlteration != 0)
+		degree = groupChain[i];
+		degreeLabel->insertTextAtCaret(String(degree));
+		
+		alteration = degreeAlterations[degree];
+		if (alteration.x >= 0 && alteration.y != 0)
 		{
 			degreeText = "";
-			if (degreeAlteration > 0)
+			if (alteration.y > 0)
 				degreeText += "+";
 		
-			degreeText += String(alterations[i]);
-			degreeLabel->setFont(Font(round(degreeLabelSize / 3.0f)));
+			degreeText += String(alteration.y);
+			degreeLabel->setFont(Font(round(degreeLabelSize / 4.0f)));
 			degreeLabel->insertTextAtCaret(degreeText);
 		}		
 
@@ -266,7 +266,7 @@ void GroupingCircle::mouseMove(const MouseEvent& event)
 	else
 	{
 		float angle = getNormalizedMouseAngle(event);
-		int degreeIndex = mouseInDegreeSector(event, angle);
+		int degreeIndex = degreeSectorOfAngle(angle);
 
 		// Check Degree Sectors
 		if (mouseRadius < degreeOuterRadius)
@@ -314,46 +314,56 @@ void GroupingCircle::mouseMove(const MouseEvent& event)
 void GroupingCircle::mouseDown(const MouseEvent& event)
 {
 	bool cancelMods = true;
+	degreeSectorMouseOver = degreeSectorOfAngle(getNormalizedMouseAngle(event));
 
 	// If mouse is on a group or degree section
-	if (mouseRadius > degreeInnerRadius&& mouseRadius < groupOuterRadius)
+	if (mouseRadius > degreeInnerRadius && mouseRadius < groupOuterRadius)
 	{
 		// If mouse on a degree
 		if (mouseRadius < degreeOuterRadius)
 		{
+			int degree = groupChain[degreeSectorMouseOver];
 			// Show menu
 			if (event.mods.isRightButtonDown())
 			{
 				PopupMenu::Options options = PopupMenu::Options().withMaximumNumColumns(1);
 
-				int degreeMouseOn = degreeSectorMouseOver;
+				int degreeIndexMouseOn = degreeSectorMouseOver;
 				bool& hideMods = cancelMods;
 								
 				auto selectionCallback = [this](int degIndex) {
 					degreeToModSelectedCallback(degIndex);
 				};
 				
-				auto alterationCallback = [this](int degIndex, int alteration) {
-					listeners.call(&Listener::degreeAltered, degIndex, alteration);
+				auto alterationCallback = [this](int degIndex, Point<int> alteration) {
+					listeners.call(&Listener::degreeIndexAltered, degIndex, alteration);
+					updateGenerator();
+				};
+
+				auto resetCallback = [this]() {
+					listeners.call(&Listener::allModificationsReset);
 					updateGenerator();
 				};
 
 				degreeMenu.clear();
-				degreeMenu.addItem("Show modifiable degrees", true, false, [selectionCallback, degreeMouseOn, &hideMods](void) {
-					selectionCallback(degreeMouseOn);
+				degreeMenu.addItem("Show modifiable degrees", true, false, [selectionCallback, degreeIndexMouseOn, &hideMods](void) {
+					selectionCallback(degreeIndexMouseOn);
 					hideMods = false;
 				});
 
-				degreeMenu.addItem("Reset modifications", alterations[degreeSectorMouseOver] != 0, false, [degreeMouseOn, alterationCallback](void) {
-					alterationCallback(degreeMouseOn, 0);
+				degreeMenu.addItem("Reset degree modifications", isDegreeSectorIndexAltered(degreeSectorMouseOver), false, [degreeIndexMouseOn, alterationCallback](void) {
+					alterationCallback(degreeIndexMouseOn, Point<int>(-1, 0));
 				});
+
+				degreeMenu.addItem("Reset all modifications", true, false, resetCallback);
 
 				degreeMenu.showMenuAsync(options);
 			}
 
-			else if (degreeModCandidates[degreeSectorMouseOver] != 0)
+			// Mouse left-clicked on mod candidate
+			else if (isDegreeSectorIndexModCandidate(degreeSectorMouseOver))
 			{
-				listeners.call(&Listener::degreeAltered, degreeIndexToMod, degreeModCandidates[degreeSectorMouseOver]);
+				listeners.call(&Listener::degreeIndexAltered, degreeIndexToMod, degreeModCandidates[degree]);
 				updateGenerator();
 			}
 		}
@@ -375,7 +385,7 @@ void GroupingCircle::mouseDrag(const MouseEvent& event)
 	if (mouseDownRadius >= degreeInnerRadius && mouseDownRadius < degreeOuterRadius)
 	{
 		float angle = getNormalizedMouseAngle(event);
-		int degreeIndex = mouseInDegreeSector(event, angle);
+		int degreeIndex = degreeSectorOfAngle(angle);
 
 		if (degreeSectorMouseOver != degreeIndex)
 		{
@@ -438,28 +448,13 @@ void GroupingCircle::updateGenerator()
 {
 	DBG("CIRCLE: Updating degree ring.");
 	cancelDegreeMods();
-	alterations = scaleStructure.getChromaAlterations();
-
-	degreeGroupings = scaleStructure.getDegreeGroupings();
 	
-	// build generatorChain based on degreeGroupings
-	generatorChain.clear();
-	
-	groupSizes.clear();
-	String dbgstr = "";
-	for (int g = 0; g < degreeGroupings.size(); g++)
-	{
-		const Array<int>& group = degreeGroupings.getReference(g);
-		groupSizes.add(group.size());
+	groupSizes = scaleStructure.getDegreeGroupSizes();
+	groupChain = scaleStructure.getGroupChain();
+	chromaAlterations = scaleStructure.getChromaAlterations();
+	degreeAlterations = scaleStructure.getDegreeAlterations();
 
-		for (auto degree : group)
-		{
-			generatorChain.add(degree);
-			dbgstr += String(degree) + ", ";
-		}
-	}
-
-	//DBG("CIRCLE: Chain: " + dbgstr);
+	DBG("\t" + arrayToString(groupChain));
 
 	groupSizeLabels.clear();
 	for (int i = 0; i < groupSizes.size(); i++)
@@ -475,7 +470,6 @@ void GroupingCircle::updateGenerator()
 			addAndMakeVisible(l);
 	}
 
-
 	groupSectorMouseOver = -1;
 
 	resized();
@@ -485,7 +479,7 @@ void GroupingCircle::updateGenerator()
 void GroupingCircle::degreeToModSelectedCallback(int degreeIndex)
 {
 	degreeIndexToMod = degreeIndex;
-	degreeModCandidates = scaleStructure.findDegreeMods(degreeIndexToMod, 1);
+	degreeModCandidates = scaleStructure.findDegreeMods(degreeIndexToMod, -1);
 	TextEditor* label = degreeLabels[degreeIndexToMod];
 	label->setFont(label->getFont().withHeight(label->getHeight() / 3.0f));
 	label->insertTextAtCaret("*");
@@ -505,7 +499,7 @@ void GroupingCircle::cancelDegreeMods()
 	
 }
 
-float GroupingCircle::getNormalizedMouseAngle(const MouseEvent& event)
+float GroupingCircle::getNormalizedMouseAngle(const MouseEvent& event) const
 {
 	float angle = atan2f(event.position.x - center.x, center.y - event.position.y) + (groupSizes[0] / 2.0f * angleIncrement);
 	if (angle < 0) angle += float_Tau;
@@ -514,20 +508,20 @@ float GroupingCircle::getNormalizedMouseAngle(const MouseEvent& event)
 	return angle;
 }
 
-int GroupingCircle::mouseInDegreeSector(const MouseEvent& event, float angle)
+int GroupingCircle::degreeSectorOfAngle(float angle) const
 {
-	return (int)(angle / angleIncrement) % generatorChain.size();
+	return (int)(angle / angleIncrement) % groupChain.size();
 }
 
-int GroupingCircle::mouseInDegreeRingSector(const MouseEvent& event, float radiusFromCenter, float angle)
+int GroupingCircle::mouseInDegreeRingSector(const MouseEvent& event, float radiusFromCenter, float angle) const
 {
 	if (radiusFromCenter >= degreeInnerRadius && radiusFromCenter < degreeOuterRadius)
-		return mouseInDegreeSector(event, angle);
+		return degreeSectorOfAngle(angle);
 
 	return -1;
 }
 
-int GroupingCircle::mouseInGroupSector(int degreeIndex)
+int GroupingCircle::mouseInGroupSector(int degreeIndex) const
 {
 	int groupIndex = 0;
 	int groupSize = groupSizes[groupIndex];
@@ -544,15 +538,15 @@ int GroupingCircle::mouseInGroupSector(int degreeIndex)
 	return groupIndex;
 }
 
-int GroupingCircle::mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, float angle)
+int GroupingCircle::mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, float angle) const
 {
 	if (radiusFromCenter >= degreeOuterRadius && radiusFromCenter < groupOuterRadius)
-		mouseInGroupSector(mouseInDegreeSector(event, angle));
+		mouseInGroupSector(degreeSectorOfAngle(angle));
 
 	return -1;
 }
 
-int GroupingCircle::mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, int degreeIndex)
+int GroupingCircle::mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, int degreeIndex) const
 {
 	if (radiusFromCenter >= degreeOuterRadius && radiusFromCenter < groupOuterRadius)
 		mouseInGroupSector(degreeIndex);
@@ -573,7 +567,28 @@ void GroupingCircle::addArcToPath(Path& pathIn, Rectangle<float>& ellipseBounds,
 	);
 }
 
-int GroupingCircle::modulo(int num, int mod)
+/*
+	Returns true if degree sector is a modification candidate
+*/
+bool GroupingCircle::isDegreeSectorIndexModCandidate(int degreeSectorIndexIn) const
 {
-	return ((num % mod) + mod) % mod;
+	if (degreeSectorIndexIn >= 0 && degreeSectorIndexIn < degreeModCandidates.size())
+	{
+		const Point<int>& alteration = degreeModCandidates.getReference(groupChain[degreeSectorIndexIn]);
+		return alteration.x >= 0 && alteration.y != 0;
+	}
+	return false;
+}
+
+/*
+	Returns true if degree sector is altered
+*/
+bool GroupingCircle::isDegreeSectorIndexAltered(int degreeSectorIndexIn) const
+{
+	if (degreeSectorIndexIn >= 0 && degreeSectorIndexIn < degreeAlterations.size())
+	{
+		const Point<int>& alteration = degreeAlterations.getReference(groupChain[degreeSectorIndexIn]);
+		return alteration.x >= 0 && alteration.y != 0;
+	}
+	return false;
 }

@@ -54,7 +54,8 @@ public:
 		~Listener() {};
 
 		virtual void offsetChanged(int newOffset) = 0;
-		virtual void degreeAltered(int degreeIndex, int chromasMoved) = 0;
+		virtual void degreeIndexAltered(int degreeIndex, Point<int> alteration) = 0;
+		virtual void allModificationsReset() = 0;
 	};
 
 	void addListener(Listener* listenerToAdd);
@@ -79,7 +80,7 @@ private:
 	Array<Array<int>> degreeGroupings;
 
 	// The chain of scale degrees by stacking the chosen generator
-	Array<int> generatorChain;
+	Array<int> groupChain;
 
 	// Starting from the top (scale size selected) going clockwise
 	Array<int> groupSizes;
@@ -89,9 +90,9 @@ private:
 	
 	// MODMOS functionality
 	int degreeIndexToMod = -1;
-	Array<int> degreeModCandidates;
-	Array<int> stepsToChromas;
-	Array<int> alterations;
+	Array<Point<int>> degreeModCandidates;
+	Array<Point<int>> chromaAlterations;
+	Array<Point<int>> degreeAlterations;
 
 	// Mouse functionality
 	
@@ -144,32 +145,40 @@ private:
 		Returns the angle of the mouse based on the circle's center, with 0 starting at the counter-clockwise edge 
 		of the first degree group's degree, and moving clockwise.
 	*/
-	float getNormalizedMouseAngle(const MouseEvent& event);
+	float getNormalizedMouseAngle(const MouseEvent& event) const;
 
 	/*
-		Returns the degree index of the degree's corresponding sector that the mouse is in.
+		Returns the degree index of the degree's corresponding sector that the angle is in.
 	*/
-	int mouseInDegreeSector(const MouseEvent& event, float angle);
+	int degreeSectorOfAngle(float angle) const;
 
 	/*
 		Returns the degree index that the mouse is in if in the area of a degree ring sector.
 		Returns -1 if outside of ring sector.
 	*/
-	int mouseInDegreeRingSector(const MouseEvent& event, float radiusFromCenter, float angle);
+	int mouseInDegreeRingSector(const MouseEvent& event, float radiusFromCenter, float angle) const;
 
 	/*
 		Returns the group size index of the group's corresponding sector that the mouse is in
 	*/
-	int mouseInGroupSector(int degreeIndex);
+	int mouseInGroupSector(int degreeIndex) const;
 
 	/*
 		Returns the group size index that the mouse is in if in the area of a group size ring sector.
 		Returns -1 if outside of ring sector.
 	*/
-	int mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, float angle);
-	int mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, int degreeIndex);
+	int mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, float angle) const;
+	int mouseInGroupRingSector(const MouseEvent& event, float radiusFromCenter, int degreeIndex) const;
 
-	static int modulo(int num, int mod);
+	/*
+		Returns true if degree sector is a modification candidate
+	*/
+	bool isDegreeSectorIndexModCandidate(int degreeSectorIndexIn) const;
+
+	/*
+		Returns true if degree sector is altered
+	*/
+	bool isDegreeSectorIndexAltered(int degreeSectorIndexIn) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GroupingCircle)
 };
