@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.3"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.4"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               jucerVersion="5.4.7" companyName="Hans Straub" headerPath="../../../JUCE/modules">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
@@ -228,7 +228,7 @@
     <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
-  <JUCEOPTIONS/>
+  <JUCEOPTIONS JUCE_WEB_BROWSER="0"/>
   <LIVE_SETTINGS>
     <OSX/>
     <WINDOWS/>
