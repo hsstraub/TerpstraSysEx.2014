@@ -232,6 +232,7 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     //[Destructor_pre]. You can add your own custom destruction code here..
 	incrMidiNotesMapping = nullptr;
 	kbmMappingDlg = nullptr;
+	scaleDesignWindow = nullptr;
     //[/Destructor_pre]
 
     startingPointBox = nullptr;
@@ -322,6 +323,10 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         scaleSize = comboBoxThatHasChanged->getSelectedId();
         incrMidiNotesMapping->onUpdateScaleSize();
         kbmMappingDlg->onUpdateScaleSize();
+
+		scaleStructure.resetToPeriod(scaleSize);
+		if (scaleDesignWindow.get())
+			scaleDesignWindow->loadScaleStructureSettings();
         //[/UserComboBoxCode_scaleSizeBox]
     }
 
@@ -337,6 +342,15 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
+
+		// Initialize this here to allow the ScaleStructure settings to be loaded first
+		if (scaleDesignWindow.get() == nullptr)
+		{
+			scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
+			scaleDesignWindow->addScaleDesignerListener(this);
+		}
+
+		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
         //[/UserButtonCode_btnFileSelectMacro]
     }
 
@@ -359,6 +373,8 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
         juce::NotificationType::sendNotification);
 
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
+
+	// TODO: Full scaleStructure state recall
 }
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -367,6 +383,8 @@ void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesF
     propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
 
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
+
+	// TODO: Save full ScaleStructure state
 }
 
 void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
@@ -483,6 +501,17 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 	}
 }
 
+void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
+{
+	scaleSizeBox->setSelectedId(newPeriod);
+}
+
+void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)
+{
+	editRightUpwardSteps->setText(String(rightUpwardSize));
+	editHorizontalSteps->setText(String(horizontalSize));
+}
+
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
 /// <returns>Mapping was changed yes/no</returns>
 bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
@@ -549,7 +578,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component, public MappingLogicBase::Listener"
+                 parentClasses="public Component, public MappingLogicBase::Listener, public ScaleStructureComponent::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
                  initialHeight="352">
