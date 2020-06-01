@@ -15,7 +15,7 @@
 
 
 //==============================================================================
-// Manages the geometry of the board - used to create isomorphic key mappings 
+// Manages the geometry of the board - used to create isomorphic key mappings
 class TerpstraBoardGeometry
 {
 	// Types
@@ -32,12 +32,19 @@ public:
 	StraightLine horizontalLineOfField(int fieldIndex) { return getLineOfField(fieldIndex, this->horizontalLines); };
 	StraightLine rightUpwardLineOfField(int fieldIndex) { return getLineOfField(fieldIndex, this->rightUpwardLines); };
 
-	int horizontaLineCount() { return this->horizontalLines.size(); }
-	int horizontalLineSize(int rowIndex) { return (rowIndex >= 0 && rowIndex < horizontaLineCount()) ? this->horizontalLines[rowIndex].size() : 0; }
+	int horizontalLineCount() { return this->horizontalLines.size(); }
+	int rightUpwardLineCount() { return this->rightUpwardLines.size(); }
+
+	int horizontalLineSize(int rowIndex) { return (rowIndex >= 0 && rowIndex < horizontalLineCount()) ? this->horizontalLines[rowIndex].size() : 0; }
 	int firstColumnOffset(int rowIndex) { return (rowIndex >= 0 && rowIndex < firstColumnOffsets.size()) ? this->firstColumnOffsets[rowIndex] : 0; }
 
-private: 
+	StraightLineSet globalHorizontalLineOfField(int setSelection, int fieldIndex);
+	StraightLineSet globalRightUpwardLineOfField(int setSelection, int fieldIndex);
+
+private:
 	StraightLine getLineOfField(int fieldIndex, StraightLineSet lineSet);
+	StraightLine continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset);
+	StraightLine continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset);
 
 	// Attributes
 private:

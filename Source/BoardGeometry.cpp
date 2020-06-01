@@ -46,7 +46,7 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 	this->firstColumnOffsets = Array<int>({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5});
 }
 
-// returns the unique straight line that contains the given field  
+// returns the unique straight line that contains the given field
 TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet)
 {
 	int i;
@@ -59,4 +59,124 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fi
 	// Line must have been found - we should never get here
 	jassert(false);
 	return StraightLine();	// Defensive code: return empty object
+}
+
+// Returns the line that is a continuation of the given horizontal line in another octave board
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset)
+{
+    int currentLineIndex = this->horizontalLines.indexOf(line);
+    if ( currentLineIndex < 0)
+    {
+        jassert(false);         // Should not happen
+        return StraightLine();	// return empty object
+    }
+
+    int otherSubBoardLineIndex = currentLineIndex - 2 * octaveBoardOffset;
+    if (otherSubBoardLineIndex < 0 || otherSubBoardLineIndex >= horizontalLineCount())
+    {
+        // Line does not continue on other octave board
+        return StraightLine();
+    }
+
+    return this->horizontalLines[otherSubBoardLineIndex];
+}
+
+// Returns the line that is a continuation of the given horizontal line in another octave board
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset)
+{
+	int currentLineIndex = this->rightUpwardLines.indexOf(line);
+	if (currentLineIndex < 0)
+	{
+		jassert(false);         // Should not happen
+		return StraightLine();	// return empty object
+	}
+
+	int otherSubBoardLineIndex = currentLineIndex - 7 * octaveBoardOffset;
+	if (otherSubBoardLineIndex < 0 || otherSubBoardLineIndex >= rightUpwardLineCount())
+	{
+		// Line does not continue on other octave board
+		return StraightLine();
+	}
+
+	return this->rightUpwardLines[otherSubBoardLineIndex];
+}
+
+// Returns the unique horizontal line that contains the given field, over all octave boards
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLineOfField(int setSelection, int fieldIndex)
+{
+    jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+
+    StraightLineSet result;
+
+    int octaveBoardIndex = 0;
+
+    // Initialize line segments before current octave board
+    for (; octaveBoardIndex < setSelection; octaveBoardIndex++)
+    {
+        result.add(StraightLine());
+    }
+
+    // The line for the given field in the given octave board
+    StraightLine line = horizontalLineOfField(fieldIndex);
+    result.add(line);
+    octaveBoardIndex++;
+
+    // Line segments in succeeding octave boards (further right)
+    for (; octaveBoardIndex < NUMBEROFBOARDS && !line.isEmpty(); octaveBoardIndex++)
+    {
+        line = continuationOfHorizontalLine(line, 1);
+        result.add(line);
+    }
+
+    // Line segments in preceding octave boards
+    line = result[setSelection];
+    octaveBoardIndex = setSelection-1;
+
+    for (; octaveBoardIndex >=0 && !line.isEmpty(); octaveBoardIndex--)
+    {
+        line = continuationOfHorizontalLine(line, -1);
+        result.set(octaveBoardIndex, line);
+    }
+
+    return result;
+}
+
+// Returns the unique right upward line that contains the given field, over all octave boards
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardLineOfField(int setSelection, int fieldIndex)
+{
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+
+	StraightLineSet result;
+
+	int octaveBoardIndex = 0;
+
+	// Initialize line segments before current octave board
+	for (; octaveBoardIndex < setSelection; octaveBoardIndex++)
+	{
+		result.add(StraightLine());
+	}
+
+	// The line for the given field in the given octave board
+	StraightLine line = rightUpwardLineOfField(fieldIndex);
+	result.add(line);
+	octaveBoardIndex++;
+
+	// Line segments in succeeding octave boards (further right)
+	for (; octaveBoardIndex < NUMBEROFBOARDS && !line.isEmpty(); octaveBoardIndex++)
+	{
+		line = continuationOfRightUpwardLine(line, 1);
+		result.add(line);
+	}
+
+	// Line segments in preceding octave boards
+	line = result[setSelection];
+	octaveBoardIndex = setSelection - 1;
+
+	for (; octaveBoardIndex >= 0 && !line.isEmpty(); octaveBoardIndex--)
+	{
+		line = continuationOfRightUpwardLine(line, -1);
+		result.set(octaveBoardIndex, line);
+	}
+
+	return result;
 }

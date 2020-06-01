@@ -128,7 +128,7 @@ void OctaveBoardComponent::resized()
 
 	auto boardGeometry = ((MainContentComponent*)getParentComponent())->getBoardGeometry();
 	// Rows
-	int rowCount = boardGeometry.horizontaLineCount();
+	int rowCount = boardGeometry.horizontalLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
 		float xbasepos;
