@@ -14,6 +14,27 @@
 //==============================================================================
 // Base class
 
+int MappingLogicBase::indexToColour(int inx) const
+{
+	if (inx < 0 || inx >= this->globalMappingSize())
+        return 0;
+
+    // ToDo
+
+    return 0xffffff;
+}
+
+TerpstraKey MappingLogicBase::indexToTerpstraKey(int inx) const
+{
+	TerpstraKey keyData;
+
+	keyData.channelNumber = indexToMIDIChannel(inx);
+	keyData.noteNumber = indexToMIDINote(inx);
+	keyData.colour = indexToColour(inx);
+
+	return keyData;
+}
+
 void MappingLogicBase::addListener(MappingLogicBase::Listener* listener)
 {
 	listeners.add(listener);
@@ -80,26 +101,27 @@ int IncrMidiNotesMappingLogic::globalMappingSize() const
 		return (this->maxMIDINote+1) * 16;
 }
 
-TerpstraKey IncrMidiNotesMappingLogic::indexToTerpstraKey(int inx) const
+int IncrMidiNotesMappingLogic::indexToMIDIChannel(int inx) const
 {
 	if (inx < 0 || inx >= this->globalMappingSize())
-		return TerpstraKey();	// Empty value
+        return 0;
+	else if (this->isSingleChannel())
+        return this->channelInCaseOfSingleChannel;
+    else
+        // Channel is 1-based
+        return (inx / (this->maxMIDINote + 1)) + 1;
+}
 
-	TerpstraKey keyData;
+int IncrMidiNotesMappingLogic::indexToMIDINote(int inx) const
+{
+	if (inx < 0 || inx >= this->globalMappingSize())
+        return 0;
+	else if (this->isSingleChannel())
+        return inx;
+    else
+        // Note is 0-based and goes until maxMIDINote
+        return inx % (this->maxMIDINote+1);
 
-	if (this->isSingleChannel())
-	{
-		keyData.channelNumber = this->channelInCaseOfSingleChannel;
-		keyData.noteNumber = inx;
-	}
-	else
-	{
-		// Channel is 1-based, note is 0-based and goes until maxMIDINote
-		keyData.channelNumber = (inx / (this->maxMIDINote + 1)) + 1;
-		keyData.noteNumber = inx % (this->maxMIDINote+1);
-	}
-
-	return keyData;
 }
 
 int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
@@ -183,16 +205,20 @@ int KBMFilesMappingLogic::globalMappingSize() const
     return mappingTable.size();
 }
 
-TerpstraKey KBMFilesMappingLogic::indexToTerpstraKey(int inx) const
+int KBMFilesMappingLogic::indexToMIDIChannel(int inx) const
 {
 	if (inx < 0 || inx >= globalMappingSize())
-		return TerpstraKey();	// Empty value
+        return 0;
+    else
+        return mappingTable[inx].channelNumber;
+}
 
-	TerpstraKey keyData;
-    keyData.channelNumber = mappingTable[inx].channelNumber;
-    keyData.noteNumber = mappingTable[inx].noteNumber;
-
-    return keyData;
+int KBMFilesMappingLogic::indexToMIDINote(int inx) const
+{
+	if (inx < 0 || inx >= globalMappingSize())
+        return 0;
+    else
+        return mappingTable[inx].noteNumber;
 }
 
 int KBMFilesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const

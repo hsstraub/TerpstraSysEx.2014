@@ -13,6 +13,7 @@
 
 #include "KeyboardDataStructure.h"
 #include "KBMMappingDataStructure.h"
+#include "ScaleStructureController/ScaleStructure.h"
 
 
 //==============================================================================
@@ -22,8 +23,14 @@ class MappingLogicBase
 public:
 	// Global number of notes in the mapping
 	virtual int globalMappingSize() const = 0;
+
+	virtual int indexToMIDIChannel(int inx) const = 0;
+	virtual int indexToMIDINote(int inx) const = 0;
+	virtual int indexToColour(int inx) const;
+
 	// Returns the Terpstra key specification for the "inx"-th note
-	virtual TerpstraKey indexToTerpstraKey(int inx) const = 0;
+	virtual TerpstraKey indexToTerpstraKey(int inx) const;
+
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const = 0;
 
 	// Listener class, to notify changes
@@ -71,7 +78,10 @@ public:
 	// Access mapping data (overrides)
 
 	int globalMappingSize() const override;
-	TerpstraKey indexToTerpstraKey(int inx) const override;
+
+	int indexToMIDIChannel(int inx) const override;
+	int indexToMIDINote(int inx) const override;
+
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
 
 	bool isSingleChannel() const { return this->channelInCaseOfSingleChannel > 0; }
@@ -124,7 +134,10 @@ protected:
 	// Access mapping data (overrides)
 public:
  	int globalMappingSize() const override;
-	TerpstraKey indexToTerpstraKey(int inx) const override;
+
+	int indexToMIDIChannel(int inx) const override;
+	int indexToMIDINote(int inx) const override;
+
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
 
     //===============================

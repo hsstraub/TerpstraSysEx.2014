@@ -177,9 +177,10 @@ void ScaleStructureComponent::resized()
 
 	// TODO: add other part of arrow / improve drawing
 	offsetArrows.clear();
-	GroupingCircle::addArcToPath(offsetArrows, circle->getInnerCircleBounds().reduced(circle->getInnerRadius() / 13.0f), float_Pi / 24, float_Pi / 12, true);
+	auto arc1 = circle->getInnerCircleBounds().reduced(circle->getInnerRadius() / 13.0f);
+	GroupingCircle::addArcToPath(offsetArrows, arc1, float_Pi / 24, float_Pi / 12, true);
 	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * 13.0f / 14.0f, float_Pi / 14));
-	GroupingCircle::addArcToPath(offsetArrows, circle->getInnerCircleBounds().reduced(circle->getInnerRadius() / 13.0f), -float_Pi / 24, -float_Pi / 12, true);
+	GroupingCircle::addArcToPath(offsetArrows, arc1, -float_Pi / 24, -float_Pi / 12, true);
 	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * 13.0f / 14.0f, -float_Pi / 14));
 
 	float periodFBtnSize = periodSlider->getHeight() / 8.0f;
