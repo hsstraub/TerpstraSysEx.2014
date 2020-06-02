@@ -68,6 +68,16 @@ void KeyMiniDisplayInsideOctaveBoardComponent::resized()
 	hexPath.scaleToFit(marginOffset, marginOffset, w - 2*marginOffset, h - 2*marginOffset, true);
 }
 
+void KeyMiniDisplayInsideOctaveBoardComponent::mouseDown(const MouseEvent& e)
+{
+	Component::mouseDown(e);
+
+	// If right mouse click: popup menu (implementation in parent component)
+	if (e.mods.isRightButtonDown())
+		getParentComponent()->mouseDown(e);
+}
+
+
 Colour KeyMiniDisplayInsideOctaveBoardComponent::getKeyColour()
 {
     if ( keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
@@ -195,42 +205,3 @@ TerpstraKeys* OctaveBoardComponent::getKeyData()
     else
         return nullptr;
 }
-
-/*
-==============================================================================
-TerpstraKeySetEdit class
-==============================================================================
-*/
-/*
-OctaveBoardComponent::OctaveBoardComponent()
-{
-	Image imgUnselected = ImageCache::getFromMemory(BinaryData::OctaveGraphic_png, BinaryData::OctaveGraphic_pngSize);
-	Image imgSelected = ImageCache::getFromMemory(BinaryData::OctaveWithSelection_png, BinaryData::OctaveWithSelection_pngSize);
-
-	setImages(true, true, true,
-		imgUnselected, 0.5f, Colours::transparentBlack,
-		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgSelected, 0.9f, Colours::transparentBlack,
-		0.5f);
-
-	setClickingTogglesState(true);
-}
-
-OctaveBoardComponent::~OctaveBoardComponent()
-{
-
-}
-
-void OctaveBoardComponent::mouseDown(const MouseEvent& e)
-{
-	ImageButton::mouseDown(e);
-
-	// If right mouse click: popup menu
-	if (e.mods.isRightButtonDown())
-	{
-		PopupMenu menu;
-		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
-	}
-}
-*/
