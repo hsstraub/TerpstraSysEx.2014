@@ -305,9 +305,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			// Perform the edit, according to edit mode. Including sending to device
 			mappingChanged = this->noteEditArea->performMouseDown(currentSetSelection, i);
 
-			// Refresh display
-			changeSetSelection(currentSetSelection, true);
-
 			// Mark that there are changes
 			if (mappingChanged)
 				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -315,6 +312,15 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			break;
 		}
 	}
+
+    // Refresh display (edit may affect all octave boards)
+    if ( mappingChanged)
+    {
+        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+        {
+            terpstraSetSelectors[i]->repaint();
+        }
+    }
 }
 
 void MainContentComponent::mouseUp(const MouseEvent &event)
@@ -329,9 +335,6 @@ void MainContentComponent::mouseUp(const MouseEvent &event)
 			// Perform the edit, according to edit mode. Including sending to device
 			mappingChanged = this->noteEditArea->performMouseUp(currentSetSelection, i);
 
-			// Refresh display
-			changeSetSelection(currentSetSelection, true);
-
 			// Mark that there are changes
 			if (mappingChanged)
 				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -339,6 +342,15 @@ void MainContentComponent::mouseUp(const MouseEvent &event)
 			break;
 		}
 	}
+
+    // Refresh display (edit may affect all octave boards)
+    if ( mappingChanged)
+    {
+        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+        {
+            terpstraSetSelectors[i]->repaint();
+        }
+    }
 }
 
 void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)
