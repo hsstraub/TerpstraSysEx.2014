@@ -336,8 +336,9 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
 				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
 
-			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-			fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+            if (rUpStartNoteIndex >= 0)
+                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+                fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
@@ -367,8 +368,9 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
 				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[rUpwLine[linepos]]);
 
-			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-			fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+            if (horizStartNoteIndex >= 0 )
+                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+                fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
