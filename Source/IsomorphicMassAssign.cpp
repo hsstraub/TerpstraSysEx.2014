@@ -177,34 +177,34 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     presetBox->setBounds (168, 248, 232, 24);
 
-    btnFileSelectMacro.reset (new TextButton ("btnFileSelectMacro"));
-    addAndMakeVisible (btnFileSelectMacro.get());
-    btnFileSelectMacro->setButtonText (TRANS("..."));
-    btnFileSelectMacro->addListener (this);
+    btnScaleStructureEditor.reset (new TextButton ("btnScaleStructureEditor"));
+    addAndMakeVisible (btnScaleStructureEditor.get());
+    btnScaleStructureEditor->setButtonText (TRANS("..."));
+    btnScaleStructureEditor->addListener (this);
 
-    btnFileSelectMacro->setBounds (408, 248, 32, 24);
+    btnScaleStructureEditor->setBounds (408, 248, 32, 24);
 
-    scaleSizeBox.reset (new ComboBox ("scaleSizeBox"));
-    addAndMakeVisible (scaleSizeBox.get());
-    scaleSizeBox->setTooltip (TRANS("Number of tones per octave"));
-    scaleSizeBox->setEditableText (false);
-    scaleSizeBox->setJustificationType (Justification::centredLeft);
-    scaleSizeBox->setTextWhenNothingSelected (String());
-    scaleSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    scaleSizeBox->addListener (this);
+    periodSizeBox.reset (new ComboBox ("periodSizeBox"));
+    addAndMakeVisible (periodSizeBox.get());
+    periodSizeBox->setTooltip (TRANS("Number of tones per period interval (octave)"));
+    periodSizeBox->setEditableText (false);
+    periodSizeBox->setJustificationType (Justification::centredLeft);
+    periodSizeBox->setTextWhenNothingSelected (String());
+    periodSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    periodSizeBox->addListener (this);
 
-    scaleSizeBox->setBounds (104, 8, 56, 24);
+    periodSizeBox->setBounds (176, 8, 56, 24);
 
-    labelScaleSize.reset (new Label ("labelScaleSize",
-                                     TRANS("Scale size:")));
-    addAndMakeVisible (labelScaleSize.get());
-    labelScaleSize->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelScaleSize->setJustificationType (Justification::centredLeft);
-    labelScaleSize->setEditable (false, false, false);
-    labelScaleSize->setColour (TextEditor::textColourId, Colours::black);
-    labelScaleSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelPeriodSize.reset (new Label ("labelPeriodSize",
+                                      TRANS("Period:")));
+    addAndMakeVisible (labelPeriodSize.get());
+    labelPeriodSize->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelPeriodSize->setJustificationType (Justification::centredLeft);
+    labelPeriodSize->setEditable (false, false, false);
+    labelPeriodSize->setColour (TextEditor::textColourId, Colours::black);
+    labelPeriodSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelScaleSize->setBounds (16, 8, 88, 24);
+    labelPeriodSize->setBounds (16, 8, 144, 24);
 
 
     //[UserPreSize]
@@ -217,7 +217,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 	for (int i = 1; i <= 128; i++)
 	{
-		scaleSizeBox->addItem(String(i), i);
+		periodSizeBox->addItem(String(i), i);
 	}
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
@@ -247,9 +247,9 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     labelMappingType = nullptr;
     labelPreset = nullptr;
     presetBox = nullptr;
-    btnFileSelectMacro = nullptr;
-    scaleSizeBox = nullptr;
-    labelScaleSize = nullptr;
+    btnScaleStructureEditor = nullptr;
+    periodSizeBox = nullptr;
+    labelPeriodSize = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -317,17 +317,10 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_presetBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_presetBox]
     }
-    else if (comboBoxThatHasChanged == scaleSizeBox.get())
+    else if (comboBoxThatHasChanged == periodSizeBox.get())
     {
-        //[UserComboBoxCode_scaleSizeBox] -- add your combo box handling code here..
-        scaleSize = comboBoxThatHasChanged->getSelectedId();
-        incrMidiNotesMapping->onUpdateScaleSize();
-        kbmMappingDlg->onUpdateScaleSize();
-
-		scaleStructure.resetToPeriod(scaleSize);
-		if (scaleDesignWindow.get())
-			scaleDesignWindow->loadScaleStructureSettings();
-        //[/UserComboBoxCode_scaleSizeBox]
+        //[UserComboBoxCode_periodSizeBox] -- add your combo box handling code here..
+        //[/UserComboBoxCode_periodSizeBox]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -339,19 +332,10 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnFileSelectMacro.get())
+    if (buttonThatWasClicked == btnScaleStructureEditor.get())
     {
-        //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-
-		// Initialize this here to allow the ScaleStructure settings to be loaded first
-		if (scaleDesignWindow.get() == nullptr)
-		{
-			scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
-			scaleDesignWindow->addScaleDesignerListener(this);
-		}
-
-		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
-        //[/UserButtonCode_btnFileSelectMacro]
+        //[UserButtonCode_btnScaleStructureEditor] -- add your button handler code here..
+        //[/UserButtonCode_btnScaleStructureEditor]
     }
 
     //[UserbuttonClicked_Post]
@@ -364,8 +348,8 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-    scaleSizeBox->setSelectedId(
-        propertiesFile->getIntValue("ScaleSize", 0),
+    periodSizeBox->setSelectedId(
+        propertiesFile->getIntValue("PeriodSize", 0),
         juce::NotificationType::sendNotification);
 
 	cbMappingType->setSelectedItemIndex(
@@ -379,7 +363,7 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-    propertiesFile->setValue("ScaleSize", scaleSizeBox->getSelectedId());
+    propertiesFile->setValue("PeriodSize", periodSizeBox->getSelectedId());
     propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
 
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
@@ -503,7 +487,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 
 void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
 {
-	scaleSizeBox->setSelectedId(newPeriod);
+	periodSizeBox->setSelectedId(newPeriod);
 }
 
 void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)
@@ -636,17 +620,17 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="presetBox" id="b36dd3e573b7d51f" memberName="presetBox"
             virtualName="" explicitFocusOrder="0" pos="168 248 232 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <TEXTBUTTON name="btnFileSelectMacro" id="23cc77cbad6653d7" memberName="btnFileSelectMacro"
+  <TEXTBUTTON name="btnScaleStructureEditor" id="23cc77cbad6653d7" memberName="btnScaleStructureEditor"
               virtualName="" explicitFocusOrder="0" pos="408 248 32 24" buttonText="..."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <COMBOBOX name="scaleSizeBox" id="4560285c5e467e2f" memberName="scaleSizeBox"
-            virtualName="" explicitFocusOrder="0" pos="104 8 56 24" tooltip="Number of tones per octave"
+  <COMBOBOX name="periodSizeBox" id="4560285c5e467e2f" memberName="periodSizeBox"
+            virtualName="" explicitFocusOrder="0" pos="176 8 56 24" tooltip="Number of tones per period interval (octave)"
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="labelScaleSize" id="c2aeb9a3f194ed5b" memberName="labelScaleSize"
-         virtualName="" explicitFocusOrder="0" pos="16 8 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Scale size:" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="labelPeriodSize" id="c2aeb9a3f194ed5b" memberName="labelPeriodSize"
+         virtualName="" explicitFocusOrder="0" pos="16 8 144 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Period:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

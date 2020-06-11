@@ -127,9 +127,9 @@ private:
     std::unique_ptr<Label> labelMappingType;
     std::unique_ptr<Label> labelPreset;
     std::unique_ptr<ComboBox> presetBox;
-    std::unique_ptr<TextButton> btnFileSelectMacro;
-    std::unique_ptr<ComboBox> scaleSizeBox;
-    std::unique_ptr<Label> labelScaleSize;
+    std::unique_ptr<TextButton> btnScaleStructureEditor;
+    std::unique_ptr<ComboBox> periodSizeBox;
+    std::unique_ptr<Label> labelPeriodSize;
 
 
     //==============================================================================
