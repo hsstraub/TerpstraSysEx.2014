@@ -39,13 +39,13 @@ class KBMMappingDlg  : public Component
 {
 public:
     //==============================================================================
-    KBMMappingDlg (int& scaleSizeReference);
+    KBMMappingDlg (int& periodSizeReference);
     ~KBMMappingDlg();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	MappingLogicBase* getMappingLogic() { return &mappingLogic; }
-	void onUpdateScaleSize();
+	void onUpdatePeriodSize();
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
@@ -61,7 +61,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     std::unique_ptr<KBMForOneChannel>	channelMappingComponents[KBMFilesMappingLogic::noOfChannels];
    	KBMFilesMappingLogic	mappingLogic;
-   	int& scaleSize;
+   	int& periodSize;
     //[/UserVariables]
 
     //==============================================================================

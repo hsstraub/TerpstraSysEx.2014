@@ -33,13 +33,13 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    scaleSize = 0;
+    periodSize = 0;
     // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
-	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(scaleSize));
+	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize));
 	incrMidiNotesMapping->setVisible(false);
 	addChildComponent(incrMidiNotesMapping.get());
 
-	kbmMappingDlg.reset(new KBMMappingDlg(scaleSize));
+	kbmMappingDlg.reset(new KBMMappingDlg(periodSize));
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
@@ -320,6 +320,13 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == periodSizeBox.get())
     {
         //[UserComboBoxCode_periodSizeBox] -- add your combo box handling code here..
+        periodSize = comboBoxThatHasChanged->getSelectedId();
+        incrMidiNotesMapping->onUpdatePeriodSize();
+        kbmMappingDlg->onUpdatePeriodSize();
+
+		scaleStructure.resetToPeriod(periodSize);
+		if (scaleDesignWindow.get())
+			scaleDesignWindow->loadScaleStructureSettings();
         //[/UserComboBoxCode_periodSizeBox]
     }
 
@@ -335,7 +342,13 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnScaleStructureEditor.get())
     {
         //[UserButtonCode_btnScaleStructureEditor] -- add your button handler code here..
-        //[/UserButtonCode_btnScaleStructureEditor]
+		// Initialize this here to allow the ScaleStructure settings to be loaded first
+		if (scaleDesignWindow.get() == nullptr)
+		{
+			scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
+			scaleDesignWindow->addScaleDesignerListener(this);
+		}
+       //[/UserButtonCode_btnScaleStructureEditor]
     }
 
     //[UserbuttonClicked_Post]

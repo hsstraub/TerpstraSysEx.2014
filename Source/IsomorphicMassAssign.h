@@ -96,7 +96,7 @@ private:
 	std::unique_ptr<ScaleDesignWindow>		scaleDesignWindow;
 
 	MappingLogicBase*			mappingLogic;
-	int							scaleSize;
+	int							periodSize;
 	TerpstraBoardGeometry		boardGeometry;
 	ScaleStructure				scaleStructure;
 

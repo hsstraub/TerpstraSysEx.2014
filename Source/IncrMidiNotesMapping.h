@@ -40,13 +40,13 @@ class IncrMidiNotesMapping  : public Component,
 {
 public:
     //==============================================================================
-    IncrMidiNotesMapping (int& scaleSizeReference);
+    IncrMidiNotesMapping (int& periodSizeReference);
     ~IncrMidiNotesMapping();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	MappingLogicBase* getMappingLogic() { return &mappingLogic; }
-	void onUpdateScaleSize();
+	void onUpdatePeriodSize();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -60,7 +60,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	IncrMidiNotesMappingLogic	mappingLogic;
-	int& scaleSize;
+	int& periodSize;
     //[/UserVariables]
 
     //==============================================================================
