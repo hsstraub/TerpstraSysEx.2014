@@ -19,19 +19,38 @@ int MappingLogicBase::indexToColour(int inx) const
 	if (inx < 0 || inx >= this->globalMappingSize())
         return 0;
 
-    // ToDo
+    // ToDo colourAssignmentType
 
     return 0xffffff;
+}
+
+void MappingLogicBase::setColourAssignmentType(int value)
+{
+    switch(value)
+    {
+    case static_cast<int>(ColourAssignmentType::monochrome):
+    case static_cast<int>(ColourAssignmentType::fromScaleStructureEditor):
+        this->colourAssignmentType = static_cast<ColourAssignmentType>(value);
+        break;
+    default:
+        this->colourAssignmentType = ColourAssignmentType::none;
+        break;
+    }
+}
+
+void MappingLogicBase::indexToTerpstraKey(int inx, TerpstraKey& keyData) const
+{
+	keyData.channelNumber = indexToMIDIChannel(inx);
+	keyData.noteNumber = indexToMIDINote(inx);
+
+	if (this->colourAssignmentType != ColourAssignmentType::none)
+        keyData.colour = indexToColour(inx);
 }
 
 TerpstraKey MappingLogicBase::indexToTerpstraKey(int inx) const
 {
 	TerpstraKey keyData;
-
-	keyData.channelNumber = indexToMIDIChannel(inx);
-	keyData.noteNumber = indexToMIDINote(inx);
-	keyData.colour = indexToColour(inx);
-
+	indexToTerpstraKey(inx, keyData);
 	return keyData;
 }
 

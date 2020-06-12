@@ -21,12 +21,24 @@
 class MappingLogicBase
 {
 public:
+    enum ColourAssignmentType
+    {
+        none = 0,
+        monochrome,
+        fromScaleStructureEditor
+    };
+
+    void setColourAssignmentType(int value);
+
 	// Global number of notes in the mapping
 	virtual int globalMappingSize() const = 0;
 
 	virtual int indexToMIDIChannel(int inx) const = 0;
 	virtual int indexToMIDINote(int inx) const = 0;
 	virtual int indexToColour(int inx) const;
+
+	// sets the Terpstra key specification for the "inx"-th note
+	virtual void indexToTerpstraKey(int inx, TerpstraKey& keyData) const;
 
 	// Returns the Terpstra key specification for the "inx"-th note
 	virtual TerpstraKey indexToTerpstraKey(int inx) const;
@@ -51,6 +63,7 @@ public:
 	void removeListener(Listener* listener);
 
 protected:
+    ColourAssignmentType colourAssignmentType = ColourAssignmentType::none;
 	ListenerList<Listener> listeners;
 };
 
