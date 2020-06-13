@@ -112,7 +112,8 @@ StringArray KBMMappingDataStructure::toStringArray(const String& description)
 
 int KBMMappingDataStructure::getMappingIndexOFMIDINote(int midiNoteNr) const
 {
-    // ToDO Logic for mapSize == 0
+    jassert(mapSize > 0);
+
     int inx = (midiNoteNr - noteNrWhereMappingStarts) % mapSize;
     while (inx < 0)
         inx += mapSize;

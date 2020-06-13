@@ -8,8 +8,7 @@
   ==============================================================================
 */
 
-#ifndef MAPPINGLOGIC_H_INCLUDED
-#define MAPPINGLOGIC_H_INCLUDED
+#pragma once
 
 #include "KeyboardDataStructure.h"
 #include "KBMMappingDataStructure.h"
@@ -63,6 +62,10 @@ public:
 	void removeListener(Listener* listener);
 
 protected:
+    virtual int getStartOfMap() const { return 0; }
+    virtual int getPeriodSize() const = 0;
+    virtual int getIndexFromStartOfMap(int inx) const;
+
     ColourAssignmentType colourAssignmentType = ColourAssignmentType::none;
 	ListenerList<Listener> listeners;
 };
@@ -98,6 +101,9 @@ public:
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
 
 	bool isSingleChannel() const { return this->channelInCaseOfSingleChannel > 0; }
+
+protected:
+    virtual int getPeriodSize() const override { return maxMIDINote + 1; };
 
 private:
 	// Maximal MIDI note (global max in case of single channel. In case of multiple channel followed by note 0 of next channel.)
@@ -140,8 +146,11 @@ public:
 	// Set parameters
 
 	void setMapping(int subDlgIndex, int midiChannel, KBMMappingDataStructure kbmMappingStructure);
+
 protected:
     void createMappingTable();
+    virtual int getStartOfMap() const override;
+    virtual int getPeriodSize() const override;
 
     //===============================
 	// Access mapping data (overrides)
@@ -162,10 +171,8 @@ public:
 private:
     KBMMappingWithChannel channelMappingData[noOfChannels];
 
-    // Frequency to key definition mapping. Key must be integer for the default hash funciton to work
+    // Frequency to key definition mapping. Key must be integer for the default hash function to work
     SortedSet<KBMMappingTableEntry> mappingTable;
 
 };
 
-
-#endif  // MAPPINGLOGIC_H_INCLUDED

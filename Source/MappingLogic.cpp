@@ -14,6 +14,17 @@
 //==============================================================================
 // Base class
 
+int MappingLogicBase::getIndexFromStartOfMap(int inx) const
+{
+    jassert(this->getPeriodSize() > 0);
+
+    int relativeInx = (inx - getStartOfMap()) % this->getPeriodSize();
+    while (relativeInx < 0)
+        relativeInx += this->getPeriodSize();
+    return relativeInx;
+
+}
+
 int MappingLogicBase::indexToColour(int inx) const
 {
 	if (inx < 0 || inx >= this->globalMappingSize())
@@ -21,7 +32,11 @@ int MappingLogicBase::indexToColour(int inx) const
 
     // ToDo colourAssignmentType
 
-    return 0xffffff;
+    // Ad hoc
+    if (getIndexFromStartOfMap(inx) == 0)
+        return 0x808080;
+    else
+        return 0xffffff;
 }
 
 void MappingLogicBase::setColourAssignmentType(int value)
@@ -215,6 +230,45 @@ void KBMFilesMappingLogic::createMappingTable()
     this->listeners.call(&Listener::mappingLogicChanged, this);
 }
 
+int KBMFilesMappingLogic::getStartOfMap() const
+{
+    // Start of map is supposed to be the same for all KBM files
+    // ToDo display error/warning message if not so
+    int subTableIndex;
+    for (subTableIndex = 0; subTableIndex < noOfChannels; subTableIndex++)
+    {
+        if (channelMappingData[subTableIndex].channelNumber > 0)
+            break;
+    }
+
+    if (subTableIndex == noOfChannels)
+    {
+        jassert(false);
+        return 0;
+    }
+    else
+        return channelMappingData[subTableIndex].mapping.noteNrWhereMappingStarts;
+}
+
+int KBMFilesMappingLogic::getPeriodSize() const
+{
+    // Period size is supposed to be the same for all KBM files
+    // ToDo display error/warning message if not so
+    int subTableIndex;
+    for (subTableIndex = 0; subTableIndex < noOfChannels; subTableIndex++)
+    {
+        if (channelMappingData[subTableIndex].channelNumber > 0)
+            break;
+    }
+
+    if (subTableIndex == noOfChannels)
+    {
+        jassert(false);
+        return 0;
+    }
+    else
+        return channelMappingData[subTableIndex].mapping.scaleSize;
+}
 
 //=================================================================
 // Access mapping data (overrides)
