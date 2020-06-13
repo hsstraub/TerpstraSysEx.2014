@@ -246,8 +246,12 @@ int KBMFilesMappingLogic::getStartOfMap() const
         jassert(false);
         return 0;
     }
-    else
-        return channelMappingData[subTableIndex].mapping.noteNrWhereMappingStarts;
+
+    TerpstraKey keyData;
+    keyData.channelNumber = channelMappingData[subTableIndex].channelNumber;
+    keyData.noteNumber = channelMappingData[subTableIndex].mapping.noteNrWhereMappingStarts;
+
+    return terpstraKeyToIndex(keyData);
 }
 
 int KBMFilesMappingLogic::getPeriodSize() const
