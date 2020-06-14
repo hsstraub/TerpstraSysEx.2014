@@ -27,6 +27,8 @@ public:
         fromScaleStructureEditor
     };
 
+    MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
+
     void setColourAssignmentType(int value);
 
 	// Global number of notes in the mapping
@@ -67,6 +69,9 @@ protected:
     virtual int getIndexFromStartOfMap(int inx) const;
 
     ColourAssignmentType colourAssignmentType = ColourAssignmentType::none;
+    ScaleStructure& scaleStructure;
+	Array<Colour>& colourTable;
+
 	ListenerList<Listener> listeners;
 };
 
@@ -81,7 +86,7 @@ protected:
 class IncrMidiNotesMappingLogic : public MappingLogicBase
 {
 public:
-	IncrMidiNotesMappingLogic();
+	IncrMidiNotesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
     //===============================
 	// Set parameters
@@ -140,7 +145,7 @@ private:
     };
 
 public:
-    KBMFilesMappingLogic();
+    KBMFilesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
     //===============================
 	// Set parameters

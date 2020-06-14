@@ -14,6 +14,11 @@
 //==============================================================================
 // Base class
 
+MappingLogicBase::MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : scaleStructure(scaleStructureIn), colourTable(colourTableIn)
+{
+}
+
 int MappingLogicBase::getIndexFromStartOfMap(int inx) const
 {
     jassert(this->getPeriodSize() > 0);
@@ -30,13 +35,27 @@ int MappingLogicBase::indexToColour(int inx) const
 	if (inx < 0 || inx >= this->globalMappingSize())
         return 0;
 
-    // ToDo colourAssignmentType
+    switch(this->colourAssignmentType)
+    {
+        case ColourAssignmentType::monochrome:
+            // Ad hoc
+            if (getIndexFromStartOfMap(inx) == 0)
+                return 0x808080;
+            else
+                return 0xffffff;
 
-    // Ad hoc
-    if (getIndexFromStartOfMap(inx) == 0)
-        return 0x808080;
-    else
-        return 0xffffff;
+        case ColourAssignmentType::fromScaleStructureEditor:
+
+            // ToDo ScaleStructure
+
+            if (getIndexFromStartOfMap(inx) == 0)
+                return colourTable.getReference(0).getARGB();
+            else
+                return colourTable.getReference(1).getARGB();
+
+        default:
+            return 0;
+    }
 }
 
 void MappingLogicBase::setColourAssignmentType(int value)
@@ -82,8 +101,8 @@ void MappingLogicBase::removeListener(MappingLogicBase::Listener* listener)
 //==============================================================================
 // Increasing MIDI notes
 
-IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
-	: maxMIDINote(0), channelInCaseOfSingleChannel(0)
+IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : MappingLogicBase(scaleStructureIn, colourTableIn), maxMIDINote(0), channelInCaseOfSingleChannel(0)
 {
 }
 
@@ -183,7 +202,8 @@ int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 //==============================================================================
 // KBM files
 
-KBMFilesMappingLogic::KBMFilesMappingLogic()
+KBMFilesMappingLogic::KBMFilesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : MappingLogicBase(scaleStructureIn, colourTableIn)
 {
 }
 

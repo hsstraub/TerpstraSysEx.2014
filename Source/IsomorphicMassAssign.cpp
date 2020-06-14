@@ -35,11 +35,11 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     //[Constructor_pre] You can add your own custom stuff here..
     periodSize = 0;
     // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
-	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize));
+	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize, scaleStructure, colourTable));
 	incrMidiNotesMapping->setVisible(false);
 	addChildComponent(incrMidiNotesMapping.get());
 
-	kbmMappingDlg.reset(new KBMMappingDlg(periodSize));
+	kbmMappingDlg.reset(new KBMMappingDlg(periodSize, scaleStructure, colourTable));
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
@@ -355,6 +355,8 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 			scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
 			scaleDesignWindow->addScaleDesignerListener(this);
 		}
+
+		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
         //[/UserButtonCode_btnScaleStructureEditor]
     }
 
