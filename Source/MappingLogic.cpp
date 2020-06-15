@@ -45,13 +45,16 @@ int MappingLogicBase::indexToColour(int inx) const
                 return 0xffffff;
 
         case ColourAssignmentType::fromScaleStructureEditor:
-
-            // ToDo ScaleStructure
-
-            if (getIndexFromStartOfMap(inx) == 0)
-                return colourTable.getReference(0).getARGB();
-            else
-                return colourTable.getReference(1).getARGB();
+        {
+            auto noteRelativeToStart = getIndexFromStartOfMap(inx);
+            auto colourGroupIndex = scaleStructure.getGroupOfDegree(noteRelativeToStart);
+            if (colourGroupIndex < 0 || colourGroupIndex >= colourTable.size())
+            {
+                jassertfalse;
+                return 0;
+            }
+            return colourTable.getReference(colourGroupIndex).getARGB();
+        }
 
         default:
             return 0;

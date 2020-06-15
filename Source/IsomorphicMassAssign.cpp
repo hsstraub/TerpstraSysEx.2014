@@ -328,12 +328,14 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_periodSizeBox] -- add your combo box handling code here..
         periodSize = comboBoxThatHasChanged->getSelectedId();
-        incrMidiNotesMapping->onUpdatePeriodSize();
-        kbmMappingDlg->onUpdatePeriodSize();
 
+        // Update scale structure (must be done before update of the mapping sub dialogs)
 		scaleStructure.resetToPeriod(periodSize);
 		if (scaleDesignWindow.get())
 			scaleDesignWindow->loadScaleStructureSettings();
+
+        incrMidiNotesMapping->onUpdatePeriodSize();
+        kbmMappingDlg->onUpdatePeriodSize();
         //[/UserComboBoxCode_periodSizeBox]
     }
 
