@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -28,8 +28,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-KBMMappingDlg::KBMMappingDlg (int& scaleSizeReference)
-    : scaleSize(scaleSizeReference)
+KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : periodSize(periodSizeReference),  mappingLogic(scaleStructureIn, colourTableIn)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -82,7 +82,7 @@ KBMMappingDlg::KBMMappingDlg (int& scaleSizeReference)
     //[UserPreSize]
 	for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
 	{
-		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic, scaleSize));
+		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic, periodSize));
 		addAndMakeVisible(channelMappingComponents[i].get());
 	}
     //[/UserPreSize]
@@ -158,7 +158,7 @@ void KBMMappingDlg::visibilityChanged()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void KBMMappingDlg::onUpdateScaleSize()
+void KBMMappingDlg::onUpdatePeriodSize()
 {
     if (isVisible())
     {
@@ -193,10 +193,10 @@ void KBMMappingDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="KBMMappingDlg" componentName=""
-                 parentClasses="public Component" constructorParams="int&amp; scaleSizeReference"
-                 variableInitialisers="scaleSize(scaleSizeReference)" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="416" initialHeight="220">
+                 parentClasses="public Component" constructorParams="int&amp; periodSizeReference, ScaleStructure&amp; scaleStructureIn, Array&lt;Colour&gt;&amp; colourTableIn"
+                 variableInitialisers="periodSize(periodSizeReference),  mappingLogic(scaleStructureIn, colourTableIn)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="416" initialHeight="220">
   <METHODS>
     <METHOD name="visibilityChanged()"/>
   </METHODS>

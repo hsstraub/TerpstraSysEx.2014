@@ -14,24 +14,80 @@
 //==============================================================================
 // Base class
 
+MappingLogicBase::MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : scaleStructure(scaleStructureIn), colourTable(colourTableIn)
+{
+}
+
+int MappingLogicBase::getIndexFromStartOfMap(int inx) const
+{
+    jassert(this->getPeriodSize() > 0);
+
+    int relativeInx = (inx - getStartOfMap()) % this->getPeriodSize();
+    while (relativeInx < 0)
+        relativeInx += this->getPeriodSize();
+    return relativeInx;
+
+}
+
 int MappingLogicBase::indexToColour(int inx) const
 {
 	if (inx < 0 || inx >= this->globalMappingSize())
         return 0;
 
-    // ToDo
+    switch(this->colourAssignmentType)
+    {
+        case ColourAssignmentType::monochrome:
+            // Ad hoc
+            if (getIndexFromStartOfMap(inx) == 0)
+                return 0x808080;
+            else
+                return 0xffffff;
 
-    return 0xffffff;
+        case ColourAssignmentType::fromScaleStructureEditor:
+        {
+            auto noteRelativeToStart = getIndexFromStartOfMap(inx);
+            auto colourGroupIndex = scaleStructure.getGroupOfDegree(noteRelativeToStart);
+            if (colourGroupIndex < 0 || colourGroupIndex >= colourTable.size())
+            {
+                jassertfalse;
+                return 0;
+            }
+            return colourTable.getReference(colourGroupIndex).getARGB();
+        }
+
+        default:
+            return 0;
+    }
+}
+
+void MappingLogicBase::setColourAssignmentType(int value)
+{
+    switch(value)
+    {
+    case static_cast<int>(ColourAssignmentType::monochrome):
+    case static_cast<int>(ColourAssignmentType::fromScaleStructureEditor):
+        this->colourAssignmentType = static_cast<ColourAssignmentType>(value);
+        break;
+    default:
+        this->colourAssignmentType = ColourAssignmentType::none;
+        break;
+    }
+}
+
+void MappingLogicBase::indexToTerpstraKey(int inx, TerpstraKey& keyData) const
+{
+	keyData.channelNumber = indexToMIDIChannel(inx);
+	keyData.noteNumber = indexToMIDINote(inx);
+
+	if (this->colourAssignmentType != ColourAssignmentType::none)
+        keyData.colour = indexToColour(inx);
 }
 
 TerpstraKey MappingLogicBase::indexToTerpstraKey(int inx) const
 {
 	TerpstraKey keyData;
-
-	keyData.channelNumber = indexToMIDIChannel(inx);
-	keyData.noteNumber = indexToMIDINote(inx);
-	keyData.colour = indexToColour(inx);
-
+	indexToTerpstraKey(inx, keyData);
 	return keyData;
 }
 
@@ -48,8 +104,8 @@ void MappingLogicBase::removeListener(MappingLogicBase::Listener* listener)
 //==============================================================================
 // Increasing MIDI notes
 
-IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic()
-	: maxMIDINote(0), channelInCaseOfSingleChannel(0)
+IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : MappingLogicBase(scaleStructureIn, colourTableIn), maxMIDINote(0), channelInCaseOfSingleChannel(0)
 {
 }
 
@@ -149,7 +205,8 @@ int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 //==============================================================================
 // KBM files
 
-KBMFilesMappingLogic::KBMFilesMappingLogic()
+KBMFilesMappingLogic::KBMFilesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
+    : MappingLogicBase(scaleStructureIn, colourTableIn)
 {
 }
 
@@ -196,6 +253,49 @@ void KBMFilesMappingLogic::createMappingTable()
     this->listeners.call(&Listener::mappingLogicChanged, this);
 }
 
+int KBMFilesMappingLogic::getStartOfMap() const
+{
+    // Start of map is supposed to be the same for all KBM files
+    // ToDo display error/warning message if not so
+    int subTableIndex;
+    for (subTableIndex = 0; subTableIndex < noOfChannels; subTableIndex++)
+    {
+        if (channelMappingData[subTableIndex].channelNumber > 0)
+            break;
+    }
+
+    if (subTableIndex == noOfChannels)
+    {
+        jassert(false);
+        return 0;
+    }
+
+    TerpstraKey keyData;
+    keyData.channelNumber = channelMappingData[subTableIndex].channelNumber;
+    keyData.noteNumber = channelMappingData[subTableIndex].mapping.noteNrWhereMappingStarts;
+
+    return terpstraKeyToIndex(keyData);
+}
+
+int KBMFilesMappingLogic::getPeriodSize() const
+{
+    // Period size is supposed to be the same for all KBM files
+    // ToDo display error/warning message if not so
+    int subTableIndex;
+    for (subTableIndex = 0; subTableIndex < noOfChannels; subTableIndex++)
+    {
+        if (channelMappingData[subTableIndex].channelNumber > 0)
+            break;
+    }
+
+    if (subTableIndex == noOfChannels)
+    {
+        jassert(false);
+        return 0;
+    }
+    else
+        return channelMappingData[subTableIndex].mapping.scaleSize;
+}
 
 //=================================================================
 // Access mapping data (overrides)

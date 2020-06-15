@@ -43,7 +43,7 @@ class KBMForOneChannel  : public Component,
 {
 public:
     //==============================================================================
-    KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic, int& scaleSizeReference);
+    KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic, int& periodSizeReference);
     ~KBMForOneChannel();
 
     //==============================================================================
@@ -71,7 +71,7 @@ private:
 	KBMMappingDataStructure kbmMappingStructure;
     KBMFilesMappingLogic*	pMappingLogic;
     HajuErrorVisualizer     errorVisualizer;
-   	int&    scaleSize;
+   	int&    periodSize;
     //[/UserVariables]
 
     //==============================================================================

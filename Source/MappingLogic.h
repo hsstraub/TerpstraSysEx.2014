@@ -8,8 +8,7 @@
   ==============================================================================
 */
 
-#ifndef MAPPINGLOGIC_H_INCLUDED
-#define MAPPINGLOGIC_H_INCLUDED
+#pragma once
 
 #include "KeyboardDataStructure.h"
 #include "KBMMappingDataStructure.h"
@@ -21,12 +20,26 @@
 class MappingLogicBase
 {
 public:
+    enum ColourAssignmentType
+    {
+        none = 0,
+        monochrome,
+        fromScaleStructureEditor
+    };
+
+    MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
+
+    void setColourAssignmentType(int value);
+
 	// Global number of notes in the mapping
 	virtual int globalMappingSize() const = 0;
 
 	virtual int indexToMIDIChannel(int inx) const = 0;
 	virtual int indexToMIDINote(int inx) const = 0;
 	virtual int indexToColour(int inx) const;
+
+	// sets the Terpstra key specification for the "inx"-th note
+	virtual void indexToTerpstraKey(int inx, TerpstraKey& keyData) const;
 
 	// Returns the Terpstra key specification for the "inx"-th note
 	virtual TerpstraKey indexToTerpstraKey(int inx) const;
@@ -51,6 +64,14 @@ public:
 	void removeListener(Listener* listener);
 
 protected:
+    virtual int getStartOfMap() const { return 0; }
+    virtual int getPeriodSize() const = 0;
+    virtual int getIndexFromStartOfMap(int inx) const;
+
+    ColourAssignmentType colourAssignmentType = ColourAssignmentType::none;
+    ScaleStructure& scaleStructure;
+	Array<Colour>& colourTable;
+
 	ListenerList<Listener> listeners;
 };
 
@@ -65,7 +86,7 @@ protected:
 class IncrMidiNotesMappingLogic : public MappingLogicBase
 {
 public:
-	IncrMidiNotesMappingLogic();
+	IncrMidiNotesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
     //===============================
 	// Set parameters
@@ -85,6 +106,9 @@ public:
 	virtual int terpstraKeyToIndex(TerpstraKey keyData) const override;
 
 	bool isSingleChannel() const { return this->channelInCaseOfSingleChannel > 0; }
+
+protected:
+    virtual int getPeriodSize() const override { return maxMIDINote + 1; };
 
 private:
 	// Maximal MIDI note (global max in case of single channel. In case of multiple channel followed by note 0 of next channel.)
@@ -121,14 +145,17 @@ private:
     };
 
 public:
-    KBMFilesMappingLogic();
+    KBMFilesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
     //===============================
 	// Set parameters
 
 	void setMapping(int subDlgIndex, int midiChannel, KBMMappingDataStructure kbmMappingStructure);
+
 protected:
     void createMappingTable();
+    virtual int getStartOfMap() const override;
+    virtual int getPeriodSize() const override;
 
     //===============================
 	// Access mapping data (overrides)
@@ -149,10 +176,8 @@ public:
 private:
     KBMMappingWithChannel channelMappingData[noOfChannels];
 
-    // Frequency to key definition mapping. Key must be integer for the default hash funciton to work
+    // Frequency to key definition mapping. Key must be integer for the default hash function to work
     SortedSet<KBMMappingTableEntry> mappingTable;
 
 };
 
-
-#endif  // MAPPINGLOGIC_H_INCLUDED

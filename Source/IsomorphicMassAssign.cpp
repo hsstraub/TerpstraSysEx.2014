@@ -33,13 +33,13 @@
 IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    scaleSize = 0;
+    periodSize = 0;
     // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
-	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(scaleSize));
+	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize, scaleStructure, colourTable));
 	incrMidiNotesMapping->setVisible(false);
 	addChildComponent(incrMidiNotesMapping.get());
 
-	kbmMappingDlg.reset(new KBMMappingDlg(scaleSize));
+	kbmMappingDlg.reset(new KBMMappingDlg(periodSize, scaleStructure, colourTable));
 	kbmMappingDlg->setVisible(false);
 	addChildComponent(kbmMappingDlg.get());
 
@@ -155,56 +155,60 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelMappingType->setBounds (20, 64, 88, 24);
 
-    labelPreset.reset (new Label ("labelPreset",
-                                  TRANS("Colour scheme/steps preset:")));
-    addAndMakeVisible (labelPreset.get());
-    labelPreset->setTooltip (TRANS("Value that will be assigned to the key at mouse pposition when clicking"));
-    labelPreset->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelPreset->setJustificationType (Justification::centredLeft);
-    labelPreset->setEditable (false, false, false);
-    labelPreset->setColour (TextEditor::textColourId, Colours::black);
-    labelPreset->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelColourAssignment.reset (new Label ("labelColourAssignment",
+                                            TRANS("Colour assignment:")));
+    addAndMakeVisible (labelColourAssignment.get());
+    labelColourAssignment->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelColourAssignment->setJustificationType (Justification::centredLeft);
+    labelColourAssignment->setEditable (false, false, false);
+    labelColourAssignment->setColour (TextEditor::textColourId, Colours::black);
+    labelColourAssignment->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelPreset->setBounds (8, 248, 160, 24);
+    labelColourAssignment->setBounds (8, 248, 160, 24);
 
-    presetBox.reset (new ComboBox ("presetBox"));
-    addAndMakeVisible (presetBox.get());
-    presetBox->setEditableText (false);
-    presetBox->setJustificationType (Justification::centredLeft);
-    presetBox->setTextWhenNothingSelected (String());
-    presetBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    presetBox->addListener (this);
+    colourAssignmentTypeBox.reset (new ComboBox ("colourAssignmentTypeBox"));
+    addAndMakeVisible (colourAssignmentTypeBox.get());
+    colourAssignmentTypeBox->setTooltip (TRANS("Colour assignment type"));
+    colourAssignmentTypeBox->setEditableText (false);
+    colourAssignmentTypeBox->setJustificationType (Justification::centredLeft);
+    colourAssignmentTypeBox->setTextWhenNothingSelected (String());
+    colourAssignmentTypeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    colourAssignmentTypeBox->addItem (TRANS("None"), 1);
+    colourAssignmentTypeBox->addItem (TRANS("Monochrome"), 2);
+    colourAssignmentTypeBox->addItem (TRANS("From scale structure editor"), 3);
+    colourAssignmentTypeBox->addListener (this);
 
-    presetBox->setBounds (168, 248, 232, 24);
+    colourAssignmentTypeBox->setBounds (168, 248, 232, 24);
 
-    btnFileSelectMacro.reset (new TextButton ("btnFileSelectMacro"));
-    addAndMakeVisible (btnFileSelectMacro.get());
-    btnFileSelectMacro->setButtonText (TRANS("..."));
-    btnFileSelectMacro->addListener (this);
+    btnScaleStructureEditor.reset (new TextButton ("btnScaleStructureEditor"));
+    addAndMakeVisible (btnScaleStructureEditor.get());
+    btnScaleStructureEditor->setTooltip (TRANS("Show/hide scale structure editor"));
+    btnScaleStructureEditor->setButtonText (TRANS("..."));
+    btnScaleStructureEditor->addListener (this);
 
-    btnFileSelectMacro->setBounds (408, 248, 32, 24);
+    btnScaleStructureEditor->setBounds (408, 248, 32, 24);
 
-    scaleSizeBox.reset (new ComboBox ("scaleSizeBox"));
-    addAndMakeVisible (scaleSizeBox.get());
-    scaleSizeBox->setTooltip (TRANS("Number of tones per octave"));
-    scaleSizeBox->setEditableText (false);
-    scaleSizeBox->setJustificationType (Justification::centredLeft);
-    scaleSizeBox->setTextWhenNothingSelected (String());
-    scaleSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    scaleSizeBox->addListener (this);
+    periodSizeBox.reset (new ComboBox ("periodSizeBox"));
+    addAndMakeVisible (periodSizeBox.get());
+    periodSizeBox->setTooltip (TRANS("Number of tones per period interval (octave)"));
+    periodSizeBox->setEditableText (false);
+    periodSizeBox->setJustificationType (Justification::centredLeft);
+    periodSizeBox->setTextWhenNothingSelected (String());
+    periodSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    periodSizeBox->addListener (this);
 
-    scaleSizeBox->setBounds (104, 8, 56, 24);
+    periodSizeBox->setBounds (200, 8, 56, 24);
 
-    labelScaleSize.reset (new Label ("labelScaleSize",
-                                     TRANS("Scale size:")));
-    addAndMakeVisible (labelScaleSize.get());
-    labelScaleSize->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelScaleSize->setJustificationType (Justification::centredLeft);
-    labelScaleSize->setEditable (false, false, false);
-    labelScaleSize->setColour (TextEditor::textColourId, Colours::black);
-    labelScaleSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelPeriodSize.reset (new Label ("labelPeriodSize",
+                                      TRANS("Period:")));
+    addAndMakeVisible (labelPeriodSize.get());
+    labelPeriodSize->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelPeriodSize->setJustificationType (Justification::centredLeft);
+    labelPeriodSize->setEditable (false, false, false);
+    labelPeriodSize->setColour (TextEditor::textColourId, Colours::black);
+    labelPeriodSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelScaleSize->setBounds (16, 8, 88, 24);
+    labelPeriodSize->setBounds (16, 8, 168, 24);
 
 
     //[UserPreSize]
@@ -217,7 +221,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 	for (int i = 1; i <= 128; i++)
 	{
-		scaleSizeBox->addItem(String(i), i);
+		periodSizeBox->addItem(String(i), i);
 	}
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
@@ -245,11 +249,11 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     groupMapping = nullptr;
     cbMappingType = nullptr;
     labelMappingType = nullptr;
-    labelPreset = nullptr;
-    presetBox = nullptr;
-    btnFileSelectMacro = nullptr;
-    scaleSizeBox = nullptr;
-    labelScaleSize = nullptr;
+    labelColourAssignment = nullptr;
+    colourAssignmentTypeBox = nullptr;
+    btnScaleStructureEditor = nullptr;
+    periodSizeBox = nullptr;
+    labelPeriodSize = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -312,22 +316,27 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		}
         //[/UserComboBoxCode_cbMappingType]
     }
-    else if (comboBoxThatHasChanged == presetBox.get())
+    else if (comboBoxThatHasChanged == colourAssignmentTypeBox.get())
     {
-        //[UserComboBoxCode_presetBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_presetBox]
-    }
-    else if (comboBoxThatHasChanged == scaleSizeBox.get())
-    {
-        //[UserComboBoxCode_scaleSizeBox] -- add your combo box handling code here..
-        scaleSize = comboBoxThatHasChanged->getSelectedId();
-        incrMidiNotesMapping->onUpdateScaleSize();
-        kbmMappingDlg->onUpdateScaleSize();
+        //[UserComboBoxCode_colourAssignmentTypeBox] -- add your combo box handling code here..
+        incrMidiNotesMapping->getMappingLogic()->setColourAssignmentType(comboBoxThatHasChanged->getSelectedItemIndex());
+        kbmMappingDlg->getMappingLogic()->setColourAssignmentType(comboBoxThatHasChanged->getSelectedItemIndex());
 
-		scaleStructure.resetToPeriod(scaleSize);
+        //[/UserComboBoxCode_colourAssignmentTypeBox]
+    }
+    else if (comboBoxThatHasChanged == periodSizeBox.get())
+    {
+        //[UserComboBoxCode_periodSizeBox] -- add your combo box handling code here..
+        periodSize = comboBoxThatHasChanged->getSelectedId();
+
+        // Update scale structure (must be done before update of the mapping sub dialogs)
+		scaleStructure.resetToPeriod(periodSize);
 		if (scaleDesignWindow.get())
 			scaleDesignWindow->loadScaleStructureSettings();
-        //[/UserComboBoxCode_scaleSizeBox]
+
+        incrMidiNotesMapping->onUpdatePeriodSize();
+        kbmMappingDlg->onUpdatePeriodSize();
+        //[/UserComboBoxCode_periodSizeBox]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -339,10 +348,9 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnFileSelectMacro.get())
+    if (buttonThatWasClicked == btnScaleStructureEditor.get())
     {
-        //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-
+        //[UserButtonCode_btnScaleStructureEditor] -- add your button handler code here..
 		// Initialize this here to allow the ScaleStructure settings to be loaded first
 		if (scaleDesignWindow.get() == nullptr)
 		{
@@ -351,7 +359,7 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 		}
 
 		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
-        //[/UserButtonCode_btnFileSelectMacro]
+        //[/UserButtonCode_btnScaleStructureEditor]
     }
 
     //[UserbuttonClicked_Post]
@@ -364,8 +372,8 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-    scaleSizeBox->setSelectedId(
-        propertiesFile->getIntValue("ScaleSize", 0),
+    periodSizeBox->setSelectedId(
+        propertiesFile->getIntValue("PeriodSize", 0),
         juce::NotificationType::sendNotification);
 
 	cbMappingType->setSelectedItemIndex(
@@ -379,7 +387,7 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-    propertiesFile->setValue("ScaleSize", scaleSizeBox->getSelectedId());
+    propertiesFile->setValue("PeriodSize", periodSizeBox->getSelectedId());
     propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
 
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
@@ -390,13 +398,14 @@ void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesF
 void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
 {
 	// XXX This could be in a common base class for all assign edit components
-	TerpstraKey keyData = this->mappingLogic->indexToTerpstraKey(noteIndex);
-
 	// Save data
-	((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection] = keyData;
+	this->mappingLogic->indexToTerpstraKey(
+        noteIndex,
+        ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 
 	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection,
+        ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 }
 
 // Fill a line in current octave board. Starting point is assumed to have been set
@@ -497,8 +506,9 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
 				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
 
-			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-			fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+            if (rUpStartNoteIndex >= 0)
+                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+                fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
@@ -528,8 +538,9 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
 				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[rUpwLine[linepos]]);
 
-			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-			fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+            if (horizStartNoteIndex >= 0 )
+                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+                fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
@@ -553,7 +564,7 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 
 void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
 {
-	scaleSizeBox->setSelectedId(newPeriod);
+	periodSizeBox->setSelectedId(newPeriod);
 }
 
 void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)
@@ -678,26 +689,26 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Type:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
-  <LABEL name="labelPreset" id="d7173343cde6c226" memberName="labelPreset"
-         virtualName="" explicitFocusOrder="0" pos="8 248 160 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
-         edTextCol="ff000000" edBkgCol="0" labelText="Colour scheme/steps preset:"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
-  <COMBOBOX name="presetBox" id="b36dd3e573b7d51f" memberName="presetBox"
-            virtualName="" explicitFocusOrder="0" pos="168 248 232 24" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <TEXTBUTTON name="btnFileSelectMacro" id="23cc77cbad6653d7" memberName="btnFileSelectMacro"
-              virtualName="" explicitFocusOrder="0" pos="408 248 32 24" buttonText="..."
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <COMBOBOX name="scaleSizeBox" id="4560285c5e467e2f" memberName="scaleSizeBox"
-            virtualName="" explicitFocusOrder="0" pos="104 8 56 24" tooltip="Number of tones per octave"
-            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="labelScaleSize" id="c2aeb9a3f194ed5b" memberName="labelScaleSize"
-         virtualName="" explicitFocusOrder="0" pos="16 8 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Scale size:" editableSingleClick="0"
+  <LABEL name="labelColourAssignment" id="d7173343cde6c226" memberName="labelColourAssignment"
+         virtualName="" explicitFocusOrder="0" pos="8 248 160 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Colour assignment:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="colourAssignmentTypeBox" id="b36dd3e573b7d51f" memberName="colourAssignmentTypeBox"
+            virtualName="" explicitFocusOrder="0" pos="168 248 232 24" tooltip="Colour assignment type"
+            editable="0" layout="33" items="None&#10;Monochrome&#10;From scale structure editor"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <TEXTBUTTON name="btnScaleStructureEditor" id="23cc77cbad6653d7" memberName="btnScaleStructureEditor"
+              virtualName="" explicitFocusOrder="0" pos="408 248 32 24" tooltip="Show/hide scale structure editor"
+              buttonText="..." connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <COMBOBOX name="periodSizeBox" id="4560285c5e467e2f" memberName="periodSizeBox"
+            virtualName="" explicitFocusOrder="0" pos="200 8 56 24" tooltip="Number of tones per period interval (octave)"
+            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="labelPeriodSize" id="c2aeb9a3f194ed5b" memberName="labelPeriodSize"
+         virtualName="" explicitFocusOrder="0" pos="16 8 168 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Period:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -28,8 +28,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic, int& scaleSizeReference)
-    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), scaleSize(scaleSizeReference)
+KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mappingLogic, int& periodSizeReference)
+    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), periodSize(periodSizeReference)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     this->subDlgIndex = subDlgIndex;
@@ -232,8 +232,8 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         }
         else
         {
-            // Warning if the kbm file's scale size doesn't match the global scaleSize
-            if (kbmMappingStructure.scaleSize != this->scaleSize)
+            // Warning if the kbm file's scale size doesn't match the global periodSize
+            if (kbmMappingStructure.scaleSize != this->periodSize)
                 errorVisualizer.setErrorLevel(
                     *textMappingFile.get(),
                     HajuErrorVisualizer::ErrorLevel::warning,
@@ -286,8 +286,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="KBMForOneChannel" componentName=""
                  parentClasses="public Component, public TextEditor::Listener"
-                 constructorParams="int&#9;&#9;subDlgIndex, KBMFilesMappingLogic&amp;&#9;mappingLogic, int&amp; scaleSizeReference"
-                 variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), scaleSize(scaleSizeReference)"
+                 constructorParams="int&#9;&#9;subDlgIndex, KBMFilesMappingLogic&amp;&#9;mappingLogic, int&amp; periodSizeReference"
+                 variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), periodSize(periodSizeReference)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="200" initialHeight="32">
   <BACKGROUND backgroundColour="ffbad0de"/>
