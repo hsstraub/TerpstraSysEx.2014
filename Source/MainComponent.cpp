@@ -320,6 +320,8 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
         {
             terpstraSetSelectors[i]->repaint();
         }
+
+        changeSetSelection(currentSetSelection, true);
     }
 }
 
