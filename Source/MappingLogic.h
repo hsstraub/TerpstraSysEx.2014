@@ -20,16 +20,9 @@
 class MappingLogicBase
 {
 public:
-    enum ColourAssignmentType
-    {
-        none = 0,
-        monochrome,
-        fromScaleStructureEditor
-    };
-
     MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
-    void setColourAssignmentType(int value);
+    void setAssignColours(bool value) { assignColours = value; };
 
 	// Global number of notes in the mapping
 	virtual int globalMappingSize() const = 0;
@@ -68,7 +61,7 @@ protected:
     virtual int getPeriodSize() const = 0;
     virtual int getIndexFromStartOfMap(int inx) const;
 
-    ColourAssignmentType colourAssignmentType = ColourAssignmentType::none;
+    bool assignColours = false;
     ScaleStructure& scaleStructure;
 	Array<Colour>& colourTable;
 

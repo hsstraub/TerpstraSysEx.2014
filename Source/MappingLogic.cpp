@@ -32,47 +32,17 @@ int MappingLogicBase::getIndexFromStartOfMap(int inx) const
 
 int MappingLogicBase::indexToColour(int inx) const
 {
-	if (inx < 0 || inx >= this->globalMappingSize())
+	if (inx < 0 || inx >= this->globalMappingSize() || !this->assignColours)
         return 0;
 
-    switch(this->colourAssignmentType)
+    auto noteRelativeToStart = getIndexFromStartOfMap(inx);
+    auto colourGroupIndex = scaleStructure.getGroupOfDegree(noteRelativeToStart);
+    if (colourGroupIndex < 0 || colourGroupIndex >= colourTable.size())
     {
-        case ColourAssignmentType::monochrome:
-            // Ad hoc
-            if (getIndexFromStartOfMap(inx) == 0)
-                return 0x808080;
-            else
-                return 0xffffff;
-
-        case ColourAssignmentType::fromScaleStructureEditor:
-        {
-            auto noteRelativeToStart = getIndexFromStartOfMap(inx);
-            auto colourGroupIndex = scaleStructure.getGroupOfDegree(noteRelativeToStart);
-            if (colourGroupIndex < 0 || colourGroupIndex >= colourTable.size())
-            {
-                jassertfalse;
-                return 0;
-            }
-            return colourTable.getReference(colourGroupIndex).getARGB();
-        }
-
-        default:
-            return 0;
+        jassertfalse;
+        return 0;
     }
-}
-
-void MappingLogicBase::setColourAssignmentType(int value)
-{
-    switch(value)
-    {
-    case static_cast<int>(ColourAssignmentType::monochrome):
-    case static_cast<int>(ColourAssignmentType::fromScaleStructureEditor):
-        this->colourAssignmentType = static_cast<ColourAssignmentType>(value);
-        break;
-    default:
-        this->colourAssignmentType = ColourAssignmentType::none;
-        break;
-    }
+    return colourTable.getReference(colourGroupIndex).getARGB();
 }
 
 void MappingLogicBase::indexToTerpstraKey(int inx, TerpstraKey& keyData) const
@@ -80,7 +50,7 @@ void MappingLogicBase::indexToTerpstraKey(int inx, TerpstraKey& keyData) const
 	keyData.channelNumber = indexToMIDIChannel(inx);
 	keyData.noteNumber = indexToMIDINote(inx);
 
-	if (this->colourAssignmentType != ColourAssignmentType::none)
+	if (this->assignColours)
         keyData.colour = indexToColour(inx);
 }
 

@@ -155,38 +155,13 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelMappingType->setBounds (20, 64, 88, 24);
 
-    labelColourAssignment.reset (new Label ("labelColourAssignment",
-                                            TRANS("Colour assignment:")));
-    addAndMakeVisible (labelColourAssignment.get());
-    labelColourAssignment->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelColourAssignment->setJustificationType (Justification::centredLeft);
-    labelColourAssignment->setEditable (false, false, false);
-    labelColourAssignment->setColour (TextEditor::textColourId, Colours::black);
-    labelColourAssignment->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    labelColourAssignment->setBounds (8, 248, 160, 24);
-
-    colourAssignmentTypeBox.reset (new ComboBox ("colourAssignmentTypeBox"));
-    addAndMakeVisible (colourAssignmentTypeBox.get());
-    colourAssignmentTypeBox->setTooltip (TRANS("Colour assignment type"));
-    colourAssignmentTypeBox->setEditableText (false);
-    colourAssignmentTypeBox->setJustificationType (Justification::centredLeft);
-    colourAssignmentTypeBox->setTextWhenNothingSelected (String());
-    colourAssignmentTypeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    colourAssignmentTypeBox->addItem (TRANS("None"), 1);
-    colourAssignmentTypeBox->addItem (TRANS("Monochrome"), 2);
-    colourAssignmentTypeBox->addItem (TRANS("From scale structure editor"), 3);
-    colourAssignmentTypeBox->addListener (this);
-
-    colourAssignmentTypeBox->setBounds (168, 248, 232, 24);
-
     btnScaleStructureEditor.reset (new TextButton ("btnScaleStructureEditor"));
     addAndMakeVisible (btnScaleStructureEditor.get());
     btnScaleStructureEditor->setTooltip (TRANS("Show/hide scale structure editor"));
-    btnScaleStructureEditor->setButtonText (TRANS("..."));
+    btnScaleStructureEditor->setButtonText (TRANS("Scale structure editor"));
     btnScaleStructureEditor->addListener (this);
 
-    btnScaleStructureEditor->setBounds (408, 248, 32, 24);
+    btnScaleStructureEditor->setBounds (264, 248, 152, 24);
 
     periodSizeBox.reset (new ComboBox ("periodSizeBox"));
     addAndMakeVisible (periodSizeBox.get());
@@ -209,6 +184,13 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelPeriodSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     labelPeriodSize->setBounds (16, 8, 168, 24);
+
+    setColourToggleButton.reset (new ToggleButton ("setColourToggleButton"));
+    addAndMakeVisible (setColourToggleButton.get());
+    setColourToggleButton->setButtonText (TRANS("Colour assignment"));
+    setColourToggleButton->addListener (this);
+
+    setColourToggleButton->setBounds (8, 248, 168, 24);
 
 
     //[UserPreSize]
@@ -249,11 +231,10 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     groupMapping = nullptr;
     cbMappingType = nullptr;
     labelMappingType = nullptr;
-    labelColourAssignment = nullptr;
-    colourAssignmentTypeBox = nullptr;
     btnScaleStructureEditor = nullptr;
     periodSizeBox = nullptr;
     labelPeriodSize = nullptr;
+    setColourToggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -316,14 +297,6 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		}
         //[/UserComboBoxCode_cbMappingType]
     }
-    else if (comboBoxThatHasChanged == colourAssignmentTypeBox.get())
-    {
-        //[UserComboBoxCode_colourAssignmentTypeBox] -- add your combo box handling code here..
-        incrMidiNotesMapping->getMappingLogic()->setColourAssignmentType(comboBoxThatHasChanged->getSelectedItemIndex());
-        kbmMappingDlg->getMappingLogic()->setColourAssignmentType(comboBoxThatHasChanged->getSelectedItemIndex());
-
-        //[/UserComboBoxCode_colourAssignmentTypeBox]
-    }
     else if (comboBoxThatHasChanged == periodSizeBox.get())
     {
         //[UserComboBoxCode_periodSizeBox] -- add your combo box handling code here..
@@ -361,6 +334,14 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 		scaleDesignWindow->setVisible(!scaleDesignWindow->isVisible());
         //[/UserButtonCode_btnScaleStructureEditor]
     }
+    else if (buttonThatWasClicked == setColourToggleButton.get())
+    {
+        //[UserButtonCode_setColourToggleButton] -- add your button handler code here..
+        auto assignColours = setColourToggleButton->getToggleState();
+        incrMidiNotesMapping->getMappingLogic()->setAssignColours(assignColours);
+        kbmMappingDlg->getMappingLogic()->setAssignColours(assignColours);
+        //[/UserButtonCode_setColourToggleButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -380,6 +361,10 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
         propertiesFile->getIntValue("MappingType", 0),
         juce::NotificationType::sendNotification);
 
+	setColourToggleButton->setToggleState(
+		propertiesFile->getBoolValue("MassAssignColourSetActive", true),
+		juce::NotificationType::sendNotification);
+
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
 
 	// TODO: Full scaleStructure state recall
@@ -389,6 +374,7 @@ void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesF
 {
     propertiesFile->setValue("PeriodSize", periodSizeBox->getSelectedId());
     propertiesFile->setValue("MappingType", cbMappingType->getSelectedItemIndex());
+	propertiesFile->setValue("MassAssignColourSetActive", setColourToggleButton->getToggleState());
 
     kbmMappingDlg->saveStateToPropertiesFile(propertiesFile);
 
@@ -689,18 +675,10 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Type:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
-  <LABEL name="labelColourAssignment" id="d7173343cde6c226" memberName="labelColourAssignment"
-         virtualName="" explicitFocusOrder="0" pos="8 248 160 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Colour assignment:" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
-  <COMBOBOX name="colourAssignmentTypeBox" id="b36dd3e573b7d51f" memberName="colourAssignmentTypeBox"
-            virtualName="" explicitFocusOrder="0" pos="168 248 232 24" tooltip="Colour assignment type"
-            editable="0" layout="33" items="None&#10;Monochrome&#10;From scale structure editor"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="btnScaleStructureEditor" id="23cc77cbad6653d7" memberName="btnScaleStructureEditor"
-              virtualName="" explicitFocusOrder="0" pos="408 248 32 24" tooltip="Show/hide scale structure editor"
-              buttonText="..." connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="264 248 152 24" tooltip="Show/hide scale structure editor"
+              buttonText="Scale structure editor" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
   <COMBOBOX name="periodSizeBox" id="4560285c5e467e2f" memberName="periodSizeBox"
             virtualName="" explicitFocusOrder="0" pos="200 8 56 24" tooltip="Number of tones per period interval (octave)"
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -709,6 +687,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Period:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="8 248 168 24" buttonText="Colour assignment"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
