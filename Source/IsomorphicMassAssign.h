@@ -125,11 +125,10 @@ private:
     std::unique_ptr<GroupComponent> groupMapping;
     std::unique_ptr<ComboBox> cbMappingType;
     std::unique_ptr<Label> labelMappingType;
-    std::unique_ptr<Label> labelColourAssignment;
-    std::unique_ptr<ComboBox> colourAssignmentTypeBox;
     std::unique_ptr<TextButton> btnScaleStructureEditor;
     std::unique_ptr<ComboBox> periodSizeBox;
     std::unique_ptr<Label> labelPeriodSize;
+    std::unique_ptr<ToggleButton> setColourToggleButton;
 
 
     //==============================================================================
