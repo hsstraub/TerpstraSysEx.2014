@@ -376,18 +376,20 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 		finishedLines.add(horizLine);
 
 		// Find cutting lines and fill them
-		for (int linepos = 0; linepos < horizLine.size(); linepos++)
+		for (auto horizLineField : horizLine)
 		{
 			// Find the vertical line at this position
-			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLine[linepos]);
-			int rUpStartPos = rUpLine.indexOf(horizLine[linepos]);
+			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLineField);
+			int rUpStartPos = rUpLine.indexOf(horizLineField);
 
-			// Start note index: the value that has been set to the horizontal line element
+			// Start note index: the value that has been set to the horizontal line element (if it has)
 			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[horizLine[linepos]]);
+				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit()
+                .sets[setSelection].theKeys[horizLineField]);
 
-			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-			fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+            if (rUpStartNoteIndex >= 0)
+                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+                fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
@@ -407,18 +409,19 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 		finishedLines.add(rUpwLine);
 
 		// Find cutting lines and fill them
-		for (int linepos = 0; linepos < rUpwLine.size(); linepos++)
+		for (auto rUpwLineField : rUpwLine)
 		{
 			// Find the vertical line at this position
-			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(rUpwLine[linepos]);
-			int horizStartPos = horizLine.indexOf(rUpwLine[linepos]);
+			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(rUpwLineField);
+			int horizStartPos = horizLine.indexOf(rUpwLineField);
 
-			// Start note index: the value that has been set to the horizontal line element
+			// Start note index: the value that has been set to the horizontal line element (if it has)
 			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[rUpwLine[linepos]]);
+				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[rUpwLineField]);
 
-			// Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-			fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+            if (horizStartNoteIndex >= 0)
+                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
+                fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
@@ -478,14 +481,50 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		// Two dimensional: fill whole subset
 		else if (horizStepSize != 0 && rUpwStepSize != 0)
 		{
-			TerpstraBoardGeometry::StraightLineSet finishedLines;	// List of lines that have been finished, so the recursion ends
+		    // Lines with right / left continuation
+		    auto linesWithRightContinuation = boardGeometry.getHorizontalLinesWithContinuation(1);
+		    auto linesWithLeftContinuation = boardGeometry.getHorizontalLinesWithContinuation(-1);
+
+		    // List of lines that have been finished, so the recursion ends - per octave board
+			TerpstraBoardGeometry::StraightLineSet finishedLineSets[NUMBEROFBOARDS];
 
 			// Find the horizontal line
-			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(keySelection);
+			auto horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
 
-			// Fill the board, starting from this line
-			fill2DHorizLineRecursive(setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+			// Fill the board of current selection, starting from this line
+			fill2DHorizLineRecursive(setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize,
+                finishedLineSets[setSelection]);
+
+            // Following octave boards
+            for ( auto octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
+            {
+                // Find a field that can be filled, from the values of the preceding octave board
+                for ( auto horizLine : linesWithRightContinuation)
+                {
+                    int noteIndex = this->mappingLogic->terpstraKeyToIndex(
+                        ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit()
+                        .sets[octaveBoardIndex-1].theKeys[horizLine.getLast()]);
+
+                    if ( noteIndex >= 0 )
+                    {
+                        // A field in preceding octave board with an assigned value has been found-
+                        // Value can be assigned to continuation on current board.
+                        auto newHorizLine = boardGeometry.continuationOfHorizontalLine(horizLine, 1);
+
+                   		setSaveSend(octaveBoardIndex, newHorizLine.getFirst(), noteIndex + horizStepSize);
+
+                   		// Fill the whole sub board based on this field
+                        fill2DHorizLineRecursive(octaveBoardIndex, newHorizLine, newHorizLine.getFirst(),
+                            noteIndex + horizStepSize, horizStepSize, rUpwStepSize,
+                            finishedLineSets[setSelection]);
+                    }
+                }
+            }
+
+            // Preceding octave boards
+            // ToDo
+
 
 			mappingChanged = true;
 		}
