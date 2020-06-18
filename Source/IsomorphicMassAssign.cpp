@@ -485,6 +485,9 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		    auto linesWithRightContinuation = boardGeometry.getHorizontalLinesWithContinuation(1);
 		    auto linesWithLeftContinuation = boardGeometry.getHorizontalLinesWithContinuation(-1);
 
+		    // Delete all data first
+		    // ToDo
+
 		    // List of lines that have been finished, so the recursion ends - per octave board
 			TerpstraBoardGeometry::StraightLineSet finishedLineSets[NUMBEROFBOARDS];
 
@@ -517,7 +520,9 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
                    		// Fill the whole sub board based on this field
                         fill2DHorizLineRecursive(octaveBoardIndex, newHorizLine, newHorizLine.getFirst(),
                             noteIndex + horizStepSize, horizStepSize, rUpwStepSize,
-                            finishedLineSets[setSelection]);
+                            finishedLineSets[octaveBoardIndex]);
+
+                        break;  // One field is enough to fill a whole octave board
                     }
                 }
             }
