@@ -318,8 +318,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	currentFile = File();
 
 	// Clear all edit fields
-	TerpstraKeyMapping keyMapping;
-	((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
+	((MainContentComponent*)(mainWindow->getContentComponent()))->deleteAll();
 
 	setHasChangesToSave(false);
 

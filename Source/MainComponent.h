@@ -38,12 +38,14 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	// Transfer of data
-	void setData(TerpstraKeyMapping& newData);
-	void getData(TerpstraKeyMapping& newData);
+	void setData(TerpstraKeyMapping& newData, bool withRefresh = true);
+	void deleteAll(bool withRefresh = true);
+
+    void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 	TerpstraBoardGeometry& getBoardGeometry() { return this->boardGeometry; }
 
-	// Board ddit operations
+	// Board edit operations
 	bool deleteCurrentSubBoardData();
 	bool copyCurrentSubBoardData();
 	bool pasteCurrentSubBoardData();

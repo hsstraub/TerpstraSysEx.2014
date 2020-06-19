@@ -90,17 +90,26 @@ void MainContentComponent::saveStateToPropertiesFile(PropertiesFile* propertiesF
 }
 
 // Set the current mapping to be edited to the value passed in parameter
-void MainContentComponent::setData(TerpstraKeyMapping& newData)
+void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh)
 {
 	mappingData = newData;
 
 	noteEditArea->onSetData(newData);
 
-	for ( int i = 0; i < NUMBEROFBOARDS; i++)
-        terpstraSetSelectors[i]->repaint();
+    if ( withRefresh)
+    {
+        for ( int i = 0; i < NUMBEROFBOARDS; i++)
+            terpstraSetSelectors[i]->repaint();
 
-	changeSetSelection(-1);
-	changeSetSelection(0);
+        changeSetSelection(-1);
+        changeSetSelection(0);
+    }
+}
+
+void MainContentComponent::deleteAll(bool withRefresh)
+{
+	TerpstraKeyMapping keyMapping;
+	setData(keyMapping, withRefresh);
 }
 
 // Copy the edited mapping to the variable passed as parameter
@@ -305,9 +314,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			// Perform the edit, according to edit mode. Including sending to device
 			mappingChanged = this->noteEditArea->performMouseDown(currentSetSelection, i);
 
-			// Refresh display
-			changeSetSelection(currentSetSelection, true);
-
 			// Mark that there are changes
 			if (mappingChanged)
 				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -315,6 +321,17 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			break;
 		}
 	}
+
+    // Refresh display (edit may affect all octave boards)
+    if (mappingChanged)
+    {
+        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+        {
+            terpstraSetSelectors[i]->repaint();
+        }
+
+		changeSetSelection(currentSetSelection, true);
+    }
 }
 
 void MainContentComponent::mouseUp(const MouseEvent &event)

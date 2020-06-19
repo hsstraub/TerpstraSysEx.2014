@@ -453,8 +453,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 	int startNoteIndex = this->startingPointBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
 	{
-		// Set value of starting point
-		setSaveSend(setSelection, keySelection, startNoteIndex);
+	    auto mainComponent = ((MainContentComponent*)(getParentComponent()->getParentComponent()));
 
 		int horizStepSize = editHorizontalSteps->getText().getIntValue();
 		int rUpwStepSize = editRightUpwardSteps->getText().getIntValue();
@@ -462,7 +461,11 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		// Horizontal line
 		if (horizStepSize != 0 && rUpwStepSize == 0)
 		{
-			TerpstraBoardGeometry::StraightLineSet globalHorizLine = boardGeometry.globalHorizontalLineOfField(setSelection, keySelection);
+            // Set value of starting point
+            setSaveSend(setSelection, keySelection, startNoteIndex);
+
+			TerpstraBoardGeometry::StraightLineSet globalHorizLine =
+                boardGeometry.globalHorizontalLineOfField(setSelection, keySelection);
 			int startPos = globalHorizLine[setSelection].indexOf(keySelection);
 			fillGlobalLine(setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
 
@@ -472,7 +475,11 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		// Right vertical line
 		else if (horizStepSize == 0 && rUpwStepSize != 0)
 		{
-			TerpstraBoardGeometry::StraightLineSet globalRUpLine = boardGeometry.globalRightUpwardLineOfField(setSelection, keySelection);
+            // Set value of starting point
+            setSaveSend(setSelection, keySelection, startNoteIndex);
+
+			TerpstraBoardGeometry::StraightLineSet globalRUpLine =
+                boardGeometry.globalRightUpwardLineOfField(setSelection, keySelection);
 			int startPos = globalRUpLine[setSelection].indexOf(keySelection);
 			fillGlobalLine(setSelection, globalRUpLine, startPos, startNoteIndex, rUpwStepSize);
 			mappingChanged = true;
@@ -485,11 +492,14 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		    auto linesWithRightContinuation = boardGeometry.getHorizontalLinesWithContinuation(1);
 		    auto linesWithLeftContinuation = boardGeometry.getHorizontalLinesWithContinuation(-1);
 
-		    // Delete all data first
-		    // ToDo
-
 		    // List of lines that have been finished, so the recursion ends - per octave board
 			TerpstraBoardGeometry::StraightLineSet finishedLineSets[NUMBEROFBOARDS];
+
+		    // Delete all data first
+		    mainComponent->deleteAll(false);
+
+            // Set value of starting point
+            setSaveSend(setSelection, keySelection, startNoteIndex);
 
 			// Find the horizontal line
 			auto horizLine = boardGeometry.horizontalLineOfField(keySelection);
@@ -506,8 +516,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
                 for ( auto horizLine : linesWithRightContinuation)
                 {
                     int noteIndex = this->mappingLogic->terpstraKeyToIndex(
-                        ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit()
-                        .sets[octaveBoardIndex-1].theKeys[horizLine.getLast()]);
+                        mainComponent->getMappingInEdit().sets[octaveBoardIndex-1].theKeys[horizLine.getLast()]);
 
                     if ( noteIndex >= 0 )
                     {
@@ -529,7 +538,6 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 
             // Preceding octave boards
             // ToDo
-
 
 			mappingChanged = true;
 		}
