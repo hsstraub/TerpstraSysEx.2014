@@ -41,7 +41,8 @@ public:
 	StraightLineSet globalHorizontalLineOfField(int setSelection, int fieldIndex);
 	StraightLineSet globalRightUpwardLineOfField(int setSelection, int fieldIndex);
 
-private:
+	StraightLineSet getHorizontalLinesWithContinuation(int octaveBoardOffset);
+
 	StraightLine getLineOfField(int fieldIndex, StraightLineSet lineSet);
 	StraightLine continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset);
 	StraightLine continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset);

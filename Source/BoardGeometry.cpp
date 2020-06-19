@@ -49,11 +49,10 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 // returns the unique straight line that contains the given field
 TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet)
 {
-	int i;
-	for (i = 0; i < lineSet.size(); i++)
+	for (auto line: lineSet)
 	{
-		if (lineSet[i].contains(fieldIndex))
-			return lineSet[i];
+		if (line.contains(fieldIndex))
+			return line;
 	}
 
 	// Line must have been found - we should never get here
@@ -177,6 +176,20 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardL
 		line = continuationOfRightUpwardLine(line, -1);
 		result.set(octaveBoardIndex, line);
 	}
+
+	return result;
+}
+
+// Returns the horizontal lines that have a continuation (right or left)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLinesWithContinuation(int octaveBoardOffset)
+{
+	StraightLineSet result;
+
+	for (auto line : horizontalLines)
+    {
+        if (continuationOfHorizontalLine(line, octaveBoardOffset).size() > 0)
+            result.add(line);
+    }
 
 	return result;
 }
