@@ -518,7 +518,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
                    		setSaveSend(octaveBoardIndex, newHorizLine.getFirst(), noteIndex + horizStepSize);
 
                    		// Fill the whole sub board based on this field
-                        fill2DHorizLineRecursive(octaveBoardIndex, newHorizLine, newHorizLine.getFirst(),
+                        fill2DHorizLineRecursive(octaveBoardIndex, newHorizLine, 0,
                             noteIndex + horizStepSize, horizStepSize, rUpwStepSize,
                             finishedLineSets[octaveBoardIndex]);
 
