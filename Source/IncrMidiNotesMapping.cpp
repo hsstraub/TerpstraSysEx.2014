@@ -201,7 +201,7 @@ void IncrMidiNotesMapping::onUpdatePeriodSize()
 {
     if ( isVisible())
     {
-        this->mappingLogic.setMaxMidiNote(periodSize-1);
+        this->mappingLogic.setPeriodSize(periodSize);
     }
 }
 

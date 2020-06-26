@@ -22,6 +22,7 @@ class MappingLogicBase
 public:
     MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
+	void setPeriodSize(int newPeriodSize);
     void setAssignColours(bool value) { assignColours = value; };
 
 	// Global number of notes in the mapping
@@ -58,9 +59,10 @@ public:
 
 protected:
     virtual int getStartOfMap() const { return 0; }
-    virtual int getPeriodSize() const = 0;
+    virtual int getPeriodSize() const { return periodSize; };
     virtual int getIndexFromStartOfMap(int inx) const;
 
+	int periodSize = 12;
     bool assignColours = false;
     ScaleStructure& scaleStructure;
 	Array<Colour>& colourTable;
@@ -83,10 +85,8 @@ public:
 
     //===============================
 	// Set parameters
-
-	void setMaxMidiNote(int newMaxMIDINote);
 	void setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel);
-	void setValues(int newMaxMIDINote, int newChannelInCaseOfSingleChannel);
+	void setValues(int newPeriodSize, int newChannelInCaseOfSingleChannel);
 
     //===============================
 	// Access mapping data (overrides)
@@ -100,13 +100,8 @@ public:
 
 	bool isSingleChannel() const { return this->channelInCaseOfSingleChannel > 0; }
 
-protected:
-    virtual int getPeriodSize() const override { return maxMIDINote + 1; };
-
 private:
-	// Maximal MIDI note (global max in case of single channel. In case of multiple channel followed by note 0 of next channel.)
-	int maxMIDINote;
-	int channelInCaseOfSingleChannel;
+	int channelInCaseOfSingleChannel = 0;
 };
 
 
@@ -148,7 +143,6 @@ public:
 protected:
     void createMappingTable();
     virtual int getStartOfMap() const override;
-    virtual int getPeriodSize() const override;
 
     //===============================
 	// Access mapping data (overrides)

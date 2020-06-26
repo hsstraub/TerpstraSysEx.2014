@@ -19,7 +19,7 @@ KBMMappingDataStructure::KBMMappingDataStructure()
     noteNrWhereMappingStarts = 60;
     referenceNoteNr = 69;
     referenceNoteFrequency = 440.0;
-    scaleSize = 12;
+    periodSize = 12;
 
     noteMappingTable = Array<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
 }
@@ -63,7 +63,7 @@ bool KBMMappingDataStructure::fromStringArray(const StringArray& stringArray)
     noteNrWhereMappingStarts = valuesWithoutComments[3].getIntValue();
     referenceNoteNr = valuesWithoutComments[4].getIntValue();
     referenceNoteFrequency = valuesWithoutComments[5].getFloatValue();
-    scaleSize = valuesWithoutComments[6].getIntValue();
+    periodSize = valuesWithoutComments[6].getIntValue();
 
     // The mapping is supposed to contain at most mapSize entries. We just read them all here.
     noteMappingTable.clear();
@@ -98,7 +98,7 @@ StringArray KBMMappingDataStructure::toStringArray(const String& description)
 	result.add("! Frequency to tune the above note to (floating point e.g. 440.0):");
 	result.add(String(referenceNoteFrequency));
 	result.add("! Scale degree to consider as formal octave:");
-	result.add(String(scaleSize));
+	result.add(String(periodSize));
 	result.add("! Mapping");
 	result.add("! The numbers represent scale degrees mapped to keys. The first entry is for");
 	result.add("! the given middle note, the next for subsequent higher keys.");
@@ -133,7 +133,7 @@ KBMMappingDataStructure::NoteAndFrequencyTable KBMMappingDataStructure::createNo
 
     int mapStartIndexOfReferenceNote = getMapStartIndexOfReferenceNote();
     int mapValueOfReferenceNote = noteMappingTable[getMappingIndexOfReferenceNote()];   // Supposed to have a value (was checked in isValid())
-    float scaleStepInterval = pow(2, 1.0/scaleSize);
+    float scaleStepInterval = pow(2, 1.0/periodSize);
 
     for ( int midiNoteNr = firstMIDINoteNr; midiNoteNr <= lastMIDINoteNr; midiNoteNr++)
     {

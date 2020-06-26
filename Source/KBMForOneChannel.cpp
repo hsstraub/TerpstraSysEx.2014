@@ -233,7 +233,7 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         else
         {
             // Warning if the kbm file's scale size doesn't match the global periodSize
-            if (kbmMappingStructure.scaleSize != this->periodSize)
+            if (kbmMappingStructure.periodSize != this->periodSize)
                 errorVisualizer.setErrorLevel(
                     *textMappingFile.get(),
                     HajuErrorVisualizer::ErrorLevel::warning,

@@ -52,7 +52,7 @@ public:
     // Size of map. The pattern repeats every so many keys. Maybe 0
    int mapSize;
 
-   //First MIDI note number to retune
+   // First MIDI note number to retune
    int firstMIDINoteNr;
 
    // Last MIDI note number to retune
@@ -68,7 +68,7 @@ public:
    float referenceNoteFrequency;
 
    // Scale degree to consider as formal octave (determines difference in pitch between adjacent mapping patterns)
-   int scaleSize;
+   int periodSize;
 
    // Mapping. <= 'mapSize' values
    // The numbers represent scale degrees mapped to keys. The first entry is for
