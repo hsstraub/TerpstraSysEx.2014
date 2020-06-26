@@ -22,7 +22,7 @@ class MappingLogicBase
 public:
     MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
 
-	void setPeriodSize(int newPeriodSize);
+	void setPeriodSize(int newPeriodSize, bool forceRefresh = false);
     void setAssignColours(bool value) { assignColours = value; };
 
 	// Global number of notes in the mapping
@@ -85,8 +85,8 @@ public:
 
     //===============================
 	// Set parameters
-	void setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel);
-	void setValues(int newPeriodSize, int newChannelInCaseOfSingleChannel);
+	void setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel, bool forceRefresh = false);
+	void setValues(int newPeriodSize, int newChannelInCaseOfSingleChannel, bool forceRefresh = false);
 
     //===============================
 	// Access mapping data (overrides)

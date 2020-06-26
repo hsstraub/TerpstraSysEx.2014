@@ -187,8 +187,9 @@ void IncrMidiNotesMapping::visibilityChanged()
     {
         // Re-fill note combo box according to mapping logic
         this->mappingLogic.setValues(
-            periodSize-1,
-            channelAutoIncrButton->getToggleState() ? channelBox->getSelectedId() : 0);
+            periodSize,
+            channelAutoIncrButton->getToggleState() ? channelBox->getSelectedId() : 0,
+            true);
     }
     //[/UserCode_visibilityChanged]
 }

@@ -327,7 +327,9 @@ void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
 		// Initialize this here to allow the ScaleStructure settings to be loaded first
 		if (scaleDesignWindow.get() == nullptr)
 		{
-			scaleDesignWindow.reset(new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
+			scaleDesignWindow.reset(
+                new ScaleDesignWindow(scaleStructure, colourTable, findColour(ResizableWindow::backgroundColourId)));
+			scaleDesignWindow->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel());
 			scaleDesignWindow->addScaleDesignerListener(this);
 		}
 

@@ -19,9 +19,9 @@ MappingLogicBase::MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colou
 {
 }
 
-void MappingLogicBase::setPeriodSize(int newPeriodSize)
+void MappingLogicBase::setPeriodSize(int newPeriodSize, bool forceRefresh)
 {
-	if (newPeriodSize != this->periodSize)
+	if (newPeriodSize != this->periodSize || forceRefresh)
 	{
 		this->periodSize = newPeriodSize;
 
@@ -96,9 +96,9 @@ IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic(ScaleStructure& scaleStruct
 //=============================================================
 // Set parameters
 
-void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel)
+void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel, bool forceRefresh)
 {
-	if (newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel)
+	if (newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel || forceRefresh)
 	{
 		this->channelInCaseOfSingleChannel = newChannelInCaseOfSingleChannel;
 
@@ -107,9 +107,10 @@ void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelIn
 	}
 }
 
-void IncrMidiNotesMappingLogic::setValues(int newPeriodSize, int newChannelInCaseOfSingleChannel)
+void IncrMidiNotesMappingLogic::setValues(int newPeriodSize, int newChannelInCaseOfSingleChannel, bool forceRefresh)
 {
-	if (newPeriodSize != this->periodSize || newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel)
+	if (newPeriodSize != this->periodSize || newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel
+        || forceRefresh)
 	{
 		this->periodSize = newPeriodSize;
 		this->channelInCaseOfSingleChannel = newChannelInCaseOfSingleChannel;
