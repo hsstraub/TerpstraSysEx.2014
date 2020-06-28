@@ -42,6 +42,14 @@ class NoteEditArea  : public Component,
                       public ComboBox::Listener
 {
 public:
+    enum noteEditMode
+    {
+        SingleNoteAssignMode = 0,
+        IsomorphicMassAssignMode = 1,
+        MacroButtonsMode = 2,
+        PlayVirtualKeaboardMode = 3
+    };
+
     //==============================================================================
     NoteEditArea ();
     ~NoteEditArea();

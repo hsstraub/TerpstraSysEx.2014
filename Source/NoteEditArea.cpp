@@ -84,7 +84,7 @@ NoteEditArea::NoteEditArea ()
 
 	// Default selection
 	// Todo: read from user settings
-	cbEditMode->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
+	cbEditMode->setSelectedItemIndex(noteEditMode::SingleNoteAssignMode, juce::NotificationType::sendNotification);
 
     //[/Constructor]
 }
@@ -145,25 +145,25 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		// Show sub window corresponding to selected edit mode
 		switch (editMode)
 		{
-		case 0:
+		case noteEditMode::SingleNoteAssignMode:
 			singleNoteAssign->setVisible(true);
 			isomorphicMassAssign->setVisible(false);
 			macroButtonsWindow->setVisible(false);
 			playVirtualKeyboardWindow->setVisible(false);
 			break;
-		case 1:
+		case noteEditMode::IsomorphicMassAssignMode:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(true);
 			macroButtonsWindow->setVisible(false);
 			playVirtualKeyboardWindow->setVisible(false);
 			break;
-		case 2:
+		case noteEditMode::MacroButtonsMode:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
 			macroButtonsWindow->setVisible(true);
 			playVirtualKeyboardWindow->setVisible(false);
 			break;
-		case 3:
+		case noteEditMode::PlayVirtualKeaboardMode:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
 			macroButtonsWindow->setVisible(false);
@@ -210,14 +210,14 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 	int editMode = cbEditMode->getSelectedItemIndex();
 	switch (editMode)
 	{
-	case 0:
+	case noteEditMode::SingleNoteAssignMode:
 		return singleNoteAssign->performMouseDown(setSelection, keySelection);
-	case 1:
+	case noteEditMode::IsomorphicMassAssignMode:
 		return isomorphicMassAssign->performMouseDown(setSelection, keySelection);
-	case 2:
-		// case 2 (macro buttons): no functionality for clicking on a key
+	case noteEditMode::MacroButtonsMode:
+		// no functionality for clicking on a key
 		return false;
-	case 3:
+	case noteEditMode::PlayVirtualKeaboardMode:
 		return playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
 	default:
 		return false;
@@ -233,7 +233,7 @@ bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 	int editMode = cbEditMode->getSelectedItemIndex();
 
 	// Mouse up functionality: only for playing on virtual keyboard
-	if ( editMode == 3)
+	if (editMode == noteEditMode::PlayVirtualKeaboardMode)
 		return playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
 
 	return false;
