@@ -20,10 +20,6 @@ MainContentComponent::MainContentComponent()
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		// Macro button
-		macroButtons[i].reset(new TerpstraMacroButton());
-		addAndMakeVisible(macroButtons[i].get());
-
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		// Width and heigth: were taken from image
@@ -60,7 +56,6 @@ MainContentComponent::~MainContentComponent()
 {
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		macroButtons[i] = nullptr;
 		terpstraSetSelectors[i] = nullptr;
 	}
 
@@ -183,11 +178,6 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
 		{
 			if (message.getControllerNumber() == 16 || message.getControllerNumber() == 17)
 			{
-				// Highlight controller button on/off. Left side, if controller == 17, right side, if it is 16
-				macroButtons[buttonSubwinIndex]->setIsSelected(
-					message.getControllerNumber() == 17 ? TerpstraMacroButton::leftbutton : TerpstraMacroButton::rightbutton,
-					message.getControllerValue() >= 0x3f);
-
 				// Send parametrization file to controller, if one is specified
 				noteEditArea->handleIncomingMidiMessage(source, message);
 			}
@@ -223,20 +213,12 @@ void MainContentComponent::resized()
 	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
 	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
 
-	// New position, width and height of macro buttons
-	float newFirstMacrobuttonColPos = DEFAULTFIRSTMACROBUTTONCOLPOS * newDecreaseFactor;
-	float newMacroButtonWidth = DEFAULTMACROBUTTONWIDTH * newDecreaseFactor;
-	float newMacroButtonHeight = DEFAULTMACROBUTTONHEIGHT * newDecreaseFactor;
-
 	float newMidiEditFirstYPos = newSubsetAreaHeight;
 	float newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		// Macro button
-		macroButtons[i]->setBounds(newFirstMacrobuttonColPos + i*newSubsetXIncrement, MACROBUTTONYPOS, newMacroButtonWidth, newMacroButtonHeight);
-
 		// Paint set fields from right to left
 		// (This will not matter any more when the images' backgrounds are transparent)
 		terpstraSetSelectors[4 - i]->setBounds(
