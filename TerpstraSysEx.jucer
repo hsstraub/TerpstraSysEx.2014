@@ -95,14 +95,6 @@
         <FILE id="qke01B" name="HajuMidiDriver.h" compile="0" resource="0"
               file="Source/HajuLib/HajuMidiDriver.h"/>
       </GROUP>
-      <FILE id="RXyH4V" name="OneMacroButtonEdit.cpp" compile="1" resource="0"
-            file="Source/OneMacroButtonEdit.cpp"/>
-      <FILE id="AM7nb9" name="OneMacroButtonEdit.h" compile="0" resource="0"
-            file="Source/OneMacroButtonEdit.h"/>
-      <FILE id="hLpEXr" name="MacroButtonsWindow.cpp" compile="1" resource="0"
-            file="Source/MacroButtonsWindow.cpp"/>
-      <FILE id="txOljN" name="MacroButtonsWindow.h" compile="0" resource="0"
-            file="Source/MacroButtonsWindow.h"/>
       <FILE id="iv4rRX" name="BoardGeometry.cpp" compile="1" resource="0"
             file="Source/BoardGeometry.cpp"/>
       <FILE id="pu1qcb" name="BoardGeometry.h" compile="0" resource="0" file="Source/BoardGeometry.h"/>

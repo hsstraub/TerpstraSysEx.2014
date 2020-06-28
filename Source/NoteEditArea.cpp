@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -39,10 +39,6 @@ NoteEditArea::NoteEditArea ()
 	addAndMakeVisible(isomorphicMassAssign.get());
 	isomorphicMassAssign->setVisible(false);
 
-	macroButtonsWindow.reset(new MacroButtonsWindow());
-	addAndMakeVisible(macroButtonsWindow.get());
-	macroButtonsWindow->setVisible(false);
-
 	playVirtualKeyboardWindow.reset(new PlayVirtualKeyboard());
 	addAndMakeVisible(playVirtualKeyboardWindow.get());
 	playVirtualKeyboardWindow->setVisible(false);
@@ -56,8 +52,7 @@ NoteEditArea::NoteEditArea ()
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Assign notes to keys one by one"), 1);
     cbEditMode->addItem (TRANS("Isomorphic mass assign"), 2);
-    cbEditMode->addItem (TRANS("Macro Buttons"), 3);
-    cbEditMode->addItem (TRANS("Play virtual keyboard"), 4);
+    cbEditMode->addItem (TRANS("Play virtual keyboard"), 3);
     cbEditMode->addListener (this);
 
     cbEditMode->setBounds (104, 16, 304, 24);
@@ -94,7 +89,6 @@ NoteEditArea::~NoteEditArea()
     //[Destructor_pre]. You can add your own custom destruction code here..
 	singleNoteAssign = nullptr;
 	isomorphicMassAssign = nullptr;
-	macroButtonsWindow = nullptr;
 	playVirtualKeyboardWindow = nullptr;
     //[/Destructor_pre]
 
@@ -124,7 +118,6 @@ void NoteEditArea::resized()
     //[UserPreResize] Add your own custom resize code here..
 	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	macroButtonsWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	playVirtualKeyboardWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
@@ -148,31 +141,21 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case noteEditMode::SingleNoteAssignMode:
 			singleNoteAssign->setVisible(true);
 			isomorphicMassAssign->setVisible(false);
-			macroButtonsWindow->setVisible(false);
 			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		case noteEditMode::IsomorphicMassAssignMode:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(true);
-			macroButtonsWindow->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(false);
-			break;
-		case noteEditMode::MacroButtonsMode:
-			singleNoteAssign->setVisible(false);
-			isomorphicMassAssign->setVisible(false);
-			macroButtonsWindow->setVisible(true);
 			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		case noteEditMode::PlayVirtualKeaboardMode:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
-			macroButtonsWindow->setVisible(false);
 			playVirtualKeyboardWindow->setVisible(true);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
-			macroButtonsWindow->setVisible(false);
 			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		}
@@ -191,14 +174,12 @@ void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile
 {
 	singleNoteAssign->restoreStateFromPropertiesFile(propertiesFile);
 	isomorphicMassAssign->restoreStateFromPropertiesFile(propertiesFile);
-	macroButtonsWindow->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	singleNoteAssign->saveStateToPropertiesFile(propertiesFile);
 	isomorphicMassAssign->saveStateToPropertiesFile(propertiesFile);
-	macroButtonsWindow->saveStateToPropertiesFile(propertiesFile);
 }
 
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
@@ -214,9 +195,6 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 		return singleNoteAssign->performMouseDown(setSelection, keySelection);
 	case noteEditMode::IsomorphicMassAssignMode:
 		return isomorphicMassAssign->performMouseDown(setSelection, keySelection);
-	case noteEditMode::MacroButtonsMode:
-		// no functionality for clicking on a key
-		return false;
 	case noteEditMode::PlayVirtualKeaboardMode:
 		return playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
 	default:
@@ -239,11 +217,6 @@ bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 	return false;
 }
 
-void NoteEditArea::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
-{
-	macroButtonsWindow->handleIncomingMidiMessage(source, message);
-}
-
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
 	// Add colours of the mapping to the colour combo box
@@ -263,13 +236,13 @@ void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
-                 parentClasses="public Component, public MidiInputCallback" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="428" initialHeight="480">
+                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="428" initialHeight="480">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="104 16 304 24" editable="0"
-            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Macro Buttons&#10;Play virtual keyboard"
+            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Play virtual keyboard"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
          virtualName="" explicitFocusOrder="0" pos="6 15 88 24" edTextCol="ff000000"

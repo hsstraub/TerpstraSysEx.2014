@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -23,7 +23,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
-#include "MacroButtonsWindow.h"
 #include "PlayVirtualKeyboard.h"
 //[/Headers]
 
@@ -38,21 +37,12 @@
                                                                     //[/Comments]
 */
 class NoteEditArea  : public Component,
-                      public MidiInputCallback,
                       public ComboBox::Listener
 {
 public:
-    enum noteEditMode
-    {
-        SingleNoteAssignMode = 0,
-        IsomorphicMassAssignMode = 1,
-        MacroButtonsMode = 2,
-        PlayVirtualKeaboardMode = 3
-    };
-
     //==============================================================================
     NoteEditArea ();
-    ~NoteEditArea();
+    ~NoteEditArea() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -61,9 +51,6 @@ public:
 
 	bool performMouseDown(int setSelection, int keySelection);
 	bool performMouseUp(int setSelection, int keySelection);
-
-	// MIDI input callback
-	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 
 	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping.
 	void onSetData(TerpstraKeyMapping& newData);
@@ -77,9 +64,15 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    enum noteEditMode
+    {
+        SingleNoteAssignMode = 0,
+        IsomorphicMassAssignMode = 1,
+        PlayVirtualKeaboardMode = 2
+    };
+
 	std::unique_ptr<SingleNoteAssign> singleNoteAssign;
 	std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
-	std::unique_ptr<MacroButtonsWindow> macroButtonsWindow;
 	std::unique_ptr<PlayVirtualKeyboard> playVirtualKeyboardWindow;
     //[/UserVariables]
 

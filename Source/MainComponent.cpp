@@ -165,24 +165,7 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-	if (message.isController())
-	{
-		// Established that a controller change has occurred, which is due
-		// to a keyboard macro button being pressed. Now Channel will hold
-		// a value from 0 to 15, and InData1 (controller number) will hold either 16 or 17.
-		// The formula to establish which button is pressed is
-		// ButtonNum = channel*2 + (InData1 - 16)
-		// One button subcomponent holds 2 buttons
-		int buttonSubwinIndex = message.getChannel() - 1;
-		if (buttonSubwinIndex >= 0 && buttonSubwinIndex < 5)
-		{
-			if (message.getControllerNumber() == 16 || message.getControllerNumber() == 17)
-			{
-				// Send parametrization file to controller, if one is specified
-				noteEditArea->handleIncomingMidiMessage(source, message);
-			}
-		}
-	}
+    // ToDo Receive current configuration from device functionality
 }
 
 void MainContentComponent::paint (Graphics& g)
