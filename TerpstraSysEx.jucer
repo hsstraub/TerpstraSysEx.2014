@@ -7,12 +7,6 @@
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
             file="BinaryData/LumatoneIcon.png"/>
-      <FILE id="mKOOP6" name="TopEdgeLightLeft.png" compile="0" resource="1"
-            file="BinaryData/TopEdgeLightLeft.png"/>
-      <FILE id="gZlHUE" name="TopEdgeLightRight.png" compile="0" resource="1"
-            file="BinaryData/TopEdgeLightRight.png"/>
-      <FILE id="rp33Hj" name="TopEdgeButton.png" compile="0" resource="1"
-            file="BinaryData/TopEdgeButton.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
