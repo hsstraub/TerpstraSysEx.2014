@@ -60,8 +60,6 @@ Old definitions, for the first generation keyboard only
 #define MACROBUTTON_COLOUR_ON 0x05
 #define MACROBUTTON_COLOUR_OFF 0x06
 
-#define SET_LIGHT_ON_KEYSTROKE 0x07
-
 #define SET_VELOCITY_CONFIG 0x08
 #define SAVE_VELOCITY_CONFIG 0x09
 #define RESET_VELOCITY_CONFIG 0x0A
@@ -75,6 +73,26 @@ Old definitions, for the first generation keyboard only
 #define SET_AFTERTOUCH_CONFIG 0x10
 #define SAVE_AFTERTOUCH_CONFIG 0x11
 #define RESET_AFTERTOCUH_CONFIG 0x12
+
+#define GET_RED_LED_CONFIG 0x13
+#define GET_GREEN_LED_CONFIG 0x14
+#define GET_BLUE_LED_CONFIG 0x15
+#define GET_CHANNEL_CONFIG 0x16
+#define GET_NOTE_CONFIG 0x17
+#define GET_TYPE_CONFIG 0x18
+
+#define GET_MAX_THRESHOLD 0x19
+#define GET_MIN_THRESHOLD 0x1A
+#define GET_AFTERTOUCH_MAX 0x1B
+#define GET_KEY_VALIDITY 0x1C
+
+#define GET_VELOCITY_CONFIG 0x1D
+#define GET_FADER_CONFIG 0x1E
+#define GET_AFTERTOUCH_CONFIG 0x1F
+
+#define SET_VELOCITY_INTERVALS 0x20
+#define GET_VELOCITY_INTERVALS 0x21
+
 
 /*
 ==============================================================================
@@ -132,9 +150,6 @@ public:
 
 	// Colour for macro button in inactive state
 	void sendMacroButtonInactiveColour(String colourAsString);
-
-	// Send parametrization of light on key strokes
-	void sendLightOnKeyStroke(bool value);
 
 	// Send a value for a velocity lookup table
 	void sendVelocityConfig(VelocityCurveType velocityCurveType, unsigned char velocityTable[]);

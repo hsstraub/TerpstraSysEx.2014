@@ -84,24 +84,6 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     lblInvFootCtrl->setBounds (8, 48, 176, 24);
 
-    lblLightOnKeyStroke.reset (new Label ("lblLightOnKeyStroke",
-                                          TRANS("Light on keystrokes:")));
-    addAndMakeVisible (lblLightOnKeyStroke.get());
-    lblLightOnKeyStroke->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    lblLightOnKeyStroke->setJustificationType (Justification::centredLeft);
-    lblLightOnKeyStroke->setEditable (false, false, false);
-    lblLightOnKeyStroke->setColour (TextEditor::textColourId, Colours::black);
-    lblLightOnKeyStroke->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    lblLightOnKeyStroke->setBounds (8, 80, 176, 24);
-
-    btnLightOnKeyStroke.reset (new ToggleButton ("btnLightOnKeyStroke"));
-    addAndMakeVisible (btnLightOnKeyStroke.get());
-    btnLightOnKeyStroke->setButtonText (String());
-    btnLightOnKeyStroke->addListener (this);
-
-    btnLightOnKeyStroke->setBounds (240, 72, 56, 24);
-
     lblColourInactiveMacroButton.reset (new Label ("lblColourInactiveMacroButton",
                                                    TRANS("Colour of inactive macro buttons:")));
     addAndMakeVisible (lblColourInactiveMacroButton.get());
@@ -178,8 +160,6 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
     txtExprCtrlSensivity = nullptr;
     btnInvertFootCtrl = nullptr;
     lblInvFootCtrl = nullptr;
-    lblLightOnKeyStroke = nullptr;
-    btnLightOnKeyStroke = nullptr;
     lblColourInactiveMacroButton = nullptr;
     lblColourActiveMacroButton = nullptr;
     lblManufacturerId = nullptr;
@@ -226,12 +206,6 @@ void GeneralOptionsDlg::buttonClicked (Button* buttonThatWasClicked)
 		// Send foot controller parametrization to controller
 		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
         //[/UserButtonCode_btnInvertFootCtrl]
-    }
-    else if (buttonThatWasClicked == btnLightOnKeyStroke.get())
-    {
-        //[UserButtonCode_btnLightOnKeyStroke] -- add your button handler code here..
-		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStroke(buttonThatWasClicked->getToggleState());
-        //[/UserButtonCode_btnLightOnKeyStroke]
     }
 
     //[UserbuttonClicked_Post]
@@ -302,10 +276,6 @@ void GeneralOptionsDlg::restoreStateFromPropertiesFile(PropertiesFile* propertie
 
 	txtExprCtrlSensivity->setText(String(propertiesFile->getIntValue("ExpressionControllerSensivity", 0x7f)));
 
-	btnLightOnKeyStroke->setToggleState(
-		propertiesFile->getBoolValue("LightOnKeyStroke", false),
-		juce::NotificationType::dontSendNotification);
-
 	inactiveMacroButtonColourEdit->setColour(
 		propertiesFile->getValue("InactiveMacroButtonColour", "000000"));
 
@@ -336,7 +306,7 @@ void GeneralOptionsDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile
 		newSensitvity = 0x7f;
 	propertiesFile->setValue("ExpressionControllerSensivity", newSensitvity);
 
-	propertiesFile->setValue("LightOnKeyStroke", btnLightOnKeyStroke->getToggleState());
+	propertiesFile->removeValue("LightOnKeyStroke");	// Old parameter that has been deprecated
 
 	String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
 	propertiesFile->setValue("InactiveMacroButtonColour", inactiveMacroButtonColour);
@@ -384,14 +354,6 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Invert foot controller:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
-  <LABEL name="lblLightOnKeyStroke" id="d8737def929a5aa" memberName="lblLightOnKeyStroke"
-         virtualName="" explicitFocusOrder="0" pos="8 80 176 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Light on keystrokes:" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
-  <TOGGLEBUTTON name="btnLightOnKeyStroke" id="85279f9e93401da3" memberName="btnLightOnKeyStroke"
-                virtualName="" explicitFocusOrder="0" pos="240 72 56 24" buttonText=""
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <LABEL name="lblColourInactiveMacroButton" id="9c5cddfcc2966280" memberName="lblColourInactiveMacroButton"
          virtualName="" explicitFocusOrder="0" pos="8 112 224 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Colour of inactive macro buttons:" editableSingleClick="0"

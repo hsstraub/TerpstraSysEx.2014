@@ -90,12 +90,6 @@ void TerpstraMidiDriver::sendMacroButtonInactiveColour(String colourAsString)
 }
 
 
-// Send parametrization of light on key strokes
-void TerpstraMidiDriver::sendLightOnKeyStroke(bool value)
-{
-	sendSysEx(0, SET_LIGHT_ON_KEYSTROKE, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
-}
-
 // Send a value for a velocity lookup table
 void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType, unsigned char velocityTable[])
 {

@@ -47,7 +47,7 @@ MidiEditArea::MidiEditArea ()
 
     cbMidiInput.reset (new ComboBox ("cbMidiInput"));
     addAndMakeVisible (cbMidiInput.get());
-    cbMidiInput->setTooltip (TRANS("Receives macro button controller events to send key mapping files to the keyboard."));
+    cbMidiInput->setTooltip (TRANS("Receives answers to sent SysEx commands and the current configuration from controller "));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (Justification::centredLeft);
     cbMidiInput->setTextWhenNothingSelected (String());
@@ -86,6 +86,14 @@ MidiEditArea::MidiEditArea ()
 
     buttonSendAll->setBounds (200, 64, 150, 24);
 
+    buttonReceive.reset (new TextButton ("buttonReceive"));
+    addAndMakeVisible (buttonReceive.get());
+    buttonReceive->setTooltip (TRANS("Receive the current configurartion from controller"));
+    buttonReceive->setButtonText (TRANS("Send All"));
+    buttonReceive->addListener (this);
+
+    buttonReceive->setBounds (8, 64, 150, 24);
+
 
     //[UserPreSize]
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
@@ -109,6 +117,7 @@ MidiEditArea::~MidiEditArea()
     lblMidiOutput = nullptr;
     cbMidiOutput = nullptr;
     buttonSendAll = nullptr;
+    buttonReceive = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -170,6 +179,11 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
         TerpstraSysExApplication::getApp().sendCurrentMappingToDevice();
         //[/UserButtonCode_buttonSendAll]
     }
+    else if (buttonThatWasClicked == buttonReceive.get())
+    {
+        //[UserButtonCode_buttonReceive] -- add your button handler code here..
+        //[/UserButtonCode_buttonReceive]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -201,7 +215,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbMidiInput" id="aad3610c2aac943b" memberName="cbMidiInput"
-            virtualName="" explicitFocusOrder="0" pos="8 32 184 24" tooltip="Receives macro button controller events to send key mapping files to the keyboard."
+            virtualName="" explicitFocusOrder="0" pos="8 32 184 24" tooltip="Receives answers to sent SysEx commands and the current configuration from controller "
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="lblMidiOutput" id="f5bc70386d951a4a" memberName="lblMidiOutput"
          virtualName="" explicitFocusOrder="0" pos="200 8 184 16" edTextCol="ff000000"
@@ -213,6 +227,9 @@ BEGIN_JUCER_METADATA
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
               virtualName="" explicitFocusOrder="0" pos="200 64 150 24" tooltip="Send all key mappings to controller."
+              buttonText="Send All" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="buttonReceive" id="5545cd9fc9bd20cb" memberName="buttonReceive"
+              virtualName="" explicitFocusOrder="0" pos="8 64 150 24" tooltip="Receive the current configurartion from controller"
               buttonText="Send All" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

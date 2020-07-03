@@ -63,6 +63,7 @@ private:
     std::unique_ptr<Label> lblMidiOutput;
     std::unique_ptr<ComboBox> cbMidiOutput;
     std::unique_ptr<TextButton> buttonSendAll;
+    std::unique_ptr<TextButton> buttonReceive;
 
 
     //==============================================================================

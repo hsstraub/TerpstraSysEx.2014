@@ -72,8 +72,6 @@ private:
     std::unique_ptr<TextEditor> txtExprCtrlSensivity;
     std::unique_ptr<ToggleButton> btnInvertFootCtrl;
     std::unique_ptr<Label> lblInvFootCtrl;
-    std::unique_ptr<Label> lblLightOnKeyStroke;
-    std::unique_ptr<ToggleButton> btnLightOnKeyStroke;
     std::unique_ptr<Label> lblColourInactiveMacroButton;
     std::unique_ptr<Label> lblColourActiveMacroButton;
     std::unique_ptr<Label> lblManufacturerId;
