@@ -14,7 +14,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
-#include "HajuLib/HajuDelayMidiDriver.h"
+#include "HajuLib/HajuMidiDriver.h"
 //[/Headers]
 
 /*
@@ -99,7 +99,7 @@ Old definitions, for the first generation keyboard only
 Connection to midi, sending SysEx parameters to keyboard
 ==============================================================================
 */
-class TerpstraMidiDriver : public HajuDelayMidiDriver
+class TerpstraMidiDriver : public HajuMidiDriver
 {
     // Types
 public:

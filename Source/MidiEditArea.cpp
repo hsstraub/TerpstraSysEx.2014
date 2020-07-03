@@ -89,7 +89,7 @@ MidiEditArea::MidiEditArea ()
     buttonReceive.reset (new TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
     buttonReceive->setTooltip (TRANS("Receive the current configurartion from controller"));
-    buttonReceive->setButtonText (TRANS("Send All"));
+    buttonReceive->setButtonText (TRANS("Receive"));
     buttonReceive->addListener (this);
 
     buttonReceive->setBounds (8, 64, 150, 24);
@@ -230,7 +230,7 @@ BEGIN_JUCER_METADATA
               buttonText="Send All" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="buttonReceive" id="5545cd9fc9bd20cb" memberName="buttonReceive"
               virtualName="" explicitFocusOrder="0" pos="8 64 150 24" tooltip="Receive the current configurartion from controller"
-              buttonText="Send All" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              buttonText="Receive" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
