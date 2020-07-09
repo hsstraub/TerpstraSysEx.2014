@@ -202,6 +202,101 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 		sysExData[9] = data5;
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 10);
-		sendMessageNow(msg);
+		sendMessageWithAcknowledge(msg);
 	}
+}
+
+bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage)
+{
+    // Only for SysEx messages
+    if ( answer.isSysEx() != originalMessage.isSysEx())
+        return false;
+
+    auto answerSysExData = answer.getSysExData();
+    auto originalSysExData = originalMessage.getSysExData();
+
+    // Manufacturer Id, board index, command coincide?
+    if (answerSysExData[0] != originalSysExData[0] ||
+        answerSysExData[1] != originalSysExData[1] ||
+        answerSysExData[2] != originalSysExData[2] ||
+        answerSysExData[3] != originalSysExData[3] ||
+        answerSysExData[4] != originalSysExData[4])
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
+{
+    // If there is no MIDI input port active: just send, without expecting acknowledge
+    if ( lastInputCallback == nullptr)
+    {
+        sendMessageNow(message);
+    }
+    else
+    {
+        // Add message to queue first. The oldest messsage in queue will be sent.
+        messageBuffer.add(message);
+
+        // If there is no message waiting for acknowledge: send oldest message of queue
+       	if (!isTimerRunning())
+        {
+            sendOldestMessageInQueue();
+        }
+    }
+}
+
+void TerpstraMidiDriver::sendOldestMessageInQueue()
+{
+    if (!messageBuffer.isEmpty())
+    {
+        jassert(!isTimerRunning());
+        jassert(currentMsgWaitingForAck == nullptr);
+
+        currentMsgWaitingForAck = std::make_shared<MidiMessage>(messageBuffer[0]);     // oldest element in buffer
+		sendMessageNow(*currentMsgWaitingForAck.get()); // send it
+		messageBuffer.remove(0);                        // remove from buffer
+
+		startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
+    }
+}
+
+void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+{
+    // Check whether received message is an answer to the previously sent one
+    if ( currentMsgWaitingForAck != nullptr && messageIsResponseToMessage(message, *currentMsgWaitingForAck.get()))
+    {
+        // Answer has come, we can stop the timer
+        stopTimer();
+
+        // Check answer state (error yes/no)
+        auto answerState = message.getSysExData()[5];
+        // ToDo Handle answer state:
+        // ToDo If error: Display error message
+        // ToDo What to do - remove message form buffer anyway?
+
+        // For now: Remove from buffer
+        currentMsgWaitingForAck = nullptr;
+
+        // If there are more messages waiting in the queue: send the next one
+        sendOldestMessageInQueue();
+    }
+
+    // Other incoming messages are ignored
+}
+
+void TerpstraMidiDriver::timerCallback()
+{
+    // No answer came from MIDI input
+
+    // ToDo Display error message
+    // ToDo What to do - remove message form buffer anyway?
+
+    // For now: Remove from buffer, try to send next o
+    currentMsgWaitingForAck = nullptr;
+    sendOldestMessageInQueue();
 }

@@ -99,7 +99,7 @@ Old definitions, for the first generation keyboard only
 Connection to midi, sending SysEx parameters to keyboard
 ==============================================================================
 */
-class TerpstraMidiDriver : public HajuMidiDriver
+class TerpstraMidiDriver : public HajuMidiDriver, public MidiInputCallback, public Timer
 {
     // Types
 public:
@@ -115,7 +115,6 @@ public:
 	~TerpstraMidiDriver();
 
 	void setAutoSave(bool value) { this->autoSave = value; }
-
 	void setManufacturerId(int value) { manufacturerId = value; }
 
 	//////////////////////////////////
@@ -164,15 +163,38 @@ public:
 
 	void sendCalibrateAfterTouch();
 
+	// MIDI input callback: handle acknowledge messages
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+
+	// Handle timeout
+	void timerCallback() override;
+
+	// Clear MIDI message buffer
+	void clearMIDIMessageBuffer(){ messageBuffer.clear(); }
+
 private:
 	// Low-level SysEx = valuemessage sending
+	void sendMessageWithAcknowledge(const MidiMessage& message);
+
+	// Send the oldest message in queue and start waiting for answer
+	void sendOldestMessageInQueue();
+
+	// Message is an answer to a sent message yes/no
+	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
+
 	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5);
 
 	// Attributes
 private:
 	bool autoSave;
-
 	int manufacturerId = 0x002150;
+
+	// Attributes
+protected:
+    std::shared_ptr<MidiMessage> currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
+	Array<MidiMessage> messageBuffer;
+
+	int receiveTimeoutInMilliseconds = 2000;
 };
 
 #endif  // TERPSTRAMIDIDRIVER_H_INCLUDED
