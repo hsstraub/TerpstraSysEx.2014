@@ -236,6 +236,7 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
     if ( lastInputCallback == nullptr)
     {
         sendMessageNow(message);
+	    writeLog(message, MIDISendDirection::sent);
     }
     else
     {
@@ -259,7 +260,10 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
 
         currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
         hasMsgWaitingForAck = true;
+
 		sendMessageNow(currentMsgWaitingForAck);        // send it
+	    writeLog(currentMsgWaitingForAck, MIDISendDirection::sent);
+
 		messageBuffer.remove(0);                        // remove from buffer
 
 		startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
@@ -268,6 +272,8 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
 
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
+    writeLog(message, MIDISendDirection::received);
+
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
     {
@@ -276,9 +282,7 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
 
         // Check answer state (error yes/no)
         auto answerState = message.getSysExData()[5];
-        // ToDo Handle answer state:
-        // ToDo If error: Display error message
-        // ToDo What to do - remove message form buffer anyway?
+        // ToDo if answer state is "busy": resend message after a little delay
 
         // For now: Remove from buffer
         hasMsgWaitingForAck = false;
@@ -294,10 +298,64 @@ void TerpstraMidiDriver::timerCallback()
 {
     // No answer came from MIDI input
 
-    // ToDo Display error message
+    writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error, MIDISendDirection::received);
+
     // ToDo What to do - remove message form buffer anyway?
 
     // For now: Remove from buffer, try to send next o
     hasMsgWaitingForAck = false;
     sendOldestMessageInQueue();
+}
+
+void TerpstraMidiDriver::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel, MIDISendDirection sendDirection)
+{
+    // ToDo write to a specialized log area
+
+    // Ad hoc: display a popup if message is an error
+    if ( errorLevel != HajuErrorVisualizer::ErrorLevel::noError)
+    {
+        AlertWindow::showNativeDialogBox(
+            errorLevel == HajuErrorVisualizer::ErrorLevel::error ? "Error" : "Warning",
+            textMessage,
+            false);
+    }
+}
+
+void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection)
+{
+    // If midiMessage is an answer: error level according to answer state
+    if ( sendDirection == MIDISendDirection::received && midiMessage.isSysEx() && midiMessage.getSysExDataSize() > 5)
+    {
+        auto answerState = midiMessage.getSysExData()[5];
+
+        switch(answerState)
+        {
+        case 0x00:  // Not recognized
+            writeLog("<< Not Recognized: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error, sendDirection);
+            break;
+
+        case 0x01:  // Acknowledged, OK
+            writeLog("<< Ack: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError, sendDirection);
+            break;
+
+        case 0x02: // Controller busy
+            writeLog("<< Busy: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::warning, sendDirection);
+            break;
+
+        case 0x03:    // Error
+            writeLog("<< Error: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error, sendDirection);
+            break;
+
+        default:
+            writeLog("<< " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError, sendDirection);
+            break;
+        }
+    }
+    else
+    {
+        writeLog(
+            sendDirection == MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription(),
+            HajuErrorVisualizer::ErrorLevel::noError,
+            sendDirection);
+    }
 }

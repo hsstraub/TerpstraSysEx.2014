@@ -8,13 +8,13 @@
   ==============================================================================
 */
 
-#ifndef TERPSTRAMIDIDRIVER_H_INCLUDED
-#define TERPSTRAMIDIDRIVER_H_INCLUDED
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
 #include "HajuLib/HajuMidiDriver.h"
+#include "HajuLib/HajuErrorVisualizer.h"
 //[/Headers]
 
 /*
@@ -110,6 +110,13 @@ public:
 		afterTouch = 3
 	} VelocityCurveType;
 
+private:
+    typedef enum
+    {
+        sent,
+        received
+    } MIDISendDirection;
+
 public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
@@ -163,6 +170,9 @@ public:
 
 	void sendCalibrateAfterTouch();
 
+	////////////////////////////////////////////////////////////////////////////
+	// Implmentation of bidirectional communication with acknowledge messages
+
 	// MIDI input callback: handle acknowledge messages
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 
@@ -182,6 +192,10 @@ private:
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
 
+	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel, MIDISendDirection sendDirection);
+	void writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection);
+
+
 	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5);
 
 	// Attributes
@@ -189,8 +203,6 @@ private:
 	bool autoSave;
 	int manufacturerId = 0x002150;
 
-	// Attributes
-protected:
     MidiMessage currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available
 
@@ -198,5 +210,3 @@ protected:
 
 	int receiveTimeoutInMilliseconds = 2000;
 };
-
-#endif  // TERPSTRAMIDIDRIVER_H_INCLUDED
