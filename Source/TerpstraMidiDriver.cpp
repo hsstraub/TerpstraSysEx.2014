@@ -206,10 +206,10 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 	}
 }
 
-bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage)
+bool TerpstraMidiDriver::messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage)
 {
     // Only for SysEx messages
-    if ( answer.isSysEx() != originalMessage.isSysEx())
+    if (answer.isSysEx() != originalMessage.isSysEx())
         return false;
 
     auto answerSysExData = answer.getSysExData();
@@ -239,7 +239,7 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
     }
     else
     {
-        // Add message to queue first. The oldest messsage in queue will be sent.
+        // Add message to queue first. The oldest message in queue will be sent.
         messageBuffer.add(message);
 
         // If there is no message waiting for acknowledge: send oldest message of queue
@@ -255,10 +255,11 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
     if (!messageBuffer.isEmpty())
     {
         jassert(!isTimerRunning());
-        jassert(currentMsgWaitingForAck == nullptr);
+        jassert(!hasMsgWaitingForAck);
 
-        currentMsgWaitingForAck = std::make_shared<MidiMessage>(messageBuffer[0]);     // oldest element in buffer
-		sendMessageNow(*currentMsgWaitingForAck.get()); // send it
+        currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
+        hasMsgWaitingForAck = true;
+		sendMessageNow(currentMsgWaitingForAck);        // send it
 		messageBuffer.remove(0);                        // remove from buffer
 
 		startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
@@ -268,7 +269,7 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
     // Check whether received message is an answer to the previously sent one
-    if ( currentMsgWaitingForAck != nullptr && messageIsResponseToMessage(message, *currentMsgWaitingForAck.get()))
+    if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
     {
         // Answer has come, we can stop the timer
         stopTimer();
@@ -280,7 +281,7 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
         // ToDo What to do - remove message form buffer anyway?
 
         // For now: Remove from buffer
-        currentMsgWaitingForAck = nullptr;
+        hasMsgWaitingForAck = false;
 
         // If there are more messages waiting in the queue: send the next one
         sendOldestMessageInQueue();
@@ -297,6 +298,6 @@ void TerpstraMidiDriver::timerCallback()
     // ToDo What to do - remove message form buffer anyway?
 
     // For now: Remove from buffer, try to send next o
-    currentMsgWaitingForAck = nullptr;
+    hasMsgWaitingForAck = false;
     sendOldestMessageInQueue();
 }

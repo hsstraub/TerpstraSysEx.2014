@@ -191,7 +191,9 @@ private:
 
 	// Attributes
 protected:
-    std::shared_ptr<MidiMessage> currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
+    MidiMessage currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
+	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available
+
 	Array<MidiMessage> messageBuffer;
 
 	int receiveTimeoutInMilliseconds = 2000;
