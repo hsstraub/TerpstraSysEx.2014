@@ -298,6 +298,8 @@ void TerpstraMidiDriver::timerCallback()
 {
     // No answer came from MIDI input
 
+	stopTimer();
+
     writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error, MIDISendDirection::received);
 
     // ToDo What to do - remove message form buffer anyway?
