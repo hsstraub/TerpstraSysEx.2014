@@ -33,12 +33,12 @@ public:
 	StringArray& getMidiOutputList() { return midiOutputs; }
 
 	// Open the specified input device
-	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
-		
-	// Open the specified output device
-	void setMidiOutput(int deviceIndex);
+	virtual void setMidiInput(int deviceIndex, MidiInputCallback* callback);
 
-	// Send a MIDI message directly 
+	// Open the specified output device
+	virtual void setMidiOutput(int deviceIndex);
+
+	// Send a MIDI message directly
 	void sendMessageNow(const MidiMessage& message);
 
 	// Higher level commands
@@ -47,17 +47,16 @@ public:
 
 
 	// Attributes
-private:
+protected:
 	StringArray midiInputs;
 	StringArray midiOutputs;
 	AudioDeviceManager deviceManager;
 
-protected:
-	int lastInputIndex;
-	MidiInputCallback* lastInputCallback;
+	int lastInputIndex = -1;
+	MidiInputCallback* lastInputCallback = nullptr;
 
 	// Currently open MIDI output
-  std::unique_ptr<MidiOutput> midiOutput;
+  std::unique_ptr<MidiOutput> midiOutput = nullptr;
 };
 
 #endif  // HAJUMIDIDRIVER_H_INCLUDED

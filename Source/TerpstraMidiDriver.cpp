@@ -18,6 +18,16 @@ TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
 {
+    if (lastInputIndex >= 0)
+        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex], this);
+}
+
+void TerpstraMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
+{
+    HajuMidiDriver::setMidiInput(deviceIndex, callback);
+
+    // For the reaction to answer messages, TerpstraMidiDriver itself must be a MIDI input callback
+    deviceManager.addMidiInputDeviceCallback(midiInputs[deviceIndex], this);
 }
 
 /*
