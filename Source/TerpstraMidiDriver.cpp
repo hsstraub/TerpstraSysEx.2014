@@ -50,6 +50,23 @@ void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData)
 		sendAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1]);
 }
 
+void TerpstraMidiDriver::sendGetMappingOfBoardRequest(int boardIndex)
+{
+    sendRedLEDConfigurationRequest(boardIndex);
+    sendGreenLEDConfigurationRequest(boardIndex);
+    sendBlueLEDConfigurationRequest(boardIndex);
+    sendChannelConfigurationRequest(boardIndex);
+    sendNoteConfigurationRequest(boardIndex);
+    sendKeyTypeConfigurationRequest(boardIndex);
+    // ToDo Channel, Note
+}
+
+void TerpstraMidiDriver::sendGetCompleteMappingRequest()
+{
+	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
+		sendGetMappingOfBoardRequest(boardIndex);
+}
+
 /*
 ==============================================================================
 Single (mid-level) commands
@@ -62,11 +79,11 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 
 	// Channel, note, key type (note on/note off or continuous controller)
 	if (keyData.channelNumber >= 0)
-		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType, '\0');
+		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType);
 
 	// Colour. Values from 0x00 to 0x7f (127 decimal, as the maximal value for data bytes is according to the MIDI standard)
 	Colour theColour(keyData.colour);
-	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
+	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2);
 }
 
 // Send expression pedal sensivity
@@ -74,13 +91,13 @@ void TerpstraMidiDriver::sendExpressionPedalSensivity(unsigned char value)
 {
 	jassert(value <= 0x7f);
 
-	sendSysEx(0, SET_FOOT_CONTROLLER_SENSITIVITY, value, '\0', '\0', '\0', '\0');
+	sendSysEx(0, SET_FOOT_CONTROLLER_SENSITIVITY, value, '\0', '\0', '\0');
 }
 
 // Send parametrization of foot controller
 void TerpstraMidiDriver::sendInvertFootController(bool value)
 {
-	sendSysEx(0, INVERT_FOOT_CONTROLLER, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
+	sendSysEx(0, INVERT_FOOT_CONTROLLER, value ? '\1' : '\0', '\0', '\0', '\0');
 }
 
 // Colour for macro button in active state
@@ -88,7 +105,7 @@ void TerpstraMidiDriver::sendMacroButtonActiveColour(String colourAsString)
 {
 	int colourAsNumber = colourAsString.getHexValue32();
 	Colour theColour = Colour(colourAsNumber);
-	sendSysEx(0, MACROBUTTON_COLOUR_ON, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0', '\0');
+	sendSysEx(0, MACROBUTTON_COLOUR_ON, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
 // Colour for macro button in inactive state
@@ -96,7 +113,7 @@ void TerpstraMidiDriver::sendMacroButtonInactiveColour(String colourAsString)
 {
 	int colourAsNumber = colourAsString.getHexValue32();
 	Colour theColour = Colour(colourAsNumber);
-	sendSysEx(0, MACROBUTTON_COLOUR_OFF, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0', '\0');
+	sendSysEx(0, MACROBUTTON_COLOUR_OFF, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
 
@@ -143,13 +160,13 @@ void TerpstraMidiDriver::saveVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
     switch(velocityCurveType)
     {
         case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
-            sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-            sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
         default:
             jassert(false);
@@ -163,13 +180,13 @@ void TerpstraMidiDriver::resetVelocityConfig(TerpstraMidiDriver::VelocityCurveTy
     switch(velocityCurveType)
     {
         case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
-            sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-            sendSysEx(0, RESET_AFTERTOCUH_CONFIG, '\0', '\0', '\0', '\0', '\0');
+            sendSysEx(0, RESET_AFTERTOCUH_CONFIG, '\0', '\0', '\0', '\0');
             break;
         default:
             jassert(false);
@@ -180,26 +197,58 @@ void TerpstraMidiDriver::resetVelocityConfig(TerpstraMidiDriver::VelocityCurveTy
 // Enable or disable aftertouch functionality
 void TerpstraMidiDriver::sendAfterTouchActivation(bool value)
 {
-	sendSysEx(0, SET_AFTERTOUCH_FLAG, value ? '\1' : '\0', '\0', '\0', '\0', '\0');
+	sendSysEx(0, SET_AFTERTOUCH_FLAG, value ? '\1' : '\0', '\0', '\0', '\0');
 }
 
 // Initiate aftertouch calibration routine
 void TerpstraMidiDriver::sendCalibrateAfterTouch()
 {
-	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0', '\0');
+	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0');
 }
+
+void TerpstraMidiDriver::sendRedLEDConfigurationRequest(int boardIndex)
+{
+    sendSysEx(boardIndex, GET_RED_LED_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendGreenLEDConfigurationRequest(int boardIndex)
+{
+    sendSysEx(boardIndex, GET_GREEN_LED_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendBlueLEDConfigurationRequest(int boardIndex)
+{
+    sendSysEx(boardIndex, GET_BLUE_LED_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendChannelConfigurationRequest(int boardIndex)
+{
+    sendSysEx(boardIndex, GET_CHANNEL_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendNoteConfigurationRequest(int boardIndex)
+{
+    sendSysEx(boardIndex, GET_NOTE_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(int boardIndex)
+{
+    sendSysEx(boardIndex, GET_KEYTYPE_CONFIG, '\0', '\0', '\0', '\0');
+
+}
+
 
 /*
 ==============================================================================
 Low-level SysEx calls
 */
 
-void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5)
+void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
 {
 	// Send only if output device is there
 	if (midiOutput != nullptr)
 	{
-		unsigned char sysExData[10];
+		unsigned char sysExData[9];
 		sysExData[0] = (manufacturerId >> 16) & 0xff;
 		sysExData[1] = (manufacturerId >> 8) & 0xff;
 		sysExData[2] = manufacturerId & 0xff;
@@ -209,9 +258,8 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 		sysExData[6] = data2;
 		sysExData[7] = data3;
 		sysExData[8] = data4;
-		sysExData[9] = data5;
 
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 10);
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 9);
 		sendMessageWithAcknowledge(msg);
 	}
 }

@@ -79,7 +79,7 @@ Old definitions, for the first generation keyboard only
 #define GET_BLUE_LED_CONFIG 0x15
 #define GET_CHANNEL_CONFIG 0x16
 #define GET_NOTE_CONFIG 0x17
-#define GET_TYPE_CONFIG 0x18
+#define GET_KEYTYPE_CONFIG 0x18
 
 #define GET_MAX_THRESHOLD 0x19
 #define GET_MIN_THRESHOLD 0x1A
@@ -135,6 +135,12 @@ public:
 	// Send and save a complete key mapping
 	void sendCompleteMapping(TerpstraKeyMapping mappingData);
 
+    // Send request to receive the current mapping of one sub board on the controller
+	void sendGetMappingOfBoardRequest(int boardIndex);
+
+	// Send request to receive the complete current mapping on the controller
+	void sendGetCompleteMappingRequest();
+
 	//////////////////////////////////
 	// Single (mid-level) commands
 
@@ -172,6 +178,18 @@ public:
 
 	void sendCalibrateAfterTouch();
 
+	void sendRedLEDConfigurationRequest(int boardIndex);
+
+	void sendGreenLEDConfigurationRequest(int boardIndex);
+
+	void sendBlueLEDConfigurationRequest(int boardIndex);
+
+	void sendChannelConfigurationRequest(int boardIndex);
+
+	void sendNoteConfigurationRequest(int boardIndex);
+
+	void sendKeyTypeConfigurationRequest(int boardIndex);
+
 	////////////////////////////////////////////////////////////////////////////
 	// Implmentation of bidirectional communication with acknowledge messages
 
@@ -197,8 +215,8 @@ private:
 	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel, MIDISendDirection sendDirection);
 	void writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection);
 
-
-	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, unsigned char data5);
+    // Send a SysEx message with standardized length
+	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4);
 
 	// Attributes
 private:

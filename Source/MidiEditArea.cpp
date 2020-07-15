@@ -182,6 +182,7 @@ void MidiEditArea::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == buttonReceive.get())
     {
         //[UserButtonCode_buttonReceive] -- add your button handler code here..
+        TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();
         //[/UserButtonCode_buttonReceive]
     }
 
