@@ -288,6 +288,37 @@ bool TerpstraMidiDriver::messageIsResponseToMessage(const MidiMessage& answer, c
     }
 }
 
+bool TerpstraMidiDriver::messageIsTerpstraSysExMessage(const MidiMessage& midiMessage)
+{
+    if (!midiMessage.isSysEx())
+        return false;
+
+    auto sysExData = midiMessage.getSysExData();
+
+    return midiMessage.getSysExDataSize() >= 3 &&
+        (sysExData[0] == (manufacturerId >> 16) & 0xff) &&
+        (sysExData[1] == (manufacturerId >> 8) & 0xff) &&
+		(sysExData[2] == manufacturerId & 0xff);
+}
+
+bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return
+        midiCmd == GET_RED_LED_CONFIG ||
+        midiCmd == GET_GREEN_LED_CONFIG ||
+        midiCmd == GET_BLUE_LED_CONFIG ||
+        midiCmd == GET_CHANNEL_CONFIG ||
+        midiCmd == GET_NOTE_CONFIG ||
+        midiCmd == GET_KEYTYPE_CONFIG;
+}
+
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
     // If there is no MIDI input port active: just send, without expecting acknowledge
@@ -339,7 +370,7 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
         stopTimer();
 
         // Check answer state (error yes/no)
-        auto answerState = message.getSysExData()[5];
+        //auto answerState = message.getSysExData()[5];
         // ToDo if answer state is "busy": resend message after a little delay
 
         // For now: Remove from buffer
@@ -360,7 +391,7 @@ void TerpstraMidiDriver::timerCallback()
 
     writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error, MIDISendDirection::received);
 
-    // ToDo What to do - remove message form buffer anyway?
+    // ToDo What to do - remove message from buffer anyway?
 
     // For now: Remove from buffer, try to send next o
     hasMsgWaitingForAck = false;
@@ -390,19 +421,19 @@ void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirect
 
         switch(answerState)
         {
-        case 0x00:  // Not recognized
+        case TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
             writeLog("<< Not Recognized: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error, sendDirection);
             break;
 
-        case 0x01:  // Acknowledged, OK
+        case TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
             writeLog("<< Ack: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError, sendDirection);
             break;
 
-        case 0x02: // Controller busy
+        case TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
             writeLog("<< Busy: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::warning, sendDirection);
             break;
 
-        case 0x03:    // Error
+        case TerpstraMIDIAnswerReturnCode::ERROR:    // Error
             writeLog("<< Error: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error, sendDirection);
             break;
 

@@ -110,6 +110,14 @@ public:
 		afterTouch = 3
 	} VelocityCurveType;
 
+	typedef enum
+	{
+	    NACK = 0x00,    // Not recognized
+	    ACK = 0x01,     // Acknowledged, OK
+	    BUSY = 0x02,    // Controller busy
+	    ERROR = 0x03,   // Error
+	} TerpstraMIDIAnswerReturnCode;
+
 private:
     typedef enum
     {
@@ -146,12 +154,6 @@ public:
 
 	// Send parametrization of one key to the device
 	void sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
-
-	// Store a sub board's sent key parametrizations permanently on device
-	//void storeToEEPROM(int boardIndex);
-
-	// Discard edits of a sub-board on device
-	//void recallFromEEPROM(int boardIndex);
 
 	// Send expression pedal sensivity
 	void sendExpressionPedalSensivity(unsigned char value);
@@ -202,15 +204,21 @@ public:
 	// Clear MIDI message buffer
 	void clearMIDIMessageBuffer(){ messageBuffer.clear(); }
 
+	// Message is an answer to a sent message yes/no
+	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
+
+	// Message is SysEx message with Terpstra manufacturer ID yes/no
+    bool messageIsTerpstraSysExMessage(const MidiMessage& midiMessage);
+
+	// Message contains configuration data sent from controller yes/no
+    bool messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage);
+
 private:
-	// Low-level SysEx = valuemessage sending
+	// Low-level SysEx message sending
 	void sendMessageWithAcknowledge(const MidiMessage& message);
 
 	// Send the oldest message in queue and start waiting for answer
 	void sendOldestMessageInQueue();
-
-	// Message is an answer to a sent message yes/no
-	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
 
 	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel, MIDISendDirection sendDirection);
 	void writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection);

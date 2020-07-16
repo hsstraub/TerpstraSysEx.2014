@@ -165,7 +165,55 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-    // ToDo Receive current configuration from device functionality
+    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(message))
+    {
+        auto sysExData = message.getSysExData();
+
+        int boardNo = sysExData[3];
+        jassert(boardNo >= 1 && boardNo <= NUMBEROFBOARDS);
+
+        auto midiCmd = sysExData[4];
+        auto answerState = sysExData[5];
+
+        if (answerState == TerpstraMidiDriver::ACK)
+        {
+            // After the answer state byte there must be 55 bytes of data (one for each key)
+            jassert(message.getSysExDataSize() >= TERPSTRABOARDSIZE + 6);
+
+            for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+            {
+                auto newValue = sysExData[6 + keyIndex];
+
+                TerpstraKey& keyData = this->mappingData.sets[boardNo-1].theKeys[keyIndex];
+
+                switch(midiCmd)
+                {
+                case GET_RED_LED_CONFIG:
+                {
+                    auto theColour = Colour(keyData.colour);
+                    theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
+                    keyData.colour = theColour.getARGB();
+                    break;
+                }
+
+                case GET_GREEN_LED_CONFIG:
+                    // ToDo
+                    break;
+                case GET_BLUE_LED_CONFIG:
+                    // ToDo
+                    break;
+
+                    // ToDo channel, note, key type
+
+                default:
+                    //jassertfalse;
+                    break;
+                }
+            }
+
+            terpstraSetSelectors[boardNo-1]->repaint();
+        }
+    }
 }
 
 void MainContentComponent::paint (Graphics& g)
