@@ -171,14 +171,13 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
 
         int boardNo = sysExData[3];
         jassert(boardNo >= 1 && boardNo <= NUMBEROFBOARDS);
-
         auto midiCmd = sysExData[4];
         auto answerState = sysExData[5];
 
         if (answerState == TerpstraMidiDriver::ACK)
         {
             // After the answer state byte there must be 55 bytes of data (one for each key)
-            jassert(message.getSysExDataSize() >= TERPSTRABOARDSIZE + 6);
+            jassert(message.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
 
             for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
             {
@@ -192,21 +191,40 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
                 {
                     auto theColour = Colour(keyData.colour);
                     theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
-                    keyData.colour = theColour.getARGB();
+                    keyData.colour = theColour.toDisplayString(false).getHexValue32();
                     break;
                 }
 
                 case GET_GREEN_LED_CONFIG:
-                    // ToDo
+                {
+                    auto theColour = Colour(keyData.colour);
+                    theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
+                    keyData.colour = theColour.toDisplayString(false).getHexValue32();
                     break;
+                }
+
                 case GET_BLUE_LED_CONFIG:
-                    // ToDo
+                {
+                    auto theColour = Colour(keyData.colour);
+                    theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
+                    keyData.colour = theColour.toDisplayString(false).getHexValue32();
+                    break;
+                }
+
+                case GET_CHANNEL_CONFIG:
+                    keyData.channelNumber = newValue;
                     break;
 
-                    // ToDo channel, note, key type
+                case GET_NOTE_CONFIG:
+                    keyData.noteNumber = newValue;
+                    break;
+
+                case GET_KEYTYPE_CONFIG:
+                    keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
+                    break;
 
                 default:
-                    //jassertfalse;
+                    jassertfalse;   // Should not happen
                     break;
                 }
             }
