@@ -206,7 +206,7 @@ void SingleNoteAssign::paint (Graphics& g)
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	colourSubwindow->setBounds(120, 136, 196, 32);
+	colourSubwindow->setBounds(120, 176, 196, 32);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..

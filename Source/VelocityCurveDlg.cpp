@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
     buttonSendAll->addListener (this);
 
-    buttonSendAll->setBounds (192, 368, 150, 24);
+    buttonSendAll->setBounds (328, 368, 150, 24);
 
     buttonDiscard.reset (new TextButton ("buttonDiscard"));
     addAndMakeVisible (buttonDiscard.get());
@@ -63,7 +63,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
-    buttonDiscard->setBounds (352, 368, 150, 24);
+    buttonDiscard->setBounds (488, 368, 150, 24);
 
     buttonSaveEdits.reset (new TextButton ("buttonSaveEdits"));
     addAndMakeVisible (buttonSaveEdits.get());
@@ -71,7 +71,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
     buttonSaveEdits->addListener (this);
 
-    buttonSaveEdits->setBounds (32, 368, 150, 24);
+    buttonSaveEdits->setBounds (168, 368, 150, 24);
 
     cbEditMode.reset (new ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
@@ -130,6 +130,14 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
 
     labelCurrentBeamValue->setBounds (0, 128, 31, 24);
 
+    buttonReceive.reset (new TextButton ("buttonReceive"));
+    addAndMakeVisible (buttonReceive.get());
+    buttonReceive->setTooltip (TRANS("Receive the current configurartion from controller"));
+    buttonReceive->setButtonText (TRANS("Receive"));
+    buttonReceive->addListener (this);
+
+    buttonReceive->setBounds (8, 368, 150, 24);
+
 
     //[UserPreSize]
 
@@ -142,7 +150,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
 
     //[/UserPreSize]
 
-    setSize (640, 400);
+    setSize (648, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -169,6 +177,7 @@ VelocityCurveDlg::~VelocityCurveDlg()
     cbPreset = nullptr;
     labelPresets = nullptr;
     labelCurrentBeamValue = nullptr;
+    buttonReceive = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -233,6 +242,8 @@ void VelocityCurveDlg::resized()
 
 	int buttonYPos = h - pushButtonAreaHeight + (pushButtonAreaHeight - buttonSendAll->getHeight())/2;
 
+	buttonReceive->setBounds(buttonReceive->getX(), buttonYPos,
+		buttonReceive->getWidth(), buttonReceive->getHeight());
 	buttonSendAll->setBounds(buttonSendAll->getX(), buttonYPos,
 		buttonSendAll->getWidth(), buttonSendAll->getHeight());
 	buttonDiscard->setBounds(buttonDiscard->getX(), buttonYPos,
@@ -269,6 +280,15 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_buttonSaveEdits] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().getMidiDriver().saveVelocityConfig(velocityCurveType);
         //[/UserButtonCode_buttonSaveEdits]
+    }
+    else if (buttonThatWasClicked == buttonReceive.get())
+    {
+        //[UserButtonCode_buttonReceive] -- add your button handler code here..
+        TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(velocityCurveType);
+
+        // ToDo Handle MIDI answer
+
+        //[/UserButtonCode_buttonReceive]
     }
 
     //[UserbuttonClicked_Post]
@@ -544,7 +564,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component" constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
                  variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="640" initialHeight="400">
+                 fixedSize="1" initialWidth="648" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
          virtualName="" explicitFocusOrder="0" pos="32 80 608 32" edTextCol="ff000000"
@@ -553,15 +573,15 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="192 368 150 24" tooltip="Send whole velocity curve map to controller and save it there."
+              virtualName="" explicitFocusOrder="0" pos="328 368 150 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="352 368 150 24" tooltip="Discard velocity curve edits on controller."
+              virtualName="" explicitFocusOrder="0" pos="488 368 150 24" tooltip="Discard velocity curve edits on controller."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
-              virtualName="" explicitFocusOrder="0" pos="32 368 150 24" tooltip="Save velocity curve edits that have been sent on controller"
+              virtualName="" explicitFocusOrder="0" pos="168 368 150 24" tooltip="Save velocity curve edits that have been sent on controller"
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
@@ -586,6 +606,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TEXTBUTTON name="buttonReceive" id="5545cd9fc9bd20cb" memberName="buttonReceive"
+              virtualName="" explicitFocusOrder="0" pos="8 368 150 24" tooltip="Receive the current configurartion from controller"
+              buttonText="Receive" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

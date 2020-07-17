@@ -192,6 +192,8 @@ public:
 
 	void sendKeyTypeConfigurationRequest(int boardIndex);
 
+	void sendVelocityConfigurationRequest(VelocityCurveType velocityCurveType);
+
 	////////////////////////////////////////////////////////////////////////////
 	// Implmentation of bidirectional communication with acknowledge messages
 

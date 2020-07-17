@@ -459,7 +459,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
 	optionsWindow->setLookAndFeel(&lookAndFeel);
 
-	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
+	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
 	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
 
 	DialogWindow::LaunchOptions launchOptions;
@@ -483,7 +483,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::fader);
 	optionsWindow->setLookAndFeel(&lookAndFeel);
 
-	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
+	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
 	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
 
 	DialogWindow::LaunchOptions launchOptions;

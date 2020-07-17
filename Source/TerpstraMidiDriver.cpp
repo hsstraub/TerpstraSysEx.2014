@@ -237,7 +237,24 @@ void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(int boardIndex)
 
 }
 
-
+void TerpstraMidiDriver::sendVelocityConfigurationRequest(VelocityCurveType velocityCurveType)
+{
+    switch(velocityCurveType)
+    {
+        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+            sendSysEx(0, GET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::fader:
+            sendSysEx(0, GET_FADER_CONFIG, '\0', '\0', '\0', '\0');
+            break;
+        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+            sendSysEx(0, GET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
+            break;
+        default:
+            jassert(false);
+            break;
+    }
+}
 /*
 ==============================================================================
 Low-level SysEx calls
