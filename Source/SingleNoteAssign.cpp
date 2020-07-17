@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -55,20 +55,21 @@ SingleNoteAssign::SingleNoteAssign ()
 
     noteBox.reset (new ComboBox ("noteBox"));
     addAndMakeVisible (noteBox.get());
+    noteBox->setTooltip (TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
     noteBox->setEditableText (false);
     noteBox->setJustificationType (Justification::centredLeft);
     noteBox->setTextWhenNothingSelected (String());
     noteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     noteBox->addListener (this);
 
-    noteBox->setBounds (120, 64, 56, 24);
+    noteBox->setBounds (120, 104, 56, 24);
 
     noteAutoIncrButton.reset (new ToggleButton ("noteAutoIncrButton"));
     addAndMakeVisible (noteAutoIncrButton.get());
     noteAutoIncrButton->setButtonText (TRANS("Auto Increment"));
     noteAutoIncrButton->addListener (this);
 
-    noteAutoIncrButton->setBounds (192, 64, 160, 24);
+    noteAutoIncrButton->setBounds (192, 104, 160, 24);
 
     channelBox.reset (new ComboBox ("channelBox"));
     addAndMakeVisible (channelBox.get());
@@ -78,14 +79,14 @@ SingleNoteAssign::SingleNoteAssign ()
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
-    channelBox->setBounds (120, 96, 56, 24);
+    channelBox->setBounds (120, 136, 56, 24);
 
     channelAutoIncrButton.reset (new ToggleButton ("channelAutoIncrButton"));
     addAndMakeVisible (channelAutoIncrButton.get());
     channelAutoIncrButton->setButtonText (TRANS("Increment after Note #"));
     channelAutoIncrButton->addListener (this);
 
-    channelAutoIncrButton->setBounds (192, 96, 160, 24);
+    channelAutoIncrButton->setBounds (192, 136, 160, 24);
 
     channelAutoIncrNoteBox.reset (new ComboBox ("channelAutoIncrNoteBox"));
     addAndMakeVisible (channelAutoIncrNoteBox.get());
@@ -96,35 +97,35 @@ SingleNoteAssign::SingleNoteAssign ()
     channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelAutoIncrNoteBox->addListener (this);
 
-    channelAutoIncrNoteBox->setBounds (360, 96, 56, 24);
+    channelAutoIncrNoteBox->setBounds (360, 136, 56, 24);
 
     setNoteToggleButton.reset (new ToggleButton ("setNoteToggleButton"));
     addAndMakeVisible (setNoteToggleButton.get());
     setNoteToggleButton->setButtonText (TRANS("Note (0-127):"));
     setNoteToggleButton->addListener (this);
 
-    setNoteToggleButton->setBounds (8, 64, 112, 24);
+    setNoteToggleButton->setBounds (8, 104, 112, 24);
 
     setChannelToggleButton.reset (new ToggleButton ("setChannelToggleButton"));
     addAndMakeVisible (setChannelToggleButton.get());
     setChannelToggleButton->setButtonText (TRANS("Channel (1-16):"));
     setChannelToggleButton->addListener (this);
 
-    setChannelToggleButton->setBounds (8, 96, 112, 24);
+    setChannelToggleButton->setBounds (8, 136, 112, 24);
 
     setColourToggleButton.reset (new ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
     setColourToggleButton->setButtonText (TRANS("Colour:"));
     setColourToggleButton->addListener (this);
 
-    setColourToggleButton->setBounds (8, 136, 112, 24);
+    setColourToggleButton->setBounds (8, 176, 112, 24);
 
     keyTypeToggleButton.reset (new ToggleButton ("keyTypeToggleButton"));
     addAndMakeVisible (keyTypeToggleButton.get());
     keyTypeToggleButton->setButtonText (TRANS("Key type:"));
     keyTypeToggleButton->addListener (this);
 
-    keyTypeToggleButton->setBounds (8, 176, 112, 24);
+    keyTypeToggleButton->setBounds (8, 64, 112, 24);
 
     keyTypeCombo.reset (new ComboBox ("keyTypeCombo"));
     addAndMakeVisible (keyTypeCombo.get());
@@ -134,9 +135,10 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
     keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
+    keyTypeCombo->addItem (TRANS("Note on/Note off with Lumatouch"), 3);
     keyTypeCombo->addListener (this);
 
-    keyTypeCombo->setBounds (120, 176, 192, 24);
+    keyTypeCombo->setBounds (120, 64, 232, 24);
 
 
     //[UserPreSize]
@@ -234,6 +236,19 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == keyTypeCombo.get())
     {
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
+
+        // Label the "note box" accordingly (controller no. for key type "Fader")
+        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        {
+            setNoteToggleButton->setButtonText("CC Type:");
+
+            // ToDo Auto increment does not make sense in this case?
+        }
+        else
+        {
+            setNoteToggleButton->setButtonText("Note (0-127):");
+        }
+
         //[/UserComboBoxCode_keyTypeCombo]
     }
 
@@ -420,35 +435,35 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <COMBOBOX name="noteBox" id="123cacc6155f964" memberName="noteBox" virtualName=""
-            explicitFocusOrder="0" pos="120 64 56 24" editable="0" layout="33"
-            items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            explicitFocusOrder="0" pos="120 104 56 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
+            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
-                virtualName="" explicitFocusOrder="0" pos="192 64 160 24" buttonText="Auto Increment"
+                virtualName="" explicitFocusOrder="0" pos="192 104 160 24" buttonText="Auto Increment"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="channelBox" id="208bbc8901c22319" memberName="channelBox"
-            virtualName="" explicitFocusOrder="0" pos="120 96 56 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="120 136 56 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="channelAutoIncrButton" id="1749290d10236ec3" memberName="channelAutoIncrButton"
-                virtualName="" explicitFocusOrder="0" pos="192 96 160 24" buttonText="Increment after Note #"
+                virtualName="" explicitFocusOrder="0" pos="192 136 160 24" buttonText="Increment after Note #"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="channelAutoIncrNoteBox" id="4560285c5e467e2f" memberName="channelAutoIncrNoteBox"
-            virtualName="" explicitFocusOrder="0" pos="360 96 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
+            virtualName="" explicitFocusOrder="0" pos="360 136 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 64 112 24" buttonText="Note (0-127):"
+                virtualName="" explicitFocusOrder="0" pos="8 104 112 24" buttonText="Note (0-127):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setChannelToggleButton" id="f79f82eef6095c3c" memberName="setChannelToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Channel (1-16):"
+                virtualName="" explicitFocusOrder="0" pos="8 136 112 24" buttonText="Channel (1-16):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 136 112 24" buttonText="Colour:"
+                virtualName="" explicitFocusOrder="0" pos="8 176 112 24" buttonText="Colour:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="keyTypeToggleButton" id="3f2eba6027c4f2f5" memberName="keyTypeToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 176 112 24" buttonText="Key type:"
+                virtualName="" explicitFocusOrder="0" pos="8 64 112 24" buttonText="Key type:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
-            virtualName="" explicitFocusOrder="0" pos="120 176 192 24" editable="0"
-            layout="33" items="Note on/Note off&#10;Continuous controller"
+            virtualName="" explicitFocusOrder="0" pos="120 64 232 24" editable="0"
+            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Note on/Note off with Lumatouch"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 

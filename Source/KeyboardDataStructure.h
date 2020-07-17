@@ -8,20 +8,20 @@ Author:  hsstraub
 ==============================================================================
 */
 
-#ifndef KEYBOARDDATASTRUCTURE_INCLUDED
-#define KEYBOARDDATASTRUCTURE_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
 
 // Mapping of one key
-class TerpstraKey 
+class TerpstraKey
 {
 public:
 	typedef enum
 	{
 		noteOnNoteOff = 1,
-		continuousController = 2
+		continuousController = 2,
+		lumaTouch = 3
 	} KEYTYPE;
 
 public:
@@ -56,20 +56,19 @@ A complete key mapping
 ==============================================================================
 */
 #define NUMBEROFBOARDS 5
+
 class TerpstraKeyMapping
 {
 public:
 	TerpstraKeyMapping();
-	
+
 	void clearAll();
 
 	void fromStringArray(const StringArray& stringArray);
 	StringArray toStringArray();
-	// The colours that are used 
+	// The colours that are used
 	SortedSet<int> getUsedColours();
 
 public:
 	TerpstraKeys	sets[NUMBEROFBOARDS];
 };
-
-#endif
