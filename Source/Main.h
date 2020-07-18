@@ -69,6 +69,7 @@ public:
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
+	bool aftertouchVelocityCurveDialog();
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();

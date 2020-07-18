@@ -158,6 +158,7 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
 		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
 		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
+		TerpstraSysExMainMenuModel::commandIDs::aftertouchVelocityCurve,
 
 		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
 	};
@@ -224,6 +225,11 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.setInfo("Fader velocity curve", "Fader velocity curve", "Options", 0);
 		break;
 
+	case TerpstraSysExMainMenuModel::commandIDs::aftertouchVelocityCurve:
+		result.setInfo("Aftertouch parameters", "Aftertouch parameters", "Options", 0);
+		break;
+
+
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
 		break;
@@ -265,6 +271,8 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return noteOnOffVelocityCurveDialog();
 	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
 		return faderVelocityCurveDialog();
+	case TerpstraSysExMainMenuModel::commandIDs::aftertouchVelocityCurve:
+		return aftertouchVelocityCurveDialog();
 
 	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
@@ -491,6 +499,30 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
+	launchOptions.escapeKeyTriggersCloseButton = true;
+	launchOptions.useNativeTitleBar = false;
+	launchOptions.resizable = true;
+
+	DialogWindow* dw = launchOptions.launchAsync();
+	dw->centreWithSize(dlgWidth, dlgHeight);
+
+	return true;
+}
+
+bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
+{
+	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	optionsWindow->setLookAndFeel(&lookAndFeel);
+
+	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);
+	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 320);
+
+	DialogWindow::LaunchOptions launchOptions;
+	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content->setSize(dlgWidth, dlgHeight);
+
+	launchOptions.dialogTitle = "Aftertouch parameters";
 	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;

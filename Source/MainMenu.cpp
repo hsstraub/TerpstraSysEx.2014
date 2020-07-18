@@ -64,6 +64,7 @@ void TerpstraSysExMainMenuModel::createOptionsMenu(PopupMenu& menu)
 	menu.addCommandItem(theManager, generalOptions);
 	menu.addCommandItem(theManager, noteOnOffVelocityCurve);
 	menu.addCommandItem(theManager, faderVelocityCurve);
+	menu.addCommandItem(theManager, aftertouchVelocityCurve);
 }
 
 void TerpstraSysExMainMenuModel::createHelpMenu(PopupMenu& menu)

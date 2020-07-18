@@ -30,6 +30,7 @@ class TerpstraSysExMainMenuModel : public MenuBarModel
 			pasteOctaveBoard = 0x200019,
 			lightColourScheme = 0x200020,
 			darkColourScheme = 0x200021,
+			aftertouchVelocityCurve = 0x200022,
 
 			recentFilesBaseID = 0x200100,
 
