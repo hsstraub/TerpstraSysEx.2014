@@ -468,7 +468,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	optionsWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
-	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
+	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
@@ -492,7 +492,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	optionsWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
-	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
+	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
@@ -516,7 +516,7 @@ bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
 	optionsWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);
-	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 320);
+	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 424  );
 
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);

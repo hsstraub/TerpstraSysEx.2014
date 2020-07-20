@@ -102,6 +102,7 @@ private:
     std::unique_ptr<Label> labelCurrentBeamValue;
     std::unique_ptr<TextButton> buttonReceive;
     std::unique_ptr<TextButton> buttonCalibrate;
+    std::unique_ptr<ToggleButton> buttonAfterTouchActive;
 
 
     //==============================================================================
