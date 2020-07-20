@@ -516,7 +516,7 @@ bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
 	optionsWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);
-	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 424  );
+	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
 	launchOptions.content.setOwned(optionsWindow);
