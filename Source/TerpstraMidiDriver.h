@@ -118,7 +118,6 @@ public:
 	    ERROR = 0x03,   // Error
 	} TerpstraMIDIAnswerReturnCode;
 
-private:
     typedef enum
     {
         sent,
@@ -222,7 +221,7 @@ private:
 	// Send the oldest message in queue and start waiting for answer
 	void sendOldestMessageInQueue();
 
-	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel, MIDISendDirection sendDirection);
+	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel);
 	void writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection);
 
     // Send a SysEx message with standardized length

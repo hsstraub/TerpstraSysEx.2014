@@ -11,6 +11,9 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="gJgXxQ" name="MidiInfoArea.cpp" compile="1" resource="0"
+            file="Source/MidiInfoArea.cpp"/>
+      <FILE id="NEyeY3" name="MidiInfoArea.h" compile="0" resource="0" file="Source/MidiInfoArea.h"/>
       <FILE id="tYu9iO" name="KBMMappingDataStructure.cpp" compile="1" resource="0"
             file="Source/KBMMappingDataStructure.cpp"/>
       <FILE id="QS12kV" name="KBMMappingDataStructure.h" compile="0" resource="0"

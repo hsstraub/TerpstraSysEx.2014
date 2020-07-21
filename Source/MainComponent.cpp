@@ -37,12 +37,16 @@ MainContentComponent::MainContentComponent()
 	}
 
 	// Midi input + output
-	midiEditArea = new MidiEditArea();
-	addAndMakeVisible(midiEditArea);
+	midiEditArea.reset(new MidiEditArea());
+	addAndMakeVisible(midiEditArea.get());
 
 	// Edit function area
-	noteEditArea = new NoteEditArea();
-	addAndMakeVisible(noteEditArea);
+	noteEditArea.reset(new NoteEditArea());
+	addAndMakeVisible(noteEditArea.get());
+
+	// MIDI info area
+	midiInfoArea.reset(new MidiInfoArea());
+	addAndMakeVisible(midiInfoArea.get());
 
 	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
@@ -165,6 +169,8 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 
 void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
+    midiInfoArea->writeLog(message, TerpstraMidiDriver::MIDISendDirection::received);
+
     if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(message))
     {
         auto sysExData = message.getSysExData();
@@ -244,7 +250,6 @@ void MainContentComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
-
 	int newHeight = getHeight();
 
 	// New height of subset field area, with minimal value
@@ -285,6 +290,7 @@ void MainContentComponent::resized()
 	transform = transform.translated(x, y);
 
 	int keyIndex = 0;
+    int mostBottomKeyPos = 0;
 
 	// Rows
 	int rowCount = boardGeometry.horizontalLineCount();
@@ -306,6 +312,7 @@ void MainContentComponent::resized()
 			transform.transformPoint(x, y);
 			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
 
+			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
 			keyIndex++;
 		}
 	}
@@ -317,6 +324,9 @@ void MainContentComponent::resized()
 
 	// Edit function area
 	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
+
+	// MIDI info area
+	midiInfoArea->setBounds(0, mostBottomKeyPos, EDITAREAFIRSTCOLPOS, midiInfoArea->getHeight());
 }
 
 void MainContentComponent::mouseDown(const MouseEvent &event)

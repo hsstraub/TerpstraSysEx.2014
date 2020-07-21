@@ -406,7 +406,7 @@ void TerpstraMidiDriver::timerCallback()
 
 	stopTimer();
 
-    writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error, MIDISendDirection::received);
+    writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
 
     // ToDo What to do - remove message from buffer anyway?
 
@@ -415,7 +415,7 @@ void TerpstraMidiDriver::timerCallback()
     sendOldestMessageInQueue();
 }
 
-void TerpstraMidiDriver::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel, MIDISendDirection sendDirection)
+void TerpstraMidiDriver::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
 {
     // ToDo write to a specialized log area
 
@@ -439,23 +439,23 @@ void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirect
         switch(answerState)
         {
         case TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
-            writeLog("<< Not Recognized: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error, sendDirection);
+            writeLog("<< Not Recognized: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error);
             break;
 
         case TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
-            writeLog("<< Ack: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError, sendDirection);
+            writeLog("<< Ack: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError);
             break;
 
         case TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
-            writeLog("<< Busy: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::warning, sendDirection);
+            writeLog("<< Busy: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::warning);
             break;
 
         case TerpstraMIDIAnswerReturnCode::ERROR:    // Error
-            writeLog("<< Error: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error, sendDirection);
+            writeLog("<< Error: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error);
             break;
 
         default:
-            writeLog("<< " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError, sendDirection);
+            writeLog("<< " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError);
             break;
         }
     }
@@ -463,7 +463,6 @@ void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirect
     {
         writeLog(
             sendDirection == MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription(),
-            HajuErrorVisualizer::ErrorLevel::noError,
-            sendDirection);
+            HajuErrorVisualizer::ErrorLevel::noError);
     }
 }

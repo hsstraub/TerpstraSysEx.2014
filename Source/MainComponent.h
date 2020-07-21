@@ -20,6 +20,7 @@
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
+#include "MidiInfoArea.h"
 
 
 //==============================================================================
@@ -80,10 +81,13 @@ private:
 	TerpstraBoardGeometry	boardGeometry;
 
 	// Midi devices
-	MidiEditArea*		midiEditArea;
+	std::unique_ptr<MidiEditArea>		midiEditArea;
 
 	// Edit fields for setting key and button parameters
-	NoteEditArea*	noteEditArea;
+	std::unique_ptr<NoteEditArea>	noteEditArea;
+
+	// MIDI info area: received MIDI messages, warnings, error messages
+	std::unique_ptr<MidiInfoArea> midiInfoArea;
 
 	//==============================================================================
 	// Data
