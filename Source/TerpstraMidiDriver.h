@@ -124,6 +124,13 @@ public:
         received
     } MIDISendDirection;
 
+private:
+    typedef enum
+    {
+        waitForAnswer,
+        delayWhileDeviceBusy
+    } TimerType;
+
 public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
@@ -221,6 +228,9 @@ private:
 	// Send the oldest message in queue and start waiting for answer
 	void sendOldestMessageInQueue();
 
+	// Send the message marked as current and start waiting for answer
+    void sendCurrentMessage();
+
 	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel);
 	void writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection);
 
@@ -237,5 +247,7 @@ private:
 
 	Array<MidiMessage> messageBuffer;
 
-	int receiveTimeoutInMilliseconds = 2000;
+	const int receiveTimeoutInMilliseconds = 2000;
+	const int busyTimeDelayInMilliseconds = 20;
+	TimerType timerType;
 };

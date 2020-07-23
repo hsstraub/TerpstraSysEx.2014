@@ -39,9 +39,6 @@ void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys board
 {
 	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
-
-	//if (saveAfterSending)
-	//	storeToEEPROM(boardIndex);
 }
 
 void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData)
@@ -58,7 +55,6 @@ void TerpstraMidiDriver::sendGetMappingOfBoardRequest(int boardIndex)
     sendChannelConfigurationRequest(boardIndex);
     sendNoteConfigurationRequest(boardIndex);
     sendKeyTypeConfigurationRequest(boardIndex);
-    // ToDo Channel, Note
 }
 
 void TerpstraMidiDriver::sendGetCompleteMappingRequest()
@@ -366,14 +362,22 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
 
         currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
         hasMsgWaitingForAck = true;
-
-		sendMessageNow(currentMsgWaitingForAck);        // send it
-	    writeLog(currentMsgWaitingForAck, MIDISendDirection::sent);
-
 		messageBuffer.remove(0);                        // remove from buffer
 
-		startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
+        sendCurrentMessage();
     }
+}
+
+void TerpstraMidiDriver::sendCurrentMessage()
+{
+    jassert(!isTimerRunning());
+    jassert(hasMsgWaitingForAck);
+
+    sendMessageNow(currentMsgWaitingForAck);        // send it
+    writeLog(currentMsgWaitingForAck, MIDISendDirection::sent);
+
+    timerType = waitForAnswer;
+    startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
 }
 
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
@@ -383,18 +387,29 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
     {
+        jassert(timerType == waitForAnswer);
+
         // Answer has come, we can stop the timer
         stopTimer();
 
         // Check answer state (error yes/no)
-        //auto answerState = message.getSysExData()[5];
-        // ToDo if answer state is "busy": resend message after a little delay
+        auto answerState = message.getSysExData()[5];
+        // if answer state is "busy": resend message after a little delay
+        if ( answerState == TerpstraMIDIAnswerReturnCode::BUSY)
+        {
+            // Start delay timer, after which message will be sent again
+            timerType = delayWhileDeviceBusy;
+            startTimer(busyTimeDelayInMilliseconds);
+        }
+        else
+        {
+            // In case of error, NACK: ?
+            // For now: Remove from buffer in any case
+            hasMsgWaitingForAck = false;
 
-        // For now: Remove from buffer
-        hasMsgWaitingForAck = false;
-
-        // If there are more messages waiting in the queue: send the next one
-        sendOldestMessageInQueue();
+            // If there are more messages waiting in the queue: send the next one
+            sendOldestMessageInQueue();
+        }
     }
 
     // Other incoming messages are ignored
@@ -402,17 +417,24 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
 
 void TerpstraMidiDriver::timerCallback()
 {
-    // No answer came from MIDI input
+    stopTimer();
 
-	stopTimer();
+    if (timerType == waitForAnswer)
+    {
+        // No answer came from MIDI input
+        writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
 
-    writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
-
-    // ToDo What to do - remove message from buffer anyway?
-
-    // For now: Remove from buffer, try to send next o
-    hasMsgWaitingForAck = false;
-    sendOldestMessageInQueue();
+        // For now: Remove from buffer, try to send next one
+        hasMsgWaitingForAck = false;
+        sendOldestMessageInQueue();
+    }
+    else if (timerType == delayWhileDeviceBusy)
+    {
+        // Resend current message and start waiting for answer again
+        sendCurrentMessage();
+    }
+    else
+        jassertfalse;
 }
 
 void TerpstraMidiDriver::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
