@@ -45,17 +45,16 @@ MidiInfoArea::MidiInfoArea ()
 
     labelInfoTitle->setBounds (8, 0, 160, 24);
 
-    textInfo.reset (new TextEditor ("textInfo"));
+    textInfo.reset (new Label ("textInfo",
+                               String()));
     addAndMakeVisible (textInfo.get());
-    textInfo->setMultiLine (true);
-    textInfo->setReturnKeyStartsNewLine (false);
-    textInfo->setReadOnly (true);
-    textInfo->setScrollbarsShown (false);
-    textInfo->setCaretVisible (false);
-    textInfo->setPopupMenuEnabled (false);
-    textInfo->setText (String());
+    textInfo->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    textInfo->setJustificationType (Justification::centredLeft);
+    textInfo->setEditable (false, false, false);
+    textInfo->setColour (TextEditor::textColourId, Colours::black);
+    textInfo->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    textInfo->setBounds (16, 24, 336, 40);
+    textInfo->setBounds (8, 24, 432, 24);
 
 
     //[UserPreSize]
@@ -90,6 +89,7 @@ void MidiInfoArea::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
+    g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
@@ -108,13 +108,15 @@ void MidiInfoArea::resized()
 
 void MidiInfoArea::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
 {
-    textInfo->setText(textMessage);
+    textInfo->setText(textMessage, NotificationType::dontSendNotification);
     errorVisualizer.setErrorLevel(*textInfo.get(), errorLevel, textMessage);
 }
 
 void MidiInfoArea::writeLog(const MidiMessage& midiMessage, TerpstraMidiDriver::MIDISendDirection sendDirection)
 {
-    textInfo->setText(sendDirection == TerpstraMidiDriver::MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription());
+    textInfo->setText(
+        sendDirection == TerpstraMidiDriver::MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription(),
+        NotificationType::dontSendNotification);
 
     if (sendDirection == TerpstraMidiDriver::MIDISendDirection::received &&
         TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
@@ -131,43 +133,43 @@ void MidiInfoArea::writeLog(const MidiMessage& midiMessage, TerpstraMidiDriver::
             auto sysExData = midiMessage.getSysExData();
             auto answerState = sysExData[5];
 
-        switch(answerState)
-        {
-        case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
-            errorVisualizer.setErrorLevel(
-                *textInfo.get(),
-                HajuErrorVisualizer::ErrorLevel::error,
-                "Not Recognized");
-            break;
+            switch(answerState)
+            {
+            case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
+                errorVisualizer.setErrorLevel(
+                    *textInfo.get(),
+                    HajuErrorVisualizer::ErrorLevel::error,
+                    "Not Recognized");
+                break;
 
-        case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
-            errorVisualizer.setErrorLevel(
-                *textInfo.get(),
-                HajuErrorVisualizer::ErrorLevel::noError,
-                "Ack");
-            break;
+            case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
+                errorVisualizer.setErrorLevel(
+                    *textInfo.get(),
+                    HajuErrorVisualizer::ErrorLevel::noError,
+                    "Ack");
+                break;
 
-        case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
-            errorVisualizer.setErrorLevel(
-                *textInfo.get(),
-                HajuErrorVisualizer::ErrorLevel::warning,
-                "Busy");
-            break;
+            case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
+                errorVisualizer.setErrorLevel(
+                    *textInfo.get(),
+                    HajuErrorVisualizer::ErrorLevel::warning,
+                    "Busy");
+                break;
 
-        case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ERROR:    // Error
-            errorVisualizer.setErrorLevel(
-                *textInfo.get(),
-                HajuErrorVisualizer::ErrorLevel::error,
-                "Error from device");
-            break;
+            case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ERROR:    // Error
+                errorVisualizer.setErrorLevel(
+                    *textInfo.get(),
+                    HajuErrorVisualizer::ErrorLevel::error,
+                    "Error from device");
+                break;
 
-        default:
-            errorVisualizer.setErrorLevel(
-                *textInfo.get(),
-                HajuErrorVisualizer::ErrorLevel::noError,
-                "");
-            break;
-        }
+            default:
+                errorVisualizer.setErrorLevel(
+                    *textInfo.get(),
+                    HajuErrorVisualizer::ErrorLevel::noError,
+                    "");
+                break;
+            }
         }
     }
 }
@@ -194,9 +196,11 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Latest MIDI message:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="textInfo" id="ab84427977a3ee81" memberName="textInfo" virtualName=""
-              explicitFocusOrder="0" pos="16 24 336 40" initialText="" multiline="1"
-              retKeyStartsLine="0" readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
+  <LABEL name="textInfo" id="c1ed1065b4532578" memberName="textInfo" virtualName=""
+         explicitFocusOrder="0" pos="8 24 432 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

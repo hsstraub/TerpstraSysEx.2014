@@ -60,7 +60,7 @@ private:
 
     //==============================================================================
     std::unique_ptr<Label> labelInfoTitle;
-    std::unique_ptr<TextEditor> textInfo;
+    std::unique_ptr<Label> textInfo;
 
 
     //==============================================================================

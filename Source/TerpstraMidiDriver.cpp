@@ -454,6 +454,8 @@ void TerpstraMidiDriver::writeLog(String textMessage, HajuErrorVisualizer::Error
 void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection)
 {
     // If midiMessage is an answer: error level according to answer state
+    // Currently done by MainComponent
+    /*
     if ( sendDirection == MIDISendDirection::received && midiMessage.isSysEx() && midiMessage.getSysExDataSize() > 5)
     {
         auto answerState = midiMessage.getSysExData()[5];
@@ -487,4 +489,5 @@ void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirect
             sendDirection == MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription(),
             HajuErrorVisualizer::ErrorLevel::noError);
     }
+    */
 }
