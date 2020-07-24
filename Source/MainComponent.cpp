@@ -68,7 +68,9 @@ MainContentComponent::~MainContentComponent()
 		terpstraKeyFields[i] = nullptr;
 	}
 
-	deleteAllChildren();
+	midiEditArea = nullptr;
+	noteEditArea = nullptr;
+	midiInfoArea = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -97,7 +99,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
     if ( withRefresh)
     {
-        for ( int i = 0; i < NUMBEROFBOARDS; i++)
+        for (int i = 0; i < NUMBEROFBOARDS; i++)
             terpstraSetSelectors[i]->repaint();
 
         changeSetSelection(-1);
