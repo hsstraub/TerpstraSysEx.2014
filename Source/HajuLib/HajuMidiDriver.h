@@ -33,10 +33,10 @@ public:
 	StringArray& getMidiOutputList() { return midiOutputs; }
 
 	// Open the specified input device
-	virtual void setMidiInput(int deviceIndex, MidiInputCallback* callback);
+	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
 
 	// Open the specified output device
-	virtual void setMidiOutput(int deviceIndex);
+	void setMidiOutput(int deviceIndex);
 
 	// Send a MIDI message directly
 	void sendMessageNow(const MidiMessage& message);

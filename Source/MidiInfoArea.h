@@ -35,7 +35,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MidiInfoArea  : public Component
+class MidiInfoArea  : public Component,
+                      public TerpstraMidiDriver::Listener
 {
 public:
     //==============================================================================
@@ -44,8 +45,11 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel);
-	void writeLog(const MidiMessage& midiMessage, TerpstraMidiDriver::MIDISendDirection sendDirection);
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override;
+	void midiSendQueueSize(int queueSize) override;
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
     //[/UserMethods]
 
     void paint (Graphics& g) override;

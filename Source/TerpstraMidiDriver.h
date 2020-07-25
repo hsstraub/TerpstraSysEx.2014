@@ -103,6 +103,19 @@ class TerpstraMidiDriver : public HajuMidiDriver, public MidiInputCallback, publ
 {
     // Types
 public:
+	// Listener class, to notify changes
+	class Listener
+	{
+	public:
+		// Destructor
+		virtual ~Listener() {}
+
+		virtual void midiMessageReceived(const MidiMessage& midiMessage) = 0;
+		virtual void midiMessageSent(const MidiMessage& midiMessage) = 0;
+		virtual void midiSendQueueSize(int queueSize) = 0;
+        virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) = 0;
+	};
+
  	typedef enum
 	{
 		noteOnNoteOff = 1,
@@ -118,12 +131,6 @@ public:
 	    ERROR = 0x03,   // Error
 	} TerpstraMIDIAnswerReturnCode;
 
-    typedef enum
-    {
-        sent,
-        received
-    } MIDISendDirection;
-
 private:
     typedef enum
     {
@@ -135,10 +142,14 @@ public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
 
-	void setMidiInput(int deviceIndex, MidiInputCallback* callback) override;
+	void setMidiInput(int deviceIndex, MidiInputCallback* callback) = delete;
+	void setMidiInput(int deviceIndex);
 
 	void setAutoSave(bool value) { this->autoSave = value; }
 	void setManufacturerId(int value) { manufacturerId = value; }
+
+	void addListener(Listener* listenerToAdd);
+	void removeListener(Listener* listenerToRemove);
 
 	//////////////////////////////////
 	// Combined (hi-level) commands
@@ -210,7 +221,7 @@ public:
 	void timerCallback() override;
 
 	// Clear MIDI message buffer
-	void clearMIDIMessageBuffer(){ messageBuffer.clear(); }
+	void clearMIDIMessageBuffer(){ messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0); }
 
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
@@ -231,13 +242,13 @@ private:
 	// Send the message marked as current and start waiting for answer
     void sendCurrentMessage();
 
-	void writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel);
-	void writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection);
-
     // Send a SysEx message with standardized length
 	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4);
 
 	// Attributes
+protected:
+    ListenerList<Listener> listeners;
+
 private:
 	bool autoSave;
 	int manufacturerId = 0x002150;

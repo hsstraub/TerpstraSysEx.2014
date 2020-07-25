@@ -599,11 +599,6 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	return retc;
 }
 
-void TerpstraSysExApplication::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
-{
-	((MainContentComponent*)(mainWindow->getContentComponent()))->handleIncomingMidiMessage(source, message);
-}
-
 void TerpstraSysExApplication::sendCurrentMappingToDevice()
 {
     getMidiDriver().sendCompleteMapping(

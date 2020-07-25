@@ -58,6 +58,7 @@ MidiInfoArea::MidiInfoArea ()
 
 
     //[UserPreSize]
+	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
     //[/UserPreSize]
 
     setSize (600, 64);
@@ -106,20 +107,11 @@ void MidiInfoArea::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MidiInfoArea::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
+void MidiInfoArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
-    textInfo->setText(textMessage, NotificationType::dontSendNotification);
-    errorVisualizer.setErrorLevel(*textInfo.get(), errorLevel, textMessage);
-}
+    textInfo->setText("<< " + midiMessage.getDescription(), NotificationType::dontSendNotification);
 
-void MidiInfoArea::writeLog(const MidiMessage& midiMessage, TerpstraMidiDriver::MIDISendDirection sendDirection)
-{
-    textInfo->setText(
-        sendDirection == TerpstraMidiDriver::MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription(),
-        NotificationType::dontSendNotification);
-
-    if (sendDirection == TerpstraMidiDriver::MIDISendDirection::received &&
-        TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
+    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
     {
         if (midiMessage.getSysExDataSize() < 6)
         {
@@ -172,6 +164,23 @@ void MidiInfoArea::writeLog(const MidiMessage& midiMessage, TerpstraMidiDriver::
             }
         }
     }
+
+}
+
+void MidiInfoArea::midiMessageSent(const MidiMessage& midiMessage)
+{
+    textInfo->setText(">> " + midiMessage.getDescription(), NotificationType::dontSendNotification);
+}
+
+void MidiInfoArea::midiSendQueueSize(int queueSize)
+{
+    // ToDo
+}
+
+void MidiInfoArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
+{
+    textInfo->setText(textMessage, NotificationType::dontSendNotification);
+    errorVisualizer.setErrorLevel(*textInfo.get(), errorLevel, textMessage);
 }
 
 //[/MiscUserCode]
@@ -187,7 +196,8 @@ void MidiInfoArea::writeLog(const MidiMessage& midiMessage, TerpstraMidiDriver::
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MidiInfoArea" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), "
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener"
+                 constructorParams="" variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), "
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="64">
   <BACKGROUND backgroundColour="ffbad0de"/>

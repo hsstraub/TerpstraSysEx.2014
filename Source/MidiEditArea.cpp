@@ -154,7 +154,7 @@ void MidiEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cbMidiInput.get())
     {
         //[UserComboBoxCode_cbMidiInput] -- add your combo box handling code here..
-		TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex(), &TerpstraSysExApplication::getApp());
+		TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
         //[/UserComboBoxCode_cbMidiInput]
     }
     else if (comboBoxThatHasChanged == cbMidiOutput.get())

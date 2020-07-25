@@ -37,6 +37,7 @@
                                                                     //[/Comments]
 */
 class VelocityCurveDlg  : public Component,
+                          public TerpstraMidiDriver::Listener,
                           public Button::Listener,
                           public ComboBox::Listener
 {
@@ -57,6 +58,12 @@ public:
 	void mouseDown(const MouseEvent &event);
 	void mouseDrag(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
+
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override {}
+	void midiSendQueueSize(int queueSize) override {}
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
     //[/UserMethods]
 
     void paint (Graphics& g) override;

@@ -48,6 +48,8 @@ MainContentComponent::MainContentComponent()
 	midiInfoArea.reset(new MidiInfoArea());
 	addAndMakeVisible(midiInfoArea.get());
 
+	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+
 	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
@@ -169,10 +171,8 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 		return false;
 }
 
-void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+void MainContentComponent::midiMessageReceived(const MidiMessage& message)
 {
-    midiInfoArea->writeLog(message, TerpstraMidiDriver::MIDISendDirection::received);
-
     if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(message))
     {
         auto sysExData = message.getSysExData();

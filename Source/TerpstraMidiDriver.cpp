@@ -22,12 +22,20 @@ TerpstraMidiDriver::~TerpstraMidiDriver()
         deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex], this);
 }
 
-void TerpstraMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
+void TerpstraMidiDriver::setMidiInput(int deviceIndex)
 {
-    HajuMidiDriver::setMidiInput(deviceIndex, callback);
-
     // For the reaction to answer messages, TerpstraMidiDriver itself must be a MIDI input callback
-    deviceManager.addMidiInputDeviceCallback(midiInputs[deviceIndex], this);
+    HajuMidiDriver::setMidiInput(deviceIndex, this);
+}
+
+void TerpstraMidiDriver::addListener(TerpstraMidiDriver::Listener* listener)
+{
+	listeners.add(listener);
+}
+
+void TerpstraMidiDriver::removeListener(TerpstraMidiDriver::Listener* listener)
+{
+	listeners.remove(listener);
 }
 
 /*
@@ -338,12 +346,15 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
     if ( lastInputCallback == nullptr)
     {
         sendMessageNow(message);
-	    writeLog(message, MIDISendDirection::sent);
+
+	    // Notify listeners
+		this->listeners.call(&Listener::midiMessageSent, message);
     }
     else
     {
         // Add message to queue first. The oldest message in queue will be sent.
         messageBuffer.add(message);
+        this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
 
         // If there is no message waiting for acknowledge: send oldest message of queue
        	if (!isTimerRunning())
@@ -363,6 +374,7 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
         currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
         hasMsgWaitingForAck = true;
 		messageBuffer.remove(0);                        // remove from buffer
+        this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
 
         sendCurrentMessage();
     }
@@ -374,7 +386,9 @@ void TerpstraMidiDriver::sendCurrentMessage()
     jassert(hasMsgWaitingForAck);
 
     sendMessageNow(currentMsgWaitingForAck);        // send it
-    writeLog(currentMsgWaitingForAck, MIDISendDirection::sent);
+
+    // Notify listeners
+    this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
 
     timerType = waitForAnswer;
     startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
@@ -382,7 +396,8 @@ void TerpstraMidiDriver::sendCurrentMessage()
 
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-    writeLog(message, MIDISendDirection::received);
+    // Notify listeners
+    this->listeners.call(&Listener::midiMessageReceived, message);
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
@@ -422,7 +437,7 @@ void TerpstraMidiDriver::timerCallback()
     if (timerType == waitForAnswer)
     {
         // No answer came from MIDI input
-        writeLog("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+        this->listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
 
         // For now: Remove from buffer, try to send next one
         hasMsgWaitingForAck = false;
@@ -435,59 +450,4 @@ void TerpstraMidiDriver::timerCallback()
     }
     else
         jassertfalse;
-}
-
-void TerpstraMidiDriver::writeLog(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
-{
-    // ToDo write to a specialized log area
-
-    // Ad hoc: display a popup if message is an error
-    if ( errorLevel != HajuErrorVisualizer::ErrorLevel::noError)
-    {
-        AlertWindow::showNativeDialogBox(
-            errorLevel == HajuErrorVisualizer::ErrorLevel::error ? "Error" : "Warning",
-            textMessage,
-            false);
-    }
-}
-
-void TerpstraMidiDriver::writeLog(const MidiMessage& midiMessage, MIDISendDirection sendDirection)
-{
-    // If midiMessage is an answer: error level according to answer state
-    // Currently done by MainComponent
-    /*
-    if ( sendDirection == MIDISendDirection::received && midiMessage.isSysEx() && midiMessage.getSysExDataSize() > 5)
-    {
-        auto answerState = midiMessage.getSysExData()[5];
-
-        switch(answerState)
-        {
-        case TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
-            writeLog("<< Not Recognized: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error);
-            break;
-
-        case TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
-            writeLog("<< Ack: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError);
-            break;
-
-        case TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
-            writeLog("<< Busy: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::warning);
-            break;
-
-        case TerpstraMIDIAnswerReturnCode::ERROR:    // Error
-            writeLog("<< Error: " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::error);
-            break;
-
-        default:
-            writeLog("<< " + midiMessage.getDescription(), HajuErrorVisualizer::ErrorLevel::noError);
-            break;
-        }
-    }
-    else
-    {
-        writeLog(
-            sendDirection == MIDISendDirection::received ? "<< " : ">> " + midiMessage.getDescription(),
-            HajuErrorVisualizer::ErrorLevel::noError);
-    }
-    */
 }

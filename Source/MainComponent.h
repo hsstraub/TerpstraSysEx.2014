@@ -28,7 +28,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public MidiInputCallback
+class MainContentComponent : public Component, public TerpstraMidiDriver::Listener
 {
 public:
     //==============================================================================
@@ -51,8 +51,11 @@ public:
 	bool copyCurrentSubBoardData();
 	bool pasteCurrentSubBoardData();
 
-	// MIDI input callback
-	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override {}
+	void midiSendQueueSize(int queueSize) override {}
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
 
 	// GUI implementation
     void paint (Graphics&);

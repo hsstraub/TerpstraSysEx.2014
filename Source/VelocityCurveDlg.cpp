@@ -163,6 +163,8 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
 
+	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+
     //[/UserPreSize]
 
     setSize (768, 424);
@@ -627,6 +629,12 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 	repaint();
 }
 
+
+void VelocityCurveDlg::midiMessageReceived(const MidiMessage& message)
+{
+    // ToDo
+}
+
 //[/MiscUserCode]
 
 
@@ -640,7 +648,8 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
-                 parentClasses="public Component" constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener"
+                 constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
                  variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="768" initialHeight="424">
