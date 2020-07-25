@@ -60,6 +60,8 @@ MainContentComponent::MainContentComponent()
 
 MainContentComponent::~MainContentComponent()
 {
+    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		terpstraSetSelectors[i] = nullptr;

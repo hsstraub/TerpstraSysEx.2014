@@ -163,14 +163,14 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
 
-	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
-
     //[/UserPreSize]
 
     setSize (768, 424);
 
 
     //[Constructor] You can add your own custom stuff here..
+    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+
 	labelCurrentBeamValue->setVisible(false);
 
 	// Calibrate button: only for aftertouch
@@ -185,6 +185,8 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
 VelocityCurveDlg::~VelocityCurveDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+
 	// Save values to properties file
 	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
     //[/Destructor_pre]

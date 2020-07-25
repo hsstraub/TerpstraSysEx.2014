@@ -58,19 +58,20 @@ MidiInfoArea::MidiInfoArea ()
 
 
     //[UserPreSize]
-	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
     //[/UserPreSize]
 
     setSize (600, 64);
 
 
     //[Constructor] You can add your own custom stuff here..
+    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
     //[/Constructor]
 }
 
 MidiInfoArea::~MidiInfoArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
     //[/Destructor_pre]
 
     labelInfoTitle = nullptr;
