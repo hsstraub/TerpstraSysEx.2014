@@ -346,13 +346,15 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
         sendMessageNow(message);
 
 	    // Notify listeners
+		const MessageManagerLock mmLock;
 		this->listeners.call(&Listener::midiMessageSent, message);
     }
     else
     {
         // Add message to queue first. The oldest message in queue will be sent.
         messageBuffer.add(message);
-        this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+		const MessageManagerLock mmLock;
+		this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
 
         // If there is no message waiting for acknowledge: send oldest message of queue
        	if (!isTimerRunning())
@@ -372,7 +374,8 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
         currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
         hasMsgWaitingForAck = true;
 		messageBuffer.remove(0);                        // remove from buffer
-        this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+		const MessageManagerLock mmLock;
+		this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
 
         sendCurrentMessage();
     }
@@ -386,7 +389,8 @@ void TerpstraMidiDriver::sendCurrentMessage()
     sendMessageNow(currentMsgWaitingForAck);        // send it
 
     // Notify listeners
-    this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
+	const MessageManagerLock mmLock;
+	this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
 
     timerType = waitForAnswer;
     startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
@@ -395,7 +399,8 @@ void TerpstraMidiDriver::sendCurrentMessage()
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
     // Notify listeners
-    this->listeners.call(&Listener::midiMessageReceived, message);
+	const MessageManagerLock mmLock;
+	this->listeners.call(&Listener::midiMessageReceived, message);
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
@@ -435,7 +440,8 @@ void TerpstraMidiDriver::timerCallback()
     if (timerType == waitForAnswer)
     {
         // No answer came from MIDI input
-        this->listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+		const MessageManagerLock mmLock;
+		this->listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
 
         // For now: Remove from buffer, try to send next one
         hasMsgWaitingForAck = false;
