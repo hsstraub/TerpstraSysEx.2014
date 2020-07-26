@@ -18,8 +18,6 @@ TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
 {
-    if (lastInputIndex >= 0)
-        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex], this);
 }
 
 void TerpstraMidiDriver::setMidiInput(int deviceIndex)

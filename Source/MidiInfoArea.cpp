@@ -165,7 +165,10 @@ void MidiInfoArea::midiMessageReceived(const MidiMessage& midiMessage)
             }
         }
     }
-
+	else
+	{
+		errorVisualizer.setErrorLevel(*textInfo.get(), HajuErrorVisualizer::ErrorLevel::noError, "");
+	}
 }
 
 void MidiInfoArea::midiMessageSent(const MidiMessage& midiMessage)

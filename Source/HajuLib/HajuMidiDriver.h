@@ -27,10 +27,10 @@ public:
 	HajuMidiDriver();
 	~HajuMidiDriver();
 
-	// List of MIDI input devices
-	StringArray& getMidiInputList() { return midiInputs; }
-	// List of MIDI output devices
-	StringArray& getMidiOutputList() { return midiOutputs; }
+	// List of MIDI input device names
+	StringArray getMidiInputList();
+	// List of MIDI output device names
+	StringArray getMidiOutputList();
 
 	// Open the specified input device
 	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
@@ -48,8 +48,8 @@ public:
 
 	// Attributes
 protected:
-	StringArray midiInputs;
-	StringArray midiOutputs;
+	Array<MidiDeviceInfo> midiInputs;
+	Array<MidiDeviceInfo> midiOutputs;
 	AudioDeviceManager deviceManager;
 
 	int lastInputIndex = -1;

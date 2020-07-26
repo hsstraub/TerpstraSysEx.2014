@@ -13,8 +13,8 @@
 
 HajuMidiDriver::HajuMidiDriver()
 {
-	midiInputs = MidiInput::getDevices();
-	midiOutputs = MidiOutput::getDevices();
+	midiInputs = MidiInput::getAvailableDevices();
+	midiOutputs = MidiOutput::getAvailableDevices();
 
 	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String(), 0);
 }
@@ -23,24 +23,44 @@ HajuMidiDriver::~HajuMidiDriver()
 {
     if (lastInputIndex >= 0)
     {
-        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex], lastInputCallback);
+        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex].identifier, lastInputCallback);
     }
 
 	midiOutput = nullptr;
+}
+
+StringArray HajuMidiDriver::getMidiInputList() 
+{
+	juce::StringArray midiInputNames;
+
+	for (auto input : midiInputs)
+		midiInputNames.add(input.name);
+
+	return midiInputNames;
+}
+
+StringArray HajuMidiDriver::getMidiOutputList() 
+{ 
+	juce::StringArray midiOutputNames;
+
+	for (auto output : midiOutputs)
+		midiOutputNames.add(output.name);
+
+	return midiOutputNames;
 }
 
 void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
 {
     if (lastInputIndex >= 0)
     {
-        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex], lastInputCallback);
+        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex].identifier, lastInputCallback);
     }
 
 	auto newInput = midiInputs[deviceIndex];
-	if (!deviceManager.isMidiInputEnabled(newInput))
-		deviceManager.setMidiInputEnabled(newInput, true);
+	if (!deviceManager.isMidiInputDeviceEnabled(newInput.identifier))
+		deviceManager.setMidiInputDeviceEnabled(newInput.identifier, true);
 
-	deviceManager.addMidiInputDeviceCallback(newInput, callback);
+	deviceManager.addMidiInputDeviceCallback(newInput.identifier, callback);
 
 	lastInputIndex = deviceIndex;
 	lastInputCallback = callback;
@@ -48,7 +68,9 @@ void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
-	midiOutput = MidiOutput::openDevice(deviceIndex);
+	jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
+
+	midiOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
 }
 
 void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
