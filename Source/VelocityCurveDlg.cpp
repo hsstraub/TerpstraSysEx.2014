@@ -634,7 +634,23 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 
 void VelocityCurveDlg::midiMessageReceived(const MidiMessage& message)
 {
-    // ToDo
+    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(message, velocityCurveType))
+    {
+        auto sysExData = message.getSysExData();
+        auto answerState = sysExData[5];
+
+        if (answerState == TerpstraMidiDriver::ACK)
+        {
+            // After the answer state byte there must be 128 bytes of data
+            jassert(message.getSysExDataSize() >= 134); // ToDo display error otherwise
+
+            cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
+            currentCurveEditStrategy = &freeDrawingStrategy;
+
+            for (int x = 0; x < 128; x++)
+                velocityBeamTable[x]->setValue(sysExData[6+x]);
+        }
+    }
 }
 
 //[/MiscUserCode]
