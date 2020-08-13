@@ -49,14 +49,14 @@ void TerpstraKeyMapping::clearAll()
 
 /*
 ==============================================================================
-Read data 
+Read data
 ==============================================================================
 */
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
-	// Buffe data in case stringArray is from an older 56-keys subset 
+	// Buffer data in case stringArray is from a 56-keys subset
 	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		fiftysixthKeys[boardIndex] = TerpstraKey();
@@ -87,10 +87,9 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
-					else if (keyIndex == 55)
+
+					if (keyIndex == 55)
 						fiftysixthKeys[boardIndex].noteNumber = keyValue;
-					else
-						jassert(false);
 				}
 				else
 					jassert(false);
@@ -107,10 +106,9 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
-					else if (keyIndex == 55)
+
+					if (keyIndex == 55)
 						fiftysixthKeys[boardIndex].channelNumber = keyValue;
-					else
-						jassert(false);
 				}
 				else
 					jassert(false);
@@ -127,11 +125,10 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].colour = colValue;
-					else if (keyIndex == 55)
+
+					if (keyIndex == 55)
 						fiftysixthKeys[boardIndex].colour = colValue;
-					else
-						jassert(false);
-				}
+                }
 				else
 					jassert(false);
 			}
@@ -149,11 +146,10 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
-					else if (keyIndex == 55)
+
+					if (keyIndex == 55)
 						fiftysixthKeys[boardIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
-					else
-						jassert(false);
-				}
+                }
 				else
 					jassert(false);
 			}
@@ -162,7 +158,10 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 		}
 	}
 
-	// If it was a 56-key layout, convert to 55-key layout
+	// Conversion between 56 and 55-key layout
+	// ToDo From 55 to 56
+	/*
+	// From 56 to 55
 	bool fromFiftySixKeys = false;
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
 		fromFiftySixKeys |= (!fiftysixthKeys[boardIndex].isEmpty());
@@ -177,6 +176,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			sets[boardIndex].theKeys[54] = fiftysixthKeys[boardIndex];
 		}
 	}
+	*/
 }
 
 /*

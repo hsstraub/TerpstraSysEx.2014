@@ -19,29 +19,30 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 {
 	// The horizontal lines of a 55 key subset. From left to right
 	this->horizontalLines.add(StraightLine({ 0, 1 }));
-	this->horizontalLines.add(StraightLine({ 2, 3, 4, 5, 6 }));
-	this->horizontalLines.add(StraightLine({ 7, 8, 9, 10, 11, 12 }));
-	this->horizontalLines.add(StraightLine({ 13, 14, 15, 16, 17, 18 }));
-	this->horizontalLines.add(StraightLine({ 19, 20, 21, 22, 23, 24 }));
-	this->horizontalLines.add(StraightLine({ 25, 26, 27, 28, 29, 30 }));
-	this->horizontalLines.add(StraightLine({ 31, 32, 33, 34, 35, 36 }));
-	this->horizontalLines.add(StraightLine({ 37, 38, 39, 40, 41, 42 }));
-	this->horizontalLines.add(StraightLine({ 43, 44, 45, 46, 47, 48 }));
-	this->horizontalLines.add(StraightLine({ 49, 50, 51, 52, 53 }));
-	this->horizontalLines.add(StraightLine({ 54 }));
+    this->horizontalLines.add(StraightLine({ 2, 3, 4, 5, 6, 7 }));
+	this->horizontalLines.add(StraightLine({ 8, 9, 10, 11, 12, 13 }));
+	this->horizontalLines.add(StraightLine({ 14, 15, 16, 17, 18, 19 }));
+	this->horizontalLines.add(StraightLine({ 20, 21, 22, 23, 24, 25 }));
+	this->horizontalLines.add(StraightLine({ 26, 27, 28, 29, 30, 31 }));
+	this->horizontalLines.add(StraightLine({ 32, 33, 34, 35, 36, 37 }));
+	this->horizontalLines.add(StraightLine({ 38, 39, 40, 41, 42, 43 }));
+	this->horizontalLines.add(StraightLine({ 44, 45, 46, 47, 48, 49 }));
 
-	// The right upward lines of a 55 key subset. From bottom to top
+	this->horizontalLines.add(StraightLine({ 50, 51, 52, 53, 54 }));
+	this->horizontalLines.add(StraightLine({ 55 }));
+
+	// The right upward lines of a 56 key subset. From bottom to top
 	this->rightUpwardLines.add(StraightLine({ 0 }));
-	this->rightUpwardLines.add(StraightLine({ 7, 2, 1 }));
-	this->rightUpwardLines.add(StraightLine({ 19, 13, 8, 3 }));
-	this->rightUpwardLines.add(StraightLine({ 31, 25, 20, 14, 9, 4 }));
-	this->rightUpwardLines.add(StraightLine({ 43, 37, 32, 26, 21, 15, 10, 5 }));
-	this->rightUpwardLines.add(StraightLine({ 44, 38, 33, 27, 22, 16, 11, 6 }));
-	this->rightUpwardLines.add(StraightLine({ 49, 45, 39, 34, 28, 23, 17, 12 }));
-	this->rightUpwardLines.add(StraightLine({ 50, 46, 40, 35, 29, 24, 18 }));
-	this->rightUpwardLines.add(StraightLine({ 51, 47, 41, 36, 30 }));
-	this->rightUpwardLines.add(StraightLine({ 52, 48, 42 }));
-	this->rightUpwardLines.add(StraightLine({ 54, 53 }));
+	this->rightUpwardLines.add(StraightLine({ 8, 2, 1 }));
+	this->rightUpwardLines.add(StraightLine({ 20, 14, 9, 3 }));
+	this->rightUpwardLines.add(StraightLine({ 32, 26, 21, 15, 10, 4 }));
+	this->rightUpwardLines.add(StraightLine({ 44, 38, 33, 27, 22, 16, 11, 5 }));
+	this->rightUpwardLines.add(StraightLine({ 45, 39, 34, 28, 23, 17, 12, 6 }));
+	this->rightUpwardLines.add(StraightLine({ 50, 46, 40, 35, 29, 24, 18, 13, 7 }));
+	this->rightUpwardLines.add(StraightLine({ 51, 47, 41, 36, 30, 25, 19 }));
+	this->rightUpwardLines.add(StraightLine({ 52, 48, 42, 37, 31 }));
+	this->rightUpwardLines.add(StraightLine({ 53, 49, 43 }));
+	this->rightUpwardLines.add(StraightLine({ 55, 54 }));
 
 	this->firstColumnOffsets = Array<int>({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5});
 }
