@@ -45,10 +45,10 @@
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
       <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
             file="Source/VelocityCurveEditStrategy.h"/>
-      <FILE id="zD1emI" name="VelocityCurveDlg.cpp" compile="1" resource="0"
-            file="Source/VelocityCurveDlg.cpp"/>
-      <FILE id="OEajb7" name="VelocityCurveDlg.h" compile="0" resource="0"
-            file="Source/VelocityCurveDlg.h"/>
+      <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
+            file="Source/VelocityCurveDlgBase.cpp"/>
+      <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
+            file="Source/VelocityCurveDlgBase.h"/>
       <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
             file="Source/GeneralOptionsDlg.cpp"/>
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"

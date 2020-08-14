@@ -21,14 +21,14 @@
 #include "Main.h"
 //[/Headers]
 
-#include "VelocityCurveDlg.h"
+#include "VelocityCurveDlgBase.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue)
+VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue)
     : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
       linearDrawingStrategy(beamTableFrame, velocityBeamTable),
       quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
@@ -182,7 +182,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     //[/Constructor]
 }
 
-VelocityCurveDlg::~VelocityCurveDlg()
+VelocityCurveDlgBase::~VelocityCurveDlgBase()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
@@ -211,7 +211,7 @@ VelocityCurveDlg::~VelocityCurveDlg()
 }
 
 //==============================================================================
-void VelocityCurveDlg::paint (Graphics& g)
+void VelocityCurveDlgBase::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -232,7 +232,7 @@ void VelocityCurveDlg::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void VelocityCurveDlg::resized()
+void VelocityCurveDlgBase::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 	int w = this->getWidth();
@@ -281,7 +281,7 @@ void VelocityCurveDlg::resized()
     //[/UserResized]
 }
 
-void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
+void VelocityCurveDlgBase::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -339,7 +339,7 @@ void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void VelocityCurveDlgBase::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -468,8 +468,8 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
             setSize(
-                propertiesFile->getIntValue("VelocityCurveWindowWidth", 648),
-                propertiesFile->getIntValue("VelocityCurveWindowHeight", 320));
+                propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648),
+                propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 320));
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
             buttonAfterTouchActive->setToggleState(
@@ -526,8 +526,8 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
             propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
-            propertiesFile->setValue("VelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("FaderVelocityCurveWindowWidth", getWidth());
+            propertiesFile->setValue("FaderVelocityCurveWindowHeight", getHeight());
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
             propertiesFile->setValue("AfterTouchActive", buttonAfterTouchActive->getToggleState());
@@ -665,7 +665,7 @@ void VelocityCurveDlg::midiMessageReceived(const MidiMessage& message)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
+<JUCER_COMPONENT documentType="Component" className="VelocityCurveDlgBase" componentName=""
                  parentClasses="public Component, public TerpstraMidiDriver::Listener"
                  constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
                  variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
