@@ -369,10 +369,17 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, textColour);
 
+	//ToDo PopupMenu: textColourId, highlightedTextColourId, highlightedBackgroundColourId (for ComboBox, too)
+
 	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
 	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
 
 	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::TextButton::textColourOffId, textColour);
+	lookAndFeel.setColour(juce::TextButton::textColourOnId, textColour);
+	lookAndFeel.setColour(juce::TextButton::buttonColourId, Colour(0xffe0e3f0));
+	lookAndFeel.setColour(juce::TextButton::buttonOnColourId, Colour(0xffe0e3f0));
 
 	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, textColour);
@@ -414,7 +421,14 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
 
+	//ToDo PopupMenu: textColourId, highlightedTextColourId, highlightedBackgroundColourId (for ComboBox, too)
+
 	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::TextButton::textColourOffId, textColour);
+	lookAndFeel.setColour(juce::TextButton::textColourOnId, textColour);
+	lookAndFeel.setColour(juce::TextButton::buttonColourId, Colour(0xff2f2f2f));
+	lookAndFeel.setColour(juce::TextButton::buttonOnColourId, Colour(0xff2f2f2f));
 
 	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
