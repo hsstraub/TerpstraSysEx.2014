@@ -11,7 +11,7 @@
 
 #include "Main.h"
 #include "GeneralOptionsDlg.h"
-#include "VelocityCurveDlg.h"
+#include "VelocityCurveDlgBase.h"
 
 //==============================================================================
 
@@ -369,10 +369,17 @@ bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, textColour);
 
+	//ToDo PopupMenu: textColourId, highlightedTextColourId, highlightedBackgroundColourId (for ComboBox, too)
+
 	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
 	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
 
 	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::TextButton::textColourOffId, textColour);
+	lookAndFeel.setColour(juce::TextButton::textColourOnId, textColour);
+	lookAndFeel.setColour(juce::TextButton::buttonColourId, Colour(0xffe0e3f0));
+	lookAndFeel.setColour(juce::TextButton::buttonOnColourId, Colour(0xffe0e3f0));
 
 	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, textColour);
@@ -414,7 +421,14 @@ bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
 	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
 
+	//ToDo PopupMenu: textColourId, highlightedTextColourId, highlightedBackgroundColourId (for ComboBox, too)
+
 	lookAndFeel.setColour(juce::Label::textColourId, textColour);
+
+	lookAndFeel.setColour(juce::TextButton::textColourOffId, textColour);
+	lookAndFeel.setColour(juce::TextButton::textColourOnId, textColour);
+	lookAndFeel.setColour(juce::TextButton::buttonColourId, Colour(0xff2f2f2f));
+	lookAndFeel.setColour(juce::TextButton::buttonOnColourId, Colour(0xff2f2f2f));
 
 	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
@@ -464,14 +478,14 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 
 bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 {
-	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
-	optionsWindow->setLookAndFeel(&lookAndFeel);
+	VelocityCurveDlg* velocityCurveWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
+	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
 	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
-	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content.setOwned(velocityCurveWindow);
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
@@ -488,14 +502,14 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
 {
-	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::fader);
-	optionsWindow->setLookAndFeel(&lookAndFeel);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::fader);
+	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
-	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
-	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 424);
+	int dlgWidth = propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648);
+	int dlgHeight = propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
-	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content.setOwned(velocityCurveWindow);
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
@@ -512,14 +526,14 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 
 bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
 {
-	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::afterTouch);
-	optionsWindow->setLookAndFeel(&lookAndFeel);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);
 	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
-	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content.setOwned(velocityCurveWindow);
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Aftertouch parameters";

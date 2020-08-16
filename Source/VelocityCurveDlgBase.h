@@ -36,15 +36,15 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class VelocityCurveDlg  : public Component,
-                          public TerpstraMidiDriver::Listener,
-                          public Button::Listener,
-                          public ComboBox::Listener
+class VelocityCurveDlgBase  : public Component,
+                              public TerpstraMidiDriver::Listener,
+                              public Button::Listener,
+                              public ComboBox::Listener
 {
 public:
     //==============================================================================
-    VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue);
-    ~VelocityCurveDlg() override;
+    VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue);
+    ~VelocityCurveDlgBase() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -113,9 +113,15 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveDlg)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveDlgBase)
 };
 
 //[EndFile] You can add extra defines here...
+
+// ToDo The velocity curve dialog is planned to contain two curves (one of wehich is a VelocityCurveDlgBase subdiakiog).
+// For now: the same as the base di<log
+
+#define VelocityCurveDlg VelocityCurveDlgBase
+
 //[/EndFile]
 

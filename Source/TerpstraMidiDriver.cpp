@@ -326,7 +326,6 @@ bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(cons
         return false;
 
     // sysExData, positions 0-2: manufacturer Id. position 3: board index.
-
     auto midiCmd = midiMessage.getSysExData()[4];
 
     return
@@ -336,6 +335,20 @@ bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(cons
         midiCmd == GET_CHANNEL_CONFIG ||
         midiCmd == GET_NOTE_CONFIG ||
         midiCmd == GET_KEYTYPE_CONFIG;
+}
+
+bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, VelocityCurveType velocityCurveType)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return
+        (velocityCurveType == VelocityCurveType::noteOnNoteOff && midiCmd == GET_VELOCITY_CONFIG) ||
+        (velocityCurveType == VelocityCurveType::fader && midiCmd == GET_FADER_CONFIG) ||
+        (velocityCurveType == VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG);
 }
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)

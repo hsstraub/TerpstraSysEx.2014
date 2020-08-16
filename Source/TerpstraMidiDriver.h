@@ -23,34 +23,6 @@ System exclusive command bytes
 ==============================================================================
 */
 
-/*
-Old definitions, for the first generation keyboard only
-
-// Manufacturer Id
-#define MMID1 0x00
-#define MMID2 0x20
-#define MMID3 0xff
-
-#define READ_KEY_NOTE 0x01
-#define STORE_TO_EEPROM 0x02
-#define RECALL_FROM_EEPROM 0x03
-#define READ_KEY_POSITION 0x04
-#define SET_KEY_MAX_MIN 0x05
-#define READ_KEY_MAX_MIN 0x06
-#define SET_KEYUP_PROXIMITY 0x07
-#define SET_KEYDN_PROXIMITY 0x08
-#define SET_FOOT_CONTROLLER_SENSITIVITY 0x09
-#define READ_FOOT_CONTROLLER_SENSITIVITY 0x0A
-#define SET_FOOT_CONTROLLER_MAX 0x0B
-#define READ_FOOT_CONTROLLER_MAX 0x0C
-#define SET_FOOT_CONTROLLER_MIN 0x0D
-#define READ_FOOT_CONTROLLER_MIN 0x0E
-#define INVERT_FOOT_CONTROLLER 0x0F
-#define SEND_KEY_DWELL_TO_VELOCITY_NUMBER 0x10
-#define READ_KEY_DWELL_TO_VELOCITY_NUMBER 0x11
-
-*/
-
 #define CHANGE_KEY_NOTE 0x00
 #define SET_KEY_COLOUR 0x01
 
@@ -231,6 +203,9 @@ public:
 
 	// Message contains configuration data sent from controller yes/no
     bool messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage);
+
+    // Message contains velocity curve data from controller for the specified velocity curve type yes/no
+    bool messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, VelocityCurveType velocityCurveType);
 
 private:
 	// Low-level SysEx message sending
