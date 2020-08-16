@@ -18,6 +18,8 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "ViewConstants.h"
+#include "ViewComponents.h"
 //[/Headers]
 
 #include "ColourEditComponent.h"
@@ -88,6 +90,92 @@ Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOption
 	return Colour(colourAsNumber);
 }
 
+
+/*
+==============================================================================
+ColourComboLookAndFeel class
+==============================================================================
+*/
+void ColourComboLookAndFeel::drawPopupMenuItem (Graphics& g, const Rectangle<int>& area,
+                                        const bool isSeparator, const bool isActive,
+                                        const bool isHighlighted, const bool isTicked,
+                                        const bool hasSubMenu, const String& text,
+                                        const String& shortcutKeyText,
+                                        const Drawable* icon, const Colour* const textColourToUse)
+{
+    if (isSeparator)
+    {
+        LookAndFeel_V4::drawPopupMenuItem(
+            g, area, isSeparator, isActive, isHighlighted, isTicked, hasSubMenu, text, shortcutKeyText, icon, textColourToUse);
+    }
+    else
+    {
+         auto bgColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(
+            Colour(text.getHexValue32())
+                .withAlpha(isHighlighted && isActive ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+        auto textColour = bgColour.contrasting(1.0);
+
+        auto r  = area.reduced (1);
+
+        g.setColour (bgColour);
+        g.fillRect (r);
+
+        g.setColour (textColour);
+
+        r.reduce (jmin (5, area.getWidth() / 20), 0);
+
+        auto font = getPopupMenuFont();
+
+        auto maxFontHeight = r.getHeight() / 1.3f;
+
+        if (font.getHeight() > maxFontHeight)
+            font.setHeight (maxFontHeight);
+
+        g.setFont (font);
+
+        auto iconArea = r.removeFromLeft (roundToInt (maxFontHeight)).toFloat();
+
+        if (icon != nullptr)
+        {
+            icon->drawWithin (g, iconArea, RectanglePlacement::centred | RectanglePlacement::onlyReduceInSize, 1.0f);
+            r.removeFromLeft (roundToInt (maxFontHeight * 0.5f));
+        }
+        else if (isTicked)
+        {
+            auto tick = getTickShape (1.0f);
+            g.fillPath (tick, tick.getTransformToScaleToFit (iconArea.reduced (iconArea.getWidth() / 5, 0).toFloat(), true));
+        }
+
+        if (hasSubMenu)
+        {
+            auto arrowH = 0.6f * getPopupMenuFont().getAscent();
+
+            auto x = static_cast<float> (r.removeFromRight ((int) arrowH).getX());
+            auto halfH = static_cast<float> (r.getCentreY());
+
+            Path path;
+            path.startNewSubPath (x, halfH - arrowH * 0.5f);
+            path.lineTo (x + arrowH * 0.6f, halfH);
+            path.lineTo (x, halfH + arrowH * 0.5f);
+
+            g.strokePath (path, PathStrokeType (2.0f));
+        }
+
+        r.removeFromRight (3);
+        g.drawFittedText (text, r, Justification::centredLeft, 1);
+
+        if (shortcutKeyText.isNotEmpty())
+        {
+            auto f2 = font;
+            f2.setHeight (f2.getHeight() * 0.75f);
+            f2.setHorizontalScale (0.95f);
+            g.setFont (f2);
+
+            g.drawText (shortcutKeyText, r, Justification::centredRight, true);
+        }
+    }
+}
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -121,7 +209,9 @@ ColourEditComponent::ColourEditComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+ 	colourComboLookAndFeel.reset(new ColourComboLookAndFeel());
+	colourCombo->setLookAndFeel(colourComboLookAndFeel.get());
+   //[/Constructor]
 }
 
 ColourEditComponent::~ColourEditComponent()
@@ -147,6 +237,11 @@ void ColourEditComponent::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+
+	colourComboLookAndFeel->setColour(juce::ComboBox::backgroundColourId, findColour(juce::ComboBox::backgroundColourId));
+	colourComboLookAndFeel->setColour(juce::ComboBox::textColourId, findColour(juce::ComboBox::textColourId));
+	colourComboLookAndFeel->setColour(juce::ComboBox::arrowColourId, findColour(juce::ComboBox::arrowColourId));
+	colourComboLookAndFeel->setColour(TerpstraKeyEdit::backgroundColourId, findColour(TerpstraKeyEdit::backgroundColourId));
     //[/UserPaint]
 }
 
