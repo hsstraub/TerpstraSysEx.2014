@@ -96,6 +96,16 @@ Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOption
 ColourComboLookAndFeel class
 ==============================================================================
 */
+
+void ColourComboLookAndFeel::drawComboBox (Graphics& g, int width, int height, const bool isMouseButtonDown,
+                                   int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box)
+{
+    // Draw as V3 does it (as long as main lookAndFeel is still V3)
+
+   LookAndFeel_V3::drawComboBox (g, width, height, isMouseButtonDown, buttonX, buttonY, buttonW, buttonH, box);
+}
+
+
 void ColourComboLookAndFeel::drawPopupMenuItem (Graphics& g, const Rectangle<int>& area,
                                         const bool isSeparator, const bool isActive,
                                         const bool isHighlighted, const bool isTicked,
