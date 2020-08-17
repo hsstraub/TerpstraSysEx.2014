@@ -220,6 +220,9 @@ ColourEditComponent::ColourEditComponent ()
 
     //[Constructor] You can add your own custom stuff here..
  	colourComboLookAndFeel.reset(new ColourComboLookAndFeel());
+	colourComboLookAndFeel->setColour(juce::ComboBox::backgroundColourId, findColour(juce::ComboBox::backgroundColourId));
+	colourComboLookAndFeel->setColour(juce::ComboBox::textColourId, findColour(juce::ComboBox::textColourId));
+
 	colourCombo->setLookAndFeel(colourComboLookAndFeel.get());
    //[/Constructor]
 }
@@ -248,8 +251,6 @@ void ColourEditComponent::paint (Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
 
-	colourComboLookAndFeel->setColour(juce::ComboBox::backgroundColourId, findColour(juce::ComboBox::backgroundColourId));
-	colourComboLookAndFeel->setColour(juce::ComboBox::textColourId, findColour(juce::ComboBox::textColourId));
 	colourComboLookAndFeel->setColour(juce::ComboBox::arrowColourId, findColour(juce::ComboBox::arrowColourId));
 	colourComboLookAndFeel->setColour(TerpstraKeyEdit::backgroundColourId, findColour(TerpstraKeyEdit::backgroundColourId));
     //[/UserPaint]
@@ -276,7 +277,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
 		colourSelector->setName("Colour picker");
 		colourSelector->addChangeListener(this);
 
-		Colour currentColor = colourCombo->getColourAsObjectFromText(ColourComboBox::DoNotAddColourToCombobox);
+		Colour currentColor = colourCombo->getColourAsObjectFromText(ColourComboBox::AddColourToComboBox);
 
 		colourSelector->setCurrentColour(currentColor);
 
@@ -299,6 +300,13 @@ void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == colourCombo.get())
     {
         //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
+
+        // Set background colour of combo box to current selection
+         auto bgColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(
+            colourCombo->getColourAsObjectFromText(ColourComboBox::DoNotAddColourToCombobox).withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
+
+        colourCombo->setColour(juce::ComboBox::backgroundColourId, bgColour);
+        colourCombo->setColour(juce::ComboBox::textColourId, bgColour.contrasting(1.0));
 
 		// Notify parent that value has changed and can be sent to MIDI controller
 		sendChangeMessage();
