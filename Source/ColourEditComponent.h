@@ -53,6 +53,24 @@ public:
 	void addColourToBox(int newColourAsNumber) { addColourToBox(Colour(newColourAsNumber)); }
 };
 
+/*
+==============================================================================
+Draw each item in ColourComboBox's drop-down list in "its" colour
+==============================================================================
+*/
+class ColourComboLookAndFeel : public LookAndFeel_V4
+{
+public:
+    void drawComboBox (Graphics&, int width, int height, bool isButtonDown,
+                       int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box) override;
+    void drawPopupMenuItem (Graphics&, const Rectangle<int>& area,
+                            bool isSeparator, bool isActive, bool isHighlighted, bool isTicked, bool hasSubMenu,
+                            const String& text, const String& shortcutKeyText,
+                            const Drawable* icon, const Colour* textColour) override;
+
+};
+
+
 //[/Headers]
 
 
@@ -95,6 +113,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    std::unique_ptr<ColourComboLookAndFeel> colourComboLookAndFeel;
     //[/UserVariables]
 
     //==============================================================================
