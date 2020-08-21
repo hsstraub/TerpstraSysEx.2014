@@ -21,14 +21,14 @@
 #include "Main.h"
 //[/Headers]
 
-#include "VelocityCurveDlgBase.h"
+#include "VelocityCurveDlg.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue)
+VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue)
     : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
       linearDrawingStrategy(beamTableFrame, velocityBeamTable),
       quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
@@ -182,7 +182,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     //[/Constructor]
 }
 
-VelocityCurveDlgBase::~VelocityCurveDlgBase()
+VelocityCurveDlg::~VelocityCurveDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
@@ -211,7 +211,7 @@ VelocityCurveDlgBase::~VelocityCurveDlgBase()
 }
 
 //==============================================================================
-void VelocityCurveDlgBase::paint (Graphics& g)
+void VelocityCurveDlg::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -232,7 +232,7 @@ void VelocityCurveDlgBase::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void VelocityCurveDlgBase::resized()
+void VelocityCurveDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 	int w = this->getWidth();
@@ -281,7 +281,7 @@ void VelocityCurveDlgBase::resized()
     //[/UserResized]
 }
 
-void VelocityCurveDlgBase::buttonClicked (Button* buttonThatWasClicked)
+void VelocityCurveDlg::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -339,7 +339,7 @@ void VelocityCurveDlgBase::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void VelocityCurveDlgBase::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void VelocityCurveDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -387,7 +387,7 @@ void VelocityCurveDlgBase::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 0:
 			// Currently only preset is "one to one"
 			for (int x = 0; x < 128; x++)
-				velocityBeamTable[x]->setValue(x);
+				velocityBeamTable[x]->setValue(x*velocityBeamTable[x]->getValueRangeSize()/128);
 			sendVelocityTableToController();
 			break;
 		}
@@ -450,7 +450,7 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x);
+			velocityBeamTable[x]->setValue(x*velocityBeamTable[x]->getValueRangeSize()/128);
 
 		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
 		currentCurveEditStrategy = nullptr;
@@ -665,7 +665,7 @@ void VelocityCurveDlg::midiMessageReceived(const MidiMessage& message)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="VelocityCurveDlgBase" componentName=""
+<JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
                  parentClasses="public Component, public TerpstraMidiDriver::Listener"
                  constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
                  variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"

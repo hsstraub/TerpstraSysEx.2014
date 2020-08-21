@@ -17,9 +17,9 @@ VelocityCurveBeam class
 ==============================================================================
 */
 
-VelocityCurveBeam::VelocityCurveBeam()
+VelocityCurveBeam::VelocityCurveBeam(int newValueRangeSize)
+: valueRangeSize(newValueRangeSize)
 {
-	beamValue = 0;
 }
 
 VelocityCurveBeam::~VelocityCurveBeam()
@@ -35,10 +35,10 @@ void VelocityCurveBeam::setValue(int newValue)
 		newValue = 0;
 	}
 
-	if (newValue > 127)
+	if (newValue >= valueRangeSize)
 	{
 		jassertfalse;
-		newValue = 127;
+		newValue = valueRangeSize-1;
 	}
 
 	if (newValue != beamValue)
@@ -92,10 +92,10 @@ juce::Point<float> VelocityCurveBeam::getBottomMid()
 
 float VelocityCurveBeam::getBeamHeightFromValue(int value)
 {
-	return value * this->getHeight() / 128;
+	return value * this->getHeight() / valueRangeSize;
 }
 
 int VelocityCurveBeam::getBeamValueFromLocalPoint(juce::Point<float> localPoint)
 {
-	return (getBottom() - localPoint.y) * 128 / getHeight();
+	return (getBottom() - localPoint.y) * valueRangeSize / getHeight();
 }

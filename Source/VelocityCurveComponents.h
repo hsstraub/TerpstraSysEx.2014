@@ -21,9 +21,10 @@ Display of one beam in a velocity curve table
 class VelocityCurveBeam : public Component
 {
 public:
-	VelocityCurveBeam();
+	VelocityCurveBeam(int newValueRangeSize = 128);
 	~VelocityCurveBeam();
 
+	int getValueRangeSize() const { return valueRangeSize; }
 	int getValue() const { return beamValue; }
 	void setValue(int newValue);
 	void setValueAtLeast(int newValue);
@@ -33,7 +34,7 @@ public:
 	void resized();
 
   juce::Point<float> getBottomMid();
-	
+
 	float getBeamHeightFromValue(int value);
 	float getBeamHeightFromValue() { return getBeamHeightFromValue(beamValue); }
 
@@ -47,7 +48,8 @@ public:
 	};
 
 private:
-	int beamValue;
+    const int valueRangeSize = 128;
+	int beamValue = 0;
 };
 
 
