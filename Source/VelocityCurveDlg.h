@@ -22,8 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "VelocityCurveComponents.h"
-#include "VelocityCurveEditStrategy.h"
+#include "VelocityCurveSubDlg.h"
 //[/Headers]
 
 
@@ -37,9 +36,7 @@
                                                                     //[/Comments]
 */
 class VelocityCurveDlg  : public Component,
-                          public TerpstraMidiDriver::Listener,
-                          public Button::Listener,
-                          public ComboBox::Listener
+                          public Button::Listener
 {
 public:
     //==============================================================================
@@ -50,63 +47,26 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	void sendVelocityTableToController();
-
-	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
-
-	void mouseMove(const MouseEvent &event);
-	void mouseDown(const MouseEvent &event);
-	void mouseDrag(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
-
-	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	typedef enum
-	{
-		none = -1,
-		freeDrawing = 0,
-		linearSegments = 1,
-		quadraticCurves = 2
-	} EDITSTRATEGYINDEX;
-
-
 	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
-	Path beamTableFrame;
-	VelocityCurveBeam* velocityBeamTable[128];
-
-	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
-	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
-	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
-	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
-
-	const float graphicsYPadding = 136.0f;
 	const float pushButtonAreaHeight = 36.0f;
+
+	std::unique_ptr<VelocityCurveSubDlg> lookupTableSubDlg;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> lblDescription;
     std::unique_ptr<TextButton> buttonSendAll;
     std::unique_ptr<TextButton> buttonDiscard;
     std::unique_ptr<TextButton> buttonSaveEdits;
-    std::unique_ptr<ComboBox> cbEditMode;
-    std::unique_ptr<Label> labelEditMode;
-    std::unique_ptr<ComboBox> cbPreset;
-    std::unique_ptr<Label> labelPresets;
-    std::unique_ptr<Label> labelCurrentBeamValue;
     std::unique_ptr<TextButton> buttonReceive;
     std::unique_ptr<TextButton> buttonCalibrate;
     std::unique_ptr<ToggleButton> buttonAfterTouchActive;
