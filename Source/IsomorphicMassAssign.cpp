@@ -558,6 +558,9 @@ void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
 
 void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)
 {
+	// Orientation fix
+	rightUpwardSize = horizontalSize - rightUpwardSize;
+
 	editRightUpwardSteps->setText(String(rightUpwardSize));
 	editHorizontalSteps->setText(String(horizontalSize));
 }
