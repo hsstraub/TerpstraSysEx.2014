@@ -247,36 +247,49 @@ void NumberSelector::paint (Graphics& g)
 
 void NumberSelector::resized()
 {
-	
-	if (orientation == Horizontal)
-	{
-		decrementButton->setBounds(0, proportionOfHeight(3.0f / 8.0f), proportionOfWidth(0.2f), proportionOfHeight(1.0f / 3.0f));
-		incrementButton->setBounds(proportionOfWidth(0.8f), proportionOfHeight(3.0f / 8.0f), proportionOfWidth(0.2f), proportionOfHeight(1.0f / 3.0f));
-	}
-	else
-	{
-		decrementButton->setBounds(0, proportionOfHeight(1.2f), proportionOfWidth(0.2f), proportionOfHeight(1.0f / 3.0f));
-		incrementButton->setBounds(0, -proportionOfHeight(1.0f / 3.0f), proportionOfWidth(3.0f / 8.0f), proportionOfHeight(1.0f / 3.0f));
-	}
-	
+	float controlTop = 0;
+	float controlHeight = getHeight();
+
 	if (isShowingName())
 	{
 		titleLabel->setFont(Font().withHeight(proportionOfHeight(0.2f)));
 		int nameStringWidth = titleLabel->getFont().getStringWidth(getName()) * 1.05f;
 		int nameStringHeight = titleLabel->getFont().getHeight();
 
+		controlHeight -= nameStringHeight;
+		
 		// TODO: handle vertical orientation
 
-		float nameHeight = (namePlacementSelected == NamePlacement::AboveValue)
-			? titleLabel->getPosition().y - proportionOfHeight(0.01f)
-			: titleLabel->getPosition().y + titleLabel->getFont().getHeight() + proportionOfHeight(0.01f);
-		
+		float nameHeight = 0;
+		if (namePlacementSelected == NamePlacement::BelowValue)
+		{
+			nameHeight = titleLabel->getPosition().y + titleLabel->getFont().getHeight() + proportionOfHeight(0.01f);
+		}
+		else
+		{
+			controlTop = nameStringHeight;
+		}
+
 		titleLabel->setBounds(proportionOfWidth(0.5f) - nameStringWidth / 2.0f, nameHeight, nameStringWidth, nameStringHeight);
 	}
 
+	if (orientation == Horizontal)
+	{
+		float buttonWidth = proportionOfWidth(0.2f);
+		float buttonY = controlHeight * (1.0f / 3.0f) + controlTop;
+		float buttonHeight = controlHeight * (1.0f / 3.0f);
+		decrementButton->setBounds(0, buttonY, buttonWidth, buttonHeight);
+		incrementButton->setBounds(proportionOfWidth(0.8f), buttonY, buttonWidth, buttonHeight);
+	}
+	else // TODO: improve vertical
+	{
+		decrementButton->setBounds(0, proportionOfHeight(1.2f), proportionOfWidth(0.2f), proportionOfHeight(1.0f / 3.0f));
+		incrementButton->setBounds(0, -proportionOfHeight(1.0f / 3.0f), proportionOfWidth(3.0f / 8.0f), proportionOfHeight(1.0f / 3.0f));
+	}
+	
 	if (selectionType == SelectionType::Range)
 	{
-		rangeValueLabel->setBounds(proportionOfWidth(0.2f), 0, proportionOfWidth(0.6f), proportionOfHeight(1.0f));
+		rangeValueLabel->setBounds(proportionOfWidth(0.2f), controlTop, proportionOfWidth(0.6f), controlHeight);
 		
 		valueFont.setHeight(rangeValueLabel->getHeight());
 		rangeValueLabel->setFont(valueFont);
@@ -284,7 +297,7 @@ void NumberSelector::resized()
 	}
 	else
 	{
-		listValueLabel->setBounds(proportionOfWidth(0.2f), 0, proportionOfWidth(0.6f), proportionOfHeight(1.0f));
+		listValueLabel->setBounds(proportionOfWidth(0.2f), controlTop, proportionOfWidth(0.6f), controlHeight);
 	}
 }
 

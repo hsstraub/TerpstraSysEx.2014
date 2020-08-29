@@ -28,7 +28,7 @@
 
 //==============================================================================
 ScaleStructureComponent::ScaleStructureComponent (ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
-    : scaleStructure(scaleStructureIn), colourTable(colourTableIn)
+    : scaleStructure(scaleStructureIn), colourTable(colourTableIn), noteNames(scaleStructureIn)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -106,6 +106,8 @@ ScaleStructureComponent::ScaleStructureComponent (ScaleStructure& scaleStructure
 	circle = dynamic_cast<GroupingCircle*>(circleComponent.get());
 	circle->addListener(this);
 
+	circle->setNoteNameSystem(&noteNames);
+
 	loadScaleStructureSettings();
     //[/UserPreSize]
 
@@ -159,10 +161,10 @@ void ScaleStructureComponent::resized()
     //[UserResized] Add your own custom resize handling here..
 
 	// TODO: implement (probably ex-projucer) this so that the bounds don't have to be set twice
-	periodSlider->setSize(proportionOfWidth(0.25f), proportionOfHeight(0.15f));
+	periodSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(0.155f));
 	periodSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.4f, 0));
 
-	generatorSlider->setSize(proportionOfWidth(0.25f), proportionOfHeight(0.15f));
+	generatorSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(0.155f));
 	generatorSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.125f, float_Pi));
 
 	generatorValueLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 2.0f / 3.0f, float_Pi * 11.0f / 8.0f));
@@ -177,10 +179,10 @@ void ScaleStructureComponent::resized()
 
 	// TODO: add other part of arrow / improve drawing
 	offsetArrows.clear();
-	auto arc1 = circle->getInnerCircleBounds().reduced(circle->getInnerRadius() / 13.0f);
-	GroupingCircle::addArcToPath(offsetArrows, arc1, float_Pi / 24, float_Pi / 12, true);
+	Rectangle<float> offsetLabelCircleBounds = circle->getInnerCircleBounds().reduced(circle->getInnerRadius() / 13.0f);
+	GroupingCircle::addArcToPath(offsetArrows, offsetLabelCircleBounds, float_Pi / 24, float_Pi / 12, true);
 	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * 13.0f / 14.0f, float_Pi / 14));
-	GroupingCircle::addArcToPath(offsetArrows, arc1, -float_Pi / 24, -float_Pi / 12, true);
+	GroupingCircle::addArcToPath(offsetArrows, offsetLabelCircleBounds, -float_Pi / 24, -float_Pi / 12, true);
 	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * 13.0f / 14.0f, -float_Pi / 14));
 
 	float periodFBtnSize = periodSlider->getHeight() / 8.0f;
@@ -265,6 +267,8 @@ void ScaleStructureComponent::selectorValueChanged(NumberSelector* selectorThatH
 		scaleStructure.getStepSize().x,
 		scaleStructure.getStepSize().y);
 
+	noteNames.useAlphabeticalDefault();
+
 	generatorOffset = scaleStructure.getGeneratorOffset();
 	circle->updateGenerator();
 
@@ -293,11 +297,35 @@ void ScaleStructureComponent::degreeIndexAltered(int degreeIndex, Point<int> alt
 		scaleStructure.resetAlterationOfDegree(degreeIndex);
 
 	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
+	updateLsLabel();
 }
 
 void ScaleStructureComponent::allModificationsReset()
 {
 	scaleStructure.setChromaAlterations(Array<Point<int>>());
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
+	updateLsLabel();
+}
+
+void ScaleStructureComponent::groupingSplit(int groupIndex, int sizeChangeAmount)
+{
+	DBG("SSC: Group " + String(groupIndex) + " split with new size " + String(sizeChangeAmount));
+	scaleStructure.splitDegreeGroup(groupIndex, sizeChangeAmount);
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
+}
+
+void ScaleStructureComponent::groupingResized(int groupIndex, int sizeChangeAmount, bool draggedClockwise)
+{
+	DBG("SSC: Group " + String(groupIndex) + " resized by " + String(sizeChangeAmount) +", " + (!draggedClockwise ? "counter" : "") + "clockwise");
+	scaleStructure.resizeDegreeGroup(groupIndex, sizeChangeAmount, draggedClockwise);
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
+}
+
+void ScaleStructureComponent::groupingsMerged(int groupIndex)
+{
+	DBG("SSC: Group " + String(groupIndex) + " merged with group " + String(groupIndex - 1));
+	scaleStructure.mergeDegreeGroups(groupIndex);
+	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
 }
 
 void ScaleStructureComponent::loadScaleStructureSettings()
@@ -397,6 +425,7 @@ void ScaleStructureComponent::onPeriodFactorChange(int factorIndexIn)
 	updateScaleSizes();
 	updateOffsetLabel();
 	updatePGLabel();
+	updateLsLabel();
 	circle->updateGenerator();
 
 	listeners.call(&ScaleStructureComponent::Listener::scaleStructureChanged);
@@ -419,7 +448,7 @@ void ScaleStructureComponent::updatePGLabel()
 
 void ScaleStructureComponent::updateLsLabel()
 {
-	stepSizePatternLbl->setText(scaleStructure.getLsSteps(), dontSendNotification);
+	stepSizePatternLbl->setText(scaleStructure.getIntervalSteps(), dontSendNotification);
 }
 
 void ScaleStructureComponent::updateOffsetLabel()

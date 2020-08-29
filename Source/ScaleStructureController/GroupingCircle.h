@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 #include "ScaleStructure.h"
+#include "GroupHandle.h"
+#include "NoteNames.h"
 
 //==============================================================================
 /*
@@ -37,6 +39,9 @@ public:
 	void updatePeriod();
 	void updateGenerator();
 
+	void setNoteNameSystem(NoteNames* noteNamesIn);
+	void setShowNoteLabels(bool showLabels);
+
 	void degreeToModSelectedCallback(int degreeIndex);
 	void cancelDegreeMods();
 
@@ -46,6 +51,7 @@ public:
 	void mouseMove(const MouseEvent& event) override;
 	void mouseDown(const MouseEvent& event) override;
 	void mouseDrag(const MouseEvent& event) override;
+	void mouseUp(const MouseEvent& event) override;
 
 
 	class Listener
@@ -54,15 +60,22 @@ public:
 		~Listener() {};
 
 		virtual void offsetChanged(int newOffset) = 0;
+		
 		virtual void degreeIndexAltered(int degreeIndex, Point<int> alteration) = 0;
 		virtual void allModificationsReset() = 0;
+
+		virtual void groupingSplit(int groupIndex, int sizeChangeAmount) = 0;
+		virtual void groupingResized(int groupIndex, int sizeChangeAmount, bool draggedClockwise) = 0;
+		virtual void groupingsMerged(int groupIndex) = 0;
 	};
 
 	void addListener(Listener* listenerToAdd);
 	void removeListener(Listener* listenerToRemove);
 
-	// Arc path helper
-	static void addArcToPath(Path& pathIn, Rectangle<float>& ellipseBounds, float fromRadians, float toRadians, bool startAsNewSubPath = false);
+public:
+
+	static void addArcToPath(Path& pathIn, Rectangle<float> ellipseBounds, float fromRadians, float toRadians, bool startAsNewSubPath = false);
+	static void addAnnulusSector(Path& pathIn, Rectangle<float> outerBounds, Rectangle<float> innerBounds, float fromRadians, float toRadians);
 
 protected:
 	ListenerList<Listener> listeners;
@@ -87,6 +100,9 @@ private:
 
 	PopupMenu groupMenu;
 	PopupMenu degreeMenu;
+
+	NoteNames* noteNames = nullptr;
+	bool showNoteNameLabels = false;
 	
 	// MODMOS functionality
 	int degreeIndexToMod = -1;
@@ -94,13 +110,32 @@ private:
 	Array<Point<int>> chromaAlterations;
 	Array<Point<int>> degreeAlterations;
 
-	// Mouse functionality
+	// Group sizing functionality
+	OwnedArray<GroupHandle> groupHandles;
+	int handleMouseOver = -1;
+	GroupHandle* handleBeingDragged = nullptr;
+	float handleDragThreshold;
+	float handleDraggedToDegIndex = -1;
+	float lastDraggedIndex = -1;
+	int handleDragAmt = 0;
+
+	// Refers to the most counter-clockwise edge of a degree
+	Array<int> highlightedDegreeEdges; // TODO: turn this into Array<Point<int>> to differentiate symmetric edges
+	Array<Line<float>> highlightedEdgeLines;
+		
+	const float handleDotAngRatio = float_Pi / 100.0f;
+	float handleDotRadius;
+	float handleHighlightMult = 1.5f;
+	float handlePlacementRadius;
 	
+	// Mouse functionality
 	int mouseRadius, mouseDownRadius;
 	int degreeSectorMouseOver = -1;
 	int groupSectorMouseOver = -1;
 	int lastDegreeSectorMouseIn = -1;
 	int lastGroupSectorMouseIn = -1;
+	int lastDegClicked = -1;
+	int lastOffsetOnClick = 0;
 
 	// Drawing related members
 	float borderRatio = 127.0f / 128.0f;
@@ -132,7 +167,11 @@ private:
 	Array<Line<float>> radiLines;
 	Array<Path> degreeArcPaths;
 	Array<Path> groupArcPaths;
-	PathStrokeType strokeType = PathStrokeType(2.0f);
+	PathStrokeType solidStroke = PathStrokeType(2.0f);
+	PathStrokeType dashedStroke = PathStrokeType(2.0f);
+
+	Path handleDragHighlight;
+	Path handleDragSymHighlight;
 
 	float sectorLabelSizeRatio = 0.875f;
 

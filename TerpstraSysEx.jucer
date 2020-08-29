@@ -54,6 +54,12 @@
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
             file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
+        <FILE id="jsSIed" name="Common.h" compile="0" resource="0" file="Source/ScaleStructureController/Common.h"/>
+        <FILE id="gorNTb" name="GroupHandle.cpp" compile="1" resource="0" file="Source/ScaleStructureController/GroupHandle.cpp"/>
+        <FILE id="sOGT2C" name="GroupHandle.h" compile="0" resource="0" file="Source/ScaleStructureController/GroupHandle.h"/>
+        <FILE id="gWcasD" name="NoteNames.cpp" compile="1" resource="0" file="Source/ScaleStructureController/NoteNames.cpp"/>
+        <FILE id="WuLSNJ" name="NoteNames.h" compile="0" resource="0" file="Source/ScaleStructureController/NoteNames.h"/>
+        <FILE id="dJtPB6" name="Symmetry.h" compile="0" resource="0" file="Source/ScaleStructureController/Symmetry.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
               file="Source/ScaleStructureController/GroupingCircle.cpp"/>
         <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
