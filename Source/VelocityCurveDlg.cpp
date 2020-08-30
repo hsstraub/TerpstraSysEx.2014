@@ -29,11 +29,10 @@
 
 //==============================================================================
 VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue)
+    : velocityCurveType(typeValue)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    velocityCurveType = typeValue;
-
-    lookupTableSubDlg.reset(new VelocityCurveSubDlg(velocityCurveType));
+    lookupTableSubDlg.reset(new VelocityCurveSubDlg(velocityCurveType, 127));
     addAndMakeVisible (lookupTableSubDlg.get());
     //[/Constructor_pre]
 
@@ -333,8 +332,9 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlg" componentName=""
                  parentClasses="public Component" constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="768" initialHeight="424">
+                 variableInitialisers="velocityCurveType(typeValue)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
+                 initialWidth="768" initialHeight="424">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
               virtualName="" explicitFocusOrder="0" pos="312 392 144 24" tooltip="Send whole velocity curve map to controller and save it there."

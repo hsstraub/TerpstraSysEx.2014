@@ -57,7 +57,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
+	const TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	const float pushButtonAreaHeight = 36.0f;
 
 	std::unique_ptr<VelocityCurveSubDlg> lookupTableSubDlg;

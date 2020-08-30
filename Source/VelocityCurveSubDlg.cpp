@@ -28,11 +28,12 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue)
-    : freeDrawingStrategy(beamTableFrame, velocityBeamTable), linearDrawingStrategy(beamTableFrame, velocityBeamTable), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
+VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue)
+    : velocityCurveType(typeValue),
+      maxBeamValue(newMaxBeamValue),
+      freeDrawingStrategy(beamTableFrame, velocityBeamTable), linearDrawingStrategy(beamTableFrame, velocityBeamTable), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    velocityCurveType = typeValue;
 	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
@@ -108,7 +109,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     //[UserPreSize]
 	for (int x = 0; x < 128; x++)
 	{
-		velocityBeamTable[x] = new  VelocityCurveBeam();
+		velocityBeamTable[x] = new  VelocityCurveBeam(maxBeamValue);
 		addAndMakeVisible(velocityBeamTable[x]);
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
@@ -246,7 +247,7 @@ void VelocityCurveSubDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case 0:
 			// Currently only preset is "one to one"
 			for (int x = 0; x < 128; x++)
-				velocityBeamTable[x]->setValue(x*velocityBeamTable[x]->getValueRangeSize()/128);
+				velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/128);
 			sendVelocityTableToController();
 			break;
 		}
@@ -289,7 +290,7 @@ void VelocityCurveSubDlg::restoreStateFromPropertiesString(const String& propert
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x*velocityBeamTable[x]->getValueRangeSize()/128);
+			velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/128);
 
 		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
 		currentCurveEditStrategy = nullptr;
@@ -442,8 +443,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveSubDlg" componentName=""
                  parentClasses="public Component, public TerpstraMidiDriver::Listener"
-                 constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
-                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable), linearDrawingStrategy(beamTableFrame, velocityBeamTable), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
+                 constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue"
+                 variableInitialisers="velocityCurveType(typeValue),&#10;maxBeamValue(newMaxBeamValue),&#10;freeDrawingStrategy(beamTableFrame, velocityBeamTable), linearDrawingStrategy(beamTableFrame, velocityBeamTable), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="768" initialHeight="212">
   <BACKGROUND backgroundColour="ffbad0de"/>

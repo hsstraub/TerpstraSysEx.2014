@@ -43,7 +43,7 @@ class VelocityCurveSubDlg  : public Component,
 {
 public:
     //==============================================================================
-    VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue);
+    VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue);
     ~VelocityCurveSubDlg() override;
 
     //==============================================================================
@@ -82,7 +82,9 @@ private:
 		quadraticCurves = 2
 	} EDITSTRATEGYINDEX;
 
-    TerpstraMidiDriver::VelocityCurveType velocityCurveType;
+    const TerpstraMidiDriver::VelocityCurveType velocityCurveType;
+    const int maxBeamValue;
+
 	Path beamTableFrame;
 	VelocityCurveBeam* velocityBeamTable[128];
 

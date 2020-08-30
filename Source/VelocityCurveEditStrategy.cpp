@@ -47,7 +47,7 @@ bool VelocityCurveFreeDrawingStrategy::setEditConfigFromSavedString(String prope
 	{
 		// Initialize velocity lookup table
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x);
+			velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/128);
 	}
 
 	return true;
@@ -127,7 +127,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, juce::
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -147,7 +147,7 @@ VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(Path&
 	, mouseXPosition(-1), draggedOriginalXPosition(-1)
 {
 	fixPointBeamHeights[0] = 0;
-	
+
 	for (int x = 1; x < 127; x++)
 		fixPointBeamHeights[x] = -1;
 
@@ -310,7 +310,7 @@ void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g, LookAn
 		{
 			juce::Point<float> pt = velocityBeamTable[x]->getBottomMid();
 			pt.setY(pt.y - velocityBeamTable[x]->getBeamHeightFromValue(fixPointBeamHeights[x]));
-			
+
 			Path currentNodePath;
 			currentNodePath.startNewSubPath(pt);
 
@@ -490,7 +490,7 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 				previousLineSegmentRiseRatio = newLineSegmentRiseRatio;
 			}
 
-			lineStartXPosition = lineStopXPosition;		// Current position becomes new start position 
+			lineStartXPosition = lineStopXPosition;		// Current position becomes new start position
 		}
 	}
 }
@@ -533,7 +533,7 @@ void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig
 		juce::Point<float> ptBot = velocityBeamTable[x]->getBottomMid();
 		juce::Point<float> ptTop = ptBot;
 		ptTop.addXY(0, -velTableHeight);
-		
+
 		juce::Line<float> testLine(ptBot, ptTop);
 
 		juce::Line<float> clippedLine = drawedclosedLine.getClippedLine(testLine, false);
