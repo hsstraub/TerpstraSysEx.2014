@@ -639,7 +639,6 @@ void GroupingCircle::mouseDown(const MouseEvent& event)
 
 				degreeMenu.addItem("Reset all modifications", true, false, resetCallback);
 
-				// TODO: 
 				//degreeMenu.addItem("Toggle Note Names", true, showNoteNameLabels, [&showNames](void) {
 				//	showNames = !showNames;
 				//});
@@ -744,21 +743,24 @@ void GroupingCircle::mouseDrag(const MouseEvent& event)
 	if (mouseDownRadius >= degreeInnerRadius)
 	{
 		// Dragging a degree
-		// TODO: improve
 		if (mouseDownRadius < degreeOuterRadius)
 		{
-			int degreesMoved = degreeSectorMouseOver - lastDegClicked;
+			int period = scaleStructure.getPeriod();
+			int offsetFromRoot = lastDegClicked > (period / 2)
+				? lastDegClicked - period + lastOffsetOnClick
+				: lastDegClicked - lastOffsetOnClick;
 
-			if (degreesMoved > scaleStructure.getPeriod())
-				degreesMoved -= scaleStructure.getPeriod();
+			int rootPos = (degreeSectorMouseOver - offsetFromRoot) % period;
 
-			int offset = jlimit(0, (groupSizes[0] / scaleStructure.getPeriodFactor()) - 1, lastOffsetOnClick + degreesMoved);
-			if (offset != scaleStructure.getGeneratorOffset())
+			if (rootPos >= 0 && rootPos <= (groupSizes[0] / scaleStructure.getPeriodFactor()) - 1)
 			{
-				listeners.call(&Listener::offsetChanged, offset);
+				if (rootPos != scaleStructure.getGeneratorOffset())
+				{
+					listeners.call(&Listener::offsetChanged, rootPos);
 
-				DBG("Moved by " + String(degreesMoved) + "\tNew offset: " + String(offset));
-				dirty = true;
+					DBG("Moved by " + String(rootPos - lastOffsetOnClick) + "\tNew offset: " + String(rootPos));
+					dirty = true;
+				}
 			}
 		}
 
