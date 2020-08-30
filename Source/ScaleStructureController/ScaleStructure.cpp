@@ -858,9 +858,6 @@ void ScaleStructure::applyChromaAlterations()
 					// update helper maps
 					degreeGroupChainMap.set(shiftedIndex, originalGroupNum);
 					degreeGroupChainMap.set(degIndex, shiftedGroupNum);
-
-					groupChainDegreeIndicies.set(degree, shiftedIndex);
-					groupChainDegreeIndicies.set(alteredDegree, degIndex);
 					
 					break;
 				}
