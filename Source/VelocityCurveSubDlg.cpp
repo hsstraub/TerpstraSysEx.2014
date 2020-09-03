@@ -46,7 +46,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblDescription->setBounds (11, 81, 608, 32);
+    lblDescription->setBounds (16, 80, 608, 32);
 
     cbEditMode.reset (new ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
@@ -59,7 +59,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     cbEditMode->addItem (TRANS("Quadratic"), 3);
     cbEditMode->addListener (this);
 
-    cbEditMode->setBounds (123, 49, 296, 24);
+    cbEditMode->setBounds (128, 48, 296, 24);
 
     labelEditMode.reset (new Label ("labelEditMode",
                                     TRANS("Edit Function:")));
@@ -70,7 +70,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelEditMode->setBounds (11, 49, 103, 24);
+    labelEditMode->setBounds (16, 48, 103, 24);
 
     cbPreset.reset (new ComboBox ("cbPreset"));
     addAndMakeVisible (cbPreset.get());
@@ -81,7 +81,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     cbPreset->addItem (TRANS("One to one"), 1);
     cbPreset->addListener (this);
 
-    cbPreset->setBounds (123, 9, 296, 24);
+    cbPreset->setBounds (128, 8, 296, 24);
 
     labelPresets.reset (new Label ("labelPresets",
                                    TRANS("Presets:")));
@@ -92,7 +92,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelPresets->setColour (TextEditor::textColourId, Colours::black);
     labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelPresets->setBounds (11, 9, 107, 24);
+    labelPresets->setBounds (16, 8, 107, 24);
 
     labelCurrentBeamValue.reset (new Label ("labelCurrentBeamValue",
                                             TRANS("127")));
@@ -449,25 +449,25 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="768" initialHeight="212">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="11 81 608 32" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 80 608 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="123 49 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="128 48 296 24" editable="0"
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="11 49 103 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 48 103 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="cbPreset" id="e5845a95b8b0cb19" memberName="cbPreset" virtualName=""
-            explicitFocusOrder="0" pos="123 9 296 24" editable="1" layout="33"
+            explicitFocusOrder="0" pos="128 8 296 24" editable="1" layout="33"
             items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
-         virtualName="" explicitFocusOrder="0" pos="11 9 107 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 8 107 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -484,5 +484,44 @@ END_JUCER_METADATA
 
 
 //[EndFile] You can add extra defines here...
+
+VelocityIntervalTableSubDlg::VelocityIntervalTableSubDlg()
+: VelocityCurveSubDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff, 2048)
+{
+    labelCurrentBeamValue->setSize(128, labelCurrentBeamValue->getHeight());
+}
+
+void VelocityIntervalTableSubDlg::sendVelocityTableToController()
+{
+    // ToDo
+}
+
+void VelocityIntervalTableSubDlg::showBeamValueOfMousePosition(juce::Point<float> localPoint)
+{
+	if (beamTableFrame.contains(localPoint))
+	{
+		// Show the field with the current beam value
+		labelCurrentBeamValue->setVisible(true);
+		labelCurrentBeamValue->setBounds(
+			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
+
+		// Value
+		int dwellTicks = velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint);
+		float milliSeconds = dwellTicks * 1.1;
+
+		String displayText = String(dwellTicks) + " ticks (" + String(milliSeconds) + " ms)";
+		labelCurrentBeamValue->setText(displayText, juce::NotificationType::sendNotification);
+	}
+	else
+		// Hide field
+		labelCurrentBeamValue->setVisible(false);
+
+}
+
+void VelocityIntervalTableSubDlg::midiMessageReceived(const MidiMessage& midiMessage)
+{
+    // ToDo
+}
+
 //[/EndFile]
 

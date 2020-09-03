@@ -52,7 +52,7 @@ public:
 	String saveStateToPropertiesString();
 	void sendVelocityTableToController();
 
-	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
+	virtual void showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
@@ -60,7 +60,7 @@ public:
 	void mouseUp(const MouseEvent &event);
 
 	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
@@ -74,6 +74,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+protected:
 	typedef enum
 	{
 		none = -1,
@@ -110,5 +111,16 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
+
+class VelocityIntervalTableSubDlg: public VelocityCurveSubDlg
+{
+public:
+    VelocityIntervalTableSubDlg();
+
+	void sendVelocityTableToController();
+	virtual void showBeamValueOfMousePosition(juce::Point<float> localPoint)override;
+	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
+};
+
 //[/EndFile]
 

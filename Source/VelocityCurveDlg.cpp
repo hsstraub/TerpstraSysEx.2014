@@ -32,6 +32,9 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     : velocityCurveType(typeValue)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    intervalTableSubDlg.reset(new VelocityIntervalTableSubDlg());
+    addAndMakeVisible (intervalTableSubDlg.get());
+
     lookupTableSubDlg.reset(new VelocityCurveSubDlg(velocityCurveType, 127));
     addAndMakeVisible (lookupTableSubDlg.get());
     //[/Constructor_pre]
@@ -42,7 +45,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
     buttonSendAll->addListener (this);
 
-    buttonSendAll->setBounds (312, 392, 144, 24);
+    buttonSendAll->setBounds (320, 392, 144, 24);
 
     buttonDiscard.reset (new TextButton ("buttonDiscard"));
     addAndMakeVisible (buttonDiscard.get());
@@ -50,7 +53,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
-    buttonDiscard->setBounds (464, 392, 144, 24);
+    buttonDiscard->setBounds (472, 392, 144, 24);
 
     buttonSaveEdits.reset (new TextButton ("buttonSaveEdits"));
     addAndMakeVisible (buttonSaveEdits.get());
@@ -58,7 +61,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
     buttonSaveEdits->addListener (this);
 
-    buttonSaveEdits->setBounds (160, 392, 144, 24);
+    buttonSaveEdits->setBounds (168, 392, 144, 24);
 
     buttonReceive.reset (new TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
@@ -66,7 +69,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonReceive->setButtonText (TRANS("Receive"));
     buttonReceive->addListener (this);
 
-    buttonReceive->setBounds (8, 392, 144, 24);
+    buttonReceive->setBounds (16, 392, 144, 24);
 
     buttonCalibrate.reset (new TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
@@ -74,7 +77,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     buttonCalibrate->setButtonText (TRANS("Calibrate"));
     buttonCalibrate->addListener (this);
 
-    buttonCalibrate->setBounds (616, 392, 144, 24);
+    buttonCalibrate->setBounds (624, 392, 144, 24);
 
     buttonAfterTouchActive.reset (new ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
@@ -83,18 +86,57 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
 
     buttonAfterTouchActive->setBounds (144, 0, 144, 24);
 
+    labelIntervalTable.reset (new Label ("labelIntervalTable",
+                                         TRANS("Velocity interval table:")));
+    addAndMakeVisible (labelIntervalTable.get());
+    labelIntervalTable->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelIntervalTable->setJustificationType (Justification::centredLeft);
+    labelIntervalTable->setEditable (false, false, false);
+    labelIntervalTable->setColour (TextEditor::textColourId, Colours::black);
+    labelIntervalTable->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelIntervalTable->setBounds (16, 24, 256, 24);
+
+    labelLookupTable.reset (new Label ("labelLookupTable",
+                                       TRANS("Velocity lookup table:")));
+    addAndMakeVisible (labelLookupTable.get());
+    labelLookupTable->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelLookupTable->setJustificationType (Justification::centredLeft);
+    labelLookupTable->setEditable (false, false, false);
+    labelLookupTable->setColour (TextEditor::textColourId, Colours::black);
+    labelLookupTable->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelLookupTable->setBounds (16, 192, 256, 24);
+
 
     //[UserPreSize]
+
+    // Show velocity interval table and table labels: only in case of onte on/off velocity table
+    if (velocityCurveType == TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+    {
+        labelIntervalTable->setVisible(true);
+        labelLookupTable->setVisible(true);
+
+        intervalTableSubDlg->setVisible(true);
+    }
+    else
+    {
+        labelIntervalTable->setVisible(false);
+        labelLookupTable->setVisible(false);
+
+        intervalTableSubDlg->setVisible(false);
+    }
+
+	// Calibrate button: only for aftertouch
+	buttonAfterTouchActive->setVisible(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	buttonCalibrate->setVisible(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch);
+
     //[/UserPreSize]
 
     setSize (768, 424);
 
 
     //[Constructor] You can add your own custom stuff here..
-
-	// Calibrate button: only for aftertouch
-	buttonAfterTouchActive->setVisible(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch);
-	buttonCalibrate->setVisible(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch);
 
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
@@ -108,6 +150,7 @@ VelocityCurveDlg::~VelocityCurveDlg()
 	// Save values to properties file
 	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
 
+	intervalTableSubDlg = nullptr;
 	lookupTableSubDlg = nullptr;
     //[/Destructor_pre]
 
@@ -117,6 +160,8 @@ VelocityCurveDlg::~VelocityCurveDlg()
     buttonReceive = nullptr;
     buttonCalibrate = nullptr;
     buttonAfterTouchActive = nullptr;
+    labelIntervalTable = nullptr;
+    labelLookupTable = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -140,13 +185,35 @@ void VelocityCurveDlg::paint (Graphics& g)
 void VelocityCurveDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-    int w = this->getWidth();
-    int h = this->getHeight();
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-    int lookupTableYPos = buttonAfterTouchActive->getBottom();
-	int buttonYPos = h - pushButtonAreaHeight + (pushButtonAreaHeight - buttonSendAll->getHeight())/2;
+    int w = this->getWidth();
+    int h = this->getHeight();
+
+    int tableAreaBottom = h - pushButtonAreaHeight;
+	int buttonYPos = tableAreaBottom + (pushButtonAreaHeight - buttonSendAll->getHeight())/2;
+
+    int lookupTableYPos;
+    if (velocityCurveType == TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+    {
+        int intervalTableYPos = labelIntervalTable->getBottom();
+
+        labelLookupTable->setBounds(labelLookupTable->getX(), intervalTableYPos + (tableAreaBottom - intervalTableYPos)/2,
+            labelLookupTable->getWidth(), labelLookupTable->getHeight());
+
+        lookupTableYPos = labelLookupTable->getBottom();
+
+        intervalTableSubDlg->setBounds(0, intervalTableYPos, w, labelLookupTable->getY() - intervalTableYPos);
+    }
+    else if (velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch)
+    {
+        lookupTableYPos = buttonAfterTouchActive->getBottom();
+    }
+    else
+    {
+        lookupTableYPos = 0;
+    }
 
 	lookupTableSubDlg->setBounds(0, lookupTableYPos, w, buttonYPos-lookupTableYPos);
 
@@ -160,7 +227,6 @@ void VelocityCurveDlg::resized()
 		buttonSaveEdits->getWidth(), buttonSaveEdits->getHeight());
 	buttonCalibrate->setBounds(buttonCalibrate->getX(), buttonYPos,
 		buttonCalibrate->getWidth(), buttonCalibrate->getHeight());
-
     //[/UserResized]
 }
 
@@ -337,26 +403,36 @@ BEGIN_JUCER_METADATA
                  initialWidth="768" initialHeight="424">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="312 392 144 24" tooltip="Send whole velocity curve map to controller and save it there."
+              virtualName="" explicitFocusOrder="0" pos="320 392 144 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="464 392 144 24" tooltip="Discard velocity curve edits on controller."
+              virtualName="" explicitFocusOrder="0" pos="472 392 144 24" tooltip="Discard velocity curve edits on controller."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
-              virtualName="" explicitFocusOrder="0" pos="160 392 144 24" tooltip="Save velocity curve edits that have been sent on controller"
+              virtualName="" explicitFocusOrder="0" pos="168 392 144 24" tooltip="Save velocity curve edits that have been sent on controller"
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonReceive" id="5545cd9fc9bd20cb" memberName="buttonReceive"
-              virtualName="" explicitFocusOrder="0" pos="8 392 144 24" tooltip="Receive the current configurartion from controller"
+              virtualName="" explicitFocusOrder="0" pos="16 392 144 24" tooltip="Receive the current configurartion from controller"
               buttonText="Receive" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="buttonCalibrate" id="47242594c34a8de9" memberName="buttonCalibrate"
-              virtualName="" explicitFocusOrder="0" pos="616 392 144 24" tooltip="Calibrate aftertouch"
+              virtualName="" explicitFocusOrder="0" pos="624 392 144 24" tooltip="Calibrate aftertouch"
               buttonText="Calibrate" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="buttonAfterTouchActive" id="3f2eba6027c4f2f5" memberName="buttonAfterTouchActive"
                 virtualName="" explicitFocusOrder="0" pos="144 0 144 24" buttonText="Aftertouch active"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <LABEL name="labelIntervalTable" id="8a7af695deb665b1" memberName="labelIntervalTable"
+         virtualName="" explicitFocusOrder="0" pos="16 24 256 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Velocity interval table:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="labelLookupTable" id="b922d8fb3b3a5823" memberName="labelLookupTable"
+         virtualName="" explicitFocusOrder="0" pos="16 192 256 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Velocity lookup table:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

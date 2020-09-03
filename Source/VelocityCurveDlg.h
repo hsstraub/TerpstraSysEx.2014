@@ -58,8 +58,9 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	const TerpstraMidiDriver::VelocityCurveType velocityCurveType;
-	const float pushButtonAreaHeight = 36.0f;
+	const int pushButtonAreaHeight = 36;
 
+	std::unique_ptr<VelocityIntervalTableSubDlg> intervalTableSubDlg;
 	std::unique_ptr<VelocityCurveSubDlg> lookupTableSubDlg;
     //[/UserVariables]
 
@@ -70,6 +71,8 @@ private:
     std::unique_ptr<TextButton> buttonReceive;
     std::unique_ptr<TextButton> buttonCalibrate;
     std::unique_ptr<ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<Label> labelIntervalTable;
+    std::unique_ptr<Label> labelLookupTable;
 
 
     //==============================================================================
