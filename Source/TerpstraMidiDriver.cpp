@@ -146,12 +146,31 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
                 break;
 		}
 
-    //memcpy_s is windows specific
-//    memcpy_s(&sysExData[5], 128, velocityTable, 128);  // velocityTable is supposed to contain 128 entries. ToDo security?
-
 		memmove(&sysExData[5], velocityTable, 128);
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+		sendMessageNow(msg);
+	}
+}
+
+void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
+{
+	if (midiOutput != nullptr)
+	{
+		unsigned char sysExData[261];
+		sysExData[0] = (manufacturerId >> 16) & 0xff;
+		sysExData[1] = (manufacturerId >> 8) & 0xff;
+		sysExData[2] = manufacturerId & 0xff;
+		sysExData[3] = '\0';
+        sysExData[4] = SET_VELOCITY_INTERVALS;
+
+        for ( int i = 0; i<128; i++)
+        {
+            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
+            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
+        }
+
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
 		sendMessageNow(msg);
 	}
 }
@@ -257,6 +276,12 @@ void TerpstraMidiDriver::sendVelocityConfigurationRequest(VelocityCurveType velo
             break;
     }
 }
+
+void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
+{
+    sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
@@ -349,6 +374,17 @@ bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const M
         (velocityCurveType == VelocityCurveType::noteOnNoteOff && midiCmd == GET_VELOCITY_CONFIG) ||
         (velocityCurveType == VelocityCurveType::fader && midiCmd == GET_FADER_CONFIG) ||
         (velocityCurveType == VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG);
+}
+
+bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return midiCmd == GET_VELOCITY_INTERVALS;
 }
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)

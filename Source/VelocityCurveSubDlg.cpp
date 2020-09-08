@@ -109,8 +109,8 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     //[UserPreSize]
 	for (int x = 0; x < 128; x++)
 	{
-		velocityBeamTable[x] = new  VelocityCurveBeam(maxBeamValue);
-		addAndMakeVisible(velocityBeamTable[x]);
+		velocityBeamTable[x].reset(new  VelocityCurveBeam(maxBeamValue));
+		addAndMakeVisible(velocityBeamTable[x].get());
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
     //[/UserPreSize]
@@ -129,6 +129,10 @@ VelocityCurveSubDlg::~VelocityCurveSubDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+
+    for (int x = 0; x < 128; x++) {
+		velocityBeamTable[x]= nullptr;
+	}
     //[/Destructor_pre]
 
     lblDescription = nullptr;

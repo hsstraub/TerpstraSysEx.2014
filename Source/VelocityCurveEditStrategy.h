@@ -23,7 +23,7 @@ Base class for velocity curve editing
 class VelocityCurveEditStrategyBase
 {
 public:
-	VelocityCurveEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+	VelocityCurveEditStrategyBase(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
 	// Takes a given velocity table and tries to extract edit parameters. Returns whether it was successful.
 	virtual bool setEditConfigFromVelocityTable() { return true; }
@@ -48,7 +48,7 @@ public:
 
 protected:
 	Path& beamTableFrame;
-	VelocityCurveBeam** velocityBeamTable;
+	std::unique_ptr<VelocityCurveBeam>* velocityBeamTable;
 };
 
 /*
@@ -59,7 +59,7 @@ Velocity curve editing via free drawing
 class VelocityCurveFreeDrawingStrategy : public VelocityCurveEditStrategyBase
 {
 public:
-	VelocityCurveFreeDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+	VelocityCurveFreeDrawingStrategy(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
@@ -83,7 +83,7 @@ Base class for velocity curve editing with segments
 class VelocityCurveSegmentEditStrategyBase : public VelocityCurveEditStrategyBase
 {
 public:
-	VelocityCurveSegmentEditStrategyBase(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+	VelocityCurveSegmentEditStrategyBase(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
 	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
 
@@ -120,7 +120,7 @@ Velocity curve editing via line segments
 class VelocityCurveLinearDrawingStrategy : public VelocityCurveSegmentEditStrategyBase
 {
 public:
-	VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+	VelocityCurveLinearDrawingStrategy(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
 	bool setEditConfigFromVelocityTable() override;
 	void setVelocityTableValuesFromEditConfig() override;
@@ -144,7 +144,7 @@ Velocity curve editing via quadratic curves
 class VelocityCurveQuadraticDrawingStrategy : public VelocityCurveSegmentEditStrategyBase
 {
 public:
-	VelocityCurveQuadraticDrawingStrategy(Path& beamTableFrameRef, VelocityCurveBeam** velocityBeamTablePtr);
+	VelocityCurveQuadraticDrawingStrategy(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
 	bool setEditConfigFromVelocityTable() override;
 	void setVelocityTableValuesFromEditConfig() override;
