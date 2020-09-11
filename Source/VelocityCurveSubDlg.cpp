@@ -497,7 +497,14 @@ VelocityIntervalTableSubDlg::VelocityIntervalTableSubDlg()
 
 void VelocityIntervalTableSubDlg::sendVelocityTableToController()
 {
-    // ToDo
+	int velocityValues[128];
+
+	for (int x = 0; x < 128; x++)
+	{
+		velocityValues[x] = velocityBeamTable[x]->getValue();
+	}
+
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(velocityValues);
 }
 
 void VelocityIntervalTableSubDlg::showBeamValueOfMousePosition(juce::Point<float> localPoint)
@@ -524,7 +531,23 @@ void VelocityIntervalTableSubDlg::showBeamValueOfMousePosition(juce::Point<float
 
 void VelocityIntervalTableSubDlg::midiMessageReceived(const MidiMessage& midiMessage)
 {
-    // ToDo
+    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
+    {
+        auto sysExData = midiMessage.getSysExData();
+        auto answerState = sysExData[5];
+
+        if (answerState == TerpstraMidiDriver::ACK)
+        {
+            // After the answer state byte there must be 256 bytes of data
+            jassert(midiMessage.getSysExDataSize() >= 262); // ToDo display error otherwise
+
+            cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
+            currentCurveEditStrategy = &freeDrawingStrategy;
+
+            for (int x = 0; x < 128; x++)
+                velocityBeamTable[x]->setValue(sysExData[6+2*x] << 6 + sysExData[7+2*x]);
+        }
+    }
 }
 
 //[/EndFile]

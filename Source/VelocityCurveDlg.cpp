@@ -305,24 +305,24 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
         case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
             intervalTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("NoteOnOffVelocityIntervalTable"));
             lookupTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("NoteOnOffVelocityCurveTable"));
-            setSize(
-                propertiesFile->getIntValue("VelocityCurveWindowWidth", 648),
-                propertiesFile->getIntValue("VelocityCurveWindowHeight", 480));
+ //           setSize(
+ //               propertiesFile->getIntValue("VelocityCurveWindowWidth", 648),
+ //               propertiesFile->getIntValue("VelocityCurveWindowHeight", 480));
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
             lookupTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("FaderVelocityCurveTable"));
-            setSize(
-                propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648),
-                propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 320));
+ //           setSize(
+ //               propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648),
+ //               propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 320));
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
             lookupTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("AfterTouchCurveTable"));
             buttonAfterTouchActive->setToggleState(
                 propertiesFile->getBoolValue("AfterTouchActive", false),
                 juce::NotificationType::sendNotification);
-            setSize(
-                propertiesFile->getIntValue("AftertochVelocityCurveWindowWidth", 768),
-                propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 320));
+  //          setSize(
+  //              propertiesFile->getIntValue("AftertochVelocityCurveWindowWidth", 768),
+  //              propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 320));
             break;
         default:
             jassert(false);
@@ -337,19 +337,19 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
         case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
             propertiesFile->setValue("NoteOnOffVelocityIntervalTable", intervalTableSubDlg->saveStateToPropertiesString());
             propertiesFile->setValue("NoteOnOffVelocityCurveTable", lookupTableSubDlg->saveStateToPropertiesString());
-            propertiesFile->setValue("VelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("VelocityCurveWindowWidth", getParentComponent()->getWidth());
+            propertiesFile->setValue("VelocityCurveWindowHeight", getParentComponent()->getHeight());
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
             propertiesFile->setValue("FaderVelocityCurveTable", lookupTableSubDlg->saveStateToPropertiesString());
-            propertiesFile->setValue("FaderVelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("FaderVelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("FaderVelocityCurveWindowWidth", getParentComponent()->getWidth());
+            propertiesFile->setValue("FaderVelocityCurveWindowHeight", getParentComponent()->getHeight());
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
             propertiesFile->setValue("AfterTouchCurveTable", lookupTableSubDlg->saveStateToPropertiesString());
             propertiesFile->setValue("AfterTouchActive", buttonAfterTouchActive->getToggleState());
-            propertiesFile->setValue("AftertouchVelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("AftertouchVelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("AftertouchVelocityCurveWindowWidth", getParentComponent()->getWidth());
+            propertiesFile->setValue("AftertouchVelocityCurveWindowHeight", getParentComponent()->getHeight());
             break;
         default:
             jassert(false);
