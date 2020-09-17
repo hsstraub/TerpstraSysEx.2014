@@ -35,7 +35,7 @@ VelocityCurveDlg::VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeVa
     intervalTableSubDlg.reset(new VelocityIntervalTableSubDlg());
     addAndMakeVisible (intervalTableSubDlg.get());
 
-    lookupTableSubDlg.reset(new VelocityCurveSubDlg(velocityCurveType, 127));
+    lookupTableSubDlg.reset(new VelocityCurveSubDlg(velocityCurveType, 127, 128));
     addAndMakeVisible (lookupTableSubDlg.get());
     //[/Constructor_pre]
 
@@ -305,29 +305,22 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
         case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
             intervalTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("NoteOnOffVelocityIntervalTable"));
             lookupTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("NoteOnOffVelocityCurveTable"));
- //           setSize(
- //               propertiesFile->getIntValue("VelocityCurveWindowWidth", 648),
- //               propertiesFile->getIntValue("VelocityCurveWindowHeight", 480));
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
             lookupTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("FaderVelocityCurveTable"));
- //           setSize(
- //               propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648),
- //               propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 320));
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
             lookupTableSubDlg->restoreStateFromPropertiesString(propertiesFile->getValue("AfterTouchCurveTable"));
             buttonAfterTouchActive->setToggleState(
                 propertiesFile->getBoolValue("AfterTouchActive", false),
                 juce::NotificationType::sendNotification);
-  //          setSize(
-  //              propertiesFile->getIntValue("AftertochVelocityCurveWindowWidth", 768),
-  //              propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 320));
             break;
         default:
             jassert(false);
             break;
     }
+
+    // Restore of dialog size: done outside
 }
 
 void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)

@@ -28,10 +28,11 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue)
+VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue, int tableSizeValue)
     : velocityCurveType(typeValue),
       maxBeamValue(newMaxBeamValue),
-      freeDrawingStrategy(beamTableFrame, velocityBeamTable), linearDrawingStrategy(beamTableFrame, velocityBeamTable), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
+      tableSize(tableSizeValue),
+      freeDrawingStrategy(beamTableFrame, velocityBeamTable, tableSizeValue), linearDrawingStrategy(beamTableFrame, velocityBeamTable, newMaxBeamValue, tableSizeValue), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable, newMaxBeamValue, tableSizeValue)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	currentCurveEditStrategy = nullptr;
@@ -46,7 +47,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblDescription->setBounds (16, 80, 608, 32);
+    lblDescription->setBounds (16, 72, 608, 24);
 
     cbEditMode.reset (new ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
@@ -59,7 +60,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     cbEditMode->addItem (TRANS("Quadratic"), 3);
     cbEditMode->addListener (this);
 
-    cbEditMode->setBounds (128, 48, 296, 24);
+    cbEditMode->setBounds (128, 40, 296, 24);
 
     labelEditMode.reset (new Label ("labelEditMode",
                                     TRANS("Edit Function:")));
@@ -70,7 +71,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelEditMode->setBounds (16, 48, 103, 24);
+    labelEditMode->setBounds (16, 40, 103, 24);
 
     cbPreset.reset (new ComboBox ("cbPreset"));
     addAndMakeVisible (cbPreset.get());
@@ -103,11 +104,11 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
     labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelCurrentBeamValue->setBounds (16, 112, 31, 24);
+    labelCurrentBeamValue->setBounds (16, 96, 31, 24);
 
 
     //[UserPreSize]
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		velocityBeamTable[x].reset(new  VelocityCurveBeam(maxBeamValue));
 		addAndMakeVisible(velocityBeamTable[x].get());
@@ -130,8 +131,8 @@ VelocityCurveSubDlg::~VelocityCurveSubDlg()
     //[Destructor_pre]. You can add your own custom destruction code here..
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
-    for (int x = 0; x < 128; x++) {
-		velocityBeamTable[x]= nullptr;
+    for (int x = 0; x < tableSize; x++) {
+		velocityBeamTable[x] = nullptr;
 	}
     //[/Destructor_pre]
 
@@ -190,10 +191,10 @@ void VelocityCurveSubDlg::resized()
 	if (currentCurveEditStrategy != nullptr)
 		currentCurveEditStrategy->resized();
 
-	float velocityBeamWidth = (w - 2 * graphicsXPos) / 128;
+	float velocityBeamWidth = (w - 2 * graphicsXPos) / tableSize;
 	float velocityGraphicsHeight = h - graphicsYPadding - graphicsYPos;
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		velocityBeamTable[x]->setBounds(
 			graphicsXPos + x*velocityBeamWidth,
@@ -250,8 +251,8 @@ void VelocityCurveSubDlg::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		{
 		case 0:
 			// Currently only preset is "one to one"
-			for (int x = 0; x < 128; x++)
-				velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/128);
+			for (int x = 0; x < tableSize; x++)
+				velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/tableSize);
 			sendVelocityTableToController();
 			break;
 		}
@@ -293,8 +294,8 @@ void VelocityCurveSubDlg::restoreStateFromPropertiesString(const String& propert
 	else
 	{
 		// Initialize velocity lookup table
-		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/128);
+		for (int x = 0; x < tableSize; x++)
+			velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/tableSize);
 
 		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
 		currentCurveEditStrategy = nullptr;
@@ -323,9 +324,9 @@ String VelocityCurveSubDlg::saveStateToPropertiesString()
 
 void VelocityCurveSubDlg::sendVelocityTableToController()
 {
-	unsigned char velocityValues[128];
+	unsigned char velocityValues[tableSize];
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		velocityValues[x] = velocityBeamTable[x]->getValue();
 	}
@@ -344,6 +345,8 @@ void VelocityCurveSubDlg::showBeamValueOfMousePosition(juce::Point<float> localP
 
 		// Value
 		labelCurrentBeamValue->setText(String(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
+
+		// ToDo ALso show x value (beam position)
 	}
 	else
 		// Hide field
@@ -421,13 +424,13 @@ void VelocityCurveSubDlg::midiMessageReceived(const MidiMessage& message)
 
         if (answerState == TerpstraMidiDriver::ACK)
         {
-            // After the answer state byte there must be 128 bytes of data
-            jassert(message.getSysExDataSize() >= 134); // ToDo display error otherwise
+            // After the answer state byte there must be tableSize bytes of data
+            jassert(message.getSysExDataSize() >= 6+ tableSize); // ToDo display error otherwise
 
             cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
             currentCurveEditStrategy = &freeDrawingStrategy;
 
-            for (int x = 0; x < 128; x++)
+            for (int x = 0; x < tableSize; x++)
                 velocityBeamTable[x]->setValue(sysExData[6+x]);
         }
     }
@@ -447,23 +450,23 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveSubDlg" componentName=""
                  parentClasses="public Component, public TerpstraMidiDriver::Listener"
-                 constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue"
-                 variableInitialisers="velocityCurveType(typeValue),&#10;maxBeamValue(newMaxBeamValue),&#10;freeDrawingStrategy(beamTableFrame, velocityBeamTable), linearDrawingStrategy(beamTableFrame, velocityBeamTable), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
+                 constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue, int tableSizeValue"
+                 variableInitialisers="velocityCurveType(typeValue),&#10;maxBeamValue(newMaxBeamValue),&#10;tableSize(tableSizeValue),&#10;freeDrawingStrategy(beamTableFrame, velocityBeamTable, tableSizeValue), linearDrawingStrategy(beamTableFrame, velocityBeamTable, newMaxBeamValue, tableSizeValue), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable, newMaxBeamValue, tableSizeValue)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="768" initialHeight="212">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="16 80 608 32" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 72 608 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="128 48 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="128 40 296 24" editable="0"
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="16 48 103 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 40 103 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -476,7 +479,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="16 112 31 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 96 31 24" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -490,16 +493,16 @@ END_JUCER_METADATA
 //[EndFile] You can add extra defines here...
 
 VelocityIntervalTableSubDlg::VelocityIntervalTableSubDlg()
-: VelocityCurveSubDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff, 2048)
+: VelocityCurveSubDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff, 2048, 127)
 {
     labelCurrentBeamValue->setSize(128, labelCurrentBeamValue->getHeight());
 }
 
 void VelocityIntervalTableSubDlg::sendVelocityTableToController()
 {
-	int velocityValues[128];
+	int velocityValues[tableSize];
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		velocityValues[x] = velocityBeamTable[x]->getValue();
 	}
@@ -522,11 +525,12 @@ void VelocityIntervalTableSubDlg::showBeamValueOfMousePosition(juce::Point<float
 
 		String displayText = String(dwellTicks) + " ticks (" + String(milliSeconds) + " ms)";
 		labelCurrentBeamValue->setText(displayText, juce::NotificationType::sendNotification);
+
+		// ToDo ALso show x value (beam position)
 	}
 	else
 		// Hide field
 		labelCurrentBeamValue->setVisible(false);
-
 }
 
 void VelocityIntervalTableSubDlg::midiMessageReceived(const MidiMessage& midiMessage)
@@ -538,14 +542,14 @@ void VelocityIntervalTableSubDlg::midiMessageReceived(const MidiMessage& midiMes
 
         if (answerState == TerpstraMidiDriver::ACK)
         {
-            // After the answer state byte there must be 256 bytes of data
-            jassert(midiMessage.getSysExDataSize() >= 262); // ToDo display error otherwise
+            // After the answer state byte there must be 254 bytes of data
+            jassert(midiMessage.getSysExDataSize() >= (6+2*tableSize)); // ToDo display error otherwise
 
             cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
             currentCurveEditStrategy = &freeDrawingStrategy;
 
-            for (int x = 0; x < 128; x++)
-                velocityBeamTable[x]->setValue(sysExData[6+2*x] << 6 + sysExData[7+2*x]);
+            for (int x = 0; x < tableSize; x++)
+                velocityBeamTable[x]->setValue((sysExData[6+2*x] << 6) + sysExData[7+2*x]);
         }
     }
 }

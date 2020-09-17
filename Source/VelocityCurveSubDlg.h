@@ -43,7 +43,7 @@ class VelocityCurveSubDlg  : public Component,
 {
 public:
     //==============================================================================
-    VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue);
+    VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue, int tableSizeValue);
     ~VelocityCurveSubDlg() override;
 
     //==============================================================================
@@ -85,9 +85,10 @@ protected:
 
     const TerpstraMidiDriver::VelocityCurveType velocityCurveType;
     const int maxBeamValue;
+    const int tableSize;
 
 	Path beamTableFrame;
-	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
+	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];  // ToDO Actually, it is tableSize
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;

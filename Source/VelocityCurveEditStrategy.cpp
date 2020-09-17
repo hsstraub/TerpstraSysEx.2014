@@ -18,8 +18,9 @@ VelocityCurveEditStrategyBase class
 
 VelocityCurveEditStrategyBase::VelocityCurveEditStrategyBase(
     Path& beamTableFrameRef,
-    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: beamTableFrame(beamTableFrameRef), velocityBeamTable(velocityBeamTablePtr)
+    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr,
+    int tableSizeValue)
+	: beamTableFrame(beamTableFrameRef), velocityBeamTable(velocityBeamTablePtr), tableSize(tableSizeValue)
 {
 }
 
@@ -32,8 +33,9 @@ VelocityCurveFreeDrawingStrategy class
 
 VelocityCurveFreeDrawingStrategy::VelocityCurveFreeDrawingStrategy(
     Path& beamTableFrameRef,
-    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr,
+    int tableSizeValue)
+	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr, tableSizeValue)
 {
 }
 
@@ -42,16 +44,16 @@ bool VelocityCurveFreeDrawingStrategy::setEditConfigFromSavedString(String prope
 	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString, false);
 	if (velocityCurveValueArray.size() > 0)
 	{
-		jassert(velocityCurveValueArray.size() >= 128);
+		jassert(velocityCurveValueArray.size() >= tableSize);
 
-		for (int x = 0; x < 128; x++)
+		for (int x = 0; x < tableSize; x++)
 			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
 	}
 	else
 	{
 		// Initialize velocity lookup table
-		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/128);
+		for (int x = 0; x < tableSize; x++)
+			velocityBeamTable[x]->setValue(x*(velocityBeamTable[x]->getMaxValue()+1)/tableSize);
 	}
 
 	return true;
@@ -61,7 +63,7 @@ String VelocityCurveFreeDrawingStrategy::createPropertiesStringForSaving()
 {
 	String velocityCurveString;
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 		velocityCurveString += String(velocityBeamTable[x]->getValue()) + " ";
 
 	return velocityCurveString;
@@ -85,7 +87,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::
 	{
 		drawedLine.startNewSubPath(localPoint.x, localPoint.y);
 
-		for (int x = 0; x < 128; x++)
+		for (int x = 0; x < tableSize; x++)
 		{
 			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 			if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
@@ -97,7 +99,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::
 				for (int x2 = 0; x2 < x; x2++)
 					velocityBeamTable[x2]->setValueAtMost(newBeamValue);
 
-				for (int x2 = x + 1; x2 < 128; x2++)
+				for (int x2 = x + 1; x2 < tableSize; x2++)
 					velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
 
 				return true;
@@ -111,7 +113,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::
 
 bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, juce::Point<float> localPoint)
 {
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 		if (beamRect.contains((int)localPoint.x, (int)localPoint.y))
@@ -125,7 +127,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, juce::
 			for (int x2 = 0; x2 < x; x2++)
 				velocityBeamTable[x2]->setValueAtMost(newBeamValue);
 
-			for (int x2 = x + 1; x2 < 128; x2++)
+			for (int x2 = x + 1; x2 < tableSize; x2++)
 				velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
 
 			return true;
@@ -148,16 +150,20 @@ VelocityCurveSegmentEditStrategyBase class
 
 VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(
     Path& beamTableFrameRef,
-    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr,
+    int newMaxBeamValue,
+    int tableSizeValue)
+	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr, tableSizeValue)
 	, mouseXPosition(-1), draggedOriginalXPosition(-1)
 {
 	fixPointBeamHeights[0] = 0;
 
-	for (int x = 1; x < 127; x++)
+	for (int x = 1; x < (tableSize-1); x++)
 		fixPointBeamHeights[x] = -1;
 
-	fixPointBeamHeights[127] = 127;
+    // velocityBeamTablePtr[0]->getMaxValue() will return the same value as newMaxBeamValue,
+    // but this may not have been created yet in this moment
+	fixPointBeamHeights[tableSize-1] = newMaxBeamValue;
 }
 
 void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookAndFeel)
@@ -171,7 +177,7 @@ void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookA
 bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	int newMouseXPosition = -1;
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 		if (beamRect.contains(localPoint.toInt()))
@@ -200,7 +206,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 		if (draggedOriginalXPosition >= 0)
 		{
 			// First and last position cannot be dragged horizontally
-			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == 127)
+			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == (tableSize-1))
 			{
 				minDragXPosition = draggedOriginalXPosition;
 				maxDragXPosition = draggedOriginalXPosition;
@@ -211,7 +217,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 				for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
 					minDragXPosition = x;
 
-				for (int x2 = draggedOriginalXPosition + 1; x2 < 127 && fixPointBeamHeights[x2] == -1; x2++)
+				for (int x2 = draggedOriginalXPosition + 1; x2 < (tableSize-1) && fixPointBeamHeights[x2] == -1; x2++)
 					maxDragXPosition = x2;
 			}
 		}
@@ -225,7 +231,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 	else if (event.mods.isRightButtonDown())
 	{
 		// If mouse is on an interior segment point, remove it
-		if (mouseXPosition > 0 && mouseXPosition < 127 && fixPointBeamHeights[mouseXPosition] != -1)
+		if (mouseXPosition > 0 && mouseXPosition < (tableSize-1) && fixPointBeamHeights[mouseXPosition] != -1)
 		{
 			fixPointBeamHeights[mouseXPosition] = -1;
 			return true;
@@ -240,7 +246,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, ju
 	if (isDragging())
 	{
 		int currentDraggedXPosition = -1;
-		for (int x = 0; x < 128; x++)
+		for (int x = 0; x < tableSize; x++)
 		{
 			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 			if (beamRect.contains(localPoint.toInt()))
@@ -292,7 +298,7 @@ Array<juce::Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints
 	result.add(pt);
 
 	// points in-between
-	for (int x = 1; x < 128; x++)
+	for (int x = 1; x < tableSize; x++)
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
@@ -310,7 +316,7 @@ void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g, LookAn
 	g.setColour(lookAndFeel.findColour(VelocityCurveBeam::outlineColourId));
 
 	// Circles around the point
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
@@ -350,15 +356,18 @@ VelocityCurveLinearDrawingStrategy class
 
 VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(
     Path& beamTableFrameRef,
-    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveSegmentEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr,
+    int newMaxBeamValue,
+    int tableSizeValue)
+	: VelocityCurveSegmentEditStrategyBase(
+        beamTableFrameRef, velocityBeamTablePtr, newMaxBeamValue, tableSizeValue)
 {
 }
 
 bool VelocityCurveLinearDrawingStrategy::setEditConfigFromVelocityTable()
 {
 	// Take segments from current beam values, with superfluous points removed
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		fixPointBeamHeights[x] = velocityBeamTable[x]->getValue();
 	}
@@ -375,7 +384,7 @@ void VelocityCurveLinearDrawingStrategy::setVelocityTableValuesFromEditConfig()
 	velocityBeamTable[0]->setValue(fixPointBeamHeights[0]);	// Must have a valid value
 
 	int lineStopXPosition = -1;
-	for (int x = 1; x < 128; x++)
+	for (int x = 1; x < tableSize; x++)
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
@@ -406,15 +415,15 @@ bool VelocityCurveLinearDrawingStrategy::setEditConfigFromSavedString(String pro
 		StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString.substring(6), false);
 		if (velocityCurveValueArray.size() > 0)
 		{
-			jassert(velocityCurveValueArray.size() >= 128);
+			jassert(velocityCurveValueArray.size() >= tableSize);
 
-			for (int x = 0; x < 128; x++)
+			for (int x = 0; x < tableSize; x++)
 				fixPointBeamHeights[x] = velocityCurveValueArray[x].getIntValue();
 		}
 		else
 		{
 			// Initialize segment table
-			for (int x = 0; x < 128; x++)
+			for (int x = 0; x < tableSize; x++)
 				fixPointBeamHeights[x] = -1;
 		}
 
@@ -430,7 +439,7 @@ String VelocityCurveLinearDrawingStrategy::createPropertiesStringForSaving()
 {
 	String velocityCurveString = "LINEAR";
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 		velocityCurveString += String(fixPointBeamHeights[x]) + " ";
 
 	return velocityCurveString;
@@ -457,14 +466,14 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 	int previousLineSegmentRiseRatio;
 
 	// Identify first segment
-	for (int x = 1; x < 128; x++)
+	for (int x = 1; x < tableSize; x++)
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
 			// New fixed point found
 			lineStopXPosition = x;
 
-			previousLineSegmentRiseRatio = (fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])*128
+			previousLineSegmentRiseRatio = (fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])*tableSize
 				/ (lineStopXPosition - lineStartXPosition);
 
 			break;
@@ -477,14 +486,14 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 	lineStartXPosition = lineStopXPosition;
 
 	// Following segments
-	for (int x = lineStartXPosition + 1; x < 128; x++)
+	for (int x = lineStartXPosition + 1; x < tableSize; x++)
 	{
 		if (fixPointBeamHeights[x] != -1)
 		{
 			// New fixed point found
 			lineStopXPosition = x;
 
-			int newLineSegmentRiseRatio = (fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])*128
+			int newLineSegmentRiseRatio = (fixPointBeamHeights[lineStopXPosition] - fixPointBeamHeights[lineStartXPosition])*tableSize
 				/ (lineStopXPosition - lineStartXPosition);
 
 			if (newLineSegmentRiseRatio == previousLineSegmentRiseRatio)
@@ -511,8 +520,11 @@ VelocityCurveQuadraticDrawingStrategy class
 
 VelocityCurveQuadraticDrawingStrategy::VelocityCurveQuadraticDrawingStrategy(
     Path& beamTableFrameRef,
-    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveSegmentEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+    std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr,
+    int newMaxBeamValue,
+    int tableSizeValue)
+	: VelocityCurveSegmentEditStrategyBase(
+        beamTableFrameRef, velocityBeamTablePtr, newMaxBeamValue, tableSizeValue)
 {
 }
 
@@ -529,7 +541,7 @@ void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig
 
 	juce::Point<float> ptLeftBottom = velocityBeamTable[0]->getBottomMid();
 	ptLeftBottom.addXY(-1, 1);	// To make sure the testLines start inside the drawedClosedLine
-	juce::Point<float> ptRightBottom = velocityBeamTable[127]->getBottomMid();
+	juce::Point<float> ptRightBottom = velocityBeamTable[tableSize-1]->getBottomMid();
 	ptRightBottom.addXY(1, 1);
 
 	drawedclosedLine.lineTo(ptRightBottom);
@@ -538,7 +550,7 @@ void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig
 
 	int velTableHeight = velocityBeamTable[0]->getHeight()+1;	// +1 to make sure testLines end outside the drawedClosedLine
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 	{
 		juce::Point<float> ptBot = velocityBeamTable[x]->getBottomMid();
 		juce::Point<float> ptTop = ptBot;
@@ -560,15 +572,15 @@ bool VelocityCurveQuadraticDrawingStrategy::setEditConfigFromSavedString(String 
 		StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString.substring(6), false);
 		if (velocityCurveValueArray.size() > 0)
 		{
-			jassert(velocityCurveValueArray.size() >= 128);
+			jassert(velocityCurveValueArray.size() >= tableSize);
 
-			for (int x = 0; x < 128; x++)
+			for (int x = 0; x < tableSize; x++)
 				fixPointBeamHeights[x] = velocityCurveValueArray[x].getIntValue();
 		}
 		else
 		{
 			// Initialize segment table
-			for (int x = 0; x < 128; x++)
+			for (int x = 0; x < tableSize; x++)
 				fixPointBeamHeights[x] = -1;
 		}
 
@@ -584,7 +596,7 @@ String VelocityCurveQuadraticDrawingStrategy::createPropertiesStringForSaving()
 {
 	String velocityCurveString = "Quadratic";
 
-	for (int x = 0; x < 128; x++)
+	for (int x = 0; x < tableSize; x++)
 		velocityCurveString += String(fixPointBeamHeights[x]) + " ";
 
 	return velocityCurveString;

@@ -157,14 +157,15 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
 {
 	if (midiOutput != nullptr)
 	{
-		unsigned char sysExData[261];
+		unsigned char sysExData[259];
 		sysExData[0] = (manufacturerId >> 16) & 0xff;
 		sysExData[1] = (manufacturerId >> 8) & 0xff;
 		sysExData[2] = manufacturerId & 0xff;
 		sysExData[3] = '\0';
         sysExData[4] = SET_VELOCITY_INTERVALS;
 
-        for ( int i = 0; i<128; i++)
+        // Interval table contains 127 values!
+        for ( int i = 0; i<127; i++)
         {
             sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
             sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
