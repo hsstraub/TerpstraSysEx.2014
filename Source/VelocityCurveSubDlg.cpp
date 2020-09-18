@@ -106,6 +106,17 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
 
     labelCurrentBeamValue->setBounds (16, 96, 31, 24);
 
+    labelCurrentXPos.reset (new Label ("labelCurrentXPos",
+                                       TRANS("127")));
+    addAndMakeVisible (labelCurrentXPos.get());
+    labelCurrentXPos->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelCurrentXPos->setJustificationType (Justification::centredLeft);
+    labelCurrentXPos->setEditable (false, false, false);
+    labelCurrentXPos->setColour (TextEditor::textColourId, Colours::black);
+    labelCurrentXPos->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelCurrentXPos->setBounds (56, 96, 31, 24);
+
 
     //[UserPreSize]
 	for (int x = 0; x < tableSize; x++)
@@ -123,6 +134,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	labelCurrentBeamValue->setVisible(false);
+	labelCurrentXPos->setVisible(false);
     //[/Constructor]
 }
 
@@ -142,6 +154,7 @@ VelocityCurveSubDlg::~VelocityCurveSubDlg()
     cbPreset = nullptr;
     labelPresets = nullptr;
     labelCurrentBeamValue = nullptr;
+    labelCurrentXPos = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -341,16 +354,43 @@ void VelocityCurveSubDlg::showBeamValueOfMousePosition(juce::Point<float> localP
 		// Show the field with the current beam value
 		labelCurrentBeamValue->setVisible(true);
 		labelCurrentBeamValue->setBounds(
-			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
+			localPoint.x,
+			localPoint.y - labelCurrentBeamValue->getHeight(),
+            labelCurrentBeamValue->getWidth(),
+            labelCurrentBeamValue->getHeight());
 
 		// Value
-		labelCurrentBeamValue->setText(String(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
+		labelCurrentBeamValue->setText(
+            beamValueText(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)),
+            juce::NotificationType::sendNotification);
 
-		// ToDo ALso show x value (beam position)
+		// Show x value (beam position)
+		int xpos;
+        for (xpos = 0; xpos < tableSize; xpos++)
+		{
+			Rectangle<int> beamRect = velocityBeamTable[xpos]->getBounds();
+			if (beamRect.getX() <= localPoint.x && beamRect.getRight() > localPoint.x)
+                break;
+		}
+
+		labelCurrentXPos->setVisible(true);
+		labelCurrentXPos->setBounds(
+			localPoint.x, velocityBeamTable[0]->getBottom(), labelCurrentXPos->getWidth(), labelCurrentXPos->getHeight());
+        labelCurrentXPos->setText(String(xpos), juce::NotificationType::sendNotification);
+
+        // ToDo Draw vertical line
+        //int vertLineXPos = velocityBeamTable[xpos]->getX() + velocityBeamTable[xpos]->getWidth()/2;
+        //Path vertLine;
+        //vertLine.startNewSubPath(vertLineXPos, velocityBeamTable[xpos]->getBottom());
+        //vertLine.lineTo(vertLineXPos, localPoint.y);
+        //g.strokePath(vertLine, PathStrokeType(1.000f));
 	}
 	else
-		// Hide field
+    {
+		// Hide fields
 		labelCurrentBeamValue->setVisible(false);
+		labelCurrentXPos->setVisible(false);
+    }
 }
 
 void VelocityCurveSubDlg::mouseMove(const MouseEvent &event)
@@ -483,6 +523,11 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="labelCurrentXPos" id="3cce19dc536a6e8b" memberName="labelCurrentXPos"
+         virtualName="" explicitFocusOrder="0" pos="56 96 31 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -508,29 +553,6 @@ void VelocityIntervalTableSubDlg::sendVelocityTableToController()
 	}
 
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(velocityValues);
-}
-
-void VelocityIntervalTableSubDlg::showBeamValueOfMousePosition(juce::Point<float> localPoint)
-{
-	if (beamTableFrame.contains(localPoint))
-	{
-		// Show the field with the current beam value
-		labelCurrentBeamValue->setVisible(true);
-		labelCurrentBeamValue->setBounds(
-			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
-
-		// Value
-		int dwellTicks = velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint);
-		float milliSeconds = dwellTicks * 1.1;
-
-		String displayText = String(dwellTicks) + " ticks (" + String(milliSeconds) + " ms)";
-		labelCurrentBeamValue->setText(displayText, juce::NotificationType::sendNotification);
-
-		// ToDo ALso show x value (beam position)
-	}
-	else
-		// Hide field
-		labelCurrentBeamValue->setVisible(false);
 }
 
 void VelocityIntervalTableSubDlg::midiMessageReceived(const MidiMessage& midiMessage)

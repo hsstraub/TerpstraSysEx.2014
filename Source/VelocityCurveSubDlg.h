@@ -52,6 +52,7 @@ public:
 	String saveStateToPropertiesString();
 	void sendVelocityTableToController();
 
+    virtual String beamValueText(int beamValue) const { return String(beamValue); }
 	virtual void showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
@@ -105,6 +106,7 @@ protected:
     std::unique_ptr<ComboBox> cbPreset;
     std::unique_ptr<Label> labelPresets;
     std::unique_ptr<Label> labelCurrentBeamValue;
+    std::unique_ptr<Label> labelCurrentXPos;
 
 
     //==============================================================================
@@ -119,7 +121,8 @@ public:
     VelocityIntervalTableSubDlg();
 
 	void sendVelocityTableToController();
-	virtual void showBeamValueOfMousePosition(juce::Point<float> localPoint)override;
+    virtual String beamValueText(int beamValue) const override { return String(beamValue) + " ticks (" + String( beamValue * 1.1) + " ms)"; }
+
 	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
 };
 
