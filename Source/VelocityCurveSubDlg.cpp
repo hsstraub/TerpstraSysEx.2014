@@ -47,7 +47,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblDescription->setBounds (16, 72, 608, 24);
+    lblDescription->setBounds (24, 72, 600, 24);
 
     cbEditMode.reset (new ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
@@ -71,7 +71,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelEditMode->setBounds (16, 40, 103, 24);
+    labelEditMode->setBounds (24, 40, 95, 24);
 
     cbPreset.reset (new ComboBox ("cbPreset"));
     addAndMakeVisible (cbPreset.get());
@@ -93,7 +93,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelPresets->setColour (TextEditor::textColourId, Colours::black);
     labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelPresets->setBounds (16, 8, 107, 24);
+    labelPresets->setBounds (24, 8, 99, 24);
 
     labelCurrentBeamValue.reset (new Label ("labelCurrentBeamValue",
                                             TRANS("127")));
@@ -104,7 +104,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
     labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelCurrentBeamValue->setBounds (16, 96, 31, 24);
+    labelCurrentBeamValue->setBounds (16, 96, 31, 16);
 
     labelCurrentXPos.reset (new Label ("labelCurrentXPos",
                                        TRANS("127")));
@@ -115,10 +115,11 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelCurrentXPos->setColour (TextEditor::textColourId, Colours::black);
     labelCurrentXPos->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelCurrentXPos->setBounds (56, 96, 31, 24);
+    labelCurrentXPos->setBounds (56, 96, 31, 16);
 
 
     //[UserPreSize]
+    jassert(tableSize <= 128);
 	for (int x = 0; x < tableSize; x++)
 	{
 		velocityBeamTable[x].reset(new  VelocityCurveBeam(maxBeamValue));
@@ -337,7 +338,9 @@ String VelocityCurveSubDlg::saveStateToPropertiesString()
 
 void VelocityCurveSubDlg::sendVelocityTableToController()
 {
-	unsigned char velocityValues[tableSize];
+	unsigned char velocityValues[128];
+
+	jassert(tableSize <= 128);
 
 	for (int x = 0; x < tableSize; x++)
 	{
@@ -365,25 +368,25 @@ void VelocityCurveSubDlg::showBeamValueOfMousePosition(juce::Point<float> localP
             juce::NotificationType::sendNotification);
 
 		// Show x value (beam position)
-		int xpos;
-        for (xpos = 0; xpos < tableSize; xpos++)
-		{
-			Rectangle<int> beamRect = velocityBeamTable[xpos]->getBounds();
-			if (beamRect.getX() <= localPoint.x && beamRect.getRight() > localPoint.x)
-                break;
-		}
+        int beamTableLeft = velocityBeamTable[0]->getX();
+        int beamTableRight = velocityBeamTable[tableSize-1]->getRight();
+        int xpos = (localPoint.x - beamTableLeft) * tableSize / (beamTableRight - beamTableLeft);
 
-		labelCurrentXPos->setVisible(true);
-		labelCurrentXPos->setBounds(
-			localPoint.x, velocityBeamTable[0]->getBottom(), labelCurrentXPos->getWidth(), labelCurrentXPos->getHeight());
-        labelCurrentXPos->setText(String(xpos), juce::NotificationType::sendNotification);
-
-        // ToDo Draw vertical line
-        //int vertLineXPos = velocityBeamTable[xpos]->getX() + velocityBeamTable[xpos]->getWidth()/2;
-        //Path vertLine;
-        //vertLine.startNewSubPath(vertLineXPos, velocityBeamTable[xpos]->getBottom());
-        //vertLine.lineTo(vertLineXPos, localPoint.y);
-        //g.strokePath(vertLine, PathStrokeType(1.000f));
+        if (xpos >=0 && xpos < tableSize)
+        {
+            labelCurrentXPos->setVisible(true);
+            labelCurrentXPos->setBounds(
+                localPoint.x,
+                velocityBeamTable[0]->getBottom(),
+                labelCurrentXPos->getWidth(),
+                labelCurrentXPos->getHeight());
+            labelCurrentXPos->setText(String(xpos), juce::NotificationType::sendNotification);
+        }
+        else
+        {
+            labelCurrentBeamValue->setVisible(false);
+            labelCurrentXPos->setVisible(false);
+        }
 	}
 	else
     {
@@ -496,7 +499,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="768" initialHeight="212">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="16 72 608 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="24 72 600 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -506,7 +509,7 @@ BEGIN_JUCER_METADATA
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="16 40 103 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="24 40 95 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -514,17 +517,17 @@ BEGIN_JUCER_METADATA
             explicitFocusOrder="0" pos="128 8 296 24" editable="1" layout="33"
             items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
-         virtualName="" explicitFocusOrder="0" pos="16 8 107 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="24 8 99 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="16 96 31 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 96 31 16" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentXPos" id="3cce19dc536a6e8b" memberName="labelCurrentXPos"
-         virtualName="" explicitFocusOrder="0" pos="56 96 31 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="56 96 31 16" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>

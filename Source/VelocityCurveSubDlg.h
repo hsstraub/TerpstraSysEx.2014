@@ -89,14 +89,14 @@ protected:
     const int tableSize;
 
 	Path beamTableFrame;
-	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];  // ToDO Actually, it is tableSize
+	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];  // ToDO Actually, it is tableSize. Possible replace by vector.
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
 	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
 
-	const float graphicsYPadding = 16.0f;
+	const float graphicsYPadding = 18.0f;
     //[/UserVariables]
 
     //==============================================================================
