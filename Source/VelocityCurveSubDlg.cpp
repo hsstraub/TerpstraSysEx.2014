@@ -324,7 +324,9 @@ String VelocityCurveSubDlg::saveStateToPropertiesString()
 
 void VelocityCurveSubDlg::sendVelocityTableToController()
 {
-	unsigned char velocityValues[tableSize];
+	unsigned char velocityValues[128];
+
+	jassert(tableSize <= 128);
 
 	for (int x = 0; x < tableSize; x++)
 	{
@@ -500,7 +502,9 @@ VelocityIntervalTableSubDlg::VelocityIntervalTableSubDlg()
 
 void VelocityIntervalTableSubDlg::sendVelocityTableToController()
 {
-	int velocityValues[tableSize];
+	int velocityValues[128];
+
+    jassert(tableSize <= 128);
 
 	for (int x = 0; x < tableSize; x++)
 	{
