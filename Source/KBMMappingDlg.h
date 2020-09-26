@@ -59,9 +59,9 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    int& periodSize;
     std::unique_ptr<KBMForOneChannel>	channelMappingComponents[KBMFilesMappingLogic::noOfChannels];
    	KBMFilesMappingLogic	mappingLogic;
-   	int& periodSize;
     //[/UserVariables]
 
     //==============================================================================
