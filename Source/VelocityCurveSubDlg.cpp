@@ -47,7 +47,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblDescription->setBounds (16, 72, 608, 24);
+    lblDescription->setBounds (24, 72, 600, 24);
 
     cbEditMode.reset (new ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
@@ -71,7 +71,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelEditMode->setBounds (16, 40, 103, 24);
+    labelEditMode->setBounds (24, 40, 95, 24);
 
     cbPreset.reset (new ComboBox ("cbPreset"));
     addAndMakeVisible (cbPreset.get());
@@ -93,7 +93,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelPresets->setColour (TextEditor::textColourId, Colours::black);
     labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelPresets->setBounds (16, 8, 107, 24);
+    labelPresets->setBounds (24, 8, 99, 24);
 
     labelCurrentBeamValue.reset (new Label ("labelCurrentBeamValue",
                                             TRANS("127")));
@@ -104,10 +104,11 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
     labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
     labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelCurrentBeamValue->setBounds (16, 96, 31, 24);
+    labelCurrentBeamValue->setBounds (16, 96, 31, 16);
 
 
     //[UserPreSize]
+    jassert(tableSize <= 128);
 	for (int x = 0; x < tableSize; x++)
 	{
 		velocityBeamTable[x].reset(new  VelocityCurveBeam(maxBeamValue));
@@ -346,7 +347,9 @@ void VelocityCurveSubDlg::showBeamValueOfMousePosition(juce::Point<float> localP
 			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
 
 		// Value
-		labelCurrentBeamValue->setText(String(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
+		labelCurrentBeamValue->setText(
+            beamValueText(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)),
+            juce::NotificationType::sendNotification);
 
 		// ToDo ALso show x value (beam position)
 	}
@@ -458,7 +461,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="768" initialHeight="212">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="16 72 608 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="24 72 600 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -468,7 +471,7 @@ BEGIN_JUCER_METADATA
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="16 40 103 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="24 40 95 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -476,12 +479,12 @@ BEGIN_JUCER_METADATA
             explicitFocusOrder="0" pos="128 8 296 24" editable="1" layout="33"
             items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
-         virtualName="" explicitFocusOrder="0" pos="16 8 107 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="24 8 99 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="16 96 31 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="16 96 31 16" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -512,29 +515,6 @@ void VelocityIntervalTableSubDlg::sendVelocityTableToController()
 	}
 
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(velocityValues);
-}
-
-void VelocityIntervalTableSubDlg::showBeamValueOfMousePosition(juce::Point<float> localPoint)
-{
-	if (beamTableFrame.contains(localPoint))
-	{
-		// Show the field with the current beam value
-		labelCurrentBeamValue->setVisible(true);
-		labelCurrentBeamValue->setBounds(
-			localPoint.x, localPoint.y - labelCurrentBeamValue->getHeight(), labelCurrentBeamValue->getWidth(), labelCurrentBeamValue->getHeight());
-
-		// Value
-		int dwellTicks = velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint);
-		float milliSeconds = dwellTicks * 1.1;
-
-		String displayText = String(dwellTicks) + " ticks (" + String(milliSeconds) + " ms)";
-		labelCurrentBeamValue->setText(displayText, juce::NotificationType::sendNotification);
-
-		// ToDo ALso show x value (beam position)
-	}
-	else
-		// Hide field
-		labelCurrentBeamValue->setVisible(false);
 }
 
 void VelocityIntervalTableSubDlg::midiMessageReceived(const MidiMessage& midiMessage)
