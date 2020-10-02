@@ -35,6 +35,7 @@ VelocityCurveSubDlg::VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType 
       freeDrawingStrategy(beamTableFrame, velocityBeamTable, tableSizeValue), linearDrawingStrategy(beamTableFrame, velocityBeamTable, newMaxBeamValue, tableSizeValue), quadraticDrawingStrategy(beamTableFrame, velocityBeamTable, newMaxBeamValue, tableSizeValue)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    freeDrawingStrategy.setStrictlyIncreasing(true);
 	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
@@ -501,6 +502,10 @@ VelocityIntervalTableSubDlg::VelocityIntervalTableSubDlg()
 : VelocityCurveSubDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff, 2048, 127)
 {
     labelCurrentBeamValue->setSize(128, labelCurrentBeamValue->getHeight());
+
+    freeDrawingStrategy.setStrictlyIncreasing(true);
+    linearDrawingStrategy.setStrictlyIncreasing(true);
+    quadraticDrawingStrategy.setStrictlyIncreasing(true);
 }
 
 void VelocityIntervalTableSubDlg::sendVelocityTableToController()

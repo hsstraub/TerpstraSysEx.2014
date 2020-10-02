@@ -95,12 +95,15 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::
 				int newBeamValue = velocityBeamTable[x]->getBeamValueFromLocalPoint(localPoint);
 				velocityBeamTable[x]->setValue(newBeamValue);
 
-				// Change other beams' values so curve stays monotonous
-				for (int x2 = 0; x2 < x; x2++)
-					velocityBeamTable[x2]->setValueAtMost(newBeamValue);
+				if ( strictlyIncreasing)
+                {
+                    // Change other beams' values so curve stays monotonous
+                    for (int x2 = 0; x2 < x; x2++)
+                        velocityBeamTable[x2]->setValueAtMost(newBeamValue);
 
-				for (int x2 = x + 1; x2 < tableSize; x2++)
-					velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
+                    for (int x2 = x + 1; x2 < tableSize; x2++)
+                        velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
+                }
 
 				return true;
 			}
@@ -123,12 +126,15 @@ bool VelocityCurveFreeDrawingStrategy::mouseDrag(const MouseEvent &event, juce::
 			int newBeamValue = velocityBeamTable[x]->getBeamValueFromLocalPoint(localPoint);
 			velocityBeamTable[x]->setValue(newBeamValue);
 
-			// Change other beams' values so curve stays monotonous
-			for (int x2 = 0; x2 < x; x2++)
-				velocityBeamTable[x2]->setValueAtMost(newBeamValue);
+            if ( strictlyIncreasing)
+            {
+                // Change other beams' values so curve stays monotonous
+                for (int x2 = 0; x2 < x; x2++)
+                    velocityBeamTable[x2]->setValueAtMost(newBeamValue);
 
-			for (int x2 = x + 1; x2 < tableSize; x2++)
-				velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
+                for (int x2 = x + 1; x2 < tableSize; x2++)
+                    velocityBeamTable[x2]->setValueAtLeast(newBeamValue);
+            }
 
 			return true;
 		}
@@ -206,19 +212,54 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 		if (draggedOriginalXPosition >= 0)
 		{
 			// First and last position cannot be dragged horizontally
-			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == (tableSize-1))
+			if (draggedOriginalXPosition == 0)
 			{
+			    // First position
+
+                // No horizontal dragging
 				minDragXPosition = draggedOriginalXPosition;
 				maxDragXPosition = draggedOriginalXPosition;
+
+				// Vertical dragging: from bottom to next to the right
+				minDragYPosition = 0;
+
+				int x2;
+				for (x2 = 1; x2 < (tableSize-1) && fixPointBeamHeights[x2] == -1; x2++);
+                jassert(x2 < tableSize);
+                maxDragYPosition = velocityBeamTable[x2]->getValue();
 			}
+			else if (draggedOriginalXPosition == (tableSize-1))
+            {
+                // Last position
+
+                // No horizontal dragging
+                minDragXPosition = draggedOriginalXPosition;
+				maxDragXPosition = draggedOriginalXPosition;
+
+				// Vertical dragging: from previous on the right to the top
+				int x;
+				for (x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--);
+                jassert(x >= 0);
+                minDragYPosition = velocityBeamTable[x]->getValue();
+
+				maxDragYPosition = velocityBeamTable[x]->getMaxValue();
+            }
 			else
 			{
 				// Dragging possible until next line point
-				for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
+				int x;
+				for (x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)
 					minDragXPosition = x;
 
-				for (int x2 = draggedOriginalXPosition + 1; x2 < (tableSize-1) && fixPointBeamHeights[x2] == -1; x2++)
+                jassert(x >= 0);
+                minDragYPosition = velocityBeamTable[x]->getValue();
+
+				int x2;
+				for (x2 = draggedOriginalXPosition + 1; x2 < (tableSize-1) && fixPointBeamHeights[x2] == -1; x2++)
 					maxDragXPosition = x2;
+
+                jassert(x2 < tableSize);
+                maxDragYPosition = velocityBeamTable[x2]->getValue();
 			}
 		}
 
@@ -246,12 +287,14 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, ju
 	if (isDragging())
 	{
 		int currentDraggedXPosition = -1;
+		int currentDraggedYPosition = -1;
 		for (int x = 0; x < tableSize; x++)
 		{
 			Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
 			if (beamRect.contains(localPoint.toInt()))
 			{
 				currentDraggedXPosition = x;
+				currentDraggedYPosition = velocityBeamTable[x]->getBeamValueFromLocalPoint(localPoint);
 				break;
 			}
 		}
@@ -263,6 +306,14 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, ju
 			else if (currentDraggedXPosition > maxDragXPosition)
 				currentDraggedXPosition = maxDragXPosition;
 
+            if ( strictlyIncreasing)
+            {
+                if (currentDraggedYPosition < minDragYPosition)
+                    currentDraggedYPosition = minDragYPosition;
+                else if (currentDraggedYPosition > maxDragYPosition)
+                    currentDraggedYPosition = maxDragYPosition;
+            }
+
 			// If x-position changed: remove point of original position
 			if (currentDraggedXPosition != draggedOriginalXPosition)
 			{
@@ -270,7 +321,10 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDrag(const MouseEvent &event, ju
 				draggedOriginalXPosition = currentDraggedXPosition;
 			}
 
-			fixPointBeamHeights[currentDraggedXPosition] = velocityBeamTable[currentDraggedXPosition]->getBeamValueFromLocalPoint(localPoint);
+			jassert(
+                currentDraggedYPosition >= 0 &&
+                currentDraggedYPosition <= velocityBeamTable[currentDraggedXPosition]->getMaxValue());
+			fixPointBeamHeights[currentDraggedXPosition] = currentDraggedYPosition;
 
 			return true;
 		}
@@ -503,7 +557,7 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 			}
 			else
 			{
-				// New segment has a different rise ratio than the preiouvs, must stay
+				// New segment has a different rise ratio than the previous, must stay
 				previousLineSegmentRiseRatio = newLineSegmentRiseRatio;
 			}
 

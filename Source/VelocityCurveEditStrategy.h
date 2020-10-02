@@ -36,6 +36,8 @@ public:
 
 	virtual String getDescriptionText() { return "Click with the mouse in the graphics to draw the velocity curve."; }
 
+	void setStrictlyIncreasing(bool value) { strictlyIncreasing = value; }
+
 	virtual void paint(Graphics& g, LookAndFeel& lookAndFeel) { };
 	// Resize functionality. Assumes that beamTableFrame has already been resized.
 	virtual void resized() { }
@@ -50,6 +52,7 @@ protected:
 	Path& beamTableFrame;
 	std::unique_ptr<VelocityCurveBeam>* velocityBeamTable;
 	const int tableSize;
+	bool strictlyIncreasing = false;
 };
 
 /*
@@ -114,6 +117,8 @@ protected:
 	int draggedOriginalXPosition;
 	int minDragXPosition;
 	int maxDragXPosition;
+	int minDragYPosition;
+	int maxDragYPosition;
 };
 
 /*
