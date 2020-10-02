@@ -28,7 +28,7 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 	this->horizontalLines.add(StraightLine({ 37, 38, 39, 40, 41, 42 }));
 	this->horizontalLines.add(StraightLine({ 43, 44, 45, 46, 47, 48 }));
 	this->horizontalLines.add(StraightLine({ 49, 50, 51, 52, 53 }));
-	this->horizontalLines.add(StraightLine({ 54 }));
+	this->horizontalLines.add(StraightLine({ 54, 55 }));
 
 	// The right upward lines of a 55 key subset. From bottom to top
 	this->rightUpwardLines.add(StraightLine({ 0 }));
@@ -40,10 +40,10 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 	this->rightUpwardLines.add(StraightLine({ 49, 45, 39, 34, 28, 23, 17, 12 }));
 	this->rightUpwardLines.add(StraightLine({ 50, 46, 40, 35, 29, 24, 18 }));
 	this->rightUpwardLines.add(StraightLine({ 51, 47, 41, 36, 30 }));
-	this->rightUpwardLines.add(StraightLine({ 52, 48, 42 }));
-	this->rightUpwardLines.add(StraightLine({ 54, 53 }));
+	this->rightUpwardLines.add(StraightLine({ 54, 52, 48, 42 }));
+	this->rightUpwardLines.add(StraightLine({ 55, 53 }));
 
-	this->firstColumnOffsets = Array<int>({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5});
+	this->firstColumnOffsets = Array<int>({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4});
 }
 
 // returns the unique straight line that contains the given field
