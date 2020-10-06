@@ -182,11 +182,12 @@ void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookA
 
 bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, juce::Point<float> localPoint)
 {
+    auto localPointAsInt = localPoint.toInt();
 	int newMouseXPosition = -1;
 	for (int x = 0; x < tableSize; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
-		if (beamRect.contains(localPoint.toInt()))
+		if (beamRect.contains(localPointAsInt))
 		{
 			newMouseXPosition = x;
 			break;
@@ -211,15 +212,14 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 
 		if (draggedOriginalXPosition >= 0)
 		{
-			// First and last position cannot be dragged horizontally
+		    minDragXPosition = draggedOriginalXPosition;
+            maxDragXPosition = draggedOriginalXPosition;
+
 			if (draggedOriginalXPosition == 0)
 			{
 			    // First position
 
                 // No horizontal dragging
-				minDragXPosition = draggedOriginalXPosition;
-				maxDragXPosition = draggedOriginalXPosition;
-
 				// Vertical dragging: from bottom to next to the right
 				minDragYPosition = 0;
 
@@ -231,10 +231,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 			else if (draggedOriginalXPosition == (tableSize-1))
             {
                 // Last position
-
                 // No horizontal dragging
-                minDragXPosition = draggedOriginalXPosition;
-				maxDragXPosition = draggedOriginalXPosition;
 
 				// Vertical dragging: from previous on the right to the top
 				int x;
@@ -244,7 +241,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 
 				maxDragYPosition = velocityBeamTable[x]->getMaxValue();
             }
-			else
+            else
 			{
 				// Dragging possible until next line point
 				int x;
@@ -261,10 +258,7 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
                 jassert(x2 < tableSize);
                 maxDragYPosition = velocityBeamTable[x2]->getValue();
 			}
-		}
 
-		if (draggedOriginalXPosition >= 0)
-		{
 			fixPointBeamHeights[draggedOriginalXPosition] = velocityBeamTable[draggedOriginalXPosition]->getBeamValueFromLocalPoint(localPoint);
 			return true;
 		}
