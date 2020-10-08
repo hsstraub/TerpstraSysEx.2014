@@ -176,11 +176,12 @@ void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookA
 
 bool VelocityCurveSegmentEditStrategyBase::mouseMove(const MouseEvent &event, juce::Point<float> localPoint)
 {
+    auto localPointAsInt = localPoint.toInt();
 	int newMouseXPosition = -1;
 	for (int x = 0; x < tableSize; x++)
 	{
 		Rectangle<int> beamRect = velocityBeamTable[x]->getBounds();
-		if (beamRect.contains(localPoint.toInt()))
+		if (beamRect.contains(localPointAsInt))
 		{
 			newMouseXPosition = x;
 			break;
@@ -205,13 +206,10 @@ bool VelocityCurveSegmentEditStrategyBase::mouseDown(const MouseEvent &event, ju
 
 		if (draggedOriginalXPosition >= 0)
 		{
+            minDragXPosition = draggedOriginalXPosition;
+            maxDragXPosition = draggedOriginalXPosition;
 			// First and last position cannot be dragged horizontally
-			if (draggedOriginalXPosition == 0 || draggedOriginalXPosition == (tableSize-1))
-			{
-				minDragXPosition = draggedOriginalXPosition;
-				maxDragXPosition = draggedOriginalXPosition;
-			}
-			else
+			if (draggedOriginalXPosition > 0 && draggedOriginalXPosition < tableSize)
 			{
 				// Dragging possible until next line point
 				for (int x = draggedOriginalXPosition - 1; x > 0 && fixPointBeamHeights[x] == -1; x--)

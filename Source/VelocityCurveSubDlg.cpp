@@ -550,7 +550,7 @@ void VelocityIntervalTableSubDlg::sendVelocityTableToController()
 {
 	int velocityValues[128];
 
-	jassert(tableSize <= 128);
+    jassert(tableSize <= 128);
 
 	for (int x = 0; x < tableSize; x++)
 	{

@@ -52,7 +52,7 @@ public:
 	String saveStateToPropertiesString();
 	void sendVelocityTableToController();
 
-    virtual String beamValueText(int beamValue) const { return String(beamValue); }
+	virtual String beamValueText(int beamValue) const { return String(beamValue); }
 	virtual void showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
@@ -121,7 +121,7 @@ public:
     VelocityIntervalTableSubDlg();
 
 	void sendVelocityTableToController();
-    virtual String beamValueText(int beamValue) const override { return String(beamValue) + " ticks (" + String( beamValue * 1.1) + " ms)"; }
+	virtual String beamValueText(int beamValue) const override { return String(beamValue) + " ticks (" + String( beamValue * 1.1) + " ms)"; }
 
 	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
 };
