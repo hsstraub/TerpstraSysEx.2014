@@ -8,8 +8,7 @@
   ==============================================================================
 */
 
-#ifndef VELOCITYCURVEEDITSTRATEGY_H_INCLUDED
-#define VELOCITYCURVEEDITSTRATEGY_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -30,7 +29,7 @@ public:
 	virtual bool setEditConfigFromVelocityTable() { return true; }
 	// Sets velocity table values from edit parameters
 	virtual void setVelocityTableValuesFromEditConfig() {}
-	// Parse a saved configuration. return whether parsing was successful. 
+	// Parse a saved configuration. return whether parsing was successful.
 	virtual bool setEditConfigFromSavedString(String propertiesString) = 0;
 	// save current configuration in a string, for saving
 	virtual String createPropertiesStringForSaving() = 0;
@@ -64,7 +63,7 @@ public:
 
 	bool setEditConfigFromSavedString(String propertiesString) override;
 	String createPropertiesStringForSaving() override;
-	
+
 	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
 	void resized() override;
 	bool mouseDown(const MouseEvent &event, juce::Point<float> localPoint) override;
@@ -156,5 +155,3 @@ protected:
 	Path createCurveToDraw() override;
 };
 
-
-#endif  // VELOCITYCURVEEDITSTRATEGY_H_INCLUDED

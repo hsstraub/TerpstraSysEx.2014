@@ -169,6 +169,8 @@ public:
 
 	void sendCalibrateAfterTouch();
 
+    void sendVelocityIntervalConfig(int velocityIntervalTable[]);
+
 	void sendRedLEDConfigurationRequest(int boardIndex);
 
 	void sendGreenLEDConfigurationRequest(int boardIndex);
@@ -183,8 +185,10 @@ public:
 
 	void sendVelocityConfigurationRequest(VelocityCurveType velocityCurveType);
 
+	void sendVelocityIntervalConfigRequest();
+
 	////////////////////////////////////////////////////////////////////////////
-	// Implmentation of bidirectional communication with acknowledge messages
+	// Implementation of bidirectional communication with acknowledge messages
 
 	// MIDI input callback: handle acknowledge messages
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
@@ -206,6 +210,8 @@ public:
 
     // Message contains velocity curve data from controller for the specified velocity curve type yes/no
     bool messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, VelocityCurveType velocityCurveType);
+
+    bool messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage);
 
 private:
 	// Low-level SysEx message sending
