@@ -86,7 +86,7 @@ private:
 
 	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
-	VelocityCurveBeam* velocityBeamTable[128];
+	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;

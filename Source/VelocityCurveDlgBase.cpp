@@ -158,8 +158,8 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
 	for (int x = 0; x < 128; x++)
 	{
-		velocityBeamTable[x] = new  VelocityCurveBeam();
-		addAndMakeVisible(velocityBeamTable[x]);
+		velocityBeamTable[x].reset(new  VelocityCurveBeam());
+		addAndMakeVisible(velocityBeamTable[x].get());
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
 
@@ -189,6 +189,10 @@ VelocityCurveDlgBase::~VelocityCurveDlgBase()
 
 	// Save values to properties file
 	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+
+    for (int x = 0; x < 128; x++) {
+		velocityBeamTable[x] = nullptr;
+	}
     //[/Destructor_pre]
 
     lblDescription = nullptr;

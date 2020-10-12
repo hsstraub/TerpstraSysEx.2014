@@ -8,8 +8,7 @@
   ==============================================================================
 */
 
-#ifndef VELOCITYCURVECOMPONENTS_H_INCLUDED
-#define VELOCITYCURVECOMPONENTS_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -33,7 +32,7 @@ public:
 	void resized();
 
   juce::Point<float> getBottomMid();
-	
+
 	float getBeamHeightFromValue(int value);
 	float getBeamHeightFromValue() { return getBeamHeightFromValue(beamValue); }
 
@@ -49,9 +48,3 @@ public:
 private:
 	int beamValue;
 };
-
-
-
-
-
-#endif  // VELOCITYCURVECOMPONENTS_H_INCLUDED
