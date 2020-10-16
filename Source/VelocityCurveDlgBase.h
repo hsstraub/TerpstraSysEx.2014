@@ -110,6 +110,7 @@ private:
     std::unique_ptr<TextButton> buttonReceive;
     std::unique_ptr<TextButton> buttonCalibrate;
     std::unique_ptr<ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<Label> labelCurrentXPos;
 
 
     //==============================================================================

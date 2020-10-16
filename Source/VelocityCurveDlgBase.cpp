@@ -47,7 +47,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     lblDescription->setColour (TextEditor::textColourId, Colours::black);
     lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    lblDescription->setBounds (32, 104, 608, 32);
+    lblDescription->setBounds (32, 96, 608, 24);
 
     buttonSendAll.reset (new TextButton ("buttonSendAll"));
     addAndMakeVisible (buttonSendAll.get());
@@ -63,7 +63,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
-    buttonDiscard->setBounds (464, 368, 144, 24);
+    buttonDiscard->setBounds (464, 392, 144, 24);
 
     buttonSaveEdits.reset (new TextButton ("buttonSaveEdits"));
     addAndMakeVisible (buttonSaveEdits.get());
@@ -84,7 +84,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     cbEditMode->addItem (TRANS("Quadratic"), 3);
     cbEditMode->addListener (this);
 
-    cbEditMode->setBounds (144, 72, 296, 24);
+    cbEditMode->setBounds (144, 64, 296, 24);
 
     labelEditMode.reset (new Label ("labelEditMode",
                                     TRANS("Edit Function:")));
@@ -95,7 +95,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     labelEditMode->setColour (TextEditor::textColourId, Colours::black);
     labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelEditMode->setBounds (32, 72, 103, 24);
+    labelEditMode->setBounds (32, 64, 103, 16);
 
     cbPreset.reset (new ComboBox ("cbPreset"));
     addAndMakeVisible (cbPreset.get());
@@ -117,7 +117,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     labelPresets->setColour (TextEditor::textColourId, Colours::black);
     labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelPresets->setBounds (32, 32, 107, 24);
+    labelPresets->setBounds (32, 32, 107, 16);
 
     labelCurrentBeamValue.reset (new Label ("labelCurrentBeamValue",
                                             TRANS("127")));
@@ -128,7 +128,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
     labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    labelCurrentBeamValue->setBounds (0, 152, 31, 24);
+    labelCurrentBeamValue->setBounds (0, 152, 31, 16);
 
     buttonReceive.reset (new TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
@@ -144,7 +144,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonCalibrate->setButtonText (TRANS("Calibrate"));
     buttonCalibrate->addListener (this);
 
-    buttonCalibrate->setBounds (616, 368, 144, 24);
+    buttonCalibrate->setBounds (616, 392, 144, 24);
 
     buttonAfterTouchActive.reset (new ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
@@ -152,6 +152,17 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonAfterTouchActive->addListener (this);
 
     buttonAfterTouchActive->setBounds (144, 0, 144, 24);
+
+    labelCurrentXPos.reset (new Label ("labelCurrentXPos",
+                                       TRANS("127")));
+    addAndMakeVisible (labelCurrentXPos.get());
+    labelCurrentXPos->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    labelCurrentXPos->setJustificationType (Justification::centredLeft);
+    labelCurrentXPos->setEditable (false, false, false);
+    labelCurrentXPos->setColour (TextEditor::textColourId, Colours::black);
+    labelCurrentXPos->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    labelCurrentXPos->setBounds (40, 152, 31, 16);
 
 
     //[UserPreSize]
@@ -172,6 +183,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	labelCurrentBeamValue->setVisible(false);
+	labelCurrentXPos->setVisible(false);
 
 	// Calibrate button: only for aftertouch
 	buttonAfterTouchActive->setVisible(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch);
@@ -207,6 +219,7 @@ VelocityCurveDlgBase::~VelocityCurveDlgBase()
     buttonReceive = nullptr;
     buttonCalibrate = nullptr;
     buttonAfterTouchActive = nullptr;
+    labelCurrentXPos = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -567,10 +580,34 @@ void VelocityCurveDlg::showBeamValueOfMousePosition(juce::Point<float> localPoin
 
 		// Value
 		labelCurrentBeamValue->setText(String(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
+
+		// Show x value (beam position)
+        int beamTableLeft = velocityBeamTable[0]->getX();
+        int beamTableRight = velocityBeamTable[127]->getRight();
+        int xpos = (localPoint.x - beamTableLeft) * 128 / (beamTableRight - beamTableLeft);
+
+        if (xpos >=0 && xpos < 128)
+        {
+            labelCurrentXPos->setVisible(true);
+            labelCurrentXPos->setBounds(
+                localPoint.x,
+                velocityBeamTable[0]->getBottom(),
+                labelCurrentXPos->getWidth(),
+                labelCurrentXPos->getHeight());
+            labelCurrentXPos->setText(String(xpos), juce::NotificationType::sendNotification);
+        }
+        else
+        {
+            labelCurrentBeamValue->setVisible(false);
+            labelCurrentXPos->setVisible(false);
+        }
 	}
 	else
-		// Hide field
+    {
+		// Hide fields
 		labelCurrentBeamValue->setVisible(false);
+		labelCurrentXPos->setVisible(false);
+    }
 }
 
 void VelocityCurveDlg::mouseMove(const MouseEvent &event)
@@ -677,7 +714,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="1" initialWidth="768" initialHeight="424">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="32 104 608 32" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 96 608 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -687,7 +724,7 @@ BEGIN_JUCER_METADATA
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="464 368 144 24" tooltip="Discard velocity curve edits on controller."
+              virtualName="" explicitFocusOrder="0" pos="464 392 144 24" tooltip="Discard velocity curve edits on controller."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
@@ -695,11 +732,11 @@ BEGIN_JUCER_METADATA
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="144 72 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="144 64 296 24" editable="0"
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="32 72 103 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 64 103 16" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -707,12 +744,12 @@ BEGIN_JUCER_METADATA
             explicitFocusOrder="0" pos="144 32 296 24" editable="1" layout="33"
             items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
-         virtualName="" explicitFocusOrder="0" pos="32 32 107 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 32 107 16" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="0 152 31 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 152 31 16" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -720,11 +757,16 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="8 392 144 24" tooltip="Receive the current configurartion from controller"
               buttonText="Receive" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="buttonCalibrate" id="47242594c34a8de9" memberName="buttonCalibrate"
-              virtualName="" explicitFocusOrder="0" pos="616 368 144 24" tooltip="Calibrate aftertouch"
+              virtualName="" explicitFocusOrder="0" pos="616 392 144 24" tooltip="Calibrate aftertouch"
               buttonText="Calibrate" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="buttonAfterTouchActive" id="3f2eba6027c4f2f5" memberName="buttonAfterTouchActive"
                 virtualName="" explicitFocusOrder="0" pos="144 0 144 24" buttonText="Aftertouch active"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <LABEL name="labelCurrentXPos" id="f2fe328e83d5b29" memberName="labelCurrentXPos"
+         virtualName="" explicitFocusOrder="0" pos="40 152 31 16" edTextCol="ff000000"
+         edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
