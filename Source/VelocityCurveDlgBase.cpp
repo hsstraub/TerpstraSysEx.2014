@@ -426,7 +426,7 @@ void VelocityCurveDlgBase::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+void VelocityCurveDlgBase::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	String keyName;
     switch(velocityCurveType)
@@ -477,34 +477,17 @@ void VelocityCurveDlg::restoreStateFromPropertiesFile(PropertiesFile* properties
 	if (currentCurveEditStrategy != nullptr)
 		currentCurveEditStrategy->setVelocityTableValuesFromEditConfig();
 
-    switch(velocityCurveType)
-    {
-        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-            setSize(
-                propertiesFile->getIntValue("VelocityCurveWindowWidth", 648),
-                propertiesFile->getIntValue("VelocityCurveWindowHeight", 320));
-            break;
-        case TerpstraMidiDriver::VelocityCurveType::fader:
-            setSize(
-                propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648),
-                propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 320));
-            break;
-        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-            buttonAfterTouchActive->setToggleState(
-                propertiesFile->getBoolValue("AfterTouchActive", false),
-                juce::NotificationType::sendNotification);
-            setSize(
-                propertiesFile->getIntValue("AftertochVelocityCurveWindowWidth", 768),
-                propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 320));
-            break;
-        default:
-            jassert(false);
-            break;
-    }
+    // Window size: read in calling function when creating this window
 
+    if(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch)
+    {
+        buttonAfterTouchActive->setToggleState(
+            propertiesFile->getBoolValue("AfterTouchActive", false),
+            juce::NotificationType::sendNotification);
+    }
 }
 
-void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+void VelocityCurveDlgBase::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	String velocityCurveString;
 
@@ -540,17 +523,17 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
     switch(velocityCurveType)
     {
         case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-            propertiesFile->setValue("VelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("VelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("VelocityCurveWindowWidth", getParentComponent()->getWidth());
+            propertiesFile->setValue("VelocityCurveWindowHeight", getParentComponent()->getHeight());
             break;
         case TerpstraMidiDriver::VelocityCurveType::fader:
-            propertiesFile->setValue("FaderVelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("FaderVelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("FaderVelocityCurveWindowWidth", getParentComponent()->getWidth());
+            propertiesFile->setValue("FaderVelocityCurveWindowHeight", getParentComponent()->getHeight());
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
             propertiesFile->setValue("AfterTouchActive", buttonAfterTouchActive->getToggleState());
-            propertiesFile->setValue("AftertouchVelocityCurveWindowWidth", getWidth());
-            propertiesFile->setValue("AftertouchVelocityCurveWindowHeight", getHeight());
+            propertiesFile->setValue("AftertouchVelocityCurveWindowWidth", getParentComponent()->getWidth());
+            propertiesFile->setValue("AftertouchVelocityCurveWindowHeight", getParentComponent()->getHeight());
             break;
         default:
             jassert(false);
@@ -558,7 +541,7 @@ void VelocityCurveDlg::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
     }
 }
 
-void VelocityCurveDlg::sendVelocityTableToController()
+void VelocityCurveDlgBase::sendVelocityTableToController()
 {
 	unsigned char velocityValues[128];
 
@@ -570,7 +553,7 @@ void VelocityCurveDlg::sendVelocityTableToController()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
 }
 
-void VelocityCurveDlg::showBeamValueOfMousePosition(juce::Point<float> localPoint)
+void VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)
 {
 	if (beamTableFrame.contains(localPoint))
 	{
@@ -611,7 +594,7 @@ void VelocityCurveDlg::showBeamValueOfMousePosition(juce::Point<float> localPoin
     }
 }
 
-void VelocityCurveDlg::mouseMove(const MouseEvent &event)
+void VelocityCurveDlgBase::mouseMove(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
@@ -624,7 +607,7 @@ void VelocityCurveDlg::mouseMove(const MouseEvent &event)
 	}
 }
 
-void VelocityCurveDlg::mouseDown(const MouseEvent &event)
+void VelocityCurveDlgBase::mouseDown(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
@@ -642,7 +625,7 @@ void VelocityCurveDlg::mouseDown(const MouseEvent &event)
 	}
 }
 
-void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
+void VelocityCurveDlgBase::mouseDrag(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
@@ -660,7 +643,7 @@ void VelocityCurveDlg::mouseDrag(const MouseEvent &event)
 	}
 }
 
-void VelocityCurveDlg::mouseUp(const MouseEvent &event)
+void VelocityCurveDlgBase::mouseUp(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
@@ -674,7 +657,7 @@ void VelocityCurveDlg::mouseUp(const MouseEvent &event)
 }
 
 
-void VelocityCurveDlg::midiMessageReceived(const MidiMessage& message)
+void VelocityCurveDlgBase::midiMessageReceived(const MidiMessage& message)
 {
     if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(message, velocityCurveType))
     {
