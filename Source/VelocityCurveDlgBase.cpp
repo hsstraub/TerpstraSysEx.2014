@@ -569,7 +569,6 @@ void VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> local
         int beamTableLeft = velocityBeamTable[0]->getX();
         int beamTableRight = velocityBeamTable[127]->getRight();
         int xpos = (localPoint.x - beamTableLeft) * 128 / (beamTableRight - beamTableLeft);
-
         if (xpos >=0 && xpos < 128)
         {
             labelCurrentXPos->setVisible(true);
@@ -647,11 +646,11 @@ void VelocityCurveDlgBase::mouseUp(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	// Send velocity table to controller
-	sendVelocityTableToController();
-
 	if (currentCurveEditStrategy != nullptr)
 		currentCurveEditStrategy->mouseUp(event, localPoint);
+
+    // Send velocity table to controller
+	sendVelocityTableToController();
 
 	repaint();
 }
