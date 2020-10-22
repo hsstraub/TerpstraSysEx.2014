@@ -11,6 +11,11 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="fDIqJ7" name="MainComponent_New.cpp" compile="1" resource="0"
+            file="Source/MainComponent_New.cpp"/>
+      <FILE id="uYwy9C" name="MainComponent_New.h" compile="0" resource="0"
+            file="Source/MainComponent_New.h"/>
+      <FILE id="AZE6MO" name="Main_New.cpp" compile="1" resource="0" file="Source/Main_New.cpp"/>
       <FILE id="gJgXxQ" name="MidiInfoArea.cpp" compile="1" resource="0"
             file="Source/MidiInfoArea.cpp"/>
       <FILE id="NEyeY3" name="MidiInfoArea.h" compile="0" resource="0" file="Source/MidiInfoArea.h"/>
