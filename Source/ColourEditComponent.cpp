@@ -273,7 +273,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnColourPicker.get())
     {
         //[UserButtonCode_btnColourPicker] -- add your button handler code here..
-		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
+		auto colourSelector = std::make_unique<ColourSelector>(ColourSelector::showSliders | ColourSelector::showColourspace);
 		colourSelector->setName("Colour picker");
 		colourSelector->addChangeListener(this);
 
@@ -284,7 +284,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
 		colourSelector->setColour(ColourSelector::backgroundColourId, currentColor);
 		colourSelector->setSize(300, 400);
 
-		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
+		CallOutBox::launchAsynchronously(std::move(colourSelector), buttonThatWasClicked->getScreenBounds(), nullptr);
         //[/UserButtonCode_btnColourPicker]
     }
 
