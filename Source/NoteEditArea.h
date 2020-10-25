@@ -35,8 +35,7 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class NoteEditArea  : public Component,
-                      public juce::ComboBox::Listener
+class NoteEditArea  : public Component
 {
 public:
     //==============================================================================
@@ -57,7 +56,6 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -69,13 +67,12 @@ private:
         IsomorphicMassAssignMode = 1
     };
 
-	std::unique_ptr<SingleNoteAssign> singleNoteAssign;
-	std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
+	//std::unique_ptr<SingleNoteAssign> singleNoteAssign;
+	//std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::ComboBox> cbEditMode;
-    std::unique_ptr<juce::Label> labelEditMode;
+    std::unique_ptr<juce::TabbedComponent> editFunctionsTab;
 
 
     //==============================================================================
