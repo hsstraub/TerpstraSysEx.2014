@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.4"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              jucerVersion="5.4.7" companyName="Hans Straub" headerPath="../../../JUCE/modules">
+              companyName="Hans Straub" headerPath="../../../JUCE/modules"
+              jucerFormatVersion="1">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
@@ -34,10 +35,6 @@
             file="Source/OctaveBoardComponent.cpp"/>
       <FILE id="Pe60oV" name="OctaveBoardComponent.h" compile="0" resource="0"
             file="Source/OctaveBoardComponent.h"/>
-      <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
-            file="Source/PlayVirtualKeyboard.cpp"/>
-      <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"
-            file="Source/PlayVirtualKeyboard.h"/>
       <FILE id="fToFTX" name="ColourEditComponent.cpp" compile="1" resource="0"
             file="Source/ColourEditComponent.cpp"/>
       <FILE id="VbJRS2" name="ColourEditComponent.h" compile="0" resource="0"
@@ -194,23 +191,6 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
-    <CODEBLOCKS_WINDOWS targetFolder="Builds/CodeBlocksWindows" smallIcon="nhV3bK" bigIcon="nhV3bK"
-                        extraCompilerFlags="-Wa,-mbig-obj">
-      <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra"/>
-        <MODULEPATH id="juce_gui_basics"/>
-        <MODULEPATH id="juce_graphics"/>
-        <MODULEPATH id="juce_events"/>
-        <MODULEPATH id="juce_data_structures"/>
-        <MODULEPATH id="juce_core"/>
-        <MODULEPATH id="juce_audio_devices"/>
-        <MODULEPATH id="juce_audio_basics"/>
-      </MODULEPATHS>
-    </CODEBLOCKS_WINDOWS>
   </EXPORTFORMATS>
   <MODULES>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>

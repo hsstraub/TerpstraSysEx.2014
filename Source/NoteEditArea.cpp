@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -38,33 +38,28 @@ NoteEditArea::NoteEditArea ()
 	isomorphicMassAssign.reset(new IsomorphicMassAssign());
 	addAndMakeVisible(isomorphicMassAssign.get());
 	isomorphicMassAssign->setVisible(false);
-
-	playVirtualKeyboardWindow.reset(new PlayVirtualKeyboard());
-	addAndMakeVisible(playVirtualKeyboardWindow.get());
-	playVirtualKeyboardWindow->setVisible(false);
     //[/Constructor_pre]
 
-    cbEditMode.reset (new ComboBox ("cbEditMode"));
+    cbEditMode.reset (new juce::ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
-    cbEditMode->setJustificationType (Justification::centredLeft);
-    cbEditMode->setTextWhenNothingSelected (String());
+    cbEditMode->setJustificationType (juce::Justification::centredLeft);
+    cbEditMode->setTextWhenNothingSelected (juce::String());
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Assign notes to keys one by one"), 1);
     cbEditMode->addItem (TRANS("Isomorphic mass assign"), 2);
-    cbEditMode->addItem (TRANS("Play virtual keyboard"), 3);
     cbEditMode->addListener (this);
 
     cbEditMode->setBounds (104, 16, 304, 24);
 
-    labelEditMode.reset (new Label ("labelEditMode",
-                                    TRANS("Edit Function:")));
+    labelEditMode.reset (new juce::Label ("labelEditMode",
+                                          TRANS("Edit Function:")));
     addAndMakeVisible (labelEditMode.get());
-    labelEditMode->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelEditMode->setJustificationType (Justification::centredLeft);
+    labelEditMode->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelEditMode->setJustificationType (juce::Justification::centredLeft);
     labelEditMode->setEditable (false, false, false);
-    labelEditMode->setColour (TextEditor::textColourId, Colours::black);
-    labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelEditMode->setBounds (6, 15, 88, 24);
 
@@ -89,7 +84,6 @@ NoteEditArea::~NoteEditArea()
     //[Destructor_pre]. You can add your own custom destruction code here..
 	singleNoteAssign = nullptr;
 	isomorphicMassAssign = nullptr;
-	playVirtualKeyboardWindow = nullptr;
     //[/Destructor_pre]
 
     cbEditMode = nullptr;
@@ -101,12 +95,12 @@ NoteEditArea::~NoteEditArea()
 }
 
 //==============================================================================
-void NoteEditArea::paint (Graphics& g)
+void NoteEditArea::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffbad0de));
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -118,14 +112,13 @@ void NoteEditArea::resized()
     //[UserPreResize] Add your own custom resize code here..
 	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	playVirtualKeyboardWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void NoteEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -141,22 +134,14 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 		case noteEditMode::SingleNoteAssignMode:
 			singleNoteAssign->setVisible(true);
 			isomorphicMassAssign->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		case noteEditMode::IsomorphicMassAssignMode:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(true);
-			playVirtualKeyboardWindow->setVisible(false);
-			break;
-		case noteEditMode::PlayVirtualKeaboardMode:
-			singleNoteAssign->setVisible(false);
-			isomorphicMassAssign->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(true);
 			break;
 		default:
 			singleNoteAssign->setVisible(false);
 			isomorphicMassAssign->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(false);
 			break;
 		}
         //[/UserComboBoxCode_cbEditMode]
@@ -195,8 +180,6 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 		return singleNoteAssign->performMouseDown(setSelection, keySelection);
 	case noteEditMode::IsomorphicMassAssignMode:
 		return isomorphicMassAssign->performMouseDown(setSelection, keySelection);
-	case noteEditMode::PlayVirtualKeaboardMode:
-		return playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
 	default:
 		return false;
 	}
@@ -210,9 +193,7 @@ bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 
 	int editMode = cbEditMode->getSelectedItemIndex();
 
-	// Mouse up functionality: only for playing on virtual keyboard
-	if (editMode == noteEditMode::PlayVirtualKeaboardMode)
-		return playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
+	// At the moment no functionality here
 
 	return false;
 }
@@ -242,7 +223,7 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="104 16 304 24" editable="0"
-            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Play virtual keyboard"
+            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
          virtualName="" explicitFocusOrder="0" pos="6 15 88 24" edTextCol="ff000000"

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -23,7 +23,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
-#include "PlayVirtualKeyboard.h"
 //[/Headers]
 
 
@@ -37,7 +36,7 @@
                                                                     //[/Comments]
 */
 class NoteEditArea  : public Component,
-                      public ComboBox::Listener
+                      public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -56,9 +55,9 @@ public:
 	void onSetData(TerpstraKeyMapping& newData);
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -67,18 +66,16 @@ private:
     enum noteEditMode
     {
         SingleNoteAssignMode = 0,
-        IsomorphicMassAssignMode = 1,
-        PlayVirtualKeaboardMode = 2
+        IsomorphicMassAssignMode = 1
     };
 
 	std::unique_ptr<SingleNoteAssign> singleNoteAssign;
 	std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
-	std::unique_ptr<PlayVirtualKeyboard> playVirtualKeyboardWindow;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<ComboBox> cbEditMode;
-    std::unique_ptr<Label> labelEditMode;
+    std::unique_ptr<juce::ComboBox> cbEditMode;
+    std::unique_ptr<juce::Label> labelEditMode;
 
 
     //==============================================================================

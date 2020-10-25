@@ -104,4 +104,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (LumatoneSetupApplication)
+//START_JUCE_APPLICATION (LumatoneSetupApplication)

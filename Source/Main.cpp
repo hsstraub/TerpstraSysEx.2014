@@ -684,4 +684,4 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-//START_JUCE_APPLICATION (TerpstraSysExApplication)
+START_JUCE_APPLICATION (TerpstraSysExApplication)
