@@ -41,16 +41,16 @@ void ColourComboBox::setTextFieldToColourAsObject(Colour newColourAsObject, Noti
 {
 	setText(newColourAsObject.toDisplayString(false));
 
-	// XXX Add to box
+	// ToDo Add to box
 }
 
 String ColourComboBox::getColourAsStringFromText(colourComboboxOptions boxOptions)
 {
 	String colourAsString = getText();
 
-	// XXX validation of colour value
+	// ToDo validation of colour value
 
-	if (boxOptions == colourComboboxOptions::AddColourToComboBox)
+	if (boxOptions == colourComboboxOptions::AddColourToComboBox && !colourAsString.isEmpty())
 		addColourToBox(colourAsString);
 
 	return colourAsString;
@@ -60,7 +60,7 @@ int ColourComboBox::getColourAsNumberFromText(colourComboboxOptions boxOptions)
 {
 	String colourString = getColourAsStringFromText(boxOptions);
 
-	// XXX validation of colour value
+	// ToDo validation of colour value
 
 	int colourAsNumber = colourString.getHexValue32();
 

@@ -386,14 +386,17 @@ void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesF
 void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
 {
 	// XXX This could be in a common base class for all assign edit components
+
+	auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
+
 	// Save data
 	this->mappingLogic->indexToTerpstraKey(
         noteIndex,
-        ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
+		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 
 	// Send to device
 	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection,
-        ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
+		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 }
 
 // Fill a line in current octave board. Starting point is assumed to have been set
@@ -484,6 +487,8 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 		finishedLines.add(horizLine);
 
 		// Find cutting lines and fill them
+		auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
+
 		for (auto horizLineField : horizLine)
 		{
 			// Find the vertical line at this position
@@ -492,7 +497,7 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 
 			// Start note index: the value that has been set to the horizontal line element (if it has)
 			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit()
+				mainComponent->getMappingInEdit()
                 .sets[setSelection].theKeys[horizLineField]);
 
             if (rUpStartNoteIndex >= 0)
@@ -517,6 +522,8 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 		finishedLines.add(rUpwLine);
 
 		// Find cutting lines and fill them
+		auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
+
 		for (auto rUpwLineField : rUpwLine)
 		{
 			// Find the vertical line at this position
@@ -525,7 +532,7 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 
 			// Start note index: the value that has been set to the horizontal line element (if it has)
 			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[rUpwLineField]);
+				mainComponent->getMappingInEdit().sets[setSelection].theKeys[rUpwLineField]);
 
             if (horizStartNoteIndex >= 0)
                 // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.

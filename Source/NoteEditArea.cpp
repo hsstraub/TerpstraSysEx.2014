@@ -31,13 +31,6 @@
 NoteEditArea::NoteEditArea ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	//singleNoteAssign.reset(new SingleNoteAssign());
-	//addAndMakeVisible(singleNoteAssign.get());
-	//singleNoteAssign->setVisible(false);
-
-	//isomorphicMassAssign.reset(new IsomorphicMassAssign());
-	//addAndMakeVisible(isomorphicMassAssign.get());
-	//isomorphicMassAssign->setVisible(false);
     //[/Constructor_pre]
 
     editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
@@ -68,8 +61,6 @@ NoteEditArea::NoteEditArea ()
 NoteEditArea::~NoteEditArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	//singleNoteAssign = nullptr;
-	//isomorphicMassAssign = nullptr;
     //[/Destructor_pre]
 
     editFunctionsTab = nullptr;
@@ -95,8 +86,6 @@ void NoteEditArea::paint (juce::Graphics& g)
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	//singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	//isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
 	editFunctionsTab->setBounds(0, 0, getWidth(), getHeight());
     //[/UserPreResize]
 
@@ -110,16 +99,14 @@ void NoteEditArea::resized()
 
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	//singleNoteAssign->restoreStateFromPropertiesFile(propertiesFile);
-	//isomorphicMassAssign->restoreStateFromPropertiesFile(propertiesFile);
-	// ToDO
+	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
+	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-	//singleNoteAssign->saveStateToPropertiesFile(propertiesFile);
-	//isomorphicMassAssign->saveStateToPropertiesFile(propertiesFile);
-	// ToDo
+	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->saveStateToPropertiesFile(propertiesFile);
+	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
 }
 
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
@@ -128,18 +115,16 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
-	//int editMode = cbEditMode->getSelectedItemIndex();
-	//switch (editMode)
-	//{
-	//case noteEditMode::SingleNoteAssignMode:
-	//	return singleNoteAssign->performMouseDown(setSelection, keySelection);
-	//case noteEditMode::IsomorphicMassAssignMode:
-	//	return isomorphicMassAssign->performMouseDown(setSelection, keySelection);
-	//default:
-	//	return false;
-	//}
-	// ToDO
-	return false;
+	int editMode = editFunctionsTab->getCurrentTabIndex();
+	switch (editMode)
+	{
+	case noteEditMode::SingleNoteAssignMode:
+		return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keySelection);
+	case noteEditMode::IsomorphicMassAssignMode:
+		return dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keySelection);
+	default:
+		return false;
+	}
 }
 
 /// <summary>Called from MainComponent when a previously clicked key is released</summary>
@@ -147,8 +132,6 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
-
-	//int editMode = cbEditMode->getSelectedItemIndex();
 
 	// At the moment no functionality here
 
@@ -158,8 +141,7 @@ bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
 	// Add colours of the mapping to the colour combo box
-	// singleNoteAssign->onSetData(newData);
-	//ToDO
+	// ToDO return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->onSetData(newData);
 }
 
 //[/MiscUserCode]
