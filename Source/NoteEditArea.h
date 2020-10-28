@@ -21,8 +21,6 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SingleNoteAssign.h"
-#include "IsomorphicMassAssign.h"
 //[/Headers]
 
 
@@ -67,8 +65,6 @@ private:
         IsomorphicMassAssignMode = 1
     };
 
-	//std::unique_ptr<SingleNoteAssign> singleNoteAssign;
-	//std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
     //[/UserVariables]
 
     //==============================================================================

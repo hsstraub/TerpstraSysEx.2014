@@ -387,7 +387,7 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 {
 	// XXX This could be in a common base class for all assign edit components
 
-	auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
+	auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
 
 	// Save data
 	this->mappingLogic->indexToTerpstraKey(
@@ -522,7 +522,7 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 		finishedLines.add(rUpwLine);
 
 		// Find cutting lines and fill them
-		auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
+		auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
 
 		for (auto rUpwLineField : rUpwLine)
 		{
@@ -579,7 +579,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 	int startNoteIndex = this->startingPointBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
 	{
-	    auto mainComponent = ((MainContentComponent*)(getParentComponent()->getParentComponent()));
+	    auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
 
 		int horizStepSize = editHorizontalSteps->getText().getIntValue();
 		int rUpwStepSize = editRightUpwardSteps->getText().getIntValue();

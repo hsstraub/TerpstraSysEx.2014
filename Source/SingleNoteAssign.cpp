@@ -318,7 +318,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	bool mappingChanged = false;
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
 
-	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
 
 	// Set note if specified
 	if (setNoteToggleButton->getToggleState())

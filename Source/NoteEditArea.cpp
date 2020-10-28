@@ -19,6 +19,8 @@
 
 //[Headers] You can add your own extra header files here...
 #include "ViewConstants.h"
+#include "SingleNoteAssign.h"
+#include "IsomorphicMassAssign.h"
 //[/Headers]
 
 #include "NoteEditArea.h"
@@ -51,9 +53,7 @@ NoteEditArea::NoteEditArea ()
 
     //[Constructor] You can add your own custom stuff here..
 
-	// Default selection
-	// Todo: read from user settings
-	//cbEditMode->setSelectedItemIndex(noteEditMode::SingleNoteAssignMode, juce::NotificationType::sendNotification);
+	// ToDo Default active tab from user settings
 
     //[/Constructor]
 }
@@ -141,7 +141,7 @@ bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
 	// Add colours of the mapping to the colour combo box
-	// ToDO return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->onSetData(newData);
+	return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->onSetData(newData);
 }
 
 //[/MiscUserCode]
