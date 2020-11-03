@@ -44,10 +44,6 @@ MainContentComponent::MainContentComponent()
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
 
-	// MIDI info area
-	midiInfoArea.reset(new MidiInfoArea());
-	addAndMakeVisible(midiInfoArea.get());
-
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	// Initial size
@@ -74,7 +70,6 @@ MainContentComponent::~MainContentComponent()
 
 	midiEditArea = nullptr;
 	noteEditArea = nullptr;
-	midiInfoArea = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -254,25 +249,32 @@ void MainContentComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
+	int newWidth = getWidth();
 	int newHeight = getHeight();
 
+	// Logo, MIDI edit area and connection state
+	int midiAreaWidth = midiEditArea->getWidth();
+	int midiAreaHeight = midiEditArea->getHeight();
+	int midiAreaXPos = jmax(newWidth - midiAreaWidth, 0);
+	midiEditArea->setBounds(midiAreaXPos, 0, midiAreaWidth, midiAreaHeight);
+
+	// All keys overview/virtual keyboard playing
 	// New height of subset field area, with minimal value
-	float newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	float newSubsetAreaHeight = jmax(newHeight - midiAreaHeight - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	// Resize factor for the subset field area and the subset fields
-	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / DEFAULTSUBSETAREAHEIGHT;
+	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / (DEFAULTMAINWINDOWHEIGHT - midiAreaHeight - EDITFUNCTIONAREAHEIGHT);
 	jassert(newResizeFactor > 0.0);
 	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
 	jassert(newDecreaseFactor > 0.0);
 
 	// New position, width and height of subset fields
-	float newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
+	float newSubsetFirstYPos = midiAreaHeight + TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
 	float newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
 	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
 	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
 
-	float newMidiEditFirstYPos = newSubsetAreaHeight;
-	float newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
+	float newSingleKeyFieldFirstYPos = midiAreaHeight + newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
 
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -323,14 +325,8 @@ void MainContentComponent::resized()
 
 	jassert(TERPSTRABOARDSIZE == keyIndex);
 
-	// Midi input + output
-	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
-
 	// Edit function area
-	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
-
-	// MIDI info area
-	midiInfoArea->setBounds(0, mostBottomKeyPos, EDITAREAFIRSTCOLPOS, midiInfoArea->getHeight());
+	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, midiAreaHeight + newSubsetAreaHeight, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
 }
 
 void MainContentComponent::mouseDown(const MouseEvent &event)

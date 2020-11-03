@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -21,6 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "TerpstraMidiDriver.h"
+#include "HajuLib/HajuErrorVisualizer.h"
 //[/Headers]
 
 
@@ -34,8 +36,8 @@
                                                                     //[/Comments]
 */
 class MidiEditArea  : public Component,
-                      public ComboBox::Listener,
-                      public Button::Listener
+                      public TerpstraMidiDriver::Listener,
+                      public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -44,26 +46,28 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override;
+	void midiSendQueueSize(int queueSize) override;
+	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	HajuErrorVisualizer     errorVisualizer;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> lblMidiInput;
-    std::unique_ptr<ComboBox> cbMidiInput;
-    std::unique_ptr<Label> lblMidiOutput;
-    std::unique_ptr<ComboBox> cbMidiOutput;
-    std::unique_ptr<TextButton> buttonSendAll;
-    std::unique_ptr<TextButton> buttonReceive;
+    std::unique_ptr<juce::ComboBox> cbMidiInput;
+    std::unique_ptr<juce::ComboBox> cbMidiOutput;
+    std::unique_ptr<juce::Label> lblConnectionState;
 
 
     //==============================================================================
