@@ -15,7 +15,6 @@
 
 #include "OctaveBoardComponent.h"
 #include "ViewComponents.h"
-#include "BoardGeometry.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
@@ -30,9 +29,9 @@
 class MainContentComponent : public Component, public TerpstraMidiDriver::Listener
 {
 public:
-    //==============================================================================
-    MainContentComponent();
-    ~MainContentComponent();
+	//==============================================================================
+	MainContentComponent();
+	~MainContentComponent();
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
@@ -41,9 +40,9 @@ public:
 	void setData(TerpstraKeyMapping& newData, bool withRefresh = true);
 	void deleteAll(bool withRefresh = true);
 
-    void getData(TerpstraKeyMapping& newData);
+	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
-	TerpstraBoardGeometry& getBoardGeometry() { return this->boardGeometry; }
+	int getCurrentSetSelection() const  { return currentSetSelection; }
 
 	// Board edit operations
 	bool deleteCurrentSubBoardData();
@@ -60,11 +59,9 @@ public:
     void paint (Graphics&);
     void resized();
 	void mouseDown(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
 
 private:
 	void changeSetSelection(int newSelection, bool forceRefresh = false);
-	void changeSingleKeySelection(int newSelection);
 
 private:
     //==============================================================================
@@ -76,23 +73,16 @@ private:
 	// Sets of 55/56 keys
 	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
 
-	// Editing single keys (of the selected 56-key set)
-	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
-
-	// Geometry settings
-	TerpstraBoardGeometry	boardGeometry;
-
 	// Midi devices
 	std::unique_ptr<MidiEditArea>		midiEditArea;
 
-	// Edit fields for setting key and button parameters
+	// Edit fields for setting key and button parameters, and edits for single keys
 	std::unique_ptr<NoteEditArea>	noteEditArea;
 
 	//==============================================================================
 	// Data
 	TerpstraKeyMapping	mappingData;
 	int					currentSetSelection;
-	int					currentSingleKeySelection;
 
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;

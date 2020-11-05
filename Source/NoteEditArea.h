@@ -21,6 +21,9 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+
+#include "ViewComponents.h"
+#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -45,15 +48,21 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-	bool performMouseDown(int setSelection, int keySelection);
-	bool performMouseUp(int setSelection, int keySelection);
-
 	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping.
 	void onSetData(TerpstraKeyMapping& newData);
+
+	// Fill key fields with values from a certain octaveboard soubset
+	void setKeyFieldValues(const TerpstraKeys& keySet);
+
+private:
+	void changeSingleKeySelection(int newSelection);
+
+public:
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
+    void mouseDown (const juce::MouseEvent& e) override;
 
 
 
@@ -64,6 +73,11 @@ private:
         SingleNoteAssignMode = 0,
         IsomorphicMassAssignMode = 1
     };
+
+	// Editing single keys (of the selected 56-key set)
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
+
+	int					currentSingleKeySelection;
 
     //[/UserVariables]
 

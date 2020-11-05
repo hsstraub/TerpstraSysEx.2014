@@ -21,16 +21,23 @@
 #include "ViewConstants.h"
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
+#include "Main.h"
+#include "BoardGeometry.h"
 //[/Headers]
 
 #include "NoteEditArea.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+// Geometry settings
+static TerpstraBoardGeometry	boardGeometry;
+
 //[/MiscUserDefs]
 
 //==============================================================================
 NoteEditArea::NoteEditArea ()
+    : currentSingleKeySelection(-1)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -42,18 +49,30 @@ NoteEditArea::NoteEditArea ()
     editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);
 
-    editFunctionsTab->setBounds (8, 8, 428, 480);
+    editFunctionsTab->setBounds (8, 8, 304, 422);
 
 
     //[UserPreSize]
+
+	// Single Key fields
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
+		addAndMakeVisible(terpstraKeyFields[i].get());
+		terpstraKeyFields[i]->addMouseListener(this, true);
+	}
+
     //[/UserPreSize]
 
-    setSize (428, 480);
+    setSize (900, 422);
 
 
     //[Constructor] You can add your own custom stuff here..
 
 	// ToDo Default active tab from user settings
+
+	// Selection on first key
+	changeSingleKeySelection(0);
 
     //[/Constructor]
 }
@@ -67,6 +86,12 @@ NoteEditArea::~NoteEditArea()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i] = nullptr;
+	}
+
     //[/Destructor]
 }
 
@@ -86,11 +111,91 @@ void NoteEditArea::paint (juce::Graphics& g)
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	editFunctionsTab->setBounds(0, 0, getWidth(), getHeight());
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+
+	// Single Key fields
+
+	// Transformation Rotate slightly counterclockwise
+	float x = editFunctionsTab->getRight();
+	float y = 0.0f;
+	AffineTransform transform = AffineTransform::translation(-x, -y);
+	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
+	transform = transform.translated(x, y);
+
+	int keyIndex = 0;
+	int mostBottomKeyPos = 0;
+
+	// Rows
+	int rowCount = boardGeometry.horizontalLineCount();
+	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+	{
+		float xbasepos;
+		if (rowIndex % 2 == 0)
+			xbasepos = editFunctionsTab->getRight();
+		else
+			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFLDSIZE / 2;
+
+		int ybasepos = 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
+
+		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
+		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
+		{
+			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
+			y = ybasepos;
+			transform.transformPoint(x, y);
+			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+
+			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
+			keyIndex++;
+		}
+	}
+
+	jassert(TERPSTRABOARDSIZE == keyIndex);
+
     //[/UserResized]
+}
+
+void NoteEditArea::mouseDown (const juce::MouseEvent& e)
+{
+    //[UserCode_mouseDown] -- Add your code here...
+	bool mappingChanged = false;
+
+	// Selection of single key fields
+	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	{
+		if (e.eventComponent == terpstraKeyFields[keyIndex].get() || e.eventComponent->getParentComponent() == terpstraKeyFields[keyIndex].get())
+		{
+			// Select field
+			changeSingleKeySelection(keyIndex);
+
+			// Perform the edit, according to edit mode. Including sending to device
+			auto setSelection = ((MainContentComponent*)getParentComponent())->getCurrentSetSelection();
+			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE);
+
+			int editMode = editFunctionsTab->getCurrentTabIndex();
+			switch (editMode)
+			{
+			case noteEditMode::SingleNoteAssignMode:
+				mappingChanged = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+				break;
+			case noteEditMode::IsomorphicMassAssignMode:
+				mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+				break;
+			default:
+				mappingChanged = false;
+				break;
+			}
+
+			// Mark that there are changes
+			if (mappingChanged)
+				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+			break;
+		}
+	}
+    //[/UserCode_mouseDown]
 }
 
 
@@ -109,39 +214,28 @@ void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
 }
 
-/// <summary>Called from MainComponent when one of the keys is clicked</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
-{
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
-
-	int editMode = editFunctionsTab->getCurrentTabIndex();
-	switch (editMode)
-	{
-	case noteEditMode::SingleNoteAssignMode:
-		return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keySelection);
-	case noteEditMode::IsomorphicMassAssignMode:
-		return dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keySelection);
-	default:
-		return false;
-	}
-}
-
-/// <summary>Called from MainComponent when a previously clicked key is released</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
-{
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
-
-	// At the moment no functionality here
-
-	return false;
-}
-
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
 	// Add colours of the mapping to the colour combo box
 	return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->onSetData(newData);
+}
+
+void NoteEditArea::setKeyFieldValues(const TerpstraKeys& keySet)
+{
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+		terpstraKeyFields[i]->setValue(keySet.theKeys[i]);
+}
+
+void NoteEditArea::changeSingleKeySelection(int newSelection)
+{
+	// Unselect previous key
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
+
+	// Select new key
+	currentSingleKeySelection = newSelection;
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
 }
 
 //[/MiscUserCode]
@@ -157,12 +251,15 @@ void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 parentClasses="public Component" constructorParams="" variableInitialisers="currentSingleKeySelection(-1)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="480">
+                 fixedSize="0" initialWidth="900" initialHeight="422">
+  <METHODS>
+    <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
   <TABBEDCOMPONENT name="editFunctionsTab" id="9eb88c4dce6dede9" memberName="editFunctionsTab"
-                   virtualName="" explicitFocusOrder="0" pos="8 8 428 480" orientation="top"
+                   virtualName="" explicitFocusOrder="0" pos="8 8 304 422" orientation="top"
                    tabBarDepth="30" initialTab="0">
     <TAB name="Manual Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="SingleNoteAssign"
          constructorParams="" jucerComponentFile=""/>

@@ -133,14 +133,50 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cbMidiInput.get())
     {
         //[UserComboBoxCode_cbMidiInput] -- add your combo box handling code here..
-		TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
+		if (cbMidiInput->getSelectedItemIndex() > 0 )
+			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex()+1);
+
+		if (cbMidiInput->getSelectedItemIndex() <= 0 || cbMidiOutput->getSelectedItemIndex() <= 0)
+		{
+			lblConnectionState->setText("Disconnected", NotificationType::dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::error,
+				"Select both a MIDI input and a MIDI output");
+		}
+		else
+		{
+			lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::noError,
+				"Connecting");
+		}
         //[/UserComboBoxCode_cbMidiInput]
     }
     else if (comboBoxThatHasChanged == cbMidiOutput.get())
     {
         //[UserComboBoxCode_cbMidiOutput] -- add your combo box handling code here..
-		TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
-        //[/UserComboBoxCode_cbMidiOutput]
+		if (cbMidiOutput->getSelectedItemIndex() > 0)
+			TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
+
+		if (cbMidiInput->getSelectedItemIndex() <= 0 || cbMidiOutput->getSelectedItemIndex() <= 0)
+		{
+			lblConnectionState->setText("Disconnected", NotificationType::dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::error,
+				"Select both a MIDI input and a MIDI output");
+		}
+		else
+		{
+			lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::noError,
+				"Connecting");
+		}
+		//[/UserComboBoxCode_cbMidiOutput]
     }
 
 	// If both in- and output have a value: connection can be connecting, else disconnected
@@ -160,11 +196,12 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 	// Set connection state
 	// ToDo
 
-	// AD hoc: former MIDI infor farea functionality
-	lblConnectionState->setText("<< " + midiMessage.getDescription(), NotificationType::dontSendNotification);
+	//lblConnectionState->setText("<< " + midiMessage.getDescription(), NotificationType::dontSendNotification);
 
 	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
 	{
+		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+
 		if (midiMessage.getSysExDataSize() < 6)
 		{
 			errorVisualizer.setErrorLevel(
@@ -216,15 +253,11 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			}
 		}
 	}
-	else
-	{
-		errorVisualizer.setErrorLevel(*lblConnectionState.get(), HajuErrorVisualizer::ErrorLevel::noError, "");
-	}
 }
 
 void MidiEditArea::midiMessageSent(const MidiMessage& midiMessage)
 {
-	lblConnectionState->setText(">> " + midiMessage.getDescription(), NotificationType::dontSendNotification);
+	//lblConnectionState->setText(">> " + midiMessage.getDescription(), NotificationType::dontSendNotification);
 }
 
 void MidiEditArea::midiSendQueueSize(int queueSize)

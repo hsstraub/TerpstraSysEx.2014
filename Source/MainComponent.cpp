@@ -15,7 +15,7 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
-	: currentSetSelection(-1), currentSingleKeySelection(-1), copiedSubBoardData()
+	: currentSetSelection(-1), copiedSubBoardData()
 {
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -26,14 +26,6 @@ MainContentComponent::MainContentComponent()
 		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
 		addAndMakeVisible(terpstraSetSelectors[4-i].get());
 		terpstraSetSelectors[4 - i]->addMouseListener(this, true);
-	}
-
-	// Single Key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
-		addAndMakeVisible(terpstraKeyFields[i].get());
-		terpstraKeyFields[i]->addMouseListener(this, true);
 	}
 
 	// Midi input + output
@@ -51,7 +43,6 @@ MainContentComponent::MainContentComponent()
 
 	// Select first board and first key
 	changeSetSelection(0);
-	changeSingleKeySelection(0);
 }
 
 MainContentComponent::~MainContentComponent()
@@ -61,11 +52,6 @@ MainContentComponent::~MainContentComponent()
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
 		terpstraSetSelectors[i] = nullptr;
-	}
-
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		terpstraKeyFields[i] = nullptr;
 	}
 
 	midiEditArea = nullptr;
@@ -260,10 +246,13 @@ void MainContentComponent::resized()
 
 	// All keys overview/virtual keyboard playing
 	// New height of subset field area, with minimal value
-	float newSubsetAreaHeight = jmax(newHeight - midiAreaHeight - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	int noteEditAreaWidth = noteEditArea->getWidth();
+	int noteEditAreaHeight = noteEditArea->getHeight();
+
+	float newSubsetAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	// Resize factor for the subset field area and the subset fields
-	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / (DEFAULTMAINWINDOWHEIGHT - midiAreaHeight - EDITFUNCTIONAREAHEIGHT);
+	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / (DEFAULTMAINWINDOWHEIGHT - midiAreaHeight - noteEditAreaHeight);
 	jassert(newResizeFactor > 0.0);
 	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
 	jassert(newDecreaseFactor > 0.0);
@@ -286,47 +275,8 @@ void MainContentComponent::resized()
             roundToInt(newSubsetFirstYPos), newSubsetWidth, newSubsetHeight);
 	}
 
-	// Single Key fields
-
-	// Transformation Rotate slightly counterclockwise
-	float x = MAINWINDOWFIRSTCOLPOS;
-	float y = newSingleKeyFieldFirstYPos;
-	AffineTransform transform = AffineTransform::translation(-x, -y);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(x, y);
-
-	int keyIndex = 0;
-    int mostBottomKeyPos = 0;
-
-	// Rows
-	int rowCount = boardGeometry.horizontalLineCount();
-	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
-	{
-		float xbasepos;
-		if (rowIndex % 2 == 0)
-			xbasepos = MAINWINDOWFIRSTCOLPOS;
-		else
-			xbasepos = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE / 2;
-
-		int ybasepos = newSingleKeyFieldFirstYPos + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
-
-		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
-		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
-		{
-			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
-			y = ybasepos;
-			transform.transformPoint(x, y);
-			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-
-			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
-			keyIndex++;
-		}
-	}
-
-	jassert(TERPSTRABOARDSIZE == keyIndex);
-
-	// Edit function area
-	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, midiAreaHeight + newSubsetAreaHeight, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
+	// Edit function/single key field area
+	noteEditArea->setBounds(0, midiAreaHeight + newSubsetAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
 }
 
 void MainContentComponent::mouseDown(const MouseEvent &event)
@@ -344,25 +294,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 		}
 	}
 
-	// Selection of single key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
-		{
-			// Select field
-			changeSingleKeySelection(i);
-
-			// Perform the edit, according to edit mode. Including sending to device
-			mappingChanged = this->noteEditArea->performMouseDown(currentSetSelection, i);
-
-			// Mark that there are changes
-			if (mappingChanged)
-				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-			break;
-		}
-	}
-
     // Refresh display (edit may affect all octave boards)
     if (mappingChanged)
     {
@@ -372,36 +303,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
         }
 
         changeSetSelection(currentSetSelection, true);
-    }
-}
-
-void MainContentComponent::mouseUp(const MouseEvent &event)
-{
-	bool mappingChanged = false;
-
-	// Selection of single key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
-		{
-			// Perform the edit, according to edit mode. Including sending to device
-			mappingChanged = this->noteEditArea->performMouseUp(currentSetSelection, i);
-
-			// Mark that there are changes
-			if (mappingChanged)
-				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-			break;
-		}
-	}
-
-    // Refresh display (edit may affect all octave boards)
-    if ( mappingChanged)
-    {
-        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-        {
-            terpstraSetSelectors[i]->repaint();
-        }
     }
 }
 
@@ -416,10 +317,7 @@ void MainContentComponent::changeSetSelection(int newSelection, bool forceRefres
 
 		// Set data of new selection
 		if (newSelection >= 0 && newSelection < NUMBEROFBOARDS )
-		{
-			for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-				terpstraKeyFields[i]->setValue(mappingData.sets[newSelection].theKeys[i]);
-		}
+			noteEditArea->setKeyFieldValues(mappingData.sets[newSelection]);
 
 		currentSetSelection = newSelection;
 	}
@@ -427,16 +325,4 @@ void MainContentComponent::changeSetSelection(int newSelection, bool forceRefres
 	// Set toggle state in any case (override default imagebutton functionality)
 	if ( currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS )
 		terpstraSetSelectors[currentSetSelection]->setIsSelected(true);
-}
-
-void MainContentComponent::changeSingleKeySelection(int newSelection)
-{
-	// Unselect previous key
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE )
-		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
-
-	// Select new key
-	currentSingleKeySelection = newSelection;
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
-		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
 }

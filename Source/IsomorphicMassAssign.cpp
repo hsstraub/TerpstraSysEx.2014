@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -46,40 +46,40 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	mappingLogic = nullptr;
     //[/Constructor_pre]
 
-    startingPointBox.reset (new ComboBox ("startingPointBox"));
+    startingPointBox.reset (new juce::ComboBox ("startingPointBox"));
     addAndMakeVisible (startingPointBox.get());
     startingPointBox->setEditableText (false);
-    startingPointBox->setJustificationType (Justification::centredLeft);
-    startingPointBox->setTextWhenNothingSelected (String());
+    startingPointBox->setJustificationType (juce::Justification::centredLeft);
+    startingPointBox->setTextWhenNothingSelected (juce::String());
     startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     startingPointBox->addListener (this);
 
-    startingPointBox->setBounds (8, 320, 150, 24);
+    startingPointBox->setBounds (8, 368, 150, 24);
 
-    labelStartingPoint.reset (new Label ("labelStartingPoint",
-                                         TRANS("Starting value")));
+    labelStartingPoint.reset (new juce::Label ("labelStartingPoint",
+                                               TRANS("Starting value")));
     addAndMakeVisible (labelStartingPoint.get());
     labelStartingPoint->setTooltip (TRANS("Value that will be assigned to the key at mouse pposition when clicking"));
-    labelStartingPoint->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelStartingPoint->setJustificationType (Justification::centredLeft);
+    labelStartingPoint->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelStartingPoint->setJustificationType (juce::Justification::centredLeft);
     labelStartingPoint->setEditable (false, false, false);
-    labelStartingPoint->setColour (TextEditor::textColourId, Colours::black);
-    labelStartingPoint->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelStartingPoint->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelStartingPoint->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelStartingPoint->setBounds (8, 296, 150, 24);
+    labelStartingPoint->setBounds (8, 344, 150, 24);
 
-    labelHorizontalSteps.reset (new Label ("labelHorizontalSteps",
-                                           TRANS("Horizontal steps")));
+    labelHorizontalSteps.reset (new juce::Label ("labelHorizontalSteps",
+                                                 TRANS("Horizontal steps")));
     addAndMakeVisible (labelHorizontalSteps.get());
-    labelHorizontalSteps->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelHorizontalSteps->setJustificationType (Justification::centredLeft);
+    labelHorizontalSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelHorizontalSteps->setJustificationType (juce::Justification::centredLeft);
     labelHorizontalSteps->setEditable (false, false, false);
-    labelHorizontalSteps->setColour (TextEditor::textColourId, Colours::black);
-    labelHorizontalSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelHorizontalSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelHorizontalSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelHorizontalSteps->setBounds (304, 296, 136, 24);
+    labelHorizontalSteps->setBounds (208, 344, 112, 24);
 
-    editHorizontalSteps.reset (new TextEditor ("editHorizontalSteps"));
+    editHorizontalSteps.reset (new juce::TextEditor ("editHorizontalSteps"));
     addAndMakeVisible (editHorizontalSteps.get());
     editHorizontalSteps->setMultiLine (false);
     editHorizontalSteps->setReturnKeyStartsNewLine (false);
@@ -87,22 +87,22 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editHorizontalSteps->setScrollbarsShown (true);
     editHorizontalSteps->setCaretVisible (true);
     editHorizontalSteps->setPopupMenuEnabled (true);
-    editHorizontalSteps->setText (String());
+    editHorizontalSteps->setText (juce::String());
 
-    editHorizontalSteps->setBounds (312, 320, 40, 24);
+    editHorizontalSteps->setBounds (216, 368, 40, 24);
 
-    labelRightUpwardSteps.reset (new Label ("labelRightUpwardSteps",
-                                            TRANS("Right upward steps")));
+    labelRightUpwardSteps.reset (new juce::Label ("labelRightUpwardSteps",
+                                                  TRANS("Right upward steps")));
     addAndMakeVisible (labelRightUpwardSteps.get());
-    labelRightUpwardSteps->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelRightUpwardSteps->setJustificationType (Justification::centredLeft);
+    labelRightUpwardSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelRightUpwardSteps->setJustificationType (juce::Justification::centredLeft);
     labelRightUpwardSteps->setEditable (false, false, false);
-    labelRightUpwardSteps->setColour (TextEditor::textColourId, Colours::black);
-    labelRightUpwardSteps->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelRightUpwardSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelRightUpwardSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelRightUpwardSteps->setBounds (176, 280, 136, 24);
+    labelRightUpwardSteps->setBounds (152, 296, 136, 24);
 
-    editRightUpwardSteps.reset (new TextEditor ("editRightUpwardSteps"));
+    editRightUpwardSteps.reset (new juce::TextEditor ("editRightUpwardSteps"));
     addAndMakeVisible (editRightUpwardSteps.get());
     editRightUpwardSteps->setMultiLine (false);
     editRightUpwardSteps->setReturnKeyStartsNewLine (false);
@@ -110,93 +110,93 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editRightUpwardSteps->setScrollbarsShown (true);
     editRightUpwardSteps->setCaretVisible (true);
     editRightUpwardSteps->setPopupMenuEnabled (true);
-    editRightUpwardSteps->setText (String());
+    editRightUpwardSteps->setText (juce::String());
 
-    editRightUpwardSteps->setBounds (184, 304, 39, 24);
+    editRightUpwardSteps->setBounds (160, 320, 39, 24);
 
-    editInstructionText.reset (new Label ("editInstructionText",
-                                          TRANS("Fill a line or the whole field with constant step distances. \n"
-                                          "Click on desired key field to start.")));
+    editInstructionText.reset (new juce::Label ("editInstructionText",
+                                                TRANS("Fill a line or the whole field with constant step distances. \n"
+                                                "Click on desired key field to start.")));
     addAndMakeVisible (editInstructionText.get());
-    editInstructionText->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    editInstructionText->setJustificationType (Justification::topLeft);
+    editInstructionText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    editInstructionText->setJustificationType (juce::Justification::topLeft);
     editInstructionText->setEditable (false, false, false);
-    editInstructionText->setColour (TextEditor::textColourId, Colours::black);
-    editInstructionText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    editInstructionText->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    editInstructionText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    editInstructionText->setBounds (8, 200, 416, 40);
+    editInstructionText->setBounds (8, 200, 296, 48);
 
-    groupMapping.reset (new GroupComponent ("groupMapping",
-                                            TRANS("Mapping")));
+    groupMapping.reset (new juce::GroupComponent ("groupMapping",
+                                                  TRANS("Mapping")));
     addAndMakeVisible (groupMapping.get());
 
-    groupMapping->setBounds (8, 40, 416, 152);
+    groupMapping->setBounds (8, 40, 304, 152);
 
-    cbMappingType.reset (new ComboBox ("cbMappingType"));
+    cbMappingType.reset (new juce::ComboBox ("cbMappingType"));
     addAndMakeVisible (cbMappingType.get());
     cbMappingType->setEditableText (false);
-    cbMappingType->setJustificationType (Justification::centredLeft);
-    cbMappingType->setTextWhenNothingSelected (String());
+    cbMappingType->setJustificationType (juce::Justification::centredLeft);
+    cbMappingType->setTextWhenNothingSelected (juce::String());
     cbMappingType->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMappingType->addItem (TRANS("MIDI notes, increasing order"), 1);
     cbMappingType->addItem (TRANS("Scala KBM mappings"), 2);
     cbMappingType->addListener (this);
 
-    cbMappingType->setBounds (104, 64, 304, 24);
+    cbMappingType->setBounds (64, 64, 240, 24);
 
-    labelMappingType.reset (new Label ("labelMappingType",
-                                       TRANS("Type:")));
+    labelMappingType.reset (new juce::Label ("labelMappingType",
+                                             TRANS("Type:")));
     addAndMakeVisible (labelMappingType.get());
-    labelMappingType->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelMappingType->setJustificationType (Justification::centredLeft);
+    labelMappingType->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelMappingType->setJustificationType (juce::Justification::centredLeft);
     labelMappingType->setEditable (false, false, false);
-    labelMappingType->setColour (TextEditor::textColourId, Colours::black);
-    labelMappingType->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelMappingType->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelMappingType->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelMappingType->setBounds (20, 64, 88, 24);
 
-    btnScaleStructureEditor.reset (new TextButton ("btnScaleStructureEditor"));
+    btnScaleStructureEditor.reset (new juce::TextButton ("btnScaleStructureEditor"));
     addAndMakeVisible (btnScaleStructureEditor.get());
     btnScaleStructureEditor->setTooltip (TRANS("Show/hide scale structure editor"));
     btnScaleStructureEditor->setButtonText (TRANS("Scale structure editor"));
     btnScaleStructureEditor->addListener (this);
 
-    btnScaleStructureEditor->setBounds (264, 248, 152, 24);
+    btnScaleStructureEditor->setBounds (160, 264, 152, 24);
 
-    periodSizeBox.reset (new ComboBox ("periodSizeBox"));
+    periodSizeBox.reset (new juce::ComboBox ("periodSizeBox"));
     addAndMakeVisible (periodSizeBox.get());
     periodSizeBox->setTooltip (TRANS("Number of tones per period interval (octave)"));
     periodSizeBox->setEditableText (false);
-    periodSizeBox->setJustificationType (Justification::centredLeft);
-    periodSizeBox->setTextWhenNothingSelected (String());
+    periodSizeBox->setJustificationType (juce::Justification::centredLeft);
+    periodSizeBox->setTextWhenNothingSelected (juce::String());
     periodSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     periodSizeBox->addListener (this);
 
     periodSizeBox->setBounds (200, 8, 56, 24);
 
-    labelPeriodSize.reset (new Label ("labelPeriodSize",
-                                      TRANS("Period:")));
+    labelPeriodSize.reset (new juce::Label ("labelPeriodSize",
+                                            TRANS("Period:")));
     addAndMakeVisible (labelPeriodSize.get());
-    labelPeriodSize->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelPeriodSize->setJustificationType (Justification::centredLeft);
+    labelPeriodSize->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelPeriodSize->setJustificationType (juce::Justification::centredLeft);
     labelPeriodSize->setEditable (false, false, false);
-    labelPeriodSize->setColour (TextEditor::textColourId, Colours::black);
-    labelPeriodSize->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelPeriodSize->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelPeriodSize->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelPeriodSize->setBounds (16, 8, 168, 24);
 
-    setColourToggleButton.reset (new ToggleButton ("setColourToggleButton"));
+    setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
     setColourToggleButton->setButtonText (TRANS("Colour assignment"));
     setColourToggleButton->addListener (this);
 
-    setColourToggleButton->setBounds (8, 248, 168, 24);
+    setColourToggleButton->setBounds (8, 264, 152, 24);
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (428, 352);
+    setSize (304, 392);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -242,12 +242,12 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
 }
 
 //==============================================================================
-void IsomorphicMassAssign::paint (Graphics& g)
+void IsomorphicMassAssign::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffbad0de));
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -257,15 +257,17 @@ void IsomorphicMassAssign::paint (Graphics& g)
 void IsomorphicMassAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, EDITAREAWIDTH, MAPPINGSUBWINHEIGHT);
-	kbmMappingDlg->setBounds(16, MAPPINGSUBWINTOP, EDITAREAWIDTH, MAPPINGSUBWINHEIGHT);
+	int width = getWidth();
+
+	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
+	kbmMappingDlg->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void IsomorphicMassAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -316,7 +318,7 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[/UsercomboBoxChanged_Post]
 }
 
-void IsomorphicMassAssign::buttonClicked (Button* buttonThatWasClicked)
+void IsomorphicMassAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -687,46 +689,46 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
                  parentClasses="public Component, public MappingLogicBase::Listener, public ScaleStructureComponent::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="428"
-                 initialHeight="352">
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="304"
+                 initialHeight="392">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointBox"
-            virtualName="" explicitFocusOrder="0" pos="8 320 150 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="8 368 150 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelStartingPoint" id="5401a3246c13771e" memberName="labelStartingPoint"
-         virtualName="" explicitFocusOrder="0" pos="8 296 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
+         virtualName="" explicitFocusOrder="0" pos="8 344 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
          edTextCol="ff000000" edBkgCol="0" labelText="Starting value"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <LABEL name="labelHorizontalSteps" id="3e6663aecf1474c8" memberName="labelHorizontalSteps"
-         virtualName="" explicitFocusOrder="0" pos="304 296 136 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="208 344 112 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Horizontal steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editHorizontalSteps" id="8d2f5f07f337b9ef" memberName="editHorizontalSteps"
-              virtualName="" explicitFocusOrder="0" pos="312 320 40 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="216 368 40 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="labelRightUpwardSteps" id="43530804741d9cb7" memberName="labelRightUpwardSteps"
-         virtualName="" explicitFocusOrder="0" pos="176 280 136 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="152 296 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Right upward steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
-              virtualName="" explicitFocusOrder="0" pos="184 304 39 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="160 320 39 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 200 416 40" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="8 200 296 48" edTextCol="ff000000"
          edBkgCol="0" labelText="Fill a line or the whole field with constant step distances. &#10;Click on desired key field to start."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="9"/>
   <GROUPCOMPONENT name="groupMapping" id="fbb69100a7b12118" memberName="groupMapping"
-                  virtualName="" explicitFocusOrder="0" pos="8 40 416 152" title="Mapping"/>
+                  virtualName="" explicitFocusOrder="0" pos="8 40 304 152" title="Mapping"/>
   <COMBOBOX name="cbMappingType" id="a7825b65cfb78392" memberName="cbMappingType"
-            virtualName="" explicitFocusOrder="0" pos="104 64 304 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="64 64 240 24" editable="0"
             layout="33" items="MIDI notes, increasing order&#10;Scala KBM mappings"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelMappingType" id="d77d8a4b80130afc" memberName="labelMappingType"
@@ -735,7 +737,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="btnScaleStructureEditor" id="23cc77cbad6653d7" memberName="btnScaleStructureEditor"
-              virtualName="" explicitFocusOrder="0" pos="264 248 152 24" tooltip="Show/hide scale structure editor"
+              virtualName="" explicitFocusOrder="0" pos="160 264 152 24" tooltip="Show/hide scale structure editor"
               buttonText="Scale structure editor" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="periodSizeBox" id="4560285c5e467e2f" memberName="periodSizeBox"
@@ -747,7 +749,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 248 168 24" buttonText="Colour assignment"
+                virtualName="" explicitFocusOrder="0" pos="8 264 152 24" buttonText="Colour assignment"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 

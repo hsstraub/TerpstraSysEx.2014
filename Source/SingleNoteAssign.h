@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -36,8 +36,8 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public ComboBox::Listener,
-                          public Button::Listener
+                          public juce::ComboBox::Listener,
+                          public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -53,10 +53,10 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -66,18 +66,18 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<GroupComponent> noteAndChannelAssGroup;
-    std::unique_ptr<Label> editInstructionText;
-    std::unique_ptr<ComboBox> noteBox;
-    std::unique_ptr<ToggleButton> noteAutoIncrButton;
-    std::unique_ptr<ComboBox> channelBox;
-    std::unique_ptr<ToggleButton> channelAutoIncrButton;
-    std::unique_ptr<ComboBox> channelAutoIncrNoteBox;
-    std::unique_ptr<ToggleButton> setNoteToggleButton;
-    std::unique_ptr<ToggleButton> setChannelToggleButton;
-    std::unique_ptr<ToggleButton> setColourToggleButton;
-    std::unique_ptr<ToggleButton> keyTypeToggleButton;
-    std::unique_ptr<ComboBox> keyTypeCombo;
+    std::unique_ptr<juce::Label> editInstructionText;
+    std::unique_ptr<juce::ComboBox> noteBox;
+    std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
+    std::unique_ptr<juce::ComboBox> channelBox;
+    std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
+    std::unique_ptr<juce::ComboBox> channelAutoIncrNoteBox;
+    std::unique_ptr<juce::ToggleButton> setNoteToggleButton;
+    std::unique_ptr<juce::ToggleButton> setChannelToggleButton;
+    std::unique_ptr<juce::ToggleButton> setColourToggleButton;
+    std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
+    std::unique_ptr<juce::ComboBox> keyTypeCombo;
+    std::unique_ptr<juce::GroupComponent> juce__groupComponent;
 
 
     //==============================================================================

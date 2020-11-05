@@ -13,7 +13,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "KeyboardDataStructure.h"
-#include "BoardGeometry.h"
 
 //==============================================================================
 

@@ -11,6 +11,10 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "OctaveBoardComponent.h"
 #include "Main.h"
+#include "BoardGeometry.h"
+
+// Geometry settings
+static TerpstraBoardGeometry	boardGeometry;
 
 
 //==============================================================================
@@ -129,25 +133,24 @@ void OctaveBoardComponent::resized()
 	int newSingleKeySize = jmin(newWidth*2/17, newHeight/8);
 
 	// Transformation Rotate slightly counterclockwise
-	float x = 0.0;
-	float y = 0.0;
+	float x = 0.0f;
+	float y = 0.0f;
 	AffineTransform transform = AffineTransform::rotation(TERPSTRASINGLEKEYROTATIONANGLE);
 
 	int keyIndex = 0;
 	int mostBottomKeyPos = 0;
 
-	auto boardGeometry = ((MainContentComponent*)getParentComponent())->getBoardGeometry();
 	// Rows
 	int rowCount = boardGeometry.horizontalLineCount();
 	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 	{
 		float xbasepos;
 		if (rowIndex % 2 == 0)
-			xbasepos = 0.0;
+			xbasepos = 0.0f;
 		else
-			xbasepos = 0.0 + newSingleKeySize / 2.0;
+			xbasepos = 0.0f + newSingleKeySize / 2.0;
 
-		float ybasepos = 0.0 + 3.0 * rowIndex * newSingleKeySize / 4.0;
+		float ybasepos = 0.0f + 3.0f * rowIndex * newSingleKeySize / 4.0f;
 
 		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
 		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
