@@ -196,7 +196,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (304, 392);
+    setSize (304, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -690,7 +690,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public MappingLogicBase::Listener, public ScaleStructureComponent::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="304"
-                 initialHeight="392">
+                 initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointBox"
             virtualName="" explicitFocusOrder="0" pos="8 368 150 24" editable="0"

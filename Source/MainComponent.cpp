@@ -263,8 +263,6 @@ void MainContentComponent::resized()
 	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
 	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
 
-	float newSingleKeyFieldFirstYPos = midiAreaHeight + newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
-
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
@@ -281,8 +279,6 @@ void MainContentComponent::resized()
 
 void MainContentComponent::mouseDown(const MouseEvent &event)
 {
-	bool mappingChanged = false;
-
 	// Selection of subset components
 	auto eventComponentParent = event.eventComponent->getParentComponent();
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -293,17 +289,6 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 			return;
 		}
 	}
-
-    // Refresh display (edit may affect all octave boards)
-    if (mappingChanged)
-    {
-        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-        {
-            terpstraSetSelectors[i]->repaint();
-        }
-
-        changeSetSelection(currentSetSelection, true);
-    }
 }
 
 void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)

@@ -144,7 +144,7 @@ SingleNoteAssign::SingleNoteAssign ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (304, 325);
+    setSize (304, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -205,7 +205,7 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	colourSubwindow->setBounds(120, setNoteToggleButton->getY(), 196, 32);
+	colourSubwindow->setBounds(120, setColourToggleButton->getY(), 196, 32);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
@@ -423,7 +423,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="304" initialHeight="325">
+                 fixedSize="0" initialWidth="304" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
          virtualName="" explicitFocusOrder="0" pos="8 8 352 32" edTextCol="ff000000"

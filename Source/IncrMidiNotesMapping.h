@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -35,8 +35,8 @@
                                                                     //[/Comments]
 */
 class IncrMidiNotesMapping  : public Component,
-                              public Button::Listener,
-                              public ComboBox::Listener
+                              public juce::Button::Listener,
+                              public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -49,10 +49,10 @@ public:
 	void onUpdatePeriodSize();
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     void visibilityChanged() override;
 
 
@@ -64,10 +64,10 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<ToggleButton> channelAutoIncrButton;
-    std::unique_ptr<Label> labelMidiNotesUntil;
-    std::unique_ptr<ToggleButton> singleChannelButton;
-    std::unique_ptr<ComboBox> channelBox;
+    std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
+    std::unique_ptr<juce::Label> labelMidiNotesUntil;
+    std::unique_ptr<juce::ToggleButton> singleChannelButton;
+    std::unique_ptr<juce::ComboBox> channelBox;
 
 
     //==============================================================================

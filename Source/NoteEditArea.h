@@ -74,6 +74,9 @@ private:
         IsomorphicMassAssignMode = 1
     };
 
+	// Selector for octave boards
+	std::unique_ptr<TabbedButtonBar> octaveBoardSelectorTab;
+
 	// Editing single keys (of the selected 56-key set)
 	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
@@ -83,6 +86,7 @@ private:
 
     //==============================================================================
     std::unique_ptr<juce::TabbedComponent> editFunctionsTab;
+    std::unique_ptr<juce::Label> labelWindowTitle;
 
 
     //==============================================================================

@@ -49,10 +49,31 @@ NoteEditArea::NoteEditArea ()
     editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);
 
-    editFunctionsTab->setBounds (8, 8, 304, 422);
+    editFunctionsTab->setBounds (8, 48, 304, 422);
+
+    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
+                                             TRANS("Assign Keys")));
+    addAndMakeVisible (labelWindowTitle.get());
+    labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
+    labelWindowTitle->setEditable (false, false, false);
+    labelWindowTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
+    labelWindowTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelWindowTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelWindowTitle->setBounds (8, 8, 104, 24);
 
 
     //[UserPreSize]
+
+	// Selector for octave boards
+	octaveBoardSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
+	addAndMakeVisible(octaveBoardSelectorTab.get());
+
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	{
+		octaveBoardSelectorTab->addTab("Section " + String(i + 1), juce::Colours::lightgrey, i + 1);
+	}
 
 	// Single Key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
@@ -64,7 +85,7 @@ NoteEditArea::NoteEditArea ()
 
     //[/UserPreSize]
 
-    setSize (900, 422);
+    setSize (900, 464);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -83,9 +104,12 @@ NoteEditArea::~NoteEditArea()
     //[/Destructor_pre]
 
     editFunctionsTab = nullptr;
+    labelWindowTitle = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
+
+	octaveBoardSelectorTab = nullptr;
 
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
@@ -115,11 +139,13 @@ void NoteEditArea::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
+	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), labelWindowTitle->getY(), getWidth()- labelWindowTitle->getWidth(), OCTAVEBOARDTABHEIGHT);
+
 	// Single Key fields
 
 	// Transformation Rotate slightly counterclockwise
-	float x = editFunctionsTab->getRight();
-	float y = 0.0f;
+	float x = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMABOVE;
+	float y = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMLEFT;
 	AffineTransform transform = AffineTransform::translation(-x, -y);
 	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
 	transform = transform.translated(x, y);
@@ -133,11 +159,11 @@ void NoteEditArea::resized()
 	{
 		float xbasepos;
 		if (rowIndex % 2 == 0)
-			xbasepos = editFunctionsTab->getRight();
+			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT;
 		else
-			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFLDSIZE / 2;
+			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT + TERPSTRASINGLEKEYFLDSIZE / 2;
 
-		int ybasepos = 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
+		int ybasepos = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMABOVE + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
 
 		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
 		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
@@ -184,17 +210,21 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 				mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
 				break;
 			default:
-				mappingChanged = false;
 				break;
 			}
-
-			// Mark that there are changes
-			if (mappingChanged)
-				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 			break;
 		}
 	}
+
+	// Mark that there are changes
+	if (mappingChanged)
+	{
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+		repaint();
+	}
+
     //[/UserCode_mouseDown]
 }
 
@@ -253,19 +283,24 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers="currentSingleKeySelection(-1)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="900" initialHeight="422">
+                 fixedSize="0" initialWidth="900" initialHeight="464">
   <METHODS>
     <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
   </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
   <TABBEDCOMPONENT name="editFunctionsTab" id="9eb88c4dce6dede9" memberName="editFunctionsTab"
-                   virtualName="" explicitFocusOrder="0" pos="8 8 304 422" orientation="top"
+                   virtualName="" explicitFocusOrder="0" pos="8 48 304 422" orientation="top"
                    tabBarDepth="30" initialTab="0">
     <TAB name="Manual Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="SingleNoteAssign"
          constructorParams="" jucerComponentFile=""/>
     <TAB name="Isomorphic Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="IsomorphicMassAssign"
          constructorParams="" jucerComponentFile=""/>
   </TABBEDCOMPONENT>
+  <LABEL name="labelWindowTitle" id="afc0b85c8e03b3d6" memberName="labelWindowTitle"
+         virtualName="" explicitFocusOrder="0" pos="8 8 104 24" textCol="ff61acc8"
+         edTextCol="ff000000" edBkgCol="0" labelText="Assign Keys" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="18.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
