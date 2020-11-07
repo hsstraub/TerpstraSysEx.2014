@@ -26,7 +26,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public TerpstraMidiDriver::Listener
+class MainContentComponent : public Component, public TerpstraMidiDriver::Listener, public ChangeListener
 {
 public:
 	//==============================================================================
@@ -55,10 +55,12 @@ public:
 	void midiSendQueueSize(int queueSize) override {}
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
 
+	// Implementation of ChangeListener
+	void changeListenerCallback(ChangeBroadcaster *source) override;
+
 	// GUI implementation
     void paint (Graphics&);
     void resized();
-	void mouseDown(const MouseEvent &event);
 
 private:
 	void changeSetSelection(int newSelection, bool forceRefresh = false);

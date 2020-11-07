@@ -36,6 +36,8 @@ MainContentComponent::MainContentComponent()
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
 
+	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
+
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	// Initial size
@@ -88,7 +90,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
             terpstraSetSelectors[i]->repaint();
 
         changeSetSelection(-1);
-        changeSetSelection(0);
+        changeSetSelection(0);	// ToDo NnoteEditAre - OctaveBoardSeleactorTab
     }
 }
 
@@ -225,6 +227,14 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& message)
     }
 }
 
+void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
+{
+	if (source == noteEditArea->getOctaveBoardSelectorTab())
+	{
+		changeSetSelection(noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex());
+	}
+}
+
 void MainContentComponent::paint (Graphics& g)
 {
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -275,20 +285,6 @@ void MainContentComponent::resized()
 
 	// Edit function/single key field area
 	noteEditArea->setBounds(0, midiAreaHeight + newSubsetAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
-}
-
-void MainContentComponent::mouseDown(const MouseEvent &event)
-{
-	// Selection of subset components
-	auto eventComponentParent = event.eventComponent->getParentComponent();
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		if (event.eventComponent == terpstraSetSelectors[i].get() || eventComponentParent == terpstraSetSelectors[i].get())
-		{
-			changeSetSelection(i);
-			return;
-		}
-	}
 }
 
 void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)

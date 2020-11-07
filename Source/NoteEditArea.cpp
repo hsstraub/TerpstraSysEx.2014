@@ -90,6 +90,9 @@ NoteEditArea::NoteEditArea ()
 
     //[Constructor] You can add your own custom stuff here..
 
+	// First octaveboard selection
+	octaveBoardSelectorTab->setCurrentTabIndex(0, true);
+
 	// ToDo Default active tab from user settings
 
 	// Selection on first key
@@ -222,7 +225,9 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 	{
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-		repaint();
+		repaint();	// Refresh key fields (all may be affected)
+
+		// Todo Refresh all octave boards (all may be affected)
 	}
 
     //[/UserCode_mouseDown]

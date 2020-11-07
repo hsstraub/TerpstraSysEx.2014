@@ -51,8 +51,10 @@ public:
 	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping.
 	void onSetData(TerpstraKeyMapping& newData);
 
-	// Fill key fields with values from a certain octaveboard soubset
+	// Fill key fields with values from a certain octaveboard subset
 	void setKeyFieldValues(const TerpstraKeys& keySet);
+
+	TabbedButtonBar* getOctaveBoardSelectorTab() { return octaveBoardSelectorTab.get(); }
 
 private:
 	void changeSingleKeySelection(int newSelection);
