@@ -36,7 +36,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class NoteEditArea  : public Component
+class NoteEditArea  : public Component,
+                      public ChangeListener
 {
 public:
     //==============================================================================
@@ -48,6 +49,9 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
+	// Implementation of ChangeListener
+	void changeListenerCallback(ChangeBroadcaster *source) override;
+
 	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping.
 	void onSetData(TerpstraKeyMapping& newData);
 
@@ -56,10 +60,8 @@ public:
 
 	TabbedButtonBar* getOctaveBoardSelectorTab() { return octaveBoardSelectorTab.get(); }
 
-private:
 	void changeSingleKeySelection(int newSelection);
 
-public:
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

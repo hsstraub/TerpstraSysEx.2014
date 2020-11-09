@@ -8,8 +8,7 @@
   ==============================================================================
 */
 
-#ifndef MAINCOMPONENT_H_INCLUDED
-#define MAINCOMPONENT_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -42,7 +41,6 @@ public:
 
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
-	int getCurrentSetSelection() const  { return currentSetSelection; }
 
 	// Board edit operations
 	bool deleteCurrentSubBoardData();
@@ -62,8 +60,7 @@ public:
     void paint (Graphics&);
     void resized();
 
-private:
-	void changeSetSelection(int newSelection, bool forceRefresh = false);
+	void refreshAllKeysOverview();
 
 private:
     //==============================================================================
@@ -84,11 +81,8 @@ private:
 	//==============================================================================
 	// Data
 	TerpstraKeyMapping	mappingData;
-	int					currentSetSelection;
 
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;
 };
 
-
-#endif  // MAINCOMPONENT_H_INCLUDED

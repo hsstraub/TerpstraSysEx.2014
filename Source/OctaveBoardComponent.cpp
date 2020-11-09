@@ -32,16 +32,18 @@ KeyMiniDisplayInsideOctaveBoardComponent::~KeyMiniDisplayInsideOctaveBoardCompon
 
 void KeyMiniDisplayInsideOctaveBoardComponent::paint(Graphics& g)
 {
-	bool isSelected = ((OctaveBoardComponent*)getParentComponent())->getIsSelected();
+	// ToDO IsSelected new functionality?
+	//bool isSelected = ((OctaveBoardComponent*)getParentComponent())->getIsSelected();
 
     Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-        .withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+     //   .withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+		.withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
 	Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
-	if ( !isSelected)
-        lineColour = lineColour.withAlpha(TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA);
+	//if ( !isSelected)
+ //       lineColour = lineColour.withAlpha(TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA);
 	g.setColour(lineColour);
 	g.strokePath(hexPath, PathStrokeType(1));
 }
@@ -118,6 +120,16 @@ OctaveBoardComponent::~OctaveBoardComponent()
 
 void OctaveBoardComponent::paint (Graphics& g)
 {
+	if ( isSelected)
+	{ 
+		Path bottomLine;
+		bottomLine.startNewSubPath(0.0f, float(getBottom()-3));
+		bottomLine.lineTo(float(getWidth()), float(getBottom()-3));
+
+		Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
+		g.setColour(lineColour);
+		g.strokePath(bottomLine, PathStrokeType(3.0f));
+	}
 }
 
 void OctaveBoardComponent::resized()
@@ -148,7 +160,7 @@ void OctaveBoardComponent::resized()
 		if (rowIndex % 2 == 0)
 			xbasepos = 0.0f;
 		else
-			xbasepos = 0.0f + newSingleKeySize / 2.0;
+			xbasepos = 0.0f + newSingleKeySize / 2.0f;
 
 		float ybasepos = 0.0f + 3.0f * rowIndex * newSingleKeySize / 4.0f;
 
@@ -192,6 +204,7 @@ void OctaveBoardComponent::mouseDown(const MouseEvent& e)
 
 void OctaveBoardComponent::setIsSelected(bool newValue)
 {
+	// ToDO new funcitonality
 	if (newValue != isSelected)
 	{
 		isSelected = newValue;

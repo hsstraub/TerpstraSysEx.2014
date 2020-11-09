@@ -75,6 +75,8 @@ NoteEditArea::NoteEditArea ()
 		octaveBoardSelectorTab->addTab("Section " + String(i + 1), juce::Colours::lightgrey, i + 1);
 	}
 
+	octaveBoardSelectorTab->addChangeListener(this);
+
 	// Single Key fields
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
 	{
@@ -95,8 +97,7 @@ NoteEditArea::NoteEditArea ()
 
 	// ToDo Default active tab from user settings
 
-	// Selection on first key
-	changeSingleKeySelection(0);
+	// Selection on first key: see MainCOmponent (Has to be done after change istener has been established
 
     //[/Constructor]
 }
@@ -200,7 +201,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 			changeSingleKeySelection(keyIndex);
 
 			// Perform the edit, according to edit mode. Including sending to device
-			auto setSelection = ((MainContentComponent*)getParentComponent())->getCurrentSetSelection();
+			auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
 			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE);
 
 			int editMode = editFunctionsTab->getCurrentTabIndex();
@@ -225,9 +226,14 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 	{
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-		repaint();	// Refresh key fields (all may be affected)
+		// Refresh key fields (all may be affected)
+		// repaint();	That should be enough - but is not. apparently...XXX
+		auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+		jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+		setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
 
-		// Todo Refresh all octave boards (all may be affected)
+
+		((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
 	}
 
     //[/UserCode_mouseDown]
@@ -248,6 +254,18 @@ void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->saveStateToPropertiesFile(propertiesFile);
 	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
 }
+
+void NoteEditArea::changeListenerCallback(ChangeBroadcaster *source)
+{
+	if (source == octaveBoardSelectorTab.get())
+	{
+		auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+		jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+
+		setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
+	}
+}
+
 
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
@@ -286,9 +304,10 @@ void NoteEditArea::changeSingleKeySelection(int newSelection)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers="currentSingleKeySelection(-1)"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="900" initialHeight="464">
+                 parentClasses="public Component, public ChangeListener" constructorParams=""
+                 variableInitialisers="currentSingleKeySelection(-1)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
+                 initialWidth="900" initialHeight="464">
   <METHODS>
     <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
   </METHODS>

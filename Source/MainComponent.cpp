@@ -15,7 +15,7 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
-	: currentSetSelection(-1), copiedSubBoardData()
+	: copiedSubBoardData()
 {
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -44,7 +44,7 @@ MainContentComponent::MainContentComponent()
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Select first board and first key
-	changeSetSelection(0);
+	noteEditArea->changeSingleKeySelection(0);
 }
 
 MainContentComponent::~MainContentComponent()
@@ -84,14 +84,11 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	noteEditArea->onSetData(newData);
 
-    if ( withRefresh)
-    {
-        for (int i = 0; i < NUMBEROFBOARDS; i++)
-            terpstraSetSelectors[i]->repaint();
-
-        changeSetSelection(-1);
-        changeSetSelection(0);	// ToDo NnoteEditAre - OctaveBoardSeleactorTab
-    }
+	if (withRefresh)
+	{
+		refreshAllKeysOverview();
+		// ToDo select first subset?
+	}
 }
 
 void MainContentComponent::deleteAll(bool withRefresh)
@@ -108,51 +105,54 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 
 bool MainContentComponent::deleteCurrentSubBoardData()
 {
-	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	{
-		// Delete subboard data
-		mappingData.sets[currentSetSelection] = TerpstraKeys();
+	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	//{
+	//	// Delete subboard data
+	//	mappingData.sets[currentSetSelection] = TerpstraKeys();
 
-		// Refresh display
-		changeSetSelection(currentSetSelection, true);
+	//	// Refresh display
+	//	changeSetSelection(currentSetSelection, true);
 
-		// Mark that there are changes
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+	//	// Mark that there are changes
+	//	TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-		return true;
-	}
-	else
+	//	return true;
+	//}
+	//else
+	//todo
 		return false;
 }
 
 bool MainContentComponent::copyCurrentSubBoardData()
 {
-	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	{
-		copiedSubBoardData = mappingData.sets[currentSetSelection];
-		return true;
-	}
-	else
+	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	//{
+	//	copiedSubBoardData = mappingData.sets[currentSetSelection];
+	//	return true;
+	//}
+	//else
+	//ToDo
 		return false;
 }
 
 bool MainContentComponent::pasteCurrentSubBoardData()
 {
-	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	{
-		if (!copiedSubBoardData.isEmpty())
-		{
-			mappingData.sets[currentSetSelection] = copiedSubBoardData;
+	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	//{
+	//	if (!copiedSubBoardData.isEmpty())
+	//	{
+	//		mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
-			// Refresh display
-			changeSetSelection(currentSetSelection, true);
+	//		// Refresh display
+	//		changeSetSelection(currentSetSelection, true);
 
-			// Mark that there are changes
-			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		}
-		return true;
-	}
-	else
+	//		// Mark that there are changes
+	//		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+	//	}
+	//	return true;
+	//}
+	//else
+	// ToDO
 		return false;
 }
 
@@ -231,7 +231,11 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 {
 	if (source == noteEditArea->getOctaveBoardSelectorTab())
 	{
-		changeSetSelection(noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex());
+		int newSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+		for (int i = 0; i < NUMBEROFBOARDS; i++)
+		{
+			terpstraSetSelectors[i]->setIsSelected(i == newSelection);
+		}
 	}
 }
 
@@ -287,23 +291,10 @@ void MainContentComponent::resized()
 	noteEditArea->setBounds(0, midiAreaHeight + newSubsetAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
 }
 
-void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)
+void MainContentComponent::refreshAllKeysOverview()
 {
-	if (newSelection != currentSetSelection || forceRefresh)
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		// Unselect previous set
-		// saving the data was done in click event on the single key fields
-		if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-			terpstraSetSelectors[currentSetSelection]->setIsSelected(false);
-
-		// Set data of new selection
-		if (newSelection >= 0 && newSelection < NUMBEROFBOARDS )
-			noteEditArea->setKeyFieldValues(mappingData.sets[newSelection]);
-
-		currentSetSelection = newSelection;
+		terpstraSetSelectors[i]->repaint();
 	}
-
-	// Set toggle state in any case (override default imagebutton functionality)
-	if ( currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS )
-		terpstraSetSelectors[currentSetSelection]->setIsSelected(true);
 }
