@@ -87,7 +87,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 	if (withRefresh)
 	{
 		refreshAllKeysOverview();
-		// ToDo select first subset?
+		noteEditArea->refreshKeyFields();
 	}
 }
 

@@ -228,10 +228,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 
 		// Refresh key fields (all may be affected)
 		// repaint();	That should be enough - but is not. apparently...XXX
-		auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
-		jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
-		setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
-
+		refreshKeyFields();
 
 		((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
 	}
@@ -291,6 +288,12 @@ void NoteEditArea::changeSingleKeySelection(int newSelection)
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
 }
 
+void NoteEditArea::refreshKeyFields()
+{
+	auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
+}
 //[/MiscUserCode]
 
 

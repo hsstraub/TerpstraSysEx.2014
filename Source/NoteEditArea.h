@@ -62,6 +62,8 @@ public:
 
 	void changeSingleKeySelection(int newSelection);
 
+	void refreshKeyFields();
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
