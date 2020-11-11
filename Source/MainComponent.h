@@ -12,7 +12,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "OctaveBoardComponent.h"
+//#include "OctaveBoardComponent.h
+#include "AllKeysOverview.h"
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
@@ -69,11 +70,12 @@ private:
 	//==============================================================================
 	// GUI components
 
-	// Sets of 55/56 keys
-	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
-
-	// Midi devices
+	// Midi devices and connection state
 	std::unique_ptr<MidiEditArea>		midiEditArea;
+
+	// Sets of 55/56 keys
+	//std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
+	std::unique_ptr<AllKeysOverview> allKeysOverview;
 
 	// Edit fields for setting key and button parameters, and edits for single keys
 	std::unique_ptr<NoteEditArea>	noteEditArea;

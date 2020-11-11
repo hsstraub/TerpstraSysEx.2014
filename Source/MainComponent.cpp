@@ -17,20 +17,24 @@
 MainContentComponent::MainContentComponent()
 	: copiedSubBoardData()
 {
-	// Key set fields
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		// Paint set fields from right to left
-		// (This will not matter any more when the images' backgrounds are transparent)
-		// Width and heigth: were taken from image
-		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
-		addAndMakeVisible(terpstraSetSelectors[4-i].get());
-		terpstraSetSelectors[4 - i]->addMouseListener(this, true);
-	}
-
 	// Midi input + output
 	midiEditArea.reset(new MidiEditArea());
 	addAndMakeVisible(midiEditArea.get());
+
+	// Key set fields
+	//for (int i = 0; i < NUMBEROFBOARDS; i++)
+	//{
+	//	// Paint set fields from right to left
+	//	// (This will not matter any more when the images' backgrounds are transparent)
+	//	// Width and heigth: were taken from image
+	//	terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
+	//	addAndMakeVisible(terpstraSetSelectors[4-i].get());
+	//	terpstraSetSelectors[4 - i]->addMouseListener(this, true);
+	//}
+
+	// All keys overview
+	allKeysOverview.reset(new AllKeysOverview());
+	addAndMakeVisible(allKeysOverview.get());
 
 	// Edit function area
 	noteEditArea.reset(new NoteEditArea());
@@ -51,12 +55,13 @@ MainContentComponent::~MainContentComponent()
 {
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		terpstraSetSelectors[i] = nullptr;
-	}
-
 	midiEditArea = nullptr;
+	//for (int i = 0; i < NUMBEROFBOARDS; i++)
+	//{
+	//	terpstraSetSelectors[i] = nullptr;
+	//}
+	allKeysOverview = nullptr;
+
 	noteEditArea = nullptr;
 }
 
@@ -222,7 +227,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& message)
                 }
             }
 
-            terpstraSetSelectors[boardNo-1]->repaint();
+			refreshAllKeysOverview();
         }
     }
 }
@@ -232,10 +237,10 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == noteEditArea->getOctaveBoardSelectorTab())
 	{
 		int newSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
-		for (int i = 0; i < NUMBEROFBOARDS; i++)
-		{
-			terpstraSetSelectors[i]->setIsSelected(i == newSelection);
-		}
+		//for (int i = 0; i < NUMBEROFBOARDS; i++)
+		//{
+		//	terpstraSetSelectors[i]->setIsSelected(i == newSelection);
+		//}
 	}
 }
 
@@ -263,38 +268,15 @@ void MainContentComponent::resized()
 	int noteEditAreaWidth = noteEditArea->getWidth();
 	int noteEditAreaHeight = noteEditArea->getHeight();
 
-	float newSubsetAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	int newKeysOverviewAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
-	// Resize factor for the subset field area and the subset fields
-	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / (DEFAULTMAINWINDOWHEIGHT - midiAreaHeight - noteEditAreaHeight);
-	jassert(newResizeFactor > 0.0);
-	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
-	jassert(newDecreaseFactor > 0.0);
-
-	// New position, width and height of subset fields
-	float newSubsetFirstYPos = midiAreaHeight + TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
-	float newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
-	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
-	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
-
-	// Key set fields
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		// Paint set fields from right to left
-		// (This will not matter any more when the images' backgrounds are transparent)
-		terpstraSetSelectors[4 - i]->setBounds(
-            roundToInt(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement),
-            roundToInt(newSubsetFirstYPos), newSubsetWidth, newSubsetHeight);
-	}
+	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
 	// Edit function/single key field area
-	noteEditArea->setBounds(0, midiAreaHeight + newSubsetAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
+	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
 }
 
 void MainContentComponent::refreshAllKeysOverview()
 {
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		terpstraSetSelectors[i]->repaint();
-	}
+	allKeysOverview->repaint();
 }

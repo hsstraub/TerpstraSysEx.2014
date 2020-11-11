@@ -49,7 +49,7 @@ NoteEditArea::NoteEditArea ()
     editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);
 
-    editFunctionsTab->setBounds (8, 48, 304, 422);
+    editFunctionsTab->setBounds (8, 48, 320, 422);
 
     labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
                                              TRANS("Assign Keys")));
@@ -316,7 +316,7 @@ BEGIN_JUCER_METADATA
   </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
   <TABBEDCOMPONENT name="editFunctionsTab" id="9eb88c4dce6dede9" memberName="editFunctionsTab"
-                   virtualName="" explicitFocusOrder="0" pos="8 48 304 422" orientation="top"
+                   virtualName="" explicitFocusOrder="0" pos="8 48 320 422" orientation="top"
                    tabBarDepth="30" initialTab="0">
     <TAB name="Manual Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="SingleNoteAssign"
          constructorParams="" jucerComponentFile=""/>

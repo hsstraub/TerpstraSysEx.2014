@@ -12,6 +12,10 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="vPxTHg" name="AllKeysOverview.cpp" compile="1" resource="0"
+            file="Source/AllKeysOverview.cpp"/>
+      <FILE id="WhW1Za" name="AllKeysOverview.h" compile="0" resource="0"
+            file="Source/AllKeysOverview.h"/>
       <FILE id="tYu9iO" name="KBMMappingDataStructure.cpp" compile="1" resource="0"
             file="Source/KBMMappingDataStructure.cpp"/>
       <FILE id="QS12kV" name="KBMMappingDataStructure.h" compile="0" resource="0"
@@ -23,10 +27,6 @@
       <FILE id="PFjU1P" name="KBMMappingDlg.cpp" compile="1" resource="0"
             file="Source/KBMMappingDlg.cpp"/>
       <FILE id="N6mYWM" name="KBMMappingDlg.h" compile="0" resource="0" file="Source/KBMMappingDlg.h"/>
-      <FILE id="zObTAR" name="OctaveBoardComponent.cpp" compile="1" resource="0"
-            file="Source/OctaveBoardComponent.cpp"/>
-      <FILE id="Pe60oV" name="OctaveBoardComponent.h" compile="0" resource="0"
-            file="Source/OctaveBoardComponent.h"/>
       <FILE id="fToFTX" name="ColourEditComponent.cpp" compile="1" resource="0"
             file="Source/ColourEditComponent.cpp"/>
       <FILE id="VbJRS2" name="ColourEditComponent.h" compile="0" resource="0"
@@ -37,8 +37,6 @@
             file="Source/VelocityCurveComponents.h"/>
       <FILE id="QI0Qip" name="VelocityCurveEditStrategy.cpp" compile="1"
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
-      <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
-            file="Source/VelocityCurveEditStrategy.h"/>
       <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
             file="Source/VelocityCurveDlgBase.cpp"/>
       <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
@@ -48,6 +46,8 @@
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
             file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
+        <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
+              file="Source/VelocityCurveEditStrategy.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
               file="Source/ScaleStructureController/GroupingCircle.cpp"/>
         <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
