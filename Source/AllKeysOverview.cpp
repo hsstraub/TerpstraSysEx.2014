@@ -193,12 +193,13 @@ void AllKeysOverview::paint (juce::Graphics& g)
 	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
 	{
 		Path selectionMarkPath;
-		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection].leftPos, getWidth());
-		selectionMarkPath.lineTo(octaveBoards[currentSetSelection].rightPos, getWidth());
+		auto yPos = getHeight() - TERPSTRAKEYSETVERTICALRIM / 2;
+		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection].leftPos, yPos);
+		selectionMarkPath.lineTo(octaveBoards[currentSetSelection].rightPos, yPos);
 
 		Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
 		g.setColour(lineColour);
-		g.strokePath(selectionMarkPath, PathStrokeType(3));
+		g.strokePath(selectionMarkPath, PathStrokeType(4));
 	}
 
     //[/UserPaint]
@@ -240,8 +241,6 @@ void AllKeysOverview::resized()
 				xbasepos = 6.0f * subBoardIndex * newSingleKeySize;
 			else
 				xbasepos = 6.0f * subBoardIndex * newSingleKeySize + newSingleKeySize / 2.0f;
-			// ToDo Rim to the left
-			// ToDO Centered?
 
 			float ybasepos = btnLoadFile->getBottom() + TERPSTRAKEYSETVERTICALRIM + subBoardIndex * newSingleKeySize * 3.0f / 2.0f + rowIndex * newSingleKeySize * 3.0f / 4.0f;
 
@@ -266,7 +265,7 @@ void AllKeysOverview::resized()
 	// Move key fields to bottom
 	if (mostBottomKeyPos < newHeight - TERPSTRAKEYSETVERTICALRIM)
 	{
-		int ydispacement = newHeight - TERPSTRAKEYSETVERTICALRIM - mostBottomKeyPos;
+		int ydispacement = (newHeight - TERPSTRAKEYSETVERTICALRIM - mostBottomKeyPos)/2;
 		for (subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 		{
 			for (keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)

@@ -92,12 +92,7 @@ NoteEditArea::NoteEditArea ()
 
     //[Constructor] You can add your own custom stuff here..
 
-	// First octaveboard selection
-	octaveBoardSelectorTab->setCurrentTabIndex(0, true);
-
-	// ToDo Default active tab from user settings
-
-	// Selection on first key: see MainCOmponent (Has to be done after change istener has been established
+	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change istener has been established)
 
     //[/Constructor]
 }

@@ -69,6 +69,9 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

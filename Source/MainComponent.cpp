@@ -21,17 +21,6 @@ MainContentComponent::MainContentComponent()
 	midiEditArea.reset(new MidiEditArea());
 	addAndMakeVisible(midiEditArea.get());
 
-	// Key set fields
-	//for (int i = 0; i < NUMBEROFBOARDS; i++)
-	//{
-	//	// Paint set fields from right to left
-	//	// (This will not matter any more when the images' backgrounds are transparent)
-	//	// Width and heigth: were taken from image
-	//	terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
-	//	addAndMakeVisible(terpstraSetSelectors[4-i].get());
-	//	terpstraSetSelectors[4 - i]->addMouseListener(this, true);
-	//}
-
 	// All keys overview
 	allKeysOverview.reset(new AllKeysOverview());
 	addAndMakeVisible(allKeysOverview.get());
@@ -48,6 +37,8 @@ MainContentComponent::MainContentComponent()
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Select first board and first key
+	// ToDo Default active tab from user settings
+	noteEditArea->getOctaveBoardSelectorTab()->setCurrentTabIndex(0, true);
 	noteEditArea->changeSingleKeySelection(0);
 }
 
@@ -236,11 +227,7 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 {
 	if (source == noteEditArea->getOctaveBoardSelectorTab())
 	{
-		int newSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
-		//for (int i = 0; i < NUMBEROFBOARDS; i++)
-		//{
-		//	terpstraSetSelectors[i]->setIsSelected(i == newSelection);
-		//}
+		allKeysOverview->setCurrentSetSelection(noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex());
 	}
 }
 

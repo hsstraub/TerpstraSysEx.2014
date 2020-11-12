@@ -74,7 +74,6 @@ private:
 	std::unique_ptr<MidiEditArea>		midiEditArea;
 
 	// Sets of 55/56 keys
-	//std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
 	std::unique_ptr<AllKeysOverview> allKeysOverview;
 
 	// Edit fields for setting key and button parameters, and edits for single keys
