@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "BoardGeometry.h"
 #include "ViewComponents.h"
+#include "MainComponent.h"
 
 //[/Headers]
 
@@ -33,10 +34,11 @@ static TerpstraBoardGeometry	boardGeometry;
 
 
 //==============================================================================
-KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int newKeyIndex)
+KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex)
 {
 	// In your constructor, you should add any child components, and
 	// initialise any special settings that your component needs.
+	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
 }
@@ -100,12 +102,13 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 
 Colour KeyMiniDisplayInsideAllKeysOverview::getKeyColour()
 {
-	if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 	{
-		// ToDo
-		//TerpstraKeys* pCurrentOctaveBoardData = ((OctaveBoardComponent*)getParentComponent())->getKeyData();
-		//if (pCurrentOctaveBoardData != nullptr)
-		//	return Colour(pCurrentOctaveBoardData->theKeys[keyIndex].colour);
+		jassert(getParentComponent() != nullptr);
+		jassert(getParentComponent()->getParentComponent() != nullptr);
+		return Colour(
+			dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent())
+			->getMappingInEdit().sets[boardIndex].theKeys[keyIndex].colour);
 	}
 
 	return findColour(TerpstraKeyEdit::backgroundColourId);
@@ -136,12 +139,12 @@ AllKeysOverview::AllKeysOverview ()
 
     //[UserPreSize]
 
-	for (int subBoardIndex = 0; subBoardIndex <NUMBEROFBOARDS; subBoardIndex++)
+	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
-		for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
 		{
-			octaveBoards[subBoardIndex].keyMiniDisplay[i].reset(new KeyMiniDisplayInsideAllKeysOverview(i));
-			addAndMakeVisible(octaveBoards[subBoardIndex].keyMiniDisplay[i].get());
+			octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].reset(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
+			addAndMakeVisible(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].get());
 		}
 	}
 

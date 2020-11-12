@@ -29,7 +29,7 @@
 class KeyMiniDisplayInsideAllKeysOverview : public Component
 {
 public:
-	KeyMiniDisplayInsideAllKeysOverview(int newKeyIndex);
+	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
 	~KeyMiniDisplayInsideAllKeysOverview();
 
 	void paint(Graphics&) override;
@@ -42,6 +42,7 @@ private:
 
 		Colour getKeyColour();
 
+	int boardIndex = -1;
 	int keyIndex = -1;
 	Path hexPath;
 };
