@@ -41,10 +41,6 @@
             file="Source/VelocityCurveDlgBase.cpp"/>
       <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
             file="Source/VelocityCurveDlgBase.h"/>
-      <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
-            file="Source/GeneralOptionsDlg.cpp"/>
-      <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
-            file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
         <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
               file="Source/VelocityCurveEditStrategy.h"/>
@@ -72,6 +68,10 @@
         <FILE id="xUZ6gr" name="TransparentDropDown.h" compile="0" resource="0"
               file="Source/ScaleStructureController/TransparentDropDown.h"/>
       </GROUP>
+      <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
+            file="Source/GeneralOptionsDlg.cpp"/>
+      <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
+            file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
         <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>

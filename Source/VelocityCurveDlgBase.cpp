@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -38,18 +38,18 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
-    lblDescription.reset (new Label ("lblDescription",
-                                     TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
+    lblDescription.reset (new juce::Label ("lblDescription",
+                                           TRANS("Click with the mouse in the graphics to draw the velocity curve.")));
     addAndMakeVisible (lblDescription.get());
-    lblDescription->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    lblDescription->setJustificationType (Justification::centredLeft);
+    lblDescription->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblDescription->setJustificationType (juce::Justification::centredLeft);
     lblDescription->setEditable (false, false, false);
-    lblDescription->setColour (TextEditor::textColourId, Colours::black);
-    lblDescription->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    lblDescription->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblDescription->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     lblDescription->setBounds (32, 104, 608, 32);
 
-    buttonSendAll.reset (new TextButton ("buttonSendAll"));
+    buttonSendAll.reset (new juce::TextButton ("buttonSendAll"));
     addAndMakeVisible (buttonSendAll.get());
     buttonSendAll->setTooltip (TRANS("Send whole velocity curve map to controller and save it there."));
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
@@ -57,7 +57,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     buttonSendAll->setBounds (312, 392, 144, 24);
 
-    buttonDiscard.reset (new TextButton ("buttonDiscard"));
+    buttonDiscard.reset (new juce::TextButton ("buttonDiscard"));
     addAndMakeVisible (buttonDiscard.get());
     buttonDiscard->setTooltip (TRANS("Discard velocity curve edits on controller."));
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
@@ -65,7 +65,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     buttonDiscard->setBounds (464, 368, 144, 24);
 
-    buttonSaveEdits.reset (new TextButton ("buttonSaveEdits"));
+    buttonSaveEdits.reset (new juce::TextButton ("buttonSaveEdits"));
     addAndMakeVisible (buttonSaveEdits.get());
     buttonSaveEdits->setTooltip (TRANS("Save velocity curve edits that have been sent on controller"));
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
@@ -73,11 +73,11 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     buttonSaveEdits->setBounds (160, 392, 144, 24);
 
-    cbEditMode.reset (new ComboBox ("cbEditMode"));
+    cbEditMode.reset (new juce::ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
-    cbEditMode->setJustificationType (Justification::centredLeft);
-    cbEditMode->setTextWhenNothingSelected (String());
+    cbEditMode->setJustificationType (juce::Justification::centredLeft);
+    cbEditMode->setTextWhenNothingSelected (juce::String());
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Free drawing"), 1);
     cbEditMode->addItem (TRANS("Linear"), 2);
@@ -86,51 +86,51 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     cbEditMode->setBounds (144, 72, 296, 24);
 
-    labelEditMode.reset (new Label ("labelEditMode",
-                                    TRANS("Edit Function:")));
+    labelEditMode.reset (new juce::Label ("labelEditMode",
+                                          TRANS("Edit Function:")));
     addAndMakeVisible (labelEditMode.get());
-    labelEditMode->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelEditMode->setJustificationType (Justification::centredLeft);
+    labelEditMode->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelEditMode->setJustificationType (juce::Justification::centredLeft);
     labelEditMode->setEditable (false, false, false);
-    labelEditMode->setColour (TextEditor::textColourId, Colours::black);
-    labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelEditMode->setBounds (32, 72, 103, 24);
 
-    cbPreset.reset (new ComboBox ("cbPreset"));
+    cbPreset.reset (new juce::ComboBox ("cbPreset"));
     addAndMakeVisible (cbPreset.get());
     cbPreset->setEditableText (true);
-    cbPreset->setJustificationType (Justification::centredLeft);
-    cbPreset->setTextWhenNothingSelected (String());
+    cbPreset->setJustificationType (juce::Justification::centredLeft);
+    cbPreset->setTextWhenNothingSelected (juce::String());
     cbPreset->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbPreset->addItem (TRANS("One to one"), 1);
     cbPreset->addListener (this);
 
     cbPreset->setBounds (144, 32, 296, 24);
 
-    labelPresets.reset (new Label ("labelPresets",
-                                   TRANS("Presets:")));
+    labelPresets.reset (new juce::Label ("labelPresets",
+                                         TRANS("Presets:")));
     addAndMakeVisible (labelPresets.get());
-    labelPresets->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelPresets->setJustificationType (Justification::centredLeft);
+    labelPresets->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelPresets->setJustificationType (juce::Justification::centredLeft);
     labelPresets->setEditable (false, false, false);
-    labelPresets->setColour (TextEditor::textColourId, Colours::black);
-    labelPresets->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelPresets->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelPresets->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelPresets->setBounds (32, 32, 107, 24);
 
-    labelCurrentBeamValue.reset (new Label ("labelCurrentBeamValue",
-                                            TRANS("127")));
+    labelCurrentBeamValue.reset (new juce::Label ("labelCurrentBeamValue",
+                                                  TRANS("127")));
     addAndMakeVisible (labelCurrentBeamValue.get());
-    labelCurrentBeamValue->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelCurrentBeamValue->setJustificationType (Justification::centredLeft);
+    labelCurrentBeamValue->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelCurrentBeamValue->setJustificationType (juce::Justification::centredLeft);
     labelCurrentBeamValue->setEditable (false, false, false);
-    labelCurrentBeamValue->setColour (TextEditor::textColourId, Colours::black);
-    labelCurrentBeamValue->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelCurrentBeamValue->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelCurrentBeamValue->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelCurrentBeamValue->setBounds (0, 152, 31, 24);
 
-    buttonReceive.reset (new TextButton ("buttonReceive"));
+    buttonReceive.reset (new juce::TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
     buttonReceive->setTooltip (TRANS("Receive the current configurartion from controller"));
     buttonReceive->setButtonText (TRANS("Receive"));
@@ -138,7 +138,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     buttonReceive->setBounds (8, 392, 144, 24);
 
-    buttonCalibrate.reset (new TextButton ("buttonCalibrate"));
+    buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
     buttonCalibrate->setTooltip (TRANS("Calibrate aftertouch"));
     buttonCalibrate->setButtonText (TRANS("Calibrate"));
@@ -146,7 +146,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     buttonCalibrate->setBounds (616, 368, 144, 24);
 
-    buttonAfterTouchActive.reset (new ToggleButton ("buttonAfterTouchActive"));
+    buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
     buttonAfterTouchActive->setButtonText (TRANS("Aftertouch active"));
     buttonAfterTouchActive->addListener (this);
@@ -215,12 +215,12 @@ VelocityCurveDlgBase::~VelocityCurveDlgBase()
 }
 
 //==============================================================================
-void VelocityCurveDlgBase::paint (Graphics& g)
+void VelocityCurveDlgBase::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffbad0de));
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -285,7 +285,7 @@ void VelocityCurveDlgBase::resized()
     //[/UserResized]
 }
 
-void VelocityCurveDlgBase::buttonClicked (Button* buttonThatWasClicked)
+void VelocityCurveDlgBase::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -343,7 +343,7 @@ void VelocityCurveDlgBase::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void VelocityCurveDlgBase::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
