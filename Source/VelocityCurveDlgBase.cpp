@@ -258,7 +258,7 @@ void VelocityCurveDlgBase::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-	float graphicsXPadding =  buttonReceive->getX();
+	float graphicsXPadding = labelEditMode->getX();
 	float graphicsBottom = h - pushButtonAreaHeight - labelCurrentXPos->getHeight();
 
 	beamTableFrame.clear();
@@ -271,16 +271,13 @@ void VelocityCurveDlgBase::resized()
 	if (currentCurveEditStrategy != nullptr)
 		currentCurveEditStrategy->resized();
 
-	float velocityBeamWidth = (w - 2 * graphicsXPadding) / 128;
 	float velocityGraphicsHeight = graphicsBottom - graphicsYPadding;
-
+	float velocityBeamXPos = graphicsXPadding;
 	for (int x = 0; x < 128; x++)
 	{
-		velocityBeamTable[x]->setBounds(
-			graphicsXPadding + x*velocityBeamWidth,
-			graphicsYPadding,
-			velocityBeamWidth,
-			velocityGraphicsHeight);
+		auto velocityBeamWidth = beamWidth(x);
+		velocityBeamTable[x]->setBounds(velocityBeamXPos, graphicsYPadding, velocityBeamWidth, velocityGraphicsHeight);
+		velocityBeamXPos += velocityBeamWidth;
 	}
 
 	int buttonYPos = h - pushButtonAreaHeight + (pushButtonAreaHeight - buttonSendAll->getHeight())/2;

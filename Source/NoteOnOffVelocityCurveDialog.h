@@ -12,6 +12,8 @@
 
 #include "VelocityCurveDlgBase.h"
 
+#define VELOCITYINTERVALTABLESIZE 127
+
 // Note on/on velocity curve dialog. Horizontal axis stands for ticks
 class NoteOnOffVelocityCurveDialog : public VelocityCurveDlgBase
 {
@@ -31,4 +33,8 @@ protected:
 	float milliSecondsFromTicksCount(int ticksCount) const { return 1.1f * ticksCount; }
 
 	virtual String beamXPosText(int xPos) const override;
+	virtual float beamWidth(int xPos) const override;
+
+private:
+	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
 };

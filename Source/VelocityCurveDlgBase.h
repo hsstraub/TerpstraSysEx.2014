@@ -70,6 +70,7 @@ public:
 protected:
 	virtual String beamValueText(int beamValue) const { return String(beamValue); }
 	virtual String beamXPosText(int xPos) const { return String(xPos); }
+	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * labelEditMode->getX()) / 128.0f; }
 
 public:
     //[/UserMethods]

@@ -17,16 +17,35 @@ NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
 	: VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
 {
 	labelCurrentXPos->setSize(128, labelCurrentXPos->getHeight());
+
+	// Default interval table: equal division
+	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+	{
+		velocityIntervalTableValues[i] = ticksCountFromXPos(i+1);
+	}
 }
 
-void NoteOnOffVelocityCurveDialog::midiMessageReceived(const MidiMessage& message)
+void NoteOnOffVelocityCurveDialog::midiMessageReceived(const MidiMessage& midiMessage)
 {
-	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(message))
+	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
 	{
-		// ToDO
+		auto sysExData = midiMessage.getSysExData();
+		auto answerState = sysExData[5];
+
+		if (answerState == TerpstraMidiDriver::ACK)
+		{
+			// After the answer state byte there must be 254 bytes of data
+			jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
+
+			for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+				velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
+		}
+
+		resized();
+		repaint();
 	}
 	else
-		__super::midiMessageReceived(message);
+		__super::midiMessageReceived(midiMessage);
 }
 
 String NoteOnOffVelocityCurveDialog::beamXPosText(int xPos) const
@@ -34,4 +53,25 @@ String NoteOnOffVelocityCurveDialog::beamXPosText(int xPos) const
 	auto ticksCount = ticksCountFromXPos(xPos);
 
 	{ return String(ticksCount) + " ticks (" + String(milliSecondsFromTicksCount(ticksCount)) + " ms)"; }
+}
+
+float NoteOnOffVelocityCurveDialog::beamWidth(int xPos) const
+{
+	if (xPos == 0)
+	{
+		return (getWidth() - 2.0f * labelEditMode->getX()) * velocityIntervalTableValues[0] / 2048.0f;
+	}
+	else if (xPos < VELOCITYINTERVALTABLESIZE)
+	{
+		return (getWidth() - 2.0f * labelEditMode->getX()) * (velocityIntervalTableValues[xPos] - velocityIntervalTableValues[xPos-1]) / 2048.0f;
+	}
+	else if (xPos == VELOCITYINTERVALTABLESIZE)
+	{
+		return (getWidth() - 2.0f * labelEditMode->getX()) * (2048.0f - velocityIntervalTableValues[xPos-1]) / 2048.0f;
+	}
+	else
+	{
+		jassertfalse;
+		return 1;
+	}
 }
