@@ -49,17 +49,14 @@ void TerpstraKeyMapping::clearAll()
 
 /*
 ==============================================================================
-Read data 
+Read data
 ==============================================================================
 */
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
-	// Buffe data in case stringArray is from an older 56-keys subset 
-	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
-		fiftysixthKeys[boardIndex] = TerpstraKey();
+	bool hasFiftySixKeys = false;
 
 	int boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
@@ -87,8 +84,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
-					else if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].noteNumber = keyValue;
 					else
 						jassert(false);
 				}
@@ -106,9 +101,12 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+                    {
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
-					else if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].channelNumber = keyValue;
+
+						if ( keyIndex == 55)
+                            hasFiftySixKeys = true;
+                    }
 					else
 						jassert(false);
 				}
@@ -127,16 +125,12 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].colour = colValue;
-					else if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].colour = colValue;
 					else
 						jassert(false);
 				}
 				else
 					jassert(false);
 			}
-			else
-				jassert(false);
 		}
 		else if ((pos1 = currentLine.indexOf("KTyp_")) >= 0)
 		{
@@ -149,32 +143,23 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
-					else if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
 					else
 						jassert(false);
 				}
-				else
-					jassert(false);
 			}
 			else
 				jassert(false);
 		}
 	}
 
-	// If it was a 56-key layout, convert to 55-key layout
-	bool fromFiftySixKeys = false;
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
-		fromFiftySixKeys |= (!fiftysixthKeys[boardIndex].isEmpty());
-
-	if (fromFiftySixKeys)
+	// if it was a 55-key layout, convert to new 56-key layout
+	// ToDo Also convert from old 56-key layout? For this we will have to know the version
+	if (!hasFiftySixKeys)
 	{
 		for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		{
-			for (int keyIndex = 7; keyIndex < 54; keyIndex++)
-				sets[boardIndex].theKeys[keyIndex] = sets[boardIndex].theKeys[keyIndex + 1];
-
-			sets[boardIndex].theKeys[54] = fiftysixthKeys[boardIndex];
+			sets[boardIndex].theKeys[55] = sets[boardIndex].theKeys[54];
+			sets[boardIndex].theKeys[54] = TerpstraKey();
 		}
 	}
 }
@@ -187,6 +172,8 @@ Write data
 StringArray TerpstraKeyMapping::toStringArray()
 {
 	StringArray result;
+
+	// ToDO Write version (for detection of old 56-key layout - those will be layouts with 56 keys but without version)
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 	{
 		result.add("[Board" + String(boardIndex) + "]");
