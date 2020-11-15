@@ -50,9 +50,11 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	virtual void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	virtual void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
 	virtual void sendVelocityTableToController();
+	virtual void sendVelocityConfigurationRequest();
 
 	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
@@ -115,8 +117,6 @@ protected:
     std::unique_ptr<juce::TextButton> buttonSaveEdits;
     std::unique_ptr<juce::ComboBox> cbEditMode;
     std::unique_ptr<juce::Label> labelEditMode;
-    std::unique_ptr<juce::ComboBox> cbPreset;
-    std::unique_ptr<juce::Label> labelPresets;
     std::unique_ptr<juce::Label> labelCurrentBeamValue;
     std::unique_ptr<juce::TextButton> buttonReceive;
     std::unique_ptr<juce::TextButton> buttonCalibrate;

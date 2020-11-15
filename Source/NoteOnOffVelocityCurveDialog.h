@@ -20,13 +20,14 @@ class NoteOnOffVelocityCurveDialog : public VelocityCurveDlgBase
 public:
 	//==============================================================================
 	NoteOnOffVelocityCurveDialog();
+	~NoteOnOffVelocityCurveDialog() override;
 
-	// ToDo
-	//virtual void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile) override;
-	//virtual void saveStateToPropertiesFile(PropertiesFile* propertiesFile) override;
-	//virtual void sendVelocityTableToController() override;
+	void restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile);
 
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	virtual void sendVelocityTableToController() override;
+	virtual void sendVelocityConfigurationRequest() override;
+	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
 
 protected:
 	int ticksCountFromXPos(int xPos) const { return xPos * 16; }

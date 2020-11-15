@@ -21,8 +21,63 @@ NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
 	// Default interval table: equal division
 	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
 	{
-		velocityIntervalTableValues[i] = ticksCountFromXPos(i+1);
+		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
 	}
+
+	restoreIntervalTableFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+}
+
+NoteOnOffVelocityCurveDialog::~NoteOnOffVelocityCurveDialog()
+{
+	saveIntervalTableToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
+}
+
+void NoteOnOffVelocityCurveDialog::restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+	String intervalTableString = propertiesFile->getValue("NoteOnOffVelocityIntervalTable");
+	// ToDo Saved string from older version, with drawing stategy and values -1: to be ignored 
+
+	StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
+	if (intervalTableValueArray.size() > 0)
+	{
+		jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
+
+		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+		{
+			velocityIntervalTableValues[i] = intervalTableValueArray[i].getIntValue();
+		}
+	}
+	else
+	{
+		// Default interval table: equal division
+		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+		{
+			velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
+		}
+	}
+}
+
+void NoteOnOffVelocityCurveDialog::saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile)
+{
+	String intervalTableString;
+	for (auto intervalTableValue : velocityIntervalTableValues)
+		intervalTableString += String(intervalTableValue) + " ";
+
+	propertiesFile->setValue("NoteOnOffVelocityIntervalTable", intervalTableString);
+}
+
+void NoteOnOffVelocityCurveDialog::sendVelocityTableToController()
+{
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(velocityIntervalTableValues);
+
+	__super::sendVelocityTableToController();
+}
+
+void NoteOnOffVelocityCurveDialog::sendVelocityConfigurationRequest()
+{
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
+
+	__super::sendVelocityConfigurationRequest();
 }
 
 void NoteOnOffVelocityCurveDialog::midiMessageReceived(const MidiMessage& midiMessage)

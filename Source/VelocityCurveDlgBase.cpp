@@ -47,7 +47,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     lblDescription->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     lblDescription->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    lblDescription->setBounds (32, 96, 608, 24);
+    lblDescription->setBounds (32, 64, 608, 24);
 
     buttonSendAll.reset (new juce::TextButton ("buttonSendAll"));
     addAndMakeVisible (buttonSendAll.get());
@@ -84,7 +84,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     cbEditMode->addItem (TRANS("Quadratic"), 3);
     cbEditMode->addListener (this);
 
-    cbEditMode->setBounds (144, 64, 296, 24);
+    cbEditMode->setBounds (144, 32, 296, 24);
 
     labelEditMode.reset (new juce::Label ("labelEditMode",
                                           TRANS("Edit Function:")));
@@ -95,29 +95,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     labelEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     labelEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelEditMode->setBounds (32, 64, 103, 16);
-
-    cbPreset.reset (new juce::ComboBox ("cbPreset"));
-    addAndMakeVisible (cbPreset.get());
-    cbPreset->setEditableText (true);
-    cbPreset->setJustificationType (juce::Justification::centredLeft);
-    cbPreset->setTextWhenNothingSelected (juce::String());
-    cbPreset->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbPreset->addItem (TRANS("One to one"), 1);
-    cbPreset->addListener (this);
-
-    cbPreset->setBounds (144, 32, 296, 24);
-
-    labelPresets.reset (new juce::Label ("labelPresets",
-                                         TRANS("Presets:")));
-    addAndMakeVisible (labelPresets.get());
-    labelPresets->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelPresets->setJustificationType (juce::Justification::centredLeft);
-    labelPresets->setEditable (false, false, false);
-    labelPresets->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelPresets->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelPresets->setBounds (32, 32, 107, 16);
+    labelEditMode->setBounds (32, 32, 103, 16);
 
     labelCurrentBeamValue.reset (new juce::Label ("labelCurrentBeamValue",
                                                   TRANS("127")));
@@ -128,7 +106,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     labelCurrentBeamValue->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     labelCurrentBeamValue->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelCurrentBeamValue->setBounds (0, 152, 31, 16);
+    labelCurrentBeamValue->setBounds (0, 120, 31, 16);
 
     buttonReceive.reset (new juce::TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
@@ -162,7 +140,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     labelCurrentXPos->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     labelCurrentXPos->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelCurrentXPos->setBounds (40, 152, 31, 16);
+    labelCurrentXPos->setBounds (40, 120, 31, 16);
 
 
     //[UserPreSize]
@@ -213,8 +191,6 @@ VelocityCurveDlgBase::~VelocityCurveDlgBase()
     buttonSaveEdits = nullptr;
     cbEditMode = nullptr;
     labelEditMode = nullptr;
-    cbPreset = nullptr;
-    labelPresets = nullptr;
     labelCurrentBeamValue = nullptr;
     buttonReceive = nullptr;
     buttonCalibrate = nullptr;
@@ -331,10 +307,7 @@ void VelocityCurveDlgBase::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == buttonReceive.get())
     {
         //[UserButtonCode_buttonReceive] -- add your button handler code here..
-        TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(velocityCurveType);
-
-        // ToDo Handle MIDI answer
-
+        sendVelocityConfigurationRequest();
         //[/UserButtonCode_buttonReceive]
     }
     else if (buttonThatWasClicked == buttonCalibrate.get())
@@ -389,30 +362,6 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 		repaint();
         //[/UserComboBoxCode_cbEditMode]
-    }
-    else if (comboBoxThatHasChanged == cbPreset.get())
-    {
-        //[UserComboBoxCode_cbPreset] -- add your combo box handling code here..
-
-		int presetIndex = cbPreset->getSelectedItemIndex();
-
-		// Show sub window corresponding to selected edit mode
-		switch (presetIndex)
-		{
-		case 0:
-			// Currently only preset is "one to one"
-			for (int x = 0; x < 128; x++)
-				velocityBeamTable[x]->setValue(x);
-			sendVelocityTableToController();
-			break;
-		}
-
-		if (currentCurveEditStrategy != nullptr)
-			currentCurveEditStrategy->setEditConfigFromVelocityTable();
-
-		repaint();
-
-        //[/UserComboBoxCode_cbPreset]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -550,6 +499,11 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
 }
 
+void VelocityCurveDlgBase::sendVelocityConfigurationRequest()
+{
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(velocityCurveType);
+}
+
 void VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)
 {
 	if (beamTableFrame.contains(localPoint))
@@ -617,9 +571,6 @@ void VelocityCurveDlgBase::mouseDown(const MouseEvent &event)
 		if (currentCurveEditStrategy->mouseDown(event, localPoint))
 		{
 			repaint();
-
-			// If something was edited: Unselect preset
-			cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
 		}
 	}
 }
@@ -635,9 +586,6 @@ void VelocityCurveDlgBase::mouseDrag(const MouseEvent &event)
 		if (currentCurveEditStrategy->mouseDrag(event, localPoint))
 		{
 			repaint();
-
-			// If something was edited: Unselect preset
-			cbPreset->setSelectedItemIndex(-1, juce::NotificationType::dontSendNotification);
 		}
 	}
 }
@@ -697,7 +645,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="1" initialWidth="768" initialHeight="424">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblDescription" id="e1affcc7a142cab2" memberName="lblDescription"
-         virtualName="" explicitFocusOrder="0" pos="32 96 608 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 64 608 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Click with the mouse in the graphics to draw the velocity curve."
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -715,24 +663,16 @@ BEGIN_JUCER_METADATA
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="144 64 296 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="144 32 296 24" editable="0"
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="32 64 103 16" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="32 32 103 16" edTextCol="ff000000"
          edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
-  <COMBOBOX name="cbPreset" id="e5845a95b8b0cb19" memberName="cbPreset" virtualName=""
-            explicitFocusOrder="0" pos="144 32 296 24" editable="1" layout="33"
-            items="One to one" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="labelPresets" id="aa3a0484f33857d9" memberName="labelPresets"
-         virtualName="" explicitFocusOrder="0" pos="32 32 107 16" edTextCol="ff000000"
-         edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="0 152 31 16" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 120 31 16" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -746,7 +686,7 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="144 0 144 24" buttonText="Aftertouch active"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <LABEL name="labelCurrentXPos" id="f2fe328e83d5b29" memberName="labelCurrentXPos"
-         virtualName="" explicitFocusOrder="0" pos="40 152 31 16" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="40 120 31 16" edTextCol="ff000000"
          edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
