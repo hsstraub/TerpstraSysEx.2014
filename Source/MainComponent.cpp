@@ -37,8 +37,10 @@ MainContentComponent::MainContentComponent()
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Select first board and first key
-	// ToDo Default active tab from user settings
 	noteEditArea->getOctaveBoardSelectorTab()->setCurrentTabIndex(0, true);
+	// The above call is supposed to update changeListener - but apaprently doesn't... Call it manually then. XXX
+	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
+
 	noteEditArea->changeSingleKeySelection(0);
 }
 

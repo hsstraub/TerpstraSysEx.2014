@@ -45,7 +45,7 @@ SingleNoteAssign::SingleNoteAssign ()
     editInstructionText->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     editInstructionText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    editInstructionText->setBounds (8, 8, 352, 32);
+    editInstructionText->setBounds (8, 8, 304, 32);
 
     noteBox.reset (new juce::ComboBox ("noteBox"));
     addAndMakeVisible (noteBox.get());
@@ -132,7 +132,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->addItem (TRANS("Note on/Note off with Lumatouch"), 3);
     keyTypeCombo->addListener (this);
 
-    keyTypeCombo->setBounds (120, 64, 232, 24);
+    keyTypeCombo->setBounds (120, 64, 192, 24);
 
     juce__groupComponent.reset (new juce::GroupComponent ("autoIncrementgroup",
                                                           TRANS("Auto-Increment:")));
@@ -144,7 +144,7 @@ SingleNoteAssign::SingleNoteAssign ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (304, 400);
+    setSize (320, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -423,10 +423,10 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="304" initialHeight="400">
+                 fixedSize="0" initialWidth="320" initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 8 352 32" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="8 8 304 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Define which values you'd like to apply to a key, and then click on the desired key-face"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -459,7 +459,7 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="8 64 112 24" buttonText="Key type:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
-            virtualName="" explicitFocusOrder="0" pos="120 64 232 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="120 64 192 24" editable="0"
             layout="33" items="Note on/Note off&#10;Continuous controller&#10;Note on/Note off with Lumatouch"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <GROUPCOMPONENT name="autoIncrementgroup" id="249745a33736e282" memberName="juce__groupComponent"

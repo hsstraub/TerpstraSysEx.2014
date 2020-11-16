@@ -50,8 +50,11 @@ KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 {
+	jassert(getParentComponent() != nullptr);
+	bool isSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
+
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-		.withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
+		.withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
