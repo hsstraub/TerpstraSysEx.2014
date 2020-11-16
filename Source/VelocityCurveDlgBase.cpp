@@ -55,7 +55,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonSendAll->setButtonText (TRANS("Send & Save All"));
     buttonSendAll->addListener (this);
 
-    buttonSendAll->setBounds (312, 392, 144, 24);
+    buttonSendAll->setBounds (320, 392, 136, 24);
 
     buttonDiscard.reset (new juce::TextButton ("buttonDiscard"));
     addAndMakeVisible (buttonDiscard.get());
@@ -63,7 +63,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonDiscard->setButtonText (TRANS("Discard Edits"));
     buttonDiscard->addListener (this);
 
-    buttonDiscard->setBounds (464, 392, 144, 24);
+    buttonDiscard->setBounds (464, 392, 136, 24);
 
     buttonSaveEdits.reset (new juce::TextButton ("buttonSaveEdits"));
     addAndMakeVisible (buttonSaveEdits.get());
@@ -71,7 +71,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonSaveEdits->setButtonText (TRANS("Save Edits"));
     buttonSaveEdits->addListener (this);
 
-    buttonSaveEdits->setBounds (160, 392, 144, 24);
+    buttonSaveEdits->setBounds (176, 392, 136, 24);
 
     cbEditMode.reset (new juce::ComboBox ("cbEditMode"));
     addAndMakeVisible (cbEditMode.get());
@@ -114,7 +114,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonReceive->setButtonText (TRANS("Receive"));
     buttonReceive->addListener (this);
 
-    buttonReceive->setBounds (8, 392, 144, 24);
+    buttonReceive->setBounds (32, 392, 136, 24);
 
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
@@ -122,7 +122,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     buttonCalibrate->setButtonText (TRANS("Calibrate"));
     buttonCalibrate->addListener (this);
 
-    buttonCalibrate->setBounds (616, 392, 144, 24);
+    buttonCalibrate->setBounds (608, 392, 136, 24);
 
     buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
@@ -504,39 +504,43 @@ void VelocityCurveDlgBase::sendVelocityConfigurationRequest()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(velocityCurveType);
 }
 
-void VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)
+bool VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)
 {
 	if (beamTableFrame.contains(localPoint))
 	{
-		// Show the field with the current beam value
-		labelCurrentBeamValue->setVisible(true);
-		labelCurrentBeamValue->setBounds(
-			jmin(roundToInt(localPoint.x), getWidth() - labelCurrentBeamValue->getWidth()),
-			localPoint.y - labelCurrentBeamValue->getHeight(),
-			labelCurrentBeamValue->getWidth(),
-			labelCurrentBeamValue->getHeight());
-
-		// Value
-		labelCurrentBeamValue->setText(beamValueText(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
-
-		// Show x value (beam position)
         int beamTableLeft = velocityBeamTable[0]->getX();
         int beamTableRight = velocityBeamTable[127]->getRight();
         int xpos = (localPoint.x - beamTableLeft) * 128 / (beamTableRight - beamTableLeft);
-        if (xpos >=0 && xpos < 128)
+        if (xpos >= 0 && xpos < 128)
         {
-            labelCurrentXPos->setVisible(true);
-            labelCurrentXPos->setBounds(
+			// Show the field with the current beam value
+			labelCurrentBeamValue->setVisible(true);
+			labelCurrentBeamValue->setBounds(
+				jmin(roundToInt(localPoint.x), getWidth() - labelCurrentBeamValue->getWidth()),
+				localPoint.y - labelCurrentBeamValue->getHeight(),
+				labelCurrentBeamValue->getWidth(),
+				labelCurrentBeamValue->getHeight());
+
+			// Value
+			labelCurrentBeamValue->setText(beamValueText(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
+
+			// Show x value (beam position)
+			labelCurrentXPos->setVisible(true);
+			labelCurrentXPos->setBounds(
 				jmin(roundToInt(localPoint.x), getWidth() - labelCurrentXPos->getWidth()),
 				velocityBeamTable[0]->getBottom(),
                 labelCurrentXPos->getWidth(),
                 labelCurrentXPos->getHeight());
             labelCurrentXPos->setText(beamXPosText(xpos), juce::NotificationType::sendNotification);
+
+			return true;
         }
         else
         {
             labelCurrentBeamValue->setVisible(false);
             labelCurrentXPos->setVisible(false);
+
+			return false;
         }
 	}
 	else
@@ -544,6 +548,8 @@ void VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> local
 		// Hide fields
 		labelCurrentBeamValue->setVisible(false);
 		labelCurrentXPos->setVisible(false);
+
+		return false;
     }
 }
 
@@ -551,13 +557,13 @@ void VelocityCurveDlgBase::mouseMove(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	showBeamValueOfMousePosition(localPoint);
+	bool doRepaint = showBeamValueOfMousePosition(localPoint);
 
 	if (currentCurveEditStrategy != nullptr)
-	{
-		if (currentCurveEditStrategy->mouseMove(event, localPoint))
-			repaint();
-	}
+		doRepaint |= currentCurveEditStrategy->mouseMove(event, localPoint);
+
+	if (doRepaint)
+		repaint();
 }
 
 void VelocityCurveDlgBase::mouseDown(const MouseEvent &event)
@@ -651,15 +657,15 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <TEXTBUTTON name="buttonSendAll" id="71e432722656a5b7" memberName="buttonSendAll"
-              virtualName="" explicitFocusOrder="0" pos="312 392 144 24" tooltip="Send whole velocity curve map to controller and save it there."
+              virtualName="" explicitFocusOrder="0" pos="320 392 136 24" tooltip="Send whole velocity curve map to controller and save it there."
               buttonText="Send &amp; Save All" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonDiscard" id="8943d46ddc434616" memberName="buttonDiscard"
-              virtualName="" explicitFocusOrder="0" pos="464 392 144 24" tooltip="Discard velocity curve edits on controller."
+              virtualName="" explicitFocusOrder="0" pos="464 392 136 24" tooltip="Discard velocity curve edits on controller."
               buttonText="Discard Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TEXTBUTTON name="buttonSaveEdits" id="b3ed9064acdde93" memberName="buttonSaveEdits"
-              virtualName="" explicitFocusOrder="0" pos="160 392 144 24" tooltip="Save velocity curve edits that have been sent on controller"
+              virtualName="" explicitFocusOrder="0" pos="176 392 136 24" tooltip="Save velocity curve edits that have been sent on controller"
               buttonText="Save Edits" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
@@ -677,10 +683,10 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="buttonReceive" id="5545cd9fc9bd20cb" memberName="buttonReceive"
-              virtualName="" explicitFocusOrder="0" pos="8 392 144 24" tooltip="Receive the current configurartion from controller"
+              virtualName="" explicitFocusOrder="0" pos="32 392 136 24" tooltip="Receive the current configurartion from controller"
               buttonText="Receive" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="buttonCalibrate" id="47242594c34a8de9" memberName="buttonCalibrate"
-              virtualName="" explicitFocusOrder="0" pos="616 392 144 24" tooltip="Calibrate aftertouch"
+              virtualName="" explicitFocusOrder="0" pos="608 392 136 24" tooltip="Calibrate aftertouch"
               buttonText="Calibrate" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="buttonAfterTouchActive" id="3f2eba6027c4f2f5" memberName="buttonAfterTouchActive"
                 virtualName="" explicitFocusOrder="0" pos="144 0 144 24" buttonText="Aftertouch active"

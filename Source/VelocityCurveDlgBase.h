@@ -56,7 +56,7 @@ public:
 	virtual void sendVelocityTableToController();
 	virtual void sendVelocityConfigurationRequest();
 
-	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
+	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
