@@ -21,6 +21,7 @@
 #include "BoardGeometry.h"
 #include "ViewComponents.h"
 #include "MainComponent.h"
+#include "Main.h"
 
 //[/Headers]
 
@@ -287,11 +288,13 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnLoadFile.get())
     {
         //[UserButtonCode_btnLoadFile] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().openSysExMapping();
         //[/UserButtonCode_btnLoadFile]
     }
     else if (buttonThatWasClicked == btnSaveFile.get())
     {
         //[UserButtonCode_btnSaveFile] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().saveSysExMappingAs();
         //[/UserButtonCode_btnSaveFile]
     }
 

@@ -8,11 +8,9 @@
   ==============================================================================
 */
 
-#ifndef MAIN_H_INCLUDED
-#define MAIN_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MainMenu.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -46,12 +44,6 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel.get(); }
-
-	// Menu functionality
-	void getAllCommands(Array <CommandID>& commands) override;
-	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
-	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
 	bool saveSysExMapping();
@@ -125,8 +117,7 @@ public:
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
-	std::unique_ptr<ApplicationCommandManager> commandManager;
-	std::unique_ptr<TerpstraSysExMainMenuModel> menuModel;
+	//std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LookAndFeel_V3				lookAndFeel;
@@ -139,5 +130,3 @@ private:
 	TerpstraMidiDriver			midiDriver;
 };
 
-
-#endif  // MAIN_H_INCLUDED

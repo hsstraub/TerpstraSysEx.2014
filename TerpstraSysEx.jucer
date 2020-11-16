@@ -122,8 +122,6 @@
             file="Source/ViewComponents.cpp"/>
       <FILE id="DfBSef" name="ViewComponents.h" compile="0" resource="0"
             file="Source/ViewComponents.h"/>
-      <FILE id="HAyzGx" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
-      <FILE id="iBGzO1" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
       <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
             file="Source/KeyboardDataStructure.h"/>
       <FILE id="eoBUqq" name="MainComponent.cpp" compile="1" resource="0"
