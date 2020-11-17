@@ -169,7 +169,7 @@ public:
 
 	void sendCalibrateAfterTouch();
 
-	void sendVelocityIntervalConfig(int velocityIntervalTable[]);
+    void sendVelocityIntervalConfig(int velocityIntervalTable[]);
 
 	void sendRedLEDConfigurationRequest(int boardIndex);
 

@@ -278,6 +278,7 @@ void TerpstraMidiDriver::sendVelocityConfigurationRequest(VelocityCurveType velo
     }
 }
 
+
 void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
 {
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');

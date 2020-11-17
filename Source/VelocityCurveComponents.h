@@ -20,10 +20,9 @@ Display of one beam in a velocity curve table
 class VelocityCurveBeam : public Component
 {
 public:
-	VelocityCurveBeam(int newMaxValue = 127);
+	VelocityCurveBeam();
 	~VelocityCurveBeam();
 
-	int getMaxValue() const { return maxValue; }
 	int getValue() const { return beamValue; }
 	void setValue(int newValue);
 	void setValueAtLeast(int newValue);
@@ -47,7 +46,5 @@ public:
 	};
 
 private:
-    const int maxValue = 127;
-	int beamValue = 0;
+	int beamValue;
 };
-

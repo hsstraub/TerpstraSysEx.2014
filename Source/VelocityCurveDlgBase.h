@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -20,11 +20,12 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include <JuceHeader.h>
+#include "../JuceLibraryCode/JuceHeader.h"
 
 #include "VelocityCurveComponents.h"
 #include "VelocityCurveEditStrategy.h"
 #include "TerpstraMidiDriver.h"
+
 //[/Headers]
 
 
@@ -32,28 +33,30 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Projucer.
+An auto-generated component, created by the Projucer.
 
-    Describe your class and how it works here!
+Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class VelocityCurveSubDlg  : public Component,
-                             public TerpstraMidiDriver::Listener,
-                             public ComboBox::Listener
+class VelocityCurveDlgBase  : public Component,
+                              public TerpstraMidiDriver::Listener,
+                              public juce::Button::Listener,
+                              public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
-    VelocityCurveSubDlg (TerpstraMidiDriver::VelocityCurveType typeValue, int newMaxBeamValue, int tableSizeValue);
-    ~VelocityCurveSubDlg() override;
+    VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue);
+    ~VelocityCurveDlgBase() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void restoreStateFromPropertiesString(const String& propertiesString);
-	String saveStateToPropertiesString();
-	void sendVelocityTableToController();
+	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-	virtual String beamValueText(int beamValue) const { return String(beamValue); }
-	virtual void showBeamValueOfMousePosition(juce::Point<float> localPoint);
+	virtual void sendVelocityTableToController();
+	virtual void sendVelocityConfigurationRequest();
+
+	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
@@ -61,21 +64,28 @@ public:
 	void mouseUp(const MouseEvent &event);
 
 	// Implementation of TerpstraNidiDriver::Listener
-	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+
+protected:
+	virtual String beamValueText(int beamValue) const { return String(beamValue); }
+	virtual String beamXPosText(int xPos) const { return String(xPos); }
+	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * labelEditMode->getX()) / 128.0f; }
+
+public:
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-protected:
 	typedef enum
 	{
 		none = -1,
@@ -84,45 +94,41 @@ protected:
 		quadraticCurves = 2
 	} EDITSTRATEGYINDEX;
 
-    const TerpstraMidiDriver::VelocityCurveType velocityCurveType;
-    const int maxBeamValue;
-    const int tableSize;
 
+	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
-	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];  // ToDO Actually, it is tableSize
+	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
 	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
 
-	const float graphicsYPadding = 18.0f;
+	const float graphicsYPadding = 136.0f;
+	const float pushButtonAreaHeight = 36.0f;
+
+protected:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> lblDescription;
-    std::unique_ptr<ComboBox> cbEditMode;
-    std::unique_ptr<Label> labelEditMode;
-    std::unique_ptr<ComboBox> cbPreset;
-    std::unique_ptr<Label> labelPresets;
-    std::unique_ptr<Label> labelCurrentBeamValue;
+    std::unique_ptr<juce::Label> lblDescription;
+    std::unique_ptr<juce::TextButton> buttonSendAll;
+    std::unique_ptr<juce::TextButton> buttonDiscard;
+    std::unique_ptr<juce::TextButton> buttonSaveEdits;
+    std::unique_ptr<juce::ComboBox> cbEditMode;
+    std::unique_ptr<juce::Label> labelEditMode;
+    std::unique_ptr<juce::Label> labelCurrentBeamValue;
+    std::unique_ptr<juce::TextButton> buttonReceive;
+    std::unique_ptr<juce::TextButton> buttonCalibrate;
+    std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<juce::Label> labelCurrentXPos;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveSubDlg)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveDlgBase)
 };
 
 //[EndFile] You can add extra defines here...
-
-class VelocityIntervalTableSubDlg: public VelocityCurveSubDlg
-{
-public:
-    VelocityIntervalTableSubDlg();
-
-	void sendVelocityTableToController();
-	virtual String beamValueText(int beamValue) const override { return String(beamValue) + " ticks (" + String( beamValue * 1.1) + " ms)"; }
-	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
-};
 
 //[/EndFile]
 

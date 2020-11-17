@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.5"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.6"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              jucerVersion="5.4.7" companyName="Hans Straub" headerPath="../../../JUCE/modules">
+              companyName="Hans Straub" headerPath="../../../JUCE/modules"
+              jucerFormatVersion="1">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
@@ -11,10 +12,10 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
-      <FILE id="cvbFyi" name="VelocityCurveSubDlg.cpp" compile="1" resource="0"
-            file="Source/VelocityCurveSubDlg.cpp"/>
-      <FILE id="DUCryb" name="VelocityCurveSubDlg.h" compile="0" resource="0"
-            file="Source/VelocityCurveSubDlg.h"/>
+      <FILE id="oPf8iZ" name="NoteOnOffVelocityCurveDialog.cpp" compile="1"
+            resource="0" file="Source/NoteOnOffVelocityCurveDialog.cpp"/>
+      <FILE id="Vj8Ki8" name="NoteOnOffVelocityCurveDialog.h" compile="0"
+            resource="0" file="Source/NoteOnOffVelocityCurveDialog.h"/>
       <FILE id="gJgXxQ" name="MidiInfoArea.cpp" compile="1" resource="0"
             file="Source/MidiInfoArea.cpp"/>
       <FILE id="NEyeY3" name="MidiInfoArea.h" compile="0" resource="0" file="Source/MidiInfoArea.h"/>
@@ -49,10 +50,10 @@
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
       <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
             file="Source/VelocityCurveEditStrategy.h"/>
-      <FILE id="zD1emI" name="VelocityCurveDlg.cpp" compile="1" resource="0"
-            file="Source/VelocityCurveDlg.cpp"/>
-      <FILE id="OEajb7" name="VelocityCurveDlg.h" compile="0" resource="0"
-            file="Source/VelocityCurveDlg.h"/>
+      <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
+            file="Source/VelocityCurveDlgBase.cpp"/>
+      <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
+            file="Source/VelocityCurveDlgBase.h"/>
       <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
             file="Source/GeneralOptionsDlg.cpp"/>
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
