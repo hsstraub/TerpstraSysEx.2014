@@ -54,9 +54,6 @@ public:
 	bool copySubBoardData();
 	bool pasteSubBoardData();
 
-	bool applyLightColourScheme(bool repaintAndSave);
-	bool applyDarkColourScheme(bool repaintAndSave);
-
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
