@@ -77,10 +77,6 @@
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
             file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
-        <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
-              file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>
-        <FILE id="b5aZVC" name="HajuDelayMidiDriver.h" compile="0" resource="0"
-              file="Source/HajuLib/HajuDelayMidiDriver.h"/>
         <FILE id="cCH9ZE" name="HajuErrorVisualizer.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuErrorVisualizer.cpp"/>
         <FILE id="yWeaxC" name="HajuErrorVisualizer.h" compile="0" resource="0"
