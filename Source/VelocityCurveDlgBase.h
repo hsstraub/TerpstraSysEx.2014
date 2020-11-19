@@ -24,6 +24,8 @@
 
 #include "VelocityCurveComponents.h"
 #include "VelocityCurveEditStrategy.h"
+#include "TerpstraMidiDriver.h"
+
 //[/Headers]
 
 
@@ -50,9 +52,11 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	void sendVelocityTableToController();
 
-	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
+	virtual void sendVelocityTableToController();
+	virtual void sendVelocityConfigurationRequest();
+
+	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
@@ -64,6 +68,13 @@ public:
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+
+protected:
+	virtual String beamValueText(int beamValue) const { return String(beamValue); }
+	virtual String beamXPosText(int xPos) const { return String(xPos); }
+	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * labelEditMode->getX()) / 128.0f; }
+
+public:
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -95,6 +106,8 @@ private:
 
 	const float graphicsYPadding = 136.0f;
 	const float pushButtonAreaHeight = 36.0f;
+
+protected:
     //[/UserVariables]
 
     //==============================================================================
@@ -104,12 +117,11 @@ private:
     std::unique_ptr<juce::TextButton> buttonSaveEdits;
     std::unique_ptr<juce::ComboBox> cbEditMode;
     std::unique_ptr<juce::Label> labelEditMode;
-    std::unique_ptr<juce::ComboBox> cbPreset;
-    std::unique_ptr<juce::Label> labelPresets;
     std::unique_ptr<juce::Label> labelCurrentBeamValue;
     std::unique_ptr<juce::TextButton> buttonReceive;
     std::unique_ptr<juce::TextButton> buttonCalibrate;
     std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<juce::Label> labelCurrentXPos;
 
 
     //==============================================================================
@@ -117,11 +129,6 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
-
-// ToDo The velocity curve dialog is planned to contain two curves (one of wehich is a VelocityCurveDlgBase subdiakiog).
-// For now: the same as the base di<log
-
-#define VelocityCurveDlg VelocityCurveDlgBase
 
 //[/EndFile]
 

@@ -69,7 +69,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-
+	
+	int getCurrentSetSelection() const { return currentSetSelection ;}
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
 
     //[/UserMethods]

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.4"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.6"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
               jucerFormatVersion="1">
@@ -16,6 +16,10 @@
             file="Source/AllKeysOverview.cpp"/>
       <FILE id="WhW1Za" name="AllKeysOverview.h" compile="0" resource="0"
             file="Source/AllKeysOverview.h"/>
+      <FILE id="oPf8iZ" name="NoteOnOffVelocityCurveDialog.cpp" compile="1"
+            resource="0" file="Source/NoteOnOffVelocityCurveDialog.cpp"/>
+      <FILE id="Vj8Ki8" name="NoteOnOffVelocityCurveDialog.h" compile="0"
+            resource="0" file="Source/NoteOnOffVelocityCurveDialog.h"/>
       <FILE id="tYu9iO" name="KBMMappingDataStructure.cpp" compile="1" resource="0"
             file="Source/KBMMappingDataStructure.cpp"/>
       <FILE id="QS12kV" name="KBMMappingDataStructure.h" compile="0" resource="0"
@@ -73,10 +77,6 @@
       <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
             file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
-        <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
-              file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>
-        <FILE id="b5aZVC" name="HajuDelayMidiDriver.h" compile="0" resource="0"
-              file="Source/HajuLib/HajuDelayMidiDriver.h"/>
         <FILE id="cCH9ZE" name="HajuErrorVisualizer.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuErrorVisualizer.cpp"/>
         <FILE id="yWeaxC" name="HajuErrorVisualizer.h" compile="0" resource="0"
@@ -122,8 +122,6 @@
             file="Source/ViewComponents.cpp"/>
       <FILE id="DfBSef" name="ViewComponents.h" compile="0" resource="0"
             file="Source/ViewComponents.h"/>
-      <FILE id="HAyzGx" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
-      <FILE id="iBGzO1" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
       <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
             file="Source/KeyboardDataStructure.h"/>
       <FILE id="eoBUqq" name="MainComponent.cpp" compile="1" resource="0"

@@ -449,7 +449,7 @@ void VelocityCurveLinearDrawingStrategy::clearSuperfluousPoints()
 {
 	int lineStartXPosition = 0;
 	int lineStopXPosition = -1;
-	int previousLineSegmentRiseRatio;
+	int previousLineSegmentRiseRatio = 0;
 
 	// Identify first segment
 	for (int x = 1; x < 128; x++)

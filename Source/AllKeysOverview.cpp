@@ -21,6 +21,7 @@
 #include "BoardGeometry.h"
 #include "ViewComponents.h"
 #include "MainComponent.h"
+#include "Main.h"
 
 //[/Headers]
 
@@ -49,8 +50,11 @@ KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 {
+	jassert(getParentComponent() != nullptr);
+	bool isSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
+
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-		.withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
+		.withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
@@ -287,11 +291,13 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnLoadFile.get())
     {
         //[UserButtonCode_btnLoadFile] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().openSysExMapping();
         //[/UserButtonCode_btnLoadFile]
     }
     else if (buttonThatWasClicked == btnSaveFile.get())
     {
         //[UserButtonCode_btnSaveFile] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().saveSysExMappingAs();
         //[/UserButtonCode_btnSaveFile]
     }
 

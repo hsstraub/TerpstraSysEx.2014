@@ -40,24 +40,22 @@ MidiEditArea::MidiEditArea ()
     cbMidiInput->setTooltip (TRANS("Receives answers to sent SysEx commands and the current configuration from controller "));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiInput->setTextWhenNothingSelected (juce::String());
+    cbMidiInput->setTextWhenNothingSelected (TRANS("Select MIDI Input"));
     cbMidiInput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbMidiInput->addItem (TRANS("Select MIDI Input"), 1);
     cbMidiInput->addListener (this);
 
-    cbMidiInput->setBounds (8, 8, 184, 24);
+    cbMidiInput->setBounds (232, 8, 184, 24);
 
     cbMidiOutput.reset (new juce::ComboBox ("cbMidiOutput"));
     addAndMakeVisible (cbMidiOutput.get());
     cbMidiOutput->setTooltip (TRANS("Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."));
     cbMidiOutput->setEditableText (false);
     cbMidiOutput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiOutput->setTextWhenNothingSelected (juce::String());
+    cbMidiOutput->setTextWhenNothingSelected (TRANS("Select MIDI Output"));
     cbMidiOutput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbMidiOutput->addItem (TRANS("Select MIDI Output"), 1);
     cbMidiOutput->addListener (this);
 
-    cbMidiOutput->setBounds (200, 8, 184, 24);
+    cbMidiOutput->setBounds (432, 8, 184, 24);
 
     lblConnectionState.reset (new juce::Label ("lblConnectionState",
                                                TRANS("Disconnected")));
@@ -68,23 +66,49 @@ MidiEditArea::MidiEditArea ()
     lblConnectionState->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     lblConnectionState->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    lblConnectionState->setBounds (400, 8, 150, 24);
+    lblConnectionState->setBounds (624, 8, 150, 24);
+
+    lblEditMode.reset (new juce::Label ("lblEditMode",
+                                        TRANS("Edit Mode:")));
+    addAndMakeVisible (lblEditMode.get());
+    lblEditMode->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblEditMode->setJustificationType (juce::Justification::centredLeft);
+    lblEditMode->setEditable (false, false, false);
+    lblEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblEditMode->setBounds (8, 8, 96, 24);
 
 
     //[UserPreSize]
+
+	// Edit mode selector
+	editModeSelector.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
+	addAndMakeVisible(editModeSelector.get());
+	editModeSelector->addTab("Live Editor", juce::Colours::lightgrey, 0);
+	editModeSelector->addTab("Offline Editor", juce::Colours::lightgrey, 1);
+	editModeSelector->addChangeListener(this);
+	editModeSelector->setBounds(110, 8, 240, OCTAVEBOARDTABHEIGHT);
+
+	lblEditMode->setVisible(false);
+	editModeSelector->setVisible(false);
+
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
     //[/UserPreSize]
 
-    setSize (566, 40);
+    setSize (928, 48);
 
 
     //[Constructor] You can add your own custom stuff here..
-	cbMidiInput->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
-	cbMidiOutput->setSelectedItemIndex(0, juce::NotificationType::sendNotification);
-
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+
+	lblConnectionState->setText("Disconnected", NotificationType::dontSendNotification);
+	errorVisualizer.setErrorLevel(
+		*lblConnectionState.get(),
+		HajuErrorVisualizer::ErrorLevel::error,
+		"Select both a MIDI input and a MIDI output");
     //[/Constructor]
 }
 
@@ -96,10 +120,13 @@ MidiEditArea::~MidiEditArea()
     cbMidiInput = nullptr;
     cbMidiOutput = nullptr;
     lblConnectionState = nullptr;
+    lblEditMode = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
 	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+
+	editModeSelector = nullptr;
     //[/Destructor]
 }
 
@@ -122,6 +149,20 @@ void MidiEditArea::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+	juce::FlexBox fb;
+	fb.flexWrap = juce::FlexBox::Wrap::wrap;
+	fb.justifyContent = juce::FlexBox::JustifyContent::center;
+	fb.alignContent = juce::FlexBox::AlignContent::center;
+
+	// ToDO Logo
+	fb.items.add(juce::FlexItem(*lblEditMode).withMinHeight(lblEditMode->getHeight()).withMinWidth(lblEditMode->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*editModeSelector).withMinHeight(editModeSelector->getHeight()).withMinWidth(editModeSelector->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*cbMidiInput).withMinHeight(cbMidiInput->getHeight()).withMinWidth(cbMidiInput->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*cbMidiOutput).withMinHeight(cbMidiOutput->getHeight()).withMinWidth(cbMidiOutput->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*lblConnectionState).withMinHeight(lblConnectionState->getHeight()).withMinWidth(lblConnectionState->getWidth()).withFlex(1));
+
+
+	fb.performLayout(getLocalBounds().toFloat());
     //[/UserResized]
 }
 
@@ -133,10 +174,10 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cbMidiInput.get())
     {
         //[UserComboBoxCode_cbMidiInput] -- add your combo box handling code here..
-		if (cbMidiInput->getSelectedItemIndex() > 0 )
+		if (cbMidiInput->getSelectedItemIndex() >= 0 )
 			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex()+1);
 
-		if (cbMidiInput->getSelectedItemIndex() <= 0 || cbMidiOutput->getSelectedItemIndex() <= 0)
+		if (cbMidiInput->getSelectedItemIndex() < 0 || cbMidiOutput->getSelectedItemIndex() < 0)
 		{
 			lblConnectionState->setText("Disconnected", NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
@@ -146,21 +187,31 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
+			lblEditMode->setVisible(true);
+			editModeSelector->setVisible(true);
+
+			// ToDo if editing operations were done that have not been saved, warn that configuration will be read from device
+			// Answer yes or no.
+			// In case of yes: Request configuration from device.
+			// In case of "no": set state to "offline editing"
+
 			lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::noError,
 				"Connecting");
+
+
 		}
         //[/UserComboBoxCode_cbMidiInput]
     }
     else if (comboBoxThatHasChanged == cbMidiOutput.get())
     {
         //[UserComboBoxCode_cbMidiOutput] -- add your combo box handling code here..
-		if (cbMidiOutput->getSelectedItemIndex() > 0)
+		if (cbMidiOutput->getSelectedItemIndex() >= 0)
 			TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
 
-		if (cbMidiInput->getSelectedItemIndex() <= 0 || cbMidiOutput->getSelectedItemIndex() <= 0)
+		if (cbMidiInput->getSelectedItemIndex() < 0 || cbMidiOutput->getSelectedItemIndex() < 0)
 		{
 			lblConnectionState->setText("Disconnected", NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
@@ -170,18 +221,22 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
+			lblEditMode->setVisible(true);
+			editModeSelector->setVisible(true);
+
+			// ToDo if editing operations were done that have not been saved, warn that configuration will be read from device
+			// Answer yes or no.
+			// In case of yes: Request configuration from device.
+			// In case of "no": set state to "offline editing"
+
 			lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::noError,
 				"Connecting");
 		}
-		//[/UserComboBoxCode_cbMidiOutput]
+        //[/UserComboBoxCode_cbMidiOutput]
     }
-
-	// If both in- and output have a value: connection can be connecting, else disconnected
-	// ToDo
-
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
@@ -190,6 +245,11 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
+{
+	// ToDo if change from offline to online: check whether there were editing operations done
+}
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
@@ -284,24 +344,29 @@ void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::Er
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MidiEditArea" componentName=""
-                 parentClasses="public Component, public TerpstraMidiDriver::Listener"
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public ChangeListener"
                  constructorParams="" variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="566" initialHeight="40">
+                 fixedSize="0" initialWidth="928" initialHeight="48">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbMidiInput" id="aad3610c2aac943b" memberName="cbMidiInput"
-            virtualName="" explicitFocusOrder="0" pos="8 8 184 24" tooltip="Receives answers to sent SysEx commands and the current configuration from controller "
-            editable="0" layout="33" items="Select MIDI Input" textWhenNonSelected=""
+            virtualName="" explicitFocusOrder="0" pos="232 8 184 24" tooltip="Receives answers to sent SysEx commands and the current configuration from controller "
+            editable="0" layout="33" items="" textWhenNonSelected="Select MIDI Input"
             textWhenNoItems="(no choices)"/>
   <COMBOBOX name="cbMidiOutput" id="f3f3544c4916f527" memberName="cbMidiOutput"
-            virtualName="" explicitFocusOrder="0" pos="200 8 184 24" tooltip="Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."
-            editable="0" layout="33" items="Select MIDI Output" textWhenNonSelected=""
+            virtualName="" explicitFocusOrder="0" pos="432 8 184 24" tooltip="Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."
+            editable="0" layout="33" items="" textWhenNonSelected="Select MIDI Output"
             textWhenNoItems="(no choices)"/>
   <LABEL name="lblConnectionState" id="132031ea466ea84f" memberName="lblConnectionState"
-         virtualName="" explicitFocusOrder="0" pos="400 8 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="624 8 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Disconnected" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="lblEditMode" id="ea4ef68f1765a3d4" memberName="lblEditMode"
+         virtualName="" explicitFocusOrder="0" pos="8 8 96 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Edit Mode:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="18.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

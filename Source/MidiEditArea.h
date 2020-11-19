@@ -37,6 +37,7 @@
 */
 class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
+                      public ChangeListener,
                       public juce::ComboBox::Listener
 {
 public:
@@ -46,6 +47,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+	// Implementation of ChangeListener
+	void changeListenerCallback(ChangeBroadcaster *source) override;
+
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override;
@@ -61,6 +66,13 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	enum midiEditMode
+	{
+		liveEditor = 0,
+		offlineEditor = 1
+	};
+
+	std::unique_ptr<TabbedButtonBar> editModeSelector;
 	HajuErrorVisualizer     errorVisualizer;
     //[/UserVariables]
 
@@ -68,6 +80,7 @@ private:
     std::unique_ptr<juce::ComboBox> cbMidiInput;
     std::unique_ptr<juce::ComboBox> cbMidiOutput;
     std::unique_ptr<juce::Label> lblConnectionState;
+    std::unique_ptr<juce::Label> lblEditMode;
 
 
     //==============================================================================
