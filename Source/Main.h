@@ -66,6 +66,8 @@ public:
 	void sendCurrentMappingToDevice();
 
 	void updateMainTitle();
+
+	bool getHasChangesToSave() const { return hasChangesToSave; }
 	void setHasChangesToSave(bool value);
 
 	bool aboutTerpstraSysEx();

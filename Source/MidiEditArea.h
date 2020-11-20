@@ -47,14 +47,16 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void onOpenConnectionToDevice();
+	void requestConfigurationFromDevice();
 
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override;
-	void midiSendQueueSize(int queueSize) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override {}
+	void midiSendQueueSize(int queueSize) override {}
 	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
     //[/UserMethods]
 
