@@ -87,7 +87,7 @@ NoteEditArea::NoteEditArea ()
 
     //[/UserPreSize]
 
-    setSize (900, 464);
+    setSize (760, 464);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -305,7 +305,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public ChangeListener" constructorParams=""
                  variableInitialisers="currentSingleKeySelection(-1)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="900" initialHeight="464">
+                 initialWidth="760" initialHeight="464">
   <METHODS>
     <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
   </METHODS>
