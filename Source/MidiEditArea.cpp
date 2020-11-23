@@ -88,7 +88,7 @@ MidiEditArea::MidiEditArea ()
 	editModeSelector->addTab("Live Editor", juce::Colours::lightgrey, 0);
 	editModeSelector->addTab("Offline Editor", juce::Colours::lightgrey, 1);
 	editModeSelector->addChangeListener(this);
-	editModeSelector->setBounds(110, 8, 240, OCTAVEBOARDTABHEIGHT);
+	editModeSelector->setBounds(110, 8, 184, OCTAVEBOARDTABHEIGHT);
 
 	lblEditMode->setVisible(false);
 	editModeSelector->setVisible(false);
@@ -151,15 +151,15 @@ void MidiEditArea::resized()
     //[UserResized] Add your own custom resize handling here..
 	juce::FlexBox fb;
 	fb.flexWrap = juce::FlexBox::Wrap::wrap;
-	fb.justifyContent = juce::FlexBox::JustifyContent::center;
+	fb.justifyContent = juce::FlexBox::JustifyContent::spaceBetween;
 	fb.alignContent = juce::FlexBox::AlignContent::center;
 
 	// ToDO Logo
-	fb.items.add(juce::FlexItem(*lblEditMode).withMinHeight(lblEditMode->getHeight()).withMinWidth(lblEditMode->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*editModeSelector).withMinHeight(editModeSelector->getHeight()).withMinWidth(editModeSelector->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*cbMidiInput).withMinHeight(cbMidiInput->getHeight()).withMinWidth(cbMidiInput->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*cbMidiOutput).withMinHeight(cbMidiOutput->getHeight()).withMinWidth(cbMidiOutput->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*lblConnectionState).withMinHeight(lblConnectionState->getHeight()).withMinWidth(lblConnectionState->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*lblEditMode).withMinHeight(lblEditMode->getHeight()).withMaxHeight(lblEditMode->getHeight()).withMinWidth(lblEditMode->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*editModeSelector).withMinHeight(editModeSelector->getHeight()).withMaxHeight(editModeSelector->getHeight()).withMinWidth(editModeSelector->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*cbMidiInput).withMinHeight(cbMidiInput->getHeight()).withMaxHeight(cbMidiInput->getHeight()).withMinWidth(cbMidiInput->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*cbMidiOutput).withMinHeight(cbMidiOutput->getHeight()).withMaxHeight(cbMidiOutput->getHeight()).withMinWidth(cbMidiOutput->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*lblConnectionState).withMinHeight(lblConnectionState->getHeight()).withMaxHeight(lblConnectionState->getHeight()).withMinWidth(lblConnectionState->getWidth()).withFlex(1));
 
 
 	fb.performLayout(getLocalBounds().toFloat());
@@ -279,10 +279,10 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
 			break;
 
 		case midiEditMode::offlineEditor:
-			lblConnectionState->setText("Disconnected", NotificationType::dontSendNotification);
+			lblConnectionState->setText("Offline mode", NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
-				HajuErrorVisualizer::ErrorLevel::error,
+				HajuErrorVisualizer::ErrorLevel::noError,
 				"Offline mode");
 
 			// Remove all MIDI messages in queue waiting to be sent
