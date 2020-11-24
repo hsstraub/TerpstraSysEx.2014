@@ -196,8 +196,8 @@ public:
 	// Handle timeout
 	void timerCallback() override;
 
-	// Clear MIDI message buffer
-	void clearMIDIMessageBuffer(){ messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0); }
+	// Clear MIDI message buffer;
+	void clearMIDIMessageBuffer() { messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0); hasMsgWaitingForAck = false;  stopTimer();  }
 
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);

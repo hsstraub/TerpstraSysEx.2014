@@ -66,6 +66,8 @@ public:
 	void sendCurrentMappingToDevice();
 
 	void updateMainTitle();
+
+	bool getHasChangesToSave() const { return hasChangesToSave; }
 	void setHasChangesToSave(bool value);
 
 	bool aboutTerpstraSysEx();
@@ -117,7 +119,7 @@ private:
 	//std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
-	LookAndFeel_V3				lookAndFeel;
+	LookAndFeel_V4				lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;

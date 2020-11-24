@@ -88,7 +88,7 @@ MidiEditArea::MidiEditArea ()
 	editModeSelector->addTab("Live Editor", juce::Colours::lightgrey, 0);
 	editModeSelector->addTab("Offline Editor", juce::Colours::lightgrey, 1);
 	editModeSelector->addChangeListener(this);
-	editModeSelector->setBounds(110, 8, 240, OCTAVEBOARDTABHEIGHT);
+	editModeSelector->setBounds(110, 8, 184, OCTAVEBOARDTABHEIGHT);
 
 	lblEditMode->setVisible(false);
 	editModeSelector->setVisible(false);
@@ -151,15 +151,15 @@ void MidiEditArea::resized()
     //[UserResized] Add your own custom resize handling here..
 	juce::FlexBox fb;
 	fb.flexWrap = juce::FlexBox::Wrap::wrap;
-	fb.justifyContent = juce::FlexBox::JustifyContent::center;
+	fb.justifyContent = juce::FlexBox::JustifyContent::spaceBetween;
 	fb.alignContent = juce::FlexBox::AlignContent::center;
 
 	// ToDO Logo
-	fb.items.add(juce::FlexItem(*lblEditMode).withMinHeight(lblEditMode->getHeight()).withMinWidth(lblEditMode->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*editModeSelector).withMinHeight(editModeSelector->getHeight()).withMinWidth(editModeSelector->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*cbMidiInput).withMinHeight(cbMidiInput->getHeight()).withMinWidth(cbMidiInput->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*cbMidiOutput).withMinHeight(cbMidiOutput->getHeight()).withMinWidth(cbMidiOutput->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*lblConnectionState).withMinHeight(lblConnectionState->getHeight()).withMinWidth(lblConnectionState->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*lblEditMode).withMinHeight(lblEditMode->getHeight()).withMaxHeight(lblEditMode->getHeight()).withMinWidth(lblEditMode->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*editModeSelector).withMinHeight(editModeSelector->getHeight()).withMaxHeight(editModeSelector->getHeight()).withMinWidth(editModeSelector->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*cbMidiInput).withMinHeight(cbMidiInput->getHeight()).withMaxHeight(cbMidiInput->getHeight()).withMinWidth(cbMidiInput->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*cbMidiOutput).withMinHeight(cbMidiOutput->getHeight()).withMaxHeight(cbMidiOutput->getHeight()).withMinWidth(cbMidiOutput->getWidth()).withFlex(1));
+	fb.items.add(juce::FlexItem(*lblConnectionState).withMinHeight(lblConnectionState->getHeight()).withMaxHeight(lblConnectionState->getHeight()).withMinWidth(lblConnectionState->getWidth()).withFlex(1));
 
 
 	fb.performLayout(getLocalBounds().toFloat());
@@ -174,7 +174,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cbMidiInput.get())
     {
         //[UserComboBoxCode_cbMidiInput] -- add your combo box handling code here..
-		if (cbMidiInput->getSelectedItemIndex() >= 0 )
+		if (cbMidiInput->getSelectedItemIndex() >= 0)
 			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex()+1);
 
 		if (cbMidiInput->getSelectedItemIndex() < 0 || cbMidiOutput->getSelectedItemIndex() < 0)
@@ -190,18 +190,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 			lblEditMode->setVisible(true);
 			editModeSelector->setVisible(true);
 
-			// ToDo if editing operations were done that have not been saved, warn that configuration will be read from device
-			// Answer yes or no.
-			// In case of yes: Request configuration from device.
-			// In case of "no": set state to "offline editing"
-
-			lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
-			errorVisualizer.setErrorLevel(
-				*lblConnectionState.get(),
-				HajuErrorVisualizer::ErrorLevel::noError,
-				"Connecting");
-
-
+			onOpenConnectionToDevice();
 		}
         //[/UserComboBoxCode_cbMidiInput]
     }
@@ -224,16 +213,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 			lblEditMode->setVisible(true);
 			editModeSelector->setVisible(true);
 
-			// ToDo if editing operations were done that have not been saved, warn that configuration will be read from device
-			// Answer yes or no.
-			// In case of yes: Request configuration from device.
-			// In case of "no": set state to "offline editing"
-
-			lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
-			errorVisualizer.setErrorLevel(
-				*lblConnectionState.get(),
-				HajuErrorVisualizer::ErrorLevel::noError,
-				"Connecting");
+			onOpenConnectionToDevice();
 		}
         //[/UserComboBoxCode_cbMidiOutput]
     }
@@ -246,18 +226,78 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void MidiEditArea::onOpenConnectionToDevice()
+{
+	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && editModeSelector->getCurrentTabIndex() == midiEditMode::liveEditor);
+
+	// if editing operations were done that have not been saved, warn that edits will be overwritten when configuration is read from device
+	if (TerpstraSysExApplication::getApp().getHasChangesToSave())
+	{
+		auto retc = AlertWindow::showOkCancelBox(
+			AlertWindow::AlertIconType::QuestionIcon, 
+			"Establishing connection to controller",
+			"The controller's current configuration will be received now. This will overwrite all edits you have done, Do you want to continue?");
+
+		if (retc == false)
+		{
+			editModeSelector->setCurrentTabIndex(midiEditMode::offlineEditor, true);
+			return;
+		}
+	}
+
+	TerpstraSysExApplication::getApp().resetSysExMapping();
+
+	lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
+	errorVisualizer.setErrorLevel(
+		*lblConnectionState.get(),
+		HajuErrorVisualizer::ErrorLevel::noError,
+		"Connecting");
+
+	requestConfigurationFromDevice();
+}
+
+void MidiEditArea::requestConfigurationFromDevice()
+{
+	// Request MIDI channel, MIDI note, colour and key type config for all keys
+	TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();	
+	
+	// ToDo Request values for general options
+	// ToDo Request velocity curve config
+}
+
+
 void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
 {
-	// ToDo if change from offline to online: check whether there were editing operations done
+	if (source == editModeSelector.get())
+	{
+		auto editMode = editModeSelector->getCurrentTabIndex();
+
+		switch (editMode)
+		{
+		case midiEditMode::liveEditor:
+			onOpenConnectionToDevice();
+			break;
+
+		case midiEditMode::offlineEditor:
+			lblConnectionState->setText("Offline mode", NotificationType::dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::noError,
+				"Offline mode");
+
+			// Remove all MIDI messages in queue waiting to be sent
+			TerpstraSysExApplication::getApp().getMidiDriver().clearMIDIMessageBuffer();
+			break;
+
+		default:
+			jassertfalse;
+			break;
+		}
+	}
 }
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
-	// Set connection state
-	// ToDo
-
-	//lblConnectionState->setText("<< " + midiMessage.getDescription(), NotificationType::dontSendNotification);
-
 	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
 	{
 		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
@@ -313,16 +353,6 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			}
 		}
 	}
-}
-
-void MidiEditArea::midiMessageSent(const MidiMessage& midiMessage)
-{
-	//lblConnectionState->setText(">> " + midiMessage.getDescription(), NotificationType::dontSendNotification);
-}
-
-void MidiEditArea::midiSendQueueSize(int queueSize)
-{
-	// ToDo
 }
 
 void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)

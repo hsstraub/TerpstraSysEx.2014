@@ -35,38 +35,13 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	midiDriver.setManufacturerId(manufacturerId);
 
 	// Colour scheme
-	Colour windowBackgroundColour(0xff373737);
-	Colour editFieldBackgroundColour(0xff2f2f2f);
-	Colour textColour(0xffd7d9da);
+	lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
-	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
-
-	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
-
-	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
-	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
-
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
-	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
-
-	//ToDo PopupMenu: textColourId, highlightedTextColourId, highlightedBackgroundColourId (for ComboBox, too)
-
-	lookAndFeel.setColour(juce::Label::textColourId, textColour);
-
-	lookAndFeel.setColour(juce::TextButton::textColourOffId, textColour);
-	lookAndFeel.setColour(juce::TextButton::textColourOnId, textColour);
-	lookAndFeel.setColour(juce::TextButton::buttonColourId, Colour(0xff2f2f2f));
-	lookAndFeel.setColour(juce::TextButton::buttonOnColourId, Colour(0xff2f2f2f));
-
-	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
+	// ToDo TabbedButton colours: selected, unselected
 
-	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, textColour);
-	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
-
-	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
+	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId));
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
 	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
 
