@@ -40,7 +40,6 @@
 */
 class VelocityCurveDlgBase  : public Component,
                               public TerpstraMidiDriver::Listener,
-                              public juce::Button::Listener,
                               public juce::ComboBox::Listener
 {
 public:
@@ -50,8 +49,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
+	// ToDo Read from and write to *.LMT file
+	//void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	//void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	virtual void sendVelocityTableToController();
 	virtual void sendVelocityConfigurationRequest();
@@ -72,14 +73,13 @@ public:
 protected:
 	virtual String beamValueText(int beamValue) const { return String(beamValue); }
 	virtual String beamXPosText(int xPos) const { return String(xPos); }
-	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * labelEditMode->getX()) / 128.0f; }
+	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
 
 public:
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
@@ -111,16 +111,8 @@ protected:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> lblDescription;
-    std::unique_ptr<juce::TextButton> buttonSendAll;
-    std::unique_ptr<juce::TextButton> buttonDiscard;
-    std::unique_ptr<juce::TextButton> buttonSaveEdits;
     std::unique_ptr<juce::ComboBox> cbEditMode;
-    std::unique_ptr<juce::Label> labelEditMode;
     std::unique_ptr<juce::Label> labelCurrentBeamValue;
-    std::unique_ptr<juce::TextButton> buttonReceive;
-    std::unique_ptr<juce::TextButton> buttonCalibrate;
-    std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
     std::unique_ptr<juce::Label> labelCurrentXPos;
 
 
