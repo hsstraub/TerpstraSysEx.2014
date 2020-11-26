@@ -48,7 +48,8 @@ public:
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);    //[/UserMethods]
+	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+    //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;

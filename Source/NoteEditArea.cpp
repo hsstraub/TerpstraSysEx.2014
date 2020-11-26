@@ -44,7 +44,7 @@ NoteEditArea::NoteEditArea ()
 
     editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (editFunctionsTab.get());
-    editFunctionsTab->setTabBarDepth (30);
+    editFunctionsTab->setTabBarDepth (OCTAVEBOARDTABHEIGHT);
     editFunctionsTab->addTab (TRANS("Manual Assign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
     editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);

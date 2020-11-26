@@ -28,8 +28,15 @@ MainContentComponent::MainContentComponent()
 	// Edit function area
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
-
 	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
+
+	generalOptionsArea.reset(new GeneralOptionsDlg());
+	addAndMakeVisible(generalOptionsArea.get());
+
+	// ToDo curves
+
+	globalSettingsArea.reset(new GlobalSettingsArea());
+	addAndMakeVisible(globalSettingsArea.get());
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
@@ -49,13 +56,11 @@ MainContentComponent::~MainContentComponent()
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
 	midiEditArea = nullptr;
-	//for (int i = 0; i < NUMBEROFBOARDS; i++)
-	//{
-	//	terpstraSetSelectors[i] = nullptr;
-	//}
 	allKeysOverview = nullptr;
-
 	noteEditArea = nullptr;
+
+	generalOptionsArea = nullptr;
+	globalSettingsArea = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -81,6 +86,10 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 	mappingData = newData;
 
 	noteEditArea->onSetData(newData);
+
+	// ToDo general options
+
+	// ToDo curves
 
 	if (withRefresh)
 	{
@@ -263,6 +272,14 @@ void MainContentComponent::resized()
 
 	// Edit function/single key field area
 	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
+
+	int optionsAreaWidth = newWidth - noteEditAreaWidth;
+
+	generalOptionsArea->setBounds(noteEditAreaWidth, midiAreaHeight + newKeysOverviewAreaHeight + OCTAVEBOARDTABHEIGHT, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+
+	// ToDo curves
+
+	globalSettingsArea->setBounds(noteEditAreaWidth, newHeight - globalSettingsArea->getHeight(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
 }
 
 void MainContentComponent::refreshAllKeysOverview()

@@ -81,19 +81,19 @@ GlobalSettingsArea::GlobalSettingsArea ()
     buttonCalibrate->setButtonText (TRANS("Calibrate Keys"));
     buttonCalibrate->addListener (this);
 
-    buttonCalibrate->setBounds (344, 8, 112, 24);
+    buttonCalibrate->setBounds (368, 8, 112, 24);
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (168, 48);
+    setSize (480, 48);
 
 
     //[Constructor] You can add your own custom stuff here..
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-	//[/Constructor]
+    //[/Constructor]
 }
 
 GlobalSettingsArea::~GlobalSettingsArea()
@@ -105,12 +105,13 @@ GlobalSettingsArea::~GlobalSettingsArea()
 
 	inactiveMacroButtonColourEdit = nullptr;
 	activeMacroButtonColourEdit = nullptr;
-	//[/Destructor_pre]
+    //[/Destructor_pre]
 
     lblPresetButtonColours = nullptr;
     lblColourInactiveMacroButton = nullptr;
     lblColourActiveMacroButton = nullptr;
     buttonCalibrate = nullptr;
+
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
@@ -133,7 +134,7 @@ void GlobalSettingsArea::resized()
     //[UserPreResize] Add your own custom resize code here..
 	inactiveMacroButtonColourEdit->setBounds(210, 0, 196, 24);
 	activeMacroButtonColourEdit->setBounds(210, 24, 196, 24);
-	//[/UserPreResize]
+    //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
@@ -209,7 +210,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GlobalSettingsArea" componentName=""
                  parentClasses="public juce::Component, public ChangeListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="168"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="480"
                  initialHeight="48">
   <BACKGROUND backgroundColour="ff323e44"/>
   <LABEL name="lblPresetButtonColours" id="988da53c99fc73f2" memberName="lblPresetButtonColours"
@@ -228,7 +229,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="buttonCalibrate" id="47242594c34a8de9" memberName="buttonCalibrate"
-              virtualName="" explicitFocusOrder="0" pos="344 8 112 24" tooltip="Calibrate keys aftertouch"
+              virtualName="" explicitFocusOrder="0" pos="368 8 112 24" tooltip="Calibrate keys aftertouch"
               buttonText="Calibrate Keys" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
 </JUCER_COMPONENT>

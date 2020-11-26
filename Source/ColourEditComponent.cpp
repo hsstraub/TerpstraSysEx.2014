@@ -189,10 +189,10 @@ ColourEditComponent::ColourEditComponent ()
 
     btnColourPicker.reset (new juce::TextButton ("btnColourPicker"));
     addAndMakeVisible (btnColourPicker.get());
-    btnColourPicker->setButtonText (TRANS("Colour picker"));
+    btnColourPicker->setButtonText (TRANS(".."));
     btnColourPicker->addListener (this);
 
-    btnColourPicker->setBounds (88, 0, 104, 24);
+    btnColourPicker->setBounds (88, 0, 24, 24);
 
     colourCombo.reset (new ColourComboBox ("colourCombo"));
     addAndMakeVisible (colourCombo.get());
@@ -208,7 +208,7 @@ ColourEditComponent::ColourEditComponent ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (196, 32);
+    setSize (120, 32);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -369,11 +369,11 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="ColourEditComponent" componentName=""
                  parentClasses="public Component, public ChangeListener, public ChangeBroadcaster"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="196"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="120"
                  initialHeight="32">
   <BACKGROUND backgroundColour="ffb8d0de"/>
   <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
-              virtualName="" explicitFocusOrder="0" pos="88 0 104 24" buttonText="Colour picker"
+              virtualName="" explicitFocusOrder="0" pos="88 0 24 24" buttonText=".."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="colourCombo" id="86628debb1bafc04" memberName="colourCombo"
             virtualName="ColourComboBox" explicitFocusOrder="0" pos="0 0 79 24"

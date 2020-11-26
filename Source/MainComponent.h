@@ -12,13 +12,15 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-//#include "OctaveBoardComponent.h
 #include "AllKeysOverview.h"
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
+#include "GeneralOptionsDlg.h"
+#include "GlobalSettingsArea.h"
+
 
 
 //==============================================================================
@@ -78,6 +80,12 @@ private:
 
 	// Edit fields for setting key and button parameters, and edits for single keys
 	std::unique_ptr<NoteEditArea>	noteEditArea;
+
+	std::unique_ptr<GeneralOptionsDlg> generalOptionsArea;
+	
+	// ToDO Curves
+
+	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
 
 	//==============================================================================
 	// Data
