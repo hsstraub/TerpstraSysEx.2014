@@ -44,7 +44,7 @@ NoteEditArea::NoteEditArea ()
 
     editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (editFunctionsTab.get());
-    editFunctionsTab->setTabBarDepth (OCTAVEBOARDTABHEIGHT);
+    editFunctionsTab->setTabBarDepth (30);
     editFunctionsTab->addTab (TRANS("Manual Assign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
     editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);
@@ -87,7 +87,7 @@ NoteEditArea::NoteEditArea ()
 
     //[/UserPreSize]
 
-    setSize (760, 464);
+    setSize (760, 470);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -305,7 +305,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public ChangeListener" constructorParams=""
                  variableInitialisers="currentSingleKeySelection(-1)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="760" initialHeight="464">
+                 initialWidth="760" initialHeight="470">
   <METHODS>
     <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
   </METHODS>

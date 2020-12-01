@@ -19,6 +19,7 @@
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
 #include "GeneralOptionsDlg.h"
+#include "CurvesArea.h"
 #include "GlobalSettingsArea.h"
 
 
@@ -83,7 +84,7 @@ private:
 
 	std::unique_ptr<GeneralOptionsDlg> generalOptionsArea;
 	
-	// ToDO Curves
+	std::unique_ptr<CurvesArea> curvesArea;
 
 	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
 

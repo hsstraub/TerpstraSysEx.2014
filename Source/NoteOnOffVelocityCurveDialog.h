@@ -40,3 +40,15 @@ protected:
 private:
 	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
 };
+
+class FaderVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	FaderVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader) {}
+};
+
+class AftertouchVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch) {}
+};

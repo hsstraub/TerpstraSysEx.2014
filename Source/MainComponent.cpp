@@ -33,7 +33,8 @@ MainContentComponent::MainContentComponent()
 	generalOptionsArea.reset(new GeneralOptionsDlg());
 	addAndMakeVisible(generalOptionsArea.get());
 
-	// ToDo curves
+	curvesArea.reset(new CurvesArea());
+	addAndMakeVisible(curvesArea.get());
 
 	globalSettingsArea.reset(new GlobalSettingsArea());
 	addAndMakeVisible(globalSettingsArea.get());
@@ -60,6 +61,7 @@ MainContentComponent::~MainContentComponent()
 	noteEditArea = nullptr;
 
 	generalOptionsArea = nullptr;
+	curvesArea = nullptr;
 	globalSettingsArea = nullptr;
 }
 
@@ -273,13 +275,16 @@ void MainContentComponent::resized()
 	// Edit function/single key field area
 	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
 
-	int optionsAreaWidth = newWidth - noteEditAreaWidth;
+	int optionsAreaWidth = jmax(newWidth - noteEditAreaWidth, MINIMALCURVESAREAWIDTH);
+	
+	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
+	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
 
-	generalOptionsArea->setBounds(noteEditAreaWidth, midiAreaHeight + newKeysOverviewAreaHeight + OCTAVEBOARDTABHEIGHT, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+	int curvesAreaYPos = generalOptionsArea->getBottom();
+	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
+	curvesArea->setBounds(noteEditAreaWidth, curvesAreaYPos, optionsAreaWidth, curvesAreaHeight);
 
-	// ToDo curves
-
-	globalSettingsArea->setBounds(noteEditAreaWidth, newHeight - globalSettingsArea->getHeight(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
+	globalSettingsArea->setBounds(noteEditAreaWidth, curvesArea->getBottom(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
 }
 
 void MainContentComponent::refreshAllKeysOverview()

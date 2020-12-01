@@ -100,7 +100,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 	txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
-    setSize (480, 240);
+    setSize (472, 96);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -213,8 +213,8 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
                  parentClasses="public Component, public TextEditor::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="480"
-                 initialHeight="240">
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="472"
+                 initialHeight="96">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
          virtualName="" explicitFocusOrder="0" pos="192 32 64 24" edTextCol="ff000000"
