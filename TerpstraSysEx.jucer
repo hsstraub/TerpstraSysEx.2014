@@ -12,6 +12,12 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="vOjaEA" name="CurvesArea.h" compile="0" resource="0" file="Source/CurvesArea.h"/>
+      <FILE id="enXDMq" name="CurvesArea.cpp" compile="1" resource="0" file="Source/CurvesArea.cpp"/>
+      <FILE id="wQzk9i" name="GlobalSettingsArea.cpp" compile="1" resource="0"
+            file="Source/GlobalSettingsArea.cpp"/>
+      <FILE id="QWWVa0" name="GlobalSettingsArea.h" compile="0" resource="0"
+            file="Source/GlobalSettingsArea.h"/>
       <FILE id="vPxTHg" name="AllKeysOverview.cpp" compile="1" resource="0"
             file="Source/AllKeysOverview.cpp"/>
       <FILE id="WhW1Za" name="AllKeysOverview.h" compile="0" resource="0"

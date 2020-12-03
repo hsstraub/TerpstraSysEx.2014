@@ -28,8 +28,16 @@ MainContentComponent::MainContentComponent()
 	// Edit function area
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
-
 	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
+
+	generalOptionsArea.reset(new GeneralOptionsDlg());
+	addAndMakeVisible(generalOptionsArea.get());
+
+	curvesArea.reset(new CurvesArea());
+	addAndMakeVisible(curvesArea.get());
+
+	globalSettingsArea.reset(new GlobalSettingsArea());
+	addAndMakeVisible(globalSettingsArea.get());
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
@@ -49,13 +57,12 @@ MainContentComponent::~MainContentComponent()
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
 	midiEditArea = nullptr;
-	//for (int i = 0; i < NUMBEROFBOARDS; i++)
-	//{
-	//	terpstraSetSelectors[i] = nullptr;
-	//}
 	allKeysOverview = nullptr;
-
 	noteEditArea = nullptr;
+
+	generalOptionsArea = nullptr;
+	curvesArea = nullptr;
+	globalSettingsArea = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -81,6 +88,10 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 	mappingData = newData;
 
 	noteEditArea->onSetData(newData);
+
+	// ToDo general options
+
+	// ToDo curves
 
 	if (withRefresh)
 	{
@@ -263,6 +274,17 @@ void MainContentComponent::resized()
 
 	// Edit function/single key field area
 	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
+
+	int optionsAreaWidth = jmax(newWidth - noteEditAreaWidth, MINIMALCURVESAREAWIDTH);
+	
+	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
+	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+
+	int curvesAreaYPos = generalOptionsArea->getBottom();
+	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
+	curvesArea->setBounds(noteEditAreaWidth, curvesAreaYPos, optionsAreaWidth, curvesAreaHeight);
+
+	globalSettingsArea->setBounds(noteEditAreaWidth, curvesArea->getBottom(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
 }
 
 void MainContentComponent::refreshAllKeysOverview()

@@ -23,48 +23,47 @@ NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
 	{
 		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
 	}
-
-	restoreIntervalTableFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
 }
 
 NoteOnOffVelocityCurveDialog::~NoteOnOffVelocityCurveDialog()
 {
-	saveIntervalTableToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
 }
 
-void NoteOnOffVelocityCurveDialog::restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile)
-{
-	String intervalTableString = propertiesFile->getValue("NoteOnOffVelocityIntervalTable");
-	// ToDo Saved string from older version, with drawing stategy and values -1: to be ignored 
+// ToDo Read from and write to *.LMT file
 
-	StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
-	if (intervalTableValueArray.size() > 0)
-	{
-		jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
-
-		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-		{
-			velocityIntervalTableValues[i] = intervalTableValueArray[i].getIntValue();
-		}
-	}
-	else
-	{
-		// Default interval table: equal division
-		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-		{
-			velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
-		}
-	}
-}
-
-void NoteOnOffVelocityCurveDialog::saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile)
-{
-	String intervalTableString;
-	for (auto intervalTableValue : velocityIntervalTableValues)
-		intervalTableString += String(intervalTableValue) + " ";
-
-	propertiesFile->setValue("NoteOnOffVelocityIntervalTable", intervalTableString);
-}
+//void NoteOnOffVelocityCurveDialog::restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile)
+//{
+//	String intervalTableString = propertiesFile->getValue("NoteOnOffVelocityIntervalTable");
+//	// ToDo Saved string from older version, with drawing stategy and values -1: to be ignored 
+//
+//	StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
+//	if (intervalTableValueArray.size() > 0)
+//	{
+//		jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
+//
+//		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+//		{
+//			velocityIntervalTableValues[i] = intervalTableValueArray[i].getIntValue();
+//		}
+//	}
+//	else
+//	{
+//		// Default interval table: equal division
+//		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+//		{
+//			velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
+//		}
+//	}
+//}
+//
+//void NoteOnOffVelocityCurveDialog::saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile)
+//{
+//	String intervalTableString;
+//	for (auto intervalTableValue : velocityIntervalTableValues)
+//		intervalTableString += String(intervalTableValue) + " ";
+//
+//	propertiesFile->setValue("NoteOnOffVelocityIntervalTable", intervalTableString);
+//}
 
 void NoteOnOffVelocityCurveDialog::sendVelocityTableToController()
 {
@@ -114,15 +113,15 @@ float NoteOnOffVelocityCurveDialog::beamWidth(int xPos) const
 {
 	if (xPos == 0)
 	{
-		return (getWidth() - 2.0f * labelEditMode->getX()) * velocityIntervalTableValues[0] / 2048.0f;
+		return (getWidth() - 2.0f * cbEditMode->getX()) * velocityIntervalTableValues[0] / 2048.0f;
 	}
 	else if (xPos < VELOCITYINTERVALTABLESIZE)
 	{
-		return (getWidth() - 2.0f * labelEditMode->getX()) * (velocityIntervalTableValues[xPos] - velocityIntervalTableValues[xPos-1]) / 2048.0f;
+		return (getWidth() - 2.0f * cbEditMode->getX()) * (velocityIntervalTableValues[xPos] - velocityIntervalTableValues[xPos-1]) / 2048.0f;
 	}
 	else if (xPos == VELOCITYINTERVALTABLESIZE)
 	{
-		return (getWidth() - 2.0f * labelEditMode->getX()) * (2048.0f - velocityIntervalTableValues[xPos-1]) / 2048.0f;
+		return (getWidth() - 2.0f * cbEditMode->getX()) * (2048.0f - velocityIntervalTableValues[xPos-1]) / 2048.0f;
 	}
 	else
 	{

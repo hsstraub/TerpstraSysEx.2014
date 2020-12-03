@@ -20,7 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 //[/Headers]
 
 
@@ -33,24 +33,19 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class GeneralOptionsDlg  : public Component,
-                           public TextEditor::Listener,
-                           public juce::Button::Listener
+class CurvesArea  : public juce::Component
 {
 public:
     //==============================================================================
-    GeneralOptionsDlg ();
-    ~GeneralOptionsDlg() override;
+    CurvesArea ();
+    ~CurvesArea() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void textEditorFocusLost(TextEditor& textEdit) override;
-
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -59,16 +54,12 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> labelExprContrSensivity;
-    std::unique_ptr<juce::TextEditor> txtExprCtrlSensivity;
-    std::unique_ptr<juce::ToggleButton> btnInvertFootCtrl;
-    std::unique_ptr<juce::Label> labelEXpressionPedalTitle;
-    std::unique_ptr<juce::Label> labelGeneralSettingslTitle;
-    std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<juce::Label> labelWindowTitle;
+    std::unique_ptr<juce::TabbedComponent> curvesTab;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneralOptionsDlg)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CurvesArea)
 };
 
 //[EndFile] You can add extra defines here...

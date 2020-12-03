@@ -22,8 +22,9 @@ public:
 	NoteOnOffVelocityCurveDialog();
 	~NoteOnOffVelocityCurveDialog() override;
 
-	void restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile);
+	// ToDo Read from and write to *.LMT file
+	//void restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile);
+	//void saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile);
 
 	virtual void sendVelocityTableToController() override;
 	virtual void sendVelocityConfigurationRequest() override;
@@ -38,4 +39,16 @@ protected:
 
 private:
 	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
+};
+
+class FaderVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	FaderVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader) {}
+};
+
+class AftertouchVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch) {}
 };
