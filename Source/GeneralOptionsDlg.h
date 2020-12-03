@@ -65,6 +65,7 @@ private:
     std::unique_ptr<juce::Label> labelEXpressionPedalTitle;
     std::unique_ptr<juce::Label> labelGeneralSettingslTitle;
     std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<juce::ToggleButton> buttonLightOnKeyStrokes;
 
 
     //==============================================================================
