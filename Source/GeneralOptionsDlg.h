@@ -46,6 +46,9 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void textEditorFocusLost(TextEditor& textEdit) override;
 
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

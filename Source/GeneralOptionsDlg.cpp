@@ -172,7 +172,10 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == buttonAfterTouchActive.get())
     {
         //[UserButtonCode_buttonAfterTouchActive] -- add your button handler code here..
-        //[/UserButtonCode_buttonAfterTouchActive]
+		((MainContentComponent*)getParentComponent())->getMappingInEdit().afterTouchActive = buttonAfterTouchActive->getToggleState();
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendAfterTouchActivation(buttonAfterTouchActive->getToggleState());
+		//[/UserButtonCode_buttonAfterTouchActive]
     }
     else if (buttonThatWasClicked == buttonLightOnKeyStrokes.get())
     {
@@ -209,6 +212,17 @@ void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 
 		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
 	}
+}
+
+void GeneralOptionsDlg::loadFromMapping()
+{
+	auto mappingInEdit = ((MainContentComponent*)getParentComponent())->getMappingInEdit();
+	
+	buttonAfterTouchActive->setToggleState(mappingInEdit.afterTouchActive, juce::NotificationType::sendNotification);
+	buttonLightOnKeyStrokes->setToggleState(mappingInEdit.lightOnKeyStrokes, juce::NotificationType::sendNotification);
+	
+	btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::sendNotification);
+	txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity));
 }
 
 //[/MiscUserCode]

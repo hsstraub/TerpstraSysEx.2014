@@ -45,6 +45,12 @@ void TerpstraKeyMapping::clearAll()
 {
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 		sets[i] = TerpstraKeys();
+
+	// Default values for options
+	afterTouchActive = false;
+	lightOnKeyStrokes = false;
+	invertFootController = false;
+	expressionControllerSensivity = 0;
 }
 
 /*
@@ -58,10 +64,11 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 
 	// Buffe data in case stringArray is from an older 56-keys subset 
 	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+	int boardIndex;
+	for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		fiftysixthKeys[boardIndex] = TerpstraKey();
 
-	int boardIndex = -1;
+	boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
 	{
 		String currentLine = stringArray[i];
@@ -160,16 +167,21 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			else
 				jassert(false);
 		}
+		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0)
+		{
+			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
+		}
+		// ToDo more options
 	}
 
 	// If it was a 56-key layout, convert to 55-key layout
 	bool fromFiftySixKeys = false;
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
+	for (boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
 		fromFiftySixKeys |= (!fiftysixthKeys[boardIndex].isEmpty());
 
 	if (fromFiftySixKeys)
 	{
-		for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		{
 			for (int keyIndex = 7; keyIndex < 54; keyIndex++)
 				sets[boardIndex].theKeys[keyIndex] = sets[boardIndex].theKeys[keyIndex + 1];
@@ -201,6 +213,9 @@ StringArray TerpstraKeyMapping::toStringArray()
 				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
 		}
 	}
+
+	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
+	// ToDo more options
 
 	return result;
 }
