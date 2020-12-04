@@ -175,7 +175,10 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 		{
 			lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
 		}
-		// ToDo invertFootController
+		else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0)
+		{
+			invertFootController = currentLine.substring(pos1 + 21).getIntValue() > 0;
+		}
 		// ToDO expressionControllerSensivity
 
 		// Velocity curve config
@@ -227,7 +230,7 @@ StringArray TerpstraKeyMapping::toStringArray()
 
 	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
 	result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
-	// ToDo invertFootController
+	result.add("InvertFootController=" + String(invertFootController ? 1 : 0));
 	// ToDO expressionControllerSensivity
 
 	// Velocity curve config

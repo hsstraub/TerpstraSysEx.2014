@@ -140,9 +140,7 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	// XXX If there are changes: ask for saving these first?
-
-	FileChooser chooser("Open a Lumatone key mapping", File(), "*.lmt");
+	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.lmt");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -162,7 +160,7 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Lumatone Key Mapping Files", File(), "*.lmt");
+	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.lmt");
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();
@@ -379,7 +377,7 @@ void TerpstraSysExApplication::sendCurrentMappingToDevice()
 	// General options
 	getMidiDriver().sendAfterTouchActivation(theConfig.afterTouchActive);
 	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
-	// ToDo invertFootController
+	getMidiDriver().sendInvertFootController(theConfig.invertFootController);
 	// ToDO expressionControllerSensivity
 
 	// Velocity curve config

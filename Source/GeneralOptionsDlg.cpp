@@ -162,11 +162,9 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertFootCtrl.get())
     {
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
-
-		// ToDo Set to parameter structure (to be saved in *.LMT file)
-
-		// Send foot controller parametrization to controller
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(buttonThatWasClicked->getToggleState());
+		((MainContentComponent*)getParentComponent())->getMappingInEdit().invertFootController = btnInvertFootCtrl->getToggleState();
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertFootCtrl->getToggleState());
         //[/UserButtonCode_btnInvertFootCtrl]
     }
     else if (buttonThatWasClicked == buttonAfterTouchActive.get())
