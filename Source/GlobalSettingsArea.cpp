@@ -51,7 +51,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     lblPresetButtonColours->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     lblPresetButtonColours->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    lblPresetButtonColours->setBounds (0, 0, 150, 24);
+    lblPresetButtonColours->setBounds (0, 8, 150, 24);
 
     lblColourInactiveMacroButton.reset (new juce::Label ("lblColourInactiveMacroButton",
                                                          TRANS("inactive")));
@@ -62,7 +62,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     lblColourInactiveMacroButton->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     lblColourInactiveMacroButton->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    lblColourInactiveMacroButton->setBounds (152, 24, 64, 24);
+    lblColourInactiveMacroButton->setBounds (152, 32, 64, 24);
 
     lblColourActiveMacroButton.reset (new juce::Label ("lblColourActiveMacroButton",
                                                        TRANS("active")));
@@ -73,7 +73,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     lblColourActiveMacroButton->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     lblColourActiveMacroButton->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    lblColourActiveMacroButton->setBounds (152, 0, 56, 24);
+    lblColourActiveMacroButton->setBounds (152, 8, 56, 24);
 
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
@@ -81,13 +81,13 @@ GlobalSettingsArea::GlobalSettingsArea ()
     buttonCalibrate->setButtonText (TRANS("Calibrate Keys"));
     buttonCalibrate->addListener (this);
 
-    buttonCalibrate->setBounds (344, 8, 112, 24);
+    buttonCalibrate->setBounds (336, 8, 112, 24);
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (472, 48);
+    setSize (456, 64);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -132,8 +132,8 @@ void GlobalSettingsArea::paint (juce::Graphics& g)
 void GlobalSettingsArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	inactiveMacroButtonColourEdit->setBounds(210, 0, 196, 24);
-	activeMacroButtonColourEdit->setBounds(210, 24, 196, 24);
+	inactiveMacroButtonColourEdit->setBounds(210, 8, 196, 24);
+	activeMacroButtonColourEdit->setBounds(210, 32, 196, 24);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
@@ -210,26 +210,26 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GlobalSettingsArea" componentName=""
                  parentClasses="public juce::Component, public ChangeListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="472"
-                 initialHeight="48">
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="456"
+                 initialHeight="64">
   <BACKGROUND backgroundColour="ff323e44"/>
   <LABEL name="lblPresetButtonColours" id="988da53c99fc73f2" memberName="lblPresetButtonColours"
-         virtualName="" explicitFocusOrder="0" pos="0 0 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 8 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Preset Button Colours:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="lblColourInactiveMacroButton" id="9c5cddfcc2966280" memberName="lblColourInactiveMacroButton"
-         virtualName="" explicitFocusOrder="0" pos="152 24 64 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="152 32 64 24" edTextCol="ff000000"
          edBkgCol="0" labelText="inactive" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="lblColourActiveMacroButton" id="79f93468a20f174" memberName="lblColourActiveMacroButton"
-         virtualName="" explicitFocusOrder="0" pos="152 0 56 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="152 8 56 24" edTextCol="ff000000"
          edBkgCol="0" labelText="active" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="buttonCalibrate" id="47242594c34a8de9" memberName="buttonCalibrate"
-              virtualName="" explicitFocusOrder="0" pos="344 8 112 24" tooltip="Calibrate keys aftertouch"
+              virtualName="" explicitFocusOrder="0" pos="336 8 112 24" tooltip="Calibrate keys aftertouch"
               buttonText="Calibrate Keys" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
 </JUCER_COMPONENT>

@@ -45,6 +45,12 @@ void TerpstraKeyMapping::clearAll()
 {
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 		sets[i] = TerpstraKeys();
+
+	// Default values for options
+	afterTouchActive = false;
+	lightOnKeyStrokes = false;
+	invertFootController = false;
+	expressionControllerSensivity = 0;
 }
 
 /*
@@ -57,7 +63,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 	clearAll();
 
 	bool hasFiftySixKeys = false;
-
 	int boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
 	{
@@ -150,13 +155,18 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			else
 				jassert(false);
 		}
+		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0)
+		{
+			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
+		}
+		// ToDo more options
 	}
 
 	// if it was a 55-key layout, convert to new 56-key layout
 	// ToDo Also convert from old 56-key layout? For this we will have to know the version
 	if (!hasFiftySixKeys)
 	{
-		for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		{
 			sets[boardIndex].theKeys[55] = sets[boardIndex].theKeys[54];
 			sets[boardIndex].theKeys[54] = TerpstraKey();
@@ -188,6 +198,9 @@ StringArray TerpstraKeyMapping::toStringArray()
 				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
 		}
 	}
+
+	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
+	// ToDo more options
 
 	return result;
 }

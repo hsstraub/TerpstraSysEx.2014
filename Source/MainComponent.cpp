@@ -89,14 +89,12 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	noteEditArea->onSetData(newData);
 
-	// ToDo general options
-
-	// ToDo curves
-
 	if (withRefresh)
 	{
 		refreshAllKeysOverview();
 		noteEditArea->refreshKeyFields();
+		generalOptionsArea->loadFromMapping();
+		// ToDo curves
 	}
 }
 

@@ -42,7 +42,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
     cbEditMode->setJustificationType (juce::Justification::centredLeft);
-    cbEditMode->setTextWhenNothingSelected (juce::String());
+    cbEditMode->setTextWhenNothingSelected (TRANS("Select drawing mode"));
     cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbEditMode->addItem (TRANS("Free drawing"), 1);
     cbEditMode->addItem (TRANS("Linear"), 2);
@@ -148,24 +148,25 @@ void VelocityCurveDlgBase::resized()
     //[UserResized] Add your own custom resize handling here..
 
 	float graphicsXPadding = cbEditMode->getX();
-	float graphicsBottom = h - pushButtonAreaHeight - labelCurrentXPos->getHeight();
+	float graphicsYPos = cbEditMode->getBottom() + BEAMTABLERIMABOVE;
+	float graphicsBottom = h - labelCurrentXPos->getHeight();
 
 	beamTableFrame.clear();
-	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPadding);
+	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPos);
 	beamTableFrame.lineTo(graphicsXPadding, graphicsBottom);
 	beamTableFrame.lineTo(w - graphicsXPadding, graphicsBottom);
-	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPadding);
+	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
 	beamTableFrame.closeSubPath();
 
 	if (currentCurveEditStrategy != nullptr)
 		currentCurveEditStrategy->resized();
 
-	float velocityGraphicsHeight = graphicsBottom - graphicsYPadding;
+	float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
 	float velocityBeamXPos = graphicsXPadding;
 	for (int x = 0; x < 128; x++)
 	{
 		auto velocityBeamWidth = beamWidth(x);
-		velocityBeamTable[x]->setBounds(velocityBeamXPos, graphicsYPadding, velocityBeamWidth, velocityGraphicsHeight);
+		velocityBeamTable[x]->setBounds(velocityBeamXPos, graphicsYPos, velocityBeamWidth, velocityGraphicsHeight);
 		velocityBeamXPos += velocityBeamWidth;
 	}
 
@@ -499,7 +500,7 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="8 8 296 24" editable="0"
-            layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected=""
+            layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected="Select drawing mode"
             textWhenNoItems="(no choices)"/>
   <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
          virtualName="" explicitFocusOrder="0" pos="0 40 31 16" edTextCol="ff000000"

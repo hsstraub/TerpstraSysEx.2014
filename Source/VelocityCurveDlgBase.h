@@ -104,9 +104,6 @@ private:
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
 	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
 
-	const float graphicsYPadding = 136.0f;
-	const float pushButtonAreaHeight = 36.0f;
-
 protected:
     //[/UserVariables]
 
