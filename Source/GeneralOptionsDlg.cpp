@@ -180,7 +180,10 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == buttonLightOnKeyStrokes.get())
     {
         //[UserButtonCode_buttonLightOnKeyStrokes] -- add your button handler code here..
-        //[/UserButtonCode_buttonLightOnKeyStrokes]
+		((MainContentComponent*)getParentComponent())->getMappingInEdit().lightOnKeyStrokes = buttonLightOnKeyStrokes->getToggleState();
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStrokes(buttonLightOnKeyStrokes->getToggleState());
+		//[/UserButtonCode_buttonLightOnKeyStrokes]
     }
 
     //[UserbuttonClicked_Post]

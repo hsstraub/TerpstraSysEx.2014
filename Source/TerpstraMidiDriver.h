@@ -32,6 +32,8 @@ System exclusive command bytes
 #define MACROBUTTON_COLOUR_ON 0x05
 #define MACROBUTTON_COLOUR_OFF 0x06
 
+#define SET_LIGHT_ON_KEYSTROKES 0x07
+
 #define SET_VELOCITY_CONFIG 0x08
 #define SAVE_VELOCITY_CONFIG 0x09
 #define RESET_VELOCITY_CONFIG 0x0A
@@ -155,6 +157,9 @@ public:
 
 	// Colour for macro button in inactive state
 	void sendMacroButtonInactiveColour(String colourAsString);
+
+	// Send parametrization of light on keystrokes
+	void sendLightOnKeyStrokes(bool value);
 
 	// Send a value for a velocity lookup table
 	void sendVelocityConfig(VelocityCurveType velocityCurveType, unsigned char velocityTable[]);

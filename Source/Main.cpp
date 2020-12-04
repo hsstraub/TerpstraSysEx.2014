@@ -328,6 +328,9 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		// Window title
 		updateMainTitle();
 
+		// Send configuraiton to controller, if connected
+		sendCurrentMappingToDevice();
+
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
 
@@ -368,9 +371,22 @@ bool TerpstraSysExApplication::saveCurrentFile()
 
 void TerpstraSysExApplication::sendCurrentMappingToDevice()
 {
-    getMidiDriver().sendCompleteMapping(
-        ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit()
-    );
+	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
+	
+	// MIDI channel, MIDI note, colour and key type config for all keys
+	getMidiDriver().sendCompleteMapping(theConfig);
+
+	// General options
+	getMidiDriver().sendAfterTouchActivation(theConfig.afterTouchActive);
+	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
+	// ToDo invertFootController
+	// ToDO expressionControllerSensivity
+
+	// Velocity curve config
+	// ToDo Velocity interval table
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 }
 
 void TerpstraSysExApplication::updateMainTitle()

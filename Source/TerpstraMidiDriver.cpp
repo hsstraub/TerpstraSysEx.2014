@@ -118,6 +118,11 @@ void TerpstraMidiDriver::sendMacroButtonInactiveColour(String colourAsString)
 	sendSysEx(0, MACROBUTTON_COLOUR_OFF, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
 }
 
+void TerpstraMidiDriver::sendLightOnKeyStrokes(bool value)
+{
+	sendSysEx(0, SET_LIGHT_ON_KEYSTROKES, value ? '\1' : '\0', '\0', '\0', '\0');
+}
+
 
 // Send a value for a velocity lookup table
 void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType, unsigned char velocityTable[])

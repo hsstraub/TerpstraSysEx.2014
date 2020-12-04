@@ -171,7 +171,18 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 		{
 			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
 		}
-		// ToDo more options
+		else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0)
+		{
+			lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
+		}
+		// ToDo invertFootController
+		// ToDO expressionControllerSensivity
+
+		// Velocity curve config
+		// ToDo Velocity interval table
+		// ToDo Note on/off velocity configuration
+		// ToDo Fader configuration
+		// ToDo Aftertouch configuration
 	}
 
 	// If it was a 56-key layout, convert to 55-key layout
@@ -215,7 +226,15 @@ StringArray TerpstraKeyMapping::toStringArray()
 	}
 
 	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
-	// ToDo more options
+	result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
+	// ToDo invertFootController
+	// ToDO expressionControllerSensivity
+
+	// Velocity curve config
+	// ToDo Velocity interval table
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 
 	return result;
 }

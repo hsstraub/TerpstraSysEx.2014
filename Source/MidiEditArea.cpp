@@ -261,8 +261,17 @@ void MidiEditArea::requestConfigurationFromDevice()
 	// Request MIDI channel, MIDI note, colour and key type config for all keys
 	TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();	
 	
-	// ToDo Request values for general options
-	// ToDo Request velocity curve config
+	// General options
+	// ToDo AfterTouchActive
+	// ToDo LightOnKeyStrokes
+	// ToDo invertFootController
+	// ToDO expressionControllerSensivity
+
+	// Velocity curve config
+	// ToDo Velocity interval table
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 }
 
 
