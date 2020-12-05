@@ -98,7 +98,7 @@ MidiEditArea::MidiEditArea ()
 
     //[/UserPreSize]
 
-    setSize (928, 48);
+    setSize (1024, 48);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -234,7 +234,7 @@ void MidiEditArea::onOpenConnectionToDevice()
 	if (TerpstraSysExApplication::getApp().getHasChangesToSave())
 	{
 		auto retc = AlertWindow::showOkCancelBox(
-			AlertWindow::AlertIconType::QuestionIcon, 
+			AlertWindow::AlertIconType::QuestionIcon,
 			"Establishing connection to controller",
 			"The controller's current configuration will be received now. This will overwrite all edits you have done, Do you want to continue?");
 
@@ -259,10 +259,19 @@ void MidiEditArea::onOpenConnectionToDevice()
 void MidiEditArea::requestConfigurationFromDevice()
 {
 	// Request MIDI channel, MIDI note, colour and key type config for all keys
-	TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();	
-	
-	// ToDo Request values for general options
-	// ToDo Request velocity curve config
+	TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();
+
+	// General options
+	// ToDo AfterTouchActive
+	// ToDo LightOnKeyStrokes
+	// ToDo invertFootController
+	// ToDO expressionControllerSensivity
+
+	// Velocity curve config
+	// ToDo Velocity interval table
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 }
 
 
@@ -377,7 +386,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public TerpstraMidiDriver::Listener, public ChangeListener"
                  constructorParams="" variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="928" initialHeight="48">
+                 fixedSize="0" initialWidth="1024" initialHeight="48">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbMidiInput" id="aad3610c2aac943b" memberName="cbMidiInput"
             virtualName="" explicitFocusOrder="0" pos="232 8 184 24" tooltip="Receives answers to sent SysEx commands and the current configuration from controller "

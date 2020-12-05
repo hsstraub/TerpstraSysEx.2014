@@ -155,11 +155,29 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			else
 				jassert(false);
 		}
+		// General options
 		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0)
 		{
 			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
 		}
-		// ToDo more options
+		else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0)
+		{
+			lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0)
+		{
+			invertFootController = currentLine.substring(pos1 + 21).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0)
+		{
+			expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
+		}
+
+		// Velocity curve config
+		// ToDo Velocity interval table
+		// ToDo Note on/off velocity configuration
+		// ToDo Fader configuration
+		// ToDo Aftertouch configuration
 	}
 
 	// if it was a 55-key layout, convert to new 56-key layout
@@ -199,8 +217,17 @@ StringArray TerpstraKeyMapping::toStringArray()
 		}
 	}
 
+	// General options
 	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
-	// ToDo more options
+	result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
+	result.add("InvertFootController=" + String(invertFootController ? 1 : 0));
+	result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
+
+	// Velocity curve config
+	// ToDo Velocity interval table
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 
 	return result;
 }

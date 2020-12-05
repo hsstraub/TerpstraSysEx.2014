@@ -140,9 +140,7 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	// XXX If there are changes: ask for saving these first?
-
-	FileChooser chooser("Open a Lumatone key mapping", File(), "*.lmt");
+	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.lmt");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -162,7 +160,7 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Lumatone Key Mapping Files", File(), "*.lmt");
+	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.lmt");
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();
@@ -328,6 +326,9 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		// Window title
 		updateMainTitle();
 
+		// Send configuraiton to controller, if connected
+		sendCurrentMappingToDevice();
+
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
 
@@ -368,9 +369,22 @@ bool TerpstraSysExApplication::saveCurrentFile()
 
 void TerpstraSysExApplication::sendCurrentMappingToDevice()
 {
-    getMidiDriver().sendCompleteMapping(
-        ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit()
-    );
+	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
+	
+	// MIDI channel, MIDI note, colour and key type config for all keys
+	getMidiDriver().sendCompleteMapping(theConfig);
+
+	// General options
+	getMidiDriver().sendAfterTouchActivation(theConfig.afterTouchActive);
+	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
+	getMidiDriver().sendInvertFootController(theConfig.invertFootController);
+	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+
+	// Velocity curve config
+	// ToDo Velocity interval table
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 }
 
 void TerpstraSysExApplication::updateMainTitle()
