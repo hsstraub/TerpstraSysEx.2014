@@ -44,9 +44,8 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     labelExprContrSensivity->setBounds (200, 32, 64, 24);
 
-    txtExprCtrlSensivity.reset (new juce::TextEditor ("new text editor"));
+    txtExprCtrlSensivity.reset (new juce::TextEditor ("txtExprCtrlSensivity"));
     addAndMakeVisible (txtExprCtrlSensivity.get());
-    txtExprCtrlSensivity->setTooltip (TRANS("Not working yet"));
     txtExprCtrlSensivity->setMultiLine (false);
     txtExprCtrlSensivity->setReturnKeyStartsNewLine (false);
     txtExprCtrlSensivity->setReadOnly (false);
@@ -173,7 +172,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().afterTouchActive = buttonAfterTouchActive->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 		TerpstraSysExApplication::getApp().getMidiDriver().sendAfterTouchActivation(buttonAfterTouchActive->getToggleState());
-		//[/UserButtonCode_buttonAfterTouchActive]
+        //[/UserButtonCode_buttonAfterTouchActive]
     }
     else if (buttonThatWasClicked == buttonLightOnKeyStrokes.get())
     {
@@ -181,7 +180,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().lightOnKeyStrokes = buttonLightOnKeyStrokes->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStrokes(buttonLightOnKeyStrokes->getToggleState());
-		//[/UserButtonCode_buttonLightOnKeyStrokes]
+        //[/UserButtonCode_buttonLightOnKeyStrokes]
     }
 
     //[UserbuttonClicked_Post]
@@ -191,6 +190,30 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void GeneralOptionsDlg::textEditorTextChanged(TextEditor& textEdit)
+{
+	if (&textEdit == txtExprCtrlSensivity.get())
+	{
+		int newSensitvity = textEdit.getText().getIntValue();
+		// ToDo value checking: encapsulate in keyboard data structure?
+		if (newSensitvity < 0)
+		{
+			newSensitvity = 0;
+			textEdit.setText(String(newSensitvity));
+		}
+
+		if (newSensitvity > 0x7f)
+		{
+			newSensitvity = 0x7f;
+			textEdit.setText(String(newSensitvity));
+		}
+
+		((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
+	}
+}
 
 void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 {
@@ -209,8 +232,8 @@ void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 			textEdit.setText(String(newSensitvity));
 		}
 
-		// ToDo Set to parameter structure (to be saved in *.LMT file)
-
+		((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
 	}
 }
@@ -218,10 +241,10 @@ void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
 void GeneralOptionsDlg::loadFromMapping()
 {
 	auto mappingInEdit = ((MainContentComponent*)getParentComponent())->getMappingInEdit();
-	
+
 	buttonAfterTouchActive->setToggleState(mappingInEdit.afterTouchActive, juce::NotificationType::sendNotification);
 	buttonLightOnKeyStrokes->setToggleState(mappingInEdit.lightOnKeyStrokes, juce::NotificationType::sendNotification);
-	
+
 	btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::sendNotification);
 	txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity));
 }
@@ -249,10 +272,10 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Sensivity:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="new text editor" id="859fad57998470cd" memberName="txtExprCtrlSensivity"
-              virtualName="" explicitFocusOrder="0" pos="264 32 56 24" tooltip="Not working yet"
-              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
-              scrollbars="1" caret="1" popupmenu="1"/>
+  <TEXTEDITOR name="txtExprCtrlSensivity" id="859fad57998470cd" memberName="txtExprCtrlSensivity"
+              virtualName="" explicitFocusOrder="0" pos="264 32 56 24" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
   <TOGGLEBUTTON name="btnInvertFootCtrl" id="ef6e332d2b99beda" memberName="btnInvertFootCtrl"
                 virtualName="" explicitFocusOrder="0" pos="200 64 128 24" buttonText="Invert Pedal"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>

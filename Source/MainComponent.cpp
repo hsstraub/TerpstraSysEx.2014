@@ -176,6 +176,9 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& message)
 
         if (answerState == TerpstraMidiDriver::ACK)
         {
+			// ToDo General options
+			// ToDo Velocity curves
+
             // After the answer state byte there must be 55 bytes of data (one for each key)
             jassert(message.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
 

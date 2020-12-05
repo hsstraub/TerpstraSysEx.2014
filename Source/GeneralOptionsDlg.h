@@ -44,6 +44,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void textEditorTextChanged(TextEditor& textEdit) override;
 	void textEditorFocusLost(TextEditor& textEdit) override;
 
 	// New mapping is loaded. Display data.
