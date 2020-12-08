@@ -41,6 +41,16 @@ TerpstraKeyMapping::TerpstraKeyMapping()
 	clearAll();
 }
 
+void TerpstraKeyMapping::clearVelocityIntervalTable()
+{
+	// Default interval table: equal division
+	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+	{
+		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
+	}
+
+}
+
 void TerpstraKeyMapping::clearAll()
 {
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
@@ -51,6 +61,8 @@ void TerpstraKeyMapping::clearAll()
 	lightOnKeyStrokes = false;
 	invertFootController = false;
 	expressionControllerSensivity = 0;
+
+	clearVelocityIntervalTable();
 }
 
 /*
@@ -62,7 +74,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
-	// Buffe data in case stringArray is from an older 56-keys subset 
+	// Buffer data in case stringArray is from an older 56-keys subset 
 	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
 	int boardIndex;
 	for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
@@ -159,7 +171,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 					else if (keyIndex == 55)
 						fiftysixthKeys[boardIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
 					else
-						jassert(false);
+					jassert(false);
 				}
 				else
 					jassert(false);
@@ -184,9 +196,25 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 		{
 			expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
 		}
-
 		// Velocity curve config
-		// ToDo Velocity interval table
+		else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0)
+		{
+			String intervalTableString = currentLine.substring(pos1 + 18);
+			StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
+			if (intervalTableValueArray.size() > 0)
+			{
+				jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
+
+				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+				{
+					velocityIntervalTableValues[i] = intervalTableValueArray[i].getIntValue();
+				}
+			}
+			else
+			{
+				clearVelocityIntervalTable();
+			}
+		}
 		// ToDo Note on/off velocity configuration
 		// ToDo Fader configuration
 		// ToDo Aftertouch configuration
@@ -239,7 +267,13 @@ StringArray TerpstraKeyMapping::toStringArray()
 	result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
 
 	// Velocity curve config
-	// ToDo Velocity interval table
+
+	String intervalTableString;
+	for (auto intervalTableValue : velocityIntervalTableValues)
+		intervalTableString += String(intervalTableValue) + " ";
+
+	result.add("VelocityIntrvlTbl=" + intervalTableString);
+
 	// ToDo Note on/off velocity configuration
 	// ToDo Fader configuration
 	// ToDo Aftertouch configuration

@@ -381,7 +381,7 @@ void TerpstraSysExApplication::sendCurrentMappingToDevice()
 	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
 
 	// Velocity curve config
-	// ToDo Velocity interval table
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);	
 	// ToDo Note on/off velocity configuration
 	// ToDo Fader configuration
 	// ToDo Aftertouch configuration

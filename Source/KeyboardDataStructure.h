@@ -57,11 +57,15 @@ A complete key mapping
 */
 #define NUMBEROFBOARDS 5
 
+// Number of entries in the velocity interval table
+#define VELOCITYINTERVALTABLESIZE 127
+
 class TerpstraKeyMapping
 {
 public:
 	TerpstraKeyMapping();
 
+	void clearVelocityIntervalTable();
 	void clearAll();
 
 	void fromStringArray(const StringArray& stringArray);
@@ -70,11 +74,21 @@ public:
 	// The colours that are used
 	SortedSet<int> getUsedColours();
 
+	// Ticks count of a position in the celocity interval table
+	static int ticksCountFromXPos(int xPos) { return xPos * 16; }
+
+
 public:
+	// Key configuration
 	TerpstraKeys	sets[NUMBEROFBOARDS];
 
+	// General options
 	bool afterTouchActive;
 	bool lightOnKeyStrokes;
 	bool invertFootController;
 	int expressionControllerSensivity;
+
+	// Velocity curves
+	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
+
 };

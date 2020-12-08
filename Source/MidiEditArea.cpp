@@ -268,7 +268,8 @@ void MidiEditArea::requestConfigurationFromDevice()
 	// ToDO expressionControllerSensivity
 
 	// Velocity curve config
-	// ToDo Velocity interval table
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
+
 	// ToDo Note on/off velocity configuration
 	// ToDo Fader configuration
 	// ToDo Aftertouch configuration

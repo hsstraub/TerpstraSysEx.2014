@@ -93,6 +93,11 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
 	labelCurrentBeamValue->setVisible(false);
 	labelCurrentXPos->setVisible(false);
+
+	// Initialize velocity lookup table
+	for (int x = 0; x < 128; x++)
+		velocityBeamTable[x]->setValue(x);
+
     //[/Constructor]
 }
 
@@ -271,14 +276,6 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 //	if (currentCurveEditStrategy != nullptr)
 //		currentCurveEditStrategy->setVelocityTableValuesFromEditConfig();
 //
-//    // Window size: read in calling function when creating this window
-//
-//    if(velocityCurveType == TerpstraMidiDriver::VelocityCurveType::afterTouch)
-//    {
-//        buttonAfterTouchActive->setToggleState(
-//            propertiesFile->getBoolValue("AfterTouchActive", false),
-//            juce::NotificationType::sendNotification);
-//    }
 //}
 //
 //void VelocityCurveDlgBase::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -314,25 +311,6 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 //
 //	propertiesFile->setValue(keyName, velocityCurveString);
 //
-//    switch(velocityCurveType)
-//    {
-//        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-//            propertiesFile->setValue("VelocityCurveWindowWidth", getParentComponent()->getWidth());
-//            propertiesFile->setValue("VelocityCurveWindowHeight", getParentComponent()->getHeight());
-//            break;
-//        case TerpstraMidiDriver::VelocityCurveType::fader:
-//            propertiesFile->setValue("FaderVelocityCurveWindowWidth", getParentComponent()->getWidth());
-//            propertiesFile->setValue("FaderVelocityCurveWindowHeight", getParentComponent()->getHeight());
-//            break;
-//        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-//            propertiesFile->setValue("AfterTouchActive", buttonAfterTouchActive->getToggleState());
-//            propertiesFile->setValue("AftertouchVelocityCurveWindowWidth", getParentComponent()->getWidth());
-//            propertiesFile->setValue("AftertouchVelocityCurveWindowHeight", getParentComponent()->getHeight());
-//            break;
-//        default:
-//            jassert(false);
-//            break;
-//    }
 //}
 
 void VelocityCurveDlgBase::sendVelocityTableToController()

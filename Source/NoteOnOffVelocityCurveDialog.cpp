@@ -17,12 +17,6 @@ NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
 	: VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
 {
 	labelCurrentXPos->setSize(128, labelCurrentXPos->getHeight());
-
-	// Default interval table: equal division
-	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-	{
-		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
-	}
 }
 
 NoteOnOffVelocityCurveDialog::~NoteOnOffVelocityCurveDialog()
@@ -31,97 +25,38 @@ NoteOnOffVelocityCurveDialog::~NoteOnOffVelocityCurveDialog()
 
 // ToDo Read from and write to *.LMT file
 
-//void NoteOnOffVelocityCurveDialog::restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile)
-//{
-//	String intervalTableString = propertiesFile->getValue("NoteOnOffVelocityIntervalTable");
-//	// ToDo Saved string from older version, with drawing stategy and values -1: to be ignored 
-//
-//	StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
-//	if (intervalTableValueArray.size() > 0)
-//	{
-//		jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
-//
-//		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-//		{
-//			velocityIntervalTableValues[i] = intervalTableValueArray[i].getIntValue();
-//		}
-//	}
-//	else
-//	{
-//		// Default interval table: equal division
-//		for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-//		{
-//			velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
-//		}
-//	}
-//}
-//
-//void NoteOnOffVelocityCurveDialog::saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile)
-//{
-//	String intervalTableString;
-//	for (auto intervalTableValue : velocityIntervalTableValues)
-//		intervalTableString += String(intervalTableValue) + " ";
-//
-//	propertiesFile->setValue("NoteOnOffVelocityIntervalTable", intervalTableString);
-//}
-
-void NoteOnOffVelocityCurveDialog::sendVelocityTableToController()
-{
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(velocityIntervalTableValues);
-
-	__super::sendVelocityTableToController();
-}
-
-void NoteOnOffVelocityCurveDialog::sendVelocityConfigurationRequest()
-{
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
-
-	__super::sendVelocityConfigurationRequest();
-}
-
-void NoteOnOffVelocityCurveDialog::midiMessageReceived(const MidiMessage& midiMessage)
-{
-	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
-	{
-		auto sysExData = midiMessage.getSysExData();
-		auto answerState = sysExData[5];
-
-		if (answerState == TerpstraMidiDriver::ACK)
-		{
-			// After the answer state byte there must be 254 bytes of data
-			jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
-
-			for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-				velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
-		}
-
-		resized();
-		repaint();
-	}
-	else
-		__super::midiMessageReceived(midiMessage);
-}
-
 String NoteOnOffVelocityCurveDialog::beamXPosText(int xPos) const
 {
-	auto ticksCount = ticksCountFromXPos(xPos);
+	auto ticksCount = TerpstraKeyMapping::ticksCountFromXPos(xPos);
 
 	{ return String(ticksCount) + " ticks (" + String(milliSecondsFromTicksCount(ticksCount)) + " ms)"; }
 }
 
 float NoteOnOffVelocityCurveDialog::beamWidth(int xPos) const
 {
+	// Securtity in case parent- component has no value yet
+	jassert(getParentComponent() != nullptr);
+	jassert(getParentComponent()->getParentComponent() != nullptr);
+
+	// Resized is already called when tabbed ocponent is constructed, at a time where its parent has not been assigned yet
+	if (getParentComponent()->getParentComponent()->getParentComponent() == nullptr)
+	{
+		return 1;	// ad-hoc
+	}
+
+	auto mappingInEdit = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit();
+
 	if (xPos == 0)
 	{
-		return (getWidth() - 2.0f * cbEditMode->getX()) * velocityIntervalTableValues[0] / 2048.0f;
+		return (getWidth() - 2.0f * cbEditMode->getX()) * mappingInEdit.velocityIntervalTableValues[0] / 2048.0f;
 	}
 	else if (xPos < VELOCITYINTERVALTABLESIZE)
 	{
-		return (getWidth() - 2.0f * cbEditMode->getX()) * (velocityIntervalTableValues[xPos] - velocityIntervalTableValues[xPos-1]) / 2048.0f;
+		return (getWidth() - 2.0f * cbEditMode->getX()) * (mappingInEdit.velocityIntervalTableValues[xPos] - mappingInEdit.velocityIntervalTableValues[xPos-1]) / 2048.0f;
 	}
 	else if (xPos == VELOCITYINTERVALTABLESIZE)
 	{
-		return (getWidth() - 2.0f * cbEditMode->getX()) * (2048.0f - velocityIntervalTableValues[xPos-1]) / 2048.0f;
+		return (getWidth() - 2.0f * cbEditMode->getX()) * (2048.0f - mappingInEdit.velocityIntervalTableValues[xPos-1]) / 2048.0f;
 	}
 	else
 	{
