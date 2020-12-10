@@ -269,10 +269,9 @@ void MidiEditArea::requestConfigurationFromDevice()
 
 	// Velocity curve config
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
-
-	// ToDo Note on/off velocity configuration
-	// ToDo Fader configuration
-	// ToDo Aftertouch configuration
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::fader);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::afterTouch);
 }
 
 

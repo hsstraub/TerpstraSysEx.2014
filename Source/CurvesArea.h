@@ -21,6 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
+
+#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -42,6 +44,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -51,6 +55,14 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+	enum curvesTabIndex
+	{
+		noteOnOffVelocityCurve = 0,
+		faderConfig = 1,
+		aftertouchConfig = 2
+	};
+
     //[/UserVariables]
 
     //==============================================================================

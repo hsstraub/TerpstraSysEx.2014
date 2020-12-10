@@ -26,7 +26,7 @@ protected:
 	float milliSecondsFromTicksCount(int ticksCount) const { return 1.1f * ticksCount; }
 
 	virtual String beamXPosText(int xPos) const override;
-	virtual float beamWidth(int xPos) const override;
+	virtual float beamWidth(int xPos) override;
 
 };
 

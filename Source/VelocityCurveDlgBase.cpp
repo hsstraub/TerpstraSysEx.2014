@@ -35,7 +35,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	velocityCurveType = typeValue;
-	currentCurveEditStrategy = nullptr;
     //[/Constructor_pre]
 
     cbEditMode.reset (new juce::ComboBox ("cbEditMode"));
@@ -76,6 +75,10 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     //[UserPreSize]
 
+	drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
+	drawingStrategies[TerpstraVelocityCurveConfig::linearSegments] = &linearDrawingStrategy;
+	drawingStrategies[TerpstraVelocityCurveConfig::quadraticCurves] = &quadraticDrawingStrategy;
+
 	for (int x = 0; x < 128; x++)
 	{
 		velocityBeamTable[x].reset(new  VelocityCurveBeam());
@@ -89,8 +92,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
 
     //[Constructor] You can add your own custom stuff here..
-    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
-
 	labelCurrentBeamValue->setVisible(false);
 	labelCurrentXPos->setVisible(false);
 
@@ -104,8 +105,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 VelocityCurveDlgBase::~VelocityCurveDlgBase()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
-
     for (int x = 0; x < 128; x++) {
 		velocityBeamTable[x] = nullptr;
 	}
@@ -135,10 +134,11 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
 	g.setColour(findColour(VelocityCurveBeam::outlineColourId));
 	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
-	if (currentCurveEditStrategy != nullptr)
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
 	{
 		//lblDescription->setText(currentCurveEditStrategy->getDescriptionText(), juce::NotificationType::dontSendNotification);
-		currentCurveEditStrategy->paint(g, getLookAndFeel());
+		currentDrawingStrategy->paint(g, getLookAndFeel());
 	}
     //[/UserPaint]
 }
@@ -163,8 +163,9 @@ void VelocityCurveDlgBase::resized()
 	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
 	beamTableFrame.closeSubPath();
 
-	if (currentCurveEditStrategy != nullptr)
-		currentCurveEditStrategy->resized();
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
+		currentDrawingStrategy->resized();
 
 	float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
 	float velocityBeamXPos = graphicsXPadding;
@@ -188,28 +189,18 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
         //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
 		int editModeIndex = cbEditMode->getSelectedItemIndex();
 
-		switch (editModeIndex)
+		auto configInEdit = getConfigInEdit();
+		if (configInEdit != nullptr)
 		{
-		case EDITSTRATEGYINDEX::freeDrawing:
-			currentCurveEditStrategy = &freeDrawingStrategy;
-			break;
-
-		case EDITSTRATEGYINDEX::linearSegments:
-			currentCurveEditStrategy = &linearDrawingStrategy;
-			break;
-
-		case EDITSTRATEGYINDEX::quadraticCurves:
-			currentCurveEditStrategy = &quadraticDrawingStrategy;
-			break;
-
-		default:
-			currentCurveEditStrategy = nullptr;
-			break;
+			configInEdit->editStrategy = static_cast<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX>(editModeIndex);
 		}
 
 		// Set edit config according to current values of velocity table, of possible
-		if (currentCurveEditStrategy != nullptr)
-			currentCurveEditStrategy->setEditConfigFromVelocityTable();
+		auto currentDrawingStrategy = getCurrentDrawingStrategy();
+		if (currentDrawingStrategy != nullptr)
+			currentDrawingStrategy->setEditConfigFromVelocityTable();
+
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 		repaint();
         //[/UserComboBoxCode_cbEditMode]
@@ -223,60 +214,37 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-// ToDo Read from and write to *.LMT file
+void VelocityCurveDlgBase::loadFromMapping()
+{
+	auto configInEdit = getConfigInEdit();
 
-//void VelocityCurveDlgBase::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
-//{
-//	String keyName;
-//    switch(velocityCurveType)
-//    {
-//        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-//            keyName = "NoteOnOffVelocityCurveTable";
-//            break;
-//        case TerpstraMidiDriver::VelocityCurveType::fader:
-//            keyName = "FaderVelocityCurveTable";
-//            break;
-//        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-//            keyName = "AfterTouchCurveTable";
-//            break;
-//        default:
-//            jassert(false);
-//            break;
-//    }
-//
-//	String propertiesString = propertiesFile->getValue(keyName);
-//
-//	// Format of properties string includes edit strategy. Parse values incl. edit strategy. Free drawing (default) last
-//
-//	if (linearDrawingStrategy.setEditConfigFromSavedString(propertiesString))
-//	{
-//		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::linearSegments, juce::NotificationType::dontSendNotification);
-//		currentCurveEditStrategy = &linearDrawingStrategy;
-//	}
-//	else if (quadraticDrawingStrategy.setEditConfigFromSavedString(propertiesString))
-//	{
-//		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::quadraticCurves, juce::NotificationType::dontSendNotification);
-//		currentCurveEditStrategy = &quadraticDrawingStrategy;
-//	}
-//	else if (freeDrawingStrategy.setEditConfigFromSavedString(propertiesString))
-//	{
-//		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
-//		currentCurveEditStrategy = &freeDrawingStrategy;
-//	}
-//	else
-//	{
-//		// Initialize velocity lookup table
-//		for (int x = 0; x < 128; x++)
-//			velocityBeamTable[x]->setValue(x);
-//
-//		cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
-//		currentCurveEditStrategy = nullptr;
-//	}
-//
-//	if (currentCurveEditStrategy != nullptr)
-//		currentCurveEditStrategy->setVelocityTableValuesFromEditConfig();
-//
-//}
+	if (configInEdit != nullptr)
+	{
+		cbEditMode->setSelectedItemIndex(configInEdit->editStrategy, juce::NotificationType::dontSendNotification);
+	}
+	else
+	{
+		jassert(false);
+		cbEditMode->setSelectedItemIndex(TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
+	}
+
+	// Set edit config according to current values of velocity table, of possible
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
+	{
+		currentDrawingStrategy->setValueTable(configInEdit->velocityValues);
+
+		currentDrawingStrategy->setEditConfigFromVelocityTable();
+	}
+	else
+	{
+		// Initialize velocity lookup table
+		for (int x = 0; x < 128; x++)
+			velocityBeamTable[x]->setValue(x);
+	}
+}
+
+// ToDo Write to *.LMT file
 //
 //void VelocityCurveDlgBase::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 //{
@@ -385,8 +353,9 @@ void VelocityCurveDlgBase::mouseMove(const MouseEvent &event)
 
 	bool doRepaint = showBeamValueOfMousePosition(localPoint);
 
-	if (currentCurveEditStrategy != nullptr)
-		doRepaint |= currentCurveEditStrategy->mouseMove(event, localPoint);
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
+		doRepaint |= currentDrawingStrategy->mouseMove(event, localPoint);
 
 	if (doRepaint)
 		repaint();
@@ -398,9 +367,10 @@ void VelocityCurveDlgBase::mouseDown(const MouseEvent &event)
 
 	showBeamValueOfMousePosition(localPoint);
 
-	if (currentCurveEditStrategy != nullptr)
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
 	{
-		if (currentCurveEditStrategy->mouseDown(event, localPoint))
+		if (currentDrawingStrategy->mouseDown(event, localPoint))
 		{
 			repaint();
 		}
@@ -413,9 +383,10 @@ void VelocityCurveDlgBase::mouseDrag(const MouseEvent &event)
 
 	showBeamValueOfMousePosition(localPoint);
 
-	if (currentCurveEditStrategy != nullptr)
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
 	{
-		if (currentCurveEditStrategy->mouseDrag(event, localPoint))
+		if (currentDrawingStrategy->mouseDrag(event, localPoint))
 		{
 			repaint();
 		}
@@ -426,8 +397,11 @@ void VelocityCurveDlgBase::mouseUp(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	if (currentCurveEditStrategy != nullptr)
-		currentCurveEditStrategy->mouseUp(event, localPoint);
+	auto currentDrawingStrategy = getCurrentDrawingStrategy();
+	if (currentDrawingStrategy != nullptr)
+		currentDrawingStrategy->mouseUp(event, localPoint);
+
+	TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
     // Send velocity table to controller
 	sendVelocityTableToController();
@@ -435,26 +409,51 @@ void VelocityCurveDlgBase::mouseUp(const MouseEvent &event)
 	repaint();
 }
 
-
-void VelocityCurveDlgBase::midiMessageReceived(const MidiMessage& message)
+TerpstraKeyMapping*	VelocityCurveDlgBase::getMappingInEdit()
 {
-    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(message, velocityCurveType))
-    {
-        auto sysExData = message.getSysExData();
-        auto answerState = sysExData[5];
+	// Security at start of program
+	if (getParentComponent() == nullptr)
+		return nullptr;
+	if (getParentComponent()->getParentComponent() == nullptr)
+		return nullptr;
+	if (getParentComponent()->getParentComponent()->getParentComponent() == nullptr)
+		return nullptr;
 
-        if (answerState == TerpstraMidiDriver::ACK)
-        {
-            // After the answer state byte there must be 128 bytes of data
-            jassert(message.getSysExDataSize() >= 134); // ToDo display error otherwise
+	return &(dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit();
+}
 
-            cbEditMode->setSelectedItemIndex(EDITSTRATEGYINDEX::freeDrawing, juce::NotificationType::dontSendNotification);
-            currentCurveEditStrategy = &freeDrawingStrategy;
+TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
+{
+	auto mappingInEdit = getMappingInEdit();
+	if(mappingInEdit == nullptr)
+		return nullptr;
 
-            for (int x = 0; x < 128; x++)
-                velocityBeamTable[x]->setValue(sysExData[6+x]);
-        }
-    }
+	switch(velocityCurveType)
+	{
+	case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+		return &mappingInEdit->noteOnOffVelocityCurveConfig;
+
+	case TerpstraMidiDriver::VelocityCurveType::fader:
+		return &mappingInEdit->faderConfig;
+	case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+		return &mappingInEdit->afterTouchConfig;
+	default:
+		jassertfalse;
+		return nullptr;
+	}
+}
+
+VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()
+{
+	auto configInEdit = getConfigInEdit();
+	if (configInEdit == nullptr)
+		return nullptr;
+
+	auto strategyItr = drawingStrategies.find(configInEdit->editStrategy);
+	if (strategyItr == drawingStrategies.end())
+		return nullptr;
+
+	return strategyItr->second;
 }
 
 //[/MiscUserCode]
@@ -470,8 +469,7 @@ void VelocityCurveDlgBase::midiMessageReceived(const MidiMessage& message)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlgBase" componentName=""
-                 parentClasses="public Component, public TerpstraMidiDriver::Listener"
-                 constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
+                 parentClasses="public Component" constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
                  variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="320" initialHeight="160">

@@ -50,6 +50,32 @@ struct TerpstraKeys {
 	bool isEmpty() const;
 };
 
+// Velocity curve config
+
+class TerpstraVelocityCurveConfig
+{
+public:
+	typedef enum
+	{
+		none = -1,
+		freeDrawing = 0,
+		linearSegments = 1,
+		quadraticCurves = 2
+	} EDITSTRATEGYINDEX;
+
+public:
+	TerpstraVelocityCurveConfig();
+	TerpstraVelocityCurveConfig(const String& velocityCurveConfigString);
+
+	String createConfigStringForSaving();
+
+public:
+	EDITSTRATEGYINDEX editStrategy;
+
+	// Velocity curve values. Meaning varies depending on editStrategy
+	int velocityValues[128];
+};
+
 /*
 ==============================================================================
 A complete key mapping
@@ -77,7 +103,6 @@ public:
 	// Ticks count of a position in the celocity interval table
 	static int ticksCountFromXPos(int xPos) { return xPos * 16; }
 
-
 public:
 	// Key configuration
 	TerpstraKeys	sets[NUMBEROFBOARDS];
@@ -91,4 +116,7 @@ public:
 	// Velocity curves
 	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
 
+	TerpstraVelocityCurveConfig	noteOnOffVelocityCurveConfig;
+	TerpstraVelocityCurveConfig faderConfig;
+	TerpstraVelocityCurveConfig afterTouchConfig;
 };

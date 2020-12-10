@@ -95,7 +95,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 		refreshAllKeysOverview();
 		noteEditArea->refreshKeyFields();
 		generalOptionsArea->loadFromMapping();
-		curvesArea->resized();
+		curvesArea->loadFromMapping();
 		curvesArea->repaint();
 	}
 }
@@ -197,6 +197,20 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 
 				curvesArea->resized();
 				curvesArea->repaint();
+			}
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff))
+			{
+				auto sysExData = midiMessage.getSysExData();
+				auto answerState = sysExData[5];
+
+				if (answerState == TerpstraMidiDriver::ACK)
+				{
+					// After the answer state byte there must be 128 bytes of data
+					jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+
+					// XXX Same logic as in VelocityCurveFreeDrawingStrategy::createPropertiesStringForSaving()
+					curvesArea->loadFromMapping();
+				}
 			}
 			// ToDo more curve data
 
