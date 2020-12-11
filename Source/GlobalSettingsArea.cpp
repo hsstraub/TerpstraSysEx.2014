@@ -99,10 +99,6 @@ GlobalSettingsArea::GlobalSettingsArea ()
 GlobalSettingsArea::~GlobalSettingsArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-
-	// Save values to properties file
-	saveStateToPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
-
 	inactiveMacroButtonColourEdit = nullptr;
 	activeMacroButtonColourEdit = nullptr;
     //[/Destructor_pre]

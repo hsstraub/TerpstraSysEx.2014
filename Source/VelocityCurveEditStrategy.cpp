@@ -23,7 +23,6 @@ VelocityCurveEditStrategyBase::VelocityCurveEditStrategyBase(
 {
 }
 
-
 /*
 ==============================================================================
 VelocityCurveFreeDrawingStrategy class
@@ -37,22 +36,10 @@ VelocityCurveFreeDrawingStrategy::VelocityCurveFreeDrawingStrategy(
 {
 }
 
-bool VelocityCurveFreeDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
+bool VelocityCurveFreeDrawingStrategy::setValueTable(int velocityTableValues[])
 {
-	StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString, false);
-	if (velocityCurveValueArray.size() > 0)
-	{
-		jassert(velocityCurveValueArray.size() >= 128);
-
-		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(velocityCurveValueArray[x].getIntValue());
-	}
-	else
-	{
-		// Initialize velocity lookup table
-		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setValue(x);
-	}
+	for (int x = 0; x < 128; x++)
+		velocityBeamTable[x]->setValue(velocityTableValues[x]);
 
 	return true;
 }
@@ -159,6 +146,16 @@ VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(
 
 	fixPointBeamHeights[127] = 127;
 }
+
+bool VelocityCurveSegmentEditStrategyBase::setValueTable(int velocityTableValues[])
+{
+	for (int x = 0; x < 128; x++)
+		fixPointBeamHeights[x] = velocityTableValues[x];
+
+	setVelocityTableValuesFromEditConfig();
+	return true;
+}
+
 
 void VelocityCurveSegmentEditStrategyBase::paint(Graphics& g, LookAndFeel& lookAndFeel)
 {
@@ -394,33 +391,6 @@ void VelocityCurveLinearDrawingStrategy::setVelocityTableValuesFromEditConfig()
 	clearSuperfluousPoints();
 }
 
-bool VelocityCurveLinearDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
-{
-	if (propertiesString.startsWith("LINEAR"))
-	{
-		StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString.substring(6), false);
-		if (velocityCurveValueArray.size() > 0)
-		{
-			jassert(velocityCurveValueArray.size() >= 128);
-
-			for (int x = 0; x < 128; x++)
-				fixPointBeamHeights[x] = velocityCurveValueArray[x].getIntValue();
-		}
-		else
-		{
-			// Initialize segment table
-			for (int x = 0; x < 128; x++)
-				fixPointBeamHeights[x] = -1;
-		}
-
-		setVelocityTableValuesFromEditConfig();
-
-		return true;
-	}
-	else
-		return false;
-}
-
 String VelocityCurveLinearDrawingStrategy::createPropertiesStringForSaving()
 {
 	String velocityCurveString = "LINEAR";
@@ -548,33 +518,7 @@ void VelocityCurveQuadraticDrawingStrategy::setVelocityTableValuesFromEditConfig
 	}
 }
 
-bool VelocityCurveQuadraticDrawingStrategy::setEditConfigFromSavedString(String propertiesString)
-{
-	if (propertiesString.startsWith("Quadratic"))
-	{
-		StringArray velocityCurveValueArray = StringArray::fromTokens(propertiesString.substring(6), false);
-		if (velocityCurveValueArray.size() > 0)
-		{
-			jassert(velocityCurveValueArray.size() >= 128);
-
-			for (int x = 0; x < 128; x++)
-				fixPointBeamHeights[x] = velocityCurveValueArray[x].getIntValue();
-		}
-		else
-		{
-			// Initialize segment table
-			for (int x = 0; x < 128; x++)
-				fixPointBeamHeights[x] = -1;
-		}
-
-		setVelocityTableValuesFromEditConfig();
-
-		return true;
-	}
-	else
-		return false;
-}
-
+// ToDO
 String VelocityCurveQuadraticDrawingStrategy::createPropertiesStringForSaving()
 {
 	String velocityCurveString = "Quadratic";

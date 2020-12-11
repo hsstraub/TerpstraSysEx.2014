@@ -111,6 +111,14 @@ void CurvesArea::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void CurvesArea::loadFromMapping()
+{
+	dynamic_cast<NoteOnOffVelocityCurveDialog*>(curvesTab->getTabContentComponent(curvesTabIndex::noteOnOffVelocityCurve))->loadFromMapping();
+	dynamic_cast<FaderVelocityCurveDialog*>(curvesTab->getTabContentComponent(curvesTabIndex::faderConfig))->loadFromMapping();
+	dynamic_cast<AftertouchVelocityCurveDialog*>(curvesTab->getTabContentComponent(curvesTabIndex::aftertouchConfig))->loadFromMapping();
+}
+
 //[/MiscUserCode]
 
 

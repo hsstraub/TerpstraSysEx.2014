@@ -39,7 +39,6 @@
                                                                     //[/Comments]
 */
 class VelocityCurveDlgBase  : public Component,
-                              public TerpstraMidiDriver::Listener,
                               public juce::ComboBox::Listener
 {
 public:
@@ -50,8 +49,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-	// ToDo Read from and write to *.LMT file
-	//void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
+	// ToDo
 	//void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	virtual void sendVelocityTableToController();
@@ -64,16 +64,14 @@ public:
 	void mouseDrag(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
 
-	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
-
 protected:
 	virtual String beamValueText(int beamValue) const { return String(beamValue); }
 	virtual String beamXPosText(int xPos) const { return String(xPos); }
-	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
+	virtual float beamWidth(int xPos) { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
+
+	TerpstraKeyMapping*	getMappingInEdit();
+	TerpstraVelocityCurveConfig* getConfigInEdit();
+	VelocityCurveEditStrategyBase* getCurrentDrawingStrategy();
 
 public:
     //[/UserMethods]
@@ -86,15 +84,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	typedef enum
-	{
-		none = -1,
-		freeDrawing = 0,
-		linearSegments = 1,
-		quadraticCurves = 2
-	} EDITSTRATEGYINDEX;
-
-
 	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
 	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
@@ -102,7 +91,8 @@ private:
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
-	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
+	
+	std::map<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX, VelocityCurveEditStrategyBase*> drawingStrategies;
 
 protected:
     //[/UserVariables]

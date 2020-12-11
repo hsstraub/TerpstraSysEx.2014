@@ -29,9 +29,9 @@ public:
 	virtual bool setEditConfigFromVelocityTable() { return true; }
 	// Sets velocity table values from edit parameters
 	virtual void setVelocityTableValuesFromEditConfig() {}
-	// Parse a saved configuration. return whether parsing was successful.
-	virtual bool setEditConfigFromSavedString(String propertiesString) = 0;
-	// save current configuration in a string, for saving
+	// Set value table from LMT file
+	virtual bool setValueTable(int velocityTableValues[]) = 0;
+	// ToDo return a value table for saving in LMT file
 	virtual String createPropertiesStringForSaving() = 0;
 
 	virtual String getDescriptionText() { return "Click with the mouse in the graphics to draw the velocity curve."; }
@@ -61,7 +61,8 @@ class VelocityCurveFreeDrawingStrategy : public VelocityCurveEditStrategyBase
 public:
 	VelocityCurveFreeDrawingStrategy(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
-	bool setEditConfigFromSavedString(String propertiesString) override;
+	bool setValueTable(int velocityTableValues[]) override;
+	// ToDO
 	String createPropertiesStringForSaving() override;
 
 	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
@@ -84,6 +85,8 @@ class VelocityCurveSegmentEditStrategyBase : public VelocityCurveEditStrategyBas
 {
 public:
 	VelocityCurveSegmentEditStrategyBase(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
+
+	bool setValueTable(int velocityTableValues[]) override;
 
 	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
 
@@ -124,7 +127,7 @@ public:
 
 	bool setEditConfigFromVelocityTable() override;
 	void setVelocityTableValuesFromEditConfig() override;
-	bool setEditConfigFromSavedString(String propertiesString) override;
+	// ToDo
 	String createPropertiesStringForSaving() override;
 
 protected:
@@ -148,7 +151,7 @@ public:
 
 	bool setEditConfigFromVelocityTable() override;
 	void setVelocityTableValuesFromEditConfig() override;
-	bool setEditConfigFromSavedString(String propertiesString) override;
+	// ToDo
 	String createPropertiesStringForSaving() override;
 
 protected:
