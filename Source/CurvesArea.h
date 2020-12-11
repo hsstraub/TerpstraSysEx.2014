@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -44,6 +44,13 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	class CurvesTabComponent : public juce::TabbedComponent
+	{
+	public:
+		CurvesTabComponent(TabbedButtonBar::Orientation orientation);
+		void 	currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override;
+	};
+
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
     //[/UserMethods]
@@ -55,19 +62,11 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-
-	enum curvesTabIndex
-	{
-		noteOnOffVelocityCurve = 0,
-		faderConfig = 1,
-		aftertouchConfig = 2
-	};
-
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::Label> labelWindowTitle;
-    std::unique_ptr<juce::TabbedComponent> curvesTab;
+    std::unique_ptr<CurvesTabComponent> curvesTab;
 
 
     //==============================================================================

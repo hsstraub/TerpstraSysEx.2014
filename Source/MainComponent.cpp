@@ -183,34 +183,22 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			// Velocity curves
 			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
 			{
-				auto sysExData = midiMessage.getSysExData();
-				auto answerState = sysExData[5];
+				// After the answer state byte there must be 254 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
-				if (answerState == TerpstraMidiDriver::ACK)
-				{
-					// After the answer state byte there must be 254 bytes of data
-					jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
-
-					for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-						this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
-				}
+				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
 				curvesArea->resized();
 				curvesArea->repaint();
 			}
 			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff))
 			{
-				auto sysExData = midiMessage.getSysExData();
-				auto answerState = sysExData[5];
+				// After the answer state byte there must be 128 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 
-				if (answerState == TerpstraMidiDriver::ACK)
-				{
-					// After the answer state byte there must be 128 bytes of data
-					jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-
-					// XXX Same logic as in VelocityCurveFreeDrawingStrategy::createPropertiesStringForSaving()
-					curvesArea->loadFromMapping();
-				}
+				// XXX Same logic as in VelocityCurveFreeDrawingStrategy::createPropertiesStringForSaving()
+				curvesArea->loadFromMapping();
 			}
 			// ToDo more curve data
 

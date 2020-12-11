@@ -228,13 +228,11 @@ void VelocityCurveDlgBase::loadFromMapping()
 		cbEditMode->setSelectedItemIndex(TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
 	}
 
-	// Set edit config according to current values of velocity table, of possible
+	// Set edit config according to current values of velocity table, if possible
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 	{
-		currentDrawingStrategy->setValueTable(configInEdit->velocityValues);
-
-		currentDrawingStrategy->setEditConfigFromVelocityTable();
+		currentDrawingStrategy->setEditConfig(configInEdit->velocityValues);
 	}
 	else
 	{
@@ -243,43 +241,6 @@ void VelocityCurveDlgBase::loadFromMapping()
 			velocityBeamTable[x]->setValue(x);
 	}
 }
-
-// ToDo Write to *.LMT file
-//
-//void VelocityCurveDlgBase::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
-//{
-//	String velocityCurveString;
-//
-//	if (currentCurveEditStrategy != nullptr)
-//	{
-//		velocityCurveString = currentCurveEditStrategy->createPropertiesStringForSaving();
-//	}
-//	else
-//	{
-//		jassertfalse;
-//		velocityCurveString = String();
-//	}
-//
-//	String keyName;
-//    switch(velocityCurveType)
-//    {
-//        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
-//            keyName = "NoteOnOffVelocityCurveTable";
-//            break;
-//        case TerpstraMidiDriver::VelocityCurveType::fader:
-//            keyName = "FaderVelocityCurveTable";
-//            break;
-//        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-//            keyName = "AfterTouchCurveTable";
-//            break;
-//        default:
-//            jassert(false);
-//            break;
-//    }
-//
-//	propertiesFile->setValue(keyName, velocityCurveString);
-//
-//}
 
 void VelocityCurveDlgBase::sendVelocityTableToController()
 {
@@ -291,11 +252,6 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
 	}
 
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
-}
-
-void VelocityCurveDlgBase::sendVelocityConfigurationRequest()
-{
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(velocityCurveType);
 }
 
 bool VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)
@@ -399,12 +355,17 @@ void VelocityCurveDlgBase::mouseUp(const MouseEvent &event)
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
+	{
 		currentDrawingStrategy->mouseUp(event, localPoint);
 
-	TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-    // Send velocity table to controller
-	sendVelocityTableToController();
+		auto configInEdit = getConfigInEdit();
+		if (configInEdit != nullptr)
+		{
+			currentDrawingStrategy->exportEditConfig(configInEdit->velocityValues);
+			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+			sendVelocityTableToController();
+		}
+	}
 
 	repaint();
 }

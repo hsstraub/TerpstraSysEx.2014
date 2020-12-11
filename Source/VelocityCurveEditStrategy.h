@@ -25,14 +25,14 @@ class VelocityCurveEditStrategyBase
 public:
 	VelocityCurveEditStrategyBase(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
+	// Set value table (e. g. from LMT file)
+	virtual bool setEditConfig(int velocityTableValues[]) = 0;
+	// Export value table (for saving in LMT file)
+	virtual bool exportEditConfig(int velocityTableValues[]) = 0;
 	// Takes a given velocity table and tries to extract edit parameters. Returns whether it was successful.
 	virtual bool setEditConfigFromVelocityTable() { return true; }
 	// Sets velocity table values from edit parameters
 	virtual void setVelocityTableValuesFromEditConfig() {}
-	// Set value table from LMT file
-	virtual bool setValueTable(int velocityTableValues[]) = 0;
-	// ToDo return a value table for saving in LMT file
-	virtual String createPropertiesStringForSaving() = 0;
 
 	virtual String getDescriptionText() { return "Click with the mouse in the graphics to draw the velocity curve."; }
 
@@ -61,9 +61,8 @@ class VelocityCurveFreeDrawingStrategy : public VelocityCurveEditStrategyBase
 public:
 	VelocityCurveFreeDrawingStrategy(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
-	bool setValueTable(int velocityTableValues[]) override;
-	// ToDO
-	String createPropertiesStringForSaving() override;
+	bool setEditConfig(int velocityTableValues[]) override;
+	bool exportEditConfig(int velocityTableValues[]) override;
 
 	void paint(Graphics& g, LookAndFeel& lookAndFeel) override;
 	void resized() override;
@@ -86,7 +85,8 @@ class VelocityCurveSegmentEditStrategyBase : public VelocityCurveEditStrategyBas
 public:
 	VelocityCurveSegmentEditStrategyBase(Path& beamTableFrameRef, std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
 
-	bool setValueTable(int velocityTableValues[]) override;
+	bool setEditConfig(int velocityTableValues[]) override;
+	bool exportEditConfig(int velocityTableValues[]) override;
 
 	String getDescriptionText() override { return "Click with the mouse in the graphics to draw the velocity curve. Right-click to delete a segment point."; }
 
@@ -127,8 +127,6 @@ public:
 
 	bool setEditConfigFromVelocityTable() override;
 	void setVelocityTableValuesFromEditConfig() override;
-	// ToDo
-	String createPropertiesStringForSaving() override;
 
 protected:
 	Path createCurveToDraw() override;
@@ -151,8 +149,6 @@ public:
 
 	bool setEditConfigFromVelocityTable() override;
 	void setVelocityTableValuesFromEditConfig() override;
-	// ToDo
-	String createPropertiesStringForSaving() override;
 
 protected:
 	Path createCurveToDraw() override;
