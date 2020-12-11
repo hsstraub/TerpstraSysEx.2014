@@ -224,7 +224,6 @@ void VelocityCurveDlgBase::loadFromMapping()
 	}
 	else
 	{
-		jassert(false);
 		cbEditMode->setSelectedItemIndex(TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::none, juce::NotificationType::dontSendNotification);
 	}
 
