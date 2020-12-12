@@ -93,6 +93,12 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 {
 	Component::mouseDown(e);
 
+	// Select this octave board
+	jassert(getParentComponent() != nullptr);
+	jassert(getParentComponent()->getParentComponent() != nullptr);
+	dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent())->
+		getOctaveBoardSelectorTab()->setCurrentTabIndex(boardIndex);
+
 	// ToDo NoteOn MIDI message (here or in parent component)
 }
 

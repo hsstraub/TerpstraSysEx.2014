@@ -46,6 +46,8 @@ public:
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
+	TabbedButtonBar* getOctaveBoardSelectorTab() { return  noteEditArea->getOctaveBoardSelectorTab(); }
+
 	// Board edit operations
 	bool deleteCurrentSubBoardData();
 	bool copyCurrentSubBoardData();
