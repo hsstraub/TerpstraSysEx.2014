@@ -137,7 +137,8 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 	{
-		//lblDescription->setText(currentCurveEditStrategy->getDescriptionText(), juce::NotificationType::dontSendNotification);
+		for (int x = 0; x < 128; x++)
+			velocityBeamTable[x]->setTooltip(currentDrawingStrategy->getDescriptionText());
 		currentDrawingStrategy->paint(g, getLookAndFeel());
 	}
     //[/UserPaint]
