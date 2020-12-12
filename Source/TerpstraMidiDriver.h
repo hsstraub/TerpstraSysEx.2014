@@ -105,6 +105,13 @@ public:
 	    ERROR = 0x03,   // Error
 	} TerpstraMIDIAnswerReturnCode;
 
+	enum sysExSendingMode
+	{
+		liveEditor = 0,
+		offlineEditor = 1
+	};
+
+
 private:
     typedef enum
     {
@@ -124,6 +131,9 @@ public:
 
 	void addListener(Listener* listenerToAdd);
 	void removeListener(Listener* listenerToRemove);
+
+	sysExSendingMode getSysExSendingMode() const { return currentSysExSendingMode; }
+	void setSysExSendingMode(sysExSendingMode newMode);
 
 	//////////////////////////////////
 	// Combined (hi-level) commands
@@ -201,8 +211,8 @@ public:
 	// Handle timeout
 	void timerCallback() override;
 
-	// Clear MIDI message buffer;
-	void clearMIDIMessageBuffer() { messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0); hasMsgWaitingForAck = false;  stopTimer();  }
+	// Clear MIDI message buffer
+	void clearMIDIMessageBuffer() { messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0);  }
 
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
@@ -243,6 +253,9 @@ private:
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available
 
 	Array<MidiMessage> messageBuffer;
+
+	// Whether SysEx messages are sent or not
+	sysExSendingMode currentSysExSendingMode = sysExSendingMode::liveEditor;
 
 	const int receiveTimeoutInMilliseconds = 2000;
 	const int busyTimeDelayInMilliseconds = 20;

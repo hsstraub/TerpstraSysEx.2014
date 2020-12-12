@@ -51,11 +51,8 @@ public:
 
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
-	// ToDo
-	//void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	virtual void sendVelocityTableToController();
-	virtual void sendVelocityConfigurationRequest();
 
 	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
 

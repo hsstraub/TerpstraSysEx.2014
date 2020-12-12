@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -26,6 +26,17 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+CurvesArea::CurvesTabComponent::CurvesTabComponent(TabbedButtonBar::Orientation orientation)
+	: TabbedComponent::TabbedComponent(orientation) 
+{
+}
+
+void CurvesArea::CurvesTabComponent::currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName)
+{
+	dynamic_cast<VelocityCurveDlgBase*>(getTabContentComponent(newCurrentTabIndex))->loadFromMapping();
+}
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -45,7 +56,7 @@ CurvesArea::CurvesArea ()
 
     labelWindowTitle->setBounds (8, 8, 150, 24);
 
-    curvesTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
+    curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
     curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
@@ -114,9 +125,7 @@ void CurvesArea::resized()
 
 void CurvesArea::loadFromMapping()
 {
-	dynamic_cast<NoteOnOffVelocityCurveDialog*>(curvesTab->getTabContentComponent(curvesTabIndex::noteOnOffVelocityCurve))->loadFromMapping();
-	dynamic_cast<FaderVelocityCurveDialog*>(curvesTab->getTabContentComponent(curvesTabIndex::faderConfig))->loadFromMapping();
-	dynamic_cast<AftertouchVelocityCurveDialog*>(curvesTab->getTabContentComponent(curvesTabIndex::aftertouchConfig))->loadFromMapping();
+	dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getCurrentContentComponent())->loadFromMapping();
 }
 
 //[/MiscUserCode]
@@ -142,8 +151,8 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="18.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TABBEDCOMPONENT name="curvesTab" id="795631386b24b3ba" memberName="curvesTab"
-                   virtualName="" explicitFocusOrder="0" pos="8 40 464 200" orientation="top"
-                   tabBarDepth="30" initialTab="0">
+                   virtualName="CurvesTabComponent" explicitFocusOrder="0" pos="8 40 464 200"
+                   orientation="top" tabBarDepth="30" initialTab="0">
     <TAB name="Note Velocity" colour="ffd3d3d3" useJucerComp="0" contentClassName="NoteOnOffVelocityCurveDialog"
          constructorParams="" jucerComponentFile=""/>
     <TAB name="CC Fader" colour="ffd3d3d3" useJucerComp="0" contentClassName="FaderVelocityCurveDialog"

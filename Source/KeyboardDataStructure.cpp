@@ -154,7 +154,6 @@ String TerpstraVelocityCurveConfig::createConfigStringForSaving()
 	}
 
 	default:
-		jassertfalse;
 		return "";
 	}
 }

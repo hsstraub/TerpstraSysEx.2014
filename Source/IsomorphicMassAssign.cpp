@@ -641,16 +641,16 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
             for ( auto octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
             {
                 // Find a field that can be filled, from the values of the preceding octave board
-                for ( auto horizLine : linesWithRightContinuation)
+                for ( auto succeedinghorizLine : linesWithRightContinuation)
                 {
                     int noteIndex = this->mappingLogic->terpstraKeyToIndex(
-                        mainComponent->getMappingInEdit().sets[octaveBoardIndex-1].theKeys[horizLine.getLast()]);
+                        mainComponent->getMappingInEdit().sets[octaveBoardIndex-1].theKeys[succeedinghorizLine.getLast()]);
 
                     if ( noteIndex >= 0 )
                     {
                         // A field in preceding octave board with an assigned value has been found-
                         // Value can be assigned to continuation on current board.
-                        auto newHorizLine = boardGeometry.continuationOfHorizontalLine(horizLine, 1);
+                        auto newHorizLine = boardGeometry.continuationOfHorizontalLine(succeedinghorizLine, 1);
 
                    		setSaveSend(octaveBoardIndex, newHorizLine.getFirst(), noteIndex + horizStepSize);
 
