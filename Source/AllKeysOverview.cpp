@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -51,14 +51,17 @@ KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 {
 	jassert(getParentComponent() != nullptr);
-	bool isSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
+	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-		.withAlpha(isSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+		.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+	// ToDo if highlighted: even different alpha?
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
-	Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
+	// Key highlighted or not: color and thickness of the line
+	float lineWidth = isHighlighted ? 1.5 : 1;
+	Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
 	g.setColour(lineColour);
 	g.strokePath(hexPath, PathStrokeType(1));
 }
@@ -99,29 +102,61 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 	dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent())->
 		getOctaveBoardSelectorTab()->setCurrentTabIndex(boardIndex);
 
-	// ToDo NoteOn MIDI message (here or in parent component)
+	isHighlighted = true;
+	repaint();
+
+	// NoteOn MIDI message
+	auto keyData = getKeyData();
+	if (keyData != nullptr && keyData->channelNumber > 0)
+	{
+		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+		{
+			// Send "note on" event
+			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+		}
+		// ToDo if keyType is "continuous controller": send controller event?
+	}
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 {
 	Component::mouseDown(e);
 
-	// ToDo NoteOff MIDI message (here or in parent component)
+	isHighlighted = false;
+	repaint();
+
+	// NoteOff MIDI message
+	auto keyData = getKeyData();
+	if (keyData != nullptr && keyData->channelNumber > 0)
+	{
+		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+		{
+			// Send "note off" event
+			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
+		}
+	}
 }
 
-
-Colour KeyMiniDisplayInsideAllKeysOverview::getKeyColour()
+const TerpstraKey* KeyMiniDisplayInsideAllKeysOverview::getKeyData() const
 {
 	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 	{
 		jassert(getParentComponent() != nullptr);
 		jassert(getParentComponent()->getParentComponent() != nullptr);
-		return Colour(
-			dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent())
-			->getMappingInEdit().sets[boardIndex].theKeys[keyIndex].colour);
+		return &dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent())
+			->getMappingInEdit().sets[boardIndex].theKeys[keyIndex];
 	}
 
-	return findColour(TerpstraKeyEdit::backgroundColourId);
+	return nullptr;
+}
+
+Colour KeyMiniDisplayInsideAllKeysOverview::getKeyColour() const
+{
+	auto keyData = getKeyData();
+	if ( keyData != nullptr)
+		return Colour(keyData->colour);
+	else
+		return findColour(TerpstraKeyEdit::backgroundColourId);
 }
 
 //[/MiscUserDefs]
@@ -311,20 +346,6 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void AllKeysOverview::mouseDown (const juce::MouseEvent& e)
-{
-    //[UserCode_mouseDown] -- Add your code here...
-	// MIDI NoteOn message - here or in key component
-    //[/UserCode_mouseDown]
-}
-
-void AllKeysOverview::mouseUp (const juce::MouseEvent& e)
-{
-    //[UserCode_mouseUp] -- Add your code here...
-	// MIDI NoteOff message - here or in key component
-    //[/UserCode_mouseUp]
-}
-
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -344,10 +365,6 @@ BEGIN_JUCER_METADATA
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="928" initialHeight="214">
-  <METHODS>
-    <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
-    <METHOD name="mouseUp (const juce::MouseEvent&amp; e)"/>
-  </METHODS>
   <BACKGROUND backgroundColour="ff323e44"/>
   <TEXTBUTTON name="btnLoadFile" id="6c0c074c9f137f23" memberName="btnLoadFile"
               virtualName="" explicitFocusOrder="0" pos="368 8 96 24" buttonText="Load File"

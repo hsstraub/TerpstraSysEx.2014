@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -40,11 +40,13 @@ public:
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
 
-		Colour getKeyColour();
+	const TerpstraKey* getKeyData() const;
+	Colour getKeyColour() const;
 
 	int boardIndex = -1;
 	int keyIndex = -1;
 	Path hexPath;
+	bool isHighlighted = false;
 };
 
 //[/Headers]
@@ -69,7 +71,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	
+
 	int getCurrentSetSelection() const { return currentSetSelection ;}
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
 
@@ -78,8 +80,6 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
-    void mouseDown (const juce::MouseEvent& e) override;
-    void mouseUp (const juce::MouseEvent& e) override;
 
 
 
