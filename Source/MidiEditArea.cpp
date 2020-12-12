@@ -26,6 +26,10 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+// Index in edit mode tab coincides with sysExSendingMode. In case that changes in the future, modify this here.
+TerpstraMidiDriver::sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int tabIndex) { return static_cast<TerpstraMidiDriver::sysExSendingMode>(tabIndex); }
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -279,23 +283,22 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
 {
 	if (source == editModeSelector.get())
 	{
-		auto editMode = editModeSelector->getCurrentTabIndex();
+		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode(editModeSelector->getCurrentTabIndex());
 
-		switch (editMode)
+		TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
+
+		switch (sysExSendingMode)
 		{
-		case midiEditMode::liveEditor:
+		case TerpstraMidiDriver::sysExSendingMode::liveEditor:
 			onOpenConnectionToDevice();
 			break;
 
-		case midiEditMode::offlineEditor:
+		case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
 			lblConnectionState->setText("Offline mode", NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::noError,
 				"Offline mode");
-
-			// Remove all MIDI messages in queue waiting to be sent
-			TerpstraSysExApplication::getApp().getMidiDriver().clearMIDIMessageBuffer();
 			break;
 
 		default:

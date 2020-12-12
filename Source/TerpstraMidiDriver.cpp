@@ -36,6 +36,20 @@ void TerpstraMidiDriver::removeListener(TerpstraMidiDriver::Listener* listener)
 	listeners.remove(listener);
 }
 
+void TerpstraMidiDriver::setSysExSendingMode(sysExSendingMode newMode)
+{
+	if (newMode != currentSysExSendingMode)
+	{
+		currentSysExSendingMode = newMode;
+		if (currentSysExSendingMode == sysExSendingMode::offlineEditor)
+		{
+			clearMIDIMessageBuffer();	// ToDo remove only SysEx messages (leave NoteOn/NoteOff)?
+			stopTimer();
+			hasMsgWaitingForAck = false;
+		}
+	}
+}
+
 /*
 ==============================================================================
 Combined (hi-level) commands
@@ -296,8 +310,8 @@ Low-level SysEx calls
 
 void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
 {
-	// Send only if output device is there
-	if (midiOutput != nullptr)
+	// Send only if output device is there and SysEx sending is meant to be active
+	if (midiOutput != nullptr & currentSysExSendingMode == sysExSendingMode::liveEditor)
 	{
 		unsigned char sysExData[9];
 		sysExData[0] = (manufacturerId >> 16) & 0xff;
