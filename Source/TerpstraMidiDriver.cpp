@@ -411,6 +411,7 @@ bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const M
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
     // If there is no MIDI input port active: just send, without expecting acknowledge
+	// ToDo Or do nothing?
     if ( lastInputCallback == nullptr)
     {
         sendMessageNow(message);

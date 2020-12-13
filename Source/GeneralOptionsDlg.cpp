@@ -242,11 +242,11 @@ void GeneralOptionsDlg::loadFromMapping()
 {
 	auto mappingInEdit = ((MainContentComponent*)getParentComponent())->getMappingInEdit();
 
-	buttonAfterTouchActive->setToggleState(mappingInEdit.afterTouchActive, juce::NotificationType::sendNotification);
-	buttonLightOnKeyStrokes->setToggleState(mappingInEdit.lightOnKeyStrokes, juce::NotificationType::sendNotification);
+	buttonAfterTouchActive->setToggleState(mappingInEdit.afterTouchActive, juce::NotificationType::dontSendNotification);
+	buttonLightOnKeyStrokes->setToggleState(mappingInEdit.lightOnKeyStrokes, juce::NotificationType::dontSendNotification);
 
-	btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::sendNotification);
-	txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity));
+	btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::dontSendNotification);
+	txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity), false);
 }
 
 //[/MiscUserCode]
