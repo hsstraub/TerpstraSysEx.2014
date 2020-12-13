@@ -140,7 +140,7 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.lmt");
+	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -160,7 +160,7 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.lmt");
+	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();
@@ -320,14 +320,14 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 
 		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
 
-		// Mark file as unchanged
-		setHasChangesToSave(false);
-
 		// Window title
 		updateMainTitle();
 
-		// Send configuraiton to controller, if connected
+		// Send configuration to controller, if connected
 		sendCurrentMappingToDevice();
+
+		// Mark file as unchanged
+		setHasChangesToSave(false);
 
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
