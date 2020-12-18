@@ -42,10 +42,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
+	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
+	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -53,14 +55,21 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	jassert(getParentComponent() != nullptr);
 	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
-	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-		.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
-	// ToDo if highlighted: even different alpha?
+	float hexagonInteriorAlpha;
+	if (isHighlighted)
+		hexagonInteriorAlpha = TERPSTRASINGLEKEYCOLOURHIGHLIGHTEDALPHA;
+	else if (boardIsSelected)
+		hexagonInteriorAlpha = TERPSTRASINGLEKEYCOLOURALPHA;
+	else
+		hexagonInteriorAlpha = TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA;
+
+	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(
+		getKeyColour().withAlpha(hexagonInteriorAlpha));
 	g.setColour(hexagonColour);
 	g.fillPath(hexPath);
 
 	// Key highlighted or not: color and thickness of the line
-	float lineWidth = isHighlighted ? 1.5 : 1;
+	float lineWidth = isHighlighted ? 2 : 1;
 	Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
 	g.setColour(lineColour);
 	g.strokePath(hexPath, PathStrokeType(1));
@@ -133,6 +142,20 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 		{
 			// Send "note off" event
 			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
+		}
+	}
+}
+
+void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage& midiMessage)
+{
+	// ToDo If key is parametrized as controller?
+	if (midiMessage.isNoteOnOrOff())
+	{
+		auto keyData = getKeyData();
+		if (keyData != nullptr && midiMessage.getChannel() == keyData->channelNumber && midiMessage.getNoteNumber() == keyData->noteNumber)
+		{
+			isHighlighted = midiMessage.isNoteOn();
+			repaint();
 		}
 	}
 }
