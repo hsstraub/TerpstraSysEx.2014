@@ -23,10 +23,11 @@
 #include <JuceHeader.h>
 
 #include "KeyboardDataStructure.h"
+#include "TerpstraMidiDriver.h"
 
 
 // Representation of a key inside the overview
-class KeyMiniDisplayInsideAllKeysOverview : public Component
+class KeyMiniDisplayInsideAllKeysOverview : public Component, public TerpstraMidiDriver::Listener
 {
 public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
@@ -36,6 +37,12 @@ public:
 	void resized() override;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const juce::MouseEvent& e) override;
+
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override {}
+	void midiSendQueueSize(int queueSize) override {}
+	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
 
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
