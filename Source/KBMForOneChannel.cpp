@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -36,17 +36,17 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
     this->pMappingLogic = &mappingLogic;
     //[/Constructor_pre]
 
-    channelBox.reset (new ComboBox ("channelBox"));
+    channelBox.reset (new juce::ComboBox ("channelBox"));
     addAndMakeVisible (channelBox.get());
     channelBox->setEditableText (false);
-    channelBox->setJustificationType (Justification::centredLeft);
-    channelBox->setTextWhenNothingSelected (String());
+    channelBox->setJustificationType (juce::Justification::centredLeft);
+    channelBox->setTextWhenNothingSelected (juce::String());
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
     channelBox->setBounds (0, 8, 48, 24);
 
-    textMappingFile.reset (new TextEditor ("textMappingFile"));
+    textMappingFile.reset (new juce::TextEditor ("textMappingFile"));
     addAndMakeVisible (textMappingFile.get());
     textMappingFile->setMultiLine (false);
     textMappingFile->setReturnKeyStartsNewLine (false);
@@ -54,11 +54,11 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
     textMappingFile->setScrollbarsShown (true);
     textMappingFile->setCaretVisible (true);
     textMappingFile->setPopupMenuEnabled (true);
-    textMappingFile->setText (String());
+    textMappingFile->setText (juce::String());
 
     textMappingFile->setBounds (56, 8, 104, 24);
 
-    btnFileSelectMacro.reset (new TextButton ("btnFileSelectMacro"));
+    btnFileSelectMacro.reset (new juce::TextButton ("btnFileSelectMacro"));
     addAndMakeVisible (btnFileSelectMacro.get());
     btnFileSelectMacro->setButtonText (TRANS("..."));
     btnFileSelectMacro->addListener (this);
@@ -97,12 +97,12 @@ KBMForOneChannel::~KBMForOneChannel()
 }
 
 //==============================================================================
-void KBMForOneChannel::paint (Graphics& g)
+void KBMForOneChannel::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffbad0de));
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -118,7 +118,7 @@ void KBMForOneChannel::resized()
     //[/UserResized]
 }
 
-void KBMForOneChannel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void KBMForOneChannel::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -140,7 +140,7 @@ void KBMForOneChannel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[/UsercomboBoxChanged_Post]
 }
 
-void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
+void KBMForOneChannel::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -233,7 +233,7 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         else
         {
             // Warning if the kbm file's scale size doesn't match the global periodSize
-            if (kbmMappingStructure.scaleSize != this->periodSize)
+            if (kbmMappingStructure.periodSize != this->periodSize)
                 errorVisualizer.setErrorLevel(
                     *textMappingFile.get(),
                     HajuErrorVisualizer::ErrorLevel::warning,

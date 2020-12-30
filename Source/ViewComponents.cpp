@@ -142,37 +142,3 @@ void TerpstraKeyEdit::resized()
                     w - 2*TERPSTRASINGLEKEYFLDMARGIN, h - 2*TERPSTRASINGLEKEYFLDMARGIN, true);
 }
 
-/*
-==============================================================================
-TerpstraMacroButton class
-==============================================================================
-*/
-TerpstraMacroButton::TerpstraMacroButton()
-{
-	setIsSelected(rightbutton, false);
-
-	setClickingTogglesState(false);	// ad hoc, to test: set to true. Will be obsolete when MIDI messages are processed
-}
-
-TerpstraMacroButton::~TerpstraMacroButton()
-{
-
-}
-
-void TerpstraMacroButton::setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue)
-{
-	Image imgUnselected = ImageCache::getFromMemory(BinaryData::TopEdgeButton_png, BinaryData::TopEdgeButton_pngSize);
-
-	Image imgSelected = subIndex == leftbutton ?
-		ImageCache::getFromMemory(BinaryData::TopEdgeLightLeft_png, BinaryData::TopEdgeLightLeft_pngSize) :
-		ImageCache::getFromMemory(BinaryData::TopEdgeLightRight_png, BinaryData::TopEdgeLightRight_pngSize);
-
-	setImages(true, true, true,
-		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgSelected, 0.7f, Colours::transparentBlack,
-		0.5f);
-
-	setToggleState(newValue, dontSendNotification);
-};
-

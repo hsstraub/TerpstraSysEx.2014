@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -42,8 +42,8 @@
 class IsomorphicMassAssign  : public Component,
                               public MappingLogicBase::Listener,
                               public ScaleStructureComponent::Listener,
-                              public ComboBox::Listener,
-                              public Button::Listener
+                              public juce::ComboBox::Listener,
+                              public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -85,10 +85,10 @@ public:
 	bool performMouseDown(int setSelection, int keySelection);
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -118,20 +118,20 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<ComboBox> startingPointBox;
-    std::unique_ptr<Label> labelStartingPoint;
-    std::unique_ptr<Label> labelHorizontalSteps;
-    std::unique_ptr<TextEditor> editHorizontalSteps;
-    std::unique_ptr<Label> labelRightUpwardSteps;
-    std::unique_ptr<TextEditor> editRightUpwardSteps;
-    std::unique_ptr<Label> editInstructionText;
-    std::unique_ptr<GroupComponent> groupMapping;
-    std::unique_ptr<ComboBox> cbMappingType;
-    std::unique_ptr<Label> labelMappingType;
-    std::unique_ptr<TextButton> btnScaleStructureEditor;
-    std::unique_ptr<ComboBox> periodSizeBox;
-    std::unique_ptr<Label> labelPeriodSize;
-    std::unique_ptr<ToggleButton> setColourToggleButton;
+    std::unique_ptr<juce::ComboBox> startingPointBox;
+    std::unique_ptr<juce::Label> labelStartingPoint;
+    std::unique_ptr<juce::Label> labelHorizontalSteps;
+    std::unique_ptr<juce::TextEditor> editHorizontalSteps;
+    std::unique_ptr<juce::Label> labelRightUpwardSteps;
+    std::unique_ptr<juce::TextEditor> editRightUpwardSteps;
+    std::unique_ptr<juce::Label> editInstructionText;
+    std::unique_ptr<juce::GroupComponent> groupMapping;
+    std::unique_ptr<juce::ComboBox> cbMappingType;
+    std::unique_ptr<juce::Label> labelMappingType;
+    std::unique_ptr<juce::TextButton> btnScaleStructureEditor;
+    std::unique_ptr<juce::ComboBox> periodSizeBox;
+    std::unique_ptr<juce::Label> labelPeriodSize;
+    std::unique_ptr<juce::ToggleButton> setColourToggleButton;
 
 
     //==============================================================================

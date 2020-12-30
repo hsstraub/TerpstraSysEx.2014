@@ -8,11 +8,9 @@
   ==============================================================================
 */
 
-#ifndef MAIN_H_INCLUDED
-#define MAIN_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MainMenu.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -20,8 +18,7 @@
 
 
 //==============================================================================
-class TerpstraSysExApplication : public JUCEApplication,
-    public MidiInputCallback
+class TerpstraSysExApplication : public JUCEApplication
 {
 public:
 	//==============================================================================
@@ -47,12 +44,6 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel.get(); }
-
-	// Menu functionality
-	void getAllCommands(Array <CommandID>& commands) override;
-	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
-	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
 	bool saveSysExMapping();
@@ -63,22 +54,20 @@ public:
 	bool copySubBoardData();
 	bool pasteSubBoardData();
 
-	bool applyLightColourScheme(bool repaintAndSave);
-	bool applyDarkColourScheme(bool repaintAndSave);
-
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
+	bool aftertouchVelocityCurveDialog();
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
 	bool saveCurrentFile();
 
-	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
-
 	void sendCurrentMappingToDevice();
 
 	void updateMainTitle();
+
+	bool getHasChangesToSave() const { return hasChangesToSave; }
 	void setHasChangesToSave(bool value);
 
 	bool aboutTerpstraSysEx();
@@ -127,11 +116,10 @@ public:
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
-	std::unique_ptr<ApplicationCommandManager> commandManager;
-	std::unique_ptr<TerpstraSysExMainMenuModel> menuModel;
+	//std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
-	LookAndFeel_V3				lookAndFeel;
+	LookAndFeel_V4				lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;
@@ -141,5 +129,3 @@ private:
 	TerpstraMidiDriver			midiDriver;
 };
 
-
-#endif  // MAIN_H_INCLUDED

@@ -55,26 +55,4 @@ private:
 };
 
 
-/*
-==============================================================================
-Macro button component (holds two controller buttons)
-==============================================================================
-*/
-
-class TerpstraMacroButton : public ImageButton
-{
-public:
-	TerpstraMacroButton();
-	~TerpstraMacroButton();
-
-	typedef enum
-	{
-		leftbutton,
-		rightbutton
-	} MACROBUTTONSUBINDEX;
-
-	void setIsSelected(MACROBUTTONSUBINDEX subIndex, bool newValue);
-};
-
-
 #endif  // VIEWCOMPOONENTS_H_INCLUDED

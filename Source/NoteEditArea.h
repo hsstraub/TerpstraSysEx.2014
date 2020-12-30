@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -21,10 +21,9 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SingleNoteAssign.h"
-#include "IsomorphicMassAssign.h"
-#include "MacroButtonsWindow.h"
-#include "PlayVirtualKeyboard.h"
+
+#include "ViewComponents.h"
+#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -38,46 +37,62 @@
                                                                     //[/Comments]
 */
 class NoteEditArea  : public Component,
-                      public MidiInputCallback,
-                      public ComboBox::Listener
+                      public ChangeListener
 {
 public:
     //==============================================================================
     NoteEditArea ();
-    ~NoteEditArea();
+    ~NoteEditArea() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-	bool performMouseDown(int setSelection, int keySelection);
-	bool performMouseUp(int setSelection, int keySelection);
-
-	// MIDI input callback
-	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+	// Implementation of ChangeListener
+	void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	// Things to be done when a new mapping is loaded. E. g. fill the colour combo box with the colours appearing in the mapping.
 	void onSetData(TerpstraKeyMapping& newData);
+
+	// Fill key fields with values from a certain octaveboard subset
+	void setKeyFieldValues(const TerpstraKeys& keySet);
+
+	TabbedButtonBar* getOctaveBoardSelectorTab() { return octaveBoardSelectorTab.get(); }
+
+	void changeSingleKeySelection(int newSelection);
+
+	void refreshKeyFields();
+
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void mouseDown (const juce::MouseEvent& e) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::unique_ptr<SingleNoteAssign> singleNoteAssign;
-	std::unique_ptr<IsomorphicMassAssign> isomorphicMassAssign;
-	std::unique_ptr<MacroButtonsWindow> macroButtonsWindow;
-	std::unique_ptr<PlayVirtualKeyboard> playVirtualKeyboardWindow;
+    enum noteEditMode
+    {
+        SingleNoteAssignMode = 0,
+        IsomorphicMassAssignMode = 1
+    };
+
+	// Selector for octave boards
+	std::unique_ptr<TabbedButtonBar> octaveBoardSelectorTab;
+
+	// Editing single keys (of the selected 56-key set)
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
+
+	int					currentSingleKeySelection;
+
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<ComboBox> cbEditMode;
-    std::unique_ptr<Label> labelEditMode;
+    std::unique_ptr<juce::TabbedComponent> editFunctionsTab;
+    std::unique_ptr<juce::Label> labelWindowTitle;
 
 
     //==============================================================================

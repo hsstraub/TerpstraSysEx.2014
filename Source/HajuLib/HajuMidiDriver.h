@@ -27,18 +27,18 @@ public:
 	HajuMidiDriver();
 	~HajuMidiDriver();
 
-	// List of MIDI input devices
-	StringArray& getMidiInputList() { return midiInputs; }
-	// List of MIDI output devices
-	StringArray& getMidiOutputList() { return midiOutputs; }
+	// List of MIDI input device names
+	StringArray getMidiInputList();
+	// List of MIDI output device names
+	StringArray getMidiOutputList();
 
 	// Open the specified input device
 	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
-		
+
 	// Open the specified output device
 	void setMidiOutput(int deviceIndex);
 
-	// Send a MIDI message directly 
+	// Send a MIDI message directly
 	void sendMessageNow(const MidiMessage& message);
 
 	// Higher level commands
@@ -47,17 +47,16 @@ public:
 
 
 	// Attributes
-private:
-	StringArray midiInputs;
-	StringArray midiOutputs;
+protected:
+	Array<MidiDeviceInfo> midiInputs;
+	Array<MidiDeviceInfo> midiOutputs;
 	AudioDeviceManager deviceManager;
 
-protected:
-	int lastInputIndex;
-	MidiInputCallback* lastInputCallback;
+	int lastInputIndex = -1;
+	MidiInputCallback* lastInputCallback = nullptr;
 
 	// Currently open MIDI output
-  std::unique_ptr<MidiOutput> midiOutput;
+  std::unique_ptr<MidiOutput> midiOutput = nullptr;
 };
 
 #endif  // HAJUMIDIDRIVER_H_INCLUDED

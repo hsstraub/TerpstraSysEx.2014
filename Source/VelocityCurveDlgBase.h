@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -24,6 +24,8 @@
 
 #include "VelocityCurveComponents.h"
 #include "VelocityCurveEditStrategy.h"
+#include "TerpstraMidiDriver.h"
+
 //[/Headers]
 
 
@@ -36,76 +38,73 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class VelocityCurveDlg  : public Component,
-                          public Button::Listener,
-                          public ComboBox::Listener
+class VelocityCurveDlgBase  : public Component,
+                              public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
-    VelocityCurveDlg (TerpstraMidiDriver::VelocityCurveType typeValue);
-    ~VelocityCurveDlg();
+    VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue);
+    ~VelocityCurveDlgBase() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
-	void sendVelocityTableToController();
 
-	void showBeamValueOfMousePosition(juce::Point<float> localPoint);
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
+
+	virtual void sendVelocityTableToController();
+
+	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
 	void mouseDrag(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
+
+protected:
+	virtual String beamValueText(int beamValue) const { return String(beamValue); }
+	virtual String beamXPosText(int xPos) const { return String(xPos); }
+	virtual float beamWidth(int xPos) { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
+
+	TerpstraKeyMapping*	getMappingInEdit();
+	TerpstraVelocityCurveConfig* getConfigInEdit();
+	VelocityCurveEditStrategyBase* getCurrentDrawingStrategy();
+
+public:
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	typedef enum
-	{
-		none = -1,
-		freeDrawing = 0,
-		linearSegments = 1,
-		quadraticCurves = 2
-	} EDITSTRATEGYINDEX;
-
-
 	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
-	VelocityCurveBeam* velocityBeamTable[128];
+	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
-	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
+	
+	std::map<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX, VelocityCurveEditStrategyBase*> drawingStrategies;
 
-	const float graphicsYPadding = 116.0f;
-	const float pushButtonAreaHeight = 36.0f;
+protected:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> lblDescription;
-    std::unique_ptr<TextButton> buttonSendAll;
-    std::unique_ptr<TextButton> buttonDiscard;
-    std::unique_ptr<TextButton> buttonSaveEdits;
-    std::unique_ptr<ComboBox> cbEditMode;
-    std::unique_ptr<Label> labelEditMode;
-    std::unique_ptr<ComboBox> cbPreset;
-    std::unique_ptr<Label> labelPresets;
-    std::unique_ptr<Label> labelCurrentBeamValue;
+    std::unique_ptr<juce::ComboBox> cbEditMode;
+    std::unique_ptr<juce::Label> labelCurrentBeamValue;
+    std::unique_ptr<juce::Label> labelCurrentXPos;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveDlg)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VelocityCurveDlgBase)
 };
 
 //[EndFile] You can add extra defines here...
+
 //[/EndFile]
 

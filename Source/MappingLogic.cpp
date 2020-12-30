@@ -19,9 +19,23 @@ MappingLogicBase::MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colou
 {
 }
 
+void MappingLogicBase::setPeriodSize(int newPeriodSize, bool forceRefresh)
+{
+	if (newPeriodSize != this->periodSize || forceRefresh)
+	{
+		this->periodSize = newPeriodSize;
+
+		// Notify listeners
+		this->listeners.call(&Listener::mappingLogicChanged, this);
+	}
+}
+
 int MappingLogicBase::getIndexFromStartOfMap(int inx) const
 {
-    jassert(this->getPeriodSize() > 0);
+    if (this->getPeriodSize() <= 0) {
+        jassertfalse;
+        return 0;
+    }
 
     int relativeInx = (inx - getStartOfMap()) % this->getPeriodSize();
     while (relativeInx < 0)
@@ -75,27 +89,16 @@ void MappingLogicBase::removeListener(MappingLogicBase::Listener* listener)
 // Increasing MIDI notes
 
 IncrMidiNotesMappingLogic::IncrMidiNotesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn)
-    : MappingLogicBase(scaleStructureIn, colourTableIn), maxMIDINote(0), channelInCaseOfSingleChannel(0)
+    : MappingLogicBase(scaleStructureIn, colourTableIn)
 {
 }
 
 //=============================================================
 // Set parameters
 
-void IncrMidiNotesMappingLogic::setMaxMidiNote(int newMaxMIDINote)
+void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel, bool forceRefresh)
 {
-	if (newMaxMIDINote != this->maxMIDINote)
-	{
-		this->maxMIDINote = newMaxMIDINote;
-
-		// Notify listeners
-		this->listeners.call(&Listener::mappingLogicChanged, this);
-	}
-}
-
-void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelInCaseOfSingleChannel)
-{
-	if (newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel)
+	if (newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel || forceRefresh)
 	{
 		this->channelInCaseOfSingleChannel = newChannelInCaseOfSingleChannel;
 
@@ -104,11 +107,12 @@ void IncrMidiNotesMappingLogic::setChannelInCaseOfSingleChannel(int newChannelIn
 	}
 }
 
-void IncrMidiNotesMappingLogic::setValues(int newMaxMIDINote, int newChannelInCaseOfSingleChannel)
+void IncrMidiNotesMappingLogic::setValues(int newPeriodSize, int newChannelInCaseOfSingleChannel, bool forceRefresh)
 {
-	if (newMaxMIDINote != this->maxMIDINote || newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel)
+	if (newPeriodSize != this->periodSize || newChannelInCaseOfSingleChannel != this->channelInCaseOfSingleChannel
+        || forceRefresh)
 	{
-		this->maxMIDINote = newMaxMIDINote;
+		this->periodSize = newPeriodSize;
 		this->channelInCaseOfSingleChannel = newChannelInCaseOfSingleChannel;
 
 		// Notify listeners
@@ -122,9 +126,9 @@ void IncrMidiNotesMappingLogic::setValues(int newMaxMIDINote, int newChannelInCa
 int IncrMidiNotesMappingLogic::globalMappingSize() const
 {
 	if (isSingleChannel())
-		return this->maxMIDINote+1;	// notes start at 0 and go until maxMIDINote
+		return this->periodSize;	// notes start at 0 and go until periodSize-1
 	else
-		return (this->maxMIDINote+1) * 16;
+		return this->periodSize * 16;
 }
 
 int IncrMidiNotesMappingLogic::indexToMIDIChannel(int inx) const
@@ -135,7 +139,7 @@ int IncrMidiNotesMappingLogic::indexToMIDIChannel(int inx) const
         return this->channelInCaseOfSingleChannel;
     else
         // Channel is 1-based
-        return (inx / (this->maxMIDINote + 1)) + 1;
+        return (inx / this->periodSize) + 1;
 }
 
 int IncrMidiNotesMappingLogic::indexToMIDINote(int inx) const
@@ -145,8 +149,8 @@ int IncrMidiNotesMappingLogic::indexToMIDINote(int inx) const
 	else if (this->isSingleChannel())
         return inx;
     else
-        // Note is 0-based and goes until maxMIDINote
-        return inx % (this->maxMIDINote+1);
+        // Note is 0-based and goes until periodSize-1
+        return inx % this->periodSize;
 
 }
 
@@ -157,17 +161,18 @@ int IncrMidiNotesMappingLogic::terpstraKeyToIndex(TerpstraKey keyData) const
 
 	if (this->isSingleChannel())
 	{
-		if (keyData.channelNumber != this->channelInCaseOfSingleChannel || keyData.noteNumber > this->maxMIDINote )
+	    // notes start at 0 and go until periodSize-1
+		if (keyData.channelNumber != this->channelInCaseOfSingleChannel || keyData.noteNumber >= this->periodSize )
 			return -1;
 
 		return keyData.noteNumber;
 	}
 	else
 	{
-		if (keyData.noteNumber > this->maxMIDINote)
+		if (keyData.noteNumber >= this->periodSize)
 			return -1;
 
-		return (keyData.channelNumber - 1)*(this->maxMIDINote + 1) + keyData.noteNumber;
+		return (keyData.channelNumber - 1) * this->periodSize + keyData.noteNumber;
 	}
 }
 
@@ -247,6 +252,7 @@ int KBMFilesMappingLogic::getStartOfMap() const
     return terpstraKeyToIndex(keyData);
 }
 
+/*
 int KBMFilesMappingLogic::getPeriodSize() const
 {
     // Period size is supposed to be the same for all KBM files
@@ -266,6 +272,7 @@ int KBMFilesMappingLogic::getPeriodSize() const
     else
         return channelMappingData[subTableIndex].mapping.scaleSize;
 }
+*/
 
 //=================================================================
 // Access mapping data (overrides)

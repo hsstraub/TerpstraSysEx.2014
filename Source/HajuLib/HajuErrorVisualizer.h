@@ -29,7 +29,20 @@ public:
 
 	// Methods
 public:
-    void setErrorLevel(TextEditor& textEdit, ErrorLevel errorLevel, String toolTipText);
+    void setErrorLevel(
+        SettableTooltipClient& tooltipClient,
+        Component& component,
+        ErrorLevel errorLevel,
+        String toolTipText,
+        int bgColourId);
+
+    void setErrorLevel(TextEditor& textEdit, ErrorLevel errorLevel, String toolTipText) {
+        return setErrorLevel(textEdit, textEdit, errorLevel, toolTipText,  TextEditor::backgroundColourId);
+    }
+
+    void setErrorLevel(Label& label, ErrorLevel errorLevel, String toolTipText) {
+        return setErrorLevel(label, label, errorLevel, toolTipText,  Label::backgroundColourId);
+    }
 
 // Attributes
 private:

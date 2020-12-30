@@ -11,7 +11,8 @@
 
 #include "Main.h"
 #include "GeneralOptionsDlg.h"
-#include "VelocityCurveDlg.h"
+#include "VelocityCurveDlgBase.h"
+#include "NoteOnOffVelocityCurveDialog.h"
 
 //==============================================================================
 
@@ -22,7 +23,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	options.applicationName = "LumatoneSetup";
 	options.filenameSuffix = "settings";
 	options.osxLibrarySubFolder = "Application Support";
-	// XXX Folder name before rebranding: TerpstraSysEx
 #if JUCE_LINUX
 	options.folderName = "~/.config/LumatoneSetup";
 #else
@@ -34,16 +34,19 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 
-	switch (propertiesFile->getIntValue("ColourScheme"))
-	{
-	case 1:
-		applyDarkColourScheme(false);
-		break;
+	// Colour scheme
+	lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
-	default:
-		applyLightColourScheme(false);
-		break;
-	}
+	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
+	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
+	// ToDo TabbedButton colours: selected, unselected
+
+	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId));
+	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
+	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
+
+	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
+	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
 
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
@@ -56,14 +59,12 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 void TerpstraSysExApplication::initialise(const String& commandLine)
 {
     // This method is where you should put your application's initialisation code..
-	commandManager.reset(new ApplicationCommandManager());
-	commandManager->registerAllCommandsForTarget(this);
+	//commandManager.reset(new ApplicationCommandManager());
+	//commandManager->registerAllCommandsForTarget(this);
 
-	menuModel.reset(new TerpstraSysExMainMenuModel(commandManager.get()));
 
     mainWindow.reset(new MainWindow());
-	mainWindow->setMenuBar(menuModel.get());
-	mainWindow->addKeyListener(commandManager->getKeyMappings());
+	//mainWindow->addKeyListener(commandManager->getKeyMappings());
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 
@@ -100,8 +101,7 @@ void TerpstraSysExApplication::shutdown()
 	propertiesFile = nullptr;
 
     mainWindow = nullptr; // (deletes our window)
-	menuModel = nullptr;
-	commandManager = nullptr;
+	//commandManager = nullptr;
 }
 
 //==============================================================================
@@ -138,146 +138,9 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
     // the other instance's command-line arguments were.
 }
 
-void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
-{
-	JUCEApplication::getAllCommands(commands);
-
-	const CommandID ids[] = {
-		TerpstraSysExMainMenuModel::commandIDs::openSysExMapping,
-		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
-		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
-		TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
-
-		TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard,
-		TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard,
-		TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard,
-
-		TerpstraSysExMainMenuModel::commandIDs::lightColourScheme,
-		TerpstraSysExMainMenuModel::commandIDs::darkColourScheme,
-
-		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
-		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
-		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
-
-		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
-	};
-
-	commands.addArray(ids, numElementsInArray(ids));
-}
-
-void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
-{
-	switch (commandID)
-	{
-	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
-		result.setInfo("Load file mapping", "Open a Lumatone key mapping", "File", 0);
-		result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
-		result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
-		result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
-		result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
-		result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
-		result.setInfo("Reset", "Close file without saving and clear all edit fields", "File", 0);
-		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
-		result.setInfo("Delete", "Delete subboard data", "Edit", 0);
-		result.addDefaultKeypress(KeyPress::deleteKey, ModifierKeys::noModifiers);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:
-		result.setInfo("Copy", "Copy subboard data", "Edit", 0);
-		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
-		result.setInfo("Paste", "Paste subboard data", "Edit", 0);
-		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
-		result.setInfo("Light", "Light colour scheme", "View", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
-		result.setInfo("Dark", "Dark colour scheme", "View", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
-		result.setInfo("General options", "General options", "Options", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
-		result.setInfo("Note on/off velocity curve", "Note on/off velocity curve", "Options", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
-		result.setInfo("Fader velocity curve", "Fader velocity curve", "Options", 0);
-		break;
-
-	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
-		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
-		break;
-
-	default:
-		JUCEApplication::getCommandInfo(commandID, result);
-		break;
-	}
-}
-
-bool TerpstraSysExApplication::perform(const InvocationInfo& info)
-{
-	switch (info.commandID)
-	{
-	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
-		return openSysExMapping();
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
-		return saveSysExMapping();
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
-		return saveSysExMappingAs();
-	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
-		return resetSysExMapping();
-
-	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
-		return deleteSubBoardData();
-	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:
-		return copySubBoardData();
-	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
-		return pasteSubBoardData();
-
-	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
-		return applyLightColourScheme(true);
-	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
-		return applyDarkColourScheme(true);
-
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
-		return generalOptionsDialog();
-	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
-		return noteOnOffVelocityCurveDialog();
-	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
-		return faderVelocityCurveDialog();
-
-	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
-		return aboutTerpstraSysEx();
-	default:
-		return JUCEApplication::perform(info);
-	}
-}
-
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	// XXX If there are changes: ask for saving these first?
-
-	FileChooser chooser("Open a Lumatone key mapping", File(), "*.tsx");
+	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -297,7 +160,7 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Lumatone Key Mapping Files", File(), "*.tsx");
+	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();
@@ -318,8 +181,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	currentFile = File();
 
 	// Clear all edit fields
-	TerpstraKeyMapping keyMapping;
-	((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
+	((MainContentComponent*)(mainWindow->getContentComponent()))->deleteAll();
 
 	setHasChangesToSave(false);
 
@@ -342,96 +204,6 @@ bool TerpstraSysExApplication::copySubBoardData()
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
-}
-
-bool TerpstraSysExApplication::applyLightColourScheme(bool repaintAndSave)
-{
-	Colour windowBackgroundColour(0xffbad0de);
-	Colour editFieldBackgroundColour = Colours::white;
-	Colour textColour(0xff000000);
-
-	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
-
-	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
-
-	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
-	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
-
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
-	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, textColour);
-
-	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, Colour(0x66000000));
-	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
-
-	lookAndFeel.setColour(juce::Label::textColourId, textColour);
-
-	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
-	lookAndFeel.setColour(juce::ToggleButton::tickColourId, textColour);
-
-	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
-	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colours::black);
-	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
-
-	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
-	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colours::black);
-
-	if (repaintAndSave)
-	{
-		mainWindow->setBackgroundColour(windowBackgroundColour);
-		mainWindow->repaint();
-
-		// Save the choice in settings file
-		propertiesFile->setValue("ColourScheme", 0);
-	}
-
-	return true;
-}
-
-bool TerpstraSysExApplication::applyDarkColourScheme(bool repaintAndSave)
-{
-	Colour windowBackgroundColour(0xff373737);
-	Colour editFieldBackgroundColour(0xff2f2f2f);
-	Colour textColour(0xffd7d9da);
-
-	lookAndFeel.setColour(juce::ResizableWindow::backgroundColourId, windowBackgroundColour);
-
-	lookAndFeel.setColour(juce::DocumentWindow::backgroundColourId, windowBackgroundColour);
-
-	lookAndFeel.setColour(juce::TextEditor::backgroundColourId, editFieldBackgroundColour);
-	lookAndFeel.setColour(juce::TextEditor::textColourId, textColour);
-	lookAndFeel.setColour(juce::TextEditor::highlightColourId, Colour(0xffc3c3fa));
-
-	lookAndFeel.setColour(juce::ComboBox::backgroundColourId, editFieldBackgroundColour);
-	lookAndFeel.setColour(juce::ComboBox::textColourId, textColour);
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
-
-	lookAndFeel.setColour(juce::Label::textColourId, textColour);
-
-	lookAndFeel.setColour(juce::ToggleButton::textColourId, textColour);
-	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
-
-	lookAndFeel.setColour(juce::GroupComponent::outlineColourId, textColour);
-	lookAndFeel.setColour(juce::GroupComponent::textColourId, textColour);
-
-	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, windowBackgroundColour);
-	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
-	lookAndFeel.setColour(TerpstraKeyEdit::selectedKeyOutlineId, Colour(0xfff7990d));
-
-	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
-	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
-
-	if (repaintAndSave)
-	{
-		mainWindow->setBackgroundColour(windowBackgroundColour);
-		mainWindow->repaint();
-
-		// Save the choice in settings file
-		propertiesFile->setValue("ColourScheme", 1);
-	}
-
-	return true;
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()
@@ -457,14 +229,14 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 
 bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 {
-	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
-	optionsWindow->setLookAndFeel(&lookAndFeel);
+	NoteOnOffVelocityCurveDialog* velocityCurveWindow = new NoteOnOffVelocityCurveDialog();
+	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
-	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
-	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
+	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 648);
+	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
-	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content.setOwned(velocityCurveWindow);
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
@@ -481,17 +253,41 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
 {
-	VelocityCurveDlg* optionsWindow = new VelocityCurveDlg(TerpstraMidiDriver::VelocityCurveType::fader);
-	optionsWindow->setLookAndFeel(&lookAndFeel);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader);
+	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
-	int dlgWidth = propertiesFile->getIntValue("VelocityCurveWindowWidth", 640);
-	int dlgHeight = propertiesFile->getIntValue("VelocityCurveWindowHeight", 320);
+	int dlgWidth = propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648);
+	int dlgHeight = propertiesFile->getIntValue("FaderVelocityCurveWindowHeight", 424);
 
 	DialogWindow::LaunchOptions launchOptions;
-	launchOptions.content.setOwned(optionsWindow);
+	launchOptions.content.setOwned(velocityCurveWindow);
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
+	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
+	launchOptions.escapeKeyTriggersCloseButton = true;
+	launchOptions.useNativeTitleBar = false;
+	launchOptions.resizable = true;
+
+	DialogWindow* dw = launchOptions.launchAsync();
+	dw->centreWithSize(dlgWidth, dlgHeight);
+
+	return true;
+}
+
+bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
+{
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
+
+	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);
+	int dlgHeight = propertiesFile->getIntValue("AftertouchVelocityCurveWindowHeight", 424);
+
+	DialogWindow::LaunchOptions launchOptions;
+	launchOptions.content.setOwned(velocityCurveWindow);
+	launchOptions.content->setSize(dlgWidth, dlgHeight);
+
+	launchOptions.dialogTitle = "Aftertouch parameters";
 	launchOptions.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
@@ -524,11 +320,14 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 
 		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
 
-		// Mark file as unchanged
-		setHasChangesToSave(false);
-
 		// Window title
 		updateMainTitle();
+
+		// Send configuration to controller, if connected
+		sendCurrentMappingToDevice();
+
+		// Mark file as unchanged
+		setHasChangesToSave(false);
 
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
@@ -568,16 +367,24 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	return retc;
 }
 
-void TerpstraSysExApplication::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
-{
-	((MainContentComponent*)(mainWindow->getContentComponent()))->handleIncomingMidiMessage(source, message);
-}
-
 void TerpstraSysExApplication::sendCurrentMappingToDevice()
 {
-    getMidiDriver().sendCompleteMapping(
-        ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit()
-    );
+	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
+	
+	// MIDI channel, MIDI note, colour and key type config for all keys
+	getMidiDriver().sendCompleteMapping(theConfig);
+
+	// General options
+	getMidiDriver().sendAfterTouchActivation(theConfig.afterTouchActive);
+	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
+	getMidiDriver().sendInvertFootController(theConfig.invertFootController);
+	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+
+	// Velocity curve config
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);	
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
 }
 
 void TerpstraSysExApplication::updateMainTitle()
@@ -612,6 +419,8 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
 		<< "Reengineered @ Hans Straub 2014 - 2020" << newLine
+		<< "Scale structure editor @ Vincenzo Sicurella" << newLine
+		<< "Mac version by Brett Park" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to http://lumatone.io or http://terpstrakeyboard.com .";
 

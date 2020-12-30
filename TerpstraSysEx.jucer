@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.4"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.7"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              jucerVersion="5.4.7" companyName="Hans Straub" headerPath="../../../JUCE/modules">
+              companyName="Hans Straub" headerPath="../../../JUCE/modules"
+              jucerFormatVersion="1">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
             file="BinaryData/LumatoneIcon.png"/>
-      <FILE id="mKOOP6" name="TopEdgeLightLeft.png" compile="0" resource="1"
-            file="BinaryData/TopEdgeLightLeft.png"/>
-      <FILE id="gZlHUE" name="TopEdgeLightRight.png" compile="0" resource="1"
-            file="BinaryData/TopEdgeLightRight.png"/>
-      <FILE id="rp33Hj" name="TopEdgeButton.png" compile="0" resource="1"
-            file="BinaryData/TopEdgeButton.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="vOjaEA" name="CurvesArea.h" compile="0" resource="0" file="Source/CurvesArea.h"/>
+      <FILE id="enXDMq" name="CurvesArea.cpp" compile="1" resource="0" file="Source/CurvesArea.cpp"/>
+      <FILE id="wQzk9i" name="GlobalSettingsArea.cpp" compile="1" resource="0"
+            file="Source/GlobalSettingsArea.cpp"/>
+      <FILE id="QWWVa0" name="GlobalSettingsArea.h" compile="0" resource="0"
+            file="Source/GlobalSettingsArea.h"/>
+      <FILE id="vPxTHg" name="AllKeysOverview.cpp" compile="1" resource="0"
+            file="Source/AllKeysOverview.cpp"/>
+      <FILE id="WhW1Za" name="AllKeysOverview.h" compile="0" resource="0"
+            file="Source/AllKeysOverview.h"/>
+      <FILE id="oPf8iZ" name="NoteOnOffVelocityCurveDialog.cpp" compile="1"
+            resource="0" file="Source/NoteOnOffVelocityCurveDialog.cpp"/>
+      <FILE id="Vj8Ki8" name="NoteOnOffVelocityCurveDialog.h" compile="0"
+            resource="0" file="Source/NoteOnOffVelocityCurveDialog.h"/>
       <FILE id="tYu9iO" name="KBMMappingDataStructure.cpp" compile="1" resource="0"
             file="Source/KBMMappingDataStructure.cpp"/>
       <FILE id="QS12kV" name="KBMMappingDataStructure.h" compile="0" resource="0"
@@ -28,14 +37,6 @@
       <FILE id="PFjU1P" name="KBMMappingDlg.cpp" compile="1" resource="0"
             file="Source/KBMMappingDlg.cpp"/>
       <FILE id="N6mYWM" name="KBMMappingDlg.h" compile="0" resource="0" file="Source/KBMMappingDlg.h"/>
-      <FILE id="zObTAR" name="OctaveBoardComponent.cpp" compile="1" resource="0"
-            file="Source/OctaveBoardComponent.cpp"/>
-      <FILE id="Pe60oV" name="OctaveBoardComponent.h" compile="0" resource="0"
-            file="Source/OctaveBoardComponent.h"/>
-      <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
-            file="Source/PlayVirtualKeyboard.cpp"/>
-      <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"
-            file="Source/PlayVirtualKeyboard.h"/>
       <FILE id="fToFTX" name="ColourEditComponent.cpp" compile="1" resource="0"
             file="Source/ColourEditComponent.cpp"/>
       <FILE id="VbJRS2" name="ColourEditComponent.h" compile="0" resource="0"
@@ -46,17 +47,13 @@
             file="Source/VelocityCurveComponents.h"/>
       <FILE id="QI0Qip" name="VelocityCurveEditStrategy.cpp" compile="1"
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
-      <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
-            file="Source/VelocityCurveEditStrategy.h"/>
-      <FILE id="zD1emI" name="VelocityCurveDlg.cpp" compile="1" resource="0"
-            file="Source/VelocityCurveDlg.cpp"/>
-      <FILE id="OEajb7" name="VelocityCurveDlg.h" compile="0" resource="0"
-            file="Source/VelocityCurveDlg.h"/>
-      <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
-            file="Source/GeneralOptionsDlg.cpp"/>
-      <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
-            file="Source/GeneralOptionsDlg.h"/>
+      <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
+            file="Source/VelocityCurveDlgBase.cpp"/>
+      <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
+            file="Source/VelocityCurveDlgBase.h"/>
       <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
+        <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
+              file="Source/VelocityCurveEditStrategy.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
               file="Source/ScaleStructureController/GroupingCircle.cpp"/>
         <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
@@ -81,11 +78,11 @@
         <FILE id="xUZ6gr" name="TransparentDropDown.h" compile="0" resource="0"
               file="Source/ScaleStructureController/TransparentDropDown.h"/>
       </GROUP>
+      <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
+            file="Source/GeneralOptionsDlg.cpp"/>
+      <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
+            file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
-        <FILE id="yxzUnB" name="HajuDelayMidiDriver.cpp" compile="1" resource="0"
-              file="Source/HajuLib/HajuDelayMidiDriver.cpp"/>
-        <FILE id="b5aZVC" name="HajuDelayMidiDriver.h" compile="0" resource="0"
-              file="Source/HajuLib/HajuDelayMidiDriver.h"/>
         <FILE id="cCH9ZE" name="HajuErrorVisualizer.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuErrorVisualizer.cpp"/>
         <FILE id="yWeaxC" name="HajuErrorVisualizer.h" compile="0" resource="0"
@@ -95,14 +92,6 @@
         <FILE id="qke01B" name="HajuMidiDriver.h" compile="0" resource="0"
               file="Source/HajuLib/HajuMidiDriver.h"/>
       </GROUP>
-      <FILE id="RXyH4V" name="OneMacroButtonEdit.cpp" compile="1" resource="0"
-            file="Source/OneMacroButtonEdit.cpp"/>
-      <FILE id="AM7nb9" name="OneMacroButtonEdit.h" compile="0" resource="0"
-            file="Source/OneMacroButtonEdit.h"/>
-      <FILE id="hLpEXr" name="MacroButtonsWindow.cpp" compile="1" resource="0"
-            file="Source/MacroButtonsWindow.cpp"/>
-      <FILE id="txOljN" name="MacroButtonsWindow.h" compile="0" resource="0"
-            file="Source/MacroButtonsWindow.h"/>
       <FILE id="iv4rRX" name="BoardGeometry.cpp" compile="1" resource="0"
             file="Source/BoardGeometry.cpp"/>
       <FILE id="pu1qcb" name="BoardGeometry.h" compile="0" resource="0" file="Source/BoardGeometry.h"/>
@@ -139,8 +128,6 @@
             file="Source/ViewComponents.cpp"/>
       <FILE id="DfBSef" name="ViewComponents.h" compile="0" resource="0"
             file="Source/ViewComponents.h"/>
-      <FILE id="HAyzGx" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
-      <FILE id="iBGzO1" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
       <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
             file="Source/KeyboardDataStructure.h"/>
       <FILE id="eoBUqq" name="MainComponent.cpp" compile="1" resource="0"
@@ -200,23 +187,6 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
-    <CODEBLOCKS_WINDOWS targetFolder="Builds/CodeBlocksWindows" smallIcon="nhV3bK" bigIcon="nhV3bK"
-                        extraCompilerFlags="-Wa,-mbig-obj">
-      <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra"/>
-        <MODULEPATH id="juce_gui_basics"/>
-        <MODULEPATH id="juce_graphics"/>
-        <MODULEPATH id="juce_events"/>
-        <MODULEPATH id="juce_data_structures"/>
-        <MODULEPATH id="juce_core"/>
-        <MODULEPATH id="juce_audio_devices"/>
-        <MODULEPATH id="juce_audio_basics"/>
-      </MODULEPATHS>
-    </CODEBLOCKS_WINDOWS>
   </EXPORTFORMATS>
   <MODULES>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -33,43 +33,43 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    channelAutoIncrButton.reset (new ToggleButton ("channelAutoIncrButton"));
+    channelAutoIncrButton.reset (new juce::ToggleButton ("channelAutoIncrButton"));
     addAndMakeVisible (channelAutoIncrButton.get());
     channelAutoIncrButton->setTooltip (TRANS("Auto-increment channel after maximal note is reached"));
     channelAutoIncrButton->setButtonText (TRANS("Multichannel"));
-    channelAutoIncrButton->setConnectedEdges (Button::ConnectedOnTop);
+    channelAutoIncrButton->setConnectedEdges (juce::Button::ConnectedOnTop);
     channelAutoIncrButton->setRadioGroupId (1);
     channelAutoIncrButton->addListener (this);
 
     channelAutoIncrButton->setBounds (8, 64, 280, 24);
 
-    labelMidiNotesUntil.reset (new Label ("labelMidiNotesUntil",
-                                          TRANS("MIDI notes from 0 to the scale size")));
+    labelMidiNotesUntil.reset (new juce::Label ("labelMidiNotesUntil",
+                                                TRANS("MIDI notes from 0 to the scale size")));
     addAndMakeVisible (labelMidiNotesUntil.get());
-    labelMidiNotesUntil->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelMidiNotesUntil->setJustificationType (Justification::centredLeft);
+    labelMidiNotesUntil->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelMidiNotesUntil->setJustificationType (juce::Justification::centredLeft);
     labelMidiNotesUntil->setEditable (false, false, false);
-    labelMidiNotesUntil->setColour (TextEditor::textColourId, Colours::black);
-    labelMidiNotesUntil->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelMidiNotesUntil->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelMidiNotesUntil->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     labelMidiNotesUntil->setBounds (8, 8, 432, 24);
 
-    singleChannelButton.reset (new ToggleButton ("singleChannelButton"));
+    singleChannelButton.reset (new juce::ToggleButton ("singleChannelButton"));
     addAndMakeVisible (singleChannelButton.get());
     singleChannelButton->setTooltip (TRANS("Only the MIDI notes from a single channel"));
     singleChannelButton->setButtonText (TRANS("Single channel"));
-    singleChannelButton->setConnectedEdges (Button::ConnectedOnTop);
+    singleChannelButton->setConnectedEdges (juce::Button::ConnectedOnTop);
     singleChannelButton->setRadioGroupId (1);
     singleChannelButton->addListener (this);
 
     singleChannelButton->setBounds (8, 40, 160, 24);
 
-    channelBox.reset (new ComboBox ("channelBox"));
+    channelBox.reset (new juce::ComboBox ("channelBox"));
     addAndMakeVisible (channelBox.get());
     channelBox->setTooltip (TRANS("The MIDI channel (in case of single channel)"));
     channelBox->setEditableText (false);
-    channelBox->setJustificationType (Justification::centredLeft);
-    channelBox->setTextWhenNothingSelected (String());
+    channelBox->setJustificationType (juce::Justification::centredLeft);
+    channelBox->setTextWhenNothingSelected (juce::String());
     channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
@@ -111,12 +111,12 @@ IncrMidiNotesMapping::~IncrMidiNotesMapping()
 }
 
 //==============================================================================
-void IncrMidiNotesMapping::paint (Graphics& g)
+void IncrMidiNotesMapping::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffb8d0de));
+    g.fillAll (juce::Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -132,7 +132,7 @@ void IncrMidiNotesMapping::resized()
     //[/UserResized]
 }
 
-void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
+void IncrMidiNotesMapping::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -164,7 +164,7 @@ void IncrMidiNotesMapping::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void IncrMidiNotesMapping::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void IncrMidiNotesMapping::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -187,8 +187,9 @@ void IncrMidiNotesMapping::visibilityChanged()
     {
         // Re-fill note combo box according to mapping logic
         this->mappingLogic.setValues(
-            periodSize-1,
-            channelAutoIncrButton->getToggleState() ? channelBox->getSelectedId() : 0);
+            periodSize,
+            channelAutoIncrButton->getToggleState() ? channelBox->getSelectedId() : 0,
+            true);
     }
     //[/UserCode_visibilityChanged]
 }
@@ -201,7 +202,7 @@ void IncrMidiNotesMapping::onUpdatePeriodSize()
 {
     if ( isVisible())
     {
-        this->mappingLogic.setMaxMidiNote(periodSize-1);
+        this->mappingLogic.setPeriodSize(periodSize);
     }
 }
 

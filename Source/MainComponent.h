@@ -8,18 +8,20 @@
   ==============================================================================
 */
 
-#ifndef MAINCOMPONENT_H_INCLUDED
-#define MAINCOMPONENT_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "OctaveBoardComponent.h"
+#include "AllKeysOverview.h"
 #include "ViewComponents.h"
-#include "BoardGeometry.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
+#include "GeneralOptionsDlg.h"
+#include "CurvesArea.h"
+#include "GlobalSettingsArea.h"
+
 
 
 //==============================================================================
@@ -27,39 +29,44 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public MidiInputCallback
+class MainContentComponent : public Component, public TerpstraMidiDriver::Listener, public ChangeListener
 {
 public:
-    //==============================================================================
-    MainContentComponent();
-    ~MainContentComponent();
+	//==============================================================================
+	MainContentComponent();
+	~MainContentComponent();
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	// Transfer of data
-	void setData(TerpstraKeyMapping& newData);
+	void setData(TerpstraKeyMapping& newData, bool withRefresh = true);
+	void deleteAll(bool withRefresh = true);
+
 	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
-	TerpstraBoardGeometry& getBoardGeometry() { return this->boardGeometry; }
 
-	// Board ddit operations
+	TabbedButtonBar* getOctaveBoardSelectorTab() { return  noteEditArea->getOctaveBoardSelectorTab(); }
+
+	// Board edit operations
 	bool deleteCurrentSubBoardData();
 	bool copyCurrentSubBoardData();
 	bool pasteCurrentSubBoardData();
 
-	// MIDI input callback
-	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override {}
+	void midiSendQueueSize(int queueSize) override {}
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+
+	// Implementation of ChangeListener
+	void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	// GUI implementation
     void paint (Graphics&);
     void resized();
-	void mouseDown(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
 
-private:
-	void changeSetSelection(int newSelection, bool forceRefresh = false);
-	void changeSingleKeySelection(int newSelection);
+	void refreshAllKeysOverview();
 
 private:
     //==============================================================================
@@ -68,33 +75,26 @@ private:
 	//==============================================================================
 	// GUI components
 
-	// Macro buttons
-	std::unique_ptr<TerpstraMacroButton> macroButtons[NUMBEROFBOARDS];
+	// Midi devices and connection state
+	std::unique_ptr<MidiEditArea>		midiEditArea;
 
-	// Sets of 56 keys
-	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
+	// Sets of 55/56 keys
+	std::unique_ptr<AllKeysOverview> allKeysOverview;
 
-	// Editing single keys (of the selected 56-key set)
-	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
+	// Edit fields for setting key and button parameters, and edits for single keys
+	std::unique_ptr<NoteEditArea>	noteEditArea;
 
-	// Geometry settings
-	TerpstraBoardGeometry	boardGeometry;
+	std::unique_ptr<GeneralOptionsDlg> generalOptionsArea;
+	
+	std::unique_ptr<CurvesArea> curvesArea;
 
-	// Midi devices
-	MidiEditArea*		midiEditArea;
-
-	// Edit fields for setting key and button parameters
-	NoteEditArea*	noteEditArea;
+	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
 
 	//==============================================================================
 	// Data
 	TerpstraKeyMapping	mappingData;
-	int					currentSetSelection;
-	int					currentSingleKeySelection;
 
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;
 };
 
-
-#endif  // MAINCOMPONENT_H_INCLUDED
