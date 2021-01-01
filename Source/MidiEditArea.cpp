@@ -34,79 +34,94 @@ TerpstraMidiDriver::sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int 
 
 //==============================================================================
 MidiEditArea::MidiEditArea ()
-    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
+    : lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),
+	  errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	lumatoneLabel.reset(new Label("LumatoneLabel", "lumatone"));
+	lumatoneLabel->setFont(LumatoneEditorFonts::UniviaProBold());
+	lumatoneLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
+	lumatoneLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(lumatoneLabel.get());
+
+	liveEditorBtn.reset(new TextButton("LiveEditorButton"));
+	lookAndFeel.setupRadioTextButton(*liveEditorBtn, 10, true);
+	liveEditorBtn->setButtonText(translate("LiveEditor"));
+	liveEditorBtn->setConnectedEdges(Button::ConnectedOnRight);
+	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Univia Pro");
+	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Bold");
+	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editModeFontScalar);
+	addChildComponent(liveEditorBtn.get());
+	liveEditorBtn->addListener(this);
+
+	offlineEditorBtn.reset(new TextButton("OfflineEditorButton"));
+	lookAndFeel.setupRadioTextButton(*offlineEditorBtn, 10, false);
+	offlineEditorBtn->setButtonText(translate("OfflineEditor"));
+	offlineEditorBtn->setConnectedEdges(Button::ConnectedOnLeft);
+	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Univia Pro");
+	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Bold");
+	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editModeFontScalar);
+	addChildComponent(offlineEditorBtn.get());
+	offlineEditorBtn->addListener(this);
+
+	pleaseConnectLabel.reset(new Label("PleaseConnectLabel", translate("PleaseConnect")));
+	pleaseConnectLabel->setFont(LumatoneEditorFonts::UniviaProBold());
+	pleaseConnectLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::ActiveText));
+	addAndMakeVisible(*pleaseConnectLabel);
+
+	offlineMsgLabel.reset(new Label("DirectionsLabel", translate("OfflineMessage")));
+	offlineMsgLabel->setFont(LumatoneEditorFonts::FranklinGothic());
+	offlineMsgLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::DescriptionText));
+	addAndMakeVisible(*offlineMsgLabel);
+
+	logomark.reset(new Component());
+	addAndMakeVisible(logomark.get());
+
+	logomarkPath = createLogomark();
     //[/Constructor_pre]
 
     cbMidiInput.reset (new juce::ComboBox ("cbMidiInput"));
     addAndMakeVisible (cbMidiInput.get());
+	lookAndFeel.setupComboBox(*cbMidiInput.get());
     cbMidiInput->setTooltip (translate("InputTooltip"));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiInput->setTextWhenNothingSelected (TRANS("SelectMIDIInput"));
-    cbMidiInput->setTextWhenNoChoicesAvailable (translate("NoChoices"));
+    cbMidiInput->setTextWhenNothingSelected (translate("SelectMIDIInput"));
+    cbMidiInput->setTextWhenNoChoicesAvailable (translate("NoInputDevices"));
     cbMidiInput->addListener (this);
-
-    cbMidiInput->setBounds (232, 8, 184, 24);
 
     cbMidiOutput.reset (new juce::ComboBox ("cbMidiOutput"));
     addAndMakeVisible (cbMidiOutput.get());
+	lookAndFeel.setupComboBox(*cbMidiOutput.get());
     cbMidiOutput->setTooltip (translate("OutputToolTip"));
     cbMidiOutput->setEditableText (false);
     cbMidiOutput->setJustificationType (juce::Justification::centredLeft);
     cbMidiOutput->setTextWhenNothingSelected (translate("SelectMIDIOutput"));
-    cbMidiOutput->setTextWhenNoChoicesAvailable (translate("NoChoices"));
+    cbMidiOutput->setTextWhenNoChoicesAvailable (translate("NoOutputDevices"));
     cbMidiOutput->addListener (this);
 
-    cbMidiOutput->setBounds (432, 8, 184, 24);
-
-    lblConnectionState.reset (new juce::Label ("lblConnectionState", translate("Disconnected")));
+    lblConnectionState.reset (new juce::Label ("lblConnectionState", connectedText[0]));
     addAndMakeVisible (lblConnectionState.get());
-    lblConnectionState->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    lblConnectionState->setJustificationType (juce::Justification::centredLeft);
-    lblConnectionState->setEditable (false, false, false);
-    lblConnectionState->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    lblConnectionState->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    lblConnectionState->setBounds (624, 8, 150, 24);
+	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[connectedToLumatone]);
 
     lblEditMode.reset (new juce::Label ("lblEditMode", TRANS("EditMode")));
     addAndMakeVisible (lblEditMode.get());
-    lblEditMode->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    lblEditMode->setJustificationType (juce::Justification::centredLeft);
-    lblEditMode->setEditable (false, false, false);
-    lblEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    lblEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    lblEditMode->setBounds (8, 8, 96, 24);
-
+	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
     //[UserPreSize]
-
-	// Edit mode selector
-	editModeSelector.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
-	addAndMakeVisible(editModeSelector.get());
-	editModeSelector->addTab("LiveEditor", juce::Colours::lightgrey, 0);
-	editModeSelector->addTab("OfflineEditor", juce::Colours::lightgrey, 1);
-	editModeSelector->addChangeListener(this);
-	editModeSelector->setBounds(110, 8, 184, OCTAVEBOARDTABHEIGHT);
-
-	lblEditMode->setVisible(false);
-	editModeSelector->setVisible(false);
 
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
     //[/UserPreSize]
 
-    setSize (1024, 48);
-
 
     //[Constructor] You can add your own custom stuff here..
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
-	lblConnectionState->setText(translate("Disconnected"), NotificationType::dontSendNotification);
+	setConnectivity(false);
 	errorVisualizer.setErrorLevel(
 		*lblConnectionState.get(),
 		HajuErrorVisualizer::ErrorLevel::error,
@@ -117,6 +132,11 @@ MidiEditArea::MidiEditArea ()
 MidiEditArea::~MidiEditArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	liveEditorBtn = nullptr;
+	offlineEditorBtn = nullptr;
+	offlineMsgLabel = nullptr;
+	pleaseConnectLabel = nullptr;
+	logomark = nullptr;
     //[/Destructor_pre]
 
     cbMidiInput = nullptr;
@@ -128,7 +148,6 @@ MidiEditArea::~MidiEditArea()
     //[Destructor]. You can add your own custom destruction code here..
 	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
-	editModeSelector = nullptr;
     //[/Destructor]
 }
 
@@ -138,10 +157,23 @@ void MidiEditArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
-
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.fillAll(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
+
+	// Dark backrgound for title and logomark
+	g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::DarkBackground));
+	g.fillRect(lumatoneLabelBounds);
+	g.fillRect(connectivityArea);
+
+	// Rounded rect for device boxes
+	if (!connectedToLumatone)
+	{
+		g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
+		g.fillRoundedRectangle(ioBounds, proportionOfHeight(controlBoundsCornerRadius));
+	}
+
+	g.setColour(connectedColours[connectedToLumatone]);
+	drawPathToFillBounds(g, logomarkPath, logomarkBounds);
     //[/UserPaint]
 }
 
@@ -151,20 +183,72 @@ void MidiEditArea::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-	juce::FlexBox fb;
-	fb.flexWrap = juce::FlexBox::Wrap::wrap;
-	fb.justifyContent = juce::FlexBox::JustifyContent::spaceBetween;
-	fb.alignContent = juce::FlexBox::AlignContent::center;
 
-	// ToDO Logo
-	fb.items.add(juce::FlexItem(*lblEditMode).withMinHeight(lblEditMode->getHeight()).withMaxHeight(lblEditMode->getHeight()).withMinWidth(lblEditMode->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*editModeSelector).withMinHeight(editModeSelector->getHeight()).withMaxHeight(editModeSelector->getHeight()).withMinWidth(editModeSelector->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*cbMidiInput).withMinHeight(cbMidiInput->getHeight()).withMaxHeight(cbMidiInput->getHeight()).withMinWidth(cbMidiInput->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*cbMidiOutput).withMinHeight(cbMidiOutput->getHeight()).withMaxHeight(cbMidiOutput->getHeight()).withMinWidth(cbMidiOutput->getWidth()).withFlex(1));
-	fb.items.add(juce::FlexItem(*lblConnectionState).withMinHeight(lblConnectionState->getHeight()).withMaxHeight(lblConnectionState->getHeight()).withMinWidth(lblConnectionState->getWidth()).withFlex(1));
+	lumatoneLabelBounds = getBounds().withRight(proportionOfWidth(lumatoneLabelAreaWidth));
+	resizeLabelWithWidth(lumatoneLabel.get(), lumatoneLabelBounds.proportionOfWidth(lumatoneLabelWidthInArea));
+	lumatoneLabel->setCentrePosition(lumatoneLabelBounds.getCentre());
 
+	resizeLabelWithHeight(lblConnectionState.get(), proportionOfHeight(connectivityHeight));
 
-	fb.performLayout(getLocalBounds().toFloat());
+	if (connectedToLumatone)
+	{
+		resizeLabelWithHeight(lblEditMode.get(), proportionOfHeight(editModeHeight));
+		lblEditMode->setTopLeftPosition(
+			lumatoneLabelBounds.getRight() + proportionOfWidth(editModeX),
+			round((getHeight() - lblEditMode->getHeight()) / 2.0f)
+		);
+
+		liveEditorBtn->setSize(proportionOfWidth(liveEditButtonWidth), proportionOfHeight(editModeButtonHeight));
+		liveEditorBtn->setTopLeftPosition(
+			lumatoneLabelBounds.getRight() + proportionOfWidth(editModeButtonX),
+			round((getHeight() - liveEditorBtn->getHeight()) / 2.0f)
+		);
+
+		offlineEditorBtn->setBounds(
+			liveEditorBtn->getRight(), liveEditorBtn->getY(), proportionOfWidth(offlineEditButtonWidth), liveEditorBtn->getHeight()
+		);
+
+		connectivityArea = getBounds().toFloat().withLeft(proportionOfWidth(connectedAreaX));
+
+		lblConnectionState->setTopLeftPosition(
+			proportionOfWidth(connectedX),
+			round((getHeight() - lblConnectionState->getHeight()) / 2.0f)
+		);
+	}
+	else
+	{
+		connectivityArea = getBounds().toFloat().withLeft(proportionOfWidth(disconnectedAreaX));
+
+		ioBounds.setBounds(
+			proportionOfWidth(controlBoundsX), proportionOfHeight(controlBoundsY),
+			proportionOfWidth(controlBoundsWidth), proportionOfHeight(controlBoundsHeight)
+		);
+
+		lblConnectionState->setTopLeftPosition(
+			ioBounds.getX() + ioBounds.proportionOfWidth(disconnectedControlBoundsX),
+			round(ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) / 2.05f)
+		);
+
+		cbMidiInput->setBounds(ioBounds.getProportion(Rectangle<float>(
+			{ midiInputControlBoundsX, midiDeviceControlBoundsHeight / 4.0f, midiDeviceControlBoundsWidth, midiDeviceControlBoundsHeight }
+		)).toNearestInt());
+
+		cbMidiOutput->setBounds(cbMidiInput->getBounds().withX(
+			ioBounds.getX() + ioBounds.proportionOfWidth(midiOutputControlBoundsX))
+		);
+
+		resizeLabelWithHeight(pleaseConnectLabel.get(), proportionOfHeight(pleaseConnectHeight));
+		pleaseConnectLabel->setTopLeftPosition(proportionOfWidth(pleaseConnectX), proportionOfHeight(pleaseConnectY));
+
+		offlineMsgLabel->setBounds(
+			proportionOfWidth(connectionDirectionsX), proportionOfHeight(connectionDirectionsY),
+			proportionOfWidth(connectionDirectionsWidth), proportionOfHeight(connectionDirectionsHeight)
+		);
+		offlineMsgLabel->setFont(offlineMsgLabel->getFont().withHeight(offlineMsgLabel->getHeight()));
+	}
+
+	logomarkBounds.setSize(proportionOfHeight(logomarkHeight), proportionOfHeight(logomarkHeight));
+	logomarkBounds.setCentre(proportionOfWidth(logomarkX), proportionOfHeight(0.5f));
     //[/UserResized]
 }
 
@@ -181,7 +265,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 		if (cbMidiInput->getSelectedItemIndex() < 0 || cbMidiOutput->getSelectedItemIndex() < 0)
 		{
-			lblConnectionState->setText(translate("Disconnected"), NotificationType::dontSendNotification);
+			setConnectivity(false);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
@@ -189,9 +273,6 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			lblEditMode->setVisible(true);
-			editModeSelector->setVisible(true);
-
 			onOpenConnectionToDevice();
 		}
         //[/UserComboBoxCode_cbMidiInput]
@@ -204,7 +285,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 		if (cbMidiInput->getSelectedItemIndex() < 0 || cbMidiOutput->getSelectedItemIndex() < 0)
 		{
-			lblConnectionState->setText(translate("Disconnected"), NotificationType::dontSendNotification);
+			setConnectivity(false);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
@@ -212,9 +293,6 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			lblEditMode->setVisible(true);
-			editModeSelector->setVisible(true);
-
 			onOpenConnectionToDevice();
 		}
         //[/UserComboBoxCode_cbMidiOutput]
@@ -228,9 +306,65 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void MidiEditArea::lookAndFeelChanged()
+{
+	connectedColours.clear();
+	connectedColours.add(getLookAndFeel().findColour(LumatoneEditorColourIDs::DisconnectedRed));
+	connectedColours.add(getLookAndFeel().findColour(LumatoneEditorColourIDs::ConnectedGreen));
+}
+
+void MidiEditArea::buttonClicked(Button* btn)
+{
+	auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)liveEditorBtn->getToggleState());
+
+	TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
+
+	switch (sysExSendingMode)
+	{
+	case TerpstraMidiDriver::sysExSendingMode::liveEditor:
+		onOpenConnectionToDevice();
+		break;
+
+	case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
+		lblConnectionState->setText(translate("OfflineMode"), NotificationType::dontSendNotification);
+		errorVisualizer.setErrorLevel(
+			*lblConnectionState.get(),
+			HajuErrorVisualizer::ErrorLevel::noError,
+			"Offline mode");
+		break;
+
+	default:
+		jassertfalse;
+		break;
+	}
+}
+
+void MidiEditArea::setConnectivity(bool isConnected)
+{
+	if ((!connectedToLumatone && isConnected) || (connectedToLumatone && !isConnected))
+	{
+		cbMidiInput->setVisible(!isConnected);
+		cbMidiOutput->setVisible(!isConnected);
+		pleaseConnectLabel->setVisible(!isConnected);
+		offlineMsgLabel->setVisible(!isConnected);
+
+		lblConnectionState->setText(connectedText[isConnected], dontSendNotification);
+		lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
+
+		lblEditMode->setVisible(isConnected);
+		liveEditorBtn->setVisible(isConnected);
+		offlineEditorBtn->setVisible(isConnected);
+
+		connectedToLumatone = isConnected;
+
+		resized();
+		repaint();
+	}
+}
+
 void MidiEditArea::onOpenConnectionToDevice()
 {
-	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && editModeSelector->getCurrentTabIndex() == midiEditMode::liveEditor);
+	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
 
 	// if editing operations were done that have not been saved, warn that edits will be overwritten when configuration is read from device
 	if (TerpstraSysExApplication::getApp().getHasChangesToSave())
@@ -242,7 +376,7 @@ void MidiEditArea::onOpenConnectionToDevice()
 
 		if (retc == false)
 		{
-			editModeSelector->setCurrentTabIndex(midiEditMode::offlineEditor, true);
+			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
 			return;
 		}
 	}
@@ -277,40 +411,11 @@ void MidiEditArea::requestConfigurationFromDevice()
 }
 
 
-void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
-{
-	if (source == editModeSelector.get())
-	{
-		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode(editModeSelector->getCurrentTabIndex());
-
-		TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
-
-		switch (sysExSendingMode)
-		{
-		case TerpstraMidiDriver::sysExSendingMode::liveEditor:
-			onOpenConnectionToDevice();
-			break;
-
-		case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
-			lblConnectionState->setText(translate("OfflineMode"), NotificationType::dontSendNotification);
-			errorVisualizer.setErrorLevel(
-				*lblConnectionState.get(),
-				HajuErrorVisualizer::ErrorLevel::noError,
-				"Offline mode");
-			break;
-
-		default:
-			jassertfalse;
-			break;
-		}
-	}
-}
-
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
 	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
 	{
-		lblConnectionState->setText(translate("Connected"), NotificationType::dontSendNotification);
+		setConnectivity(false);
 
 		if (midiMessage.getSysExDataSize() < 6)
 		{
