@@ -659,13 +659,11 @@ private:
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportPreset2x_png,           BinaryData::ImportPreset2x_pngSize),        LumatoneEditorAssets::ImportPreset);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveFile2x_png,               BinaryData::SaveFile2x_pngSize),            LumatoneEditorAssets::SaveFile);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadFile2x_png,               BinaryData::LoadFile2x_pngSize),            LumatoneEditorAssets::LoadFile);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::AssignKeys2x_png,             BinaryData::AssignKeys2x_pngSize),          LumatoneEditorAssets::AssignKeys);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyboardBase_png,             BinaryData::KeyboardBase_pngSize),          LumatoneEditorAssets::LumatoneGraphic);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,            BinaryData::KeybedShadows_pngSize),         LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,               BinaryData::KeyShape2x_pngSize),            LumatoneEditorAssets::KeyShape);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShadow2x_png,              BinaryData::KeyShadow2x_pngSize),           LumatoneEditorAssets::KeyShadow);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SavePalette2x_png,            BinaryData::SavePalette2x_pngSize),         LumatoneEditorAssets::SavePalette);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::CancelPalette2x_png,          BinaryData::CancelPalette2x_pngSize),       LumatoneEditorAssets::CancelPalette);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::TrashCanIcon2x_png,           BinaryData::TrashCanIcon2x_pngSize),        LumatoneEditorAssets::TrashCanIcon);
     }
 

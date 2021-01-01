@@ -29,7 +29,7 @@ String NoteOnOffVelocityCurveDialog::beamXPosText(int xPos) const
 {
 	auto ticksCount = TerpstraKeyMapping::ticksCountFromXPos(xPos);
 
-	{ return String(ticksCount) + " ticks (" + String(milliSecondsFromTicksCount(ticksCount)) + " ms)"; }
+	{ return String(ticksCount) + " " + translate("Ticks") + " (" + String(milliSecondsFromTicksCount(ticksCount)) + " ms)"; }
 }
 
 float NoteOnOffVelocityCurveDialog::beamWidth(int xPos)

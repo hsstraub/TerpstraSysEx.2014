@@ -34,8 +34,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    lblChannel.reset (new juce::Label ("lblChannel",
-                                       TRANS("Chnl")));
+    lblChannel.reset (new juce::Label ("lblChannel", translate("Chnl")));
     addAndMakeVisible (lblChannel.get());
     lblChannel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblChannel->setJustificationType (juce::Justification::centredLeft);
@@ -45,8 +44,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
 
     lblChannel->setBounds (0, 8, 40, 24);
 
-    lblMappingFile.reset (new juce::Label ("lblMappingFile",
-                                           TRANS("Mapping file")));
+    lblMappingFile.reset (new juce::Label ("lblMappingFile", translate("MappingFile")));
     addAndMakeVisible (lblMappingFile.get());
     lblMappingFile->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblMappingFile->setJustificationType (juce::Justification::centredLeft);
@@ -56,8 +54,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
 
     lblMappingFile->setBounds (48, 8, 104, 24);
 
-    lblChannel2.reset (new juce::Label ("lblChannel2",
-                                        TRANS("Chnl")));
+    lblChannel2.reset (new juce::Label ("lblChannel2", translate("Chnl")));
     addAndMakeVisible (lblChannel2.get());
     lblChannel2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblChannel2->setJustificationType (juce::Justification::centredLeft);
@@ -67,8 +64,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
 
     lblChannel2->setBounds (152, 7, 40, 24);
 
-    lblMappingFile2.reset (new juce::Label ("lblMappingFile2",
-                                            TRANS("Mapping file")));
+    lblMappingFile2.reset (new juce::Label ("lblMappingFile2", translate("MappingFile")));
     addAndMakeVisible (lblMappingFile2.get());
     lblMappingFile2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblMappingFile2->setJustificationType (juce::Justification::centredLeft);

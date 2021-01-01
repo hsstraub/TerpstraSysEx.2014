@@ -42,8 +42,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 	activeMacroButtonColourEdit->addChangeListener(this);
     //[/Constructor_pre]
 
-    lblPresetButtonColours.reset (new juce::Label ("lblPresetButtonColours",
-                                                   TRANS("Preset Button Colours:")));
+    lblPresetButtonColours.reset (new juce::Label ("lblPresetButtonColours", translate("PresetButtonColours")));
     addAndMakeVisible (lblPresetButtonColours.get());
     lblPresetButtonColours->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblPresetButtonColours->setJustificationType (juce::Justification::centredLeft);
@@ -53,8 +52,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
     lblPresetButtonColours->setBounds (0, 8, 150, 24);
 
-    lblColourInactiveMacroButton.reset (new juce::Label ("lblColourInactiveMacroButton",
-                                                         TRANS("inactive")));
+    lblColourInactiveMacroButton.reset (new juce::Label ("lblColourInactiveMacroButton", translate("Inactive")));
     addAndMakeVisible (lblColourInactiveMacroButton.get());
     lblColourInactiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblColourInactiveMacroButton->setJustificationType (juce::Justification::centredLeft);
@@ -64,8 +62,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
     lblColourInactiveMacroButton->setBounds (152, 32, 64, 24);
 
-    lblColourActiveMacroButton.reset (new juce::Label ("lblColourActiveMacroButton",
-                                                       TRANS("active")));
+    lblColourActiveMacroButton.reset (new juce::Label ("lblColourActiveMacroButton", translate("Active")));
     addAndMakeVisible (lblColourActiveMacroButton.get());
     lblColourActiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblColourActiveMacroButton->setJustificationType (juce::Justification::centredLeft);
@@ -77,8 +74,8 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
-    buttonCalibrate->setTooltip (TRANS("Calibrate keys aftertouch"));
-    buttonCalibrate->setButtonText (TRANS("Calibrate Keys"));
+    buttonCalibrate->setTooltip (translate("CalibrateKeys") + " " + translate("Aftertouch"));
+    buttonCalibrate->setButtonText (translate("CalibrateKeys"));
     buttonCalibrate->addListener (this);
 
     buttonCalibrate->setBounds (336, 8, 112, 24);

@@ -45,8 +45,7 @@ CurvesArea::CurvesArea ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
-                                             TRANS("Curves")));
+    labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
     labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
@@ -59,9 +58,9 @@ CurvesArea::CurvesArea ()
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
-    curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
-    curvesTab->addTab (TRANS("CC Fader"), juce::Colours::lightgrey, new FaderVelocityCurveDialog(), true);
-    curvesTab->addTab (TRANS("Aftertouch"), juce::Colours::lightgrey, new AftertouchVelocityCurveDialog(), true);
+    curvesTab->addTab (translate("NoteVelocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
+    curvesTab->addTab (translate("CCFader"), juce::Colours::lightgrey, new FaderVelocityCurveDialog(), true);
+    curvesTab->addTab (translate("Aftertouch"), juce::Colours::lightgrey, new AftertouchVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
 
     curvesTab->setBounds (8, 40, 464, 200);

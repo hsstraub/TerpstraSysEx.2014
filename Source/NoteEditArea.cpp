@@ -45,14 +45,13 @@ NoteEditArea::NoteEditArea ()
     editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (editFunctionsTab.get());
     editFunctionsTab->setTabBarDepth (30);
-    editFunctionsTab->addTab (TRANS("Manual Assign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
-    editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
+    editFunctionsTab->addTab (translate("ManualAssign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
+    editFunctionsTab->addTab (translate("IsomorphicAssign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);
 
     editFunctionsTab->setBounds (8, 48, 320, 422);
 
-    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
-                                             TRANS("Assign Keys")));
+    labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
     addAndMakeVisible (labelWindowTitle.get());
     labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
@@ -72,7 +71,7 @@ NoteEditArea::NoteEditArea ()
 
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		octaveBoardSelectorTab->addTab("Section " + String(i + 1), juce::Colours::lightgrey, i + 1);
+		octaveBoardSelectorTab->addTab(translate("Section") + " " + String(i + 1), juce::Colours::lightgrey, i + 1);
 	}
 
 	octaveBoardSelectorTab->addChangeListener(this);

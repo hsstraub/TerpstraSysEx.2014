@@ -15,6 +15,7 @@
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
+#include "LocalisationMap.h"
 
 
 //==============================================================================

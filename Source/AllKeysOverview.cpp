@@ -169,14 +169,14 @@ AllKeysOverview::AllKeysOverview ()
 
     btnLoadFile.reset (new juce::TextButton ("btnLoadFile"));
     addAndMakeVisible (btnLoadFile.get());
-    btnLoadFile->setButtonText (TRANS("Load File"));
+    btnLoadFile->setButtonText (translate("LoadFile"));
     btnLoadFile->addListener (this);
 
     btnLoadFile->setBounds (368, 8, 96, 24);
 
     btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
     addAndMakeVisible (btnSaveFile.get());
-    btnSaveFile->setButtonText (TRANS("Save File"));
+    btnSaveFile->setButtonText (translate("SaveFile"));
     btnSaveFile->addListener (this);
 
     btnSaveFile->setBounds (472, 8, 96, 24);

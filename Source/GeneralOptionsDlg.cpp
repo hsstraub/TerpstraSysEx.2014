@@ -33,8 +33,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelExprContrSensivity.reset (new juce::Label ("new label",
-                                                    TRANS("Sensivity:")));
+    labelExprContrSensivity.reset (new juce::Label ("new label", translate("Sensitivity")));
     addAndMakeVisible (labelExprContrSensivity.get());
     labelExprContrSensivity->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelExprContrSensivity->setJustificationType (juce::Justification::centredLeft);
@@ -58,13 +57,12 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     btnInvertFootCtrl.reset (new juce::ToggleButton ("btnInvertFootCtrl"));
     addAndMakeVisible (btnInvertFootCtrl.get());
-    btnInvertFootCtrl->setButtonText (TRANS("Invert Pedal"));
+    btnInvertFootCtrl->setButtonText (translate("InvertPedal"));
     btnInvertFootCtrl->addListener (this);
 
     btnInvertFootCtrl->setBounds (200, 64, 128, 24);
 
-    labelEXpressionPedalTitle.reset (new juce::Label ("labelEXpressionPedalTitle",
-                                                      TRANS("Expression Pedal")));
+    labelEXpressionPedalTitle.reset (new juce::Label ("labelEXpressionPedalTitle", translate("ExpressionPedal")));
     addAndMakeVisible (labelEXpressionPedalTitle.get());
     labelEXpressionPedalTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelEXpressionPedalTitle->setJustificationType (juce::Justification::centredLeft);
@@ -75,8 +73,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     labelEXpressionPedalTitle->setBounds (200, 0, 104, 24);
 
-    labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle",
-                                                       TRANS("General Settings")));
+    labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle", translate("GeneralSettings")));
     addAndMakeVisible (labelGeneralSettingslTitle.get());
     labelGeneralSettingslTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelGeneralSettingslTitle->setJustificationType (juce::Justification::centredLeft);
@@ -89,14 +86,14 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
-    buttonAfterTouchActive->setButtonText (TRANS("Polyphonic Aftertouch"));
+    buttonAfterTouchActive->setButtonText (translate("PolyphonicAftertouch"));
     buttonAfterTouchActive->addListener (this);
 
     buttonAfterTouchActive->setBounds (8, 32, 176, 24);
 
     buttonLightOnKeyStrokes.reset (new juce::ToggleButton ("buttonLightOnKeyStrokes"));
     addAndMakeVisible (buttonLightOnKeyStrokes.get());
-    buttonLightOnKeyStrokes->setButtonText (TRANS("Light on Keystrokes"));
+    buttonLightOnKeyStrokes->setButtonText (translate("LightOnKeystrokes"));
     buttonLightOnKeyStrokes->addListener (this);
 
     buttonLightOnKeyStrokes->setBounds (8, 64, 176, 24);

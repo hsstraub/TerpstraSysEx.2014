@@ -62,6 +62,8 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="UgHvU1" name="LocalisationMap.h" compile="0" resource="0"
+            file="Source/LocalisationMap.h"/>
       <FILE id="hDyg8G" name="LumatoneEditorLookAndFeel.h" compile="0" resource="0"
             file="Source/LumatoneEditorLookAndFeel.h"/>
       <FILE id="acwdN0" name="LumatoneEditorStyleCommon.h" compile="0" resource="0"

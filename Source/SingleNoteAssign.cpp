@@ -36,8 +36,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	addAndMakeVisible(colourSubwindow.get());
     //[/Constructor_pre]
 
-    editInstructionText.reset (new juce::Label ("editInstructionText",
-                                                TRANS("Define which values you\'d like to apply to a key, and then click on the desired key-face")));
+    editInstructionText.reset(new juce::Label("editInstructionText", translate("ManualAssignDirections")));
     addAndMakeVisible (editInstructionText.get());
     editInstructionText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     editInstructionText->setJustificationType (juce::Justification::centredLeft);
@@ -49,18 +48,18 @@ SingleNoteAssign::SingleNoteAssign ()
 
     noteBox.reset (new juce::ComboBox ("noteBox"));
     addAndMakeVisible (noteBox.get());
-    noteBox->setTooltip (TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
+    noteBox->setTooltip (translate("KeyNoteTooltip"));
     noteBox->setEditableText (false);
     noteBox->setJustificationType (juce::Justification::centredLeft);
     noteBox->setTextWhenNothingSelected (juce::String());
-    noteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    noteBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     noteBox->addListener (this);
 
     noteBox->setBounds (120, 128, 56, 24);
 
     noteAutoIncrButton.reset (new juce::ToggleButton ("noteAutoIncrButton"));
     addAndMakeVisible (noteAutoIncrButton.get());
-    noteAutoIncrButton->setButtonText (TRANS("Notes-Per-Click"));
+    noteAutoIncrButton->setButtonText (translate("NotesPerClick"));
     noteAutoIncrButton->addListener (this);
 
     noteAutoIncrButton->setBounds (8, 232, 160, 24);
@@ -70,53 +69,53 @@ SingleNoteAssign::SingleNoteAssign ()
     channelBox->setEditableText (false);
     channelBox->setJustificationType (juce::Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (juce::String());
-    channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    channelBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     channelBox->addListener (this);
 
     channelBox->setBounds (120, 160, 56, 24);
 
     channelAutoIncrButton.reset (new juce::ToggleButton ("channelAutoIncrButton"));
     addAndMakeVisible (channelAutoIncrButton.get());
-    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #"));
+    channelAutoIncrButton->setButtonText (translate("ChannelsAfterNote"));
     channelAutoIncrButton->addListener (this);
 
     channelAutoIncrButton->setBounds (8, 264, 160, 24);
 
     channelAutoIncrNoteBox.reset (new juce::ComboBox ("channelAutoIncrNoteBox"));
     addAndMakeVisible (channelAutoIncrNoteBox.get());
-    channelAutoIncrNoteBox->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0."));
+    channelAutoIncrNoteBox->setTooltip (TRANS("AutoIncrTooltip"));
     channelAutoIncrNoteBox->setEditableText (false);
     channelAutoIncrNoteBox->setJustificationType (juce::Justification::centredLeft);
     channelAutoIncrNoteBox->setTextWhenNothingSelected (juce::String());
-    channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     channelAutoIncrNoteBox->addListener (this);
 
     channelAutoIncrNoteBox->setBounds (176, 264, 56, 24);
 
     setNoteToggleButton.reset (new juce::ToggleButton ("setNoteToggleButton"));
     addAndMakeVisible (setNoteToggleButton.get());
-    setNoteToggleButton->setButtonText (TRANS("Note (0-127):"));
+    setNoteToggleButton->setButtonText (translate("Note") + " (0-127):");
     setNoteToggleButton->addListener (this);
 
     setNoteToggleButton->setBounds (8, 128, 112, 24);
 
     setChannelToggleButton.reset (new juce::ToggleButton ("setChannelToggleButton"));
     addAndMakeVisible (setChannelToggleButton.get());
-    setChannelToggleButton->setButtonText (TRANS("Channel (1-16):"));
+    setChannelToggleButton->setButtonText (translate("Channel") + " (1-16):");
     setChannelToggleButton->addListener (this);
 
     setChannelToggleButton->setBounds (8, 160, 112, 24);
 
     setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
-    setColourToggleButton->setButtonText (TRANS("Key Colour:"));
+    setColourToggleButton->setButtonText (translate("KeyColour"));
     setColourToggleButton->addListener (this);
 
     setColourToggleButton->setBounds (8, 96, 112, 24);
 
     keyTypeToggleButton.reset (new juce::ToggleButton ("keyTypeToggleButton"));
     addAndMakeVisible (keyTypeToggleButton.get());
-    keyTypeToggleButton->setButtonText (TRANS("Key type:"));
+    keyTypeToggleButton->setButtonText (translate("KeyType"));
     keyTypeToggleButton->addListener (this);
 
     keyTypeToggleButton->setBounds (8, 64, 112, 24);
@@ -126,16 +125,15 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->setEditableText (false);
     keyTypeCombo->setJustificationType (juce::Justification::centredLeft);
     keyTypeCombo->setTextWhenNothingSelected (juce::String());
-    keyTypeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
-    keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
-    keyTypeCombo->addItem (TRANS("Note on/Note off with Lumatouch"), 3);
+    keyTypeCombo->setTextWhenNoChoicesAvailable (translate("NoChoices"));
+    keyTypeCombo->addItem (translate("NoteOnOff"), 1);
+    keyTypeCombo->addItem (translate("ContinuousController"), 2);
+    keyTypeCombo->addItem (translate("Lumatouch"), 3);
     keyTypeCombo->addListener (this);
 
     keyTypeCombo->setBounds (120, 64, 192, 24);
 
-    juce__groupComponent.reset (new juce::GroupComponent ("autoIncrementgroup",
-                                                          TRANS("Auto-Increment:")));
+    juce__groupComponent.reset (new juce::GroupComponent ("autoIncrementgroup", translate("AutoIncrement")));
     addAndMakeVisible (juce__groupComponent.get());
 
     juce__groupComponent->setBounds (0, 209, 240, 95);

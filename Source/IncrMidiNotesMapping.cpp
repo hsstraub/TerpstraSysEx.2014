@@ -70,7 +70,7 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     channelBox->setEditableText (false);
     channelBox->setJustificationType (juce::Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (juce::String());
-    channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    channelBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     channelBox->addListener (this);
 
     channelBox->setBounds (184, 40, 56, 24);

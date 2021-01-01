@@ -199,7 +199,7 @@ ColourEditComponent::ColourEditComponent ()
     colourCombo->setEditableText (true);
     colourCombo->setJustificationType (juce::Justification::centredLeft);
     colourCombo->setTextWhenNothingSelected (juce::String());
-    colourCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    colourCombo->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     colourCombo->addListener (this);
 
     colourCombo->setBounds (0, 0, 79, 24);
