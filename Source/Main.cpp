@@ -17,7 +17,7 @@
 //==============================================================================
 
 TerpstraSysExApplication::TerpstraSysExApplication()
-	: tooltipWindow(), hasChangesToSave(false)
+	: lookAndFeel(true), tooltipWindow(), hasChangesToSave(false)
 {
 	PropertiesFile::Options options;
 	options.applicationName = "LumatoneSetup";
@@ -35,7 +35,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	midiDriver.setManufacturerId(manufacturerId);
 
 	// Colour scheme
-	lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
+	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));

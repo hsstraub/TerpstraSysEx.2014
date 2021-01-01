@@ -1,0 +1,8 @@
+language: English
+countries: us
+
+"KeyColour" = "Key Color"
+"Channel" = "Channel"
+"PresetButtonColours" = "Preset Button Colors:"
+"ColourPalettes" = "Color Palettes"
+"CustomPicker" = "Custom Picker"

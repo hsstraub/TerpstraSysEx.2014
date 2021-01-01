@@ -119,7 +119,7 @@ private:
 	//std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
-	LookAndFeel_V4				lookAndFeel;
+	LumatoneEditorLookAndFeel	lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;

@@ -21,6 +21,7 @@
 #include "GeneralOptionsDlg.h"
 #include "CurvesArea.h"
 #include "GlobalSettingsArea.h"
+#include "LumatoneEditorLookAndFeel.h"
 
 
 
