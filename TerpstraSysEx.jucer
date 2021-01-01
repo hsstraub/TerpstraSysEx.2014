@@ -10,195 +10,62 @@
             file="BinaryData/LumatoneIcon.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
             file="BinaryData/TerpstraIcon.png"/>
+      <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
+        <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
+          <FILE id="GChWZB" name="ImportPreset.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/ImportPreset.png"/>
+          <FILE id="WVwu75" name="ImportPreset@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/ImportPreset@2x.png"/>
+          <FILE id="I2I5L5" name="ImportPreset@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/ImportPreset@4x.png"/>
+          <FILE id="TgrJU7" name="KeybedShadows.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeybedShadows.png"/>
+          <FILE id="LAdNgm" name="KeybedShadows@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeybedShadows@2x.png"/>
+          <FILE id="MxPIRC" name="KeyboardBase.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyboardBase.png"/>
+          <FILE id="knou3b" name="KeyboardBase@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyboardBase@2x.png"/>
+          <FILE id="ZmHhMy" name="KeyShadow.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShadow.png"/>
+          <FILE id="DqXssN" name="KeyShadow@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyShadow@2x.png"/>
+          <FILE id="lTnuz0" name="KeyShadow@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyShadow@4x.png"/>
+          <FILE id="q2197F" name="KeyShape.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape.png"/>
+          <FILE id="PwZQ2J" name="KeyShape@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape@2x.png"/>
+          <FILE id="dA6wjp" name="KeyShape@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape@4x.png"/>
+          <FILE id="epJJ3W" name="LiveEditor.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LiveEditor.png"/>
+          <FILE id="dhwZZx" name="LoadFile.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadFile.png"/>
+          <FILE id="YvtUva" name="LoadFile@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadFile@2x.png"/>
+          <FILE id="E9FtFA" name="LoadFile@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadFile@4x.png"/>
+          <FILE id="iJnn1u" name="SaveFile.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveFile.png"/>
+          <FILE id="mJLtRU" name="SaveFile@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveFile@2x.png"/>
+          <FILE id="WyXfRw" name="SaveFile@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveFile@4x.png"/>
+          <FILE id="CjCkFo" name="SavePalette.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SavePalette.png"/>
+          <FILE id="frPcAM" name="SavePalette@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/SavePalette@2x.png"/>
+          <FILE id="ZSlIRE" name="SavePalette@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/SavePalette@4x.png"/>
+          <FILE id="ZURvHa" name="TrashCanIcon.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/TrashCanIcon.png"/>
+          <FILE id="wuaS0p" name="TrashCanIcon@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/TrashCanIcon@2x.png"/>
+          <FILE id="JHnY9U" name="TrashcanIcon@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/TrashcanIcon@4x.png"/>
+        </GROUP>
+      </GROUP>
+      <GROUP id="{26810EAB-80E5-39F7-C801-C36771061076}" name="Localisation">
+        <FILE id="E1dNZi" name="en-gb.txt" compile="0" resource="1" file="BinaryData/Localisation/en-gb.txt"/>
+        <FILE id="ZaE42T" name="en-us.txt" compile="0" resource="1" file="BinaryData/Localisation/en-us.txt"/>
+        <FILE id="k6HAgI" name="es-es.txt" compile="0" resource="1" file="BinaryData/Localisation/es-es.txt"/>
+        <FILE id="CE3Luz" name="fr-ca.txt" compile="0" resource="1" file="BinaryData/Localisation/fr-ca.txt"/>
+      </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
       <FILE id="hDyg8G" name="LumatoneEditorLookAndFeel.h" compile="0" resource="0"
             file="Source/LumatoneEditorLookAndFeel.h"/>
       <FILE id="acwdN0" name="LumatoneEditorStyleCommon.h" compile="0" resource="0"
             file="Source/LumatoneEditorStyleCommon.h"/>
-      <GROUP id="{D18C4EB7-A7D8-F2B6-FD4E-4B55CA8C3289}" name="Assets">
-        <GROUP id="{21CBD8DE-28D7-F3FF-F280-123DBFED023B}" name="Localisation">
-          <FILE id="MX2uVn" name="eng_gb.txt" compile="0" resource="1" file="Source/Assets/Localisation/eng_gb.txt"/>
-          <FILE id="mOH6VM" name="eng_lol.txt" compile="0" resource="1" file="Source/Assets/Localisation/eng_lol.txt"/>
-          <FILE id="UW15ip" name="eng_us.txt" compile="0" resource="1" file="Source/Assets/Localisation/eng_us.txt"/>
-          <FILE id="Msn52P" name="es_es.txt" compile="0" resource="1" file="Source/Assets/Localisation/es_es.txt"/>
-          <FILE id="XGfoeK" name="fr_ca.txt" compile="0" resource="1" file="Source/Assets/Localisation/fr_ca.txt"/>
-        </GROUP>
-        <GROUP id="{F77A25AC-04AD-21F2-7327-6E75F0466115}" name="Paths">
-          <FILE id="nVBxtr" name="TickBox.path" compile="0" resource="1" file="Source/Assets/Paths/TickBox.path"/>
-        </GROUP>
-        <GROUP id="{C9E4B364-175F-8AB0-5C0C-CAA1FF3541E9}" name="PNG">
-          <FILE id="BkmLXF" name="AssignKeys.png" compile="0" resource="1" file="Source/Assets/PNG/AssignKeys.png"/>
-          <FILE id="tHZkZa" name="AssignKeys@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/AssignKeys@2x.png"/>
-          <FILE id="McXPYp" name="AssignKeys@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/AssignKeys@4x.png"/>
-          <FILE id="r50TpK" name="CancelPalette.png" compile="0" resource="1"
-                file="Source/Assets/PNG/CancelPalette.png"/>
-          <FILE id="mc4Q40" name="CancelPalette@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/CancelPalette@2x.png"/>
-          <FILE id="TVsvu8" name="CancelPalette@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/CancelPalette@4x.png"/>
-          <FILE id="RgToMx" name="Connected.png" compile="0" resource="1" file="Source/Assets/PNG/Connected.png"/>
-          <FILE id="ZFVnkv" name="Connected@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/Connected@2x.png"/>
-          <FILE id="c4M4xU" name="Connected@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/Connected@4x.png"/>
-          <FILE id="HtjCIb" name="Curves.png" compile="0" resource="1" file="Source/Assets/PNG/Curves.png"/>
-          <FILE id="cylWZN" name="Curves@2x.png" compile="0" resource="1" file="Source/Assets/PNG/Curves@2x.png"/>
-          <FILE id="e2XEO5" name="Curves@4x.png" compile="0" resource="1" file="Source/Assets/PNG/Curves@4x.png"/>
-          <FILE id="t60quv" name="Disconnected.png" compile="0" resource="1"
-                file="Source/Assets/PNG/Disconnected.png"/>
-          <FILE id="S12WbJ" name="Disconnected@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/Disconnected@2x.png"/>
-          <FILE id="tb7sTW" name="Disconnected@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/Disconnected@4x.png"/>
-          <FILE id="TWWCSI" name="EditMode.png" compile="0" resource="1" file="Source/Assets/PNG/EditMode.png"/>
-          <FILE id="nXFfML" name="EditMode@2x.png" compile="0" resource="1" file="Source/Assets/PNG/EditMode@2x.png"/>
-          <FILE id="Vw0891" name="EditMode@4x.png" compile="0" resource="1" file="Source/Assets/PNG/EditMode@4x.png"/>
-          <FILE id="fKoygx" name="ExpressionPedal.png" compile="0" resource="1"
-                file="Source/Assets/PNG/ExpressionPedal.png"/>
-          <FILE id="eVjYrR" name="ExpressionPedal@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/ExpressionPedal@2x.png"/>
-          <FILE id="q1qCOj" name="ExpressionPedal@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/ExpressionPedal@4x.png"/>
-          <FILE id="Af7cOR" name="FreeDrawing.png" compile="0" resource="1" file="Source/Assets/PNG/FreeDrawing.png"/>
-          <FILE id="ZapWFP" name="FreeDrawing@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/FreeDrawing@2x.png"/>
-          <FILE id="fPWHAl" name="FreeDrawing@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/FreeDrawing@4x.png"/>
-          <FILE id="QDyOOt" name="GeneralSettings.png" compile="0" resource="1"
-                file="Source/Assets/PNG/GeneralSettings.png"/>
-          <FILE id="FsUyki" name="GeneralSettings@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/GeneralSettings@2x.png"/>
-          <FILE id="NPh8v7" name="GeneralSettings@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/GeneralSettings@4x.png"/>
-          <FILE id="NrssLC" name="ImportPreset.png" compile="0" resource="1"
-                file="Source/Assets/PNG/ImportPreset.png"/>
-          <FILE id="GjMAjx" name="ImportPreset@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/ImportPreset@2x.png"/>
-          <FILE id="bBLyBP" name="ImportPreset@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/ImportPreset@4x.png"/>
-          <FILE id="kgPA96" name="KeybedShadows.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeybedShadows.png"/>
-          <FILE id="UNspBY" name="KeybedShadows@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeybedShadows@2x.png"/>
-          <FILE id="RYNNZG" name="KeyboardBase.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeyboardBase.png"/>
-          <FILE id="Lg6OvL" name="KeyboardBase@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeyboardBase@2x.png"/>
-          <FILE id="f52nLa" name="KeyboardFullShadows.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeyboardFullShadows.png"/>
-          <FILE id="bd3FyZ" name="KeyboardFullShadows@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeyboardFullShadows@2x.png"/>
-          <FILE id="rMzxSN" name="KeyShadow.png" compile="0" resource="1" file="Source/Assets/PNG/KeyShadow.png"/>
-          <FILE id="Je8Q1U" name="KeyShadow@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeyShadow@2x.png"/>
-          <FILE id="orwxp3" name="KeyShadow@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/KeyShadow@4x.png"/>
-          <FILE id="Hm3Hvd" name="KeyShape.png" compile="0" resource="1" file="Source/Assets/PNG/KeyShape.png"/>
-          <FILE id="vpOZuM" name="KeyShape@2x.png" compile="0" resource="1" file="Source/Assets/PNG/KeyShape@2x.png"/>
-          <FILE id="OLcyRl" name="KeyShape@4x.png" compile="0" resource="1" file="Source/Assets/PNG/KeyShape@4x.png"/>
-          <FILE id="weMkhT" name="LiveEditor.png" compile="0" resource="1" file="Source/Assets/PNG/LiveEditor.png"/>
-          <FILE id="VfOT8Y" name="LiveEditor@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/LiveEditor@2x.png"/>
-          <FILE id="XwkHAS" name="LiveEditor@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/LiveEditor@4x.png"/>
-          <FILE id="XIKJ6K" name="LoadFile.png" compile="0" resource="1" file="Source/Assets/PNG/LoadFile.png"/>
-          <FILE id="B9PJ1T" name="LoadFile@2x.png" compile="0" resource="1" file="Source/Assets/PNG/LoadFile@2x.png"/>
-          <FILE id="EnF7JV" name="LoadFile@4x.png" compile="0" resource="1" file="Source/Assets/PNG/LoadFile@4x.png"/>
-          <FILE id="aCBYlh" name="LumatoneTitle.png" compile="0" resource="1"
-                file="Source/Assets/PNG/LumatoneTitle.png"/>
-          <FILE id="SwogK3" name="LumatoneTitle@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/LumatoneTitle@2x.png"/>
-          <FILE id="MbZ2PM" name="MidiInput.png" compile="0" resource="1" file="Source/Assets/PNG/MidiInput.png"/>
-          <FILE id="kiovhk" name="MidiInput@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/MidiInput@2x.png"/>
-          <FILE id="nUR8jA" name="MidiInput@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/MidiInput@4x.png"/>
-          <FILE id="KJl7IW" name="MidiOutput.png" compile="0" resource="1" file="Source/Assets/PNG/MidiOutput.png"/>
-          <FILE id="IXPgRC" name="MidiOutput@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/MidiOutput@2x.png"/>
-          <FILE id="UTpEF5" name="MidiOutput@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/MidiOutput@4x.png"/>
-          <FILE id="MiaktB" name="OfflineEditor.png" compile="0" resource="1"
-                file="Source/Assets/PNG/OfflineEditor.png"/>
-          <FILE id="PDp4lm" name="OfflineEditor@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/OfflineEditor@2x.png"/>
-          <FILE id="HOMwG9" name="OfflineEditor@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/OfflineEditor@4x.png"/>
-          <FILE id="jBmmWi" name="PleaseConnect.png" compile="0" resource="1"
-                file="Source/Assets/PNG/PleaseConnect.png"/>
-          <FILE id="SuRNoi" name="PleaseConnect@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/PleaseConnect@2x.png"/>
-          <FILE id="EVRdil" name="PleaseConnect@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/PleaseConnect@4x.png"/>
-          <FILE id="CimI6C" name="PresetButtonColours.png" compile="0" resource="1"
-                file="Source/Assets/PNG/PresetButtonColours.png"/>
-          <FILE id="fIi1Qa" name="PresetButtonColours@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/PresetButtonColours@2x.png"/>
-          <FILE id="ZiBfoK" name="PresetButtonColours@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/PresetButtonColours@4x.png"/>
-          <FILE id="WQSRM7" name="SaveFile.png" compile="0" resource="1" file="Source/Assets/PNG/SaveFile.png"/>
-          <FILE id="MQreSn" name="SaveFile@2x.png" compile="0" resource="1" file="Source/Assets/PNG/SaveFile@2x.png"/>
-          <FILE id="JnGdDq" name="SaveFile@4x.png" compile="0" resource="1" file="Source/Assets/PNG/SaveFile@4x.png"/>
-          <FILE id="iIq6Et" name="SavePalette.png" compile="0" resource="1" file="Source/Assets/PNG/SavePalette.png"/>
-          <FILE id="gmSgfq" name="SavePalette@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/SavePalette@2x.png"/>
-          <FILE id="w0syB3" name="SavePalette@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/SavePalette@4x.png"/>
-          <FILE id="pVMKlT" name="TrashCanIcon.png" compile="0" resource="1"
-                file="Source/Assets/PNG/TrashCanIcon.png"/>
-          <FILE id="q4B0Mo" name="TrashCanIcon@2x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/TrashCanIcon@2x.png"/>
-          <FILE id="NqdeKQ" name="TrashcanIcon@4x.png" compile="0" resource="1"
-                file="Source/Assets/PNG/TrashcanIcon@4x.png"/>
-        </GROUP>
-        <GROUP id="{7B22B177-693E-6AAA-BD79-DC40F2961E30}" name="SVG">
-          <FILE id="g4IyWX" name="AssignKeys.svg" compile="0" resource="1" file="Source/Assets/SVG/AssignKeys.svg"/>
-          <FILE id="uTS578" name="Connected.svg" compile="0" resource="1" file="Source/Assets/SVG/Connected.svg"/>
-          <FILE id="L47rI3" name="Curves.svg" compile="0" resource="1" file="Source/Assets/SVG/Curves.svg"/>
-          <FILE id="MCIF50" name="Disconnected Logomark.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/Disconnected Logomark.svg"/>
-          <FILE id="Sn5VeL" name="Disconnected.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/Disconnected.svg"/>
-          <FILE id="Cwm9CS" name="EditMode.svg" compile="0" resource="1" file="Source/Assets/SVG/EditMode.svg"/>
-          <FILE id="wNQgF8" name="ExportIcon.svg" compile="0" resource="1" file="Source/Assets/SVG/ExportIcon.svg"/>
-          <FILE id="qr1Jav" name="ExpressionPedal.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/ExpressionPedal.svg"/>
-          <FILE id="Z8MetQ" name="FreeDrawing.svg" compile="0" resource="1" file="Source/Assets/SVG/FreeDrawing.svg"/>
-          <FILE id="vVVD6O" name="GeneralSettings.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/GeneralSettings.svg"/>
-          <FILE id="bV1Z5u" name="ImportLumatone.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/ImportLumatone.svg"/>
-          <FILE id="kYrWeu" name="KeybedShading.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/KeybedShading.svg"/>
-          <FILE id="LXQ0kb" name="KeyColourOverlay.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/KeyColourOverlay.svg"/>
-          <FILE id="lg1P1l" name="KeyShading.svg" compile="0" resource="1" file="Source/Assets/SVG/KeyShading.svg"/>
-          <FILE id="P9Z0HD" name="LiveEditor.svg" compile="0" resource="1" file="Source/Assets/SVG/LiveEditor.svg"/>
-          <FILE id="FEV0IF" name="LoadFile.svg" compile="0" resource="1" file="Source/Assets/SVG/LoadFile.svg"/>
-          <FILE id="wI58yt" name="Logo.svg" compile="0" resource="1" file="Source/Assets/SVG/Logo.svg"/>
-          <FILE id="eDarg9" name="lumatone.svg" compile="0" resource="1" file="Source/Assets/SVG/lumatone.svg"/>
-          <FILE id="lji7Q8" name="MidiInput.svg" compile="0" resource="1" file="Source/Assets/SVG/MidiInput.svg"/>
-          <FILE id="mN06wv" name="MidiOutput.svg" compile="0" resource="1" file="Source/Assets/SVG/MidiOutput.svg"/>
-          <FILE id="oXxnxi" name="OfflineEditor.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/OfflineEditor.svg"/>
-          <FILE id="c2jB0z" name="PleaseConnect.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/PleaseConnect.svg"/>
-          <FILE id="kDbQwE" name="PresetButtonColours.svg" compile="0" resource="1"
-                file="Source/Assets/SVG/PresetButtonColours.svg"/>
-          <FILE id="lwcsM9" name="Save File.svg" compile="0" resource="1" file="Source/Assets/SVG/Save File.svg"/>
-          <FILE id="XTUvdW" name="SilderTrack.svg" compile="0" resource="1" file="Source/Assets/SVG/SilderTrack.svg"/>
-          <FILE id="E3qfq2" name="TickBox.svg" compile="0" resource="1" file="Source/Assets/SVG/TickBox.svg"/>
-          <FILE id="jnuATx" name="TickBoxOp.svg" compile="0" resource="1" file="Source/Assets/SVG/TickBoxOp.svg"/>
-          <FILE id="x3lLDk" name="TrashCan.svg" compile="0" resource="1" file="Source/Assets/SVG/TrashCan.svg"/>
-        </GROUP>
-        <FILE id="qLkG27" name="connectedPreview.png" compile="0" resource="1"
-              file="Source/Assets/connectedPreview.png"/>
-        <FILE id="qK0Bfc" name="disconnectedPreview.png" compile="0" resource="1"
-              file="Source/Assets/disconnectedPreview.png"/>
-      </GROUP>
       <FILE id="vOjaEA" name="CurvesArea.h" compile="0" resource="0" file="Source/CurvesArea.h"/>
       <FILE id="enXDMq" name="CurvesArea.cpp" compile="1" resource="0" file="Source/CurvesArea.cpp"/>
       <FILE id="wQzk9i" name="GlobalSettingsArea.cpp" compile="1" resource="0"
