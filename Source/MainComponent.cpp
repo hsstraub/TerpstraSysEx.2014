@@ -293,7 +293,10 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 
 void MainContentComponent::paint (Graphics& g)
 {
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.fillAll(getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground));
+
+	g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
+	g.fillRect(controlsArea);
 }
 
 void MainContentComponent::resized()
@@ -305,10 +308,8 @@ void MainContentComponent::resized()
 	int newHeight = getHeight();
 
 	// Logo, MIDI edit area and connection state
-	int midiAreaWidth = midiEditArea->getWidth();
-	int midiAreaHeight = midiEditArea->getHeight();
-	int midiAreaXPos = jmax(newWidth - midiAreaWidth, 0);
-	midiEditArea->setBounds(midiAreaXPos, 0, midiAreaWidth, midiAreaHeight);
+	int midiAreaHeight = proportionOfHeight(headerHeight);
+	midiEditArea->setBounds(0, 0, getWidth(), midiAreaHeight);
 
 	// All keys overview/virtual keyboard playing
 	// New height of subset field area, with minimal value
@@ -319,19 +320,19 @@ void MainContentComponent::resized()
 
 	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
+	// Bounds for controls, where background is darker
+	int footerY = proportionOfHeight(footerAreaY);
+	int footerHeight = getHeight() - footerY;
+
+	controlsArea = getBounds().withTop(proportionOfHeight(controlsAreaY)).withBottom(footerY);
+
 	// Edit function/single key field area
-	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
-
-	int optionsAreaWidth = jmax(newWidth - noteEditAreaWidth, MINIMALCURVESAREAWIDTH);
+	noteEditArea->setBounds(proportionOfWidth(assignMarginX), controlsArea.getY(), proportionOfWidth(assignWidth), proportionOfHeight(assignHeight));
 	
-	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
-	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+	generalOptionsArea->setBounds(getBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
+	curvesArea->setBounds(getBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
 
-	int curvesAreaYPos = generalOptionsArea->getBottom();
-	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
-	curvesArea->setBounds(noteEditAreaWidth, curvesAreaYPos, optionsAreaWidth, curvesAreaHeight);
-
-	globalSettingsArea->setBounds(noteEditAreaWidth, curvesArea->getBottom(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
+	globalSettingsArea->setBounds(getLocalBounds().withLeft(proportionOfWidth(footerControlsX)).withTop(proportionOfHeight(footerAreaY)));
 }
 
 void MainContentComponent::refreshAllKeysOverview()

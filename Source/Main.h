@@ -42,6 +42,7 @@ public:
 
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
+	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 
@@ -87,6 +88,7 @@ public:
 			setContentOwned(new MainContentComponent(), true);
 
 			setResizable(true, false);
+			setConstrainer(TerpstraSysExApplication::getApp().getBoundsConstrainer());
 			centreWithSize(getWidth(), getHeight());
 #if JUCE_ANDROID
 			setFullScreen(true);
@@ -117,6 +119,10 @@ public:
 private:
 	std::unique_ptr<MainWindow> mainWindow;
 	//std::unique_ptr<ApplicationCommandManager> commandManager;
+
+	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
+	const float windowRatio =	1.1f;
+
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LumatoneEditorLookAndFeel	lookAndFeel;

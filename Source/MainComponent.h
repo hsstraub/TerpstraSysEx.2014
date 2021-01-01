@@ -97,5 +97,38 @@ private:
 
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;
-};
 
+	//==============================================================================
+	// Position and Size helpers
+
+	Rectangle<int> controlsArea;
+
+	const float headerHeight		= 0.0776f;
+
+	const float controlsAreaY		= 0.5273f;
+	const float controlsAreaHeight	= 0.43f;
+
+	const float assignMarginX		= 0.043f;
+	const float assignWidth			= 0.5385f;
+	const float assignHeight		= 0.44f;
+
+	const float footerControlsX		= 0.6522f;
+	const float footerAreaY			= 0.96f;
+
+	const float popupWidth			= 0.2879f;
+	const float popupHeight			= 0.2615f;
+
+	const float settingsColumnX		= 0.597826f;
+	const float settingsAreaY		= 0.546875f;
+	const float settingsAreaHeight	= 0.148148f;
+
+	const Rectangle<float> generalSettingsBounds = { settingsColumnX, settingsAreaY, 0.17f, settingsAreaHeight };
+	const Rectangle<float>   pedalSettingsBounds = { 7.0f / 9.0f,     settingsAreaY, 0.26f, settingsAreaHeight };
+	const Rectangle<float>      curvesAreaBounds = { settingsColumnX, 0.7174f,		 0.36f, 0.21f			   };
+
+	const float lumatoneVersionMarginX		= 1.0f / 46.0f;
+	const float lumatoneVersionWidth		= 1.0f / 5.0f;
+
+	const float presetButtonColoursX		= 0.7237f;
+	const float presetButtonColoursHeight	= 0.2258f;
+};

@@ -34,6 +34,10 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 
+	boundsConstrainer.reset(new ComponentBoundsConstrainer());
+	boundsConstrainer->setFixedAspectRatio(windowRatio);
+	boundsConstrainer->setMinimumSize(800, round(800 / windowRatio));
+
 	// Colour scheme
 	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
