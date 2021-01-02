@@ -23,6 +23,7 @@
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
 #include "ColourEditComponent.h"
+#include "LumatoneEditorStyleCommon.h"
 //[/Headers]
 
 
@@ -51,6 +52,8 @@ public:
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
+    void listenForPaletteWindowRequest(TextButton::Listener* listenerIn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -63,10 +66,35 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<ColourEditComponent> colourSubwindow;
+
+    //==============================================================================
+    // Style Helpers
+    int roundedCornerSize;
+    Rectangle<int> instructionsBounds;
+
+    int controlsX;
+    int separatorY;
+
+    Font instructionsFont = LumatoneEditorFonts::GothamNarrowMedium().withTypefaceStyle("Narrow 325");
+    Font parametersFont = LumatoneEditorFonts::GothamNarrowMedium();
+
+    //==============================================================================
+    // Size and position constants
+    const float fontHeightInBounds  = 0.2f;
+
+    const float xMarginScalar       = 0.0917f;
+    const float yMarginScalar       = 0.0813f;
+    const float controlAreaYScalar  = 11.0f / 60.0f;
+    const float controlsXScalar     = 0.092;
+    const float separatorYScalar    = 2.0f / 3.0f;
+    const float toggleHeightScalar  = 0.034f;
+    const float controlHeightScalar = 0.0647f;
+
+    const Colour toggleTextColour = Colour(0xffcbcbcb);
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> editInstructionText;
+    std::unique_ptr<juce::Label> autoIncrementLabel;
     std::unique_ptr<juce::ComboBox> noteBox;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
     std::unique_ptr<juce::ComboBox> channelBox;
@@ -77,7 +105,6 @@ private:
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
-    std::unique_ptr<juce::GroupComponent> juce__groupComponent;
 
 
     //==============================================================================

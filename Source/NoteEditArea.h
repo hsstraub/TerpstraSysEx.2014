@@ -24,6 +24,7 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+#include "LumatoneEditorStyleCommon.h"
 //[/Headers]
 
 
@@ -64,6 +65,13 @@ public:
 
 	void refreshKeyFields();
 
+    void lookAndFeelChanged() override;
+
+    // Helper method for aligning the Octave Section TabbedButtonBar
+    void setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY);
+
+    // Register listener for key colour edit popup
+    void registerPaletteWindowRequestListener(TextButton::Listener* listenerIn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -87,6 +95,32 @@ private:
 	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
 	int					currentSingleKeySelection;
+
+    //===========================================================================
+    // Style Helpers
+    Colour backgroundColour = Colours::darkgrey;
+
+    Rectangle<float> octaveTabsArea;
+    Rectangle<float> contentBackground;
+    Rectangle<float> assignControlsBounds;
+    Rectangle<float> keyEditBounds;
+
+    int roundedCornerLayout;
+
+    //===========================================================================
+    // Size & position constants
+    const float contentMarginY                  = 1.0f / 11.0f;
+
+    const float assignControlsWidth             = 0.3846f;
+    const float assignControlsHeightInContent   = 0.9f;
+
+    const float assignMarginX                   = 0.05f;
+    const float assignMarginYInContent          = 2.0f / 45.0f;
+    const float assignTabDepthInContent         = 0.0851f;
+
+    const float keyEditWidth                    = 7.0f / 15.0f;
+    const float keyEditMarginX                  = 0.48f;
+    const float keyEditMarginYInContent         = 0.1f;
 
     //[/UserVariables]
 

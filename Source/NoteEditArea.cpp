@@ -40,28 +40,24 @@ NoteEditArea::NoteEditArea ()
     : currentSingleKeySelection(-1)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	setName("NoteEditArea");
     //[/Constructor_pre]
 
-    editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
-    addAndMakeVisible (editFunctionsTab.get());
-    editFunctionsTab->setTabBarDepth (30);
-    editFunctionsTab->addTab (translate("ManualAssign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
-    editFunctionsTab->addTab (translate("IsomorphicAssign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
-    editFunctionsTab->setCurrentTabIndex (0);
-
-    editFunctionsTab->setBounds (8, 48, 320, 422);
+	editFunctionsTab.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));
+	editFunctionsTab->setName("EditFunctionsTab");
+	editFunctionsTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+	editFunctionsTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+	addAndMakeVisible(editFunctionsTab.get());
+	editFunctionsTab->addTab(translate("ManualAssign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
+	editFunctionsTab->addTab(translate("IsomorphicAssign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
+	editFunctionsTab->setCurrentTabIndex(0);
+	editFunctionsTab->setIndent(0);
+	editFunctionsTab->setOutline(0);
+	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
 
     labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
+	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
     addAndMakeVisible (labelWindowTitle.get());
-    labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
-    labelWindowTitle->setEditable (false, false, false);
-    labelWindowTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
-    labelWindowTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelWindowTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelWindowTitle->setBounds (8, 8, 104, 24);
-
 
     //[UserPreSize]
 
@@ -86,12 +82,10 @@ NoteEditArea::NoteEditArea ()
 
     //[/UserPreSize]
 
-    setSize (760, 470);
-
 
     //[Constructor] You can add your own custom stuff here..
 
-	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change istener has been established)
+	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change listener has been established)
 
     //[/Constructor]
 }
@@ -123,21 +117,40 @@ void NoteEditArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
-
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.setColour(backgroundColour);
+	g.fillRoundedRectangle(contentBackground, roundedCornerLayout);
     //[/UserPaint]
 }
 
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+	roundedCornerLayout = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
+
+	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 2.0f / 29.0f));
+	labelWindowTitle->setBounds(0, round(octaveTabsArea.getHeight() * 3.0f / 14.0f), round(getWidth() * 0.2f), round(octaveTabsArea.getHeight() / 1.75f));
+
+	int contentY = round(getHeight() * contentMarginY);
+	contentBackground.setBounds(0, contentY, getWidth(), getHeight() - contentY);
+
+	assignControlsBounds.setBounds(
+		getWidth() * assignMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
+		getWidth() * assignControlsWidth, contentBackground.getHeight() * assignControlsHeightInContent
+	);
+
+	keyEditBounds.setBounds(
+		getWidth() * keyEditMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
+		getWidth() * keyEditWidth, contentBackground.getHeight() * assignControlsHeightInContent
+	);
+
+	editFunctionsTab->setBounds(assignControlsBounds.toNearestInt());
+	editFunctionsTab->setTabBarDepth(assignTabDepthInContent * contentBackground.getHeight());
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
 
-	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), labelWindowTitle->getY(), getWidth()- labelWindowTitle->getWidth(), OCTAVEBOARDTABHEIGHT);
+	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), 0, getWidth() - labelWindowTitle->getRight(), octaveTabsArea.getHeight());
 
 	// Single Key fields
 
@@ -150,6 +163,8 @@ void NoteEditArea::resized()
 
 	int keyIndex = 0;
 	int mostBottomKeyPos = 0;
+
+	// Key sizing
 
 	// Rows
 	int rowCount = boardGeometry.horizontalLineCount();
@@ -234,6 +249,19 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void NoteEditArea::lookAndFeelChanged()
+{
+	LookAndFeel& lookAndFeel = getLookAndFeel();
+	backgroundColour = lookAndFeel.findColour(LumatoneEditorColourIDs::ControlAreaBackground);
+	labelWindowTitle->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelBlue));
+}
+
+void NoteEditArea::setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY)
+{
+	setTopLeftPosition(controlsAreaX, controlsAreaY - octaveTabsArea.getHeight());
+}
+
+
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
@@ -287,6 +315,11 @@ void NoteEditArea::refreshKeyFields()
 	auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
+}
+
+void NoteEditArea::registerPaletteWindowRequestListener(TextButton::Listener* listenerIn)
+{
+	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(0))->listenForPaletteWindowRequest(listenerIn);
 }
 //[/MiscUserCode]
 

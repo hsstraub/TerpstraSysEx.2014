@@ -16,7 +16,9 @@
 //==============================================================================
 MainContentComponent::MainContentComponent()
 	: copiedSubBoardData()
-{
+{ 
+	setName("MainContentComponent");
+
 	// Midi input + output
 	midiEditArea.reset(new MidiEditArea());
 	addAndMakeVisible(midiEditArea.get());
@@ -311,23 +313,24 @@ void MainContentComponent::resized()
 	int midiAreaHeight = proportionOfHeight(headerHeight);
 	midiEditArea->setBounds(0, 0, getWidth(), midiAreaHeight);
 
+	// Bounds for controls, where background is darker
+	int footerY = proportionOfHeight(footerAreaY);
+	int footerHeight = getHeight() - footerY;
+	controlsArea = getBounds().withTop(proportionOfHeight(controlsAreaY)).withBottom(footerY);
+
 	// All keys overview/virtual keyboard playing
 	// New height of subset field area, with minimal value
 	int noteEditAreaWidth = noteEditArea->getWidth();
 	int noteEditAreaHeight = noteEditArea->getHeight();
 
-	int newKeysOverviewAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	int newKeysOverviewAreaHeight = jmax(newHeight - midiAreaHeight - controlsArea.getY(), MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
-	// Bounds for controls, where background is darker
-	int footerY = proportionOfHeight(footerAreaY);
-	int footerHeight = getHeight() - footerY;
-
-	controlsArea = getBounds().withTop(proportionOfHeight(controlsAreaY)).withBottom(footerY);
 
 	// Edit function/single key field area
-	noteEditArea->setBounds(proportionOfWidth(assignMarginX), controlsArea.getY(), proportionOfWidth(assignWidth), proportionOfHeight(assignHeight));
+	noteEditArea->setSize(proportionOfWidth(assignWidth), proportionOfHeight(assignHeight));
+	noteEditArea->setControlsTopLeftPosition(proportionOfWidth(assignMarginX), controlsArea.getY());
 	
 	generalOptionsArea->setBounds(getBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
 	curvesArea->setBounds(getBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
