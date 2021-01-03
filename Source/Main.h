@@ -82,13 +82,13 @@ public:
 	class MainWindow : public DocumentWindow
 	{
 	public:
-		MainWindow() : DocumentWindow("Lumatone Keyboard Setup Utility",
-			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(DocumentWindow::backgroundColourId)),
-			DocumentWindow::allButtons)
+		MainWindow() : DocumentWindow("Lumatone Keyboard Setup Utility", 
+			TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground),
+			DocumentWindow::minimiseButton + DocumentWindow::closeButton)
 		{
 			setContentOwned(new MainContentComponent(), true);
 
-			setResizable(true, false);
+			setResizable(true, true);
 			setConstrainer(TerpstraSysExApplication::getApp().getBoundsConstrainer());
 			centreWithSize(getWidth(), getHeight());
 #if JUCE_ANDROID
@@ -104,6 +104,11 @@ public:
 			// ask the app to quit when this happens, but you can change this to do
 			// whatever you need.
 			JUCEApplication::getInstance()->systemRequestedQuit();
+		}
+
+		BorderSize<int> getBorderThickness() override
+		{
+			return BorderSize <int>(0);
 		}
 
 		/* Note: Be careful if you override any DocumentWindow methods - the base
