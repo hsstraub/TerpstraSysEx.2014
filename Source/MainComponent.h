@@ -112,7 +112,6 @@ private:
 	const float assignWidth					= 0.5385f;
 	const float assignHeight				= 0.44f;
 
-	const float footerControlsX				= 0.6522f;
 	const float footerAreaY					= 0.96f;
 
 	const float popupWidth					= 0.2879f;

@@ -335,7 +335,10 @@ void MainContentComponent::resized()
 	generalOptionsArea->setBounds(getLocalBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
 	curvesArea->setBounds(getLocalBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
 
-	globalSettingsArea->setBounds(getLocalBounds().withLeft(proportionOfWidth(footerControlsX)).withTop(proportionOfHeight(footerAreaY)));
+	globalSettingsArea->setBounds(getLocalBounds()
+		.withTop(roundToInt(getHeight() * footerAreaY))
+		.withTrimmedRight(footerHeight)
+	);
 }
 
 void MainContentComponent::refreshAllKeysOverview()
