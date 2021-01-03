@@ -190,6 +190,12 @@ void MidiEditArea::resized()
 
 	resizeLabelWithHeight(lblConnectionState.get(), proportionOfHeight(connectivityHeight));
 
+	// Also used to position logomark
+	ioBounds.setBounds(
+		proportionOfWidth(controlBoundsX), proportionOfHeight(controlBoundsY),
+		proportionOfWidth(controlBoundsWidth), proportionOfHeight(controlBoundsHeight)
+	);
+
 	if (connectedToLumatone)
 	{
 		resizeLabelWithHeight(lblEditMode.get(), proportionOfHeight(editModeHeight));
@@ -219,11 +225,6 @@ void MidiEditArea::resized()
 	{
 		connectivityArea = getBounds().toFloat().withLeft(proportionOfWidth(disconnectedAreaX));
 
-		ioBounds.setBounds(
-			proportionOfWidth(controlBoundsX), proportionOfHeight(controlBoundsY),
-			proportionOfWidth(controlBoundsWidth), proportionOfHeight(controlBoundsHeight)
-		);
-
 		lblConnectionState->setTopLeftPosition(
 			ioBounds.getX() + ioBounds.proportionOfWidth(disconnectedControlBoundsX),
 			round(ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) / 2.05f)
@@ -248,7 +249,7 @@ void MidiEditArea::resized()
 	}
 
 	logomarkBounds.setSize(proportionOfHeight(logomarkHeight), proportionOfHeight(logomarkHeight));
-	logomarkBounds.setCentre(proportionOfWidth(logomarkX), proportionOfHeight(0.5f));
+	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) / 2.0f), proportionOfHeight(0.5f));
     //[/UserResized]
 }
 
