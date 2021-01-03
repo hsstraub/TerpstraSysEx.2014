@@ -168,16 +168,16 @@ private:
     int viewableWidth = 0;
     int viewableHeight = 0;
 
-    const float itemWidthScalar = 1.0f / 4.0f;
+    const float itemWidthScalar         = 0.25f;
 
-    const float topMarginScalar = 1.0f / 24.0f;
-    const float bottomMarginScalar = 1.0f / 9.0f;
-    const float horizontalMarginScalar = 1.0f / 24.0f;
+    const float topMarginScalar         = 1.0f / 24.0f;
+    const float bottomMarginScalar      = 1.0f / 9.0f;
+    const float horizontalMarginScalar  = 1.0f / 24.0f;
 
-    const float buttonWidthScalar = 1.0f / 3.0f;
-    const float buttonHeightScalar = 1.0f / 6.0f;
+    const float buttonWidthScalar       = 1.0f / 3.0f;
+    const float buttonHeightScalar      = 1.0f / 6.0f;
 
-    const float panelLeftMarginWidth = 1.0f / 48.0f;
+    const float panelLeftMarginWidth    = 1.0f / 48.0f;
 };
 
 //==============================================================================
@@ -340,18 +340,18 @@ private:
 
     // Drawing constants
 
-    const float leftColumnWidth = 19.0f / 49.0f;
+    const float leftColumnWidth     = 0.3877f;
 
-    const float editPaletteLabelY = 4.0f / 33.0f;
-    const float editPaletteHeight = 2.0f / 33.0f;
+    const float editPaletteLabelY   = 0.1212f;
+    const float editPaletteHeight   = 0.0606f;
 
-    const float paletteY = 8.0f / 31.0f;
-    const float paletteWidthSize = 3.0f / 11.0f;
+    const float paletteY            = 0.2581f;
+    const float paletteWidthSize    = 0.2727f;
 
-    const float buttonY = 31.0f / 46.0f;
-    const float buttonWidth = 17.0f / 77.0f;
-    const float buttonHeight = 4.0f / 45.0f;
+    const float buttonY             = 0.6739f;
+    const float buttonWidth         = 0.2208f;
+    const float buttonHeight        = 0.0889f;
 
-    const float pickerWidth = 17.0f / 30.0f;
-    const float pickerHeight = 7.0f / 9.0f;
+    const float pickerWidth         = 0.5667f;
+    const float pickerHeight        = 7.0f / 9.0f;
 };
