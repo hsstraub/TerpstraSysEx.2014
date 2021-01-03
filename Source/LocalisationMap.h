@@ -11,27 +11,26 @@
 #pragma once
 #include <JuceHeader.h>
 
-static const char* findLocalisation(String languageCode)
+static String getLocalisation(String languageCode)
 {
+    languageCode = languageCode.toLowerCase();
+
     if (languageCode.startsWith("en"))
     {
         if (languageCode.endsWith("us"))
-            return BinaryData::enus_txt;
-
-        return BinaryData::engb_txt;
+            return String::createStringFromData(BinaryData::enus_txt, BinaryData::enus_txtSize);
     }
 
     if (languageCode.startsWith("es"))
     {
-        return BinaryData::eses_txt;
+        return String::createStringFromData(BinaryData::eses_txt, BinaryData::eses_txtSize);
     }
 
     if (languageCode.startsWith("fr"))
     {
-        return BinaryData::frca_txt;
+        return String::createStringFromData(BinaryData::frca_txt, BinaryData::frca_txtSize);
     }
 
     // Fallback to en-gb
-    return BinaryData::engb_txt;
+    return String::createStringFromData(BinaryData::engb_txt, BinaryData::engb_txtSize);
 }
-

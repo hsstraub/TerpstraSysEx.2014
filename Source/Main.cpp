@@ -35,10 +35,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	midiDriver.setManufacturerId(manufacturerId);
 
 	// Localisation
-	const char* localisationMap = findLocalisation(SystemStats::getDisplayLanguage());
-	LocalisedStrings::setCurrentMappings(
-		new LocalisedStrings(String::createStringFromData(localisationMap, sizeof(localisationMap)), false)
-	);
+	String localisation = getLocalisation(SystemStats::getDisplayLanguage());
+	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
 	LocalisedStrings::getCurrentMappings()->setFallback(new LocalisedStrings(BinaryData::engb_txt, false));
 
 	// Window aspect ratio

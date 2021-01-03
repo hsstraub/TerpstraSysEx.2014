@@ -31,7 +31,7 @@ countries: es mx
 "GeneralSettings" = "Configuración general"
 "ExpressionPedal" = "Pedal de expresión"
 "PolyphonicAftertouch" = "Aftertouch polifónico"
-"LightOnKeystrokes" = "LightOnKeystrokes"
+"LightOnKeystrokes" = "Luz en pulsaciones de teclas"
 "Active" = "Activo"
 "InvertPedal" = "Pedal invertido"
 "Sensitivity" = "Sensibilidad"
