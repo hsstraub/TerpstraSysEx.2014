@@ -127,7 +127,6 @@ private:
 	//std::unique_ptr<ApplicationCommandManager> commandManager;
 
 	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
-	const float windowRatio =	1.1f;
 
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;

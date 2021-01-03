@@ -43,8 +43,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	// Window aspect ratio
 	boundsConstrainer.reset(new ComponentBoundsConstrainer());
-	boundsConstrainer->setFixedAspectRatio(windowRatio);
-	boundsConstrainer->setMinimumSize(800, round(800 / windowRatio));
+	boundsConstrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
+	boundsConstrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
 
 	// Colour scheme
 	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
