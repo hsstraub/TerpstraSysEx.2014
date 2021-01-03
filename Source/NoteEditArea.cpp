@@ -7,79 +7,92 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
 
 //[Headers] You can add your own extra header files here...
 #include "ViewConstants.h"
+#include "SingleNoteAssign.h"
+#include "IsomorphicMassAssign.h"
+#include "Main.h"
+#include "BoardGeometry.h"
 //[/Headers]
 
 #include "NoteEditArea.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+// Geometry settings
+static TerpstraBoardGeometry	boardGeometry;
+
 //[/MiscUserDefs]
 
 //==============================================================================
 NoteEditArea::NoteEditArea ()
+    : currentSingleKeySelection(-1)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	singleNoteAssign.reset(new SingleNoteAssign());
-	addAndMakeVisible(singleNoteAssign.get());
-	singleNoteAssign->setVisible(false);
-
-	isomorphicMassAssign.reset(new IsomorphicMassAssign());
-	addAndMakeVisible(isomorphicMassAssign.get());
-	isomorphicMassAssign->setVisible(false);
-
-	playVirtualKeyboardWindow.reset(new PlayVirtualKeyboard());
-	addAndMakeVisible(playVirtualKeyboardWindow.get());
-	playVirtualKeyboardWindow->setVisible(false);
     //[/Constructor_pre]
 
-    cbEditMode.reset (new ComboBox ("cbEditMode"));
-    addAndMakeVisible (cbEditMode.get());
-    cbEditMode->setEditableText (false);
-    cbEditMode->setJustificationType (Justification::centredLeft);
-    cbEditMode->setTextWhenNothingSelected (String());
-    cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbEditMode->addItem (TRANS("Assign notes to keys one by one"), 1);
-    cbEditMode->addItem (TRANS("Isomorphic mass assign"), 2);
-    cbEditMode->addItem (TRANS("Play virtual keyboard"), 3);
-    cbEditMode->addListener (this);
+    editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
+    addAndMakeVisible (editFunctionsTab.get());
+    editFunctionsTab->setTabBarDepth (30);
+    editFunctionsTab->addTab (TRANS("Manual Assign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
+    editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
+    editFunctionsTab->setCurrentTabIndex (0);
 
-    cbEditMode->setBounds (104, 16, 304, 24);
+    editFunctionsTab->setBounds (8, 48, 320, 422);
 
-    labelEditMode.reset (new Label ("labelEditMode",
-                                    TRANS("Edit Function:")));
-    addAndMakeVisible (labelEditMode.get());
-    labelEditMode->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-    labelEditMode->setJustificationType (Justification::centredLeft);
-    labelEditMode->setEditable (false, false, false);
-    labelEditMode->setColour (TextEditor::textColourId, Colours::black);
-    labelEditMode->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
+                                             TRANS("Assign Keys")));
+    addAndMakeVisible (labelWindowTitle.get());
+    labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
+    labelWindowTitle->setEditable (false, false, false);
+    labelWindowTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
+    labelWindowTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelWindowTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelEditMode->setBounds (6, 15, 88, 24);
+    labelWindowTitle->setBounds (8, 8, 104, 24);
 
 
     //[UserPreSize]
+
+	// Selector for octave boards
+	octaveBoardSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
+	addAndMakeVisible(octaveBoardSelectorTab.get());
+
+	for (int i = 0; i < NUMBEROFBOARDS; i++)
+	{
+		octaveBoardSelectorTab->addTab("Section " + String(i + 1), juce::Colours::lightgrey, i + 1);
+	}
+
+	octaveBoardSelectorTab->addChangeListener(this);
+
+	// Single Key fields
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
+		addAndMakeVisible(terpstraKeyFields[i].get());
+		terpstraKeyFields[i]->addMouseListener(this, true);
+	}
+
     //[/UserPreSize]
 
-    setSize (428, 480);
+    setSize (760, 470);
 
 
     //[Constructor] You can add your own custom stuff here..
 
-	// Default selection
-	// Todo: read from user settings
-	cbEditMode->setSelectedItemIndex(noteEditMode::SingleNoteAssignMode, juce::NotificationType::sendNotification);
+	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change istener has been established)
 
     //[/Constructor]
 }
@@ -87,26 +100,31 @@ NoteEditArea::NoteEditArea ()
 NoteEditArea::~NoteEditArea()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	singleNoteAssign = nullptr;
-	isomorphicMassAssign = nullptr;
-	playVirtualKeyboardWindow = nullptr;
     //[/Destructor_pre]
 
-    cbEditMode = nullptr;
-    labelEditMode = nullptr;
+    editFunctionsTab = nullptr;
+    labelWindowTitle = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
+
+	octaveBoardSelectorTab = nullptr;
+
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	{
+		terpstraKeyFields[i] = nullptr;
+	}
+
     //[/Destructor]
 }
 
 //==============================================================================
-void NoteEditArea::paint (Graphics& g)
+void NoteEditArea::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffbad0de));
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -116,54 +134,101 @@ void NoteEditArea::paint (Graphics& g)
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	singleNoteAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	isomorphicMassAssign->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
-	playVirtualKeyboardWindow->setBounds(0, NOTEASSIGNSUBWINTOP, EDITAREAWIDTH, NOTEASSIGNSUBWINHEIGHT);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+
+	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), labelWindowTitle->getY(), getWidth()- labelWindowTitle->getWidth(), OCTAVEBOARDTABHEIGHT);
+
+	// Single Key fields
+
+	// Transformation Rotate slightly counterclockwise
+	float x = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMABOVE;
+	float y = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMLEFT;
+	AffineTransform transform = AffineTransform::translation(-x, -y);
+	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
+	transform = transform.translated(x, y);
+
+	int keyIndex = 0;
+	int mostBottomKeyPos = 0;
+
+	// Rows
+	int rowCount = boardGeometry.horizontalLineCount();
+	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+	{
+		float xbasepos;
+		if (rowIndex % 2 == 0)
+			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT;
+		else
+			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT + TERPSTRASINGLEKEYFLDSIZE / 2;
+
+		int ybasepos = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMABOVE + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
+
+		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
+		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
+		{
+			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
+			y = ybasepos;
+			transform.transformPoint(x, y);
+			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
+
+			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
+			keyIndex++;
+		}
+	}
+
+	jassert(TERPSTRABOARDSIZE == keyIndex);
+
     //[/UserResized]
 }
 
-void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 {
-    //[UsercomboBoxChanged_Pre]
-    //[/UsercomboBoxChanged_Pre]
+    //[UserCode_mouseDown] -- Add your code here...
+	bool mappingChanged = false;
 
-    if (comboBoxThatHasChanged == cbEditMode.get())
-    {
-        //[UserComboBoxCode_cbEditMode] -- add your combo box handling code here..
-		int editMode = cbEditMode->getSelectedItemIndex();
-
-		// Show sub window corresponding to selected edit mode
-		switch (editMode)
+	// Selection of single key fields
+	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	{
+		if (e.eventComponent == terpstraKeyFields[keyIndex].get() || e.eventComponent->getParentComponent() == terpstraKeyFields[keyIndex].get())
 		{
-		case noteEditMode::SingleNoteAssignMode:
-			singleNoteAssign->setVisible(true);
-			isomorphicMassAssign->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(false);
-			break;
-		case noteEditMode::IsomorphicMassAssignMode:
-			singleNoteAssign->setVisible(false);
-			isomorphicMassAssign->setVisible(true);
-			playVirtualKeyboardWindow->setVisible(false);
-			break;
-		case noteEditMode::PlayVirtualKeaboardMode:
-			singleNoteAssign->setVisible(false);
-			isomorphicMassAssign->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(true);
-			break;
-		default:
-			singleNoteAssign->setVisible(false);
-			isomorphicMassAssign->setVisible(false);
-			playVirtualKeyboardWindow->setVisible(false);
+			// Select field
+			changeSingleKeySelection(keyIndex);
+
+			// Perform the edit, according to edit mode. Including sending to device
+			auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE);
+
+			int editMode = editFunctionsTab->getCurrentTabIndex();
+			switch (editMode)
+			{
+			case noteEditMode::SingleNoteAssignMode:
+				mappingChanged = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+				break;
+			case noteEditMode::IsomorphicMassAssignMode:
+				mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+				break;
+			default:
+				break;
+			}
+
 			break;
 		}
-        //[/UserComboBoxCode_cbEditMode]
-    }
+	}
 
-    //[UsercomboBoxChanged_Post]
-    //[/UsercomboBoxChanged_Post]
+	// Mark that there are changes
+	if (mappingChanged)
+	{
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+		// Refresh key fields (all may be affected)
+		// repaint();	That should be enough - but is not. apparently...XXX
+		refreshKeyFields();
+
+		((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
+	}
+
+    //[/UserCode_mouseDown]
 }
 
 
@@ -172,57 +237,58 @@ void NoteEditArea::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	singleNoteAssign->restoreStateFromPropertiesFile(propertiesFile);
-	isomorphicMassAssign->restoreStateFromPropertiesFile(propertiesFile);
+	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
+	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-	singleNoteAssign->saveStateToPropertiesFile(propertiesFile);
-	isomorphicMassAssign->saveStateToPropertiesFile(propertiesFile);
+	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->saveStateToPropertiesFile(propertiesFile);
+	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
 }
 
-/// <summary>Called from MainComponent when one of the keys is clicked</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
+void NoteEditArea::changeListenerCallback(ChangeBroadcaster *source)
 {
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
-
-	int editMode = cbEditMode->getSelectedItemIndex();
-	switch (editMode)
+	if (source == octaveBoardSelectorTab.get())
 	{
-	case noteEditMode::SingleNoteAssignMode:
-		return singleNoteAssign->performMouseDown(setSelection, keySelection);
-	case noteEditMode::IsomorphicMassAssignMode:
-		return isomorphicMassAssign->performMouseDown(setSelection, keySelection);
-	case noteEditMode::PlayVirtualKeaboardMode:
-		return playVirtualKeyboardWindow->performMouseDown(setSelection, keySelection);
-	default:
-		return false;
+		auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+		jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+
+		setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
 	}
 }
 
-/// <summary>Called from MainComponent when a previously clicked key is released</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
-{
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
-
-	int editMode = cbEditMode->getSelectedItemIndex();
-
-	// Mouse up functionality: only for playing on virtual keyboard
-	if (editMode == noteEditMode::PlayVirtualKeaboardMode)
-		return playVirtualKeyboardWindow->performMouseUp(setSelection, keySelection);
-
-	return false;
-}
 
 void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 {
 	// Add colours of the mapping to the colour combo box
-	singleNoteAssign->onSetData(newData);
+	return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->onSetData(newData);
 }
 
+void NoteEditArea::setKeyFieldValues(const TerpstraKeys& keySet)
+{
+	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+		terpstraKeyFields[i]->setValue(keySet.theKeys[i]);
+}
+
+void NoteEditArea::changeSingleKeySelection(int newSelection)
+{
+	// Unselect previous key
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
+
+	// Select new key
+	currentSingleKeySelection = newSelection;
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
+}
+
+void NoteEditArea::refreshKeyFields()
+{
+	auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
+	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
+}
 //[/MiscUserCode]
 
 
@@ -236,19 +302,27 @@ void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="428" initialHeight="480">
+                 parentClasses="public Component, public ChangeListener" constructorParams=""
+                 variableInitialisers="currentSingleKeySelection(-1)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
+                 initialWidth="760" initialHeight="470">
+  <METHODS>
+    <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
-            virtualName="" explicitFocusOrder="0" pos="104 16 304 24" editable="0"
-            layout="33" items="Assign notes to keys one by one&#10;Isomorphic mass assign&#10;Play virtual keyboard"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="labelEditMode" id="55d538af27203498" memberName="labelEditMode"
-         virtualName="" explicitFocusOrder="0" pos="6 15 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Edit Function:" editableSingleClick="0"
+  <TABBEDCOMPONENT name="editFunctionsTab" id="9eb88c4dce6dede9" memberName="editFunctionsTab"
+                   virtualName="" explicitFocusOrder="0" pos="8 48 320 422" orientation="top"
+                   tabBarDepth="30" initialTab="0">
+    <TAB name="Manual Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="SingleNoteAssign"
+         constructorParams="" jucerComponentFile=""/>
+    <TAB name="Isomorphic Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="IsomorphicMassAssign"
+         constructorParams="" jucerComponentFile=""/>
+  </TABBEDCOMPONENT>
+  <LABEL name="labelWindowTitle" id="afc0b85c8e03b3d6" memberName="labelWindowTitle"
+         virtualName="" explicitFocusOrder="0" pos="8 8 104 24" textCol="ff61acc8"
+         edTextCol="ff000000" edBkgCol="0" labelText="Assign Keys" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+         fontsize="18.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

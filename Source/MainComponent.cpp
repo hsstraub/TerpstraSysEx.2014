@@ -15,38 +15,29 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
-	: currentSetSelection(-1), currentSingleKeySelection(-1), copiedSubBoardData()
+	: copiedSubBoardData()
 {
-	// Key set fields
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		// Paint set fields from right to left
-		// (This will not matter any more when the images' backgrounds are transparent)
-		// Width and heigth: were taken from image
-		terpstraSetSelectors[4-i].reset(new OctaveBoardComponent(4-i));
-		addAndMakeVisible(terpstraSetSelectors[4-i].get());
-		terpstraSetSelectors[4 - i]->addMouseListener(this, true);
-	}
-
-	// Single Key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
-		addAndMakeVisible(terpstraKeyFields[i].get());
-		terpstraKeyFields[i]->addMouseListener(this, true);
-	}
-
 	// Midi input + output
 	midiEditArea.reset(new MidiEditArea());
 	addAndMakeVisible(midiEditArea.get());
 
+	// All keys overview
+	allKeysOverview.reset(new AllKeysOverview());
+	addAndMakeVisible(allKeysOverview.get());
+
 	// Edit function area
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
+	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
 
-	// MIDI info area
-	midiInfoArea.reset(new MidiInfoArea());
-	addAndMakeVisible(midiInfoArea.get());
+	generalOptionsArea.reset(new GeneralOptionsDlg());
+	addAndMakeVisible(generalOptionsArea.get());
+
+	curvesArea.reset(new CurvesArea());
+	addAndMakeVisible(curvesArea.get());
+
+	globalSettingsArea.reset(new GlobalSettingsArea());
+	addAndMakeVisible(globalSettingsArea.get());
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
@@ -54,27 +45,24 @@ MainContentComponent::MainContentComponent()
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
 	// Select first board and first key
-	changeSetSelection(0);
-	changeSingleKeySelection(0);
+	noteEditArea->getOctaveBoardSelectorTab()->setCurrentTabIndex(0, true);
+	// The above call is supposed to update changeListener - but apaprently doesn't... Call it manually then. XXX
+	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
+
+	noteEditArea->changeSingleKeySelection(0);
 }
 
 MainContentComponent::~MainContentComponent()
 {
     TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		terpstraSetSelectors[i] = nullptr;
-	}
-
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		terpstraKeyFields[i] = nullptr;
-	}
-
 	midiEditArea = nullptr;
+	allKeysOverview = nullptr;
 	noteEditArea = nullptr;
-	midiInfoArea = nullptr;
+
+	generalOptionsArea = nullptr;
+	curvesArea = nullptr;
+	globalSettingsArea = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -92,6 +80,7 @@ void MainContentComponent::saveStateToPropertiesFile(PropertiesFile* propertiesF
 	propertiesFile->setValue("MainWindowHeight", getHeight());
 
 	noteEditArea->saveStateToPropertiesFile(propertiesFile);
+	globalSettingsArea->saveStateToPropertiesFile(propertiesFile);
 }
 
 // Set the current mapping to be edited to the value passed in parameter
@@ -101,14 +90,14 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	noteEditArea->onSetData(newData);
 
-    if ( withRefresh)
-    {
-        for (int i = 0; i < NUMBEROFBOARDS; i++)
-            terpstraSetSelectors[i]->repaint();
-
-        changeSetSelection(-1);
-        changeSetSelection(0);
-    }
+	if (withRefresh)
+	{
+		refreshAllKeysOverview();
+		noteEditArea->refreshKeyFields();
+		generalOptionsArea->loadFromMapping();
+		curvesArea->loadFromMapping();
+		curvesArea->repaint();
+	}
 }
 
 void MainContentComponent::deleteAll(bool withRefresh)
@@ -125,59 +114,62 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 
 bool MainContentComponent::deleteCurrentSubBoardData()
 {
-	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	{
-		// Delete subboard data
-		mappingData.sets[currentSetSelection] = TerpstraKeys();
+	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	//{
+	//	// Delete subboard data
+	//	mappingData.sets[currentSetSelection] = TerpstraKeys();
 
-		// Refresh display
-		changeSetSelection(currentSetSelection, true);
+	//	// Refresh display
+	//	changeSetSelection(currentSetSelection, true);
 
-		// Mark that there are changes
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+	//	// Mark that there are changes
+	//	TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-		return true;
-	}
-	else
+	//	return true;
+	//}
+	//else
+	//todo
 		return false;
 }
 
 bool MainContentComponent::copyCurrentSubBoardData()
 {
-	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	{
-		copiedSubBoardData = mappingData.sets[currentSetSelection];
-		return true;
-	}
-	else
+	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	//{
+	//	copiedSubBoardData = mappingData.sets[currentSetSelection];
+	//	return true;
+	//}
+	//else
+	//ToDo
 		return false;
 }
 
 bool MainContentComponent::pasteCurrentSubBoardData()
 {
-	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	{
-		if (!copiedSubBoardData.isEmpty())
-		{
-			mappingData.sets[currentSetSelection] = copiedSubBoardData;
+	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
+	//{
+	//	if (!copiedSubBoardData.isEmpty())
+	//	{
+	//		mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
-			// Refresh display
-			changeSetSelection(currentSetSelection, true);
+	//		// Refresh display
+	//		changeSetSelection(currentSetSelection, true);
 
-			// Mark that there are changes
-			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		}
-		return true;
-	}
-	else
+	//		// Mark that there are changes
+	//		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+	//	}
+	//	return true;
+	//}
+	//else
+	// ToDO
 		return false;
 }
 
-void MainContentComponent::midiMessageReceived(const MidiMessage& message)
+void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 {
-    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(message))
+    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
     {
-        auto sysExData = message.getSysExData();
+        auto sysExData = midiMessage.getSysExData();
 
         int boardNo = sysExData[3];
         jassert(boardNo >= 1 && boardNo <= NUMBEROFBOARDS);
@@ -186,62 +178,117 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& message)
 
         if (answerState == TerpstraMidiDriver::ACK)
         {
-            // After the answer state byte there must be 55 bytes of data (one for each key)
-            jassert(message.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
+			// ToDo General options
 
-            for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
-            {
-                auto newValue = sysExData[6 + keyIndex];
+			// Velocity curves
+			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
+			{
+				// After the answer state byte there must be 254 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
-                TerpstraKey& keyData = this->mappingData.sets[boardNo-1].theKeys[keyIndex];
+				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
-                switch(midiCmd)
-                {
-                case GET_RED_LED_CONFIG:
-                {
-                    auto theColour = Colour(keyData.colour);
-                    theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
-                    keyData.colour = theColour.toDisplayString(false).getHexValue32();
-                    break;
-                }
+				curvesArea->resized();
+				curvesArea->repaint();
+			}
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff))
+			{
+				// After the answer state byte there must be 128 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+				this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+				for (int x = 0; x < 128; x++)
+					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[x] = sysExData[6 + x];
+				curvesArea->loadFromMapping();
+			}
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::fader))
+			{
+				// After the answer state byte there must be 128 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+				this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+				for (int x = 0; x < 128; x++)
+					this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
+				curvesArea->loadFromMapping();
+			}
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::afterTouch))
+			{
+				// After the answer state byte there must be 128 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+				this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+				for (int x = 0; x < 128; x++)
+					this->mappingData.afterTouchConfig.velocityValues[x] = sysExData[6 + x];
+				curvesArea->loadFromMapping();
+			}
 
-                case GET_GREEN_LED_CONFIG:
-                {
-                    auto theColour = Colour(keyData.colour);
-                    theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
-                    keyData.colour = theColour.toDisplayString(false).getHexValue32();
-                    break;
-                }
+			// Key configurations
+			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
+				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG)
+			{
+				// After the answer state byte there must be 55 bytes of data (one for each key)
+				jassert(midiMessage.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
 
-                case GET_BLUE_LED_CONFIG:
-                {
-                    auto theColour = Colour(keyData.colour);
-                    theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
-                    keyData.colour = theColour.toDisplayString(false).getHexValue32();
-                    break;
-                }
+				for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+				{
+					auto newValue = sysExData[6 + keyIndex];
 
-                case GET_CHANNEL_CONFIG:
-                    keyData.channelNumber = newValue;
-                    break;
+					TerpstraKey& keyData = this->mappingData.sets[boardNo - 1].theKeys[keyIndex];
 
-                case GET_NOTE_CONFIG:
-                    keyData.noteNumber = newValue;
-                    break;
+					switch (midiCmd)
+					{
+					case GET_RED_LED_CONFIG:
+					{
+						auto theColour = Colour(keyData.colour);
+						theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
+						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						break;
+					}
 
-                case GET_KEYTYPE_CONFIG:
-                    keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
-                    break;
+					case GET_GREEN_LED_CONFIG:
+					{
+						auto theColour = Colour(keyData.colour);
+						theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
+						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						break;
+					}
 
-                default:
-                    jassertfalse;   // Should not happen
-                    break;
-                }
-            }
+					case GET_BLUE_LED_CONFIG:
+					{
+						auto theColour = Colour(keyData.colour);
+						theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
+						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						break;
+					}
 
-            terpstraSetSelectors[boardNo-1]->repaint();
-        }
+					case GET_CHANNEL_CONFIG:
+						keyData.channelNumber = newValue;
+						break;
+
+					case GET_NOTE_CONFIG:
+						keyData.noteNumber = newValue;
+						break;
+
+					case GET_KEYTYPE_CONFIG:
+						keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
+						break;
+
+					default:
+						jassertfalse;   // Should not happen
+						break;
+					}
+				}
+
+				refreshAllKeysOverview();
+			}
+		}
     }
+}
+
+void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
+{
+	if (source == noteEditArea->getOctaveBoardSelectorTab())
+	{
+		allKeysOverview->setCurrentSetSelection(noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex());
+	}
 }
 
 void MainContentComponent::paint (Graphics& g)
@@ -254,193 +301,40 @@ void MainContentComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
+	int newWidth = getWidth();
 	int newHeight = getHeight();
 
+	// Logo, MIDI edit area and connection state
+	int midiAreaWidth = midiEditArea->getWidth();
+	int midiAreaHeight = midiEditArea->getHeight();
+	int midiAreaXPos = jmax(newWidth - midiAreaWidth, 0);
+	midiEditArea->setBounds(midiAreaXPos, 0, midiAreaWidth, midiAreaHeight);
+
+	// All keys overview/virtual keyboard playing
 	// New height of subset field area, with minimal value
-	float newSubsetAreaHeight = jmax(newHeight - MIDIEDITAREAHEIGHT - EDITFUNCTIONAREAHEIGHT, MINIMALTERPSTRAKEYSETAREAHEIGHT);
+	int noteEditAreaWidth = noteEditArea->getWidth();
+	int noteEditAreaHeight = noteEditArea->getHeight();
 
-	// Resize factor for the subset field area and the subset fields
-	double newResizeFactor = (double)newSubsetAreaHeight * 1.1 / DEFAULTSUBSETAREAHEIGHT;
-	jassert(newResizeFactor > 0.0);
-	double newDecreaseFactor = jmin(newResizeFactor, 1.0);
-	jassert(newDecreaseFactor > 0.0);
+	int newKeysOverviewAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
-	// New position, width and height of subset fields
-	float newSubsetFirstYPos = TERPSTRAKEYSETFLDFIRSTYPOS * newDecreaseFactor;
-	float newSubsetWidth = DEFAULTTERPSTRAKEYSETWIDTH * newDecreaseFactor;
-	float newSubsetHeight = DEFAULTTERPSTRAKEYSETHEIGHT * newDecreaseFactor;
-	float newSubsetXIncrement = DEFAULTTERPSTRAKEYSETXINCREMENT * newDecreaseFactor;
+	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
-	float newMidiEditFirstYPos = newSubsetAreaHeight;
-	float newSingleKeyFieldFirstYPos = newSubsetAreaHeight + TERPSTRASINGLEKEYFIELDRIMABOVE * newDecreaseFactor;
+	// Edit function/single key field area
+	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
 
-	// Key set fields
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		// Paint set fields from right to left
-		// (This will not matter any more when the images' backgrounds are transparent)
-		terpstraSetSelectors[4 - i]->setBounds(
-            roundToInt(MAINWINDOWFIRSTCOLPOS + (4 - i)*newSubsetXIncrement),
-            roundToInt(newSubsetFirstYPos), newSubsetWidth, newSubsetHeight);
-	}
+	int optionsAreaWidth = jmax(newWidth - noteEditAreaWidth, MINIMALCURVESAREAWIDTH);
+	
+	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
+	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
 
-	// Single Key fields
+	int curvesAreaYPos = generalOptionsArea->getBottom();
+	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
+	curvesArea->setBounds(noteEditAreaWidth, curvesAreaYPos, optionsAreaWidth, curvesAreaHeight);
 
-	// Transformation Rotate slightly counterclockwise
-	float x = MAINWINDOWFIRSTCOLPOS;
-	float y = newSingleKeyFieldFirstYPos;
-	AffineTransform transform = AffineTransform::translation(-x, -y);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(x, y);
-
-	int keyIndex = 0;
-    int mostBottomKeyPos = 0;
-
-	// Rows
-	int rowCount = boardGeometry.horizontalLineCount();
-	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
-	{
-		float xbasepos;
-		if (rowIndex % 2 == 0)
-			xbasepos = MAINWINDOWFIRSTCOLPOS;
-		else
-			xbasepos = MAINWINDOWFIRSTCOLPOS + TERPSTRASINGLEKEYFLDSIZE / 2;
-
-		int ybasepos = newSingleKeyFieldFirstYPos + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
-
-		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
-		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
-		{
-			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
-			y = ybasepos;
-			transform.transformPoint(x, y);
-			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-
-			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
-			keyIndex++;
-		}
-	}
-
-	jassert(TERPSTRABOARDSIZE == keyIndex);
-
-	// Midi input + output
-	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
-
-	// Edit function area
-	noteEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos + MIDIEDITAREAHEIGHT, EDITAREAWIDTH, EDITFUNCTIONAREAHEIGHT);
-
-	// MIDI info area
-	midiInfoArea->setBounds(0, mostBottomKeyPos, EDITAREAFIRSTCOLPOS, midiInfoArea->getHeight());
+	globalSettingsArea->setBounds(noteEditAreaWidth, curvesArea->getBottom(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
 }
 
-void MainContentComponent::mouseDown(const MouseEvent &event)
+void MainContentComponent::refreshAllKeysOverview()
 {
-	bool mappingChanged = false;
-
-	// Selection of subset components
-	auto eventComponentParent = event.eventComponent->getParentComponent();
-	for (int i = 0; i < NUMBEROFBOARDS; i++)
-	{
-		if (event.eventComponent == terpstraSetSelectors[i].get() || eventComponentParent == terpstraSetSelectors[i].get())
-		{
-			changeSetSelection(i);
-			return;
-		}
-	}
-
-	// Selection of single key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
-		{
-			// Select field
-			changeSingleKeySelection(i);
-
-			// Perform the edit, according to edit mode. Including sending to device
-			mappingChanged = this->noteEditArea->performMouseDown(currentSetSelection, i);
-
-			// Mark that there are changes
-			if (mappingChanged)
-				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-			break;
-		}
-	}
-
-    // Refresh display (edit may affect all octave boards)
-    if (mappingChanged)
-    {
-        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-        {
-            terpstraSetSelectors[i]->repaint();
-        }
-
-        changeSetSelection(currentSetSelection, true);
-    }
-}
-
-void MainContentComponent::mouseUp(const MouseEvent &event)
-{
-	bool mappingChanged = false;
-
-	// Selection of single key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-	{
-		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
-		{
-			// Perform the edit, according to edit mode. Including sending to device
-			mappingChanged = this->noteEditArea->performMouseUp(currentSetSelection, i);
-
-			// Mark that there are changes
-			if (mappingChanged)
-				TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-			break;
-		}
-	}
-
-    // Refresh display (edit may affect all octave boards)
-    if ( mappingChanged)
-    {
-        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-        {
-            terpstraSetSelectors[i]->repaint();
-        }
-    }
-}
-
-void MainContentComponent::changeSetSelection(int newSelection, bool forceRefresh)
-{
-	if (newSelection != currentSetSelection || forceRefresh)
-	{
-		// Unselect previous set
-		// saving the data was done in click event on the single key fields
-		if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-			terpstraSetSelectors[currentSetSelection]->setIsSelected(false);
-
-		// Set data of new selection
-		if (newSelection >= 0 && newSelection < NUMBEROFBOARDS )
-		{
-			for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-				terpstraKeyFields[i]->setValue(mappingData.sets[newSelection].theKeys[i]);
-		}
-
-		currentSetSelection = newSelection;
-	}
-
-	// Set toggle state in any case (override default imagebutton functionality)
-	if ( currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS )
-		terpstraSetSelectors[currentSetSelection]->setIsSelected(true);
-}
-
-void MainContentComponent::changeSingleKeySelection(int newSelection)
-{
-	// Unselect previous key
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE )
-		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
-
-	// Select new key
-	currentSingleKeySelection = newSelection;
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
-		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
+	allKeysOverview->repaint();
 }

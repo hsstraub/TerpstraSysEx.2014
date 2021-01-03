@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -51,7 +51,7 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
     void visibilityChanged() override;
 
@@ -65,10 +65,10 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> lblChannel;
-    std::unique_ptr<Label> lblMappingFile;
-    std::unique_ptr<Label> lblChannel2;
-    std::unique_ptr<Label> lblMappingFile2;
+    std::unique_ptr<juce::Label> lblChannel;
+    std::unique_ptr<juce::Label> lblMappingFile;
+    std::unique_ptr<juce::Label> lblChannel2;
+    std::unique_ptr<juce::Label> lblMappingFile2;
 
 
     //==============================================================================

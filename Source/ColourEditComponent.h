@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -61,8 +61,6 @@ Draw each item in ColourComboBox's drop-down list in "its" colour
 class ColourComboLookAndFeel : public LookAndFeel_V4
 {
 public:
-    void drawComboBox (Graphics&, int width, int height, bool isButtonDown,
-                       int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box) override;
     void drawPopupMenuItem (Graphics&, const Rectangle<int>& area,
                             bool isSeparator, bool isActive, bool isHighlighted, bool isTicked, bool hasSubMenu,
                             const String& text, const String& shortcutKeyText,
@@ -86,13 +84,13 @@ public:
 class ColourEditComponent  : public Component,
                              public ChangeListener,
                              public ChangeBroadcaster,
-                             public Button::Listener,
-                             public ComboBox::Listener
+                             public juce::Button::Listener,
+                             public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
     ColourEditComponent ();
-    ~ColourEditComponent();
+    ~ColourEditComponent() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -104,10 +102,10 @@ public:
 	void addColourToBox(int newColourAsNumber);
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -117,7 +115,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<TextButton> btnColourPicker;
+    std::unique_ptr<juce::TextButton> btnColourPicker;
     std::unique_ptr<ColourComboBox> colourCombo;
 
 

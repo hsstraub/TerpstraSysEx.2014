@@ -8,19 +8,20 @@
   ==============================================================================
 */
 
-#ifndef MAINCOMPONENT_H_INCLUDED
-#define MAINCOMPONENT_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "OctaveBoardComponent.h"
+#include "AllKeysOverview.h"
 #include "ViewComponents.h"
-#include "BoardGeometry.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
-#include "MidiInfoArea.h"
+#include "GeneralOptionsDlg.h"
+#include "CurvesArea.h"
+#include "GlobalSettingsArea.h"
+
 
 
 //==============================================================================
@@ -28,12 +29,12 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public TerpstraMidiDriver::Listener
+class MainContentComponent : public Component, public TerpstraMidiDriver::Listener, public ChangeListener
 {
 public:
-    //==============================================================================
-    MainContentComponent();
-    ~MainContentComponent();
+	//==============================================================================
+	MainContentComponent();
+	~MainContentComponent();
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
@@ -42,9 +43,10 @@ public:
 	void setData(TerpstraKeyMapping& newData, bool withRefresh = true);
 	void deleteAll(bool withRefresh = true);
 
-    void getData(TerpstraKeyMapping& newData);
+	void getData(TerpstraKeyMapping& newData);
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
-	TerpstraBoardGeometry& getBoardGeometry() { return this->boardGeometry; }
+
+	TabbedButtonBar* getOctaveBoardSelectorTab() { return  noteEditArea->getOctaveBoardSelectorTab(); }
 
 	// Board edit operations
 	bool deleteCurrentSubBoardData();
@@ -57,15 +59,14 @@ public:
 	void midiSendQueueSize(int queueSize) override {}
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
 
+	// Implementation of ChangeListener
+	void changeListenerCallback(ChangeBroadcaster *source) override;
+
 	// GUI implementation
     void paint (Graphics&);
     void resized();
-	void mouseDown(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
 
-private:
-	void changeSetSelection(int newSelection, bool forceRefresh = false);
-	void changeSingleKeySelection(int newSelection);
+	void refreshAllKeysOverview();
 
 private:
     //==============================================================================
@@ -74,33 +75,26 @@ private:
 	//==============================================================================
 	// GUI components
 
-	// Sets of 55/56 keys
-	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
-
-	// Editing single keys (of the selected 56-key set)
-	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
-
-	// Geometry settings
-	TerpstraBoardGeometry	boardGeometry;
-
-	// Midi devices
+	// Midi devices and connection state
 	std::unique_ptr<MidiEditArea>		midiEditArea;
 
-	// Edit fields for setting key and button parameters
+	// Sets of 55/56 keys
+	std::unique_ptr<AllKeysOverview> allKeysOverview;
+
+	// Edit fields for setting key and button parameters, and edits for single keys
 	std::unique_ptr<NoteEditArea>	noteEditArea;
 
-	// MIDI info area: received MIDI messages, warnings, error messages
-	std::unique_ptr<MidiInfoArea> midiInfoArea;
+	std::unique_ptr<GeneralOptionsDlg> generalOptionsArea;
+	
+	std::unique_ptr<CurvesArea> curvesArea;
+
+	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
 
 	//==============================================================================
 	// Data
 	TerpstraKeyMapping	mappingData;
-	int					currentSetSelection;
-	int					currentSingleKeySelection;
 
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;
 };
 
-
-#endif  // MAINCOMPONENT_H_INCLUDED

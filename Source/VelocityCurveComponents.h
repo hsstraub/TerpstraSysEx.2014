@@ -17,7 +17,7 @@
 Display of one beam in a velocity curve table
 ==============================================================================
 */
-class VelocityCurveBeam : public Component
+class VelocityCurveBeam : public Component, public SettableTooltipClient
 {
 public:
 	VelocityCurveBeam();

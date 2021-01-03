@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -21,7 +21,6 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "ColourEditComponent.h"
 //[/Headers]
 
 
@@ -36,9 +35,7 @@
 */
 class GeneralOptionsDlg  : public Component,
                            public TextEditor::Listener,
-                           public ChangeListener,
-                           public Button::Listener,
-                           public ComboBox::Listener
+                           public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -47,35 +44,32 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void textEditorTextChanged(TextEditor& textEdit) override;
 	void textEditorFocusLost(TextEditor& textEdit) override;
-	void changeListenerCallback(ChangeBroadcaster *source) override;
 
-	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
+
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::unique_ptr<ColourEditComponent> inactiveMacroButtonColourEdit;
-	std::unique_ptr<ColourEditComponent> activeMacroButtonColourEdit;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> labelExprContrSensivity;
-    std::unique_ptr<TextEditor> txtExprCtrlSensivity;
-    std::unique_ptr<ToggleButton> btnInvertFootCtrl;
-    std::unique_ptr<Label> lblInvFootCtrl;
-    std::unique_ptr<Label> lblColourInactiveMacroButton;
-    std::unique_ptr<Label> lblColourActiveMacroButton;
-    std::unique_ptr<Label> lblManufacturerId;
-    std::unique_ptr<ComboBox> manufacturerIdBox;
+    std::unique_ptr<juce::Label> labelExprContrSensivity;
+    std::unique_ptr<juce::TextEditor> txtExprCtrlSensivity;
+    std::unique_ptr<juce::ToggleButton> btnInvertFootCtrl;
+    std::unique_ptr<juce::Label> labelEXpressionPedalTitle;
+    std::unique_ptr<juce::Label> labelGeneralSettingslTitle;
+    std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
+    std::unique_ptr<juce::ToggleButton> buttonLightOnKeyStrokes;
 
 
     //==============================================================================

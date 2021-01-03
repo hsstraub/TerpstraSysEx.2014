@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.6"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.8"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
               jucerFormatVersion="1">
@@ -12,13 +12,20 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="vOjaEA" name="CurvesArea.h" compile="0" resource="0" file="Source/CurvesArea.h"/>
+      <FILE id="enXDMq" name="CurvesArea.cpp" compile="1" resource="0" file="Source/CurvesArea.cpp"/>
+      <FILE id="wQzk9i" name="GlobalSettingsArea.cpp" compile="1" resource="0"
+            file="Source/GlobalSettingsArea.cpp"/>
+      <FILE id="QWWVa0" name="GlobalSettingsArea.h" compile="0" resource="0"
+            file="Source/GlobalSettingsArea.h"/>
+      <FILE id="vPxTHg" name="AllKeysOverview.cpp" compile="1" resource="0"
+            file="Source/AllKeysOverview.cpp"/>
+      <FILE id="WhW1Za" name="AllKeysOverview.h" compile="0" resource="0"
+            file="Source/AllKeysOverview.h"/>
       <FILE id="oPf8iZ" name="NoteOnOffVelocityCurveDialog.cpp" compile="1"
             resource="0" file="Source/NoteOnOffVelocityCurveDialog.cpp"/>
       <FILE id="Vj8Ki8" name="NoteOnOffVelocityCurveDialog.h" compile="0"
             resource="0" file="Source/NoteOnOffVelocityCurveDialog.h"/>
-      <FILE id="gJgXxQ" name="MidiInfoArea.cpp" compile="1" resource="0"
-            file="Source/MidiInfoArea.cpp"/>
-      <FILE id="NEyeY3" name="MidiInfoArea.h" compile="0" resource="0" file="Source/MidiInfoArea.h"/>
       <FILE id="tYu9iO" name="KBMMappingDataStructure.cpp" compile="1" resource="0"
             file="Source/KBMMappingDataStructure.cpp"/>
       <FILE id="QS12kV" name="KBMMappingDataStructure.h" compile="0" resource="0"
@@ -30,14 +37,6 @@
       <FILE id="PFjU1P" name="KBMMappingDlg.cpp" compile="1" resource="0"
             file="Source/KBMMappingDlg.cpp"/>
       <FILE id="N6mYWM" name="KBMMappingDlg.h" compile="0" resource="0" file="Source/KBMMappingDlg.h"/>
-      <FILE id="zObTAR" name="OctaveBoardComponent.cpp" compile="1" resource="0"
-            file="Source/OctaveBoardComponent.cpp"/>
-      <FILE id="Pe60oV" name="OctaveBoardComponent.h" compile="0" resource="0"
-            file="Source/OctaveBoardComponent.h"/>
-      <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
-            file="Source/PlayVirtualKeyboard.cpp"/>
-      <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"
-            file="Source/PlayVirtualKeyboard.h"/>
       <FILE id="fToFTX" name="ColourEditComponent.cpp" compile="1" resource="0"
             file="Source/ColourEditComponent.cpp"/>
       <FILE id="VbJRS2" name="ColourEditComponent.h" compile="0" resource="0"
@@ -48,17 +47,13 @@
             file="Source/VelocityCurveComponents.h"/>
       <FILE id="QI0Qip" name="VelocityCurveEditStrategy.cpp" compile="1"
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
-      <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
-            file="Source/VelocityCurveEditStrategy.h"/>
       <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
             file="Source/VelocityCurveDlgBase.cpp"/>
       <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
             file="Source/VelocityCurveDlgBase.h"/>
-      <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
-            file="Source/GeneralOptionsDlg.cpp"/>
-      <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
-            file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
+        <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
+              file="Source/VelocityCurveEditStrategy.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
               file="Source/ScaleStructureController/GroupingCircle.cpp"/>
         <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
@@ -83,6 +78,10 @@
         <FILE id="xUZ6gr" name="TransparentDropDown.h" compile="0" resource="0"
               file="Source/ScaleStructureController/TransparentDropDown.h"/>
       </GROUP>
+      <FILE id="EobXR1" name="GeneralOptionsDlg.cpp" compile="1" resource="0"
+            file="Source/GeneralOptionsDlg.cpp"/>
+      <FILE id="eIP1QD" name="GeneralOptionsDlg.h" compile="0" resource="0"
+            file="Source/GeneralOptionsDlg.h"/>
       <GROUP id="{57336DA8-5621-E244-F881-762AEEBA4A9E}" name="HajuLib">
         <FILE id="cCH9ZE" name="HajuErrorVisualizer.cpp" compile="1" resource="0"
               file="Source/HajuLib/HajuErrorVisualizer.cpp"/>
@@ -129,8 +128,6 @@
             file="Source/ViewComponents.cpp"/>
       <FILE id="DfBSef" name="ViewComponents.h" compile="0" resource="0"
             file="Source/ViewComponents.h"/>
-      <FILE id="HAyzGx" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
-      <FILE id="iBGzO1" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
       <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
             file="Source/KeyboardDataStructure.h"/>
       <FILE id="eoBUqq" name="MainComponent.cpp" compile="1" resource="0"

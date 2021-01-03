@@ -12,8 +12,6 @@
 
 #include "VelocityCurveDlgBase.h"
 
-#define VELOCITYINTERVALTABLESIZE 127
-
 // Note on/on velocity curve dialog. Horizontal axis stands for ticks
 class NoteOnOffVelocityCurveDialog : public VelocityCurveDlgBase
 {
@@ -22,20 +20,24 @@ public:
 	NoteOnOffVelocityCurveDialog();
 	~NoteOnOffVelocityCurveDialog() override;
 
-	void restoreIntervalTableFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveIntervalTableToPropertiesFile(PropertiesFile* propertiesFile);
-
-	virtual void sendVelocityTableToController() override;
-	virtual void sendVelocityConfigurationRequest() override;
-	virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
+	// ToDo Read from and write to *.LMT file
 
 protected:
-	int ticksCountFromXPos(int xPos) const { return xPos * 16; }
 	float milliSecondsFromTicksCount(int ticksCount) const { return 1.1f * ticksCount; }
 
 	virtual String beamXPosText(int xPos) const override;
-	virtual float beamWidth(int xPos) const override;
+	virtual float beamWidth(int xPos) override;
 
-private:
-	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
+};
+
+class FaderVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	FaderVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader) {}
+};
+
+class AftertouchVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch) {}
 };

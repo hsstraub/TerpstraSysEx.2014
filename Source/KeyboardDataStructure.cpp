@@ -10,6 +10,12 @@
 
 #include "KeyboardDataStructure.h"
 
+/*
+==============================================================================
+TerpstraKeys class
+==============================================================================
+*/
+
 TerpstraKeys::TerpstraKeys()
 {
 	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
@@ -36,32 +42,170 @@ bool TerpstraKeys::isEmpty() const
 	return setIsEmpty;
 }
 
+/*
+==============================================================================
+TerpstraVelocityCurveConfig class
+==============================================================================
+*/
+
+TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig()
+{
+	editStrategy = EDITSTRATEGYINDEX::none;
+
+	// Default config: one to one
+	for (int x = 0; x < 128; x++)
+		velocityValues[x] = x;
+}
+
+TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(const String& velocityCurveConfigString)
+{
+	if (velocityCurveConfigString.startsWith("LINEAR"))
+	{
+		editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::linearSegments;
+
+		StringArray velocityCurveValueArray = StringArray::fromTokens(velocityCurveConfigString.substring(6), false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize segment table
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = -1;
+		}
+	}
+	else if (velocityCurveConfigString.startsWith("Quadratic"))
+	{
+		editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::quadraticCurves;
+
+		StringArray velocityCurveValueArray = StringArray::fromTokens(velocityCurveConfigString.substring(6), false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize segment table
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = -1;
+		}
+	}
+	else
+	{
+		editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+
+		StringArray velocityCurveValueArray = StringArray::fromTokens(velocityCurveConfigString, false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize velocity lookup table
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = x;
+		}
+	}
+}
+
+String TerpstraVelocityCurveConfig::createConfigStringForSaving()
+{
+	switch (editStrategy)
+	{
+	case EDITSTRATEGYINDEX::freeDrawing:
+	{
+		String velocityCurveString;
+
+		for (int x = 0; x < 128; x++)
+			velocityCurveString += String(velocityValues[x]) + " ";
+
+		return velocityCurveString;
+	}
+
+	case EDITSTRATEGYINDEX::linearSegments:
+	{
+		String velocityCurveString = "LINEAR";
+
+		for (int x = 0; x < 128; x++)
+			velocityCurveString += String(velocityValues[x]) + " ";
+
+		return velocityCurveString;
+
+	}
+
+	case EDITSTRATEGYINDEX::quadraticCurves:
+	{
+		String velocityCurveString = "Quadratic";
+
+		for (int x = 0; x < 128; x++)
+			velocityCurveString += String(velocityValues[x]) + " ";
+
+		return velocityCurveString;
+	}
+
+	default:
+		return "";
+	}
+}
+
+/*
+==============================================================================
+TerpstraKeyMapping class
+==============================================================================
+*/
+
 TerpstraKeyMapping::TerpstraKeyMapping()
 {
 	clearAll();
+}
+
+void TerpstraKeyMapping::clearVelocityIntervalTable()
+{
+	// Default interval table: equal division
+	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+	{
+		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
+	}
 }
 
 void TerpstraKeyMapping::clearAll()
 {
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 		sets[i] = TerpstraKeys();
+
+	// Default values for options
+	afterTouchActive = false;
+	lightOnKeyStrokes = false;
+	invertFootController = false;
+	expressionControllerSensivity = 0;
+
+	clearVelocityIntervalTable();
+	noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig();
+	faderConfig = TerpstraVelocityCurveConfig();
+	afterTouchConfig = TerpstraVelocityCurveConfig();
 }
 
-/*
-==============================================================================
-Read data 
-==============================================================================
-*/
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
-	// Buffe data in case stringArray is from an older 56-keys subset 
+	// Buffer data in case stringArray is from an older 56-keys subset 
 	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+	int boardIndex;
+	for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		fiftysixthKeys[boardIndex] = TerpstraKey();
 
-	int boardIndex = -1;
+	boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
 	{
 		String currentLine = stringArray[i];
@@ -152,7 +296,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 					else if (keyIndex == 55)
 						fiftysixthKeys[boardIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
 					else
-						jassert(false);
+					jassert(false);
 				}
 				else
 					jassert(false);
@@ -160,16 +304,67 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			else
 				jassert(false);
 		}
+		// General options
+		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0)
+		{
+			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0)
+		{
+			lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0)
+		{
+			invertFootController = currentLine.substring(pos1 + 21).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0)
+		{
+			expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
+		}
+		// Velocity curve config
+		else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0)
+		{
+			String intervalTableString = currentLine.substring(pos1 + 18);
+			StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
+			if (intervalTableValueArray.size() > 0)
+			{
+				jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
+
+				for (int x = 0; x < VELOCITYINTERVALTABLESIZE; x++)
+				{
+					velocityIntervalTableValues[x] = intervalTableValueArray[x].getIntValue();
+				}
+			}
+			else
+			{
+				clearVelocityIntervalTable();
+			}
+		}
+		// Note on/off velocity configuration
+		else if ((pos1 = currentLine.indexOf("NoteOnOffVelocityCrvTbl=")) >= 0)
+		{
+			noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 24));
+		}
+		// Fader configuration
+		else if ((pos1 = currentLine.indexOf("FaderConfig=")) >= 0)
+		{
+			faderConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 12));
+		}
+		// Aftertouch configuration
+		else if ((pos1 = currentLine.indexOf("afterTouchConfig=")) >= 0)
+		{
+			afterTouchConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 17));
+		}
 	}
 
 	// If it was a 56-key layout, convert to 55-key layout
 	bool fromFiftySixKeys = false;
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
+	for (boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
 		fromFiftySixKeys |= (!fiftysixthKeys[boardIndex].isEmpty());
 
 	if (fromFiftySixKeys)
 	{
-		for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 		{
 			for (int keyIndex = 7; keyIndex < 54; keyIndex++)
 				sets[boardIndex].theKeys[keyIndex] = sets[boardIndex].theKeys[keyIndex + 1];
@@ -179,11 +374,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 	}
 }
 
-/*
-==============================================================================
-Write data
-==============================================================================
-*/
 StringArray TerpstraKeyMapping::toStringArray()
 {
 	StringArray result;
@@ -201,6 +391,25 @@ StringArray TerpstraKeyMapping::toStringArray()
 				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
 		}
 	}
+
+	// General options
+	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
+	result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
+	result.add("InvertFootController=" + String(invertFootController ? 1 : 0));
+	result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
+
+	// Velocity curve interval table
+	String intervalTableString;
+	for (auto intervalTableValue : velocityIntervalTableValues)
+		intervalTableString += String(intervalTableValue) + " ";
+	result.add("VelocityIntrvlTbl=" + intervalTableString);
+
+	// Note on/off velocity configuration
+	result.add("NoteOnOffVelocityCrvTbl=" + noteOnOffVelocityCurveConfig.createConfigStringForSaving());
+	// Fader configuration
+	result.add("FaderConfig=" + faderConfig.createConfigStringForSaving());
+	// Aftertouch configuration
+	result.add("afterTouchConfig=" + afterTouchConfig.createConfigStringForSaving());
 
 	return result;
 }

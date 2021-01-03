@@ -39,8 +39,6 @@ Describe your class and how it works here!
                                                                     //[/Comments]
 */
 class VelocityCurveDlgBase  : public Component,
-                              public TerpstraMidiDriver::Listener,
-                              public juce::Button::Listener,
                               public juce::ComboBox::Listener
 {
 public:
@@ -50,11 +48,11 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
 
 	virtual void sendVelocityTableToController();
-	virtual void sendVelocityConfigurationRequest();
 
 	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
 
@@ -63,38 +61,26 @@ public:
 	void mouseDrag(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
 
-	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
-
 protected:
 	virtual String beamValueText(int beamValue) const { return String(beamValue); }
 	virtual String beamXPosText(int xPos) const { return String(xPos); }
-	virtual float beamWidth(int xPos) const { return (getWidth() - 2.0f * labelEditMode->getX()) / 128.0f; }
+	virtual float beamWidth(int xPos) { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
+
+	TerpstraKeyMapping*	getMappingInEdit();
+	TerpstraVelocityCurveConfig* getConfigInEdit();
+	VelocityCurveEditStrategyBase* getCurrentDrawingStrategy();
 
 public:
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	typedef enum
-	{
-		none = -1,
-		freeDrawing = 0,
-		linearSegments = 1,
-		quadraticCurves = 2
-	} EDITSTRATEGYINDEX;
-
-
 	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
 	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
@@ -102,25 +88,15 @@ private:
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
-	VelocityCurveEditStrategyBase*	currentCurveEditStrategy;
-
-	const float graphicsYPadding = 136.0f;
-	const float pushButtonAreaHeight = 36.0f;
+	
+	std::map<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX, VelocityCurveEditStrategyBase*> drawingStrategies;
 
 protected:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> lblDescription;
-    std::unique_ptr<juce::TextButton> buttonSendAll;
-    std::unique_ptr<juce::TextButton> buttonDiscard;
-    std::unique_ptr<juce::TextButton> buttonSaveEdits;
     std::unique_ptr<juce::ComboBox> cbEditMode;
-    std::unique_ptr<juce::Label> labelEditMode;
     std::unique_ptr<juce::Label> labelCurrentBeamValue;
-    std::unique_ptr<juce::TextButton> buttonReceive;
-    std::unique_ptr<juce::TextButton> buttonCalibrate;
-    std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
     std::unique_ptr<juce::Label> labelCurrentXPos;
 
 

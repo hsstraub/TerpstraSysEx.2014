@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.7
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -21,8 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
-#include "TerpstraMidiDriver.h"
-#include "HajuLib/HajuErrorVisualizer.h"
+
+#include "KeyboardDataStructure.h"
 //[/Headers]
 
 
@@ -35,40 +35,45 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MidiInfoArea  : public Component,
-                      public TerpstraMidiDriver::Listener
+class CurvesArea  : public juce::Component,
+                    public juce::Button::Listener
 {
 public:
     //==============================================================================
-    MidiInfoArea ();
-    ~MidiInfoArea() override;
+    CurvesArea ();
+    ~CurvesArea() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override;
-	void midiSendQueueSize(int queueSize) override;
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
+	class CurvesTabComponent : public juce::TabbedComponent
+	{
+	public:
+		CurvesTabComponent(TabbedButtonBar::Orientation orientation);
+		void 	currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override;
+	};
+
+	// New mapping is loaded. Display data.
+	void loadFromMapping();
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    HajuErrorVisualizer     errorVisualizer;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<Label> labelInfoTitle;
-    std::unique_ptr<Label> textInfo;
+    std::unique_ptr<juce::Label> labelWindowTitle;
+    std::unique_ptr<CurvesTabComponent> curvesTab;
+    std::unique_ptr<juce::ToggleButton> btnDeveloperMode;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiInfoArea)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CurvesArea)
 };
 
 //[EndFile] You can add extra defines here...

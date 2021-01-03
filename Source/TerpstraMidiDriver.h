@@ -32,6 +32,8 @@ System exclusive command bytes
 #define MACROBUTTON_COLOUR_ON 0x05
 #define MACROBUTTON_COLOUR_OFF 0x06
 
+#define SET_LIGHT_ON_KEYSTROKES 0x07
+
 #define SET_VELOCITY_CONFIG 0x08
 #define SAVE_VELOCITY_CONFIG 0x09
 #define RESET_VELOCITY_CONFIG 0x0A
@@ -103,6 +105,13 @@ public:
 	    ERROR = 0x03,   // Error
 	} TerpstraMIDIAnswerReturnCode;
 
+	enum sysExSendingMode
+	{
+		liveEditor = 0,
+		offlineEditor = 1
+	};
+
+
 private:
     typedef enum
     {
@@ -122,6 +131,9 @@ public:
 
 	void addListener(Listener* listenerToAdd);
 	void removeListener(Listener* listenerToRemove);
+
+	sysExSendingMode getSysExSendingMode() const { return currentSysExSendingMode; }
+	void setSysExSendingMode(sysExSendingMode newMode);
 
 	//////////////////////////////////
 	// Combined (hi-level) commands
@@ -155,6 +167,9 @@ public:
 
 	// Colour for macro button in inactive state
 	void sendMacroButtonInactiveColour(String colourAsString);
+
+	// Send parametrization of light on keystrokes
+	void sendLightOnKeyStrokes(bool value);
 
 	// Send a value for a velocity lookup table
 	void sendVelocityConfig(VelocityCurveType velocityCurveType, unsigned char velocityTable[]);
@@ -197,7 +212,7 @@ public:
 	void timerCallback() override;
 
 	// Clear MIDI message buffer
-	void clearMIDIMessageBuffer(){ messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0); }
+	void clearMIDIMessageBuffer() { messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0);  }
 
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
@@ -238,6 +253,9 @@ private:
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available
 
 	Array<MidiMessage> messageBuffer;
+
+	// Whether SysEx messages are sent or not
+	sysExSendingMode currentSysExSendingMode = sysExSendingMode::liveEditor;
 
 	const int receiveTimeoutInMilliseconds = 2000;
 	const int busyTimeDelayInMilliseconds = 20;
