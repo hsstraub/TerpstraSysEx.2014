@@ -31,6 +31,7 @@ MainContentComponent::MainContentComponent()
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
 	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
+	noteEditArea->registerPaletteWindowRequestListener(this);
 
 	generalOptionsArea.reset(new GeneralOptionsDlg());
 	addAndMakeVisible(generalOptionsArea.get());
@@ -40,6 +41,7 @@ MainContentComponent::MainContentComponent()
 
 	globalSettingsArea.reset(new GlobalSettingsArea());
 	addAndMakeVisible(globalSettingsArea.get());
+	globalSettingsArea->listenToColourEditButtons(this);
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
@@ -290,6 +292,31 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == noteEditArea->getOctaveBoardSelectorTab())
 	{
 		allKeysOverview->setCurrentSetSelection(noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex());
+	}
+}
+
+void MainContentComponent::buttonClicked(Button* btn)
+{
+	// If this resolves, colour palette window was requested
+	ColourEditComponent* colourEdit = dynamic_cast<ColourEditComponent*>(btn);
+
+	if (colourEdit)
+	{
+		// TODO: Initialize with palettes
+		//       Set swatch # or custom colour as current colour
+		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow({}/*TODO*/);
+		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
+		paletteWindow->listenToColourSelection(colourEdit);
+
+		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());
+
+		CallOutBox& popupBox = CallOutBox::launchAsynchronously(
+			std::unique_ptr<Component>(paletteWindow),
+			componentArea,
+			this
+		);
+
+		popupBox.setLookAndFeel(&getLookAndFeel());
 	}
 }
 

@@ -118,6 +118,9 @@ private:
     const float assignMarginYInContent          = 2.0f / 45.0f;
     const float assignTabDepthInContent         = 0.0851f;
 
+    const float assignLabelMarginX              = 0.01f;
+    const float assignLabelTabDepthHeight       = 0.9f;
+
     const float keyEditWidth                    = 7.0f / 15.0f;
     const float keyEditMarginX                  = 0.48f;
     const float keyEditMarginYInContent         = 0.1f;

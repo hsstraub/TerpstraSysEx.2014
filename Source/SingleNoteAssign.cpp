@@ -424,9 +424,10 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 
 void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
 {
-	SortedSet<int> usedColours = newData.getUsedColours();
-	for (int pos = 0; pos < usedColours.size(); pos++)
-		colourSubwindow->addColourToBox(usedColours[pos]);
+    // TODO: switch to palettes & active colour
+	//SortedSet<int> usedColours = newData.getUsedColours();
+	//for (int pos = 0; pos < usedColours.size(); pos++)
+	//	colourSubwindow->addColourToBox(usedColours[pos]);
 }
 
 void SingleNoteAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -456,7 +457,7 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 
 void SingleNoteAssign::listenForPaletteWindowRequest(TextButton::Listener* listenerIn)
 {
-    //colourSubwindow->addListener(listenerIn);
+    colourSubwindow->addListener(listenerIn);
 }
 //[/MiscUserCode]
 

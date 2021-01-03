@@ -165,10 +165,6 @@ void GlobalSettingsArea::lookAndFeelChanged()
     lblColourActiveMacroButton->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
     lblColourInactiveMacroButton->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
 
-    // default preset button colours
-    activeMacroButtonColourEdit->setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::DefaultPresetButtonActive).toString());
-    inactiveMacroButtonColourEdit->setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::DefaultPresetButtonInactive).toString());
-
     buttonCalibrate->setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
     buttonCalibrate->setColour(TextButton::ColourIds::textColourOffId, Colour(0xffffffff));
 }
@@ -207,8 +203,8 @@ void GlobalSettingsArea::saveStateToPropertiesFile(PropertiesFile* propertiesFil
 
 void GlobalSettingsArea::listenToColourEditButtons(Button::Listener* listenerIn)
 {
-    /*inactiveMacroButtonColourEdit->addListener(listenerIn);
-    activeMacroButtonColourEdit->addListener(listenerIn);*/
+    inactiveMacroButtonColourEdit->addListener(listenerIn);
+    activeMacroButtonColourEdit->addListener(listenerIn);
 }
 //[/MiscUserCode]
 

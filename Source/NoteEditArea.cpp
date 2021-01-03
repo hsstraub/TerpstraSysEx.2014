@@ -126,11 +126,6 @@ void NoteEditArea::paint (juce::Graphics& g)
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	roundedCornerLayout = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
-
-	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 2.0f / 29.0f));
-	labelWindowTitle->setBounds(0, round(octaveTabsArea.getHeight() * 3.0f / 14.0f), round(getWidth() * 0.2f), round(octaveTabsArea.getHeight() / 1.75f));
-
 	int contentY = round(getHeight() * contentMarginY);
 	contentBackground.setBounds(0, contentY, getWidth(), getHeight() - contentY);
 
@@ -139,13 +134,21 @@ void NoteEditArea::resized()
 		getWidth() * assignControlsWidth, contentBackground.getHeight() * assignControlsHeightInContent
 	);
 
+	roundedCornerLayout = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
+
+	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 2.0f / 29.0f));
+
+	editFunctionsTab->setBounds(assignControlsBounds.toNearestInt());
+	editFunctionsTab->setTabBarDepth(assignTabDepthInContent * contentBackground.getHeight());
+
+	resizeLabelWithHeight(labelWindowTitle.get(), roundToInt(octaveBoardSelectorTab->getHeight() * assignLabelTabDepthHeight));
+	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) / 2.0f));
+
 	keyEditBounds.setBounds(
 		getWidth() * keyEditMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
 		getWidth() * keyEditWidth, contentBackground.getHeight() * assignControlsHeightInContent
 	);
 
-	editFunctionsTab->setBounds(assignControlsBounds.toNearestInt());
-	editFunctionsTab->setTabBarDepth(assignTabDepthInContent * contentBackground.getHeight());
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
