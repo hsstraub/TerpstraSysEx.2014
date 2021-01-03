@@ -8,8 +8,7 @@
   ==============================================================================
 */
 
-#ifndef VELOCITYCURVECOMPONENTS_H_INCLUDED
-#define VELOCITYCURVECOMPONENTS_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -18,7 +17,7 @@
 Display of one beam in a velocity curve table
 ==============================================================================
 */
-class VelocityCurveBeam : public Component
+class VelocityCurveBeam : public Component, public SettableTooltipClient
 {
 public:
 	VelocityCurveBeam();
@@ -33,7 +32,7 @@ public:
 	void resized();
 
   juce::Point<float> getBottomMid();
-	
+
 	float getBeamHeightFromValue(int value);
 	float getBeamHeightFromValue() { return getBeamHeightFromValue(beamValue); }
 
@@ -49,9 +48,3 @@ public:
 private:
 	int beamValue;
 };
-
-
-
-
-
-#endif  // VELOCITYCURVECOMPONENTS_H_INCLUDED

@@ -1,14 +1,20 @@
 /*
-  ==============================================================================
+==============================================================================
 
-    KeyboardDataStructure.cpp
-    Created: 1 Jul 2014 9:26:39pm
-    Author:  hsstraub
+KeyboardDataStructure.cpp
+Created: 1 Jul 2014 9:26:39pm
+Author:  hsstraub
 
-  ==============================================================================
+==============================================================================
 */
 
 #include "KeyboardDataStructure.h"
+
+/*
+==============================================================================
+TerpstraKeys class
+==============================================================================
+*/
 
 TerpstraKeys::TerpstraKeys()
 {
@@ -36,31 +42,164 @@ bool TerpstraKeys::isEmpty() const
 	return setIsEmpty;
 }
 
+/*
+==============================================================================
+TerpstraVelocityCurveConfig class
+==============================================================================
+*/
+
+TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig()
+{
+	editStrategy = EDITSTRATEGYINDEX::none;
+
+	// Default config: one to one
+	for (int x = 0; x < 128; x++)
+		velocityValues[x] = x;
+}
+
+TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(const String& velocityCurveConfigString)
+{
+	if (velocityCurveConfigString.startsWith("LINEAR"))
+	{
+		editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::linearSegments;
+
+		StringArray velocityCurveValueArray = StringArray::fromTokens(velocityCurveConfigString.substring(6), false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize segment table
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = -1;
+		}
+	}
+	else if (velocityCurveConfigString.startsWith("Quadratic"))
+	{
+		editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::quadraticCurves;
+
+		StringArray velocityCurveValueArray = StringArray::fromTokens(velocityCurveConfigString.substring(6), false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize segment table
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = -1;
+		}
+	}
+	else
+	{
+		editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+
+		StringArray velocityCurveValueArray = StringArray::fromTokens(velocityCurveConfigString, false);
+		if (velocityCurveValueArray.size() > 0)
+		{
+			jassert(velocityCurveValueArray.size() >= 128);
+
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = velocityCurveValueArray[x].getIntValue();
+		}
+		else
+		{
+			// Initialize velocity lookup table
+			for (int x = 0; x < 128; x++)
+				velocityValues[x] = x;
+		}
+	}
+}
+
+String TerpstraVelocityCurveConfig::createConfigStringForSaving()
+{
+	switch (editStrategy)
+	{
+	case EDITSTRATEGYINDEX::freeDrawing:
+	{
+		String velocityCurveString;
+
+		for (int x = 0; x < 128; x++)
+			velocityCurveString += String(velocityValues[x]) + " ";
+
+		return velocityCurveString;
+	}
+
+	case EDITSTRATEGYINDEX::linearSegments:
+	{
+		String velocityCurveString = "LINEAR";
+
+		for (int x = 0; x < 128; x++)
+			velocityCurveString += String(velocityValues[x]) + " ";
+
+		return velocityCurveString;
+
+	}
+
+	case EDITSTRATEGYINDEX::quadraticCurves:
+	{
+		String velocityCurveString = "Quadratic";
+
+		for (int x = 0; x < 128; x++)
+			velocityCurveString += String(velocityValues[x]) + " ";
+
+		return velocityCurveString;
+	}
+
+	default:
+		return "";
+	}
+}
+
+/*
+==============================================================================
+TerpstraKeyMapping class
+==============================================================================
+*/
+
 TerpstraKeyMapping::TerpstraKeyMapping()
 {
 	clearAll();
+}
+
+void TerpstraKeyMapping::clearVelocityIntervalTable()
+{
+	// Default interval table: equal division
+	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+	{
+		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
+	}
 }
 
 void TerpstraKeyMapping::clearAll()
 {
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 		sets[i] = TerpstraKeys();
+
+	// Default values for options
+	afterTouchActive = false;
+	lightOnKeyStrokes = false;
+	invertFootController = false;
+	expressionControllerSensivity = 0;
+
+	clearVelocityIntervalTable();
+	noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig();
+	faderConfig = TerpstraVelocityCurveConfig();
+	afterTouchConfig = TerpstraVelocityCurveConfig();
 }
 
-/*
-==============================================================================
-Read data
-==============================================================================
-*/
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
-	// Buffer data in case stringArray is from a 56-keys subset
-	TerpstraKey fiftysixthKeys[NUMBEROFBOARDS];
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
-		fiftysixthKeys[boardIndex] = TerpstraKey();
-
+	bool hasFiftySixKeys = false;
 	int boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
 	{
@@ -87,9 +226,8 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
-
-					if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].noteNumber = keyValue;
+					else
+						jassert(false);
 				}
 				else
 					jassert(false);
@@ -105,10 +243,14 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+					{
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
 
-					if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].channelNumber = keyValue;
+						if (keyIndex == 55)
+							hasFiftySixKeys = true;
+					}
+					else
+						jassert(false);
 				}
 				else
 					jassert(false);
@@ -125,15 +267,12 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].colour = colValue;
-
-					if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].colour = colValue;
-                }
+					else
+						jassert(false);
+				}
 				else
 					jassert(false);
 			}
-			else
-				jassert(false);
 		}
 		else if ((pos1 = currentLine.indexOf("KTyp_")) >= 0)
 		{
@@ -146,47 +285,83 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				{
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
-
-					if (keyIndex == 55)
-						fiftysixthKeys[boardIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
-                }
-				else
-					jassert(false);
+					else
+						jassert(false);
+				}
 			}
 			else
 				jassert(false);
 		}
-	}
-
-	// Conversion between 56 and 55-key layout
-	// ToDo From 55 to 56
-	/*
-	// From 56 to 55
-	bool fromFiftySixKeys = false;
-	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS && !fromFiftySixKeys; boardIndex++)
-		fromFiftySixKeys |= (!fiftysixthKeys[boardIndex].isEmpty());
-
-	if (fromFiftySixKeys)
-	{
-		for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		// General options
+		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0)
 		{
-			for (int keyIndex = 7; keyIndex < 54; keyIndex++)
-				sets[boardIndex].theKeys[keyIndex] = sets[boardIndex].theKeys[keyIndex + 1];
+			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0)
+		{
+			lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0)
+		{
+			invertFootController = currentLine.substring(pos1 + 21).getIntValue() > 0;
+		}
+		else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0)
+		{
+			expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
+		}
+		// Velocity curve config
+		else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0)
+		{
+			String intervalTableString = currentLine.substring(pos1 + 18);
+			StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
+			if (intervalTableValueArray.size() > 0)
+			{
+				jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
 
-			sets[boardIndex].theKeys[54] = fiftysixthKeys[boardIndex];
+				for (int x = 0; x < VELOCITYINTERVALTABLESIZE; x++)
+				{
+					velocityIntervalTableValues[x] = intervalTableValueArray[x].getIntValue();
+				}
+			}
+			else
+			{
+				clearVelocityIntervalTable();
+			}
+		}
+		// Note on/off velocity configuration
+		else if ((pos1 = currentLine.indexOf("NoteOnOffVelocityCrvTbl=")) >= 0)
+		{
+			noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 24));
+		}
+		// Fader configuration
+		else if ((pos1 = currentLine.indexOf("FaderConfig=")) >= 0)
+		{
+			faderConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 12));
+		}
+		// Aftertouch configuration
+		else if ((pos1 = currentLine.indexOf("afterTouchConfig=")) >= 0)
+		{
+			afterTouchConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 17));
 		}
 	}
-	*/
+
+	// if it was a 55-key layout, convert to new 56-key layout
+	// ToDo Also convert from old 56-key layout? For this we will have to know the version
+	if (!hasFiftySixKeys)
+	{
+		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		{
+			sets[boardIndex].theKeys[55] = sets[boardIndex].theKeys[54];
+			sets[boardIndex].theKeys[54] = TerpstraKey();
+		}
+	}
 }
 
-/*
-==============================================================================
-Write data
-==============================================================================
-*/
 StringArray TerpstraKeyMapping::toStringArray()
 {
 	StringArray result;
+
+	// ToDO Write version (for detection of old 56-key layout - those will be layouts with 56 keys but without version)
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 	{
 		result.add("[Board" + String(boardIndex) + "]");
@@ -201,6 +376,25 @@ StringArray TerpstraKeyMapping::toStringArray()
 				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
 		}
 	}
+
+	// General options
+	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
+	result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
+	result.add("InvertFootController=" + String(invertFootController ? 1 : 0));
+	result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
+
+	// Velocity curve interval table
+	String intervalTableString;
+	for (auto intervalTableValue : velocityIntervalTableValues)
+		intervalTableString += String(intervalTableValue) + " ";
+	result.add("VelocityIntrvlTbl=" + intervalTableString);
+
+	// Note on/off velocity configuration
+	result.add("NoteOnOffVelocityCrvTbl=" + noteOnOffVelocityCurveConfig.createConfigStringForSaving());
+	// Fader configuration
+	result.add("FaderConfig=" + faderConfig.createConfigStringForSaving());
+	// Aftertouch configuration
+	result.add("afterTouchConfig=" + afterTouchConfig.createConfigStringForSaving());
 
 	return result;
 }

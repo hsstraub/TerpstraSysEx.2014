@@ -97,5 +97,11 @@ float VelocityCurveBeam::getBeamHeightFromValue(int value)
 
 int VelocityCurveBeam::getBeamValueFromLocalPoint(juce::Point<float> localPoint)
 {
-	return (getBottom() - localPoint.y) * 128 / getHeight();
+    auto val = (getBottom() - localPoint.y) * 128 / getHeight();
+    if (val < 0)
+        return 0;
+    else if (val >= 128)
+        return 127;
+    else
+        return val;
 }

@@ -50,6 +50,32 @@ struct TerpstraKeys {
 	bool isEmpty() const;
 };
 
+// Velocity curve config
+
+class TerpstraVelocityCurveConfig
+{
+public:
+	typedef enum
+	{
+		none = -1,
+		freeDrawing = 0,
+		linearSegments = 1,
+		quadraticCurves = 2
+	} EDITSTRATEGYINDEX;
+
+public:
+	TerpstraVelocityCurveConfig();
+	TerpstraVelocityCurveConfig(const String& velocityCurveConfigString);
+
+	String createConfigStringForSaving();
+
+public:
+	EDITSTRATEGYINDEX editStrategy;
+
+	// Velocity curve values. Meaning varies depending on editStrategy
+	int velocityValues[128];
+};
+
 /*
 ==============================================================================
 A complete key mapping
@@ -57,18 +83,40 @@ A complete key mapping
 */
 #define NUMBEROFBOARDS 5
 
+// Number of entries in the velocity interval table
+#define VELOCITYINTERVALTABLESIZE 127
+
 class TerpstraKeyMapping
 {
 public:
 	TerpstraKeyMapping();
 
+	void clearVelocityIntervalTable();
 	void clearAll();
 
 	void fromStringArray(const StringArray& stringArray);
 	StringArray toStringArray();
+
 	// The colours that are used
 	SortedSet<int> getUsedColours();
 
+	// Ticks count of a position in the celocity interval table
+	static int ticksCountFromXPos(int xPos) { return xPos * 16; }
+
 public:
+	// Key configuration
 	TerpstraKeys	sets[NUMBEROFBOARDS];
+
+	// General options
+	bool afterTouchActive;
+	bool lightOnKeyStrokes;
+	bool invertFootController;
+	int expressionControllerSensivity;
+
+	// Velocity curves
+	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
+
+	TerpstraVelocityCurveConfig	noteOnOffVelocityCurveConfig;
+	TerpstraVelocityCurveConfig faderConfig;
+	TerpstraVelocityCurveConfig afterTouchConfig;
 };

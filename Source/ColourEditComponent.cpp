@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 6.0.4
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2017 - ROLI Ltd.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -41,16 +41,18 @@ void ColourComboBox::setTextFieldToColourAsObject(Colour newColourAsObject, Noti
 {
 	setText(newColourAsObject.toDisplayString(false));
 
-	// XXX Add to box
+	// getLookAndFeel().setColour(juce::ComboBox::arrowColourId, newColourAsObject.contrasting(1.0)); Doesn't work XXX
+
+	// ToDo Add to box
 }
 
 String ColourComboBox::getColourAsStringFromText(colourComboboxOptions boxOptions)
 {
 	String colourAsString = getText();
 
-	// XXX validation of colour value
+	// ToDo validation of colour value
 
-	if (boxOptions == colourComboboxOptions::AddColourToComboBox)
+	if (boxOptions == colourComboboxOptions::AddColourToComboBox && !colourAsString.isEmpty())
 		addColourToBox(colourAsString);
 
 	return colourAsString;
@@ -60,7 +62,7 @@ int ColourComboBox::getColourAsNumberFromText(colourComboboxOptions boxOptions)
 {
 	String colourString = getColourAsStringFromText(boxOptions);
 
-	// XXX validation of colour value
+	// ToDo validation of colour value
 
 	int colourAsNumber = colourString.getHexValue32();
 
@@ -96,15 +98,6 @@ Colour ColourComboBox::getColourAsObjectFromText(colourComboboxOptions boxOption
 ColourComboLookAndFeel class
 ==============================================================================
 */
-
-void ColourComboLookAndFeel::drawComboBox (Graphics& g, int width, int height, const bool isMouseButtonDown,
-                                   int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box)
-{
-    // Draw as V3 does it (as long as main lookAndFeel is still V3)
-
-   LookAndFeel_V3::drawComboBox (g, width, height, isMouseButtonDown, buttonX, buttonY, buttonW, buttonH, box);
-}
-
 
 void ColourComboLookAndFeel::drawPopupMenuItem (Graphics& g, const Rectangle<int>& area,
                                         const bool isSeparator, const bool isActive,
@@ -194,18 +187,18 @@ ColourEditComponent::ColourEditComponent ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    btnColourPicker.reset (new TextButton ("btnColourPicker"));
+    btnColourPicker.reset (new juce::TextButton ("btnColourPicker"));
     addAndMakeVisible (btnColourPicker.get());
-    btnColourPicker->setButtonText (TRANS("Colour picker"));
+    btnColourPicker->setButtonText (TRANS(".."));
     btnColourPicker->addListener (this);
 
-    btnColourPicker->setBounds (88, 0, 104, 24);
+    btnColourPicker->setBounds (88, 0, 24, 24);
 
     colourCombo.reset (new ColourComboBox ("colourCombo"));
     addAndMakeVisible (colourCombo.get());
     colourCombo->setEditableText (true);
-    colourCombo->setJustificationType (Justification::centredLeft);
-    colourCombo->setTextWhenNothingSelected (String());
+    colourCombo->setJustificationType (juce::Justification::centredLeft);
+    colourCombo->setTextWhenNothingSelected (juce::String());
     colourCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     colourCombo->addListener (this);
 
@@ -215,7 +208,7 @@ ColourEditComponent::ColourEditComponent ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (196, 32);
+    setSize (120, 32);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -224,7 +217,7 @@ ColourEditComponent::ColourEditComponent ()
 	colourComboLookAndFeel->setColour(juce::ComboBox::textColourId, findColour(juce::ComboBox::textColourId));
 
 	colourCombo->setLookAndFeel(colourComboLookAndFeel.get());
-   //[/Constructor]
+    //[/Constructor]
 }
 
 ColourEditComponent::~ColourEditComponent()
@@ -241,12 +234,12 @@ ColourEditComponent::~ColourEditComponent()
 }
 
 //==============================================================================
-void ColourEditComponent::paint (Graphics& g)
+void ColourEditComponent::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xffb8d0de));
+    g.fillAll (juce::Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -265,7 +258,7 @@ void ColourEditComponent::resized()
     //[/UserResized]
 }
 
-void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
+void ColourEditComponent::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -273,7 +266,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnColourPicker.get())
     {
         //[UserButtonCode_btnColourPicker] -- add your button handler code here..
-		ColourSelector* colourSelector = new ColourSelector(ColourSelector::showSliders | ColourSelector::showColourspace);
+		auto colourSelector = std::make_unique<ColourSelector>(ColourSelector::showSliders | ColourSelector::showColourspace);
 		colourSelector->setName("Colour picker");
 		colourSelector->addChangeListener(this);
 
@@ -284,7 +277,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
 		colourSelector->setColour(ColourSelector::backgroundColourId, currentColor);
 		colourSelector->setSize(300, 400);
 
-		CallOutBox::launchAsynchronously(colourSelector, buttonThatWasClicked->getScreenBounds(), nullptr);
+		CallOutBox::launchAsynchronously(std::move(colourSelector), buttonThatWasClicked->getScreenBounds(), nullptr);
         //[/UserButtonCode_btnColourPicker]
     }
 
@@ -292,7 +285,7 @@ void ColourEditComponent::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void ColourEditComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void ColourEditComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
@@ -376,11 +369,11 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="ColourEditComponent" componentName=""
                  parentClasses="public Component, public ChangeListener, public ChangeBroadcaster"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="196"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="120"
                  initialHeight="32">
   <BACKGROUND backgroundColour="ffb8d0de"/>
   <TEXTBUTTON name="btnColourPicker" id="fb8f62a75c5cd9ec" memberName="btnColourPicker"
-              virtualName="" explicitFocusOrder="0" pos="88 0 104 24" buttonText="Colour picker"
+              virtualName="" explicitFocusOrder="0" pos="88 0 24 24" buttonText=".."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="colourCombo" id="86628debb1bafc04" memberName="colourCombo"
             virtualName="ColourComboBox" explicitFocusOrder="0" pos="0 0 79 24"
