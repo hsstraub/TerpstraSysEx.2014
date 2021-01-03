@@ -22,20 +22,18 @@
 static const double phi = (1 + sqrt(5)) / 2.0;
 
 // JUCE methods' radians are rotated -90deg with respect to trigonometry functions
-static const float PATH_PI_2_CW = float_Pi / 2;
+static const float PATH_PI_2_CW  =  float_Pi / 2;
 static const float PATH_PI_2_CCW = -float_Pi / 2;
 
-//static const float appWidthRoundedCornerScalar = 1.0f / 256.0f;
-
 // Rounded corner ratio of app neight for layout elements
-static const float roundedCornerLayoutAppHeightScalar = 1.0f / 180.0f;
+static const float roundedCornerLayoutAppHeightScalar       = 1.0f / 180.0f;
 
-static const float settingsAreaMarginHeight = 6.0f / 35.0f;
-static const float settingsLabelHeight = 8.0f / 69.0f;
-static const float settingsLabelMarginWidth = 0.01f;
+static const float settingsAreaMarginHeight                 = 0.1714f;
+static const float settingsLabelHeight                      = 0.14f;
+static const float settingsLabelMarginWidth                 = 0.01f;
 
-static const float settingsControlMarginParentWidthScalar = 3.0f / 256.0f;
-static const float settingsToggleButtonHeight = 2.0f / 23.0f;
+static const float settingsControlMarginParentWidthScalar   = 0.01171875f;
+static const float settingsToggleButtonHeight               = 0.087f;
 
 
 /// <summary>
