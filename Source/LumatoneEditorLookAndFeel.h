@@ -22,10 +22,7 @@ class LumatoneEditorLookAndFeel : public LookAndFeel_V4
 public:
 
     LumatoneEditorLookAndFeel(bool doImageCache = false)
-    {        
-        for (auto name : LumatoneEditorFonts::GothamNarrowMedium().getAvailableStyles())
-            DBG(name);
-
+    {
         setupDefaultColours();
 
         if (doImageCache)
@@ -38,6 +35,82 @@ public:
     //==================================================================
     // LookAndFeel_V4 Implementation
 
+    //==================================================================
+    //
+    // DOCUMENT WINDOW METHODS
+    //
+    //==================================================================
+
+    void drawDocumentWindowTitleBar(DocumentWindow& window, Graphics& g, 
+        int w, int h, int titleSpaceX, int titleSpaceW, const Image* icon, bool drawTitleTextOnLeft) override
+    {
+        g.fillAll(findColour(LumatoneEditorColourIDs::MediumBackground));
+        
+        const float fontHeight = h * 0.5f;
+        const Font font = LumatoneEditorFonts::UniviaProBold(fontHeight);
+        g.setFont(font);
+
+        const float margin = (h - fontHeight) / 2.0f;
+
+        g.setColour(Colours::white);
+        g.drawFittedText(window.getName(), 0, margin - font.getDescent(), w, h - margin, Justification::centred, 1, 1.0f);
+    }
+
+
+    Button* createDocumentWindowButton(int buttonType) override
+    {
+        Colour btnColour = findColour(LumatoneEditorColourIDs::MediumBackground);
+
+        // Mostly pulled from  LookAndFeel_V4::createDocumentWindowButton();
+        Path shape;
+        auto crossThickness = 0.15f;
+
+        const float btnSize = 96.0f;
+        const float vectorSize = btnSize / 3.0f;
+        const float vecHalfSize = vectorSize / 2.0f;
+
+        ImageButton* btn = new ImageButton();
+        Image btnImage(Image::PixelFormat::RGB, btnSize, btnSize, false);
+
+        Graphics g(btnImage);
+
+        g.setColour(btnColour);
+        g.fillAll();
+
+        if (buttonType == DocumentWindow::closeButton)
+        {
+            shape.addLineSegment({ 0.0f, 0.0f, vectorSize, vectorSize }, crossThickness);
+            shape.addLineSegment({ vectorSize, 0.0f, 0.0f, vectorSize }, crossThickness);
+
+            g.setColour(findColour(LumatoneEditorColourIDs::DisconnectedRed));
+        }
+
+        if (buttonType == DocumentWindow::minimiseButton)
+        {
+            shape.addLineSegment({ 0.0f, vecHalfSize, vectorSize, vecHalfSize}, crossThickness);
+            g.setColour(findColour(LumatoneEditorColourIDs::CurveGradientMin));
+        }
+
+        // So far not going to be used for Lumatone Editor
+        if (buttonType == DocumentWindow::maximiseButton)
+        {
+            shape.addLineSegment({ vecHalfSize, 0.0f, vecHalfSize, vectorSize }, crossThickness);
+            shape.addLineSegment({ 0.0f, vecHalfSize, vectorSize, vecHalfSize }, crossThickness);
+
+            g.setColour(findColour(LumatoneEditorColourIDs::ConnectedGreen));
+        }
+
+        float margin = (btnSize - vectorSize) / 2.0f;
+        g.strokePath(shape, PathStrokeType(3.0f), AffineTransform::translation(margin, margin));
+        
+        btn->setImages(false, true, true,
+            btnImage, 1.0f, Colour(),
+            btnImage, 1.0f, Colours::white.withAlpha(0.1f),
+            btnImage, 1.0f, Colours::black.withAlpha(0.1f)
+        );
+
+        return btn;
+    }
 
     //==================================================================
     //
