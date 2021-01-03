@@ -332,8 +332,8 @@ void MainContentComponent::resized()
 	noteEditArea->setSize(proportionOfWidth(assignWidth), proportionOfHeight(assignHeight));
 	noteEditArea->setControlsTopLeftPosition(proportionOfWidth(assignMarginX), controlsArea.getY());
 	
-	generalOptionsArea->setBounds(getBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
-	curvesArea->setBounds(getBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
+	generalOptionsArea->setBounds(getLocalBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
+	curvesArea->setBounds(getLocalBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
 
 	globalSettingsArea->setBounds(getLocalBounds().withLeft(proportionOfWidth(footerControlsX)).withTop(proportionOfHeight(footerAreaY)));
 }

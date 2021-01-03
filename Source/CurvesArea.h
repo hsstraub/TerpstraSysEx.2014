@@ -23,6 +23,8 @@
 #include <JuceHeader.h>
 
 #include "KeyboardDataStructure.h"
+
+#include "LumatoneEditorStyleCommon.h"
 //[/Headers]
 
 
@@ -49,10 +51,18 @@ public:
 	public:
 		CurvesTabComponent(TabbedButtonBar::Orientation orientation);
 		void 	currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override;
+
+        void    setTabsIndent(int indentWidthIn);
+        void    resized() override;
+
+    private:
+
+        int currentTabIndent = 0;
 	};
 
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -62,6 +72,15 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    
+    //==============================================================================
+    // Size and position constants
+    const float curvesLabelHeight   = 0.075f;
+    const float tabDepth            = 0.119f;
+    const float tabX                = 1.0f / 3.0f;
+    const float tabWidth            = 0.65f;
+    const float tabFontHeight       = 0.058f;
+    
     //[/UserVariables]
 
     //==============================================================================

@@ -50,8 +50,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     cbEditMode->setBounds (8, 8, 296, 24);
 
-    labelCurrentBeamValue.reset (new juce::Label ("labelCurrentBeamValue",
-                                                  TRANS("127")));
+    labelCurrentBeamValue.reset (new juce::Label ("labelCurrentBeamValue", TRANS("127")));
     addAndMakeVisible (labelCurrentBeamValue.get());
     labelCurrentBeamValue->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelCurrentBeamValue->setJustificationType (juce::Justification::centredLeft);
@@ -61,8 +60,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     labelCurrentBeamValue->setBounds (0, 40, 31, 16);
 
-    labelCurrentXPos.reset (new juce::Label ("labelCurrentXPos",
-                                             TRANS("127")));
+    labelCurrentXPos.reset (new juce::Label ("labelCurrentXPos", TRANS("127")));
     addAndMakeVisible (labelCurrentXPos.get());
     labelCurrentXPos->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelCurrentXPos->setJustificationType (juce::Justification::centredLeft);
