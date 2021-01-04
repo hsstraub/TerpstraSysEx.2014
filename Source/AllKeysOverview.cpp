@@ -18,7 +18,6 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "BoardGeometry.h"
 #include "ViewComponents.h"
 #include "MainComponent.h"
 #include "Main.h"
@@ -29,10 +28,6 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-
-// Geometry settings
-static TerpstraBoardGeometry	boardGeometry;
-
 
 //==============================================================================
 KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex)
@@ -162,7 +157,7 @@ void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage&
 
 const TerpstraKey* KeyMiniDisplayInsideAllKeysOverview::getKeyData() const
 {
-	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 	{
 		jassert(getParentComponent() != nullptr);
 		jassert(getParentComponent()->getParentComponent() != nullptr);
@@ -209,7 +204,7 @@ AllKeysOverview::AllKeysOverview ()
 
 	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
-		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		{
 			octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].reset(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
 			addAndMakeVisible(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].get());
@@ -238,7 +233,7 @@ AllKeysOverview::~AllKeysOverview()
     //[Destructor]. You can add your own custom destruction code here..
 	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
-		for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+		for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 		{
 			octaveBoards[subBoardIndex].keyMiniDisplay[i] = nullptr;
 		}
@@ -336,7 +331,7 @@ void AllKeysOverview::resized()
 		int ydispacement = (newHeight - TERPSTRAKEYSETVERTICALRIM - mostBottomKeyPos)/2;
 		for (subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 		{
-			for (keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+			for (keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 			{
 				octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->setTopLeftPosition(
 					juce::Point<int>(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getX(), octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getY() + ydispacement));

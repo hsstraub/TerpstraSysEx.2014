@@ -9,7 +9,7 @@
 */
 
 #include "TerpstraMidiDriver.h"
-
+#include "Main.h"
 
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
@@ -57,7 +57,7 @@ Combined (hi-level) commands
 
 void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData)
 {
-	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
 }
 

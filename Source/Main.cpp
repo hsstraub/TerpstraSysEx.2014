@@ -31,6 +31,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	octaveBoardSize = propertiesFile->getIntValue("55Keys", 0) ? 55 : 56;
+
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 
@@ -39,7 +41,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
-	// ToDo TabbedButton colours: selected, unselected
 
 	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId));
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));

@@ -24,6 +24,7 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+#include "BoardGeometry.h"
 //[/Headers]
 
 
@@ -84,9 +85,12 @@ private:
 	std::unique_ptr<TabbedButtonBar> octaveBoardSelectorTab;
 
 	// Editing single keys (of the selected 56-key set)
-	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[56];
 
 	int					currentSingleKeySelection;
+
+	// Geometry settings
+	TerpstraBoardGeometry	boardGeometry;
 
     //[/UserVariables]
 

@@ -37,11 +37,11 @@ public:
 	KEYTYPE	keyType;
 };
 
-// Subset of 55 keys
-#define TERPSTRABOARDSIZE 55
+// Subset of 56 (or 55) keys
+//#define TERPSTRABOARDSIZE 55
 
 struct TerpstraKeys {
-	TerpstraKey		theKeys[TERPSTRABOARDSIZE];
+	TerpstraKey		theKeys[56];
 	int				board_idx;
 	int				key_idx;
 

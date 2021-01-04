@@ -224,10 +224,10 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
 				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG)
 			{
-				// After the answer state byte there must be 55 bytes of data (one for each key)
-				jassert(midiMessage.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
+				// After the answer state byte there must be 56 (or 55) bytes of data (one for each key)
+				jassert(midiMessage.getSysExDataSize() >= TerpstraSysExApplication::getApp().getOctaveBoardSize() + 6); // ToDo display error otherwise
 
-				for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+				for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 				{
 					auto newValue = sysExData[6 + keyIndex];
 

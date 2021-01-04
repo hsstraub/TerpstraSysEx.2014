@@ -24,6 +24,7 @@
 
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
+#include "BoardGeometry.h"
 
 
 // Representation of a key inside the overview
@@ -94,7 +95,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	struct OctaveBoard
 	{
-		std::unique_ptr<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay[TERPSTRABOARDSIZE];
+		std::unique_ptr<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay[56];
 		int leftPos;
 		int rightPos;
 	};
@@ -102,6 +103,10 @@ private:
 	OctaveBoard octaveBoards[NUMBEROFBOARDS];
 
 	int			currentSetSelection;
+
+	// Geometry settings
+	TerpstraBoardGeometry	boardGeometry;
+
     //[/UserVariables]
 
     //==============================================================================
