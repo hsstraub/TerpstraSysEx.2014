@@ -372,6 +372,7 @@ enum LumatoneEditorColourIDs
 // Static functions for getting default Lumatone Editor fonts
 struct LumatoneEditorFonts
 {
+    static Font UniviaPro                (float height = 12.0f)  { return Font("Univia Pro",       height, Font::plain);                                          }  
     static Font UniviaProBold            (float height = 12.0f)  { return Font("Univia Pro",       height, Font::bold );                                          }
     static Font FranklinGothic           (float height = 12.0f)  { return Font("Franklin Gothic",  height, Font::plain).withTypefaceStyle("Medium");              }
     static Font GothamNarrowMedium       (float height = 12.0f)  { return Font("Gotham",           height, Font::plain).withTypefaceStyle("Narrow Medium");       }

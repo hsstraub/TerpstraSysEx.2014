@@ -36,6 +36,8 @@ public:
 	void paint(Graphics& g);
 	void resized();
 
+	void setKeySize(float keySizeIn);
+
 	enum ColourIds
 	{
 		backgroundColourId = 0x2000100,
@@ -52,6 +54,8 @@ private:
 
 	int						keyColour;
 	TerpstraKey::KEYTYPE	keyType;
+	
+	float					keySize;
 };
 
 
