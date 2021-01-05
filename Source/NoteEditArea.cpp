@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -36,13 +36,13 @@ NoteEditArea::NoteEditArea ()
     : currentSingleKeySelection(-1)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	showIsomorphicMassAssign = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("IsomorphicMassAssign", false);
     //[/Constructor_pre]
 
     editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (editFunctionsTab.get());
     editFunctionsTab->setTabBarDepth (30);
     editFunctionsTab->addTab (TRANS("Manual Assign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
-    editFunctionsTab->addTab (TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
     editFunctionsTab->setCurrentTabIndex (0);
 
     editFunctionsTab->setBounds (8, 48, 320, 422);
@@ -61,6 +61,9 @@ NoteEditArea::NoteEditArea ()
 
 
     //[UserPreSize]
+
+	if (showIsomorphicMassAssign)
+		editFunctionsTab->addTab(TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
 
 	// Selector for octave boards
 	octaveBoardSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
@@ -234,13 +237,17 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
-	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
+	
+	if (showIsomorphicMassAssign)
+		dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->saveStateToPropertiesFile(propertiesFile);
-	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
+
+	if (showIsomorphicMassAssign)
+		dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::changeListenerCallback(ChangeBroadcaster *source)
@@ -310,8 +317,6 @@ BEGIN_JUCER_METADATA
                    virtualName="" explicitFocusOrder="0" pos="8 48 320 422" orientation="top"
                    tabBarDepth="30" initialTab="0">
     <TAB name="Manual Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="SingleNoteAssign"
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Isomorphic Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="IsomorphicMassAssign"
          constructorParams="" jucerComponentFile=""/>
   </TABBEDCOMPONENT>
   <LABEL name="labelWindowTitle" id="afc0b85c8e03b3d6" memberName="labelWindowTitle"

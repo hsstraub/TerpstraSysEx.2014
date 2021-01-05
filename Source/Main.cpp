@@ -31,7 +31,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
-	octaveBoardSize = propertiesFile->getIntValue("55Keys", 0) ? 55 : 56;
+	octaveBoardSize = propertiesFile->getBoolValue("55Keys", false) ? 55 : 56;
 
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);

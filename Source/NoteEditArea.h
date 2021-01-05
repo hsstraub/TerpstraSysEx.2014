@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -80,6 +80,8 @@ private:
         SingleNoteAssignMode = 0,
         IsomorphicMassAssignMode = 1
     };
+
+	bool showIsomorphicMassAssign = false;
 
 	// Selector for octave boards
 	std::unique_ptr<TabbedButtonBar> octaveBoardSelectorTab;
