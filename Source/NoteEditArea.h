@@ -79,7 +79,6 @@ public:
     void mouseDown (const juce::MouseEvent& e) override;
 
 
-
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     enum noteEditMode
@@ -94,7 +93,7 @@ private:
 	// Editing single keys (of the selected 56-key set)
 	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
-	int					currentSingleKeySelection;
+    int					currentSingleKeySelection;
 
     //===========================================================================
     // Style Helpers
@@ -108,7 +107,8 @@ private:
     int roundedCornerLayout;
 
     //===========================================================================
-    // Size & position constants
+    // Size & position constants relative to parent unless otherwise noted
+
     const float contentMarginY                  = 1.0f / 11.0f;
 
     const float assignControlsWidth             = 0.3846f;
@@ -121,9 +121,20 @@ private:
     const float assignLabelMarginX              = 0.01f;
     const float assignLabelTabDepthHeight       = 0.9f;
 
-    const float keyEditWidth                    = 7.0f / 15.0f;
+    const float keyEditWidth                    = 0.48f;
     const float keyEditMarginX                  = 0.48f;
     const float keyEditMarginYInContent         = 0.1f;
+
+    //===========================================================================
+    // Key fields relative to KeyEditBounds
+
+    const float singleKeyFieldRimAbove = 0.075;// = 0.05106f;
+    const float singleKeyFieldRimLeft           = 0.02105f;
+    const float singleKeyFieldSize              = 0.11f;
+    const float singleKeyFieldLineWidth         = 0.003f;
+    const float singleKeyFieldLineWidthSelected = 0.005f;
+
+    const float singleKeyMarginFromWidth = 0.0164f;
 
     //[/UserVariables]
 

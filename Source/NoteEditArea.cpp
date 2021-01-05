@@ -32,12 +32,13 @@
 
 // Geometry settings
 static TerpstraBoardGeometry	boardGeometry;
+static HexagonTilingGeometry tilingGeometry(boardGeometry);
 
 //[/MiscUserDefs]
 
 //==============================================================================
 NoteEditArea::NoteEditArea ()
-    : currentSingleKeySelection(-1)
+    : currentSingleKeySelection(-1)//, tilingGeometry(boardGeometry)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	setName("NoteEditArea");
@@ -120,6 +121,10 @@ void NoteEditArea::paint (juce::Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 	g.setColour(backgroundColour);
 	g.fillRoundedRectangle(contentBackground, roundedCornerLayout);
+
+
+	//g.setColour(Colours::pink);
+	//g.drawRect(keyEditBounds);
     //[/UserPaint]
 }
 
@@ -157,44 +162,29 @@ void NoteEditArea::resized()
 
 	// Single Key fields
 
-	// Transformation Rotate slightly counterclockwise
-	float x = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMABOVE;
-	float y = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMLEFT;
-	AffineTransform transform = AffineTransform::translation(-x, -y);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(x, y);
+	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
 
-	int keyIndex = 0;
-	int mostBottomKeyPos = 0;
+	tilingGeometry.setParameters(
+		keyEditBounds,
+		round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
+		TERPSTRASINGLEKEYROTATIONANGLE
+	);
 
-	// Key sizing
+	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres();
+	jassert(keyCentres.size() == TERPSTRABOARDSIZE);
 
-	// Rows
-	int rowCount = boardGeometry.horizontalLineCount();
-	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+	AffineTransform transform = tilingGeometry.getTransform();
+	float keySize = tilingGeometry.getKeySize();
+	
+	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
-		float xbasepos;
-		if (rowIndex % 2 == 0)
-			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT;
-		else
-			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT + TERPSTRASINGLEKEYFLDSIZE / 2;
+		Point<float> centre = keyCentres[keyIndex];
 
-		int ybasepos = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMABOVE + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
+		centre.applyTransform(transform);
 
-		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
-		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
-		{
-			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
-			y = ybasepos;
-			transform.transformPoint(x, y);
-			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-
-			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
-			keyIndex++;
-		}
+		terpstraKeyFields[keyIndex]->setKeySize(keySize);
+		terpstraKeyFields[keyIndex]->setCentrePosition(centre.roundToInt());
 	}
-
-	jassert(TERPSTRABOARDSIZE == keyIndex);
 
     //[/UserResized]
 }
