@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -234,50 +234,21 @@ void MidiEditArea::onOpenConnectionToDevice()
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && editModeSelector->getCurrentTabIndex() == midiEditMode::liveEditor);
 
-	// if editing operations were done that have not been saved, warn that edits will be overwritten when configuration is read from device
-	if (TerpstraSysExApplication::getApp().getHasChangesToSave())
-	{
-		auto retc = AlertWindow::showOkCancelBox(
-			AlertWindow::AlertIconType::QuestionIcon,
-			"Establishing connection to controller",
-			"The controller's current configuration will be received now. This will overwrite all edits you have done, Do you want to continue?");
-
-		if (retc == false)
-		{
-			editModeSelector->setCurrentTabIndex(midiEditMode::offlineEditor, true);
-			return;
-		}
-	}
-
-	TerpstraSysExApplication::getApp().resetSysExMapping();
-
 	lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
 	errorVisualizer.setErrorLevel(
 		*lblConnectionState.get(),
 		HajuErrorVisualizer::ErrorLevel::noError,
 		"Connecting");
 
-	requestConfigurationFromDevice();
+	// Send current configuration to device, if desired
+	auto retc = AlertWindow::showOkCancelBox(
+		AlertWindow::AlertIconType::QuestionIcon,
+		"Establishing connection to controller",
+		"Do you want to send the current configuration to the controller?");
+
+	if (retc)
+		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
 }
-
-void MidiEditArea::requestConfigurationFromDevice()
-{
-	// Request MIDI channel, MIDI note, colour and key type config for all keys
-	TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();
-
-	// General options
-	// ToDo AfterTouchActive
-	// ToDo LightOnKeyStrokes
-	// ToDo invertFootController
-	// ToDO expressionControllerSensivity
-
-	// Velocity curve config
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::fader);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::afterTouch);
-}
-
 
 void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
 {

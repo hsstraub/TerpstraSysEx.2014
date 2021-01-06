@@ -160,6 +160,14 @@ void CurvesArea::loadFromMapping()
 	dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getCurrentContentComponent())->loadFromMapping();
 }
 
+void CurvesArea::sendConfigToController()
+{
+	// ToDo Note on/off velocity configuration
+	// ToDo Fader configuration
+	// ToDo Aftertouch configuration
+
+}
+
 //[/MiscUserCode]
 
 

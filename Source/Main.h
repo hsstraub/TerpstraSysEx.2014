@@ -64,7 +64,8 @@ public:
 	bool openFromCurrentFile();
 	bool saveCurrentFile();
 
-	void sendCurrentMappingToDevice();
+	void sendCurrentConfigurationToDevice();
+	void requestConfigurationFromDevice();
 
 	void updateMainTitle();
 

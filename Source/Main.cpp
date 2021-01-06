@@ -122,7 +122,7 @@ void TerpstraSysExApplication::systemRequestedQuit()
 		}
 		else if (retc == 1)
 		{
-			// "Yes". Try to save. Canvel if unsuccessful
+			// "Yes". Try to save. Cancel if unsuccessful
 			if (!saveSysExMapping())
 				return;
 		}
@@ -325,7 +325,7 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		updateMainTitle();
 
 		// Send configuration to controller, if connected
-		sendCurrentMappingToDevice();
+		sendCurrentConfigurationToDevice();
 
 		// Mark file as unchanged
 		setHasChangesToSave(false);
@@ -368,7 +368,7 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	return retc;
 }
 
-void TerpstraSysExApplication::sendCurrentMappingToDevice()
+void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 {
 	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
 	
@@ -382,10 +382,50 @@ void TerpstraSysExApplication::sendCurrentMappingToDevice()
 	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
 
 	// Velocity curve config
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);	
-	// ToDo Note on/off velocity configuration
-	// ToDo Fader configuration
-	// ToDo Aftertouch configuration
+	getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
+
+	((MainContentComponent*)(mainWindow->getContentComponent()))->getCurvesArea()->sendConfigToController();
+}
+
+void TerpstraSysExApplication::requestConfigurationFromDevice()
+{
+	// if editing operations were done that have not been saved, give the possibility to save them
+	if (hasChangesToSave)
+	{
+		int retc = AlertWindow::showYesNoCancelBox(
+			AlertWindow::AlertIconType::QuestionIcon,
+			"Request configuration from device",
+			"The controller's current configuration will be received now. This will overwrite all edits you have done. Do you want to save them first?");
+		if (retc == 0)
+		{
+			// "Cancel". Do not receive config
+			return;
+		}
+		else if (retc == 1)
+		{
+			// "Yes". Try to save. Cancel if unsuccessful
+			if (!saveSysExMapping())
+				return;
+		}
+		// retc == 2: "No" -> no saving, overwrite
+	}
+
+	TerpstraSysExApplication::getApp().resetSysExMapping();
+
+	// Request MIDI channel, MIDI note, colour and key type config for all keys
+	getMidiDriver().sendGetCompleteMappingRequest();
+
+	// General options
+	// ToDo AfterTouchActive
+	// ToDo LightOnKeyStrokes
+	// ToDo invertFootController
+	// ToDO expressionControllerSensivity
+
+	// Velocity curve config
+	getMidiDriver().sendVelocityIntervalConfigRequest();
+	getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
+	getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::fader);
+	getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::afterTouch);
 }
 
 void TerpstraSysExApplication::updateMainTitle()
@@ -419,9 +459,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
-		<< "Reengineered @ Hans Straub 2014 - 2020" << newLine
-		<< "Scale structure editor @ Vincenzo Sicurella" << newLine
-		<< "Mac version by Brett Park" << newLine
+		<< "Reengineered @ Hans Straub, Vincenzo Sicurella 2014 - 2020" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to http://lumatone.io or http://terpstrakeyboard.com .";
 

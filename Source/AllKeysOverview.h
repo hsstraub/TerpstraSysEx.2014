@@ -112,6 +112,7 @@ private:
     //==============================================================================
     std::unique_ptr<juce::TextButton> btnLoadFile;
     std::unique_ptr<juce::TextButton> btnSaveFile;
+    std::unique_ptr<juce::TextButton> buttonReceive;
 
 
     //==============================================================================

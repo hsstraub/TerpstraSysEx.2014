@@ -199,6 +199,14 @@ AllKeysOverview::AllKeysOverview ()
 
     btnSaveFile->setBounds (472, 8, 96, 24);
 
+    buttonReceive.reset (new juce::TextButton ("buttonReceive"));
+    addAndMakeVisible (buttonReceive.get());
+    buttonReceive->setTooltip (TRANS("Receive the current configuration from controller"));
+    buttonReceive->setButtonText (TRANS("Import from Lumatone"));
+    buttonReceive->addListener (this);
+
+    buttonReceive->setBounds (584, 8, 176, 24);
+
 
     //[UserPreSize]
 
@@ -228,6 +236,7 @@ AllKeysOverview::~AllKeysOverview()
 
     btnLoadFile = nullptr;
     btnSaveFile = nullptr;
+    buttonReceive = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -359,6 +368,12 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 		TerpstraSysExApplication::getApp().saveSysExMappingAs();
         //[/UserButtonCode_btnSaveFile]
     }
+    else if (buttonThatWasClicked == buttonReceive.get())
+    {
+        //[UserButtonCode_buttonReceive] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+        //[/UserButtonCode_buttonReceive]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -390,6 +405,10 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="btnSaveFile" id="abbc33d699ba1e52" memberName="btnSaveFile"
               virtualName="" explicitFocusOrder="0" pos="472 8 96 24" buttonText="Save File"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="buttonReceive" id="6a7ed19ee86a3b97" memberName="buttonReceive"
+              virtualName="" explicitFocusOrder="0" pos="584 8 176 24" tooltip="Receive the current configuration from controller"
+              buttonText="Import from Lumatone" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

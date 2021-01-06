@@ -54,6 +54,9 @@ public:
 
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
+
+	// Send curves configS to controller
+	void sendConfigToController();
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
