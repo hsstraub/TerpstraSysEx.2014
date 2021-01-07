@@ -162,10 +162,12 @@ void CurvesArea::loadFromMapping()
 
 void CurvesArea::sendConfigToController()
 {
-	// ToDo Note on/off velocity configuration
-	// ToDo Fader configuration
-	// ToDo Aftertouch configuration
-
+	// Send all curves configurations to controller
+	// The "developer mode" curve configs (fader, aftertouch, Lumatouch, modulation wheel) are snet only if developer mode is active.
+	for (int i = 0; i < curvesTab->getNumTabs(); i++)
+	{
+		dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getTabContentComponent(i))->sendVelocityTableToController();
+	}
 }
 
 //[/MiscUserCode]
