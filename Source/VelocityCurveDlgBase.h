@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -54,16 +54,12 @@ public:
 
 	virtual void sendVelocityTableToController();
 
-	bool showBeamValueOfMousePosition(juce::Point<float> localPoint);
-
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
 	void mouseDrag(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
 
 protected:
-	virtual String beamValueText(int beamValue) const { return String(beamValue); }
-	virtual String beamXPosText(int xPos) const { return String(xPos); }
 	virtual float beamWidth(int xPos) { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
 
 	TerpstraKeyMapping*	getMappingInEdit();
@@ -88,7 +84,7 @@ private:
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
-	
+
 	std::map<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX, VelocityCurveEditStrategyBase*> drawingStrategies;
 
 protected:
@@ -96,8 +92,6 @@ protected:
 
     //==============================================================================
     std::unique_ptr<juce::ComboBox> cbEditMode;
-    std::unique_ptr<juce::Label> labelCurrentBeamValue;
-    std::unique_ptr<juce::Label> labelCurrentXPos;
 
 
     //==============================================================================
