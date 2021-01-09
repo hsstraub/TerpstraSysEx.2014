@@ -32,14 +32,18 @@
 
 // Geometry settings
 static TerpstraBoardGeometry	boardGeometry;
+
+// DEBUG
+static Random r;
+
 //[/MiscUserDefs]
 
 //==============================================================================
 NoteEditArea::NoteEditArea ()
-    : currentSingleKeySelection(-1), tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
+    : Component("NoteEditArea"),
+	  currentSingleKeySelection(-1), tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
 {
-    //[Constructor_pre] You can add your own custom stuff here..
-	setName("NoteEditArea");
+    //[Constructor_pre] You can add your own custom stuff here..;
     //[/Constructor_pre]
 
 	editFunctionsTab.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));

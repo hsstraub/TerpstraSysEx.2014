@@ -29,6 +29,7 @@
 
 //==============================================================================
 GeneralOptionsDlg::GeneralOptionsDlg ()
+    : Component("GeneralOptionsDlg")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]

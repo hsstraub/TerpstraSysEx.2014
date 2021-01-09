@@ -29,6 +29,7 @@
 
 //==============================================================================
 GlobalSettingsArea::GlobalSettingsArea ()
+    : Component("GlobalSettingsArea")
 {
     lblPresetButtonColours.reset(new juce::Label("lblPresetButtonColours", translate("PresetButtonColours")));
     addAndMakeVisible(lblPresetButtonColours.get());

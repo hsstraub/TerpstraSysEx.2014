@@ -36,12 +36,12 @@ static Random r;
 
 //==============================================================================
 KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex)
+	: Component("AllKeysOverview_Key" + String(newKeyIndex) + "," + String(newBoardIndex))
 {
 	// In your constructor, you should add any child components, and
 	// initialise any special settings that your component needs.
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
-
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
@@ -76,8 +76,11 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 
 	//g.fillPath(hexPath);
 
-	g.drawImageAt(*colourGraphic, 0, 0, true);
-	g.drawImageAt(*shadowGraphic, 0, 0, false);
+	if (colourGraphic && shadowGraphic)
+	{
+		g.drawImageAt(*colourGraphic, 0, 0, true);
+		g.drawImageAt(*shadowGraphic, 0, 0, false);
+	}
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::resized()
@@ -162,7 +165,8 @@ void KeyMiniDisplayInsideAllKeysOverview::setKeyGraphics(Image& colourGraphicIn,
 
 //==============================================================================
 AllKeysOverview::AllKeysOverview()
-	: tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
+	: Component("AllKeysOverview"),
+	  tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -181,12 +185,18 @@ AllKeysOverview::AllKeysOverview()
 
 	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
+		OctaveBoard* board = octaveBoards.add(new OctaveBoard());
+
 		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
 		{
-			octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].reset(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
-			addAndMakeVisible(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].get());
+			auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
+			addAndMakeVisible(key);
 		}
+
+		jassert(board->keyMiniDisplay.size() == TERPSTRABOARDSIZE);
 	}
+
+	jassert(octaveBoards.size() == NUMBEROFBOARDS);
 
     //[/UserPreSize]
 
@@ -206,13 +216,13 @@ AllKeysOverview::~AllKeysOverview()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-	{
-		for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-		{
-			octaveBoards[subBoardIndex].keyMiniDisplay[i] = nullptr;
-		}
-	}
+	//for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
+	//{
+	//	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	//	{
+	//		octaveBoards[subBoardIndex]->keyMiniDisplay[i] = nullptr;
+	//	}
+	//}
     //[/Destructor]
 }
 
@@ -232,8 +242,8 @@ void AllKeysOverview::paint (juce::Graphics& g)
 	{
 		Path selectionMarkPath;
 		auto yPos = getHeight() - TERPSTRAKEYSETVERTICALRIM / 2;
-		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection].leftPos, yPos);
-		selectionMarkPath.lineTo(octaveBoards[currentSetSelection].rightPos, yPos);
+		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection]->leftPos, yPos);
+		selectionMarkPath.lineTo(octaveBoards[currentSetSelection]->rightPos, yPos);
 
 		Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
 		g.setColour(lineColour);
@@ -285,7 +295,7 @@ void AllKeysOverview::resized()
 	keyShadowGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow).rescaled(keySize, keySize);
 
 	int octaveIndex = 0;
-	octaveBoards[octaveIndex].leftPos = keybedBounds.getX();
+	octaveBoards[octaveIndex]->leftPos = keybedBounds.getX();
 
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
@@ -294,7 +304,7 @@ void AllKeysOverview::resized()
 		// Apply rotational transform
 		Point<int> centre = keyCentres[keyIndex].roundToInt();
 			
-		auto key = octaveBoards[octaveIndex].keyMiniDisplay[keyOctaveIndex].get();
+		auto key = octaveBoards[octaveIndex]->keyMiniDisplay[keyOctaveIndex];
 		key->setSize(keySize, keySize);
 		key->setCentrePosition(centre);
 		key->setKeyGraphics(keyShapeGraphic, keyShadowGraphic);
@@ -302,9 +312,11 @@ void AllKeysOverview::resized()
 
 		if (keyOctaveIndex + 1 == TERPSTRABOARDSIZE)
 		{
-			octaveBoards[octaveIndex].rightPos = key->getRight();
+			octaveBoards[octaveIndex]->rightPos = key->getRight();
 			octaveIndex++;
-			octaveBoards[octaveIndex].leftPos = key->getRight();
+
+			if (octaveIndex < NUMBEROFBOARDS)
+				octaveBoards[octaveIndex]->leftPos = key->getRight();
 		}
 	}
 

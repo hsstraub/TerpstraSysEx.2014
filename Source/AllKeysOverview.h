@@ -48,7 +48,6 @@ private:
 
 	int boardIndex = -1;
 	int keyIndex = -1;
-	Path hexPath;
 	bool isHighlighted = false;
 
 	Image* colourGraphic = nullptr;
@@ -95,12 +94,12 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	struct OctaveBoard
 	{
-		std::unique_ptr<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay[TERPSTRABOARDSIZE];
+		OwnedArray<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay;
 		int leftPos;
 		int rightPos;
 	};
 
-	OctaveBoard octaveBoards[NUMBEROFBOARDS];
+	OwnedArray<OctaveBoard> octaveBoards;
 
 	int			currentSetSelection;
 

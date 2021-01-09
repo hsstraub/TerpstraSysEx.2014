@@ -31,9 +31,6 @@
 //==============================================================================
 SingleNoteAssign::SingleNoteAssign ()
 {
-	colourSubwindow.reset(new ColourEditComponent());
-	addAndMakeVisible(colourSubwindow.get());
-
     keyTypeToggleButton.reset(new juce::ToggleButton("keyTypeToggleButton"));
     addAndMakeVisible(keyTypeToggleButton.get());
     keyTypeToggleButton->setButtonText(translate("KeyType"));

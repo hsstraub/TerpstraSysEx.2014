@@ -52,6 +52,7 @@ void CurvesArea::CurvesTabComponent::resized()
 
 //==============================================================================
 CurvesArea::CurvesArea ()
+    : Component("CurvesArea")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]

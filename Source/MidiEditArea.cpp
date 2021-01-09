@@ -34,7 +34,8 @@ TerpstraMidiDriver::sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int 
 
 //==============================================================================
 MidiEditArea::MidiEditArea ()
-    : lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),
+    : Component("MidiEditArea"),
+	  lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),
 	  errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     //[Constructor_pre] You can add your own custom stuff here..

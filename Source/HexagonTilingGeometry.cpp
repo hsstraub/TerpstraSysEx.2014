@@ -86,6 +86,15 @@ Array<Point<float>> HexagonTilingGeometry::getHexagonCentres(const TerpstraBoard
 
 	recalculateTransform(firstKeyCentre, false);
 
+
+	// Add correction scaling
+	Point<float> generatedLastKeyCentre = (firstKeyCentre + expectedDistanceToLastKeyCentre).transformedBy(transform);
+
+	float scaleX = actuallastKeyNorm.x / (generatedLastKeyCentre.x - firstKeyCentre.x);
+	float scaleY = actuallastKeyNorm.y / (generatedLastKeyCentre.y - firstKeyCentre.y);
+
+	transform = transform.followedBy(AffineTransform::scale(scaleX, scaleY, firstKeyCentre.x, firstKeyCentre.y));
+
 	return calculateCentresFromFirstKeyCentre(boardGeometry, firstKeyCentre);
 }
 

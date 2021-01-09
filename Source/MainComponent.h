@@ -95,13 +95,11 @@ private:
 	// Edit fields for setting key and button parameters, and edits for single keys
 	std::unique_ptr<NoteEditArea>	noteEditArea;
 
-	std::unique_ptr<GeneralOptionsDlg> generalOptionsArea;
+	std::unique_ptr<GeneralOptionsDlg>	generalOptionsArea;
 	
 	std::unique_ptr<CurvesArea> curvesArea;
 
 	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
-
-	std::unique_ptr<ColourPaletteWindow> palettePopup;
 
 	//==============================================================================
 	// Data
