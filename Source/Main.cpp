@@ -13,6 +13,7 @@
 #include "GeneralOptionsDlg.h"
 #include "VelocityCurveDlgBase.h"
 #include "NoteOnOffVelocityCurveDialog.h"
+#include "LumatoneMenu.h"
 
 //==============================================================================
 
@@ -60,12 +61,11 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 void TerpstraSysExApplication::initialise(const String& commandLine)
 {
     // This method is where you should put your application's initialisation code..
-	//commandManager.reset(new ApplicationCommandManager());
-	//commandManager->registerAllCommandsForTarget(this);
-
+	commandManager.reset(new ApplicationCommandManager());
+	commandManager->registerAllCommandsForTarget(this);
 
     mainWindow.reset(new MainWindow());
-	//mainWindow->addKeyListener(commandManager->getKeyMappings());
+	mainWindow->addKeyListener(commandManager->getKeyMappings());
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 
@@ -137,6 +137,59 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what
     // the other instance's command-line arguments were.
+}
+
+void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
+{
+	JUCEApplication::getAllCommands(commands);
+
+	const CommandID ids[] = {
+		Lumatone::Menu::commandIDs::deleteOctaveBoard,
+		Lumatone::Menu::commandIDs::copyOctaveBoard,
+		Lumatone::Menu::commandIDs::pasteOctaveBoard 
+	};
+
+	commands.addArray(ids, numElementsInArray(ids));
+}
+
+void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
+{
+	switch (commandID)
+	{
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
+		result.setInfo("Delete", "Delete section data", "Edit", 0);
+		result.addDefaultKeypress(KeyPress::deleteKey, ModifierKeys::noModifiers);
+		break;
+
+	case Lumatone::Menu::commandIDs::copyOctaveBoard:
+		result.setInfo("Copy", "Copy section data", "Edit", 0);
+		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
+		result.setInfo("Paste", "Paste section data", "Edit", 0);
+		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
+		break;
+
+	default:
+		JUCEApplication::getCommandInfo(commandID, result);
+		break;
+	}
+}
+
+bool TerpstraSysExApplication::perform(const InvocationInfo& info)
+{
+	switch (info.commandID)
+	{
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
+		return deleteSubBoardData();
+	case Lumatone::Menu::commandIDs::copyOctaveBoard:
+		return copySubBoardData();
+	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
+		return pasteSubBoardData();
+	default:
+		return JUCEApplication::perform(info);
+	}
 }
 
 bool TerpstraSysExApplication::openSysExMapping()

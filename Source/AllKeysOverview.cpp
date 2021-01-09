@@ -21,6 +21,7 @@
 #include "ViewComponents.h"
 #include "MainComponent.h"
 #include "Main.h"
+#include "LumatoneMenu.h"
 
 //[/Headers]
 
@@ -109,16 +110,30 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 	isHighlighted = true;
 	repaint();
 
-	// NoteOn MIDI message
-	auto keyData = getKeyData();
-	if (keyData != nullptr && keyData->channelNumber > 0)
+	if (e.mods.isRightButtonDown())
 	{
-		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+		// Right mosue click: popup menu
+		PopupMenu menu;
+
+		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::deleteOctaveBoard);
+		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::copyOctaveBoard);
+		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::pasteOctaveBoard);
+		
+		menu.show();
+	}
+	else
+	{
+		// NoteOn MIDI message
+		auto keyData = getKeyData();
+		if (keyData != nullptr && keyData->channelNumber > 0)
 		{
-			// Send "note on" event
-			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+			{
+				// Send "note on" event
+				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			}
+			// ToDo if keyType is "continuous controller": send controller event?
 		}
-		// ToDo if keyType is "continuous controller": send controller event?
 	}
 }
 

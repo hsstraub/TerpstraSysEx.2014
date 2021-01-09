@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
     keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
-    keyTypeCombo->addItem (TRANS("Note on/Note off with Lumatouch"), 3);
+    keyTypeCombo->addItem (TRANS("Lumatouch"), 3);
     keyTypeCombo->addListener (this);
 
     keyTypeCombo->setBounds (120, 64, 192, 24);
@@ -310,7 +310,7 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-/// <summary>Called from MainComponent when one of the keys is clicked</summary>
+/// <summary>Called from parent when one of the keys is clicked</summary>
 /// <returns>Mapping was changed yes/no</returns>
 bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 {
@@ -460,7 +460,7 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
             virtualName="" explicitFocusOrder="0" pos="120 64 192 24" editable="0"
-            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Note on/Note off with Lumatouch"
+            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <GROUPCOMPONENT name="autoIncrementgroup" id="249745a33736e282" memberName="juce__groupComponent"
                   virtualName="" explicitFocusOrder="0" pos="0 209 240 95" title="Auto-Increment:"/>

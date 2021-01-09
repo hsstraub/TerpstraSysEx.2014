@@ -46,6 +46,12 @@ public:
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
 
+	// Menu functionality
+	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	void getAllCommands(Array <CommandID>& commands) override;
+	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
+	bool perform(const InvocationInfo& info) override;
+
 	bool openSysExMapping();
 	bool saveSysExMapping();
 	bool saveSysExMappingAs();
@@ -118,7 +124,7 @@ public:
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
-	//std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LookAndFeel_V4				lookAndFeel;
