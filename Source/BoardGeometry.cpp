@@ -47,7 +47,7 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 }
 
 // returns the unique straight line that contains the given field
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet) const
 {
 	for (auto line: lineSet)
 	{
@@ -61,7 +61,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fi
 }
 
 // Returns the line that is a continuation of the given horizontal line in another octave board
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset) const
 {
     int currentLineIndex = this->horizontalLines.indexOf(line);
     if ( currentLineIndex < 0)
@@ -70,7 +70,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizon
         return StraightLine();	// return empty object
     }
 
-    int otherSubBoardLineIndex = currentLineIndex - 2 * octaveBoardOffset;
+    int otherSubBoardLineIndex = currentLineIndex - BOARDROWOFFSET * octaveBoardOffset;
     if (otherSubBoardLineIndex < 0 || otherSubBoardLineIndex >= horizontalLineCount())
     {
         // Line does not continue on other octave board
@@ -81,7 +81,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizon
 }
 
 // Returns the line that is a continuation of the given horizontal line in another octave board
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset) const
 {
 	int currentLineIndex = this->rightUpwardLines.indexOf(line);
 	if (currentLineIndex < 0)
@@ -101,7 +101,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUp
 }
 
 // Returns the unique horizontal line that contains the given field, over all octave boards
-TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLineOfField(int setSelection, int fieldIndex)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLineOfField(int setSelection, int fieldIndex) const
 {
     jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 
@@ -141,7 +141,7 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLi
 }
 
 // Returns the unique right upward line that contains the given field, over all octave boards
-TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardLineOfField(int setSelection, int fieldIndex)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardLineOfField(int setSelection, int fieldIndex) const
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 
@@ -181,7 +181,7 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardL
 }
 
 // Returns the horizontal lines that have a continuation (right or left)
-TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLinesWithContinuation(int octaveBoardOffset)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLinesWithContinuation(int octaveBoardOffset) const
 {
 	StraightLineSet result;
 
@@ -194,141 +194,13 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLines
 	return result;
 }
 
-
-//=====================================================================================
-
-HexagonTilingGeometry::HexagonTilingGeometry(TerpstraBoardGeometry& boardGeometry)
-	: terpstraBoardGeometry(boardGeometry), numRows(boardGeometry.horizontalLineCount())
+int TerpstraBoardGeometry::getMaxHorizontalLineSize() const
 {
-	widestRowCount = 0;
-
-	for (int r = 0; r < numRows; r++)
-	{
-		int lineSize = boardGeometry.horizontalLineSize(r);
-		if (lineSize > widestRowCount) 
-			widestRowCount = lineSize;
-	}
-}
-
-void HexagonTilingGeometry::setParameters(Rectangle<float> octaveBoundsIn, float marginSize, float rotateAngle)
-{
-	octaveBounds = octaveBoundsIn;
-	margin = marginSize;
-	angle = rotateAngle;
-
-	recalculateProperties();
-}
-
-float HexagonTilingGeometry::getKeySize(bool scaled)
-{
-	float keySize = (scaled) ? circumRadius * currentScaleFactor : (float)circumRadius;
-	return keySize * 2.0f;
-}
-
-Array<Point<float>> HexagonTilingGeometry::getHexagonCentres(bool useBoardBounds, int octaveBoardOffset)
-{
-	if (useBoardBounds)
-	{
-		//  todo
-	}
-
-	return hexagonCentres;
-}
-
-AffineTransform HexagonTilingGeometry::getTransform(bool withoutCentreTranslation)
-{
-	if (withoutCentreTranslation)
-	{
-		AffineTransform rotateScale; // TODO
-		return rotateScale;
-	}
-
-	return transform;
-}
-
-double HexagonTilingGeometry::calculateBestRadius()
-{
-	double widthBased = (octaveBounds.getWidth() - margin * (widestRowCount - 1)) / (2 * widestRowCount + 1) / incircleRadiusRatio;
-	double heightBased = (2 * octaveBounds.getHeight() - margin * incircleDiameterRatio * (numRows + 1)) / (3 * numRows + 1);
-
-	return juce::jmin(widthBased, heightBased);
-}
-
-void HexagonTilingGeometry::recalculateProperties()
-{
-	circumRadius = calculateBestRadius();
-
-	incircleRadius = circumRadius * incircleRadiusRatio;
-	incircleDiameter = incircleRadius * 2.0;	
-
-	verticalMarginUnit = margin * incircleDiameterRatio / 2.0;
-
-	tileBounds = calculateTileBounds();
-
-	recalculateTransform();
-	rebuildCentres();
+	int lineCount = 0;
 	
-}
+	for (auto line : horizontalLines)
+		if (line.size() > lineCount)
+			lineCount = line.size();
 
-void HexagonTilingGeometry::recalculateTransform()
-{
-	Point<float> octaveCentre = octaveBounds.getCentre();
-	Point<float> tileCentre = tileBounds.getCentre();
-
-	// center in bounds
-	transform = AffineTransform::translation(
-		(octaveCentre.x - tileCentre.x),
-		(octaveCentre.y - tileCentre.y) 
-	);
-
-	transform = transform.followedBy(AffineTransform::rotation(angle, octaveCentre.x, octaveCentre.y));
-
-	Rectangle<float> boundsTransformed = tileBounds.transformedBy(transform);
-	
-	// Find amount to scale by so it fits in the bounds
-	float widthScale = boundsTransformed.getWidth() / (float)octaveBounds.getWidth();
-	float heightScale = boundsTransformed.getHeight() / (float)octaveBounds.getHeight();
-	
-	currentScaleFactor = 1.0f / juce::jmax(widthScale, heightScale);
-
-	transform = transform.followedBy(
-		AffineTransform::scale(currentScaleFactor, currentScaleFactor, octaveCentre.x, octaveCentre.y)
-	);
-}
-
-void HexagonTilingGeometry::rebuildCentres()
-{
-	auto getCentreX = [&](int indexInRow, double oddRowOffset) {
-		return (incircleDiameter + margin) * indexInRow + oddRowOffset + octaveBounds.getX();
-	};
-
-	hexagonCentres.clear();
-
-	for (int row = 0; row < numRows; row++)
-	{
-		int rowCount    = terpstraBoardGeometry.horizontalLineSize(row);
-		int firstColumn = terpstraBoardGeometry.firstColumnOffset(row);
-
-		float oddRow = (row % 2 == 0) ? 0 : incircleRadius + margin / 2.0;
-
-		float yCoordinate = row * (1.5 * circumRadius + verticalMarginUnit) + circumRadius + octaveBounds.getY();
-
-		juce::Line<float> line(
-			Point<float>(getCentreX(firstColumn, oddRow) + incircleRadius, yCoordinate),
-			Point<float>(getCentreX(firstColumn + rowCount, oddRow), yCoordinate)
-		);
-
-		for (int i = 0; i < rowCount; i++)
-		{
-			hexagonCentres.add(line.getPointAlongLine(i * (2 * incircleRadius + margin)));
-		}
-	}
-}
-
-Rectangle<float> HexagonTilingGeometry::calculateTileBounds()
-{
-	double tileWidth = widestRowCount * (margin + 2 * incircleRadius) - margin + incircleRadius;
-	double tileHeight = (numRows - 1.0) * (1.5 * circumRadius + margin * incircleRadiusRatio) + 2 * circumRadius;
-
-	return Rectangle<float>(octaveBounds.getX(), octaveBounds.getY(), tileWidth, tileHeight);
+	return lineCount;
 }

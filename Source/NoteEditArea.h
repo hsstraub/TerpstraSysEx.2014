@@ -24,6 +24,7 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+#include "HexagonTilingGeometry.h"
 #include "LumatoneEditorStyleCommon.h"
 //[/Headers]
 
@@ -94,6 +95,9 @@ private:
 	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
 
     int					currentSingleKeySelection;
+
+    // Key edit positioning
+    HexagonTilingGeometry tilingGeometry;
 
     //===========================================================================
     // Style Helpers

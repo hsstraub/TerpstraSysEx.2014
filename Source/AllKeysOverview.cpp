@@ -32,7 +32,7 @@
 
 // Geometry settings
 static TerpstraBoardGeometry	boardGeometry;
-
+static Random r;
 
 //==============================================================================
 KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex)
@@ -53,43 +53,36 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	jassert(getParentComponent() != nullptr);
 	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
-	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-		.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
-	// ToDo if highlighted: even different alpha?
-	g.setColour(hexagonColour);
-	g.fillPath(hexPath);
+	//Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
+	//	.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+	//// ToDo if highlighted: even different alpha?
+	//g.setColour(hexagonColour);
+	//g.fillPath(hexPath);
 
-	// Key highlighted or not: color and thickness of the line
-	float lineWidth = isHighlighted ? 1.5 : 1;
-	Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
-	g.setColour(lineColour);
-	g.strokePath(hexPath, PathStrokeType(1));
+	//// Key highlighted or not: color and thickness of the line
+	//float lineWidth = isHighlighted ? 1.5 : 1;
+	//Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
+	//g.setColour(lineColour);
+	//g.strokePath(hexPath, PathStrokeType(1));
+
+	/*Point<int> centre = getLocalBounds().getCentre();
+	Rectangle<float> pointBounds(
+		Point<float>(centre.x - 5, centre.y - 5),
+		Point<float>(centre.x + 5, centre.y + 5)
+	);*/
+	
+	g.setColour(Colour(r.nextFloat(), r.nextFloat(), 1.0f, 1.0f));
+	//g.fillEllipse(pointBounds);
+
+	//g.fillPath(hexPath);
+
+	g.drawImageAt(*colourGraphic, 0, 0, true);
+	g.drawImageAt(*shadowGraphic, 0, 0, false);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::resized()
 {
-	float w = this->getWidth();
-	float h = this->getHeight();
 
-	float marginOffset = 1.5;
-
-	// recalculate position and size of hexagon
-	hexPath.clear();
-	hexPath.startNewSubPath(w / 2.0f, 0);
-	hexPath.lineTo(w, h / 4.0f);
-	hexPath.lineTo(w, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h);
-	hexPath.lineTo(0, 3.0f * h / 4.0f);
-	hexPath.lineTo(0, h / 4.0f);
-	hexPath.closeSubPath();
-
-	// Rotate slightly counterclockwise around the center
-	AffineTransform transform = AffineTransform::translation(-w / 2.0f, -h / 2.0f);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(w / 2.0f, h / 2.0f);
-
-	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(marginOffset, marginOffset, w - 2 * marginOffset, h - 2 * marginOffset, true);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
@@ -159,10 +152,17 @@ Colour KeyMiniDisplayInsideAllKeysOverview::getKeyColour() const
 		return findColour(TerpstraKeyEdit::backgroundColourId);
 }
 
+void KeyMiniDisplayInsideAllKeysOverview::setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn)
+{
+	colourGraphic = &colourGraphicIn;
+	shadowGraphic = &shadowGraphicIn;
+}
+
 //[/MiscUserDefs]
 
 //==============================================================================
-AllKeysOverview::AllKeysOverview ()
+AllKeysOverview::AllKeysOverview()
+	: tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -172,15 +172,10 @@ AllKeysOverview::AllKeysOverview ()
     btnLoadFile->setButtonText (translate("LoadFile"));
     btnLoadFile->addListener (this);
 
-    btnLoadFile->setBounds (368, 8, 96, 24);
-
     btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
     addAndMakeVisible (btnSaveFile.get());
     btnSaveFile->setButtonText (translate("SaveFile"));
     btnSaveFile->addListener (this);
-
-    btnSaveFile->setBounds (472, 8, 96, 24);
-
 
     //[UserPreSize]
 
@@ -194,8 +189,6 @@ AllKeysOverview::AllKeysOverview ()
 	}
 
     //[/UserPreSize]
-
-    setSize (928, 214);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -229,10 +222,10 @@ void AllKeysOverview::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+
+	g.drawImageAt(lumatoneGraphic, lumatoneBounds.getX(), lumatoneBounds.getY());
 
 	// Draw a line under the selected sub board
 	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
@@ -247,77 +240,71 @@ void AllKeysOverview::paint (juce::Graphics& g)
 		g.strokePath(selectionMarkPath, PathStrokeType(4));
 	}
 
+	g.setColour(Colours::red);
+	g.drawRect(lumatoneBounds);
+
+	g.setColour(Colours::green);
+	g.drawRect(keybedBounds);
     //[/UserPaint]
 }
 
 void AllKeysOverview::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	int newHeight = getHeight();
-	int newWidth = getWidth();
 
-	// Single key field size
-	int newSingleKeySize = jmin(newWidth / 33, newHeight / 10);
+	// Prepare position helpers for graphics
+	int graphicHeight = roundToInt(getHeight() * imageHeight);
+	int graphicWidth  = roundToInt(imageAspect * graphicHeight);
 
-	// Transformation Rotate slightly counterclockwise
-	AffineTransform transform = AffineTransform::rotation(TERPSTRASINGLEKEYROTATIONANGLE);
+	lumatoneBounds.setBounds(
+		roundToInt((getWidth() - graphicWidth) / 2.0f), roundToInt(getHeight() * imageY),
+		graphicWidth, graphicHeight
+	);
 
-    //[/UserPreResize]
+	lumatoneGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic).rescaled(graphicWidth, graphicHeight, Graphics::highResamplingQuality);
+	
+	keybedBounds = Rectangle<float>(
+		Point<float>(keybedX * lumatoneBounds.getWidth() + lumatoneBounds.getX(), keybedY * lumatoneBounds.getHeight() + lumatoneBounds.getY()),
+		Point<float>(keybedBottomX * lumatoneBounds.getWidth() + lumatoneBounds.getX(), keybedBottomY * lumatoneBounds.getHeight() + lumatoneBounds.getY())
+	);
 
-    //[UserResized] Add your own custom resize handling here..
+	Point<float> firstKeyCentre(firstKeyX * lumatoneBounds.getWidth() + lumatoneBounds.getX(), firstKeyY * lumatoneBounds.getHeight() + lumatoneBounds.getY());
+	Point<float> lastKeyCentre(lastKeyX * lumatoneBounds.getWidth() + lumatoneBounds.getX(), lastKeyY * lumatoneBounds.getHeight() + lumatoneBounds.getY());
+		
+	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry,
+		keybedBounds, firstKeyCentre, lastKeyCentre,
+		keyMarginToRadius, 0, NUMBEROFBOARDS
+	);
+		
+	jassert(keyCentres.size() == TERPSTRABOARDSIZE * NUMBEROFBOARDS);
 
-	int rowCount = boardGeometry.horizontalLineCount();
-	float x = 0.0f;
-	float y = 0.0f;
-	int subBoardIndex, keyIndex;
-	int mostBottomKeyPos = 0;
+	float keySize = jmax(tilingGeometry.getKeySize(false), 1.0f);
 
-	// All key fields of all sub boards, according to board geometry
-	for (subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
+	// Scale key graphics once
+	keyShapeGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape).rescaled(keySize, keySize);
+	keyShadowGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow).rescaled(keySize, keySize);
+
+	int octaveIndex = 0;
+	octaveBoards[octaveIndex].leftPos = keybedBounds.getX();
+
+	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
-		keyIndex = 0;
-		octaveBoards[subBoardIndex].leftPos = newWidth;
-		octaveBoards[subBoardIndex].rightPos = 0;
+		int keyOctaveIndex = keyIndex % TERPSTRABOARDSIZE;
 
-		for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+		// Apply rotational transform
+		Point<int> centre = keyCentres[keyIndex].roundToInt();
+			
+		auto key = octaveBoards[octaveIndex].keyMiniDisplay[keyOctaveIndex].get();
+		key->setSize(keySize, keySize);
+		key->setCentrePosition(centre);
+		key->setKeyGraphics(keyShapeGraphic, keyShadowGraphic);
+
+
+		if (keyOctaveIndex + 1 == TERPSTRABOARDSIZE)
 		{
-			float xbasepos;
-			if (rowIndex % 2 == 0)
-				xbasepos = 6.0f * subBoardIndex * newSingleKeySize;
-			else
-				xbasepos = 6.0f * subBoardIndex * newSingleKeySize + newSingleKeySize / 2.0f;
-
-			float ybasepos = btnLoadFile->getBottom() + TERPSTRAKEYSETVERTICALRIM + subBoardIndex * newSingleKeySize * 3.0f / 2.0f + rowIndex * newSingleKeySize * 3.0f / 4.0f;
-
-			int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
-			for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
-			{
-				x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*newSingleKeySize;
-				y = ybasepos;
-				transform.transformPoint(x, y);
-				octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->setBounds(roundToInt(x), roundToInt(y), newSingleKeySize, newSingleKeySize);
-
-				mostBottomKeyPos = jmax(mostBottomKeyPos, octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getBottom());
-
-				octaveBoards[subBoardIndex].leftPos = jmin(octaveBoards[subBoardIndex].leftPos, octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getX());
-				octaveBoards[subBoardIndex].rightPos = jmax(octaveBoards[subBoardIndex].rightPos, octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getRight());
-
-				keyIndex++;
-			}
-		}
-	}
-
-	// Move key fields to bottom
-	if (mostBottomKeyPos < newHeight - TERPSTRAKEYSETVERTICALRIM)
-	{
-		int ydispacement = (newHeight - TERPSTRAKEYSETVERTICALRIM - mostBottomKeyPos)/2;
-		for (subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-		{
-			for (keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
-			{
-				octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->setTopLeftPosition(
-					juce::Point<int>(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getX(), octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getY() + ydispacement));
-			}
+			octaveBoards[octaveIndex].rightPos = key->getRight();
+			octaveIndex++;
+			octaveBoards[octaveIndex].leftPos = key->getRight();
 		}
 	}
 
@@ -349,6 +336,21 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void AllKeysOverview::setKeysMargin(float marginBoundsHeightRatio)
+{
+	keyMarginToRadius = marginBoundsHeightRatio;
+	resized();
+	repaint();
+}
+
+void AllKeysOverview::setKeysAngle(float rotationAngle)
+{
+	keyRotationAngle = rotationAngle;
+	resized();
+	repaint();
+}
+
 //[/MiscUserCode]
 
 

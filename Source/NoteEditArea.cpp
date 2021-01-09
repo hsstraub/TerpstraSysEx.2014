@@ -32,13 +32,11 @@
 
 // Geometry settings
 static TerpstraBoardGeometry	boardGeometry;
-static HexagonTilingGeometry tilingGeometry(boardGeometry);
-
 //[/MiscUserDefs]
 
 //==============================================================================
 NoteEditArea::NoteEditArea ()
-    : currentSingleKeySelection(-1)//, tilingGeometry(boardGeometry)
+    : currentSingleKeySelection(-1), tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	setName("NoteEditArea");
@@ -122,7 +120,6 @@ void NoteEditArea::paint (juce::Graphics& g)
 	g.setColour(backgroundColour);
 	g.fillRoundedRectangle(contentBackground, roundedCornerLayout);
 
-
 	//g.setColour(Colours::pink);
 	//g.drawRect(keyEditBounds);
     //[/UserPaint]
@@ -164,23 +161,22 @@ void NoteEditArea::resized()
 
 	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
 
-	tilingGeometry.setParameters(
+	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry,
 		keyEditBounds,
 		round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
 		TERPSTRASINGLEKEYROTATIONANGLE
 	);
 
-	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres();
 	jassert(keyCentres.size() == TERPSTRABOARDSIZE);
 
-	AffineTransform transform = tilingGeometry.getTransform();
+	//AffineTransform transform = tilingGeometry.getTransform();
 	float keySize = tilingGeometry.getKeySize();
 	
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
 		Point<float> centre = keyCentres[keyIndex];
 
-		centre.applyTransform(transform);
+		//centre.applyTransform(transform);
 
 		terpstraKeyFields[keyIndex]->setKeySize(keySize);
 		terpstraKeyFields[keyIndex]->setCentrePosition(centre.roundToInt());

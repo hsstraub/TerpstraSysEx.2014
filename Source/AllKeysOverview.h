@@ -23,6 +23,7 @@
 #include <JuceHeader.h>
 
 #include "KeyboardDataStructure.h"
+#include "HexagonTilingGeometry.h"
 
 
 // Representation of a key inside the overview
@@ -37,6 +38,8 @@ public:
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const juce::MouseEvent& e) override;
 
+	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
+
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
 
@@ -47,6 +50,9 @@ private:
 	int keyIndex = -1;
 	Path hexPath;
 	bool isHighlighted = false;
+
+	Image* colourGraphic = nullptr;
+	Image* shadowGraphic = nullptr;
 };
 
 //[/Headers]
@@ -81,6 +87,8 @@ public:
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
+	void setKeysMargin(float marginBoundsHeightRatio);
+	void setKeysAngle(float rotationAngle);
 
 
 private:
@@ -95,6 +103,46 @@ private:
 	OctaveBoard octaveBoards[NUMBEROFBOARDS];
 
 	int			currentSetSelection;
+
+	HexagonTilingGeometry tilingGeometry;
+
+	//==============================================================================
+	// Style helpers
+
+	Rectangle<int> lumatoneBounds;
+	Rectangle<float> keybedBounds;
+	
+	Image lumatoneGraphic;
+	Image keyShapeGraphic;
+	Image keyShadowGraphic;
+
+	//==============================================================================
+	// Position and sizing constants in reference to parent bounds
+
+	const float imageAspect = 2121.0f / 849.0f;
+	const float imageY = 1.0f / 7.0f;
+	const float imageHeight = 5.0f / 7.0f;
+
+	
+	// In reference to lumatoneBounds
+	const float keybedX = 0.069286f;
+	const float keybedY = 0.2964286f;
+	const float keybedWidth = 0.875714286f;
+	const float keybedHeight = 0.57857143f;
+	const float keybedBottomX = 0.945f;
+	const float keybedBottomY = 0.875f;
+
+	const float firstKeyX = 0.0842857f;
+	const float firstKeyY = 0.3357143f;
+
+	const float lastKeyX = 0.93f;
+	const float lastKeyY = 0.83036f;
+
+	//===============================================================================
+
+	float keyMarginToRadius= 0.091f;
+	float keyRotationAngle = -0.27850f;
+
     //[/UserVariables]
 
     //==============================================================================
