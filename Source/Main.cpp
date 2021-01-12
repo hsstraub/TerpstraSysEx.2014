@@ -69,7 +69,8 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 
 		for (auto commandLineParameter : commandLineParameters)
 		{
-			if (commandLineParameter.toLowerCase() == "-55keys")
+			auto paramInLowerCase = commandLineParameter.toLowerCase();
+			if (paramInLowerCase == "-55keys" || paramInLowerCase == "/55keys")
 			{
 				octaveBoardSize = 55;
 				jassert(propertiesFile != nullptr);
@@ -77,7 +78,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 				continue;
 			}
 
-			if (commandLineParameter.toLowerCase() == "-56keys")
+			if (paramInLowerCase == "-56keys" || paramInLowerCase == "/56keys")
 			{
 				octaveBoardSize = 56;
 				jassert(propertiesFile != nullptr);

@@ -165,7 +165,20 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
                 break;
 		}
 
-		memmove(&sysExData[5], velocityTable, 128);
+		if (velocityCurveType == TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+		{
+			// Values are in reverse order (shortest ticks count is the highest velocity)
+			for (int x = 0; x < 128; x++)
+			{
+				sysExData[5 + x] = velocityTable[127 - x];
+
+			}
+
+		}
+		else
+		{
+			memmove(&sysExData[5], velocityTable, 128);
+		}
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
 		sendMessageNow(msg);
@@ -184,10 +197,11 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
         sysExData[4] = SET_VELOCITY_INTERVALS;
 
         // Interval table contains 127 values!
-        for ( int i = 0; i<127; i++)
+		// Values are in reverse order (shortest ticks count is the highest velocity)
+		for ( int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
         {
-            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
-            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
+            sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
+            sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
         }
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
