@@ -3,7 +3,7 @@
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.7"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
-              jucerFormatVersion="1" displaySplashScreen="1">
+              jucerFormatVersion="1">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
@@ -62,6 +62,12 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <GROUP id="{A1551A34-4888-5B34-1D07-2E0A5789F7BE}" name="ImageResampling">
+        <FILE id="lRQfVj" name="ImageResampler.h" compile="0" resource="0"
+              file="Source/ImageResampling/ImageResampler.h"/>
+        <FILE id="E3u6Wx" name="resampler.cpp" compile="1" resource="0" file="Source/ImageResampling/resampler.cpp"/>
+        <FILE id="GTlrRS" name="resampler.h" compile="0" resource="0" file="Source/ImageResampling/resampler.h"/>
+      </GROUP>
       <FILE id="ScCQxz" name="HexagonTilingGeometry.cpp" compile="1" resource="0"
             file="Source/HexagonTilingGeometry.cpp"/>
       <FILE id="XG6hrZ" name="HexagonTilingGeometry.h" compile="0" resource="0"
