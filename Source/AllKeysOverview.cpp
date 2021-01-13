@@ -56,8 +56,9 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	jassert(getParentComponent() != nullptr);
 	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
-	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour()
-		.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
+		//.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
+	// NEW STYLE TODO: Use above alpha, or do octave outline?
 	//// ToDo if highlighted: even different alpha?
 	//g.setColour(hexagonColour);
 	//g.fillPath(hexPath);
@@ -263,13 +264,20 @@ void AllKeysOverview::resized()
 		graphicWidth, graphicHeight
 	);
 
-	lumatoneGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic).rescaled(graphicWidth, graphicHeight, Graphics::highResamplingQuality);
-	
-	keybedBounds = Rectangle<float>(
-		Point<float>(keybedX * lumatoneBounds.getWidth() + lumatoneBounds.getX(), keybedY * lumatoneBounds.getHeight() + lumatoneBounds.getY()),
-		Point<float>(keybedBottomX * lumatoneBounds.getWidth() + lumatoneBounds.getX(), keybedBottomY * lumatoneBounds.getHeight() + lumatoneBounds.getY())
-	);
+	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
+	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
 
+	// Scale key graphics once
+#if JUCE_WINDOWS
+	lumatoneGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), "lanczos3", 0.8f);
+	keyShapeGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight, "lanczos3", 0.8f);
+	keyShadowGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight, "lanczos3", 0.8f);
+#else // TODO: Determine whether or not to use resampling on Mac and Linux
+	lumatoneGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic).rescaled(lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), Graphics::ResamplingQuality::highResamplingQuality);
+	keyShapeGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
+	keyShadowGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
+#endif
+	
 	oct1Key1  = Point<float>(oct1Key1X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key1Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct1Key56 = Point<float>(oct1Key56X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key56Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct5Key7  = Point<float>(oct5Key7X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct5Key7Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
@@ -280,16 +288,10 @@ void AllKeysOverview::resized()
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
 	jassert(keyCentres.size() == TERPSTRABOARDSIZE * NUMBEROFBOARDS);
-
-	int keyWidth  = round(lumatoneBounds.getWidth() * keyW);
-	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
-
-	// Scale key graphics once
-	keyShapeGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape).rescaled(keyWidth, keyHeight);
-	keyShadowGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow).rescaled(keyWidth, keyHeight);
+	
 
 	int octaveIndex = 0;
-	octaveBoards[octaveIndex]->leftPos = keybedBounds.getX();
+	octaveBoards[octaveIndex]->leftPos = round(getWidth() * keybedX);
 
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{

@@ -25,6 +25,8 @@
 #include "KeyboardDataStructure.h"
 #include "HexagonTilingGeometry.h"
 
+#include "ImageResampling\ImageResampler.h"
+
 
 // Representation of a key inside the overview
 class KeyMiniDisplayInsideAllKeysOverview : public Component
@@ -104,11 +106,13 @@ private:
 
 	HexagonTilingGeometry tilingGeometry;
 
+	Image keyColourLayer;
+	Image keyShadowLayer;
+
 	//==============================================================================
 	// Style helpers
 
 	Rectangle<int> lumatoneBounds;
-	Rectangle<float> keybedBounds;
 	
 	Image lumatoneGraphic;
 	Image keyShapeGraphic;
@@ -123,15 +127,10 @@ private:
 
 	// In reference to lumatoneBounds
 	const float keybedX = 0.06908748f;
-	const float keybedY = 0.29522687f;
 	
-	const float keybedBottomX = 0.9450601f;
-	const float keybedBottomY = 0.8744844f;
-
 	const float keyW = 0.027352f;
 	const float keyH = 0.07307f;
 
-	// Key centers in reference to lumatoneBounds
 	const float oct1Key1X = 0.0839425f;
 	const float oct1Key1Y = 0.335887f;
 
