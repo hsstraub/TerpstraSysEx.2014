@@ -108,7 +108,7 @@ public:
 
 		BorderSize<int> getBorderThickness() override
 		{
-			return BorderSize <int>(0);
+			return BorderSize <int>(1);
 		}
 
 		/* Note: Be careful if you override any DocumentWindow methods - the base
