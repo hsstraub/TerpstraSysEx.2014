@@ -54,6 +54,7 @@ private:
 	StraightLineSet	horizontalLines;
 	StraightLineSet	rightUpwardLines;
 	Array<int>		firstColumnOffsets;
+	int				maxHorizontalLineSize;
 };
 
 #endif  // BOARDGEOMETRY_H_INCLUDED

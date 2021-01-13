@@ -44,6 +44,12 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 	this->rightUpwardLines.add(StraightLine({ 55, 53 }));
 
 	this->firstColumnOffsets = Array<int>({0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4});
+
+	maxHorizontalLineSize = 0;
+
+	for (auto line : horizontalLines)
+		if (line.size() > maxHorizontalLineSize)
+			maxHorizontalLineSize = line.size();
 }
 
 // returns the unique straight line that contains the given field
@@ -196,11 +202,5 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLines
 
 int TerpstraBoardGeometry::getMaxHorizontalLineSize() const
 {
-	int lineCount = 0;
-	
-	for (auto line : horizontalLines)
-		if (line.size() > lineCount)
-			lineCount = line.size();
-
-	return lineCount;
+	return maxHorizontalLineSize;
 }

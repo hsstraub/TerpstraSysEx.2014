@@ -10,95 +10,72 @@
 
 #include "HexagonTilingGeometry.h"
 
-float HexagonTilingGeometry::getKeySize(bool scaled)
-{
-	float keySize = (scaled) ? circumRadius * currentScaleFactor : (float)circumRadius;
-	return keySize * 2.0f;
-}
-
-Array<Point<float>> HexagonTilingGeometry::getHexagonCentres(const TerpstraBoardGeometry& boardGeometry,
-	Rectangle<float> boundsIn, float marginSize, float rotateAngle, int startingOctave, int numOctaves, bool scaleToFitRotation)
+void HexagonTilingGeometry::fitTilingTo(Rectangle<float> boundsIn, 
+	int widestRow, int longestColumn, float marginSize, float rotateAngle, 
+	bool scaleToFitRotation, float radiusScalarIn, float lateralScalarIn)
 {
 	bounds = boundsIn;
 	margin = marginSize;
 	angle = rotateAngle;
 	scaleToFit = scaleToFitRotation;
+	
+	verticalScalar = radiusScalarIn;
+	horizontalScalar = lateralScalarIn;
 
-	circumRadius = calculateBestRadius();
-	recalculateProperties();
+	radius = findBestRadius(widestRow, longestColumn);
+
+	tileBounds = calculateSmallestBounds(widestRow, longestColumn);
+
+	double rad = radius * verticalScalar;
+	double lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+	startingCentre = Point<double>(bounds.getX() + lat, bounds.getY() + rad);
+
 	recalculateTransform(tileBounds.getCentre(), true);
-
-	return calculateCentres(boardGeometry);
 }
 
-Array<Point<float>> HexagonTilingGeometry::getHexagonCentres(const TerpstraBoardGeometry& boardGeometry,
-	Rectangle<float> boundsIn, Point<float> firstKeyCentre, Point<float> lastKeyCentre, float marginToRadiusRatio, int startingOctave, int numOctavesIn)
+void HexagonTilingGeometry::fitSkewedTiling(Point<float> firstKeyCentre,
+	Point<float> secondKeyCentre, int rowStepsFirstToSecond,
+	Point<float> thirdKeyCentre,  int colStepsSecondToThird,
+	double correctionAngle)
 {
-	bounds = boundsIn;
-	tileBounds = boundsIn;
+	useSkewedBasis = true;
 	
-	// Get radius from distance between the firstKeyCentre and the point on the same line with the y-coordinate of bounds top left position
-	float distanceToCenter = firstKeyCentre.getDistanceFrom(Point<float>(firstKeyCentre.getX(), boundsIn.getY()));
-	margin = marginToRadiusRatio * distanceToCenter;
-	circumRadius = (1.0 - marginToRadiusRatio) * distanceToCenter;
-	recalculateProperties();
+	startingCentre = firstKeyCentre.toDouble();
+	Point<double> secondKeyNormFirst = secondKeyCentre.toDouble() - startingCentre;
+	Point<double> thirdKeyNormSecond = (thirdKeyCentre - secondKeyCentre).toDouble();
 
-	DBG("bounds        : " + bounds.toString());
-	DBG("firstKeyCentre: " + firstKeyCentre.toString());
-	DBG("circumradius:   " + String(circumRadius));
-	DBG("tileBounds:     " + tileBounds.toString());
+	columnAngleBasis = atan((thirdKeyCentre.y - secondKeyCentre.y) / (thirdKeyCentre.x - secondKeyCentre.x)) - correctionAngle;
+	rowAngleBasis    = atan(secondKeyNormFirst.y / secondKeyNormFirst.x) - correctionAngle;
 
-	scaleToFit = false;
+	float colAngX = cos(columnAngleBasis);
+	float rowAngY = sin(rowAngleBasis);
 
-	startingOctaveIndex = startingOctave;
-	numOctaves = numOctavesIn;
+	float colUnit = thirdKeyNormSecond.x / (colStepsSecondToThird * colAngX);
+	float rowUnit = secondKeyNormFirst.y / (rowStepsFirstToSecond * rowAngY);
 
-	// Steps from first key to last key // TODO starting/num octaves
-	Point<int> stepsFirstTolast;
-	stepsFirstTolast.x = (numOctaves - 1) * rowCount + boardGeometry.firstColumnOffset(numRows - 1) + boardGeometry.horizontalLineSize(numRows - 1) - 1;
-	stepsFirstTolast.y = numRows + BOARDROWOFFSET * (numOctaves - 1) - 1;
-
-	//DEBUG
-	DBG("Steps first key to last key: " + stepsFirstTolast.toString());
-
-	// Calculate rotation
-	
-	// Find expected distance to last key centre point
-	Point<float> expectedDistanceToLastKeyCentre;
-	expectedDistanceToLastKeyCentre.x = distanceStepsAwayX(incircleRadius, margin, stepsFirstTolast.x, stepsFirstTolast.y);
-	expectedDistanceToLastKeyCentre.y = distanceStepsAwayY(circumRadius, margin, stepsFirstTolast.y);
-
-	DBG("Expected Centre: " + (firstKeyCentre + expectedDistanceToLastKeyCentre).toString());
-	DBG("Last key Centre: " + lastKeyCentre.toString());
-
-	// Find angle from first key centre as origin to last key centre
-	float expectedAngle = atanf(-expectedDistanceToLastKeyCentre.y / expectedDistanceToLastKeyCentre.x);
-	DBG("Expected Angle: " + String(expectedAngle));
-
-	// Find actual angle
-	Point<float> actuallastKeyNorm = lastKeyCentre - firstKeyCentre;
-	angle = atanf(-actuallastKeyNorm.y / actuallastKeyNorm.x);
-	DBG("Actual Angle:   " + String(angle));
-
-	// Get angle to rotate for correction
-	angle = expectedAngle - angle;
-	DBG("Correct Angle:  " + String(angle));
-
-	recalculateTransform(firstKeyCentre, false);
-
-
-	// Add correction scaling
-	Point<float> generatedLastKeyCentre = (firstKeyCentre + expectedDistanceToLastKeyCentre).transformedBy(transform);
-
-	float scaleX = actuallastKeyNorm.x / (generatedLastKeyCentre.x - firstKeyCentre.x);
-	float scaleY = actuallastKeyNorm.y / (generatedLastKeyCentre.y - firstKeyCentre.y);
-
-	transform = transform.followedBy(AffineTransform::scale(scaleX, scaleY, firstKeyCentre.x, firstKeyCentre.y));
-
-	return calculateCentresFromFirstKeyCentre(boardGeometry, firstKeyCentre);
+	columnAngleXComponent = colUnit * colAngX;
+	columnAngleYComponent = colUnit * sin(columnAngleBasis);
+	rowAngleXComponent    = rowUnit * cos(rowAngleBasis);
+	rowAngleYComponent    = rowUnit * rowAngY;
 }
 
-Rectangle<float> HexagonTilingGeometry::getTileBounds(bool withTransformation)
+Array<Point<float>> HexagonTilingGeometry::getHexagonCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctavesIn) const
+{
+	return calculateCentres(boardGeometry, startingOctave, numOctavesIn);
+}
+
+Array<Point<float>> HexagonTilingGeometry::getHexagonCentresSkewed(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctavesIn) const
+{
+	return calculateCentresSkewed(boardGeometry, startingOctave, numOctavesIn);
+}
+
+float HexagonTilingGeometry::getKeySize(bool scaled) const
+{
+	float keySize = (scaled) ? radius * rotationScalar * verticalScalar : (float)radius;
+	return keySize * 2.0f;
+}
+
+Rectangle<float> HexagonTilingGeometry::getRecentTileBounds(bool withTransformation)
 {
 	if (withTransformation)
 		return transformedBounds;
@@ -106,45 +83,45 @@ Rectangle<float> HexagonTilingGeometry::getTileBounds(bool withTransformation)
 	return tileBounds;
 }
 
-double HexagonTilingGeometry::calculateTileWidth(int numColumns, double radiusInside, double margin)
+double HexagonTilingGeometry::calculateTileWidth(int widestRow, double radiusInside, double margin)
 {
-	return numColumns * (margin + 2 * radiusInside) - margin + radiusInside;
+	return widestRow * (margin + 2 * radiusInside) - margin + radiusInside;
 }
 
-double HexagonTilingGeometry::calculateTileHeight(int numRows, double radiusBounding, double margin)
+double HexagonTilingGeometry::calculateTileHeight(int longestColumn, double radiusBounding, double margin)
 {
-	return (numRows - 1.0) * (1.5 * radiusBounding + margin * INCIRCLERADIUSRATIO) + 2 * radiusBounding;
+	return (longestColumn - 1.0) * (1.5 * radiusBounding + margin * LATERALRADIUSRATIO) + 2 * radiusBounding;
 }
 
-double HexagonTilingGeometry::distanceStepsAwayX(double radiusInside, double margin, int stepsX, int stepsY)
+double HexagonTilingGeometry::distanceStepsAwayX(double lateral, double margin, int stepsX, int stepsY)
 {
-	double halfMargin = margin / 2.0;
-	return stepsX * (2 * radiusInside + halfMargin) + (stepsY % 2) * (radiusInside + halfMargin);
+	return stepsX * (2 * lateral + margin) + ((stepsY + 1) / 2) * (lateral + margin / 2.0);
 }
 
-double HexagonTilingGeometry::distanceStepsAwayY(double radiusBounding, double margin, int stepsY)
+double HexagonTilingGeometry::distanceStepsAwayY(double radius, double margin, int stepsY)
 {
-	return stepsY * (radiusBounding * 1.5 + margin * INCIRCLERADIUSRATIO);
+	return stepsY * (radius * 1.5 + margin * LATERALRADIUSRATIO);
 }
 
-double HexagonTilingGeometry::calculateBestRadius()
+Point<double> HexagonTilingGeometry::getSkewedPoint(
+	double columnAngleX, double columnAngleY, double rowAngleX, double rowAngleY, 
+	double columnUnit, double rowUnit, int columnOffset, int rowOffset) 
 {
-	int totalColumns = rowCount * numOctaves;
-	int totalRows = numRows + BOARDROWOFFSET * (numOctaves - 1);
-	double widthBased = (bounds.getWidth() - margin * (totalColumns - 1)) / (2 * totalColumns + 1) / INCIRCLERADIUSRATIO;
-	double heightBased = (2 * bounds.getHeight() - margin * INCIRCLEDIAMETERRATIO * (totalRows + 1)) / (3 * totalRows + 1);
+	//double colX = columnOffset * ( lateral * (columnAngleX/* + rowAngleX)*/)) + (rowOffset % 2) * (lateral * columnAngleX) + radius * rowOffset * rowAngleX;
+	//double colY = rowOffset * (radius * 1.5 * rowAngleY) + lateral * columnOffset * columnAngleY;
+
+	double colX = columnOffset * columnUnit * columnAngleX + rowOffset * rowUnit * rowAngleX;
+	double colY = columnOffset * columnUnit * columnAngleY + rowOffset * rowUnit * rowAngleY;
+
+	return { colX, colY };
+}
+
+double HexagonTilingGeometry::findBestRadius(int widestRow, int longestColumn)
+{
+	double widthBased = (bounds.getWidth() - margin * (widestRow - 1)) / (2 * widestRow + 1) / LATERALRADIUSRATIO;
+	double heightBased = (2 * bounds.getHeight() - margin * 2 * LATERALRADIUSRATIO * (longestColumn + 1)) / (3 * longestColumn + 1);
 
 	return juce::jmin(widthBased, heightBased);
-}
-
-void HexagonTilingGeometry::recalculateProperties()
-{
-	incircleRadius = circumRadius * INCIRCLERADIUSRATIO;
-	incircleDiameter = incircleRadius * 2.0;
-
-	verticalMarginUnit = margin * INCIRCLEDIAMETERRATIO / 2.0;
-
-	tileBounds = calculateSmallestBounds();
 }
 
 void HexagonTilingGeometry::recalculateTransform(Point<float> rotateOrigin, bool centreAndScale)
@@ -162,7 +139,7 @@ void HexagonTilingGeometry::recalculateTransform(Point<float> rotateOrigin, bool
 		transformedBounds = tileBounds.transformedBy(transform);
 
 		// Find amount to scale by so it fits in the bounds
-		currentScaleFactor = juce::jmax(
+		rotationScalar = juce::jmax(
 			(float)bounds.getWidth() / transformedBounds.getWidth(),
 			(float)bounds.getHeight() / transformedBounds.getHeight()
 		);
@@ -170,102 +147,124 @@ void HexagonTilingGeometry::recalculateTransform(Point<float> rotateOrigin, bool
 		if (scaleToFit)
 		{
 			transform = transform.followedBy(
-				AffineTransform::scale(currentScaleFactor, currentScaleFactor, transformedBounds.getCentreX(), transformedBounds.getCentreY())
+				AffineTransform::scale(rotationScalar, rotationScalar, transformedBounds.getCentreX(), transformedBounds.getCentreY())
 			);
 		}
 	}
 }
 
-Array<Point<float>> HexagonTilingGeometry::calculateCentres(const TerpstraBoardGeometry& boardGeometry)
+Array<Point<float>> HexagonTilingGeometry::calculateCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctaves) const
 {
-	auto getCentreX = [&](int indexInRow, double oddRowOffset) {
-		return (incircleDiameter + margin) * indexInRow + oddRowOffset + tileBounds.getX();
-	};
-
 	Array<Point<float>> hexagonCentres;
 
-	float octaveColumnOffset = 0;
-	float octaveRowOffset = 0;
+	const int numColumnsInOctave = boardGeometry.getMaxHorizontalLineSize();
+	const int numRowsInOctave	 = boardGeometry.horizontalLineCount();
 
-	for (int octaveIndex = startingOctaveIndex; octaveIndex < startingOctaveIndex + numOctaves; octaveIndex++)
+	const int totalOctaves = abs(numOctaves - startingOctave);
+	const int maxRowLength = totalOctaves * numColumnsInOctave;
+	const int maxColumnLength = numRowsInOctave + BOARDROWOFFSET * (totalOctaves - 1);
+
+	const double rad = radius * verticalScalar;
+	const double lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+
+	int octaveColumnOffset = startingOctave * numColumnsInOctave;
+	int octaveRowOffset = startingOctave * BOARDROWOFFSET;
+
+	const double yUnit = distanceStepsAwayY(rad, margin, 1);
+	
+	double yCoordinate = startingCentre.y;
+
+	for (int octaveIndex = startingOctave; octaveIndex < startingOctave + numOctaves; octaveIndex++)
 	{
-		octaveColumnOffset = rowCount * octaveIndex;
-		octaveRowOffset = BOARDROWOFFSET * octaveIndex;
-
-		for (int row = 0; row < numRows; row++)
+		for (int row = 0; row < maxColumnLength; row++)
 		{
 			int rowCount = boardGeometry.horizontalLineSize(row);
 			int firstColumn = boardGeometry.firstColumnOffset(row) + octaveColumnOffset;
 
 			int octaveRow = row + octaveRowOffset;
 
-			float oddRow = (octaveRow % 2 == 0) ? 0 : incircleRadius + margin / 2.0;
-
-			float yCoordinate = octaveRow * (1.5 * circumRadius + verticalMarginUnit) + circumRadius + tileBounds.getY();
-
-			juce::Line<float> line(
-				Point<float>(getCentreX(firstColumn, oddRow) + incircleRadius, yCoordinate),
-				Point<float>(getCentreX(firstColumn + rowCount, oddRow), yCoordinate)
-			);
-
-			for (int i = 0; i < rowCount; i++)
+			for (int col = 0; col < rowCount; col++)
 			{
-				Point<float> centre = line.getPointAlongLine(i * (2 * incircleRadius + margin));
+				Point<float> centre = Point<float>(
+					// TODO: review implementation. this curently treats rows as zigzag 
+					startingCentre.x + distanceStepsAwayX(lat, margin, firstColumn + col, (octaveRow % 2)),
+					yCoordinate
+				);
 				centre.applyTransform(transform);
 				hexagonCentres.add(centre);
-				//DBG("TILING OCTAVE " + String(octaveIndex) + ": " + hexagonCentres[hexagonCentres.size() - 1].toString());
 			}
+
+			yCoordinate += yUnit;
 		}
+
+		octaveColumnOffset += numColumnsInOctave;
+		octaveRowOffset += BOARDROWOFFSET;
+		yCoordinate = startingCentre.y + distanceStepsAwayY(rad, margin, octaveRowOffset);
 	}
 
 	return hexagonCentres;
 }
 
-Array<Point<float>> HexagonTilingGeometry::calculateCentresFromFirstKeyCorner(const TerpstraBoardGeometry& boardGeometry)
+int HexagonTilingGeometry::verticalToSlantOffset(int rowNum, int offsetIn)
 {
-	return {};
+	return offsetIn - (rowNum / 2);
 }
 
-Array<Point<float>> HexagonTilingGeometry::calculateCentresFromFirstKeyCentre(const TerpstraBoardGeometry& boardGeometry, Point<float> firstKeyCentre)
+Array<Point<float>> HexagonTilingGeometry::calculateCentresSkewed(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctaves) const
 {
 	Array<Point<float>> hexagonCentres;
 
-	float octaveColumnOffset = 0;
-	float octaveRowOffset = 0;
+	const int numColumnsInOctave = boardGeometry.getMaxHorizontalLineSize() ;
+	const int numRowsInOctave = boardGeometry.horizontalLineCount();
 
-	for (int octaveIndex = startingOctaveIndex; octaveIndex < startingOctaveIndex + numOctaves; octaveIndex++)
+	const int totalOctaves = abs(numOctaves - startingOctave);
+	const int maxRowLength = totalOctaves * numColumnsInOctave;
+	const int maxColumnLength = numRowsInOctave + BOARDROWOFFSET * (totalOctaves - 1);
+
+	const double colX = columnAngleXComponent * horizontalScalar;
+	const double colY = columnAngleYComponent * horizontalScalar;
+	const double rowX = rowAngleXComponent    * verticalScalar;
+	const double rowY = rowAngleYComponent    * verticalScalar;
+
+	int octaveColumnOffset = startingOctave * numColumnsInOctave;
+	int octaveRowOffset = startingOctave * BOARDROWOFFSET;
+
+	for (int octaveIndex = startingOctave; octaveIndex < startingOctave + numOctaves; octaveIndex++)
 	{
-		octaveColumnOffset = rowCount * octaveIndex;
-		octaveRowOffset = BOARDROWOFFSET * octaveIndex;
-
-		for (int row = 0; row < numRows; row++)
+		for (int row = 0; row < maxColumnLength; row++)
 		{
-			int rowCount = boardGeometry.horizontalLineSize(row);
-			int firstColumn = boardGeometry.firstColumnOffset(row) + octaveColumnOffset;
+			int colStart = verticalToSlantOffset(row, boardGeometry.firstColumnOffset(row)) + octaveColumnOffset;
+			int colEnd = colStart + boardGeometry.horizontalLineSize(row);
 
 			int octaveRow = row + octaveRowOffset;
 
-			float yCoordinate = distanceStepsAwayY(circumRadius, margin, octaveRow) + firstKeyCentre.getY();
-
-			for (int i = 0; i < rowCount; i++)
+			for (int col = colStart; col < colEnd; col++)
 			{
-				Point<float> centre = Point<float>(distanceStepsAwayX(incircleRadius, margin, firstColumn + i, octaveRow) + firstKeyCentre.x, yCoordinate);
+				Point<float> centre = startingCentre.toFloat() + Point<float>(
+					col * colX + octaveRow * rowX,
+					col * colY + octaveRow * rowY
+				);
+
 				centre.applyTransform(transform);
 				hexagonCentres.add(centre);
 			}
 		}
+
+		octaveColumnOffset += (numColumnsInOctave-1);
+		octaveRowOffset += BOARDROWOFFSET;
 	}
 
 	return hexagonCentres;
 }
 
 
-Rectangle<float> HexagonTilingGeometry::calculateSmallestBounds()
+Rectangle<float> HexagonTilingGeometry::calculateSmallestBounds(int widestRowSize, int longestColumnSize) const
 {
-	int totalColumns = rowCount * numOctaves;
-	int totalRows = numRows + BOARDROWOFFSET * (numOctaves - 1);
+	float rad = radius * verticalScalar;
+	float lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+
 	return Rectangle<float>(
 		bounds.getX(), bounds.getY(),
-		calculateTileWidth(totalColumns, incircleRadius, margin), calculateTileHeight(totalRows, circumRadius, margin)
+		calculateTileWidth(widestRowSize, lat, margin), calculateTileHeight(longestColumnSize, rad, margin)
 	);
 }

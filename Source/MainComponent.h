@@ -34,8 +34,7 @@
 class MainContentComponent : public Component, 
 							 public TerpstraMidiDriver::Listener, 
 							 public ChangeListener,
-							 public Button::Listener,
-	public Slider::Listener
+							 public Button::Listener
 {
 public:
 	//==============================================================================
@@ -76,8 +75,6 @@ public:
     void resized();
 
 	void refreshAllKeysOverview();
-
-	void sliderValueChanged(Slider* slider) override;
 
 private:
     //==============================================================================
@@ -141,8 +138,4 @@ private:
     const Rectangle<float>   pedalSettingsBounds = { 7.0f / 9.0f,     settingsAreaY, 0.26f, settingsAreaHeight };
     const Rectangle<float>      curvesAreaBounds = { settingsColumnX, 0.7174f,       0.3626f, 0.21f };
 
-	//DEBUG
-
-	std::unique_ptr<Slider> marginRatioSlider;
-	std::unique_ptr<Slider> keyRotationSlider;
 };

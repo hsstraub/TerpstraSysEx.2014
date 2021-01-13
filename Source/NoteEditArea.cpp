@@ -41,7 +41,7 @@ static Random r;
 //==============================================================================
 NoteEditArea::NoteEditArea ()
     : Component("NoteEditArea"),
-	  currentSingleKeySelection(-1), tilingGeometry(boardGeometry.horizontalLineCount(), boardGeometry.getMaxHorizontalLineSize())
+	  currentSingleKeySelection(-1)
 {
     //[Constructor_pre] You can add your own custom stuff here..;
     //[/Constructor_pre]
@@ -165,22 +165,22 @@ void NoteEditArea::resized()
 
 	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
 
-	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry,
+	tilingGeometry.fitTilingTo(
 		keyEditBounds,
+		boardGeometry.getMaxHorizontalLineSize(),
+		boardGeometry.horizontalLineCount(),
 		round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
-		TERPSTRASINGLEKEYROTATIONANGLE
+		TERPSTRASINGLEKEYROTATIONANGLE, true
 	);
 
+	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry);
 	jassert(keyCentres.size() == TERPSTRABOARDSIZE);
 
-	//AffineTransform transform = tilingGeometry.getTransform();
 	float keySize = tilingGeometry.getKeySize();
 	
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
 		Point<float> centre = keyCentres[keyIndex];
-
-		//centre.applyTransform(transform);
 
 		terpstraKeyFields[keyIndex]->setKeySize(keySize);
 		terpstraKeyFields[keyIndex]->setCentrePosition(centre.roundToInt());

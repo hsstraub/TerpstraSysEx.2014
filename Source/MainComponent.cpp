@@ -43,20 +43,6 @@ MainContentComponent::MainContentComponent()
 	addAndMakeVisible(globalSettingsArea.get());
 	globalSettingsArea->listenToColourEditButtons(this);
 
-
-	// DEBUG
-	marginRatioSlider.reset(new Slider(Slider::SliderStyle::IncDecButtons, Slider::TextBoxAbove));
-	marginRatioSlider->setRange(0.0f, 25.0f, 0.01f);
-	marginRatioSlider->setValue(1.0f, NotificationType::dontSendNotification);
-	addAndMakeVisible(marginRatioSlider.get());
-	marginRatioSlider->addListener(this);
-
-	keyRotationSlider.reset(new Slider(Slider::SliderStyle::IncDecButtons, Slider::TextBoxAbove));
-	keyRotationSlider->setRange(-1.0f, 1.0f, 0.00001f);
-	keyRotationSlider->setValue(-0.27850f, NotificationType::dontSendNotification);
-	addAndMakeVisible(keyRotationSlider.get());
-	keyRotationSlider->addListener(this);
-
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	// Initial size
@@ -81,19 +67,6 @@ MainContentComponent::~MainContentComponent()
 	generalOptionsArea = nullptr;
 	curvesArea = nullptr;
 	globalSettingsArea = nullptr;
-}
-
-void MainContentComponent::sliderValueChanged(Slider* slider)
-{
-	if (slider == marginRatioSlider.get())
-	{
-		allKeysOverview->setKeysMargin(marginRatioSlider->getValue());
-	}
-
-	else if (slider == keyRotationSlider.get())
-	{
-		allKeysOverview->setKeysAngle(keyRotationSlider->getValue());
-	}
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -379,9 +352,6 @@ void MainContentComponent::resized()
 
 	int newKeysOverviewAreaHeight = jmax(controlsArea.getY() - midiAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
-
-	//marginRatioSlider->setBounds(0, allKeysOverview->getBottom(), proportionOfWidth(0.5f), 72);
-	//keyRotationSlider->setBounds(proportionOfWidth(0.5f), allKeysOverview->getBottom(), proportionOfWidth(0.5f), 72);
 
 	// Edit function/single key field area
 	noteEditArea->setSize(proportionOfWidth(assignWidth), proportionOfHeight(assignHeight));

@@ -52,6 +52,9 @@ private:
 
 	Image* colourGraphic = nullptr;
 	Image* shadowGraphic = nullptr;
+
+	//DEBUG
+	Colour keyColour;
 };
 
 //[/Headers]
@@ -86,10 +89,6 @@ public:
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
-	void setKeysMargin(float marginBoundsHeightRatio);
-	void setKeysAngle(float rotationAngle);
-
-
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	struct OctaveBoard
@@ -122,25 +121,31 @@ private:
 	const float imageY = 1.0f / 7.0f;
 	const float imageHeight = 5.0f / 7.0f;
 
-	
 	// In reference to lumatoneBounds
-	const float keybedX = 0.069286f;
-	const float keybedY = 0.2964286f;
-	const float keybedWidth = 0.875714286f;
-	const float keybedHeight = 0.57857143f;
-	const float keybedBottomX = 0.945f;
-	const float keybedBottomY = 0.875f;
+	const float keybedX = 0.06908748f;
+	const float keybedY = 0.29522687f;
+	
+	const float keybedBottomX = 0.9450601f;
+	const float keybedBottomY = 0.8744844f;
 
-	const float firstKeyX = 0.0842857f;
-	const float firstKeyY = 0.3357143f;
+	const float keyW = 0.027352f;
+	const float keyH = 0.07307f;
 
-	const float lastKeyX = 0.93f;
-	const float lastKeyY = 0.83036f;
+	// Key centers in reference to lumatoneBounds
+	const float oct1Key1X = 0.0839425f;
+	const float oct1Key1Y = 0.335887f;
+
+	const float oct1Key56X = 0.27304881f;
+	const float oct1Key56Y = 0.8314673f;
+
+	const float oct5Key7X = 0.878802f;
+	const float oct5Key7Y = 0.356511491f;
 
 	//===============================================================================
 
-	float keyMarginToRadius= 0.091f;
-	float keyRotationAngle = -0.27850f;
+	Point<float>  oct1Key1;
+	Point<float> oct1Key56;
+	Point<float>  oct5Key7;
 
     //[/UserVariables]
 
