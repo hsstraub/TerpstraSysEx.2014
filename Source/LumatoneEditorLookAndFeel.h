@@ -178,6 +178,43 @@ public:
         g.fillPath(getButtonShape(btn));
     }
 
+    void drawButtonText(Graphics& g, TextButton& btn, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
+    {
+        NamedValueSet properties = btn.getProperties();
+
+        if (properties.contains(LumatoneEditorStyleIDs::textButtonIconHashCode))
+        {
+            int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+            Font font = getTextButtonFont(btn, btn.getHeight());
+
+            Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
+            int iconH = font.getHeight();
+            int iconW = round(iconH * ((double)icon.getWidth() / icon.getHeight()));
+            icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
+
+            int margin = font.getStringWidth("_");
+            int lineX = round((btn.getWidth() - font.getStringWidth(btn.getButtonText()) - margin - iconW) / 2.0);
+            int iconY = round(btn.getHeight() - iconH) / 2.0;
+
+            g.drawImageAt(icon, lineX, iconY);
+
+            int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
+            Colour textColour = btn.findColour(colourId);
+            if (shouldDrawButtonAsHighlighted)
+                textColour = textColour.brighter();
+
+            g.setColour(textColour);
+            g.setFont(font);
+            int textX = lineX + margin + iconW;
+            g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(textX), Justification::left, 1);
+        }
+        else
+        {
+            LookAndFeel_V4::drawButtonText(g, btn, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
+        }
+    }
+
     //// TODO: REVIEW
     //void drawImageButton(Graphics& g, Image* img, int imageX, int imageY, int imageW, int imageH, const Colour& overlayColour, float imageOpacity, ImageButton& btn) override
     //{
@@ -729,9 +766,9 @@ private:
     /// </summary>
     void cacheImages()
     {
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportPreset2x_png, BinaryData::ImportPreset2x_pngSize), LumatoneEditorAssets::ImportPreset);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveFile2x_png,     BinaryData::SaveFile2x_pngSize),     LumatoneEditorAssets::SaveFile);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadFile2x_png,     BinaryData::LoadFile2x_pngSize),     LumatoneEditorAssets::LoadFile);
+        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize), LumatoneEditorAssets::ImportIcon);
+        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
+        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyboardBase_png,   BinaryData::KeyboardBase_pngSize),   LumatoneEditorAssets::LumatoneGraphic);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,  BinaryData::KeybedShadows_pngSize),  LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,     BinaryData::KeyShape2x_pngSize),     LumatoneEditorAssets::KeyShape);

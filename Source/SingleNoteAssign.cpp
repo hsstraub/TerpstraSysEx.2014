@@ -185,7 +185,8 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-    roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * roundedCornerLayoutAppHeightScalar);
+    if (getParentComponent()) // This changes when the tab changes
+        roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * roundedCornerLayoutAppHeightScalar);
 
     int controlAreaTop = proportionOfHeight(controlAreaYScalar);
 

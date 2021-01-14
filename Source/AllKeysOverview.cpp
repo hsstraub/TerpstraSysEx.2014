@@ -172,12 +172,15 @@ AllKeysOverview::AllKeysOverview()
 
     btnLoadFile.reset (new juce::TextButton ("btnLoadFile"));
     addAndMakeVisible (btnLoadFile.get());
+
     btnLoadFile->setButtonText (translate("LoadFile"));
+	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::LoadIcon);
     btnLoadFile->addListener (this);
 
     btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
     addAndMakeVisible (btnSaveFile.get());
     btnSaveFile->setButtonText (translate("SaveFile"));
+	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::SaveIcon);
     btnSaveFile->addListener (this);
 
     //[UserPreSize]
@@ -239,13 +242,12 @@ void AllKeysOverview::paint (juce::Graphics& g)
 	if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
 	{
 		Path selectionMarkPath;
-		auto yPos = getHeight() - TERPSTRAKEYSETVERTICALRIM / 2;
-		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection]->leftPos, yPos);
-		selectionMarkPath.lineTo(octaveBoards[currentSetSelection]->rightPos, yPos);
+		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection]->leftPos, octaveLineY);
+		selectionMarkPath.lineTo(octaveBoards[currentSetSelection]->rightPos, octaveLineY);
 
 		Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
 		g.setColour(lineColour);
-		g.strokePath(selectionMarkPath, PathStrokeType(4));
+		g.strokePath(selectionMarkPath, PathStrokeType(2.5f));
 	}
 
     //[/UserPaint]
@@ -257,12 +259,28 @@ void AllKeysOverview::resized()
 
 	// Prepare position helpers for graphics
 	int graphicHeight = roundToInt(getHeight() * imageHeight);
-	int graphicWidth  = roundToInt(imageAspect * graphicHeight);
+	int graphicWidth = roundToInt(imageAspect * graphicHeight);
 
 	lumatoneBounds.setBounds(
 		roundToInt((getWidth() - graphicWidth) / 2.0f), roundToInt(getHeight() * imageY),
 		graphicWidth, graphicHeight
 	);
+
+	int btnHeight = round(getHeight() * saveLoadH);
+	int btnMargin = round(getWidth() * saveloadMarginW);
+	int saveLoadWidth = round(getWidth() * saveLoadW);
+	int btnY = lumatoneBounds.getY() - round(getHeight() * btnYFromImageTop);
+	
+	int halfWidthX = round(getWidth() * 0.5f);
+
+	btnLoadFile->setBounds(halfWidthX - btnMargin - saveLoadWidth, btnY, saveLoadWidth, btnHeight);
+	btnSaveFile->setBounds(halfWidthX + btnMargin, btnY, saveLoadWidth, btnHeight);
+
+	octaveLineY = round(getHeight() * octaveLineYRatio);
+
+	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
+	int importWidth = round(getWidth() * importW);
+	//btnImportPreset->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
 
 	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
@@ -344,6 +362,16 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void AllKeysOverview::lookAndFeelChanged()
+{
+	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (lookAndFeel)
+	{
+		lookAndFeel->setupTextButton(*btnLoadFile);
+		lookAndFeel->setupTextButton(*btnSaveFile);
+	}
+}
 
 //[/MiscUserCode]
 

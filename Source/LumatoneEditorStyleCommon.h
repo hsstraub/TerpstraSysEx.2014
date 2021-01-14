@@ -12,6 +12,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "ImageResampling/ImageResampler.h"
 
 //==================================================================
 //
@@ -329,9 +330,9 @@ enum LumatoneEditorAssets
     EditMode            = 0x0001006,
     LiveEditor          = 0x0001007,
     OfflineEditor       = 0x0001008,
-    LoadFile            = 0x0002000,
-    SaveFile            = 0x0002001,
-    ImportPreset        = 0x0002002,
+    LoadIcon            = 0x0002000,
+    SaveIcon            = 0x0002001,
+    ImportIcon          = 0x0002002,
     LumatoneGraphic     = 0x0002100,
     KeybedShadows       = 0x0002101,
     KeyShape            = 0x0002200,
@@ -396,6 +397,17 @@ namespace LumatoneEditorStyleIDs
     static Identifier fontHeightScalar = Identifier("FontHeightScalar");
 
     static Identifier tabbedButtonBarDepthScalar = Identifier("TabbedButtonBarDepthScalar");
+
+    // The Image::Cache hash code for an icon that should be displayed on a TextButton
+    static Identifier textButtonIconHashCode = Identifier("TextButtonIconHashCode");
+
+    // Choose where to put the icon on a TextButton
+    static Identifier textButtonIconPlacement = Identifier("TextButtonIconPlacement");
+    enum TextButtonIconPlacement
+    {
+        LeftOfText = 0,
+        RightOfText
+    };
 
     // A TextButton will have an invisible background and an underline if it's properties contains this
     static Identifier textButtonHyperlinkFlag = Identifier("TextButtonHyperlinkFlag");

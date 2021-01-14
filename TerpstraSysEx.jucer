@@ -12,12 +12,10 @@
             file="BinaryData/TerpstraIcon.png"/>
       <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
         <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
-          <FILE id="GChWZB" name="ImportPreset.png" compile="0" resource="1"
-                file="BinaryData/Assets/PNG/ImportPreset.png"/>
-          <FILE id="WVwu75" name="ImportPreset@2x.png" compile="0" resource="1"
-                file="BinaryData/Assets/PNG/ImportPreset@2x.png"/>
-          <FILE id="I2I5L5" name="ImportPreset@4x.png" compile="0" resource="1"
-                file="BinaryData/Assets/PNG/ImportPreset@4x.png"/>
+          <FILE id="ozCTsq" name="SaveIcon@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveIcon@4x.png"/>
+          <FILE id="l3SxsH" name="ImportIcon@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/ImportIcon@4x.png"/>
+          <FILE id="Wgjm6l" name="LoadIcon@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadIcon@4x.png"/>
           <FILE id="TgrJU7" name="KeybedShadows.png" compile="0" resource="1"
                 file="BinaryData/Assets/PNG/KeybedShadows.png"/>
           <FILE id="LAdNgm" name="KeybedShadows@2x.png" compile="0" resource="1"
@@ -35,12 +33,6 @@
           <FILE id="PwZQ2J" name="KeyShape@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape@2x.png"/>
           <FILE id="dA6wjp" name="KeyShape@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape@4x.png"/>
           <FILE id="epJJ3W" name="LiveEditor.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LiveEditor.png"/>
-          <FILE id="dhwZZx" name="LoadFile.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadFile.png"/>
-          <FILE id="YvtUva" name="LoadFile@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadFile@2x.png"/>
-          <FILE id="E9FtFA" name="LoadFile@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadFile@4x.png"/>
-          <FILE id="iJnn1u" name="SaveFile.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveFile.png"/>
-          <FILE id="mJLtRU" name="SaveFile@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveFile@2x.png"/>
-          <FILE id="WyXfRw" name="SaveFile@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveFile@4x.png"/>
           <FILE id="CjCkFo" name="SavePalette.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SavePalette.png"/>
           <FILE id="frPcAM" name="SavePalette@2x.png" compile="0" resource="1"
                 file="BinaryData/Assets/PNG/SavePalette@2x.png"/>
