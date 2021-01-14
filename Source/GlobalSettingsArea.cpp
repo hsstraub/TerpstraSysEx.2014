@@ -29,66 +29,37 @@
 
 //==============================================================================
 GlobalSettingsArea::GlobalSettingsArea ()
+    : Component("GlobalSettingsArea")
 {
-    //[Constructor_pre] You can add your own custom stuff here..
+    lblPresetButtonColours.reset(new juce::Label("lblPresetButtonColours", translate("PresetButtonColours")));
+    addAndMakeVisible(lblPresetButtonColours.get());
+    lblPresetButtonColours->setFont(LumatoneEditorFonts::UniviaProBold());
+
+    activeMacroButtonColourEdit.reset(new ColourEditComponent());
+    addAndMakeVisible(activeMacroButtonColourEdit.get());
+    activeMacroButtonColourEdit->addChangeListener(this);
+
+    lblColourActiveMacroButton.reset(new juce::Label("lblColourActiveMacroButton", translate("Active")));
+    addAndMakeVisible(lblColourActiveMacroButton.get());
+    lblColourActiveMacroButton->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+
 	inactiveMacroButtonColourEdit.reset(new ColourEditComponent());
 	addAndMakeVisible(inactiveMacroButtonColourEdit.get());
-	inactiveMacroButtonColourEdit->setVisible(true);
 	inactiveMacroButtonColourEdit->addChangeListener(this);
 
-	activeMacroButtonColourEdit.reset(new ColourEditComponent());
-	addAndMakeVisible(activeMacroButtonColourEdit.get());
-	activeMacroButtonColourEdit->setVisible(true);
-	activeMacroButtonColourEdit->addChangeListener(this);
-    //[/Constructor_pre]
+    lblColourInactiveMacroButton.reset(new juce::Label("lblColourInactiveMacroButton", translate("Inactive")));
+    addAndMakeVisible(lblColourInactiveMacroButton.get());
+    lblPresetButtonColours->setFont(LumatoneEditorFonts::UniviaProBold());
 
-    lblPresetButtonColours.reset (new juce::Label ("lblPresetButtonColours",
-                                                   TRANS("Preset Button Colours:")));
-    addAndMakeVisible (lblPresetButtonColours.get());
-    lblPresetButtonColours->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    lblPresetButtonColours->setJustificationType (juce::Justification::centredLeft);
-    lblPresetButtonColours->setEditable (false, false, false);
-    lblPresetButtonColours->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    lblPresetButtonColours->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    lblPresetButtonColours->setBounds (0, 8, 150, 24);
-
-    lblColourInactiveMacroButton.reset (new juce::Label ("lblColourInactiveMacroButton",
-                                                         TRANS("inactive")));
-    addAndMakeVisible (lblColourInactiveMacroButton.get());
-    lblColourInactiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    lblColourInactiveMacroButton->setJustificationType (juce::Justification::centredLeft);
-    lblColourInactiveMacroButton->setEditable (false, false, false);
-    lblColourInactiveMacroButton->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    lblColourInactiveMacroButton->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    lblColourInactiveMacroButton->setBounds (152, 32, 64, 24);
-
-    lblColourActiveMacroButton.reset (new juce::Label ("lblColourActiveMacroButton",
-                                                       TRANS("active")));
-    addAndMakeVisible (lblColourActiveMacroButton.get());
-    lblColourActiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    lblColourActiveMacroButton->setJustificationType (juce::Justification::centredLeft);
-    lblColourActiveMacroButton->setEditable (false, false, false);
-    lblColourActiveMacroButton->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    lblColourActiveMacroButton->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    lblColourActiveMacroButton->setBounds (152, 8, 56, 24);
 
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
-    buttonCalibrate->setTooltip (TRANS("Calibrate keys aftertouch"));
-    buttonCalibrate->setButtonText (TRANS("Calibrate Keys"));
+    buttonCalibrate->setTooltip (translate("CalibrateKeys") + " " + translate("Aftertouch"));
+    buttonCalibrate->setButtonText (translate("CalibrateKeys"));
     buttonCalibrate->addListener (this);
-
-    buttonCalibrate->setBounds (336, 8, 112, 24);
-
 
     //[UserPreSize]
     //[/UserPreSize]
-
-    setSize (456, 64);
-
 
     //[Constructor] You can add your own custom stuff here..
 	// Set values according to the properties files
@@ -119,7 +90,7 @@ void GlobalSettingsArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff323e44));
+    //g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -128,8 +99,37 @@ void GlobalSettingsArea::paint (juce::Graphics& g)
 void GlobalSettingsArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	inactiveMacroButtonColourEdit->setBounds(210, 8, 196, 24);
-	activeMacroButtonColourEdit->setBounds(210, 32, 196, 24);
+
+    // Build right-to-left
+
+    int calbrateBtnHeight = roundToInt(getHeight() * calibrateHeight);
+    int calibrateWidth = getLookAndFeel().getTextButtonWidthToFitText(*buttonCalibrate, calbrateBtnHeight);
+    
+    buttonCalibrate->setSize(calibrateWidth, calbrateBtnHeight);
+    buttonCalibrate->setTopRightPosition(getWidth(), roundToInt((getHeight() - buttonCalibrate->getHeight()) / 2.0f));
+    
+    float margin = roundToInt(getHeight() * 0.1f);
+    float colourEditHeight = proportionOfHeight(controlsHeight);
+    float controlY = proportionOfHeight((1 - controlsHeight) / 2.0f);
+    float colourButtonWidth = colourEditHeight * colourButtonAspect;
+    Font colourLabelsFont = LumatoneEditorFonts::FranklinGothic(colourEditHeight * 1.1f);
+
+    lblColourInactiveMacroButton->setFont(colourLabelsFont);
+    resizeLabelWithHeight(lblColourInactiveMacroButton.get(), colourEditHeight);
+    lblColourInactiveMacroButton->setTopRightPosition(buttonCalibrate->getX() - margin, controlY);
+
+    inactiveMacroButtonColourEdit->setSize(colourButtonWidth, colourEditHeight);
+    inactiveMacroButtonColourEdit->setTopRightPosition(lblColourInactiveMacroButton->getX() - margin, controlY);
+
+    lblColourActiveMacroButton->setFont(colourLabelsFont);
+    resizeLabelWithHeight(lblColourActiveMacroButton.get(), colourEditHeight);
+    lblColourActiveMacroButton->setTopRightPosition(inactiveMacroButtonColourEdit->getX() - margin, controlY);
+
+    activeMacroButtonColourEdit->setSize(colourButtonWidth, colourEditHeight);
+    activeMacroButtonColourEdit->setTopRightPosition(lblColourActiveMacroButton->getX() - margin, controlY);
+
+    resizeLabelWithHeight(lblPresetButtonColours.get(), colourEditHeight);
+    lblPresetButtonColours->setTopRightPosition(activeMacroButtonColourEdit->getX() - margin, controlY);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
@@ -158,6 +158,17 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void GlobalSettingsArea::lookAndFeelChanged()
+{
+    lblPresetButtonColours->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::LabelPink));
+
+    lblColourActiveMacroButton->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
+    lblColourInactiveMacroButton->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
+
+    buttonCalibrate->setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
+    buttonCalibrate->setColour(TextButton::ColourIds::textColourOffId, Colour(0xffffffff));
+}
 
 void GlobalSettingsArea::changeListenerCallback(ChangeBroadcaster *source)
 {
@@ -191,6 +202,11 @@ void GlobalSettingsArea::saveStateToPropertiesFile(PropertiesFile* propertiesFil
 	propertiesFile->setValue("ActiveMacroButtonColour", activeMacroButtonColour);
 }
 
+void GlobalSettingsArea::listenToColourEditButtons(Button::Listener* listenerIn)
+{
+    inactiveMacroButtonColourEdit->addListener(listenerIn);
+    activeMacroButtonColourEdit->addListener(listenerIn);
+}
 //[/MiscUserCode]
 
 

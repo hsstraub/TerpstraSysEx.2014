@@ -15,6 +15,7 @@
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
+#include "LocalisationMap.h"
 
 
 //==============================================================================
@@ -42,6 +43,7 @@ public:
 
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
+	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
@@ -88,13 +90,14 @@ public:
 	class MainWindow : public DocumentWindow
 	{
 	public:
-		MainWindow() : DocumentWindow("Lumatone Editor",
-			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(DocumentWindow::backgroundColourId)),
-			DocumentWindow::allButtons)
+		MainWindow() : DocumentWindow("Lumatone Editor", 
+			TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground),
+			DocumentWindow::minimiseButton + DocumentWindow::closeButton)
 		{
 			setContentOwned(new MainContentComponent(), true);
 
-			setResizable(true, false);
+			setResizable(true, true);
+			setConstrainer(TerpstraSysExApplication::getApp().getBoundsConstrainer());
 			centreWithSize(getWidth(), getHeight());
 #if JUCE_ANDROID
 			setFullScreen(true);
@@ -111,6 +114,11 @@ public:
 			JUCEApplication::getInstance()->systemRequestedQuit();
 		}
 
+		BorderSize<int> getBorderThickness() override
+		{
+			return BorderSize <int>(1);
+		}
+
 		/* Note: Be careful if you override any DocumentWindow methods - the base
 		class uses a lot of them, so by overriding you might break its functionality.
 		It's best to do all your work in your content component instead, but if
@@ -124,10 +132,13 @@ public:
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
+
+	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
+
 	std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
-	LookAndFeel_V4				lookAndFeel;
+	LumatoneEditorLookAndFeel	lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;

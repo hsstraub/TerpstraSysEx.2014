@@ -23,8 +23,11 @@
 #include <JuceHeader.h>
 
 #include "KeyboardDataStructure.h"
-#include "TerpstraMidiDriver.h"
+#include "HexagonTilingGeometry.h"
+
+#include "ImageResampling\ImageResampler.h"
 #include "BoardGeometry.h"
+#include "TerpstraMidiDriver.h"
 
 
 // Representation of a key inside the overview
@@ -38,6 +41,9 @@ public:
 	void resized() override;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const juce::MouseEvent& e) override;
+
+
+	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
@@ -53,8 +59,13 @@ private:
 
 	int boardIndex = -1;
 	int keyIndex = -1;
-	Path hexPath;
 	bool isHighlighted = false;
+
+	Image* colourGraphic = nullptr;
+	Image* shadowGraphic = nullptr;
+
+	//DEBUG
+	Colour keyColour;
 };
 
 //[/Headers]
@@ -89,20 +100,76 @@ public:
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
-
+	void lookAndFeelChanged() override;
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	struct OctaveBoard
 	{
-		std::unique_ptr<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay[56];
+		OwnedArray<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay;
 		int leftPos;
 		int rightPos;
 	};
 
-	OctaveBoard octaveBoards[NUMBEROFBOARDS];
+	OwnedArray<OctaveBoard> octaveBoards;
 
 	int			currentSetSelection;
+
+	HexagonTilingGeometry tilingGeometry;
+
+	Image keyColourLayer;
+	Image keyShadowLayer;
+
+	//==============================================================================
+	// Style helpers
+
+	Rectangle<int> lumatoneBounds;
+	int octaveLineY = 0;
+	
+	Image lumatoneGraphic;
+	Image keyShapeGraphic;
+	Image keyShadowGraphic;
+
+	//==============================================================================
+	// Position and sizing constants in reference to parent bounds
+
+	const float imageAspect = 2.498233f;
+	const float imageY      = 1.0f / 7.0f;
+	const float imageHeight = 5.0f / 7.0f;
+
+	const float importYFromImageTop = 0.0752688f;
+	const float importH             = 0.0526882f;
+	const float importW             = 0.132f;
+
+	const float btnYFromImageTop    = 0.04172043f;
+	const float saveLoadW           = 0.07416f;
+	const float saveLoadH           = 0.0537634f;
+	const float saveloadMarginW     = 0.0034f;
+
+	const float filenameBaselineY   = 0.1221505f;
+
+	const float octaveLineYRatio    = 0.0236559f;
+
+	// In reference to lumatoneBounds
+	const float keybedX = 0.06908748f;
+	
+	const float keyW = 0.027352f;
+	const float keyH = 0.07307f;
+
+	const float oct1Key1X = 0.0839425f;
+	const float oct1Key1Y = 0.335887f;
+
+	const float oct1Key56X = 0.27304881f;
+	const float oct1Key56Y = 0.8314673f;
+
+	const float oct5Key7X = 0.878802f;
+	const float oct5Key7Y = 0.356511491f;
+
+	//===============================================================================
+
+	Point<float>  oct1Key1;
+	Point<float> oct1Key56;
+	Point<float>  oct5Key7;
 
 	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;

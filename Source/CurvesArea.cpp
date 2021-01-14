@@ -37,28 +37,35 @@ void CurvesArea::CurvesTabComponent::currentTabChanged(int newCurrentTabIndex, c
 	dynamic_cast<VelocityCurveDlgBase*>(getTabContentComponent(newCurrentTabIndex))->loadFromMapping();
 }
 
+void CurvesArea::CurvesTabComponent::setTabsIndent(int indentWidthIn)
+{
+    currentTabIndent = indentWidthIn;
+}
+
+void CurvesArea::CurvesTabComponent::resized()
+{
+    TabbedComponent::resized();
+    getTabbedButtonBar().setBounds(currentTabIndent, 0, getWidth() - currentTabIndent, getTabBarDepth());
+}
+
 //[/MiscUserDefs]
 
 //==============================================================================
 CurvesArea::CurvesArea ()
+    : Component("CurvesArea")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
-                                             TRANS("Curves")));
+    labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
-    labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
-    labelWindowTitle->setEditable (false, false, false);
-    labelWindowTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelWindowTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelWindowTitle->setBounds (8, 8, 150, 24);
+    labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
+    labelWindowTitle->setColour (Label::backgroundColourId, Colour());
 
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
+
     curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
 
@@ -73,10 +80,8 @@ CurvesArea::CurvesArea ()
 
 
     //[UserPreSize]
+
     //[/UserPreSize]
-
-    setSize (472, 240);
-
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
@@ -102,27 +107,31 @@ void CurvesArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff323e44));
+    //g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
+
+    //==========================================================================
+    // DEBUG DRAWING
+    Rectangle<float> controlsBounds = getLocalBounds().toFloat().withTop(curvesTab->getBottom());
+    g.setColour(Colour(0xffc19520));
+    g.drawRoundedRectangle(controlsBounds, getParentHeight() * roundedCornerLayoutAppHeightScalar, 1.0f);
+
+    g.setColour(Colour(0xffcd6f2e));
+    g.drawRect(getLocalBounds());
+    //==========================================================================
+
     //[/UserPaint]
 }
 
 void CurvesArea::resized()
 {
-    //[UserPreResize] Add your own custom resize code here..
-	int newWidth = getWidth();
-	int newHeight = getHeight();
-	int curvesTabRimLeft = labelWindowTitle->getX();
-	int curvesTabYPos = labelWindowTitle->getBottom() + CURVETABRIMABOVE;
+    int tabBarDepth = roundToInt(getHeight() * tabDepth);
+    resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth);
 
-	int newTabCompWidth = jmax(newWidth - 2 * curvesTabRimLeft, MINIMALCURVESAREAWIDTH);
-	int newTabCompHeight = jmax(newHeight - curvesTabYPos, MINIMALCURVESAREAHEIGHT);
-    //[/UserPreResize]
-
-    //[UserResized] Add your own custom resize handling here..
-	curvesTab->setBounds(curvesTabRimLeft, curvesTabYPos, newTabCompWidth, newTabCompHeight);
-    //[/UserResized]
+    curvesTab->setTabBarDepth(tabBarDepth);
+    curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));
+    curvesTab->setBounds(getLocalBounds());
 }
 
 void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)

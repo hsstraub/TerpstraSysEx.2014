@@ -16,7 +16,9 @@
 //==============================================================================
 MainContentComponent::MainContentComponent()
 	: copiedSubBoardData()
-{
+{ 
+	setName("MainContentComponent");
+
 	// Midi input + output
 	midiEditArea.reset(new MidiEditArea());
 	addAndMakeVisible(midiEditArea.get());
@@ -29,6 +31,7 @@ MainContentComponent::MainContentComponent()
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
 	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
+	noteEditArea->registerPaletteWindowRequestListener(this);
 
 	generalOptionsArea.reset(new GeneralOptionsDlg());
 	addAndMakeVisible(generalOptionsArea.get());
@@ -38,6 +41,7 @@ MainContentComponent::MainContentComponent()
 
 	globalSettingsArea.reset(new GlobalSettingsArea());
 	addAndMakeVisible(globalSettingsArea.get());
+	globalSettingsArea->listenToColourEditButtons(this);
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
@@ -295,9 +299,37 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 	}
 }
 
+void MainContentComponent::buttonClicked(Button* btn)
+{
+	// If this resolves, colour palette window was requested
+	ColourEditComponent* colourEdit = dynamic_cast<ColourEditComponent*>(btn);
+
+	if (colourEdit)
+	{
+		// TODO: Initialize with palettes
+		//       Set swatch # or custom colour as current colour
+		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow({}/*TODO*/);
+		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
+		paletteWindow->listenToColourSelection(colourEdit);
+
+		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());
+
+		CallOutBox& popupBox = CallOutBox::launchAsynchronously(
+			std::unique_ptr<Component>(paletteWindow),
+			componentArea,
+			this
+		);
+
+		popupBox.setLookAndFeel(&getLookAndFeel());
+	}
+}
+
 void MainContentComponent::paint (Graphics& g)
 {
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.fillAll(getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground));
+
+	g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
+	g.fillRect(controlsArea);
 }
 
 void MainContentComponent::resized()
@@ -309,33 +341,33 @@ void MainContentComponent::resized()
 	int newHeight = getHeight();
 
 	// Logo, MIDI edit area and connection state
-	int midiAreaWidth = midiEditArea->getWidth();
-	int midiAreaHeight = midiEditArea->getHeight();
-	int midiAreaXPos = jmax(newWidth - midiAreaWidth, 0);
-	midiEditArea->setBounds(midiAreaXPos, 0, midiAreaWidth, midiAreaHeight);
+	int midiAreaHeight = proportionOfHeight(headerHeight);
+	midiEditArea->setBounds(0, 0, getWidth(), midiAreaHeight);
+
+	// Bounds for controls, where background is darker
+	int footerY = proportionOfHeight(footerAreaY);
+	int footerHeight = getHeight() - footerY;
+	controlsArea = getBounds().withTop(proportionOfHeight(controlsAreaY)).withBottom(footerY);
 
 	// All keys overview/virtual keyboard playing
 	// New height of subset field area, with minimal value
 	int noteEditAreaWidth = noteEditArea->getWidth();
 	int noteEditAreaHeight = noteEditArea->getHeight();
 
-	int newKeysOverviewAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
-
+	int newKeysOverviewAreaHeight = jmax(controlsArea.getY() - midiAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
 	// Edit function/single key field area
-	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
-
-	int optionsAreaWidth = jmax(newWidth - noteEditAreaWidth, MINIMALCURVESAREAWIDTH);
+	noteEditArea->setSize(proportionOfWidth(assignWidth), proportionOfHeight(assignHeight));
+	noteEditArea->setControlsTopLeftPosition(proportionOfWidth(assignMarginX), controlsArea.getY());
 	
-	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
-	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+	generalOptionsArea->setBounds(getLocalBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
+	curvesArea->setBounds(getLocalBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
 
-	int curvesAreaYPos = generalOptionsArea->getBottom();
-	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
-	curvesArea->setBounds(noteEditAreaWidth, curvesAreaYPos, optionsAreaWidth, curvesAreaHeight);
-
-	globalSettingsArea->setBounds(noteEditAreaWidth, curvesArea->getBottom(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
+	globalSettingsArea->setBounds(getLocalBounds()
+		.withTop(roundToInt(getHeight() * footerAreaY))
+		.withTrimmedRight(footerHeight)
+	);
 }
 
 void MainContentComponent::refreshAllKeysOverview()

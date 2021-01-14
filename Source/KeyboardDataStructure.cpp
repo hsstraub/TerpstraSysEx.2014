@@ -269,8 +269,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				else
 					jassert(false);
 			}
-			else
-				jassert(false);
 		}
 		else if ((pos1 = currentLine.indexOf("KTyp_")) >= 0)
 		{
@@ -286,8 +284,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 					else
 						jassert(false);
 				}
-				else
-					jassert(false);
 			}
 			else
 				jassert(false);
@@ -352,6 +348,8 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 StringArray TerpstraKeyMapping::toStringArray()
 {
 	StringArray result;
+
+	// ToDO Write version (for detection of old 56-key layout - those will be layouts with 56 keys but without version)
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 	{
 		result.add("[Board" + String(boardIndex) + "]");

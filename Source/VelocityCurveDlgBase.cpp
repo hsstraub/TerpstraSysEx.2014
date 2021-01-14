@@ -41,15 +41,14 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
     cbEditMode->setJustificationType (juce::Justification::centredLeft);
-    cbEditMode->setTextWhenNothingSelected (TRANS("Select drawing mode"));
-    cbEditMode->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbEditMode->addItem (TRANS("Free drawing"), 1);
-    cbEditMode->addItem (TRANS("Linear"), 2);
-    cbEditMode->addItem (TRANS("Quadratic"), 3);
+    cbEditMode->setTextWhenNothingSelected (translate("SelectDrawingMode"));
+    cbEditMode->setTextWhenNoChoicesAvailable (translate("NoChoices"));
+    cbEditMode->addItem (translate("FreeDrawing"), 1);
+    cbEditMode->addItem (translate("Linear"), 2);
+    cbEditMode->addItem (translate("Quadratic"), 3);
     cbEditMode->addListener (this);
 
     cbEditMode->setBounds (8, 8, 296, 24);
-
 
     //[UserPreSize]
 

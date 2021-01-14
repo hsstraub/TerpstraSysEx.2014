@@ -10,7 +10,8 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "ScaleMath.h"
+#include "Common.h"
+#include "Symmetry.h"
 
 class ScaleStructure
 {
@@ -31,6 +32,9 @@ class ScaleStructure
 	Array<PointPair<int>> pgCoords; // Hex Coordinates of period and generator
 	Array<Point<int>> stepSizes; // Hex step sizes
 
+	// Array of scale steps each scale size level creates
+	Array<Array<int>> scalesInIntervals;
+
 	// A list of scale degrees from the generator stacked period number of times. Takes offset into account.
 	// For fractional periods, 
 	Array<int> generatorChain;
@@ -47,6 +51,15 @@ class ScaleStructure
 	// List of scale degrees of how they're grouped - different than generatorChain for fractional periods
 	Array<int> groupChain;
 
+	// Map of scale degree -> groupChain index
+	Array<int> groupChainDegreeIndicies;
+
+	// Map of group chain indicies -> degree group index
+	Array<int> degreeGroupChainMap;
+
+	// Sorted array of scale degrees that make up the first degree group
+	Array<int> nominalScaleDegrees;
+
 	// List of user-chosen alterations by group chain index
 	// X-value is chroma level, Y-value is alteration amount
 	// A chroma level of -1 is used if there is no alteration
@@ -59,6 +72,18 @@ class ScaleStructure
 	// May removed one method if one is determined to be objectively wrong
 	bool alterationsAttachedToDegree = false;
 
+	// Used in degree grouping related functions to make sure that the groups 
+	// can be arranged on a circle with symmetrically so that each group has
+	// a group of the same size on the other side of the circle (horizontally across),
+	// except for the first group and the middle group (for odd-amounts of groups).
+	bool retainGroupingSymmetry = true;
+
+	// Used in degree grouping related functions to make sure that the groups'
+	// sizes are restricted to sizes supported by the MOS properties
+	// This allows for consistency with the scale's natural properties which 
+	// lends well particularly for notation and theory.
+	bool retainMOSGroupSizes = true;
+
 private:
 	/*
 		Private methods
@@ -70,15 +95,12 @@ private:
 	// Uses scale properties to determine hex step sizes
 	void calculateStepSizes();
 
+	void calculateIntervalScales();
+
 	// Enumerates the scale as a chain of generators
 	void calculateGeneratorChain();
 
-	// Fills arrays of degrees based on degreeGroupIndexedSizes. Use this if group sizes haven't been arranged symmetrically
-	// Starts at beginning of generatorChain and puts the succeeding degrees in the second group, but wraps to degrees
-	// preceding the generatorChain beginning into the third group, and alternates to fill all degrees
-	void fillGroupingSymmetrically();
-
-	// Takes an already 'symmetricized' group size array and fills groups of degrees based on this.
+	// Takes an symmetric group size array and fills groups of degrees based on this.
 	void fillSymmetricGrouping(bool applyAlterations=true);
 
 	// Swaps degrees in generator chain based off of modifications
@@ -161,6 +183,15 @@ public:
 	Array<int> getGeneratorChain() const;
 	Array<int> getGroupChain() const;
 
+	bool isRetainingSymmetry() const;
+
+	bool isRetainingMOSSizes() const;
+
+	/*
+		Returns the group chain index of the input scale degree
+	*/
+	int getGroupChainIndexOfDegree(int degreeIn) const;
+
 	// Returns an array of indicies reffering to scale sizes of degree groups
 	Array<int> getGroupingIndexedSizes() const;
 
@@ -179,6 +210,11 @@ public:
 		Used for determining the colour of the scale degree 
 	*/
 	int getGroupOfDegree(int scaleDegreeIn) const;
+
+	/*
+		Returns the index of the group the group chain index falls in
+	*/
+	int getGroupOfDegreeIndex(int groupChainIndex) const;
 
 	/*
 		Finds the generator chain indices a given degree can be altered to
@@ -217,7 +253,6 @@ public:
 	*/
 	void attachAlterationsToDegree(bool isAttachedToDegree);
 
-
 	void setAlterationOfDegree(int degreeIndexIn, Point<int> alteration);
 	void resetAlterationOfDegree(int degreeIndexIn);
 
@@ -225,11 +260,71 @@ public:
 	void setSizeIndex(int index);
 	void setGeneratorOffset(int offsetIn);
 
+	void setRetainGroupingSymmetry(bool isSymmetric);
+	void setRetainMOSSizes(bool retainSizes);
+
 	/*
 		Input a mapping of scale degrees and chroma alteration values.
 		Must be equal to size of period
 	*/
 	bool setChromaAlterations(Array<Point<int>> chromaAlterationsIn);
+
+	Array<int> getNominalScaleDegrees() const;
+
+	/*
+		Returns the degree group on the other side of the grouping cirle horizontally if groupings are symmetric.
+		If there is no opposite it will return itself.
+		If the grouping is not symmetric, it will return -1;
+	*/
+	int getSymmetricGroup(int groupIndexIn) const;
+
+	/*
+		Input a degree group index and get chain indicies that the edge of a group can move to.
+		If retainMOSGroupSizes, then the degree indicies are only what can create supported MOS sizes out of
+		the group and adjacent group sizes.
+		If retainGroupSymmetry, the y value corresponds to the degree indicies of the symmetric group.
+
+		The first value will always refer to the adjacent CCW edge that the group edge can move to, and 
+		the second value will always refer to the adjacent CW edge.
+	*/
+	Array<Point<int>> findIndiciesForGroupResizing(int groupIndexIn) const;
+
+
+	/*
+		Input a degree group index and get group chain indicies that the edge of a group can move to.
+		If retainMOSGroupSizes, then the degree indicies are only what can create supported MOS sizes out of
+		the new group size and the remaining new group to be created.
+		If retainGroupSymmetry, the y value corresponds to the degree indicies of the symmetric group.
+	*/
+	Array<Point<int>> findIndiciesForGroupSplitting(int groupIndexIn, bool newGroupClockwise) const;
+
+	/*
+		Sets and updates degree grouping arrangment.
+		If the passed in grouping contains invalid scale size indicies and if they do not
+		add to the period, then it will not be applied.
+		If retainSymmetry is true, this will check if the grouping is symmetric, and won't apply it if not.
+	*/
+	void setDegreeGrouping(Array<int> groupingSizeIndiciesIn);
+
+	/*
+		Splits a group index into two groups. The two sizes added must equal original size.
+		If newGroupClockwise is true, the new group using the remainder size will be added
+		clockwise to the original group.
+		If retaining symmetry, this also effects the group on the other side.
+	*/
+	void splitDegreeGroup(int groupIndexIn, int sizeChangeAmount);
+
+	/*
+		Resizes two adjacent groups, where the passed in group's size will have the passed in sizeChangeAmount added.
+		If retaining symmetry, this also effects the groups on the other side.
+	*/
+	void resizeDegreeGroup(int groupIndex, int sizeChangeAmount, bool draggedClockwise);
+
+	/*
+		Merges two adjacent groups. The new group size must be a valid size that the scale structure supports.
+		If retaining symmetry, this also effects the group on the other side.
+	*/
+	void mergeDegreeGroups(int groupIndex);
 
 	// Returns the index whose generator is closest to a perfect fifth
 	int getSuggestedGeneratorIndex();
@@ -242,11 +337,13 @@ public:
 	Array<int> getComplimentarySizeGrouping();
 	void useSuggestedSizeGrouping();
 
-	// Returns the scale as a string of step sizes and puts integer values into passed in point reference
-	String getIntervalSteps(Point<int>& stepSizesOut);
+	/*
+		Returns the scale as a string of step sizes and puts integer values into passed in point reference
+	*/
+	String getIntervalSteps(Point<int>& stepSizesOut, bool withModifications = true);
 
 	// Returns the scale as a string of step sizes
-	String getIntervalSteps();
+	String getIntervalSteps(bool withModifications = true);
 
 	// Returns the scale as a string of L and s step sizes
 	String getLsSteps();

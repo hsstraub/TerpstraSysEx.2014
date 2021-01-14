@@ -20,11 +20,12 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
+#include "ColourPaletteComponent.h"
 
 /*
 ==============================================================================
-Combo box with colours
+Combo box with colours - unused with new GUI design
 ==============================================================================
 */
 
@@ -81,42 +82,52 @@ public:
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ColourEditComponent  : public Component,
-                             public ChangeListener,
+class ColourEditComponent  : public Button,
                              public ChangeBroadcaster,
-                             public juce::Button::Listener,
-                             public juce::ComboBox::Listener
+                             public ColourSelectionListener
 {
 public:
     //==============================================================================
-    ColourEditComponent ();
+    ColourEditComponent (Colour initialColour = Colour(0xff5c7cf2));
     ~ColourEditComponent() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void changeListenerCallback(ChangeBroadcaster *source) override;
+	//void changeListenerCallback(ChangeBroadcaster *source) override;
 
 	void setColour(String colourAsString);
 	String getColourAsString();
 	int getColourAsNumber();
-	void addColourToBox(int newColourAsNumber);
+    Colour getColourAsObject();
+	//void addColourToBox(int newColourAsNumber);
     //[/UserMethods]
 
-    void paint (juce::Graphics& g) override;
-    void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
-    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    //void paint (juce::Graphics& g) override;
+    //void resized() override;
+    //void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    //void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
+    void paintButton(Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    //==============================================================================
+    // ColourSelectionListener implementation
+
+    void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::unique_ptr<ColourComboLookAndFeel> colourComboLookAndFeel;
+    //std::unique_ptr<ColourComboLookAndFeel> colourComboLookAndFeel;
+
+    Colour currentColour = Colour(0xffd1d1d1);
+    String currentColourAsString = currentColour.toString();
+    float brightnessAdjust = 0.0f;
+
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::TextButton> btnColourPicker;
-    std::unique_ptr<ColourComboBox> colourCombo;
+    //std::unique_ptr<juce::TextButton> btnColourPicker;
+    //std::unique_ptr<ColourComboBox> colourCombo;
 
 
     //==============================================================================

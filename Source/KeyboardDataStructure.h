@@ -80,6 +80,9 @@ A complete key mapping
 */
 #define NUMBEROFBOARDS 5
 
+// Number of rows by which each octave board is offset
+#define BOARDROWOFFSET 2
+
 // Number of entries in the velocity interval table
 #define VELOCITYINTERVALTABLESIZE 127
 

@@ -41,7 +41,7 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
     channelBox->setEditableText (false);
     channelBox->setJustificationType (juce::Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (juce::String());
-    channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    channelBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     channelBox->addListener (this);
 
     channelBox->setBounds (0, 8, 48, 24);
@@ -60,7 +60,7 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
 
     btnFileSelectMacro.reset (new juce::TextButton ("btnFileSelectMacro"));
     addAndMakeVisible (btnFileSelectMacro.get());
-    btnFileSelectMacro->setButtonText (TRANS("..."));
+    btnFileSelectMacro->setButtonText (translate("..."));
     btnFileSelectMacro->addListener (this);
 
     btnFileSelectMacro->setBounds (168, 8, 24, 24);
@@ -73,7 +73,7 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
 
 
     //[Constructor] You can add your own custom stuff here..
-    channelBox->addItem("none", -1);      // Empty value
+    channelBox->addItem(translate("None"), -1);      // Empty value
 
     for (int i = 1; i <= 16; i++)
         channelBox->addItem(String(i), i);

@@ -49,6 +49,10 @@ public:
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+
+    void listenToColourEditButtons(Button::Listener* listenerIn);
+
+    void lookAndFeelChanged() override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -61,6 +65,21 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<ColourEditComponent> inactiveMacroButtonColourEdit;
 	std::unique_ptr<ColourEditComponent> activeMacroButtonColourEdit;
+
+    //==============================================================================
+    // Style helpers
+    FlexBox flexBox;
+
+    //==============================================================================
+    // Size and position constants
+
+    const float colourButtonAspect          = 21.0f / 17.0f;
+    const float inactiveButtonAspect        = 108.0f / 23.0f;
+
+    const float controlsHeight              = 1.0f / 3.0f;
+
+    const float calibrateX                  = 0.25f;
+    const float calibrateHeight             = 0.55f;
     //[/UserVariables]
 
     //==============================================================================

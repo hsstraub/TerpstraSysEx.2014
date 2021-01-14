@@ -10,8 +10,80 @@
             file="BinaryData/LumatoneIcon.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
             file="BinaryData/TerpstraIcon.png"/>
+      <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
+        <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
+          <FILE id="ozCTsq" name="SaveIcon@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveIcon@4x.png"/>
+          <FILE id="l3SxsH" name="ImportIcon@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/ImportIcon@4x.png"/>
+          <FILE id="Wgjm6l" name="LoadIcon@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LoadIcon@4x.png"/>
+          <FILE id="TgrJU7" name="KeybedShadows.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeybedShadows.png"/>
+          <FILE id="LAdNgm" name="KeybedShadows@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeybedShadows@2x.png"/>
+          <FILE id="MxPIRC" name="KeyboardBase.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyboardBase.png"/>
+          <FILE id="knou3b" name="KeyboardBase@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyboardBase@2x.png"/>
+          <FILE id="ZmHhMy" name="KeyShadow.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShadow.png"/>
+          <FILE id="DqXssN" name="KeyShadow@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyShadow@2x.png"/>
+          <FILE id="lTnuz0" name="KeyShadow@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/KeyShadow@4x.png"/>
+          <FILE id="q2197F" name="KeyShape.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape.png"/>
+          <FILE id="PwZQ2J" name="KeyShape@2x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape@2x.png"/>
+          <FILE id="dA6wjp" name="KeyShape@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/KeyShape@4x.png"/>
+          <FILE id="epJJ3W" name="LiveEditor.png" compile="0" resource="1" file="BinaryData/Assets/PNG/LiveEditor.png"/>
+          <FILE id="CjCkFo" name="SavePalette.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SavePalette.png"/>
+          <FILE id="frPcAM" name="SavePalette@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/SavePalette@2x.png"/>
+          <FILE id="ZSlIRE" name="SavePalette@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/SavePalette@4x.png"/>
+          <FILE id="ZURvHa" name="TrashCanIcon.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/TrashCanIcon.png"/>
+          <FILE id="wuaS0p" name="TrashCanIcon@2x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/TrashCanIcon@2x.png"/>
+          <FILE id="JHnY9U" name="TrashcanIcon@4x.png" compile="0" resource="1"
+                file="BinaryData/Assets/PNG/TrashcanIcon@4x.png"/>
+        </GROUP>
+      </GROUP>
+      <GROUP id="{26810EAB-80E5-39F7-C801-C36771061076}" name="Localisation">
+        <FILE id="E1dNZi" name="en-gb.txt" compile="0" resource="1" file="BinaryData/Localisation/en-gb.txt"/>
+        <FILE id="ZaE42T" name="en-us.txt" compile="0" resource="1" file="BinaryData/Localisation/en-us.txt"/>
+        <FILE id="k6HAgI" name="es-es.txt" compile="0" resource="1" file="BinaryData/Localisation/es-es.txt"/>
+        <FILE id="CE3Luz" name="fr-ca.txt" compile="0" resource="1" file="BinaryData/Localisation/fr-ca.txt"/>
+      </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <GROUP id="{A1551A34-4888-5B34-1D07-2E0A5789F7BE}" name="ImageResampling">
+        <FILE id="lRQfVj" name="ImageResampler.h" compile="0" resource="0"
+              file="Source/ImageResampling/ImageResampler.h"/>
+        <FILE id="E3u6Wx" name="resampler.cpp" compile="1" resource="0" file="Source/ImageResampling/resampler.cpp"/>
+        <FILE id="GTlrRS" name="resampler.h" compile="0" resource="0" file="Source/ImageResampling/resampler.h"/>
+      </GROUP>
+      <FILE id="ScCQxz" name="HexagonTilingGeometry.cpp" compile="1" resource="0"
+            file="Source/HexagonTilingGeometry.cpp"/>
+      <FILE id="XG6hrZ" name="HexagonTilingGeometry.h" compile="0" resource="0"
+            file="Source/HexagonTilingGeometry.h"/>
+      <FILE id="JYVlaB" name="ColourSelectionPanels.h" compile="0" resource="0"
+            file="Source/ColourSelectionPanels.h"/>
+      <FILE id="PC8X53" name="ColourPaletteComponent.cpp" compile="1" resource="0"
+            file="Source/ColourPaletteComponent.cpp"/>
+      <FILE id="ggyE4w" name="ColourPaletteComponent.h" compile="0" resource="0"
+            file="Source/ColourPaletteComponent.h"/>
+      <FILE id="DldFJQ" name="ColourPaletteWindow.cpp" compile="1" resource="0"
+            file="Source/ColourPaletteWindow.cpp"/>
+      <FILE id="jWnrRE" name="ColourPaletteWindow.h" compile="0" resource="0"
+            file="Source/ColourPaletteWindow.h"/>
+      <FILE id="mNuPcY" name="ColourSelectionGroup.h" compile="0" resource="0"
+            file="Source/ColourSelectionGroup.h"/>
+      <FILE id="htw0nj" name="PolygonPalette.h" compile="0" resource="0"
+            file="Source/PolygonPalette.h"/>
+      <FILE id="UgHvU1" name="LocalisationMap.h" compile="0" resource="0"
+            file="Source/LocalisationMap.h"/>
+      <FILE id="hDyg8G" name="LumatoneEditorLookAndFeel.h" compile="0" resource="0"
+            file="Source/LumatoneEditorLookAndFeel.h"/>
+      <FILE id="acwdN0" name="LumatoneEditorStyleCommon.h" compile="0" resource="0"
+            file="Source/LumatoneEditorStyleCommon.h"/>
       <FILE id="IFcnML" name="LumatoneMenu.h" compile="0" resource="0" file="Source/LumatoneMenu.h"/>
       <FILE id="vOjaEA" name="CurvesArea.h" compile="0" resource="0" file="Source/CurvesArea.h"/>
       <FILE id="enXDMq" name="CurvesArea.cpp" compile="1" resource="0" file="Source/CurvesArea.cpp"/>
@@ -53,6 +125,12 @@
       <FILE id="OEajb7" name="VelocityCurveDlgBase.h" compile="0" resource="0"
             file="Source/VelocityCurveDlgBase.h"/>
       <GROUP id="{106697C8-53C6-F7FB-B0C7-C4A1588D5C92}" name="ScaleStructureController">
+        <FILE id="jsSIed" name="Common.h" compile="0" resource="0" file="Source/ScaleStructureController/Common.h"/>
+        <FILE id="gorNTb" name="GroupHandle.cpp" compile="1" resource="0" file="Source/ScaleStructureController/GroupHandle.cpp"/>
+        <FILE id="sOGT2C" name="GroupHandle.h" compile="0" resource="0" file="Source/ScaleStructureController/GroupHandle.h"/>
+        <FILE id="gWcasD" name="NoteNames.cpp" compile="1" resource="0" file="Source/ScaleStructureController/NoteNames.cpp"/>
+        <FILE id="WuLSNJ" name="NoteNames.h" compile="0" resource="0" file="Source/ScaleStructureController/NoteNames.h"/>
+        <FILE id="dJtPB6" name="Symmetry.h" compile="0" resource="0" file="Source/ScaleStructureController/Symmetry.h"/>
         <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
               file="Source/VelocityCurveEditStrategy.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
@@ -188,6 +266,22 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_extra"/>
+        <MODULEPATH id="juce_gui_basics"/>
+        <MODULEPATH id="juce_graphics"/>
+        <MODULEPATH id="juce_events"/>
+        <MODULEPATH id="juce_data_structures"/>
+        <MODULEPATH id="juce_core"/>
+        <MODULEPATH id="juce_audio_devices"/>
+        <MODULEPATH id="juce_audio_basics"/>
+      </MODULEPATHS>
+    </VS2019>
   </EXPORTFORMATS>
   <MODULES>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>

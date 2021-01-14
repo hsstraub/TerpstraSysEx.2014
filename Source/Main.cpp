@@ -18,7 +18,7 @@
 //==============================================================================
 
 TerpstraSysExApplication::TerpstraSysExApplication()
-	: tooltipWindow(), hasChangesToSave(false)
+	: lookAndFeel(true), tooltipWindow(), hasChangesToSave(false)
 {
 	PropertiesFile::Options options;
 	options.applicationName = "LumatoneSetup";
@@ -37,8 +37,18 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 
+	// Localisation
+	String localisation = getLocalisation(SystemStats::getDisplayLanguage());
+	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
+	LocalisedStrings::getCurrentMappings()->setFallback(new LocalisedStrings(BinaryData::engb_txt, false));
+
+	// Window aspect ratio
+	boundsConstrainer.reset(new ComponentBoundsConstrainer());
+	boundsConstrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
+	boundsConstrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
+
 	// Colour scheme
-	lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
+	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
@@ -129,6 +139,8 @@ void TerpstraSysExApplication::shutdown()
 	propertiesFile->saveIfNeeded();
 	delete propertiesFile;
 	propertiesFile = nullptr;
+
+	LocalisedStrings::setCurrentMappings(nullptr);
 
     mainWindow = nullptr; // (deletes our window)
 	//commandManager = nullptr;

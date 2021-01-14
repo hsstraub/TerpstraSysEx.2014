@@ -24,7 +24,12 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+
+#include "HexagonTilingGeometry.h"
+#include "LumatoneEditorStyleCommon.h"
+
 #include "BoardGeometry.h"
+
 //[/Headers]
 
 
@@ -65,12 +70,18 @@ public:
 
 	void refreshKeyFields();
 
+    void lookAndFeelChanged() override;
+
+    // Helper method for aligning the Octave Section TabbedButtonBar
+    void setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY);
+
+    // Register listener for key colour edit popup
+    void registerPaletteWindowRequestListener(TextButton::Listener* listenerIn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
     void mouseDown (const juce::MouseEvent& e) override;
-
 
 
 private:
@@ -89,7 +100,51 @@ private:
 	// Editing single keys (of the selected 56-key set)
 	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[56];
 
-	int					currentSingleKeySelection;
+    int					currentSingleKeySelection;
+
+    // Key edit positioning
+    HexagonTilingGeometry tilingGeometry;
+
+    //===========================================================================
+    // Style Helpers
+    Colour backgroundColour = Colours::darkgrey;
+
+    Rectangle<float> octaveTabsArea;
+    Rectangle<float> contentBackground;
+    Rectangle<float> assignControlsBounds;
+    Rectangle<float> keyEditBounds;
+
+    int roundedCornerLayout;
+
+    //===========================================================================
+    // Size & position constants relative to parent unless otherwise noted
+
+    const float contentMarginY                  = 1.0f / 11.0f;
+
+    const float assignControlsWidth             = 0.3846f;
+    const float assignControlsHeightInContent   = 0.9f;
+
+    const float assignMarginX                   = 0.05f;
+    const float assignMarginYInContent          = 2.0f / 45.0f;
+    const float assignTabDepthInContent         = 0.0851f;
+
+    const float assignLabelMarginX              = 0.01f;
+    const float assignLabelTabDepthHeight       = 0.9f;
+
+    const float keyEditWidth                    = 0.48f;
+    const float keyEditMarginX                  = 0.48f;
+    const float keyEditMarginYInContent         = 0.1f;
+
+    //===========================================================================
+    // Key fields relative to KeyEditBounds
+
+    const float singleKeyFieldRimAbove = 0.075;// = 0.05106f;
+    const float singleKeyFieldRimLeft           = 0.02105f;
+    const float singleKeyFieldSize              = 0.11f;
+    const float singleKeyFieldLineWidth         = 0.003f;
+    const float singleKeyFieldLineWidthSelected = 0.005f;
+
+    const float singleKeyMarginFromWidth = 0.0164f;
 
 	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;

@@ -51,15 +51,14 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     startingPointBox->setEditableText (false);
     startingPointBox->setJustificationType (juce::Justification::centredLeft);
     startingPointBox->setTextWhenNothingSelected (juce::String());
-    startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    startingPointBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     startingPointBox->addListener (this);
 
     startingPointBox->setBounds (8, 368, 150, 24);
 
-    labelStartingPoint.reset (new juce::Label ("labelStartingPoint",
-                                               TRANS("Starting value")));
+    labelStartingPoint.reset (new juce::Label ("labelStartingPoint", translate("StartingValue")));
     addAndMakeVisible (labelStartingPoint.get());
-    labelStartingPoint->setTooltip (TRANS("Value that will be assigned to the key at mouse pposition when clicking"));
+    labelStartingPoint->setTooltip (translate("StartingPointTooltip"));
     labelStartingPoint->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelStartingPoint->setJustificationType (juce::Justification::centredLeft);
     labelStartingPoint->setEditable (false, false, false);
@@ -68,8 +67,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelStartingPoint->setBounds (8, 344, 150, 24);
 
-    labelHorizontalSteps.reset (new juce::Label ("labelHorizontalSteps",
-                                                 TRANS("Horizontal steps")));
+    labelHorizontalSteps.reset (new juce::Label ("labelHorizontalSteps", translate("HorizontalSteps")));
     addAndMakeVisible (labelHorizontalSteps.get());
     labelHorizontalSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelHorizontalSteps->setJustificationType (juce::Justification::centredLeft);
@@ -91,8 +89,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     editHorizontalSteps->setBounds (216, 368, 40, 24);
 
-    labelRightUpwardSteps.reset (new juce::Label ("labelRightUpwardSteps",
-                                                  TRANS("Right upward steps")));
+    labelRightUpwardSteps.reset (new juce::Label ("labelRightUpwardSteps", translate("RightUpwardSteps")));
     addAndMakeVisible (labelRightUpwardSteps.get());
     labelRightUpwardSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelRightUpwardSteps->setJustificationType (juce::Justification::centredLeft);
@@ -114,9 +111,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     editRightUpwardSteps->setBounds (160, 320, 39, 24);
 
-    editInstructionText.reset (new juce::Label ("editInstructionText",
-                                                TRANS("Fill a line or the whole field with constant step distances. \n"
-                                                "Click on desired key field to start.")));
+    editInstructionText.reset (new juce::Label ("editInstructionText", translate("IsomorphicAssignDirections")));
     addAndMakeVisible (editInstructionText.get());
     editInstructionText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     editInstructionText->setJustificationType (juce::Justification::topLeft);
@@ -126,8 +121,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     editInstructionText->setBounds (8, 200, 296, 48);
 
-    groupMapping.reset (new juce::GroupComponent ("groupMapping",
-                                                  TRANS("Mapping")));
+    groupMapping.reset (new juce::GroupComponent ("groupMapping", translate("Mapping")));
     addAndMakeVisible (groupMapping.get());
 
     groupMapping->setBounds (8, 40, 304, 152);
@@ -137,15 +131,14 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     cbMappingType->setEditableText (false);
     cbMappingType->setJustificationType (juce::Justification::centredLeft);
     cbMappingType->setTextWhenNothingSelected (juce::String());
-    cbMappingType->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    cbMappingType->addItem (TRANS("MIDI notes, increasing order"), 1);
-    cbMappingType->addItem (TRANS("Scala KBM mappings"), 2);
+    cbMappingType->setTextWhenNoChoicesAvailable (translate("NoChoices"));
+    cbMappingType->addItem (translate("MIDINotesIncreasingOrder"), 1);
+    cbMappingType->addItem (translate("Scala KBM mappings"), 2);
     cbMappingType->addListener (this);
 
     cbMappingType->setBounds (64, 64, 240, 24);
 
-    labelMappingType.reset (new juce::Label ("labelMappingType",
-                                             TRANS("Type:")));
+    labelMappingType.reset (new juce::Label ("labelMappingType", translate("Type")));
     addAndMakeVisible (labelMappingType.get());
     labelMappingType->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelMappingType->setJustificationType (juce::Justification::centredLeft);
@@ -157,25 +150,24 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     btnScaleStructureEditor.reset (new juce::TextButton ("btnScaleStructureEditor"));
     addAndMakeVisible (btnScaleStructureEditor.get());
-    btnScaleStructureEditor->setTooltip (TRANS("Show/hide scale structure editor"));
-    btnScaleStructureEditor->setButtonText (TRANS("Scale structure editor"));
+    btnScaleStructureEditor->setTooltip (translate("ShowHide") + " " + translate("ScaleStructureEditor"));
+    btnScaleStructureEditor->setButtonText (translate("ScaleStructureEditor"));
     btnScaleStructureEditor->addListener (this);
 
     btnScaleStructureEditor->setBounds (160, 264, 152, 24);
 
     periodSizeBox.reset (new juce::ComboBox ("periodSizeBox"));
     addAndMakeVisible (periodSizeBox.get());
-    periodSizeBox->setTooltip (TRANS("Number of tones per period interval (octave)"));
+    periodSizeBox->setTooltip (translate("PeriodToolTip"));
     periodSizeBox->setEditableText (false);
     periodSizeBox->setJustificationType (juce::Justification::centredLeft);
     periodSizeBox->setTextWhenNothingSelected (juce::String());
-    periodSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    periodSizeBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     periodSizeBox->addListener (this);
 
     periodSizeBox->setBounds (200, 8, 56, 24);
 
-    labelPeriodSize.reset (new juce::Label ("labelPeriodSize",
-                                            TRANS("Period:")));
+    labelPeriodSize.reset (new juce::Label ("labelPeriodSize", TRANS("Period")));
     addAndMakeVisible (labelPeriodSize.get());
     labelPeriodSize->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelPeriodSize->setJustificationType (juce::Justification::centredLeft);
@@ -187,7 +179,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
-    setColourToggleButton->setButtonText (TRANS("Colour assignment"));
+    setColourToggleButton->setButtonText (TRANS("ColourAssignment"));
     setColourToggleButton->addListener (this);
 
     setColourToggleButton->setBounds (8, 264, 152, 24);
@@ -548,6 +540,10 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 {
 	this->mappingLogic = mappingLogicThatChanged;
 
+    // Record name of last starting point
+    String previousStartingLabel = startingPointBox->getItemText(startingPointBox->getSelectedItemIndex());
+    int newIndex = -1;
+
 	// Fill note combo with values according to mapping logic
 	startingPointBox->clear(juce::NotificationType::dontSendNotification);
 
@@ -556,8 +552,15 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
 		jassert(!keyData.isEmpty());
 
-		startingPointBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
+        String keyLabel = String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber);
+        startingPointBox->addItem(keyLabel, i + 1);
+
+        if (keyLabel == previousStartingLabel)
+            newIndex = i;
 	}
+
+    if (newIndex > 0)
+        startingPointBox->setSelectedId(newIndex + 1);
 }
 
 void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
@@ -567,6 +570,9 @@ void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
 
 void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize)
 {
+	// Orientation fix
+	rightUpwardSize = horizontalSize - rightUpwardSize;
+
 	editRightUpwardSteps->setText(String(rightUpwardSize));
 	editHorizontalSteps->setText(String(horizontalSize));
 }

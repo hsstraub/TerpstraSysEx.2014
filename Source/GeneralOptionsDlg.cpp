@@ -29,12 +29,12 @@
 
 //==============================================================================
 GeneralOptionsDlg::GeneralOptionsDlg ()
+    : Component("GeneralOptionsDlg")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelExprContrSensivity.reset (new juce::Label ("new label",
-                                                    TRANS("Sensivity:")));
+    labelExprContrSensivity.reset (new juce::Label ("new label", translate("Sensitivity")));
     addAndMakeVisible (labelExprContrSensivity.get());
     labelExprContrSensivity->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelExprContrSensivity->setJustificationType (juce::Justification::centredLeft);
@@ -58,13 +58,12 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     btnInvertFootCtrl.reset (new juce::ToggleButton ("btnInvertFootCtrl"));
     addAndMakeVisible (btnInvertFootCtrl.get());
-    btnInvertFootCtrl->setButtonText (TRANS("Invert Pedal"));
+    btnInvertFootCtrl->setButtonText (translate("InvertPedal"));
     btnInvertFootCtrl->addListener (this);
 
     btnInvertFootCtrl->setBounds (200, 64, 128, 24);
 
-    labelEXpressionPedalTitle.reset (new juce::Label ("labelEXpressionPedalTitle",
-                                                      TRANS("Expression Pedal")));
+    labelEXpressionPedalTitle.reset (new juce::Label ("labelEXpressionPedalTitle", translate("ExpressionPedal")));
     addAndMakeVisible (labelEXpressionPedalTitle.get());
     labelEXpressionPedalTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelEXpressionPedalTitle->setJustificationType (juce::Justification::centredLeft);
@@ -75,39 +74,24 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     labelEXpressionPedalTitle->setBounds (200, 0, 104, 24);
 
-    labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle",
-                                                       TRANS("General Settings")));
+    labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle", translate("GeneralSettings")));
     addAndMakeVisible (labelGeneralSettingslTitle.get());
-    labelGeneralSettingslTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelGeneralSettingslTitle->setJustificationType (juce::Justification::centredLeft);
-    labelGeneralSettingslTitle->setEditable (false, false, false);
-    labelGeneralSettingslTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
-    labelGeneralSettingslTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelGeneralSettingslTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    labelGeneralSettingslTitle->setFont(LumatoneEditorFonts::UniviaProBold());
 
-    labelGeneralSettingslTitle->setBounds (8, 0, 104, 24);
 
     buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
-    buttonAfterTouchActive->setButtonText (TRANS("Polyphonic Aftertouch"));
+    buttonAfterTouchActive->setButtonText (translate("PolyphonicAftertouch"));
     buttonAfterTouchActive->addListener (this);
-
-    buttonAfterTouchActive->setBounds (8, 32, 176, 24);
 
     buttonLightOnKeyStrokes.reset (new juce::ToggleButton ("buttonLightOnKeyStrokes"));
     addAndMakeVisible (buttonLightOnKeyStrokes.get());
-    buttonLightOnKeyStrokes->setButtonText (TRANS("Light on Keystrokes"));
+    buttonLightOnKeyStrokes->setButtonText (translate("LightOnKeystrokes"));
     buttonLightOnKeyStrokes->addListener (this);
-
-    buttonLightOnKeyStrokes->setBounds (8, 64, 176, 24);
-
 
     //[UserPreSize]
 	txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
-
-    setSize (328, 96);
-
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
@@ -137,10 +121,11 @@ void GeneralOptionsDlg::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
+    //g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+    g.setColour(Colour(0xff212626));
+    g.fillRoundedRectangle(getLocalBounds().toFloat().withTop(proportionOfHeight(settingsAreaMarginHeight)), roundedCornerSize);
     //[/UserPaint]
 }
 
@@ -150,6 +135,22 @@ void GeneralOptionsDlg::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+
+    roundedCornerSize = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
+
+    resizeLabelWithHeight(labelGeneralSettingslTitle.get(), roundToInt(getHeight() * settingsLabelHeight));
+    labelGeneralSettingslTitle->setTopLeftPosition(roundToInt(getWidth() * settingsLabelMarginWidth), 0);
+
+    int marginX = roundToInt(getParentWidth() * settingsControlMarginParentWidthScalar);
+
+    buttonAfterTouchActive->setBounds(
+        marginX, proportionOfHeight(0.3f), proportionOfWidth(1.0f), proportionOfHeight(settingsToggleButtonHeight)
+    );
+
+    buttonLightOnKeyStrokes->setBounds(
+        marginX, proportionOfHeight(0.5f), proportionOfWidth(1.0f), proportionOfHeight(settingsToggleButtonHeight)
+    );
+
     //[/UserResized]
 }
 
@@ -190,6 +191,10 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void GeneralOptionsDlg::lookAndFeelChanged()
+{
+    labelGeneralSettingslTitle->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::LabelBlue));
+}
 
 void GeneralOptionsDlg::textEditorTextChanged(TextEditor& textEdit)
 {

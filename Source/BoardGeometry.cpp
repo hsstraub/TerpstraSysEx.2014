@@ -78,10 +78,17 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 
 		this->firstColumnOffsets = Array<int>({ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4 });
 	}
+  
+	maxHorizontalLineSize = 0;
+
+	for (auto line : horizontalLines)
+		if (line.size() > maxHorizontalLineSize)
+			maxHorizontalLineSize = line.size();
+
 }
 
 // returns the unique straight line that contains the given field
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fieldIndex, StraightLineSet lineSet) const
 {
 	for (auto line: lineSet)
 	{
@@ -95,7 +102,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::getLineOfField(int fi
 }
 
 // Returns the line that is a continuation of the given horizontal line in another octave board
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizontalLine(StraightLine line, int octaveBoardOffset) const
 {
     int currentLineIndex = this->horizontalLines.indexOf(line);
     if ( currentLineIndex < 0)
@@ -104,7 +111,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizon
         return StraightLine();	// return empty object
     }
 
-    int otherSubBoardLineIndex = currentLineIndex - 2 * octaveBoardOffset;
+    int otherSubBoardLineIndex = currentLineIndex - BOARDROWOFFSET * octaveBoardOffset;
     if (otherSubBoardLineIndex < 0 || otherSubBoardLineIndex >= horizontalLineCount())
     {
         // Line does not continue on other octave board
@@ -115,7 +122,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfHorizon
 }
 
 // Returns the line that is a continuation of the given horizontal line in another octave board
-TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset)
+TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUpwardLine(StraightLine line, int octaveBoardOffset) const
 {
 	int currentLineIndex = this->rightUpwardLines.indexOf(line);
 	if (currentLineIndex < 0)
@@ -135,7 +142,7 @@ TerpstraBoardGeometry::StraightLine TerpstraBoardGeometry::continuationOfRightUp
 }
 
 // Returns the unique horizontal line that contains the given field, over all octave boards
-TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLineOfField(int setSelection, int fieldIndex)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLineOfField(int setSelection, int fieldIndex) const
 {
     jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 
@@ -175,7 +182,7 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalHorizontalLi
 }
 
 // Returns the unique right upward line that contains the given field, over all octave boards
-TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardLineOfField(int setSelection, int fieldIndex)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardLineOfField(int setSelection, int fieldIndex) const
 {
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 
@@ -215,7 +222,7 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::globalRightUpwardL
 }
 
 // Returns the horizontal lines that have a continuation (right or left)
-TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLinesWithContinuation(int octaveBoardOffset)
+TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLinesWithContinuation(int octaveBoardOffset) const
 {
 	StraightLineSet result;
 
@@ -226,4 +233,9 @@ TerpstraBoardGeometry::StraightLineSet TerpstraBoardGeometry::getHorizontalLines
     }
 
 	return result;
+}
+
+int TerpstraBoardGeometry::getMaxHorizontalLineSize() const
+{
+	return maxHorizontalLineSize;
 }

@@ -29,38 +29,37 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
+// DEBUG
+static Random r;
+
+
 //[/MiscUserDefs]
 
 //==============================================================================
 NoteEditArea::NoteEditArea ()
-    : currentSingleKeySelection(-1)
+    : Component("NoteEditArea"),
+	  currentSingleKeySelection(-1)
 {
-    //[Constructor_pre] You can add your own custom stuff here..
-	showIsomorphicMassAssign = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("IsomorphicMassAssign", false);
+    //[Constructor_pre] You can add your own custom stuff here..;
+    showIsomorphicMassAssign = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("IsomorphicMassAssign", false);
     //[/Constructor_pre]
 
-    editFunctionsTab.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
-    addAndMakeVisible (editFunctionsTab.get());
-    editFunctionsTab->setTabBarDepth (30);
-    editFunctionsTab->addTab (TRANS("Manual Assign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
-    editFunctionsTab->setCurrentTabIndex (0);
+	editFunctionsTab.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));
+	editFunctionsTab->setName("EditFunctionsTab");
+	editFunctionsTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+	editFunctionsTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+	addAndMakeVisible(editFunctionsTab.get());
+	editFunctionsTab->addTab(translate("ManualAssign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
+	editFunctionsTab->setCurrentTabIndex(0);
+	editFunctionsTab->setIndent(0);
+	editFunctionsTab->setOutline(0);
+	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
 
-    editFunctionsTab->setBounds (8, 48, 320, 422);
+  labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
+	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
+  addAndMakeVisible (labelWindowTitle.get());
 
-    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
-                                             TRANS("Assign Keys")));
-    addAndMakeVisible (labelWindowTitle.get());
-    labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
-    labelWindowTitle->setEditable (false, false, false);
-    labelWindowTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
-    labelWindowTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelWindowTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelWindowTitle->setBounds (8, 8, 104, 24);
-
-
-    //[UserPreSize]
+  //[UserPreSize]
 
 	if (showIsomorphicMassAssign)
 		editFunctionsTab->addTab(TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
@@ -71,7 +70,7 @@ NoteEditArea::NoteEditArea ()
 
 	for (int i = 0; i < NUMBEROFBOARDS; i++)
 	{
-		octaveBoardSelectorTab->addTab("Section " + String(i + 1), juce::Colours::lightgrey, i + 1);
+		octaveBoardSelectorTab->addTab(translate("Section") + " " + String(i + 1), juce::Colours::lightgrey, i + 1);
 	}
 
 	octaveBoardSelectorTab->addChangeListener(this);
@@ -86,12 +85,10 @@ NoteEditArea::NoteEditArea ()
 
     //[/UserPreSize]
 
-    setSize (760, 470);
-
 
     //[Constructor] You can add your own custom stuff here..
 
-	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change istener has been established)
+	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change listener has been established)
 
     //[/Constructor]
 }
@@ -123,57 +120,70 @@ void NoteEditArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
-
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.setColour(backgroundColour);
+	g.fillRoundedRectangle(contentBackground, roundedCornerLayout);
+
+	//g.setColour(Colours::pink);
+	//g.drawRect(keyEditBounds);
     //[/UserPaint]
 }
 
 void NoteEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+	int contentY = round(getHeight() * contentMarginY);
+	contentBackground.setBounds(0, contentY, getWidth(), getHeight() - contentY);
+
+	assignControlsBounds.setBounds(
+		getWidth() * assignMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
+		getWidth() * assignControlsWidth, contentBackground.getHeight() * assignControlsHeightInContent
+	);
+
+	roundedCornerLayout = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
+
+	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 2.0f / 29.0f));
+
+	editFunctionsTab->setBounds(assignControlsBounds.toNearestInt());
+	editFunctionsTab->setTabBarDepth(assignTabDepthInContent * contentBackground.getHeight());
+
+	resizeLabelWithHeight(labelWindowTitle.get(), roundToInt(octaveBoardSelectorTab->getHeight() * assignLabelTabDepthHeight));
+	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) / 2.0f));
+
+	keyEditBounds.setBounds(
+		getWidth() * keyEditMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
+		getWidth() * keyEditWidth, contentBackground.getHeight() * assignControlsHeightInContent
+	);
+
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
 
-	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), labelWindowTitle->getY(), getWidth()- labelWindowTitle->getWidth(), OCTAVEBOARDTABHEIGHT);
+	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), 0, getWidth() - labelWindowTitle->getRight(), octaveTabsArea.getHeight());
 
 	// Single Key fields
 
-	// Transformation Rotate slightly counterclockwise
-	float x = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMABOVE;
-	float y = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMLEFT;
-	AffineTransform transform = AffineTransform::translation(-x, -y);
-	transform = transform.rotated(TERPSTRASINGLEKEYROTATIONANGLE);
-	transform = transform.translated(x, y);
+	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
 
-	int keyIndex = 0;
-	int mostBottomKeyPos = 0;
+	tilingGeometry.fitTilingTo(
+		keyEditBounds,
+		boardGeometry.getMaxHorizontalLineSize(),
+		boardGeometry.horizontalLineCount(),
+		round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
+		TERPSTRASINGLEKEYROTATIONANGLE, true
+	);
 
-	// Rows
-	int rowCount = boardGeometry.horizontalLineCount();
-	for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry);
+	jassert(keyCentres.size() == TERPSTRABOARDSIZE);
+
+	float keySize = tilingGeometry.getKeySize();
+	
+	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
-		float xbasepos;
-		if (rowIndex % 2 == 0)
-			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT;
-		else
-			xbasepos = editFunctionsTab->getRight() + TERPSTRASINGLEKEYFIELDRIMLEFT + TERPSTRASINGLEKEYFLDSIZE / 2;
+		Point<float> centre = keyCentres[keyIndex];
 
-		int ybasepos = octaveBoardSelectorTab->getBottom() + TERPSTRASINGLEKEYFIELDRIMABOVE + 3 * rowIndex * TERPSTRASINGLEKEYFLDSIZE / 4;
-
-		int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
-		for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
-		{
-			x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*TERPSTRASINGLEKEYFLDSIZE;
-			y = ybasepos;
-			transform.transformPoint(x, y);
-			terpstraKeyFields[keyIndex]->setBounds(roundToInt(x), roundToInt(y), TERPSTRASINGLEKEYFLDSIZE, TERPSTRASINGLEKEYFLDSIZE);
-
-			mostBottomKeyPos = jmax(mostBottomKeyPos, terpstraKeyFields[keyIndex]->getBottom());
-			keyIndex++;
-		}
+		terpstraKeyFields[keyIndex]->setKeySize(keySize);
+		terpstraKeyFields[keyIndex]->setCentrePosition(centre.roundToInt());
 	}
 
 	jassert(TerpstraSysExApplication::getApp().getOctaveBoardSize() == keyIndex);
@@ -234,6 +244,19 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void NoteEditArea::lookAndFeelChanged()
+{
+	LookAndFeel& lookAndFeel = getLookAndFeel();
+	backgroundColour = lookAndFeel.findColour(LumatoneEditorColourIDs::ControlAreaBackground);
+	labelWindowTitle->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelBlue));
+}
+
+void NoteEditArea::setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY)
+{
+	setTopLeftPosition(controlsAreaX, controlsAreaY - octaveTabsArea.getHeight());
+}
+
+
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
@@ -291,6 +314,11 @@ void NoteEditArea::refreshKeyFields()
 	auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
+}
+
+void NoteEditArea::registerPaletteWindowRequestListener(TextButton::Listener* listenerIn)
+{
+	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(0))->listenForPaletteWindowRequest(listenerIn);
 }
 //[/MiscUserCode]
 
