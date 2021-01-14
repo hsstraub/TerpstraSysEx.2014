@@ -247,7 +247,7 @@ void AllKeysOverview::paint (juce::Graphics& g)
 
 		Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
 		g.setColour(lineColour);
-		g.strokePath(selectionMarkPath, PathStrokeType(2.5f));
+		g.strokePath(selectionMarkPath, PathStrokeType(1.0f));
 	}
 
     //[/UserPaint]
@@ -276,7 +276,7 @@ void AllKeysOverview::resized()
 	btnLoadFile->setBounds(halfWidthX - btnMargin - saveLoadWidth, btnY, saveLoadWidth, btnHeight);
 	btnSaveFile->setBounds(halfWidthX + btnMargin, btnY, saveLoadWidth, btnHeight);
 
-	octaveLineY = round(getHeight() * octaveLineYRatio);
+	octaveLineY = lumatoneBounds.getBottom() + round(getHeight() * octaveLineYRatio);
 
 	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
 	int importWidth = round(getWidth() * importW);
@@ -287,9 +287,9 @@ void AllKeysOverview::resized()
 
 	// Scale key graphics once
 #if JUCE_WINDOWS
-	lumatoneGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), "lanczos3", 0.8f);
-	keyShapeGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight, "lanczos3", 0.8f);
-	keyShadowGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight, "lanczos3", 0.8f);
+	lumatoneGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), "lanczos3", 1.0f);
+	keyShapeGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight, "lanczos3", 1.0f);
+	keyShadowGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight, "lanczos3", 1.0f);
 #else // TODO: Determine whether or not to use resampling on Mac and Linux
 	lumatoneGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic).rescaled(lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), Graphics::ResamplingQuality::highResamplingQuality);
 	keyShapeGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
@@ -309,7 +309,7 @@ void AllKeysOverview::resized()
 	
 
 	int octaveIndex = 0;
-	octaveBoards[octaveIndex]->leftPos = round(getWidth() * keybedX);
+	octaveBoards[octaveIndex]->leftPos = keyCentres[0].getX() - keyWidth * 0.5;
 
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
@@ -330,7 +330,7 @@ void AllKeysOverview::resized()
 			octaveIndex++;
 
 			if (octaveIndex < NUMBEROFBOARDS)
-				octaveBoards[octaveIndex]->leftPos = key->getRight();
+				octaveBoards[octaveIndex]->leftPos = key->getX();
 		}
 	}
 

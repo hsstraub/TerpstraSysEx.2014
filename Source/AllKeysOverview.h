@@ -139,7 +139,7 @@ private:
 
 	const float filenameBaselineY   = 0.1221505f;
 
-	const float octaveLineYRatio    = 0.9354839f;
+	const float octaveLineYRatio    = 0.0236559f;
 
 	// In reference to lumatoneBounds
 	const float keybedX = 0.06908748f;
