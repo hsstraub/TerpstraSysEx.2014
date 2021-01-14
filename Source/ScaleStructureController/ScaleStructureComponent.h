@@ -26,6 +26,7 @@
 #include "GroupingCircle.h"
 #include "ScaleStructure.h"
 #include "TransparentDropDown.h"
+#include "NoteNames.h"
 
 //[/Headers]
 
@@ -60,6 +61,9 @@ public:
 	void offsetChanged(int newOffset) override;
 	void degreeIndexAltered(int degree, Point<int> alteration) override;
 	void allModificationsReset() override;
+	void groupingSplit(int groupIndex, int sizeChangeAmount) override;
+	void groupingResized(int groupIndex, int sizeChangeAmount, bool draggedClockwise) override;
+	void groupingsMerged(int groupIndex) override;
 
 	void loadScaleStructureSettings();
 
@@ -115,8 +119,8 @@ private:
 	// Functional Elements
 	ScaleStructure& scaleStructure;
 	Array<Colour>& colourTable;
-
 	GroupingCircle* circle;
+	NoteNames noteNames;
 
 	// Components
 	std::unique_ptr<NumberSelector> generatorSlider;
