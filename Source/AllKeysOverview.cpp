@@ -183,6 +183,9 @@ AllKeysOverview::AllKeysOverview()
 	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::SaveIcon);
     btnSaveFile->addListener (this);
 
+	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
+	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
+
     //[UserPreSize]
 
 	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
@@ -302,7 +305,7 @@ void AllKeysOverview::resized()
 
 	int boardLineLength = boardGeometry.getMaxHorizontalLineSize() * NUMBEROFBOARDS;
 	int boardNumLines = boardGeometry.horizontalLineCount() + BOARDROWOFFSET * (NUMBEROFBOARDS - 1);
-	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24);
+	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24, false);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
 	jassert(keyCentres.size() == TERPSTRABOARDSIZE * NUMBEROFBOARDS);
