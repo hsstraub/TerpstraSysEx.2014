@@ -191,7 +191,11 @@ public:
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
             int iconW = round(iconH * ((double)icon.getWidth() / icon.getHeight()));
+#if JUCE_WINDOWS
             icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
+#else
+            icon = icon.rescaled(iconW, iconH, Graphics::ResamplingQuality::highResamplingQuality);
+#endif
 
             int margin = font.getStringWidth("_");
             int lineX = round((btn.getWidth() - font.getStringWidth(btn.getButtonText()) - margin - iconW) / 2.0);

@@ -382,14 +382,7 @@ struct LumatoneEditorFonts
 };
 
 namespace LumatoneEditorStyleIDs
-{
-// These may be able to be deleted ====================================================================
-//
-    static Identifier comboBoxNoSelectionImageHashCode = Identifier("ComboBoxNoSelectionImageHashCode");
-//
-    static Identifier componentImageHeightScalar = Identifier("ComponentImageHeightScalar");
-//=======================================================================================================
-    
+{    
     static Identifier fontOverride = Identifier("ComponentFont");
     static Identifier fontOverrideTypefaceStyle = Identifier("ComponentTypefaceStyle");
 
