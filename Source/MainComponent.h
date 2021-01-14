@@ -52,6 +52,7 @@ public:
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
 	TabbedButtonBar* getOctaveBoardSelectorTab() { return  noteEditArea->getOctaveBoardSelectorTab(); }
+	CurvesArea* getCurvesArea() { return curvesArea.get(); }
 
 	// Board edit operations
 	bool deleteCurrentSubBoardData();

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -22,7 +22,6 @@
 #include "SingleNoteAssign.h"
 #include "IsomorphicMassAssign.h"
 #include "Main.h"
-#include "BoardGeometry.h"
 //[/Headers]
 
 #include "NoteEditArea.h"
@@ -30,11 +29,9 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
-// Geometry settings
-static TerpstraBoardGeometry	boardGeometry;
-
 // DEBUG
 static Random r;
+
 
 //[/MiscUserDefs]
 
@@ -44,6 +41,7 @@ NoteEditArea::NoteEditArea ()
 	  currentSingleKeySelection(-1)
 {
     //[Constructor_pre] You can add your own custom stuff here..;
+    showIsomorphicMassAssign = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("IsomorphicMassAssign", false);
     //[/Constructor_pre]
 
 	editFunctionsTab.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));
@@ -52,17 +50,19 @@ NoteEditArea::NoteEditArea ()
 	editFunctionsTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
 	addAndMakeVisible(editFunctionsTab.get());
 	editFunctionsTab->addTab(translate("ManualAssign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
-	editFunctionsTab->addTab(translate("IsomorphicAssign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
 	editFunctionsTab->setCurrentTabIndex(0);
 	editFunctionsTab->setIndent(0);
 	editFunctionsTab->setOutline(0);
 	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
 
-    labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
+  labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
 	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
-    addAndMakeVisible (labelWindowTitle.get());
+  addAndMakeVisible (labelWindowTitle.get());
 
-    //[UserPreSize]
+  //[UserPreSize]
+
+	if (showIsomorphicMassAssign)
+		editFunctionsTab->addTab(TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
 
 	// Selector for octave boards
 	octaveBoardSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
@@ -76,7 +76,7 @@ NoteEditArea::NoteEditArea ()
 	octaveBoardSelectorTab->addChangeListener(this);
 
 	// Single Key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
 		addAndMakeVisible(terpstraKeyFields[i].get());
@@ -106,7 +106,7 @@ NoteEditArea::~NoteEditArea()
 
 	octaveBoardSelectorTab = nullptr;
 
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		terpstraKeyFields[i] = nullptr;
 	}
@@ -186,6 +186,8 @@ void NoteEditArea::resized()
 		terpstraKeyFields[keyIndex]->setCentrePosition(centre.roundToInt());
 	}
 
+	jassert(TerpstraSysExApplication::getApp().getOctaveBoardSize() == keyIndex);
+
     //[/UserResized]
 }
 
@@ -195,7 +197,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 	bool mappingChanged = false;
 
 	// Selection of single key fields
-	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 	{
 		if (e.eventComponent == terpstraKeyFields[keyIndex].get() || e.eventComponent->getParentComponent() == terpstraKeyFields[keyIndex].get())
 		{
@@ -204,7 +206,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 
 			// Perform the edit, according to edit mode. Including sending to device
 			auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
-			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE);
+			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 			int editMode = editFunctionsTab->getCurrentTabIndex();
 			switch (editMode)
@@ -258,13 +260,17 @@ void NoteEditArea::setControlsTopLeftPosition(int controlsAreaX, int controlsAre
 void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
-	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
+	
+	if (showIsomorphicMassAssign)
+		dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
 	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->saveStateToPropertiesFile(propertiesFile);
-	dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
+
+	if (showIsomorphicMassAssign)
+		dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->saveStateToPropertiesFile(propertiesFile);
 }
 
 void NoteEditArea::changeListenerCallback(ChangeBroadcaster *source)
@@ -287,19 +293,19 @@ void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 
 void NoteEditArea::setKeyFieldValues(const TerpstraKeys& keySet)
 {
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 		terpstraKeyFields[i]->setValue(keySet.theKeys[i]);
 }
 
 void NoteEditArea::changeSingleKeySelection(int newSelection)
 {
 	// Unselect previous key
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
 
 	// Select new key
 	currentSingleKeySelection = newSelection;
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
 }
 
@@ -339,8 +345,6 @@ BEGIN_JUCER_METADATA
                    virtualName="" explicitFocusOrder="0" pos="8 48 320 422" orientation="top"
                    tabBarDepth="30" initialTab="0">
     <TAB name="Manual Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="SingleNoteAssign"
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Isomorphic Assign" colour="ffd3d3d3" useJucerComp="0" contentClassName="IsomorphicMassAssign"
          constructorParams="" jucerComponentFile=""/>
   </TABBEDCOMPONENT>
   <LABEL name="labelWindowTitle" id="afc0b85c8e03b3d6" memberName="labelWindowTitle"

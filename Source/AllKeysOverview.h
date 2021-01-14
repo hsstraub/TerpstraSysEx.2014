@@ -26,10 +26,12 @@
 #include "HexagonTilingGeometry.h"
 
 #include "ImageResampling\ImageResampler.h"
+#include "BoardGeometry.h"
+#include "TerpstraMidiDriver.h"
 
 
 // Representation of a key inside the overview
-class KeyMiniDisplayInsideAllKeysOverview : public Component
+class KeyMiniDisplayInsideAllKeysOverview : public Component, public TerpstraMidiDriver::Listener
 {
 public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
@@ -40,7 +42,14 @@ public:
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const juce::MouseEvent& e) override;
 
+
 	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
+
+	// Implementation of TerpstraNidiDriver::Listener
+	void midiMessageReceived(const MidiMessage& midiMessage) override;
+	void midiMessageSent(const MidiMessage& midiMessage) override {}
+	void midiSendQueueSize(int queueSize) override {}
+	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
 
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
@@ -162,11 +171,15 @@ private:
 	Point<float> oct1Key56;
 	Point<float>  oct5Key7;
 
+	// Geometry settings
+	TerpstraBoardGeometry	boardGeometry;
+
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::TextButton> btnLoadFile;
     std::unique_ptr<juce::TextButton> btnSaveFile;
+    std::unique_ptr<juce::TextButton> buttonReceive;
 
 
     //==============================================================================

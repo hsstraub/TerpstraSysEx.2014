@@ -16,20 +16,10 @@
 NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
 	: VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
 {
-	labelCurrentXPos->setSize(128, labelCurrentXPos->getHeight());
 }
 
 NoteOnOffVelocityCurveDialog::~NoteOnOffVelocityCurveDialog()
 {
-}
-
-// ToDo Read from and write to *.LMT file
-
-String NoteOnOffVelocityCurveDialog::beamXPosText(int xPos) const
-{
-	auto ticksCount = TerpstraKeyMapping::ticksCountFromXPos(xPos);
-
-	{ return String(ticksCount) + " " + translate("Ticks") + " (" + String(milliSecondsFromTicksCount(ticksCount)) + " ms)"; }
 }
 
 float NoteOnOffVelocityCurveDialog::beamWidth(int xPos)
