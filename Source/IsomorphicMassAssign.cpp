@@ -540,6 +540,10 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 {
 	this->mappingLogic = mappingLogicThatChanged;
 
+    // Record name of last starting point
+    String previousStartingLabel = startingPointBox->getItemText(startingPointBox->getSelectedItemIndex());
+    int newIndex = -1;
+
 	// Fill note combo with values according to mapping logic
 	startingPointBox->clear(juce::NotificationType::dontSendNotification);
 
@@ -548,8 +552,15 @@ void IsomorphicMassAssign::mappingLogicChanged(MappingLogicBase* mappingLogicTha
 		TerpstraKey keyData = mappingLogicThatChanged->indexToTerpstraKey(i);
 		jassert(!keyData.isEmpty());
 
-		startingPointBox->addItem(String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber), i + 1);
+        String keyLabel = String(i) + ": Key_" + String(keyData.noteNumber) + ", Chan_" + String(keyData.channelNumber);
+        startingPointBox->addItem(keyLabel, i + 1);
+
+        if (keyLabel == previousStartingLabel)
+            newIndex = i;
 	}
+
+    if (newIndex > 0)
+        startingPointBox->setSelectedId(newIndex + 1);
 }
 
 void IsomorphicMassAssign::scaleStructurePeriodChanged(int newPeriod)
