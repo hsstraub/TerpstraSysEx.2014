@@ -211,15 +211,12 @@ AllKeysOverview::AllKeysOverview()
 	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::SaveIcon);
     btnSaveFile->addListener (this);
 
-    btnSaveFile->setBounds (472, 8, 96, 24);
-
     buttonReceive.reset (new juce::TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
-    buttonReceive->setTooltip (TRANS("Receive the current configuration from controller"));
+    buttonReceive->setTooltip (translate("ImportTooltip"));
     buttonReceive->setButtonText (TRANS("Import from Lumatone"));
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::ImportIcon);
     buttonReceive->addListener (this);
-
-    buttonReceive->setBounds (584, 8, 176, 24);
 
 	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
 	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
@@ -322,7 +319,7 @@ void AllKeysOverview::resized()
 
 	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
 	int importWidth = round(getWidth() * importW);
-	//btnImportPreset->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
+	buttonReceive->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
 
 	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
@@ -418,6 +415,7 @@ void AllKeysOverview::lookAndFeelChanged()
 	{
 		lookAndFeel->setupTextButton(*btnLoadFile);
 		lookAndFeel->setupTextButton(*btnSaveFile);
+		lookAndFeel->setupTextButton(*buttonReceive);
 	}
 }
 
