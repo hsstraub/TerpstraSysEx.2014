@@ -155,14 +155,6 @@ void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void CurvesArea::paintOverChildren(juce::Graphics& g)
-{
-    int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
-    Rectangle<float> controlsBounds = getLocalBounds().toFloat().withTop(curvesTab->getBottom()).reduced(roundedCornerSize);
-    g.setColour(Colour(0xff212626));
-    g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
-}
-
 void CurvesArea::loadFromMapping()
 {
 	dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getCurrentContentComponent())->loadFromMapping();

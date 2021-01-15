@@ -67,6 +67,7 @@ protected:
 	VelocityCurveEditStrategyBase* getCurrentDrawingStrategy();
 
 public:
+    void paintOverChildren(juce::Graphics& g) override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

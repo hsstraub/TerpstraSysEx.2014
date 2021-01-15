@@ -236,6 +236,14 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
+{
+	int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
+	Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
+	g.setColour(Colour(0xff272b2f));
+	g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
+}
+
 void VelocityCurveDlgBase::lookAndFeelChanged()
 {
 	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());

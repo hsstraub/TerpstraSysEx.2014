@@ -66,8 +66,6 @@ public:
 
 	// Send curves configS to controller
 	void sendConfigToController();
-
-    void paintOverChildren(juce::Graphics& g) override;
   //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
