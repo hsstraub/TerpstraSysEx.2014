@@ -426,17 +426,17 @@ public:
         g.setFont(getComboBoxFont(box));
         g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
 
-        int realButtonX = box.getWidth() - box.getHeight();
-
-        if (box.getSelectedId() == 0)
-        {
-
-            String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
-            g.drawFittedText(text, margin, 0, realButtonX - margin, height, Justification::centredLeft, 1);
-        }
+        int realButtonX = jmax(margin, box.getWidth() - box.getHeight());
 
         if (buttonW > 0)
         {
+            if (box.getSelectedId() == 0)
+            {
+
+                String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
+                g.drawFittedText(text, margin, 0, realButtonX - margin, height, Justification::centredLeft, 1);
+            }
+
             g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
 
             g.setFont(LumatoneEditorFonts::GothamNarrowMedium(buttonH * 0.5f).withTypefaceStyle("Narrow Light").withHorizontalScale(2.0f));

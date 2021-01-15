@@ -66,13 +66,13 @@ public:
 
 	// Send curves configS to controller
 	void sendConfigToController();
+
+    void paintOverChildren(juce::Graphics& g) override;
   //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
-
-
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.

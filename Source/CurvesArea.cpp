@@ -65,8 +65,9 @@ CurvesArea::CurvesArea ()
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
-
-    curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
+    curvesTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+    curvesTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+    curvesTab->addTab (TRANS("Note Velocity"), Colour(), new NoteOnOffVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
 
     curvesTab->setBounds (8, 40, 464, 200);
@@ -111,16 +112,6 @@ void CurvesArea::paint (juce::Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-    //==========================================================================
-    // DEBUG DRAWING
-    Rectangle<float> controlsBounds = getLocalBounds().toFloat().withTop(curvesTab->getBottom());
-    g.setColour(Colour(0xffc19520));
-    g.drawRoundedRectangle(controlsBounds, getParentHeight() * roundedCornerLayoutAppHeightScalar, 1.0f);
-
-    g.setColour(Colour(0xffcd6f2e));
-    g.drawRect(getLocalBounds());
-    //==========================================================================
-
     //[/UserPaint]
 }
 
@@ -163,6 +154,14 @@ void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void CurvesArea::paintOverChildren(juce::Graphics& g)
+{
+    int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
+    Rectangle<float> controlsBounds = getLocalBounds().toFloat().withTop(curvesTab->getBottom()).reduced(roundedCornerSize);
+    g.setColour(Colour(0xff212626));
+    g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
+}
 
 void CurvesArea::loadFromMapping()
 {

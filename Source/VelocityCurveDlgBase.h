@@ -60,7 +60,7 @@ public:
 	void mouseUp(const MouseEvent &event);
 
 protected:
-	virtual float beamWidth(int xPos) { return (getWidth() - 2.0f * cbEditMode->getX()) / 128.0f; }
+	virtual float beamWidth(int xPos) { return getWidth() / 128.0f; }
 
 	TerpstraKeyMapping*	getMappingInEdit();
 	TerpstraVelocityCurveConfig* getConfigInEdit();
@@ -73,12 +73,14 @@ public:
     void resized() override;
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
-
+    void lookAndFeelChanged() override;
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
+    Path beamTableContour;
+    Path beamTableGrid;
 	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
@@ -86,6 +88,10 @@ private:
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
 
 	std::map<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX, VelocityCurveEditStrategyBase*> drawingStrategies;
+
+    ColourGradient beamColourGradient;
+    Colour backgroundColour;
+    Colour gridColour;
 
 protected:
     //[/UserVariables]
