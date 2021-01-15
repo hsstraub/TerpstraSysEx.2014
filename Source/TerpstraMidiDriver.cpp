@@ -9,7 +9,7 @@
 */
 
 #include "TerpstraMidiDriver.h"
-
+#include "Main.h"
 
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
@@ -57,7 +57,7 @@ Combined (hi-level) commands
 
 void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData)
 {
-	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
 }
 
@@ -165,7 +165,20 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
                 break;
 		}
 
-		memmove(&sysExData[5], velocityTable, 128);
+		if (velocityCurveType == TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+		{
+			// Values are in reverse order (shortest ticks count is the highest velocity)
+			for (int x = 0; x < 128; x++)
+			{
+				sysExData[5 + x] = velocityTable[127 - x];
+
+			}
+
+		}
+		else
+		{
+			memmove(&sysExData[5], velocityTable, 128);
+		}
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
 		sendMessageNow(msg);
@@ -184,10 +197,11 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
         sysExData[4] = SET_VELOCITY_INTERVALS;
 
         // Interval table contains 127 values!
-        for ( int i = 0; i<127; i++)
+		// Values are in reverse order (shortest ticks count is the highest velocity)
+		for ( int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
         {
-            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
-            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
+            sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
+            sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
         }
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
@@ -423,9 +437,11 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
     else
     {
         // Add message to queue first. The oldest message in queue will be sent.
-        messageBuffer.add(message);
-		const MessageManagerLock mmLock;
-		this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+		{
+			messageBuffer.add(message);
+			const MessageManagerLock mmLock;
+			this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+		}
 
         // If there is no message waiting for acknowledge: send oldest message of queue
        	if (!isTimerRunning())
@@ -445,8 +461,10 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
         currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
         hasMsgWaitingForAck = true;
 		messageBuffer.remove(0);                        // remove from buffer
-		const MessageManagerLock mmLock;
-		this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+		{
+			const MessageManagerLock mmLock;
+			this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+		}
 
         sendCurrentMessage();
     }
@@ -460,8 +478,10 @@ void TerpstraMidiDriver::sendCurrentMessage()
     sendMessageNow(currentMsgWaitingForAck);        // send it
 
     // Notify listeners
-	const MessageManagerLock mmLock;
-	this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
+	{
+		const MessageManagerLock mmLock;
+		this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
+	}
 
     timerType = waitForAnswer;
     startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
@@ -470,8 +490,10 @@ void TerpstraMidiDriver::sendCurrentMessage()
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
     // Notify listeners
-	const MessageManagerLock mmLock;
-	this->listeners.call(&Listener::midiMessageReceived, message);
+	{
+		const MessageManagerLock mmLock;
+		this->listeners.call(&Listener::midiMessageReceived, message);
+	}
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
@@ -511,8 +533,10 @@ void TerpstraMidiDriver::timerCallback()
     if (timerType == waitForAnswer)
     {
         // No answer came from MIDI input
-		const MessageManagerLock mmLock;
-		this->listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+		{
+			const MessageManagerLock mmLock;
+			this->listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+		}
 
         // For now: Remove from buffer, try to send next one
         hasMsgWaitingForAck = false;

@@ -50,7 +50,7 @@ MainContentComponent::MainContentComponent()
 
 	// Select first board and first key
 	noteEditArea->getOctaveBoardSelectorTab()->setCurrentTabIndex(0, true);
-	// The above call is supposed to update changeListener - but apaprently doesn't... Call it manually then. XXX
+	// The above call is supposed to update changeListener - but apparently doesn't... Call it manually then. XXX
 	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
 
 	noteEditArea->changeSingleKeySelection(0);
@@ -118,54 +118,56 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 
 bool MainContentComponent::deleteCurrentSubBoardData()
 {
-	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	//{
-	//	// Delete subboard data
-	//	mappingData.sets[currentSetSelection] = TerpstraKeys();
+	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+		{
+		// Delete subboard data
+		mappingData.sets[currentSetSelection] = TerpstraKeys();
 
-	//	// Refresh display
-	//	changeSetSelection(currentSetSelection, true);
+		// Refresh display
+		refreshAllKeysOverview();
+		noteEditArea->refreshKeyFields();
 
-	//	// Mark that there are changes
-	//	TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		// Mark that there are changes
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-	//	return true;
-	//}
-	//else
-	//todo
+		return true;
+	}
+	else
 		return false;
 }
 
 bool MainContentComponent::copyCurrentSubBoardData()
 {
-	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	//{
-	//	copiedSubBoardData = mappingData.sets[currentSetSelection];
-	//	return true;
-	//}
-	//else
-	//ToDo
+	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+	{
+		copiedSubBoardData = mappingData.sets[currentSetSelection];
+		return true;
+	}
+	else
 		return false;
 }
 
 bool MainContentComponent::pasteCurrentSubBoardData()
 {
-	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	//{
-	//	if (!copiedSubBoardData.isEmpty())
-	//	{
-	//		mappingData.sets[currentSetSelection] = copiedSubBoardData;
+	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+		{
+		if (!copiedSubBoardData.isEmpty())
+		{
+			mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
-	//		// Refresh display
-	//		changeSetSelection(currentSetSelection, true);
+			// Refresh display
+			refreshAllKeysOverview();
+			noteEditArea->refreshKeyFields();
 
-	//		// Mark that there are changes
-	//		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-	//	}
-	//	return true;
-	//}
-	//else
-	// ToDO
+			// Mark that there are changes
+			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		}
+		return true;
+	}
+	else
 		return false;
 }
 
@@ -188,10 +190,11 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
 			{
 				// After the answer state byte there must be 254 bytes of data
+				// Values are in reverse order (shortest ticks count is the highest velocity)
 				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
 				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
+					this->mappingData.velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE - 1 - i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
 				curvesArea->resized();
 				curvesArea->repaint();
@@ -199,10 +202,11 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff))
 			{
 				// After the answer state byte there must be 128 bytes of data
+				// Values are in reverse order (shortest ticks count is the highest velocity)
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 				for (int x = 0; x < 128; x++)
-					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[x] = sysExData[6 + x];
+					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[127-x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
 			}
 			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::fader))
@@ -228,10 +232,10 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
 				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG)
 			{
-				// After the answer state byte there must be 55 bytes of data (one for each key)
-				jassert(midiMessage.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
+				// After the answer state byte there must be 56 (or 55) bytes of data (one for each key)
+				jassert(midiMessage.getSysExDataSize() >= TerpstraSysExApplication::getApp().getOctaveBoardSize() + 6); // ToDo display error otherwise
 
-				for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+				for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 				{
 					auto newValue = sysExData[6 + keyIndex];
 

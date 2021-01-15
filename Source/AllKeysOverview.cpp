@@ -18,10 +18,10 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "BoardGeometry.h"
 #include "ViewComponents.h"
 #include "MainComponent.h"
 #include "Main.h"
+#include "LumatoneMenu.h"
 
 //[/Headers]
 
@@ -31,7 +31,6 @@
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
 // Geometry settings
-static TerpstraBoardGeometry	boardGeometry;
 static Random r;//DEBUG
 
 //==============================================================================
@@ -45,10 +44,13 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 
 	// DEBUG
 	keyColour = Colour(r.nextFloat(), r.nextFloat(), 1.0f, 1.0f);
+
+	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
+	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -68,8 +70,6 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	//Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
 	//g.setColour(lineColour);
 	//g.strokePath(hexPath, PathStrokeType(1));
-
-	g.setColour(hexagonColour);
 
 	if (colourGraphic && shadowGraphic)
 	{
@@ -101,16 +101,30 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 	isHighlighted = true;
 	repaint();
 
-	// NoteOn MIDI message
-	auto keyData = getKeyData();
-	if (keyData != nullptr && keyData->channelNumber > 0)
+	if (e.mods.isRightButtonDown())
 	{
-		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+		// Right mosue click: popup menu
+		PopupMenu menu;
+
+		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::deleteOctaveBoard);
+		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::copyOctaveBoard);
+		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::pasteOctaveBoard);
+		
+		menu.show();
+	}
+	else
+	{
+		// NoteOn MIDI message
+		auto keyData = getKeyData();
+		if (keyData != nullptr && keyData->channelNumber > 0)
 		{
-			// Send "note on" event
-			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+			{
+				// Send "note on" event
+				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			}
+			// ToDo if keyType is "continuous controller": send controller event?
 		}
-		// ToDo if keyType is "continuous controller": send controller event?
 	}
 }
 
@@ -133,9 +147,23 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 	}
 }
 
+void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage& midiMessage)
+{
+	// ToDo If key is parametrized as controller?
+	if (midiMessage.isNoteOnOrOff())
+	{
+		auto keyData = getKeyData();
+		if (keyData != nullptr && midiMessage.getChannel() == keyData->channelNumber && midiMessage.getNoteNumber() == keyData->noteNumber)
+		{
+			isHighlighted = midiMessage.isNoteOn();
+			repaint();
+		}
+	}
+}
+
 const TerpstraKey* KeyMiniDisplayInsideAllKeysOverview::getKeyData() const
 {
-	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 	{
 		jassert(getParentComponent() != nullptr);
 		jassert(getParentComponent()->getParentComponent() != nullptr);
@@ -183,6 +211,16 @@ AllKeysOverview::AllKeysOverview()
 	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::SaveIcon);
     btnSaveFile->addListener (this);
 
+    btnSaveFile->setBounds (472, 8, 96, 24);
+
+    buttonReceive.reset (new juce::TextButton ("buttonReceive"));
+    addAndMakeVisible (buttonReceive.get());
+    buttonReceive->setTooltip (TRANS("Receive the current configuration from controller"));
+    buttonReceive->setButtonText (TRANS("Import from Lumatone"));
+    buttonReceive->addListener (this);
+
+    buttonReceive->setBounds (584, 8, 176, 24);
+
 	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
 	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
 
@@ -192,13 +230,13 @@ AllKeysOverview::AllKeysOverview()
 	{
 		OctaveBoard* board = octaveBoards.add(new OctaveBoard());
 
-		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		{
 			auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
 			addAndMakeVisible(key);
 		}
 
-		jassert(board->keyMiniDisplay.size() == TERPSTRABOARDSIZE);
+		jassert(board->keyMiniDisplay.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize());
 	}
 
 	jassert(octaveBoards.size() == NUMBEROFBOARDS);
@@ -218,17 +256,18 @@ AllKeysOverview::~AllKeysOverview()
 
     btnLoadFile = nullptr;
     btnSaveFile = nullptr;
+    buttonReceive = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
 	//for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	//{
-	//	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	//	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	//	{
 	//		octaveBoards[subBoardIndex]->keyMiniDisplay[i] = nullptr;
 	//	}
 	//}
-    //[/Destructor]
+  //[/Destructor]
 }
 
 //==============================================================================
@@ -308,7 +347,7 @@ void AllKeysOverview::resized()
 	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24, false);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
-	jassert(keyCentres.size() == TERPSTRABOARDSIZE * NUMBEROFBOARDS);
+	jassert(keyCentres.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize() * NUMBEROFBOARDS);
 	
 
 	int octaveIndex = 0;
@@ -316,7 +355,7 @@ void AllKeysOverview::resized()
 
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
-		int keyOctaveIndex = keyIndex % TERPSTRABOARDSIZE;
+		int keyOctaveIndex = keyIndex % TerpstraSysExApplication::getApp().getOctaveBoardSize();
 
 		// Apply rotational transform
 		Point<int> centre = keyCentres[keyIndex].roundToInt();
@@ -327,7 +366,7 @@ void AllKeysOverview::resized()
 		key->setKeyGraphics(keyShapeGraphic, keyShadowGraphic);
 
 
-		if (keyOctaveIndex + 1 == TERPSTRABOARDSIZE)
+		if (keyOctaveIndex + 1 == TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		{
 			octaveBoards[octaveIndex]->rightPos = key->getRight();
 			octaveIndex++;
@@ -356,6 +395,12 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_btnSaveFile] -- add your button handler code here..
 		TerpstraSysExApplication::getApp().saveSysExMappingAs();
         //[/UserButtonCode_btnSaveFile]
+    }
+    else if (buttonThatWasClicked == buttonReceive.get())
+    {
+        //[UserButtonCode_buttonReceive] -- add your button handler code here..
+		TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+        //[/UserButtonCode_buttonReceive]
     }
 
     //[UserbuttonClicked_Post]
@@ -399,6 +444,10 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="btnSaveFile" id="abbc33d699ba1e52" memberName="btnSaveFile"
               virtualName="" explicitFocusOrder="0" pos="472 8 96 24" buttonText="Save File"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="buttonReceive" id="6a7ed19ee86a3b97" memberName="buttonReceive"
+              virtualName="" explicitFocusOrder="0" pos="584 8 176 24" tooltip="Receive the current configuration from controller"
+              buttonText="Import from Lumatone" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

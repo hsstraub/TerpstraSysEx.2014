@@ -46,6 +46,13 @@ public:
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	int getOctaveBoardSize() const { return octaveBoardSize; }
+
+	// Menu functionality
+	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	void getAllCommands(Array <CommandID>& commands) override;
+	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
+	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
 	bool saveSysExMapping();
@@ -65,7 +72,8 @@ public:
 	bool openFromCurrentFile();
 	bool saveCurrentFile();
 
-	void sendCurrentMappingToDevice();
+	void sendCurrentConfigurationToDevice();
+	void requestConfigurationFromDevice();
 
 	void updateMainTitle();
 
@@ -124,10 +132,10 @@ public:
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
-	//std::unique_ptr<ApplicationCommandManager> commandManager;
 
 	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
 
+	std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LumatoneEditorLookAndFeel	lookAndFeel;
@@ -138,5 +146,8 @@ private:
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
+
+	// Size of octaver board. Usually 56, but there are a few devices with55.
+	int octaveBoardSize = 56;
 };
 

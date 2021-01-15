@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -24,8 +24,12 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+
 #include "HexagonTilingGeometry.h"
 #include "LumatoneEditorStyleCommon.h"
+
+#include "BoardGeometry.h"
+
 //[/Headers]
 
 
@@ -88,11 +92,13 @@ private:
         IsomorphicMassAssignMode = 1
     };
 
+	bool showIsomorphicMassAssign = false;
+
 	// Selector for octave boards
 	std::unique_ptr<TabbedButtonBar> octaveBoardSelectorTab;
 
 	// Editing single keys (of the selected 56-key set)
-	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[56];
 
     int					currentSingleKeySelection;
 
@@ -139,6 +145,9 @@ private:
     const float singleKeyFieldLineWidthSelected = 0.005f;
 
     const float singleKeyMarginFromWidth = 0.0164f;
+
+	// Geometry settings
+	TerpstraBoardGeometry	boardGeometry;
 
     //[/UserVariables]
 

@@ -54,7 +54,6 @@ public:
     void buttonClicked(Button* btn) override;
 
 	void onOpenConnectionToDevice();
-	void requestConfigurationFromDevice();
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
