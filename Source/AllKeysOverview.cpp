@@ -234,7 +234,7 @@ AllKeysOverview::AllKeysOverview()
 			addAndMakeVisible(key);
 		}
 
-		jassert(board->keyMiniDisplay.size() == TERPSTRABOARDSIZE);
+		jassert(board->keyMiniDisplay.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize());
 	}
 
 	jassert(octaveBoards.size() == NUMBEROFBOARDS);
@@ -345,7 +345,7 @@ void AllKeysOverview::resized()
 	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
-	jassert(keyCentres.size() == TERPSTRABOARDSIZE * NUMBEROFBOARDS);
+	jassert(keyCentres.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize() * NUMBEROFBOARDS);
 	
 
 	int octaveIndex = 0;
@@ -353,7 +353,7 @@ void AllKeysOverview::resized()
 
 	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
-		int keyOctaveIndex = keyIndex % TERPSTRABOARDSIZE;
+		int keyOctaveIndex = keyIndex % TerpstraSysExApplication::getApp().getOctaveBoardSize();
 
 		// Apply rotational transform
 		Point<int> centre = keyCentres[keyIndex].roundToInt();
@@ -364,7 +364,7 @@ void AllKeysOverview::resized()
 		key->setKeyGraphics(keyShapeGraphic, keyShadowGraphic);
 
 
-		if (keyOctaveIndex + 1 == TERPSTRABOARDSIZE)
+		if (keyOctaveIndex + 1 == TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		{
 			octaveBoards[octaveIndex]->rightPos = key->getRight();
 			octaveIndex++;

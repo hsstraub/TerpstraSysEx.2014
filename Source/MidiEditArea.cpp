@@ -34,9 +34,7 @@ TerpstraMidiDriver::sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int 
 
 //==============================================================================
 MidiEditArea::MidiEditArea ()
-    : Component("MidiEditArea"),
-	  lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),
-	  errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
+    : lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	lumatoneLabel.reset(new Label("LumatoneLabel", "lumatone"));
@@ -83,33 +81,48 @@ MidiEditArea::MidiEditArea ()
 
     cbMidiInput.reset (new juce::ComboBox ("cbMidiInput"));
     addAndMakeVisible (cbMidiInput.get());
-	lookAndFeel.setupComboBox(*cbMidiInput.get());
-    cbMidiInput->setTooltip (translate("InputTooltip"));
+    cbMidiInput->setTooltip (TRANS("Receives answers to sent SysEx commands and the current configuration from controller "));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiInput->setTextWhenNothingSelected (translate("SelectMIDIInput"));
-    cbMidiInput->setTextWhenNoChoicesAvailable (translate("NoInputDevices"));
+    cbMidiInput->setTextWhenNothingSelected (TRANS("Select MIDI Input"));
+    cbMidiInput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMidiInput->addListener (this);
+
+    cbMidiInput->setBounds (232, 8, 184, 24);
 
     cbMidiOutput.reset (new juce::ComboBox ("cbMidiOutput"));
     addAndMakeVisible (cbMidiOutput.get());
-	lookAndFeel.setupComboBox(*cbMidiOutput.get());
-    cbMidiOutput->setTooltip (translate("OutputToolTip"));
+    cbMidiOutput->setTooltip (TRANS("Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."));
     cbMidiOutput->setEditableText (false);
     cbMidiOutput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiOutput->setTextWhenNothingSelected (translate("SelectMIDIOutput"));
-    cbMidiOutput->setTextWhenNoChoicesAvailable (translate("NoOutputDevices"));
+    cbMidiOutput->setTextWhenNothingSelected (TRANS("Select MIDI Output"));
+    cbMidiOutput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMidiOutput->addListener (this);
 
-    lblConnectionState.reset (new juce::Label ("lblConnectionState", connectedText[0]));
-    addAndMakeVisible (lblConnectionState.get());
-	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
-	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[connectedToLumatone]);
+    cbMidiOutput->setBounds (432, 8, 184, 24);
 
-    lblEditMode.reset (new juce::Label ("lblEditMode", TRANS("EditMode")));
+    lblConnectionState.reset (new juce::Label ("lblConnectionState",
+                                               TRANS("Disconnected")));
+    addAndMakeVisible (lblConnectionState.get());
+    lblConnectionState->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblConnectionState->setJustificationType (juce::Justification::centredLeft);
+    lblConnectionState->setEditable (false, false, false);
+    lblConnectionState->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblConnectionState->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblConnectionState->setBounds (624, 8, 150, 24);
+
+    lblEditMode.reset (new juce::Label ("lblEditMode",
+                                        TRANS("Edit Mode:")));
     addAndMakeVisible (lblEditMode.get());
-	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
-	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
+    lblEditMode->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblEditMode->setJustificationType (juce::Justification::centredLeft);
+    lblEditMode->setEditable (false, false, false);
+    lblEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblEditMode->setBounds (8, 8, 96, 24);
+
 
     //[UserPreSize]
 
@@ -117,6 +130,8 @@ MidiEditArea::MidiEditArea ()
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
     //[/UserPreSize]
+
+    setSize (1024, 48);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -157,6 +172,8 @@ void MidiEditArea::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
+
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
@@ -384,35 +401,6 @@ void MidiEditArea::onOpenConnectionToDevice()
 		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
 }
 
-void MidiEditArea::changeListenerCallback(ChangeBroadcaster *source)
-{
-	if (source == editModeSelector.get())
-	{
-		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode(editModeSelector->getCurrentTabIndex());
-
-		TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
-
-		switch (sysExSendingMode)
-		{
-		case TerpstraMidiDriver::sysExSendingMode::liveEditor:
-			onOpenConnectionToDevice();
-			break;
-
-		case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
-			lblConnectionState->setText("Offline mode", NotificationType::dontSendNotification);
-			errorVisualizer.setErrorLevel(
-				*lblConnectionState.get(),
-				HajuErrorVisualizer::ErrorLevel::noError,
-				"Offline mode");
-			break;
-
-		default:
-			jassertfalse;
-			break;
-		}
-	}
-}
-
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
 	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
@@ -491,8 +479,8 @@ void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::Er
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MidiEditArea" componentName=""
-                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public ChangeListener"
-                 constructorParams="" variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public juce::Button::Listener"
+                 constructorParams="" variableInitialisers="lookAndFeel(static_cast&lt;LumatoneEditorLookAndFeel&amp;&gt;(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="1024" initialHeight="48">
   <BACKGROUND backgroundColour="ffbad0de"/>

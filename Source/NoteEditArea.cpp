@@ -174,11 +174,12 @@ void NoteEditArea::resized()
 	);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry);
-	jassert(keyCentres.size() == TERPSTRABOARDSIZE);
+	jassert(keyCentres.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	float keySize = tilingGeometry.getKeySize();
 	
-	for (int keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
+	int keyIndex = 0;
+	for (keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
 		Point<float> centre = keyCentres[keyIndex];
 
