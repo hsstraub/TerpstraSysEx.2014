@@ -191,6 +191,7 @@ public:
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
             int iconW = round(iconH * ((double)icon.getWidth() / icon.getHeight()));
+            int iconY = round(btn.getHeight() - iconH) / 2.0;
 #if JUCE_WINDOWS
             icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
 #else
@@ -198,10 +199,9 @@ public:
 #endif
 
             int margin = font.getStringWidth("_");
-            int lineX = round((btn.getWidth() - font.getStringWidth(btn.getButtonText()) - margin - iconW) / 2.0);
-            int iconY = round(btn.getHeight() - iconH) / 2.0;
-
-            g.drawImageAt(icon, lineX, iconY);
+            int textWidth = font.getStringWidth(btn.getButtonText());
+            int lineStart = round((btn.getWidth() - textWidth - margin - iconW) / 2.0);
+            int secondHalf = lineStart + margin;
 
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             Colour textColour = btn.findColour(colourId);
@@ -210,8 +210,20 @@ public:
 
             g.setColour(textColour);
             g.setFont(font);
-            int textX = lineX + margin + iconW;
-            g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(textX), Justification::left, 1);
+
+            bool iconOnRight = (bool)properties[LumatoneEditorStyleIDs::textButtonIconPlacement];
+            if (iconOnRight)
+            {
+                secondHalf += textWidth;
+                g.drawImageAt(icon, secondHalf, iconY);
+                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withLeft(lineStart).withRight(secondHalf), Justification::left, 1);
+            }
+            else
+            {
+                secondHalf += iconW;
+                g.drawImageAt(icon, lineStart, iconY);
+                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(secondHalf), Justification::left, 1);
+            }
         }
         else
         {

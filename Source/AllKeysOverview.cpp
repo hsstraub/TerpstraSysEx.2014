@@ -214,8 +214,9 @@ AllKeysOverview::AllKeysOverview()
     buttonReceive.reset (new juce::TextButton ("buttonReceive"));
     addAndMakeVisible (buttonReceive.get());
     buttonReceive->setTooltip (translate("ImportTooltip"));
-    buttonReceive->setButtonText (TRANS("Import from Lumatone"));
+    buttonReceive->setButtonText (translate("Import from Lumatone"));
 	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::ImportIcon);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
     buttonReceive->addListener (this);
 
 	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
