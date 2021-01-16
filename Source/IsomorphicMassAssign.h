@@ -103,6 +103,11 @@ private:
 	TerpstraBoardGeometry		boardGeometry;
 	ScaleStructure				scaleStructure;
 
+	// Style helpers
+	Rectangle<int> instructionsBounds;
+	FlexBox flexBox;
+	Font instructionsFont;
+
 	// Can be replaced, but ScaleStructureComponent currently needs a reference to a list of Colours
 	// to use and update them automatically in realtime
 	Array<Colour>				colourTable =
@@ -115,6 +120,10 @@ private:
 		Colours::rebeccapurple,
 		Colours::orange
 	};
+
+	const float instructionsBottom = 0.183333f;
+	const float fontHeightInBounds = 0.2f;
+
     //[/UserVariables]
 
     //==============================================================================

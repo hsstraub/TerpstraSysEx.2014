@@ -22,6 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
+#include "LumatoneEditorStyleCommon.h"
 //[/Headers]
 
 
@@ -61,6 +62,8 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     int& periodSize;
 	IncrMidiNotesMappingLogic	mappingLogic;
+
+    FlexBox flexBox;
     //[/UserVariables]
 
     //==============================================================================

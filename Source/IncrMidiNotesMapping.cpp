@@ -46,12 +46,7 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     labelMidiNotesUntil.reset (new juce::Label ("labelMidiNotesUntil",
                                                 TRANS("MIDI notes from 0 to the scale size")));
     addAndMakeVisible (labelMidiNotesUntil.get());
-    labelMidiNotesUntil->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelMidiNotesUntil->setJustificationType (juce::Justification::centredLeft);
-    labelMidiNotesUntil->setEditable (false, false, false);
-    labelMidiNotesUntil->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelMidiNotesUntil->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
+    labelMidiNotesUntil->setFont(LumatoneEditorFonts::GothamNarrowMedium());
     labelMidiNotesUntil->setBounds (8, 8, 432, 24);
 
     singleChannelButton.reset (new juce::ToggleButton ("singleChannelButton"));
@@ -77,6 +72,8 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
 
 
     //[UserPreSize]
+    flexBox.flexWrap = FlexBox::Wrap::wrap;
+    flexBox.flexDirection = FlexBox::Direction::row;
     //[/UserPreSize]
 
     setSize (416, 220);
@@ -116,19 +113,31 @@ void IncrMidiNotesMapping::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffb8d0de));
+    //g.fillAll (juce::Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	//g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
 void IncrMidiNotesMapping::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+    int width = getWidth();
+    int height = getHeight();
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+
+    float itemWidth = width * 0.48f;
+    float itemHeight = height * 0.183f;
+
+    flexBox.items.clear();
+    for (auto child : getChildren())
+    {
+        flexBox.items.add(FlexItem(*child).withFlex(1.0f).withWidth(itemWidth).withHeight(itemHeight));
+    }
+    flexBox.performLayout(getLocalBounds());
     //[/UserResized]
 }
 
