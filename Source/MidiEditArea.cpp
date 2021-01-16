@@ -37,6 +37,8 @@ MidiEditArea::MidiEditArea ()
     : lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	setName("MidiEditArea");
+
 	lumatoneLabel.reset(new Label("LumatoneLabel", "lumatone"));
 	lumatoneLabel->setFont(LumatoneEditorFonts::UniviaProBold());
 	lumatoneLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
@@ -125,6 +127,14 @@ MidiEditArea::MidiEditArea ()
 
 
     //[UserPreSize]
+	lookAndFeel.setupComboBox(*cbMidiInput.get());
+	lookAndFeel.setupComboBox(*cbMidiOutput.get());
+
+	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[connectedToLumatone]);
+
+	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
@@ -360,25 +370,22 @@ void MidiEditArea::buttonClicked(Button* btn)
 
 void MidiEditArea::setConnectivity(bool isConnected)
 {
-	if ((!connectedToLumatone && isConnected) || (connectedToLumatone && !isConnected))
-	{
-		cbMidiInput->setVisible(!isConnected);
-		cbMidiOutput->setVisible(!isConnected);
-		pleaseConnectLabel->setVisible(!isConnected);
-		offlineMsgLabel->setVisible(!isConnected);
+	cbMidiInput->setVisible(!isConnected);
+	cbMidiOutput->setVisible(!isConnected);
+	pleaseConnectLabel->setVisible(!isConnected);
+	offlineMsgLabel->setVisible(!isConnected);
 
-		lblConnectionState->setText(connectedText[isConnected], dontSendNotification);
-		lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
+	lblConnectionState->setText(connectedText[isConnected], dontSendNotification);
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
 
-		lblEditMode->setVisible(isConnected);
-		liveEditorBtn->setVisible(isConnected);
-		offlineEditorBtn->setVisible(isConnected);
+	lblEditMode->setVisible(isConnected);
+	liveEditorBtn->setVisible(isConnected);
+	offlineEditorBtn->setVisible(isConnected);
 
-		connectedToLumatone = isConnected;
+	connectedToLumatone = isConnected;
 
-		resized();
-		repaint();
-	}
+	resized();
+	repaint();
 }
 
 void MidiEditArea::onOpenConnectionToDevice()
