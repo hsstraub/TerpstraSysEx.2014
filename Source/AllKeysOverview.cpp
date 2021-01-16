@@ -62,7 +62,7 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 		//.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
 	// NEW STYLE TODO: Use above alpha, or do octave outline?
 	//// ToDo if highlighted: even different alpha?
-	//g.setColour(hexagonColour);
+	g.setColour(hexagonColour);
 	//g.fillPath(hexPath);
 
 	//// Key highlighted or not: color and thickness of the line
