@@ -179,7 +179,7 @@ void NoteEditArea::resized()
 	float keySize = tilingGeometry.getKeySize();
 	
 	int keyIndex = 0;
-	for (; keyIndex < keyCentres.size(); keyIndex++)
+	for (keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)
 	{
 		Point<float> centre = keyCentres[keyIndex];
 

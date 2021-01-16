@@ -38,8 +38,8 @@
 */
 class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
-                      public juce::ComboBox::Listener,
-                      public juce::Button::Listener
+                      public juce::Button::Listener,
+                      public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -82,7 +82,7 @@ private:
 		liveEditor = 0,
 		offlineEditor = 1
 	};
-	
+
 	HajuErrorVisualizer     errorVisualizer;
 
     LumatoneEditorLookAndFeel& lookAndFeel;
