@@ -28,7 +28,7 @@
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
 CurvesArea::CurvesTabComponent::CurvesTabComponent(TabbedButtonBar::Orientation orientation)
-	: TabbedComponent::TabbedComponent(orientation) 
+	: TabbedComponent::TabbedComponent(orientation)
 {
 }
 
@@ -65,10 +65,20 @@ CurvesArea::CurvesArea ()
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
-    curvesTab->addTab (translate("NoteVelocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
-    curvesTab->addTab (translate("CCFader"), juce::Colours::lightgrey, new FaderVelocityCurveDialog(), true);
-    curvesTab->addTab (translate("Aftertouch"), juce::Colours::lightgrey, new AftertouchVelocityCurveDialog(), true);
+    curvesTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+    curvesTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+    curvesTab->addTab (TRANS("Note Velocity"), Colour(), new NoteOnOffVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
+
+    curvesTab->setBounds (8, 40, 464, 200);
+
+    btnDeveloperMode.reset (new juce::ToggleButton ("btnDeveloperMode"));
+    addAndMakeVisible (btnDeveloperMode.get());
+    btnDeveloperMode->setButtonText (TRANS("Developer Mode"));
+    btnDeveloperMode->addListener (this);
+
+    btnDeveloperMode->setBounds (200, 8, 158, 24);
+
 
     //[UserPreSize]
 
@@ -85,6 +95,7 @@ CurvesArea::~CurvesArea()
 
     labelWindowTitle = nullptr;
     curvesTab = nullptr;
+    btnDeveloperMode = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -101,16 +112,6 @@ void CurvesArea::paint (juce::Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-    //==========================================================================
-    // DEBUG DRAWING
-    Rectangle<float> controlsBounds = getLocalBounds().toFloat().withTop(curvesTab->getBottom());
-    g.setColour(Colour(0xffc19520));
-    g.drawRoundedRectangle(controlsBounds, getParentHeight() * roundedCornerLayoutAppHeightScalar, 1.0f);
-
-    g.setColour(Colour(0xffcd6f2e));
-    g.drawRect(getLocalBounds());
-    //==========================================================================
-
     //[/UserPaint]
 }
 
@@ -124,6 +125,32 @@ void CurvesArea::resized()
     curvesTab->setBounds(getLocalBounds());
 }
 
+void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
+{
+    //[UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
+
+    if (buttonThatWasClicked == btnDeveloperMode.get())
+    {
+        //[UserButtonCode_btnDeveloperMode] -- add your button handler code here..
+		if (btnDeveloperMode->getToggleState())
+		{
+			curvesTab->addTab(TRANS("CC Fader"), juce::Colours::lightgrey, new FaderVelocityCurveDialog(), true);
+			curvesTab->addTab(TRANS("Aftertouch"), juce::Colours::lightgrey, new AftertouchVelocityCurveDialog(), true);
+		}
+		else
+		{
+			curvesTab->setCurrentTabIndex(0);
+			curvesTab->removeTab(2);
+			curvesTab->removeTab(1);
+		}
+        //[/UserButtonCode_btnDeveloperMode]
+    }
+
+    //[UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -131,6 +158,16 @@ void CurvesArea::resized()
 void CurvesArea::loadFromMapping()
 {
 	dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getCurrentContentComponent())->loadFromMapping();
+}
+
+void CurvesArea::sendConfigToController()
+{
+	// Send all curves configurations to controller
+	// The "developer mode" curve configs (fader, aftertouch, Lumatouch, modulation wheel) are snet only if developer mode is active.
+	for (int i = 0; i < curvesTab->getNumTabs(); i++)
+	{
+		dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getTabContentComponent(i))->sendVelocityTableToController();
+	}
 }
 
 //[/MiscUserCode]
@@ -160,11 +197,10 @@ BEGIN_JUCER_METADATA
                    orientation="top" tabBarDepth="30" initialTab="0">
     <TAB name="Note Velocity" colour="ffd3d3d3" useJucerComp="0" contentClassName="NoteOnOffVelocityCurveDialog"
          constructorParams="" jucerComponentFile=""/>
-    <TAB name="CC Fader" colour="ffd3d3d3" useJucerComp="0" contentClassName="FaderVelocityCurveDialog"
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Aftertouch" colour="ffd3d3d3" useJucerComp="0" contentClassName="AftertouchVelocityCurveDialog"
-         constructorParams="" jucerComponentFile=""/>
   </TABBEDCOMPONENT>
+  <TOGGLEBUTTON name="btnDeveloperMode" id="65b6469bf46b2a64" memberName="btnDeveloperMode"
+                virtualName="" explicitFocusOrder="0" pos="200 8 158 24" buttonText="Developer Mode"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

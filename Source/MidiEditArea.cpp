@@ -34,11 +34,11 @@ TerpstraMidiDriver::sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int 
 
 //==============================================================================
 MidiEditArea::MidiEditArea ()
-    : Component("MidiEditArea"),
-	  lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),
-	  errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
+    : lookAndFeel(static_cast<LumatoneEditorLookAndFeel&>(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	setName("MidiEditArea");
+
 	lumatoneLabel.reset(new Label("LumatoneLabel", "lumatone"));
 	lumatoneLabel->setFont(LumatoneEditorFonts::UniviaProBold());
 	lumatoneLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
@@ -83,40 +83,65 @@ MidiEditArea::MidiEditArea ()
 
     cbMidiInput.reset (new juce::ComboBox ("cbMidiInput"));
     addAndMakeVisible (cbMidiInput.get());
-	lookAndFeel.setupComboBox(*cbMidiInput.get());
-    cbMidiInput->setTooltip (translate("InputTooltip"));
+    cbMidiInput->setTooltip (TRANS("Receives answers to sent SysEx commands and the current configuration from controller "));
     cbMidiInput->setEditableText (false);
     cbMidiInput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiInput->setTextWhenNothingSelected (translate("SelectMIDIInput"));
-    cbMidiInput->setTextWhenNoChoicesAvailable (translate("NoInputDevices"));
+    cbMidiInput->setTextWhenNothingSelected (TRANS("Select MIDI Input"));
+    cbMidiInput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMidiInput->addListener (this);
+
+    cbMidiInput->setBounds (232, 8, 184, 24);
 
     cbMidiOutput.reset (new juce::ComboBox ("cbMidiOutput"));
     addAndMakeVisible (cbMidiOutput.get());
-	lookAndFeel.setupComboBox(*cbMidiOutput.get());
-    cbMidiOutput->setTooltip (translate("OutputToolTip"));
+    cbMidiOutput->setTooltip (TRANS("Key mappings are sent to this port. This happens automatically if a valid MIDI port is selected."));
     cbMidiOutput->setEditableText (false);
     cbMidiOutput->setJustificationType (juce::Justification::centredLeft);
-    cbMidiOutput->setTextWhenNothingSelected (translate("SelectMIDIOutput"));
-    cbMidiOutput->setTextWhenNoChoicesAvailable (translate("NoOutputDevices"));
+    cbMidiOutput->setTextWhenNothingSelected (TRANS("Select MIDI Output"));
+    cbMidiOutput->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMidiOutput->addListener (this);
 
-    lblConnectionState.reset (new juce::Label ("lblConnectionState", connectedText[0]));
+    cbMidiOutput->setBounds (432, 8, 184, 24);
+
+    lblConnectionState.reset (new juce::Label ("lblConnectionState",
+                                               TRANS("Disconnected")));
     addAndMakeVisible (lblConnectionState.get());
+    lblConnectionState->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblConnectionState->setJustificationType (juce::Justification::centredLeft);
+    lblConnectionState->setEditable (false, false, false);
+    lblConnectionState->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblConnectionState->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblConnectionState->setBounds (624, 8, 150, 24);
+
+    lblEditMode.reset (new juce::Label ("lblEditMode",
+                                        TRANS("Edit Mode:")));
+    addAndMakeVisible (lblEditMode.get());
+    lblEditMode->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblEditMode->setJustificationType (juce::Justification::centredLeft);
+    lblEditMode->setEditable (false, false, false);
+    lblEditMode->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblEditMode->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblEditMode->setBounds (8, 8, 96, 24);
+
+
+    //[UserPreSize]
+	lookAndFeel.setupComboBox(*cbMidiInput.get());
+	lookAndFeel.setupComboBox(*cbMidiOutput.get());
+
 	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[connectedToLumatone]);
 
-    lblEditMode.reset (new juce::Label ("lblEditMode", TRANS("EditMode")));
-    addAndMakeVisible (lblEditMode.get());
 	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
-
-    //[UserPreSize]
 
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
     //[/UserPreSize]
+
+    setSize (1024, 48);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -158,6 +183,8 @@ void MidiEditArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
+    g.fillAll (juce::Colour (0xffbad0de));
+
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
 
@@ -170,7 +197,7 @@ void MidiEditArea::paint (juce::Graphics& g)
 	if (!connectedToLumatone)
 	{
 		g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
-		g.fillRoundedRectangle(ioBounds, proportionOfHeight(controlBoundsCornerRadius));
+		g.fillRoundedRectangle(ioBounds, round(getHeight() * controlBoundsCornerRadius));
 	}
 
 	g.setColour(connectedColours[connectedToLumatone]);
@@ -181,54 +208,56 @@ void MidiEditArea::paint (juce::Graphics& g)
 void MidiEditArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+	float w = getWidth();
+	float h = getHeight();
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
 
-	lumatoneLabelBounds = getBounds().withRight(proportionOfWidth(lumatoneLabelAreaWidth));
+	lumatoneLabelBounds = getBounds().withRight(round(w * lumatoneLabelAreaWidth));
 	resizeLabelWithWidth(lumatoneLabel.get(), lumatoneLabelBounds.proportionOfWidth(lumatoneLabelWidthInArea));
 	lumatoneLabel->setCentrePosition(lumatoneLabelBounds.getCentre());
 
-	resizeLabelWithHeight(lblConnectionState.get(), proportionOfHeight(connectivityHeight));
+	resizeLabelWithHeight(lblConnectionState.get(), round(h* connectivityHeight));
 
 	// Also used to position logomark
 	ioBounds.setBounds(
-		proportionOfWidth(controlBoundsX), proportionOfHeight(controlBoundsY),
-		proportionOfWidth(controlBoundsWidth), proportionOfHeight(controlBoundsHeight)
+		round(w * controlBoundsX), round(h* controlBoundsY),
+		round(w * controlBoundsWidth), round(h* controlBoundsHeight)
 	);
 
 	if (connectedToLumatone)
 	{
-		resizeLabelWithHeight(lblEditMode.get(), proportionOfHeight(editModeHeight));
+		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight));
 		lblEditMode->setTopLeftPosition(
-			lumatoneLabelBounds.getRight() + proportionOfWidth(editModeX),
-			round((getHeight() - lblEditMode->getHeight()) / 2.0f)
+			lumatoneLabelBounds.getRight() + round(w * editModeX),
+			round((h - lblEditMode->getHeight()) * 0.5f)
 		);
 
-		liveEditorBtn->setSize(proportionOfWidth(liveEditButtonWidth), proportionOfHeight(editModeButtonHeight));
+		liveEditorBtn->setSize(round(w * liveEditButtonWidth), round(h* editModeButtonHeight));
 		liveEditorBtn->setTopLeftPosition(
-			lumatoneLabelBounds.getRight() + proportionOfWidth(editModeButtonX),
-			round((getHeight() - liveEditorBtn->getHeight()) / 2.0f)
+			lumatoneLabelBounds.getRight() + round(w * editModeButtonX),
+			round((h - liveEditorBtn->getHeight()) * 0.5f)
 		);
 
 		offlineEditorBtn->setBounds(
-			liveEditorBtn->getRight(), liveEditorBtn->getY(), proportionOfWidth(offlineEditButtonWidth), liveEditorBtn->getHeight()
+			liveEditorBtn->getRight(), liveEditorBtn->getY(), round(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
 		);
 
-		connectivityArea = getBounds().toFloat().withLeft(proportionOfWidth(connectedAreaX));
+		connectivityArea = getBounds().toFloat().withLeft(round(w * connectedAreaX));
 
 		lblConnectionState->setTopLeftPosition(
-			proportionOfWidth(connectedX),
-			round((getHeight() - lblConnectionState->getHeight()) / 2.0f)
+			round(w * connectedX),
+			round((h - lblConnectionState->getHeight()) * 0.5f)
 		);
 	}
 	else
 	{
-		connectivityArea = getBounds().toFloat().withLeft(proportionOfWidth(disconnectedAreaX));
+		connectivityArea = getBounds().toFloat().withLeft(round(w * disconnectedAreaX));
 
 		lblConnectionState->setTopLeftPosition(
 			ioBounds.getX() + ioBounds.proportionOfWidth(disconnectedControlBoundsX),
-			round(ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) / 2.05f)
+			round((float)ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) * 0.5f)
 		);
 
 		cbMidiInput->setBounds(ioBounds.getProportion(Rectangle<float>(
@@ -239,18 +268,17 @@ void MidiEditArea::resized()
 			ioBounds.getX() + ioBounds.proportionOfWidth(midiOutputControlBoundsX))
 		);
 
-		resizeLabelWithHeight(pleaseConnectLabel.get(), proportionOfHeight(pleaseConnectHeight));
-		pleaseConnectLabel->setTopLeftPosition(proportionOfWidth(pleaseConnectX), proportionOfHeight(pleaseConnectY));
+		pleaseConnectLabel->setTopLeftPosition(round(w * pleaseConnectX), round(h * pleaseConnectY));
+		pleaseConnectLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * pleaseConnectHeight));
 
-		offlineMsgLabel->setBounds(
-			proportionOfWidth(connectionDirectionsX), proportionOfHeight(connectionDirectionsY),
-			proportionOfWidth(connectionDirectionsWidth), proportionOfHeight(connectionDirectionsHeight)
-		);
+		offlineMsgLabel->setTopLeftPosition(round(w * connectionDirectionsX), round(h * connectionDirectionsY));
+		offlineMsgLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * connectionDirectionsHeight));
 		offlineMsgLabel->setFont(offlineMsgLabel->getFont().withHeight(offlineMsgLabel->getHeight()));
 	}
 
-	logomarkBounds.setSize(proportionOfHeight(logomarkHeight), proportionOfHeight(logomarkHeight));
-	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) / 2.0f), proportionOfHeight(0.5f));
+	int logomarkSize = round(h * logomarkHeight);
+	logomarkBounds.setSize(logomarkSize, logomarkSize);
+	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) * 0.5f), round(h* 0.5f));
     //[/UserResized]
 }
 
@@ -263,7 +291,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_cbMidiInput] -- add your combo box handling code here..
 		if (cbMidiInput->getSelectedItemIndex() >= 0)
-			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex()+1);
+			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
 
 		if (cbMidiInput->getSelectedItemIndex() < 0 || cbMidiOutput->getSelectedItemIndex() < 0)
 		{
@@ -343,47 +371,27 @@ void MidiEditArea::buttonClicked(Button* btn)
 
 void MidiEditArea::setConnectivity(bool isConnected)
 {
-	if ((!connectedToLumatone && isConnected) || (connectedToLumatone && !isConnected))
-	{
-		cbMidiInput->setVisible(!isConnected);
-		cbMidiOutput->setVisible(!isConnected);
-		pleaseConnectLabel->setVisible(!isConnected);
-		offlineMsgLabel->setVisible(!isConnected);
+	cbMidiInput->setVisible(!isConnected);
+	cbMidiOutput->setVisible(!isConnected);
+	pleaseConnectLabel->setVisible(!isConnected);
+	offlineMsgLabel->setVisible(!isConnected);
 
-		lblConnectionState->setText(connectedText[isConnected], dontSendNotification);
-		lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
+	lblConnectionState->setText(connectedText[isConnected], dontSendNotification);
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
 
-		lblEditMode->setVisible(isConnected);
-		liveEditorBtn->setVisible(isConnected);
-		offlineEditorBtn->setVisible(isConnected);
+	lblEditMode->setVisible(isConnected);
+	liveEditorBtn->setVisible(isConnected);
+	offlineEditorBtn->setVisible(isConnected);
 
-		connectedToLumatone = isConnected;
+	connectedToLumatone = isConnected;
 
-		resized();
-		repaint();
-	}
+	resized();
+	repaint();
 }
 
 void MidiEditArea::onOpenConnectionToDevice()
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
-
-	// if editing operations were done that have not been saved, warn that edits will be overwritten when configuration is read from device
-	if (TerpstraSysExApplication::getApp().getHasChangesToSave())
-	{
-		auto retc = AlertWindow::showOkCancelBox(
-			AlertWindow::AlertIconType::QuestionIcon,
-			"Establishing connection to controller",
-			"The controller's current configuration will be received now. This will overwrite all edits you have done, Do you want to continue?");
-
-		if (retc == false)
-		{
-			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
-			return;
-		}
-	}
-
-	TerpstraSysExApplication::getApp().resetSysExMapping();
 
 	lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
 	errorVisualizer.setErrorLevel(
@@ -391,27 +399,15 @@ void MidiEditArea::onOpenConnectionToDevice()
 		HajuErrorVisualizer::ErrorLevel::noError,
 		"Connecting");
 
-	requestConfigurationFromDevice();
+	// Send current configuration to device, if desired
+	auto retc = AlertWindow::showOkCancelBox(
+		AlertWindow::AlertIconType::QuestionIcon,
+		"Establishing connection to controller",
+		"Do you want to send the current configuration to the controller?");
+
+	if (retc)
+		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
 }
-
-void MidiEditArea::requestConfigurationFromDevice()
-{
-	// Request MIDI channel, MIDI note, colour and key type config for all keys
-	TerpstraSysExApplication::getApp().getMidiDriver().sendGetCompleteMappingRequest();
-
-	// General options
-	// ToDo AfterTouchActive
-	// ToDo LightOnKeyStrokes
-	// ToDo invertFootController
-	// ToDO expressionControllerSensivity
-
-	// Velocity curve config
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::fader);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::afterTouch);
-}
-
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
@@ -491,8 +487,8 @@ void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::Er
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MidiEditArea" componentName=""
-                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public ChangeListener"
-                 constructorParams="" variableInitialisers="errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public juce::Button::Listener"
+                 constructorParams="" variableInitialisers="lookAndFeel(static_cast&lt;LumatoneEditorLookAndFeel&amp;&gt;(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="1024" initialHeight="48">
   <BACKGROUND backgroundColour="ffbad0de"/>

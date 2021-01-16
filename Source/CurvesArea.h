@@ -37,7 +37,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class CurvesArea  : public juce::Component
+class CurvesArea  : public juce::Component,
+                    public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -63,12 +64,13 @@ public:
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
 
-    //[/UserMethods]
+	// Send curves configS to controller
+	void sendConfigToController();
+  //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-
-
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
@@ -86,6 +88,7 @@ private:
     //==============================================================================
     std::unique_ptr<juce::Label> labelWindowTitle;
     std::unique_ptr<CurvesTabComponent> curvesTab;
+    std::unique_ptr<juce::ToggleButton> btnDeveloperMode;
 
 
     //==============================================================================

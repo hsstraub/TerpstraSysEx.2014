@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -50,27 +50,8 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     cbEditMode->setBounds (8, 8, 296, 24);
 
-    labelCurrentBeamValue.reset (new juce::Label ("labelCurrentBeamValue", TRANS("127")));
-    addAndMakeVisible (labelCurrentBeamValue.get());
-    labelCurrentBeamValue->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelCurrentBeamValue->setJustificationType (juce::Justification::centredLeft);
-    labelCurrentBeamValue->setEditable (false, false, false);
-    labelCurrentBeamValue->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelCurrentBeamValue->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelCurrentBeamValue->setBounds (0, 40, 31, 16);
-
-    labelCurrentXPos.reset (new juce::Label ("labelCurrentXPos", TRANS("127")));
-    addAndMakeVisible (labelCurrentXPos.get());
-    labelCurrentXPos->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelCurrentXPos->setJustificationType (juce::Justification::centredLeft);
-    labelCurrentXPos->setEditable (false, false, false);
-    labelCurrentXPos->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelCurrentXPos->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelCurrentXPos->setBounds (40, 40, 31, 16);
-
-
+	beamColourGradient.addColour(0.0f, Colour(0x66ff5e00));
+	beamColourGradient.addColour(1.0f, Colour(0x66ff5e00));
     //[UserPreSize]
 
 	drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
@@ -80,7 +61,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 	for (int x = 0; x < 128; x++)
 	{
 		velocityBeamTable[x].reset(new  VelocityCurveBeam());
-		addAndMakeVisible(velocityBeamTable[x].get());
+		addChildComponent(velocityBeamTable[x].get());
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
 
@@ -90,8 +71,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
 
     //[Constructor] You can add your own custom stuff here..
-	labelCurrentBeamValue->setVisible(false);
-	labelCurrentXPos->setVisible(false);
 
 	// Initialize velocity lookup table
 	for (int x = 0; x < 128; x++)
@@ -109,8 +88,6 @@ VelocityCurveDlgBase::~VelocityCurveDlgBase()
     //[/Destructor_pre]
 
     cbEditMode = nullptr;
-    labelCurrentBeamValue = nullptr;
-    labelCurrentXPos = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -124,21 +101,42 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
-
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.fillAll(backgroundColour);
 
-	g.setColour(findColour(VelocityCurveBeam::outlineColourId));
-	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
+	int h = getHeight();
+
+	// Build contour path
+	beamTableContour.clear();
+	beamTableContour.startNewSubPath(0, h);
+	
+	for (int x = 0; x < 128; x++)
+		beamTableContour.lineTo(velocityBeamTable[x]->getX(), h - velocityBeamTable[x]->getBeamHeightFromValue());
+	
+	beamTableContour.lineTo(getWidth(), h);
+	beamTableContour.closeSubPath();
+
+	// Fill velocity contour
+	g.setGradientFill(beamColourGradient);
+	g.fillPath(beamTableContour);
+
+	//g.setColour(findColour(VelocityCurveBeam::outlineColourId));
+	//g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 	{
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setTooltip(currentDrawingStrategy->getDescriptionText());
+		{
+			auto beam = velocityBeamTable[x].get();
+			beam->setTooltip(currentDrawingStrategy->getDescriptionText());
+		}
 		currentDrawingStrategy->paint(g, getLookAndFeel());
 	}
+
+	// Draw grid overlay
+	g.setColour(gridColour);
+	g.strokePath(beamTableGrid, PathStrokeType(0.8f));
     //[/UserPaint]
 }
 
@@ -147,33 +145,58 @@ void VelocityCurveDlgBase::resized()
     //[UserPreResize] Add your own custom resize code here..
 	int w = this->getWidth();
 	int h = this->getHeight();
+
+	// Grid units
+	float xUnit = w * CURVEGRIDXRESOLUTION;
+	float x = xUnit;
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
 
-	float graphicsXPadding = cbEditMode->getX();
-	float graphicsYPos = cbEditMode->getBottom() + BEAMTABLERIMABOVE;
-	float graphicsBottom = h - labelCurrentXPos->getHeight();
+	//float graphicsXPadding = cbEditMode->getX();
+	//float graphicsYPos = cbEditMode->getBottom() + BEAMTABLERIMABOVE;
+	//float graphicsBottom = h - BEAMTABLERIMABOVE;
 
-	beamTableFrame.clear();
-	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPos);
-	beamTableFrame.lineTo(graphicsXPadding, graphicsBottom);
-	beamTableFrame.lineTo(w - graphicsXPadding, graphicsBottom);
-	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
-	beamTableFrame.closeSubPath();
+	//beamTableFrame.clear();
+	//beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPos);
+	//beamTableFrame.lineTo(graphicsXPadding, graphicsBottom);
+	//beamTableFrame.lineTo(w - graphicsXPadding, graphicsBottom);
+	//beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
+	//beamTableFrame.closeSubPath();
+
+	cbEditMode->setBounds(0, 0, xUnit * 11, xUnit * 3);
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 		currentDrawingStrategy->resized();
 
-	float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
-	float velocityBeamXPos = graphicsXPadding;
+	//float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
+	float velocityBeamXPos = 0;
 	for (int x = 0; x < 128; x++)
 	{
 		auto velocityBeamWidth = beamWidth(x);
-		velocityBeamTable[x]->setBounds(velocityBeamXPos, graphicsYPos, velocityBeamWidth, velocityGraphicsHeight);
+		velocityBeamTable[x]->setBounds(velocityBeamXPos, 0, velocityBeamWidth, h);
 		velocityBeamXPos += velocityBeamWidth;
 	}
+
+	// Build grid
+	beamTableGrid.clear();
+
+	while (x < w)
+	{
+		beamTableGrid.addLineSegment(Line<float>(x, 0, x, (float)h), 1.0f);
+		x += xUnit;
+	}
+
+	float y = xUnit;
+	while (y < h)
+	{
+		beamTableGrid.addLineSegment(Line<float>(0, y, (float)w, y), 1.0f);
+		y += xUnit;
+	}
+
+	beamColourGradient.point1 = { 0.0f, (float)h };
+	beamColourGradient.point2 = { velocityBeamXPos, (float)h };
 
     //[/UserResized]
 }
@@ -212,6 +235,28 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
+{
+	int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
+	Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
+	g.setColour(Colour(0xff272b2f));
+	g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
+}
+
+void VelocityCurveDlgBase::lookAndFeelChanged()
+{
+	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (lookAndFeel)
+	{
+		beamColourGradient.clearColours();
+		beamColourGradient.addColour(0.0, lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGradientMin));
+		beamColourGradient.addColour(1.0, lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGradientMax));
+		
+		backgroundColour = lookAndFeel->findColour(LumatoneEditorColourIDs::ControlBoxBackground);
+		gridColour = lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGridColour);
+	}
+}
 
 void VelocityCurveDlgBase::loadFromMapping()
 {
@@ -252,74 +297,18 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
 }
 
-bool VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)
-{
-	if (beamTableFrame.contains(localPoint))
-	{
-        int beamTableLeft = velocityBeamTable[0]->getX();
-        int beamTableRight = velocityBeamTable[127]->getRight();
-        int xpos = (localPoint.x - beamTableLeft) * 128 / (beamTableRight - beamTableLeft);
-        if (xpos >= 0 && xpos < 128)
-        {
-			// Show the field with the current beam value
-			labelCurrentBeamValue->setVisible(true);
-			labelCurrentBeamValue->setBounds(
-				jmin(roundToInt(localPoint.x), getWidth() - labelCurrentBeamValue->getWidth()),
-				localPoint.y - labelCurrentBeamValue->getHeight(),
-				labelCurrentBeamValue->getWidth(),
-				labelCurrentBeamValue->getHeight());
-
-			// Value
-			labelCurrentBeamValue->setText(beamValueText(velocityBeamTable[0]->getBeamValueFromLocalPoint(localPoint)), juce::NotificationType::sendNotification);
-
-			// Show x value (beam position)
-			labelCurrentXPos->setVisible(true);
-			labelCurrentXPos->setBounds(
-				jmin(roundToInt(localPoint.x), getWidth() - labelCurrentXPos->getWidth()),
-				velocityBeamTable[0]->getBottom(),
-                labelCurrentXPos->getWidth(),
-                labelCurrentXPos->getHeight());
-            labelCurrentXPos->setText(beamXPosText(xpos), juce::NotificationType::sendNotification);
-
-			return true;
-        }
-        else
-        {
-            labelCurrentBeamValue->setVisible(false);
-            labelCurrentXPos->setVisible(false);
-
-			return false;
-        }
-	}
-	else
-    {
-		// Hide fields
-		labelCurrentBeamValue->setVisible(false);
-		labelCurrentXPos->setVisible(false);
-
-		return false;
-    }
-}
-
 void VelocityCurveDlgBase::mouseMove(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
 
-	bool doRepaint = showBeamValueOfMousePosition(localPoint);
-
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
-	if (currentDrawingStrategy != nullptr)
-		doRepaint |= currentDrawingStrategy->mouseMove(event, localPoint);
-
-	if (doRepaint)
+	if (currentDrawingStrategy != nullptr && currentDrawingStrategy->mouseMove(event, localPoint))
 		repaint();
 }
 
 void VelocityCurveDlgBase::mouseDown(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
-
-	showBeamValueOfMousePosition(localPoint);
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
@@ -334,8 +323,6 @@ void VelocityCurveDlgBase::mouseDown(const MouseEvent &event)
 void VelocityCurveDlgBase::mouseDrag(const MouseEvent &event)
 {
 	juce::Point<float> localPoint = getLocalPoint(event.eventComponent, event.position);
-
-	showBeamValueOfMousePosition(localPoint);
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
@@ -400,6 +387,8 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 		jassertfalse;
 		return nullptr;
 	}
+
+	return nullptr;
 }
 
 VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()
@@ -437,16 +426,6 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="8 8 296 24" editable="0"
             layout="33" items="Free drawing&#10;Linear&#10;Quadratic" textWhenNonSelected="Select drawing mode"
             textWhenNoItems="(no choices)"/>
-  <LABEL name="labelCurrentBeamValue" id="5ddce68a8155d39e" memberName="labelCurrentBeamValue"
-         virtualName="" explicitFocusOrder="0" pos="0 40 31 16" edTextCol="ff000000"
-         edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="33"/>
-  <LABEL name="labelCurrentXPos" id="f2fe328e83d5b29" memberName="labelCurrentXPos"
-         virtualName="" explicitFocusOrder="0" pos="40 40 31 16" edTextCol="ff000000"
-         edBkgCol="0" labelText="127" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -37,11 +37,9 @@ public:
 	KEYTYPE	keyType;
 };
 
-// Subset of 56 keys
-#define TERPSTRABOARDSIZE 56
-
+// Subset of 56 (or 55) keys
 struct TerpstraKeys {
-	TerpstraKey		theKeys[TERPSTRABOARDSIZE];
+	TerpstraKey		theKeys[56];
 	int				board_idx;
 	int				key_idx;
 
@@ -51,7 +49,6 @@ struct TerpstraKeys {
 };
 
 // Velocity curve config
-
 class TerpstraVelocityCurveConfig
 {
 public:

@@ -38,8 +38,8 @@
 */
 class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
-                      public juce::ComboBox::Listener,
-                      public juce::Button::Listener
+                      public juce::Button::Listener,
+                      public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -54,7 +54,6 @@ public:
     void buttonClicked(Button* btn) override;
 
 	void onOpenConnectionToDevice();
-	void requestConfigurationFromDevice();
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
@@ -83,7 +82,7 @@ private:
 		liveEditor = 0,
 		offlineEditor = 1
 	};
-	
+
 	HajuErrorVisualizer     errorVisualizer;
 
     LumatoneEditorLookAndFeel& lookAndFeel;
@@ -117,15 +116,13 @@ private:
     const float lumatoneLabelAreaWidth          = 0.1579f;
     const float lumatoneLabelWidthInArea        = 2.0f / 3.0f;
 
-    const float pleaseConnectX                  = 0.1852f;
-    const float pleaseConnectY                  = 0.3529f;
-    const float pleaseConnectHeight             = 0.1481f;
-    const float pleaseConnectWidth              = 0.1477f;
+    const float pleaseConnectX                  = 0.1816f;
+    const float pleaseConnectY                  = 0.325f;
+    const float pleaseConnectHeight             = 0.17f;
 
-    const float connectionDirectionsX           = pleaseConnectX * 0.995f;
-    const float connectionDirectionsY           = 0.51282f;
-    const float connectionDirectionsWidth       = 0.2889f;
-    const float connectionDirectionsHeight      = 0.16f;
+    const float connectionDirectionsX           = 0.1812;
+    const float connectionDirectionsY           = 0.51f;
+    const float connectionDirectionsHeight      = 0.17f;
 
     const float editModeX                       = 2.0f / 75.0f;
     const float editModeHeight                  = 0.2394f;

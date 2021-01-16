@@ -10,6 +10,20 @@
 
 #include "HexagonTilingGeometry.h"
 
+void HexagonTilingGeometry::setColumnAngle(double angleIn)
+{ 
+	columnBasisAngle = angleIn; 
+	columnAngleCos = cos(columnBasisAngle);
+	columnAngleSin = sin(columnBasisAngle);
+}
+
+void HexagonTilingGeometry::setRowAngle(double angleIn)
+{ 
+	rowBasisAngle = angleIn;
+	rowAngleCos = cos(rowBasisAngle);
+	rowAngleSin = sin(rowBasisAngle);
+}
+
 void HexagonTilingGeometry::fitTilingTo(Rectangle<float> boundsIn, 
 	int widestRow, int longestColumn, float marginSize, float rotateAngle, 
 	bool scaleToFitRotation, float radiusScalarIn, float lateralScalarIn)
@@ -36,7 +50,7 @@ void HexagonTilingGeometry::fitTilingTo(Rectangle<float> boundsIn,
 void HexagonTilingGeometry::fitSkewedTiling(Point<float> firstKeyCentre,
 	Point<float> secondKeyCentre, int rowStepsFirstToSecond,
 	Point<float> thirdKeyCentre,  int colStepsSecondToThird,
-	double correctionAngle)
+	bool calculateAngles)
 {
 	useSkewedBasis = true;
 	
@@ -44,19 +58,19 @@ void HexagonTilingGeometry::fitSkewedTiling(Point<float> firstKeyCentre,
 	Point<double> secondKeyNormFirst = secondKeyCentre.toDouble() - startingCentre;
 	Point<double> thirdKeyNormSecond = (thirdKeyCentre - secondKeyCentre).toDouble();
 
-	columnAngleBasis = atan((thirdKeyCentre.y - secondKeyCentre.y) / (thirdKeyCentre.x - secondKeyCentre.x)) - correctionAngle;
-	rowAngleBasis    = atan(secondKeyNormFirst.y / secondKeyNormFirst.x) - correctionAngle;
+	if (calculateAngles)
+	{
+		setColumnAngle(atan((thirdKeyCentre.y - secondKeyCentre.y) / (thirdKeyCentre.x - secondKeyCentre.x)));
+		   setRowAngle(atan(secondKeyNormFirst.y / secondKeyNormFirst.x));
+	}
 
-	float colAngX = cos(columnAngleBasis);
-	float rowAngY = sin(rowAngleBasis);
+	float colUnit = thirdKeyNormSecond.x / (colStepsSecondToThird * columnAngleCos);
+	float rowUnit = secondKeyNormFirst.y / (rowStepsFirstToSecond * rowAngleSin);
 
-	float colUnit = thirdKeyNormSecond.x / (colStepsSecondToThird * colAngX);
-	float rowUnit = secondKeyNormFirst.y / (rowStepsFirstToSecond * rowAngY);
-
-	columnAngleXComponent = colUnit * colAngX;
-	columnAngleYComponent = colUnit * sin(columnAngleBasis);
-	rowAngleXComponent    = rowUnit * cos(rowAngleBasis);
-	rowAngleYComponent    = rowUnit * rowAngY;
+	columnXComponent = colUnit * columnAngleCos;
+	columnYComponent = colUnit * columnAngleSin;
+	rowXComponent    = rowUnit * rowAngleCos;
+	rowYComponent    = rowUnit * rowAngleSin;
 }
 
 Array<Point<float>> HexagonTilingGeometry::getHexagonCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctavesIn) const
@@ -221,10 +235,10 @@ Array<Point<float>> HexagonTilingGeometry::calculateCentresSkewed(const Terpstra
 	const int maxRowLength = totalOctaves * numColumnsInOctave;
 	const int maxColumnLength = numRowsInOctave + BOARDROWOFFSET * (totalOctaves - 1);
 
-	const double colX = columnAngleXComponent * horizontalScalar;
-	const double colY = columnAngleYComponent * horizontalScalar;
-	const double rowX = rowAngleXComponent    * verticalScalar;
-	const double rowY = rowAngleYComponent    * verticalScalar;
+	const double colX = columnXComponent * horizontalScalar;
+	const double colY = columnYComponent * horizontalScalar;
+	const double rowX = rowXComponent    * verticalScalar;
+	const double rowY = rowYComponent    * verticalScalar;
 
 	int octaveColumnOffset = startingOctave * numColumnsInOctave;
 	int octaveRowOffset = startingOctave * BOARDROWOFFSET;

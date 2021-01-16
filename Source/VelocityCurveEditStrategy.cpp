@@ -66,8 +66,8 @@ void VelocityCurveFreeDrawingStrategy::resized()
 bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::Point<float> localPoint)
 {
 	drawedLine.clear();
-	if (beamTableFrame.contains(localPoint))
-	{
+	//if (beamTableFrame.contains(localPoint))
+	//{
 		drawedLine.startNewSubPath(localPoint.x, localPoint.y);
 
 		for (int x = 0; x < 128; x++)
@@ -88,7 +88,7 @@ bool VelocityCurveFreeDrawingStrategy::mouseDown(const MouseEvent &event, juce::
 				return true;
 			}
 		}
-	}
+	//}
 
 	return false;
 

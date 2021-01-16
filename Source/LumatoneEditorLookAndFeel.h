@@ -191,13 +191,17 @@ public:
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
             int iconW = round(iconH * ((double)icon.getWidth() / icon.getHeight()));
+            int iconY = round(btn.getHeight() - iconH) / 2.0;
+#if JUCE_WINDOWS
             icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
+#else
+            icon = icon.rescaled(iconW, iconH, Graphics::ResamplingQuality::highResamplingQuality);
+#endif
 
             int margin = font.getStringWidth("_");
-            int lineX = round((btn.getWidth() - font.getStringWidth(btn.getButtonText()) - margin - iconW) / 2.0);
-            int iconY = round(btn.getHeight() - iconH) / 2.0;
-
-            g.drawImageAt(icon, lineX, iconY);
+            int textWidth = font.getStringWidth(btn.getButtonText());
+            int lineStart = round((btn.getWidth() - textWidth - margin - iconW) / 2.0);
+            int secondHalf = lineStart + margin;
 
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             Colour textColour = btn.findColour(colourId);
@@ -206,8 +210,20 @@ public:
 
             g.setColour(textColour);
             g.setFont(font);
-            int textX = lineX + margin + iconW;
-            g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(textX), Justification::left, 1);
+
+            bool iconOnRight = (bool)properties[LumatoneEditorStyleIDs::textButtonIconPlacement];
+            if (iconOnRight)
+            {
+                secondHalf += textWidth;
+                g.drawImageAt(icon, secondHalf, iconY);
+                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withLeft(lineStart).withRight(secondHalf), Justification::left, 1);
+            }
+            else
+            {
+                secondHalf += iconW;
+                g.drawImageAt(icon, lineStart, iconY);
+                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(secondHalf), Justification::left, 1);
+            }
         }
         else
         {
@@ -410,17 +426,17 @@ public:
         g.setFont(getComboBoxFont(box));
         g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
 
-        int realButtonX = box.getWidth() - box.getHeight();
-
-        if (box.getSelectedId() == 0)
-        {
-
-            String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
-            g.drawFittedText(text, margin, 0, realButtonX - margin, height, Justification::centredLeft, 1);
-        }
+        int realButtonX = jmax(margin, box.getWidth() - box.getHeight());
 
         if (buttonW > 0)
         {
+            if (box.getSelectedId() == 0)
+            {
+
+                String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
+                g.drawFittedText(text, margin, 0, realButtonX - margin, height, Justification::centredLeft, 1);
+            }
+
             g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
 
             g.setFont(LumatoneEditorFonts::GothamNarrowMedium(buttonH * 0.5f).withTypefaceStyle("Narrow Light").withHorizontalScale(2.0f));

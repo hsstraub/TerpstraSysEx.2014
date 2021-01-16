@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.7"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.8"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
               jucerFormatVersion="1">
@@ -84,6 +84,7 @@
             file="Source/LumatoneEditorLookAndFeel.h"/>
       <FILE id="acwdN0" name="LumatoneEditorStyleCommon.h" compile="0" resource="0"
             file="Source/LumatoneEditorStyleCommon.h"/>
+      <FILE id="IFcnML" name="LumatoneMenu.h" compile="0" resource="0" file="Source/LumatoneMenu.h"/>
       <FILE id="vOjaEA" name="CurvesArea.h" compile="0" resource="0" file="Source/CurvesArea.h"/>
       <FILE id="enXDMq" name="CurvesArea.cpp" compile="1" resource="0" file="Source/CurvesArea.cpp"/>
       <FILE id="wQzk9i" name="GlobalSettingsArea.cpp" compile="1" resource="0"
