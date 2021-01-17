@@ -11,6 +11,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "ColourPaletteComponent.h"
+#include "LumatoneEditorLookAndFeel.h"
 
 
 //==============================================================================
@@ -47,7 +48,7 @@ public:
 
     int getHeightFromNumRows(int numRowsIn)
     {
-        return round(viewableHeight / 2.0f * numRowsIn);
+        return round(viewableHeight * 0.5f * numRowsIn);
     }
 
     void paint(Graphics& g) override 
@@ -108,7 +109,7 @@ public:
             }
             else
             {
-                edit->setSize(itemWidth, round(bottomMargin / 2));
+                edit->setSize(itemWidth, round(bottomMargin * 0.5f));
                 edit->setTopLeftPosition(bottomMarginBounds.getPosition());
             }
         }
@@ -142,7 +143,7 @@ public:
         TextButton* newPaletteBtn = editButtons.getLast();
         addAndMakeVisible(newPaletteBtn);
 
-        int rows = ceil(palettes.size() / 3.0f);
+        int rows = ceil(palettes.size() * .333333f);
 
         // Set height depending on how many rows
         if (resize)
@@ -262,6 +263,7 @@ public:
         addAndMakeVisible(*palette);
 
         editPaletteLabel.reset(new Label("EditPaletteLabel", translate("EditPalette")));
+        editPaletteLabel->setJustificationType(Justification::centred);
         addAndMakeVisible(*editPaletteLabel);
 
         saveImage = ImageCache::getFromHashCode(LumatoneEditorAssets::SavePalette);
@@ -289,20 +291,31 @@ public:
     void resized() override
     {
         float leftWidth = getWidth() * leftColumnWidth;
-        float leftCenter = leftWidth / 2.0f;
+        float leftCenter = leftWidth * 0.5f;
 
         resizeLabelWithHeight(editPaletteLabel.get(), proportionOfHeight(editPaletteHeight));
-        editPaletteLabel->setCentrePosition(leftCenter, round(editPaletteLabel->getHeight() / 2.0f + proportionOfHeight(editPaletteLabelY)));
+        editPaletteLabel->setCentrePosition(leftCenter, round(editPaletteLabel->getHeight() * 0.5f + proportionOfHeight(editPaletteLabelY)));
 
         float paletteSize = proportionOfWidth(paletteWidthSize);
         palette->setSize(paletteSize, paletteSize);
-        palette->setCentrePosition(leftCenter, round(paletteSize / 2.0f + proportionOfHeight(paletteY)));
+        palette->setCentrePosition(leftCenter, round(paletteSize * 0.5f + proportionOfHeight(paletteY)));
 
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
-        saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() / 2.0f + proportionOfHeight(buttonY)));
+        saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
 
-        colourPicker->setBounds(leftWidth, editPaletteLabel->getY(), proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
+        colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
+        colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
+    }
+
+    void lookAndFeelChanged() override
+    {
+        auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+        if (lookAndFeel)
+        {
+            lookAndFeel->setupTextButton(*saveButton);
+            lookAndFeel->setupTextButton(*cancelButton);
+        }
     }
 
     Array<Colour> getCurrentPalette() const
@@ -340,7 +353,7 @@ private:
 
     // Drawing constants
 
-    const float leftColumnWidth     = 0.3877f;
+    const float leftColumnWidth     = 0.3677f;
 
     const float editPaletteLabelY   = 0.1212f;
     const float editPaletteHeight   = 0.0606f;
@@ -352,6 +365,6 @@ private:
     const float buttonWidth         = 0.2208f;
     const float buttonHeight        = 0.0889f;
 
-    const float pickerWidth         = 0.5667f;
-    const float pickerHeight        = 7.0f / 9.0f;
+    const float pickerWidth         = 0.6f;
+    const float pickerHeight        = 0.9f;
 };

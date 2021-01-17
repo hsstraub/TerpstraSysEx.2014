@@ -115,6 +115,7 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
     paletteIndexEditing = paletteIndexIn;
     paletteEditPanel.reset(new PaletteEditPanel(palettes[paletteIndexIn]->getColourPalette()));
     paletteEditPanel->setBounds(getLocalBounds());
+    paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
     paletteEditPanel->addChangeListener(this);
 }

@@ -89,7 +89,7 @@ private:
     const Image trashCanIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::TrashCanIcon);
     Array<Array<Colour>> paletteColours;
 
-    const float viewportScrollbarWidthScalar = 1.0f / 48.0f;
+    const float viewportScrollbarWidthScalar = 0.020833f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourPaletteWindow)
 };
