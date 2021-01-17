@@ -81,6 +81,9 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
 		channelMappingComponents[i].reset(new KBMForOneChannel(i, mappingLogic, periodSize));
 		addAndMakeVisible(channelMappingComponents[i].get());
 	}
+
+    flexBox.flexDirection = FlexBox::Direction::row;
+    flexBox.flexWrap = FlexBox::Wrap::wrap;
     //[/UserPreSize]
 
     setSize (416, 220);
@@ -113,28 +116,50 @@ void KBMMappingDlg::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
+    //g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	//g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
 void KBMMappingDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+    int width = getWidth();
+    int height = getHeight();
+
+
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-    auto col1 = lblChannel->getX();
-    auto col2 = lblChannel2->getX();
+ //   auto col1 = lblChannel->getX();
+ //   auto col2 = lblChannel2->getX();
 
-    int noOfRows = KBMFilesMappingLogic::noOfChannels/2;
- 	for (int i = 0; i < noOfRows; i ++)
-	{
-		channelMappingComponents[i]->setBounds(col1, 32 + 32 * i, channelMappingComponents[i]->getWidth(), 32);
-		channelMappingComponents[noOfRows + i]->setBounds(col2, 32 + 32 * i, channelMappingComponents[noOfRows + i]->getWidth(), 32);
-	}
+ //   int noOfRows = KBMFilesMappingLogic::noOfChannels/2;
+ //	for (int i = 0; i < noOfRows; i ++)
+	//{
+	//	channelMappingComponents[i]->setBounds(col1, 32 + 32 * i, channelMappingComponents[i]->getWidth(), 32);
+	//	channelMappingComponents[noOfRows + i]->setBounds(col2, 32 + 32 * i, channelMappingComponents[noOfRows + i]->getWidth(), 32);
+	//}
+
+    int labelHeight = round(height * 0.2f);
+    int lblChannelWidth = round(width * 0.2f);
+    int lblFileWidth = round(width * 0.3f);
+    
+    lblChannel->setBounds(0, 0, lblChannelWidth, labelHeight);
+    lblMappingFile->setBounds(lblChannel->getRight(), 0, lblFileWidth, labelHeight);
+    lblChannel2->setBounds(lblMappingFile->getRight(), 0, lblChannelWidth, labelHeight);
+    lblMappingFile2->setBounds(lblChannel2->getRight(), 0, lblFileWidth, labelHeight);
+
+    int rowHeight = height / (KBMFilesMappingLogic::noOfChannels * 0.5f);
+    flexBox.items.clear();
+    for (int i = 0; i < KBMFilesMappingLogic::noOfChannels; i++)
+    {
+        auto component = channelMappingComponents[i].get();
+        flexBox.items.add(FlexItem(*component).withFlex(1.0f).withWidth(width * 0.4f));// .withHeight(rowHeight));
+    }
+    flexBox.performLayout(getLocalBounds().withTop(labelHeight));
     //[/UserResized]
 }
 

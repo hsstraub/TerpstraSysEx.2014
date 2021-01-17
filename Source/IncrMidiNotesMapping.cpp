@@ -72,8 +72,8 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
 
 
     //[UserPreSize]
-    flexBox.flexWrap = FlexBox::Wrap::wrap;
-    flexBox.flexDirection = FlexBox::Direction::row;
+    flexBox.flexWrap = FlexBox::Wrap::noWrap;
+    flexBox.flexDirection = FlexBox::Direction::column;
     //[/UserPreSize]
 
     setSize (416, 220);
@@ -129,15 +129,19 @@ void IncrMidiNotesMapping::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    float itemWidth = width * 0.48f;
-    float itemHeight = height * 0.183f;
-
+    
+    float itemWidth = width * 0.6f;
+    float itemHeight = height * 0.2f;
+    float bottomMargin = height * 0.1f;
+    
     flexBox.items.clear();
-    for (auto child : getChildren())
-    {
-        flexBox.items.add(FlexItem(*child).withFlex(1.0f).withWidth(itemWidth).withHeight(itemHeight));
-    }
+    flexBox.items.add(FlexItem(*channelAutoIncrButton).withFlex(1.0f).withWidth(width).withHeight(itemHeight).withMargin(FlexItem::Margin(bottomMargin, 0, 0, 0)));
+    flexBox.items.add(FlexItem(*labelMidiNotesUntil).withFlex(1.0f).withWidth(width).withHeight(itemHeight));
+    flexBox.items.add(FlexItem(*singleChannelButton).withFlex(1.0f).withWidth(itemWidth).withHeight(itemHeight).withMargin(FlexItem::Margin(itemHeight, 0, bottomMargin, 0)));
     flexBox.performLayout(getLocalBounds());
+
+    channelBox->setBounds(singleChannelButton->getRight(), singleChannelButton->getY(), width - singleChannelButton->getWidth(), singleChannelButton->getHeight());
+
     //[/UserResized]
 }
 
@@ -151,7 +155,7 @@ void IncrMidiNotesMapping::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
 		if (channelAutoIncrButton->getToggleState())
 		{
-			channelBox->setVisible(false);
+			channelBox->setEnabled(false);
 			this->mappingLogic.setChannelInCaseOfSingleChannel(0);	// 0 for no selection or 1-16
 		}
         //[/UserButtonCode_channelAutoIncrButton]
@@ -161,7 +165,7 @@ void IncrMidiNotesMapping::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_singleChannelButton] -- add your button handler code here..
 		if (singleChannelButton->getToggleState())
 		{
-			channelBox->setVisible(true);
+			channelBox->setEnabled(true);
 			// Make sure something is selected
 			if (channelBox->getSelectedId() <= 0)
 				channelBox->setSelectedId(1);   // This will generate an update of the mapping logic via comboBoxChanged

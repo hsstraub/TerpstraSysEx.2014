@@ -72,6 +72,8 @@ private:
     KBMFilesMappingLogic*	pMappingLogic;
     HajuErrorVisualizer     errorVisualizer;
    	int&    periodSize;
+
+    FlexBox flexBox;
     //[/UserVariables]
 
     //==============================================================================

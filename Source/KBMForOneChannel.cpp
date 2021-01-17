@@ -67,6 +67,8 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
 
 
     //[UserPreSize]
+    flexBox.flexWrap = FlexBox::Wrap::wrap;
+    flexBox.flexDirection = FlexBox::Direction::row;
     //[/UserPreSize]
 
     setSize (200, 32);
@@ -102,19 +104,23 @@ void KBMForOneChannel::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
+    //g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	//g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
 void KBMForOneChannel::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+    flexBox.items.clear();
+    for (auto child : getChildren())
+        flexBox.items.add(FlexItem(*child).withFlex(1.0f));
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    flexBox.performLayout(getLocalBounds());
     //[/UserResized]
 }
 

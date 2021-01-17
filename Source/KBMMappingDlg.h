@@ -62,6 +62,8 @@ private:
     int& periodSize;
     std::unique_ptr<KBMForOneChannel>	channelMappingComponents[KBMFilesMappingLogic::noOfChannels];
    	KBMFilesMappingLogic	mappingLogic;
+
+    FlexBox flexBox;
     //[/UserVariables]
 
     //==============================================================================

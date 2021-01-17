@@ -35,16 +35,35 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     //[Constructor_pre] You can add your own custom stuff here..
     periodSize = 0;
 
-    kbmMappingDlg.reset(new KBMMappingDlg(periodSize, scaleStructure, colourTable));
-    kbmMappingDlg->setVisible(false);
-    addChildComponent(kbmMappingDlg.get());
+    labelMappingType.reset(new juce::Label("labelMappingType", translate("Type")));
+    addAndMakeVisible(labelMappingType.get());
+    labelMappingType->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+
+    labelMappingType->setBounds(20, 64, 88, 24);
+
+    cbMappingType.reset(new juce::ComboBox("cbMappingType"));
+    addAndMakeVisible(cbMappingType.get());
+    cbMappingType->setEditableText(false);
+    cbMappingType->setJustificationType(juce::Justification::centredLeft);
+    cbMappingType->setTextWhenNothingSelected(juce::String());
+    cbMappingType->setTextWhenNoChoicesAvailable(translate("NoChoices"));
+    cbMappingType->addItem(translate("MIDINotesIncreasingOrder"), 1);
+    cbMappingType->addItem(translate("Scala KBM mappings"), 2);
+    cbMappingType->addListener(this);
+
+    cbMappingType->setBounds(64, 64, 240, 24);
 
     mappingLogic = nullptr;
 
     // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
-	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize, scaleStructure, colourTable));
-	incrMidiNotesMapping->setVisible(false);
-	addChildComponent(incrMidiNotesMapping.get());
+    incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize, scaleStructure, colourTable));
+    incrMidiNotesMapping->setVisible(false);
+    addChildComponent(incrMidiNotesMapping.get());
+
+
+    kbmMappingDlg.reset(new KBMMappingDlg(periodSize, scaleStructure, colourTable));
+    kbmMappingDlg->setVisible(false);
+    addChildComponent(kbmMappingDlg.get());
 
 
     //groupMapping.reset(new juce::GroupComponent("groupMapping", translate("Mapping")));
@@ -61,24 +80,6 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     //editInstructionText->setBounds(8, 200, 296, 48);
 
-    labelMappingType.reset(new juce::Label("labelMappingType", translate("Type")));
-    addAndMakeVisible(labelMappingType.get());
-    labelMappingType->setFont(LumatoneEditorFonts::GothamNarrowMedium());
-
-    labelMappingType->setBounds(20, 64, 88, 24);
-
-
-    cbMappingType.reset(new juce::ComboBox("cbMappingType"));
-    addAndMakeVisible(cbMappingType.get());
-    cbMappingType->setEditableText(false);
-    cbMappingType->setJustificationType(juce::Justification::centredLeft);
-    cbMappingType->setTextWhenNothingSelected(juce::String());
-    cbMappingType->setTextWhenNoChoicesAvailable(translate("NoChoices"));
-    cbMappingType->addItem(translate("MIDINotesIncreasingOrder"), 1);
-    cbMappingType->addItem(translate("Scala KBM mappings"), 2);
-    cbMappingType->addListener(this);
-
-    cbMappingType->setBounds(64, 64, 240, 24);
 
     btnScaleStructureEditor.reset(new juce::TextButton("btnScaleStructureEditor"));
     addAndMakeVisible(btnScaleStructureEditor.get());
@@ -166,9 +167,17 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editRightUpwardSteps->setBounds(160, 320, 39, 24);
 
     //[/Constructor_pre]
+
     //[UserPreSize]
-    flexBox.flexWrap = FlexBox::Wrap::wrap;
-    flexBox.flexDirection = FlexBox::Direction::row;
+
+    flexBoxComponents.add(setColourToggleButton.get());
+    flexBoxComponents.add(labelStartingPoint.get());
+    flexBoxComponents.add(labelPeriodSize.get());
+    flexBoxComponents.add(labelHorizontalSteps.get());
+    flexBoxComponents.add(labelRightUpwardSteps.get());
+
+    flexBox.flexWrap = FlexBox::Wrap::noWrap;
+    flexBox.flexDirection = FlexBox::Direction::column;
     //[/UserPreSize]
 
     setSize (320, 400);
@@ -232,7 +241,7 @@ void IsomorphicMassAssign::paint (juce::Graphics& g)
 
     g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::InactiveText));
     g.setFont(instructionsFont);
-    g.drawFittedText(translate("IsomorphicAssignDirections"), instructionsBounds, Justification::centred, 2, 1.0f);
+    g.drawFittedText(translate("IsomorphicAssignDirections"), instructionsBounds, Justification::centred, 3, 1.0f);
 
     //[/UserPaint]
 }
@@ -243,31 +252,50 @@ void IsomorphicMassAssign::resized()
 	int width = getWidth();
     int height = getHeight();
 
-    instructionsBounds = getLocalBounds().withBottom(round(height * instructionsBottom));
-    instructionsFont.setHeight(instructionsBounds.proportionOfHeight(fontHeightInBounds));
+    int controlWidth = round(width * 0.4f);
+    int controlHeight = round(height * controlHeightScalar);
 
+    int xMargin = round(width * xMarginScalar);
+    int yMargin = round(height * yMarginScalar);
+    int xEnd = width - xMargin;
 
     flexBox.items.clear();
-    for (int i = 0; i < getNumChildComponents(); i++)
+    for (auto child : flexBoxComponents)
     {
-        if (i > 1)
-        {
-            auto child = getChildComponent(i);
-            flexBox.items.add(FlexItem(*child).withFlex(1.0f).withWidth(round(width *0.48f)).withHeight(round(height * 0.041f)));
-        }
+        flexBox.items.add(FlexItem(*child).withHeight(controlHeight).withMargin(FlexItem::Margin(yMargin, 0, 0, 0)));
     }
 
-    int mappingControlBottom = instructionsBounds.getBottom() + round(height * 0.18f);
-
-    incrMidiNotesMapping->setBounds(getLocalBounds().withTop(instructionsBounds.getBottom()).withBottom(mappingControlBottom));
-
-    flexBox.performLayout(getLocalBounds().withTop(mappingControlBottom));
-
-	/*incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
-	kbmMappingDlg->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);*/
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    instructionsBounds = getLocalBounds().withBottom(round(height * instructionsBottom));
+    instructionsFont.setHeight(instructionsBounds.proportionOfHeight(fontHeightInBounds));
+
+    resizeLabelWithHeight(labelMappingType.get(), controlHeight);
+    labelMappingType->setTopLeftPosition(xMargin, labelMappingType->getY());
+    cbMappingType->setBounds(labelMappingType->getBounds().withLeft(labelMappingType->getRight()).withRight(xEnd));
+
+    Rectangle<int> mappingTypeBounds(xMargin, labelMappingType->getBottom() + yMargin, width - xMargin * 2, instructionsBounds.getHeight() + controlHeight);
+
+    incrMidiNotesMapping->setBounds(mappingTypeBounds);
+    kbmMappingDlg->setBounds(mappingTypeBounds);
+
+    flexBox.performLayout(getLocalBounds().withTop(mappingTypeBounds.getBottom() + yMargin).withBottom(height - yMargin).reduced(xMargin, 0));
+
+    resizeLabelWithHeight(labelStartingPoint.get(),     controlHeight);
+    resizeLabelWithHeight(labelPeriodSize.get(),        controlHeight);
+    resizeLabelWithHeight(labelHorizontalSteps.get(),   controlHeight);
+    resizeLabelWithHeight(labelRightUpwardSteps.get(),  controlHeight);
+
+    setColourToggleButton->setSize(controlWidth, controlHeight * 0.75);
+
+    btnScaleStructureEditor->   setBounds(setColourToggleButton->   getBounds().withLeft(setColourToggleButton->    getRight() + xMargin).withRight(xEnd));
+    startingPointBox->          setBounds(labelStartingPoint->      getBounds().withLeft(labelStartingPoint->       getRight()).withRight(xEnd));
+    periodSizeBox->             setBounds(labelPeriodSize->         getBounds().withLeft(labelPeriodSize->          getRight()).withRight(xEnd));
+    editHorizontalSteps->       setBounds(labelHorizontalSteps->    getBounds().withLeft(labelHorizontalSteps->     getRight()).withRight(xEnd));
+    editRightUpwardSteps->      setBounds(labelRightUpwardSteps->   getBounds().withLeft(labelRightUpwardSteps->    getRight()).withRight(xEnd));
+
+
     //[/UserResized]
 }
 
@@ -358,6 +386,17 @@ void IsomorphicMassAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void IsomorphicMassAssign::lookAndFeelChanged()
+{
+    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+
+    if (lookAndFeel)
+    {
+        lookAndFeel->setupTextButton(*btnScaleStructureEditor);
+        lookAndFeel->setupComboBox(*cbMappingType);
+    }
+}
 
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
