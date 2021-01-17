@@ -351,22 +351,21 @@ public:
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, Slider& sld) override
     {
-        float thickness = 1 / 6.0f;
-        float dialRadiusFactor = thickness / 3.0f;
+        const float halfPi = float_Pi * 0.5f;
+        const float arcThickness = 0.15f;
+        const float endAngleNorm = rotaryAngleEnd - halfPi;
 
-        float endAngleNorm = rotaryAngleEnd - float_Pi / 2;
+        const int w = sld.getWidth();
+        const int h = round(sld.getHeight() * (1.5 - 0.5 * sinf(endAngleNorm))); // translated to compensate for dial radius
 
-        int w = sld.getWidth();
-        int h = round(sld.getHeight() * (1.5 - 0.5 * sinf(endAngleNorm)));
-        
-        float size = jmin(w, h);
-        
-        Rectangle<float> outerBounds = Rectangle<float>((w - size) / 2, (h - size + 5) / 2, size, size).reduced(size * dialRadiusFactor / 2 + 5);
-        Rectangle<float> innerBounds = outerBounds.reduced(size * thickness);
+        const float dialRadiusFactor = 1.1f;
+        const float size = jmin(w, h) / dialRadiusFactor;
+        const float radiusInner = size * (1 - arcThickness);
+
+        const int textMargin = 5; // TODO: revise if resizing is weird
+        Rectangle<float> outerBounds = Rectangle<float>((w - size) * 0.5f, (h - size + textMargin) * 0.5f, size, size);
+        Rectangle<float> innerBounds = outerBounds.reduced(size * arcThickness);
         Point<float> center = outerBounds.getCentre();
-
-        float radiusOuter = size / 2.0f;
-        float radiusInner = radiusOuter * (1 - thickness);
 
         Path ring;
         addArcToPath(ring, outerBounds, rotaryAngleStart, rotaryAngleEnd, true);
@@ -374,29 +373,42 @@ public:
         addArcToPath(ring, innerBounds, rotaryAngleEnd, rotaryAngleStart, false);
         ring.closeSubPath();
 
-        ColourGradient grad = ColourGradient(rotaryGradientStart, outerBounds.getTopLeft(), rotaryGradientEnd, outerBounds.getTopRight(), false);
+        ColourGradient grad(
+            findColour(LumatoneEditorColourIDs::RotaryGradientMin), outerBounds.getTopLeft(), 
+            findColour(LumatoneEditorColourIDs::RotaryGradientMax), outerBounds.getTopRight(), false
+        );
         g.setGradientFill(grad);
         g.fillPath(ring);
 
         g.setColour(Colours::white);
 
-        float dialAng = (rotaryAngleEnd - rotaryAngleStart) * sliderPosProportional + rotaryAngleStart - float_Pi / 2;
-        g.drawLine(Line<float>(center, { center.x + cosf(dialAng) * radiusOuter, center.y + sinf(dialAng) * radiusOuter }), 5.0f);
+        float dialRadius = size * dialRadiusFactor * 0.5f;
+        float dialThickness = size * 0.025f;
+        float dialAng = (rotaryAngleEnd - rotaryAngleStart) * sliderPosProportional + rotaryAngleStart - halfPi;
+        g.drawLine(Line<float>(center, { center.x + cosf(dialAng) * dialRadius , center.y + sinf(dialAng) * dialRadius }), dialThickness);
 
         // TODO: Make text box positioning more consistent when manipulating the bounds' aspect ratio
-        sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, size / 5, sld.getHeight() / 6);
     }
 
     Label* createSliderTextBox(Slider& sld) override
     {
-        Label* label = new Label(sld.getName() + "_ValueLabel");
-        label->setColour(Label::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
-        label->setText(String(sld.getValue()), dontSendNotification);
-        //label->setBounds(sld.getBoundsInParent().withTrimmedTop(sld.getHeight() * 0.75f));
-        label->setFont(LumatoneEditorFonts::GothamNarrowMedium(sld.getHeight() / 8.0f));
-        label->setJustificationType(Justification::centred);
+        if (sld.getSliderStyle() == Slider::SliderStyle::Rotary)
+        {
+            Label* label = new Label(sld.getName() + "_ValueLabel");
+            label->setText(String(sld.getValue()), dontSendNotification);
+            label->setJustificationType(Justification::centred);
+            label->setColour(Label::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+            label->setFont(LumatoneEditorFonts::GothamNarrowMedium());
 
-        return label;
+            int sliderSize = jmin(sld.getWidth(), sld.getHeight());
+            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, round(sliderSize * 0.5f), round((sld.getHeight() - sliderSize * 0.5f) * 0.6f));
+
+            return label;
+        }
+        else
+        {
+            return LookAndFeel_V4::createSliderTextBox(sld);
+        }
     }
 
 
@@ -822,6 +834,8 @@ private:
         setColour(LumatoneEditorColourIDs::CurveGradientMin,                Colour(0xffbf961e));
         setColour(LumatoneEditorColourIDs::CurveGradientMax,                Colour(0xffcd6f2e));
         setColour(LumatoneEditorColourIDs::CurveGridColour,                 Colour(0xff303030));
+        setColour(LumatoneEditorColourIDs::RotaryGradientMin,               Colour(0xff5497b6));
+        setColour(LumatoneEditorColourIDs::RotaryGradientMax,               Colour(0xff77a8b3));
     }
 
 private:
@@ -829,15 +843,9 @@ private:
     // Default graphics constants
     const float buttonRoundedCornerFactor = 5.0f;
 
-    const float comboBoxRoundedCornerScalar = 25.0f / 82.0f;
+    const float comboBoxRoundedCornerScalar = 0.304878f;
     const float comboBoxFontHeightScalar = 0.55f;
-    const float comboBoxMarginX = 17.0f / 190.0f;
 
-    const float comboBoxImageHeightScalar = 17.0f / 41.0f;
-
-    const float rotaryAngleStart = float_Pi * -2 / 3.0f;
+    const float rotaryAngleStart = -2.0943951f; // pi * -2/3
     const float rotaryAngleEnd = -rotaryAngleStart;
-
-    const Colour rotaryGradientStart = Colour(84, 151, 182);
-    const Colour rotaryGradientEnd = Colour(119, 168, 179);
 };
