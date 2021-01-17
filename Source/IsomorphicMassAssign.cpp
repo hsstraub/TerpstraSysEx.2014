@@ -395,6 +395,8 @@ void IsomorphicMassAssign::lookAndFeelChanged()
     {
         lookAndFeel->setupTextButton(*btnScaleStructureEditor);
         lookAndFeel->setupComboBox(*cbMappingType);
+        lookAndFeel->setupComboBox(*startingPointBox);
+        lookAndFeel->setupComboBox(*periodSizeBox);
     }
 }
 

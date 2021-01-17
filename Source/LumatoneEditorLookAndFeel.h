@@ -410,7 +410,7 @@ public:
     {
         int margin = round(height * comboBoxRoundedCornerScalar);
 
-        Colour backgroundColour = findColour(LumatoneEditorColourIDs::ControlBoxBackground);
+        Colour backgroundColour = box.findColour(ComboBox::ColourIds::backgroundColourId);
 
         if (box.isMouseOver(true))
             backgroundColour = backgroundColour.brighter(0.1f);
@@ -470,8 +470,9 @@ public:
     Label* createComboBoxTextBox(ComboBox& box) override
     {
         Label* l = new Label(box.getName(), box.getText());
+        l->setColour(Label::ColourIds::textColourId, box.findColour(ComboBox::ColourIds::textColourId));
         l->setFont(getComboBoxFont(box));
-
+        
         for (auto prop : box.getProperties())
             l->getProperties().set(prop.name, prop.value);
 
@@ -521,7 +522,12 @@ public:
         auto target = options.getTargetComponent();
 
         float margin = target->getHeight() * comboBoxRoundedCornerScalar;
-        g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxBackground).brighter(0.1f)); // Box colour will always be highlighted
+
+        auto box = dynamic_cast<ComboBox*>(target);
+        if (box)
+            g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).brighter(0.1f)); // Box colour will always be highlighted
+        else
+            g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxBackground).brighter(0.1f)); 
 
         Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, target->getWidth(), height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
         g.fillPath(menuShape);

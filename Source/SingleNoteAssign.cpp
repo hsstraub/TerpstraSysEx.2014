@@ -353,6 +353,17 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void SingleNoteAssign::lookAndFeelChanged() 
+{
+    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+    if (lookAndFeel)
+    {
+        lookAndFeel->setupComboBox(*noteBox);
+        lookAndFeel->setupComboBox(*channelBox);
+        lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
+        lookAndFeel->setupComboBox(*keyTypeCombo);
+    }
+}
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
 /// <returns>Mapping was changed yes/no</returns>

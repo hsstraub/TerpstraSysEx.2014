@@ -23,7 +23,7 @@
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
 #include "ColourEditComponent.h"
-#include "LumatoneEditorStyleCommon.h"
+#include "LumatoneEditorLookAndFeel.h"
 //[/Headers]
 
 
@@ -54,6 +54,8 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
     void listenForPaletteWindowRequest(TextButton::Listener* listenerIn);
+
+    void lookAndFeelChanged() override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

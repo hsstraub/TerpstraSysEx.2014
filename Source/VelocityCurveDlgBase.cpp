@@ -53,7 +53,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 	beamColourGradient.addColour(0.0f, Colour(0x66ff5e00));
 	beamColourGradient.addColour(1.0f, Colour(0x66ff5e00));
     //[UserPreSize]
-
 	drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::linearSegments] = &linearDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::quadraticCurves] = &quadraticDrawingStrategy;
@@ -255,6 +254,9 @@ void VelocityCurveDlgBase::lookAndFeelChanged()
 		
 		backgroundColour = lookAndFeel->findColour(LumatoneEditorColourIDs::ControlBoxBackground);
 		gridColour = lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGridColour);
+
+		cbEditMode->setColour(ComboBox::ColourIds::backgroundColourId, Colours::black);
+		cbEditMode->setColour(ComboBox::ColourIds::textColourId, Colours::white);
 	}
 }
 
