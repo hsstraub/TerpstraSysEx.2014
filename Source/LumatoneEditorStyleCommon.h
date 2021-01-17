@@ -20,11 +20,12 @@
 //
 //==================================================================
 
-static const double phi = (1 + sqrt(5)) / 2.0;
+#define PHI 1.618033989f // (1 + sqrt(5)) / 2
+#define HEXRADIUSTOLATERAL 0.8660254f // sqrt(3) / 2
 
 // JUCE methods' radians are rotated -90deg with respect to trigonometry functions
-static const float PATH_PI_2_CW  =  float_Pi / 2;
-static const float PATH_PI_2_CCW = -float_Pi / 2;
+#define PATH_PI_2_CW   1.5707963 // pi / 2
+#define PATH_PI_2_CCW -1.5707963
 
 // Rounded corner ratio of app neight for layout elements
 static const float roundedCornerLayoutAppHeightScalar       = 1.0f / 180.0f;
@@ -153,7 +154,7 @@ static void scaleAndJustifyComponent(Component& component, float scaleFactorX, f
 
         if (justification.getFlags() & Justification::horizontallyCentred)
         {
-            xOff = round(xOff / 2.0f);
+            xOff = round(xOff * 0.5f);
         }
     }
 
@@ -170,7 +171,7 @@ static void scaleAndJustifyComponent(Component& component, float scaleFactorX, f
 
         if (justification.getFlags() & Justification::verticallyCentred)
         {
-            yOff = round(yOff / 2.0f);
+            yOff = round(yOff * 0.5f);
         }
     }
 
@@ -304,14 +305,14 @@ static Path createLogomark()
     Path logo;
     Point<float> center(0.5f, 0.5f);
 
-    float phi2 = phi * 2;
+    float phi2 = PHI * 2;
     float innerRad = 1.0f / phi2;
-    float outerRad = phi2 / 8.0f;
-    float ang = float_Pi / 12.0f;
-    float angOff = ang / 2.0f;
+    float outerRad = phi2 * 0.125f;
+    float ang = float_Pi * 0.083333f;
+    float angOff = ang * 0.5f;
 
     logo.addPolygon(center, 6, innerRad, ang - angOff);
-    logo.addPolygon(center, 6, sqrt(3) / 2 * innerRad, -ang - angOff);
+    logo.addPolygon(center, 6, HEXRADIUSTOLATERAL * innerRad, -ang - angOff);
     logo.addPolygon(center, 6, outerRad, ang - angOff);
     logo.addPolygon(center, 6, outerRad, -ang - angOff);
 
@@ -321,15 +322,6 @@ static Path createLogomark()
 // Hash codes for use with ImageCache::getFromHashCode()
 enum LumatoneEditorAssets
 {
-    LumatoneTitle       = 0x0001000,
-    PleaseConnect       = 0x0001001,
-    SelectMidiInput     = 0x0001002,
-    SelectMidiOutput    = 0x0001003,
-    Disconnected        = 0x0001004,
-    Connected           = 0x0001005,
-    EditMode            = 0x0001006,
-    LiveEditor          = 0x0001007,
-    OfflineEditor       = 0x0001008,
     LoadIcon            = 0x0002000,
     SaveIcon            = 0x0002001,
     ImportIcon          = 0x0002002,
@@ -337,12 +329,7 @@ enum LumatoneEditorAssets
     KeybedShadows       = 0x0002101,
     KeyShape            = 0x0002200,
     KeyShadow           = 0x0002201,
-    AssignKeys          = 0x0003000,
-    GeneralSettings     = 0x0003001,
-    ExpressionPedal     = 0x0003002,
-    Curves              = 0x0003003,
     TickBox             = 0x0003100,
-    PresetButtonColours = 0x0004000,
     SavePalette         = 0x0005000,
     CancelPalette       = 0x0005001,
     TrashCanIcon        = 0x0005002

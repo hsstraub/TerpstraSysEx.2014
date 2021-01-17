@@ -50,7 +50,7 @@ public:
         const Font font = LumatoneEditorFonts::UniviaProBold(fontHeight);
         g.setFont(font);
 
-        const float margin = (h - fontHeight) / 2.0f;
+        const float margin = (h - fontHeight) * 0.5f;
 
         g.setColour(Colours::white);
         g.drawFittedText(window.getName(), 0, margin - font.getDescent(), w, h - margin, Justification::centred, 1, 1.0f);
@@ -66,8 +66,8 @@ public:
         auto crossThickness = 0.15f;
 
         const float btnSize = 96.0f;
-        const float vectorSize = btnSize / 3.0f;
-        const float vecHalfSize = vectorSize / 2.0f;
+        const float vectorSize = btnSize * 0.333333f;
+        const float vecHalfSize = vectorSize * 0.5f;
 
         ImageButton* btn = new ImageButton();
         Image btnImage(Image::PixelFormat::RGB, btnSize, btnSize, false);
@@ -100,7 +100,7 @@ public:
             g.setColour(findColour(LumatoneEditorColourIDs::ConnectedGreen));
         }
 
-        float margin = (btnSize - vectorSize) / 2.0f;
+        float margin = (btnSize - vectorSize) * 0.5f;
         g.strokePath(shape, PathStrokeType(3.0f), AffineTransform::translation(margin, margin));
         
         btn->setImages(false, true, true,
@@ -160,7 +160,7 @@ public:
             if (shouldDrawButtonAsHighlighted)
             {
                 g.setColour(btn.findColour(TextButton::ColourIds::textColourOffId));
-                float halfTextLength = getTextButtonFont(static_cast<TextButton&>(btn), btn.getHeight()).getStringWidthFloat(btn.getButtonText()) / 2.0f;
+                float halfTextLength = getTextButtonFont(static_cast<TextButton&>(btn), btn.getHeight()).getStringWidthFloat(btn.getButtonText()) * 0.5f;
                 float xCenter = btn.getWidth() * 0.5f;
                 float yLine = btn.proportionOfHeight(0.9f);
                 g.drawLine(round(xCenter - halfTextLength), yLine, round(xCenter + halfTextLength), yLine);
@@ -191,7 +191,7 @@ public:
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
             int iconW = round(iconH * ((double)icon.getWidth() / icon.getHeight()));
-            int iconY = round(btn.getHeight() - iconH) / 2.0;
+            int iconY = round((btn.getHeight() - iconH) * 0.5f);
 #if JUCE_WINDOWS
             icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
 #else
@@ -200,7 +200,7 @@ public:
 
             int margin = font.getStringWidth("_");
             int textWidth = font.getStringWidth(btn.getButtonText());
-            int lineStart = round((btn.getWidth() - textWidth - margin - iconW) / 2.0);
+            int lineStart = round((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
             int secondHalf = lineStart + margin;
 
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
@@ -259,7 +259,7 @@ public:
 
     //    g.setColour(textColour);
     //    g.drawImageWithin(*img, 
-    //        round((btn.getWidth() - width) / 2.0f), ((btn.getHeight() - height) / 2.0f), 
+    //        round((btn.getWidth() - width) * 0.5f), ((btn.getHeight() - height) * 0.5f), 
     //        width, height, 
     //        RectanglePlacement::centred, btn.getClickingTogglesState()
     //    );
@@ -310,7 +310,7 @@ public:
     void drawTickBox(Graphics& g, Component& c, float x, float y, float w, float h, bool ticked, bool isEnabled, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
         Path shape;
-        shape.addRoundedRectangle(x, y, w, h, w / 10.0f);
+        shape.addRoundedRectangle(x, y, w, h, w * 0.1f);
        
         g.setColour(Colours::white);
         g.fillPath(shape);
@@ -319,7 +319,7 @@ public:
         if (ticked)
         {
             g.setColour(Colours::black);
-            g.setFont(LumatoneEditorFonts::GothamNarrowMedium(h).withHorizontalScale(4.0f / 3.0f));
+            g.setFont(LumatoneEditorFonts::GothamNarrowMedium(h).withHorizontalScale(1.333333f));
             g.drawFittedText("X", x, y, w, h, Justification::centred, 1, 1.0f);
         }
     }   
@@ -497,7 +497,7 @@ public:
         float fontHeight = labelToPosition.getFont().getHeight();
 
         labelToPosition.setBounds(
-            margin, round((box.getHeight() - fontHeight) / 2.0f), 
+            margin, round((box.getHeight() - fontHeight) * 0.5f), 
             box.getWidth() - box.getHeight() - margin, fontHeight
         );
     }
@@ -574,7 +574,7 @@ public:
         // If it's the last item, reduce size so highlight doesn't pass rounded corners
         if (item.itemID == target->getItemId(target->getNumItems() - 1))
         {
-            areaToUse = areaToUse.withTrimmedBottom(margin / 2 + 1);
+            areaToUse = areaToUse.withTrimmedBottom(round(margin * 0.5f) + 1);
         }
 
         if (isHighlighted)
@@ -599,7 +599,7 @@ public:
         // If the option is the last available option, add a margin
         if (target->getItemText(target->getNumItems() - 1) == text)
         {
-            idealHeight = target->proportionOfHeight(1 + comboBoxRoundedCornerScalar / 2);
+            idealHeight = round(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
         }
         else
         {
@@ -671,10 +671,11 @@ public:
 
         g.setColour(c);
 
+        const float defaultHeightScalar = 0.54545455f;
         NamedValueSet& barProperties = tbb.getTabbedButtonBar().getProperties();
         float heightScalar = (barProperties.contains(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar))
             ? (float) barProperties[LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar]
-            : 6.0f / 11.0f;
+            : defaultHeightScalar;
 
         g.setFont(getTabButtonFont(tbb, tbb.getHeight() * heightScalar));
         g.drawFittedText(tbb.getButtonText(), tbb.getTextArea(), Justification::centred, 0.0f);
@@ -703,7 +704,7 @@ public:
 
     float getCallOutBoxCornerSize(const CallOutBox& box) override
     {
-        return box.getHeight() / 33.0f;
+        return box.getHeight() * 0.0303f;
     }
 
 public:
@@ -789,7 +790,7 @@ public:
     // Button shape path helper with default rounded corner size
     Path getButtonShape(const Button& btn)
     {
-        return getConnectedRoundedRectPath(btn.getLocalBounds().toFloat(), btn.getHeight() / buttonRoundedCornerFactor, btn.getConnectedEdgeFlags());
+        return getConnectedRoundedRectPath(btn.getLocalBounds().toFloat(), btn.getHeight() * buttonRoundedCornerScalar, btn.getConnectedEdgeFlags());
     }
 
 private:
@@ -841,7 +842,7 @@ private:
 private:
 
     // Default graphics constants
-    const float buttonRoundedCornerFactor = 5.0f;
+    const float buttonRoundedCornerScalar = 0.2f;
 
     const float comboBoxRoundedCornerScalar = 0.304878f;
     const float comboBoxFontHeightScalar = 0.55f;
