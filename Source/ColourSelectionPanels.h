@@ -323,6 +323,12 @@ public:
         return palette->getColourPalette();
     }
 
+    void setSelectedSwatch(int selectedSwatchNumber)
+    {
+        if (selectedSwatchNumber >= 0 && selectedSwatchNumber < palette->getNumberOfSwatches())
+            palette->setSelectedSwatchNumber(selectedSwatchNumber);
+    }
+
     void buttonClicked(Button* btn) override
     {
         if (btn == saveButton.get())

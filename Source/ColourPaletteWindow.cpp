@@ -117,11 +117,16 @@ void ColourPaletteWindow::resized()
 void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
 {
     paletteIndexEditing = paletteIndexIn;
-    paletteEditPanel.reset(new PaletteEditPanel(paletteComponents[paletteIndexIn]->getColourPalette()));
+    auto paletteToEdit = paletteComponents[paletteIndexIn];
+    paletteEditPanel.reset(new PaletteEditPanel(paletteToEdit->getColourPalette()));
     paletteEditPanel->setBounds(getLocalBounds());
     paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
     paletteEditPanel->addChangeListener(this);
+
+    int selectedSwatch = paletteToEdit->getSelectedSwatchNumber();
+    if (selectedSwatch >= 0)
+        paletteEditPanel->setSelectedSwatch(selectedSwatch);
 }
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)

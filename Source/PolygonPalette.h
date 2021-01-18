@@ -100,6 +100,7 @@ public:
         return numSides;
     }
 
+    // Returns index of selected swatch, -1 if none
     int getSelectedSwatchNumber() const
     {
         return selectedSwatch;
