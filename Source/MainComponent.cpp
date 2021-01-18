@@ -306,9 +306,8 @@ void MainContentComponent::buttonClicked(Button* btn)
 
 	if (colourEdit)
 	{
-		// TODO: Initialize with palettes
-		//       Set swatch # or custom colour as current colour
-		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow({}/*TODO*/);
+		// TODO: Set swatch # or custom colour as current colour
+		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
 		paletteWindow->listenToColourSelection(colourEdit);
 

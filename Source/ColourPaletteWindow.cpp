@@ -8,31 +8,32 @@
   ==============================================================================
 */
 
-#include <JuceHeader.h>
 #include "ColourPaletteWindow.h"
+#include "Main.h"
 
 //==============================================================================
 // ColourPaletteWindow Definitions
 
-ColourPaletteWindow::ColourPaletteWindow(const Array<Array<Colour>>& colourPalettesIn)
-    : paletteColours(colourPalettesIn)
+ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn)
+    : colourPalettes(colourPalettesIn)
 {
     setName("ColourPaletteWindow");
 
     // Generate palettes that are filled with saved palettes, or filler palettes to preserve layout
-    for (auto p : paletteColours)
+    for (int p = 0; p < colourPalettes.size(); p++)
     {
-        generateFilledPaletteComponents(p);
+        LumatoneColourPalette& palette = colourPalettes.getReference(p);
+        generateFilledPaletteComponents(*palette.palette);
     }
 
     // Empty palette always in last index
-    palettes.add(new ColourPaletteComponent("EmptyPalette"));
+    paletteComponents.add(new ColourPaletteComponent("EmptyPalette"));
     auto newPaletteButton = editButtons.add(new TextButton("NewButton", translate("NewPaletteTip")));
     newPaletteButton->setButtonText(translate("NewPalette"));
     newPaletteButton->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
     newPaletteButton->addListener(this);
 
-    palettePanel.reset(new ColourPalettesPanel(palettes, editButtons, trashButtons));
+    palettePanel.reset(new ColourPalettesPanel(paletteComponents, editButtons, trashButtons));
 
     palettePanelViewport.reset(new Viewport("PalettePanelViewport"));
     palettePanelViewport->setViewedComponent(palettePanel.get(), false);
@@ -58,12 +59,15 @@ ColourPaletteWindow::~ColourPaletteWindow()
 {
 }
 
-int ColourPaletteWindow::generateFilledPaletteComponents(Array<Colour> coloursIn)
+int ColourPaletteWindow::generateFilledPaletteComponents(Array<Colour>& coloursIn)
 {
-    int newIndex = jmax(0, palettes.size() - 1);
+    int newIndex = jmax(0, paletteComponents.size() - 1);
     String iStr = String(newIndex);
 
-    auto p = palettes.insert(newIndex, new ColourPaletteComponent("Palette_" + iStr, coloursIn));
+    if (!coloursIn.size() >= COLOURPALETTESIZE)
+        coloursIn.resize(COLOURPALETTESIZE);
+
+    auto p = paletteComponents.insert(newIndex, new ColourPaletteComponent("Palette_" + iStr, coloursIn));
     paletteGroup.addSelector(p);
 
     auto edit = editButtons.insert(newIndex, new TextButton("EditButton" + iStr, translate("EditButtonTip")));
@@ -113,7 +117,7 @@ void ColourPaletteWindow::resized()
 void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
 {
     paletteIndexEditing = paletteIndexIn;
-    paletteEditPanel.reset(new PaletteEditPanel(palettes[paletteIndexIn]->getColourPalette()));
+    paletteEditPanel.reset(new PaletteEditPanel(paletteComponents[paletteIndexIn]->getColourPalette()));
     paletteEditPanel->setBounds(getLocalBounds());
     paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
@@ -122,10 +126,12 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
 {
-    paletteGroup.removeSelector(palettes[paletteIndexToRemove]);
-    palettes.remove(paletteIndexToRemove);
+    paletteGroup.removeSelector(paletteComponents[paletteIndexToRemove]);
+    paletteComponents.remove(paletteIndexToRemove);
     editButtons.remove(paletteIndexToRemove);
     trashButtons.remove(paletteIndexToRemove);
+    colourPalettes.remove(paletteIndexToRemove);
+    TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneColourPalette::paletteArrayToString(colourPalettes));
     palettePanel->rebuildPanel();
 }
 
@@ -147,8 +153,11 @@ void ColourPaletteWindow::buttonClicked(Button* btn)
     else if (btn->getName().startsWith("New"))
     {
         paletteEditingIsNew = true;
+
+        colourPalettes.add(LumatoneColourPalette());
+        
         startEditingPalette(
-            generateFilledPaletteComponents()
+            generateFilledPaletteComponents(*colourPalettes.getReference(colourPalettes.size() - 1).palette)
         );
     }
 
@@ -156,7 +165,7 @@ void ColourPaletteWindow::buttonClicked(Button* btn)
     else if (btn->getName().startsWith("Trash"))
     {
         int paletteIndex = trashButtons.indexOf((ImageButton*)btn);
-        if (paletteIndex >= 0 && paletteIndex < palettes.size() - 1)
+        if (paletteIndex >= 0 && paletteIndex < paletteComponents.size() - 1)
         {
             removePalette(paletteIndex);
         }
@@ -178,15 +187,18 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
     {
         if (paletteEditPanel->wasSaveRequested())
         {
-            if (paletteIndexEditing >= 0 && paletteIndexEditing < palettes.size())
+            if (paletteIndexEditing >= 0 && paletteIndexEditing < paletteComponents.size())
             {
-                palettes.getUnchecked(paletteIndexEditing)->setColourPalette(paletteEditPanel->getCurrentPalette());
+                paletteComponents.getUnchecked(paletteIndexEditing)->setColourPalette(paletteEditPanel->getCurrentPalette());
 
                 if (paletteEditingIsNew)
                     palettePanel->rebuildPanel();
             }
             else
                 jassert(true); // Something bad happened!
+
+            // Save to properties
+            TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneColourPalette::paletteArrayToString(colourPalettes));
         }
         else if (paletteEditingIsNew)
             removePalette(paletteIndexEditing);

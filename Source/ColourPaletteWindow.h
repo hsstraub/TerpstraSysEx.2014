@@ -14,6 +14,7 @@
 #include "LumatoneEditorStyleCommon.h"
 #include "ColourPaletteComponent.h"
 #include "ColourSelectionPanels.h"
+#include "ColourPaletteDataStructure.h"
 
 //==============================================================================
 /*
@@ -24,7 +25,7 @@ class ColourPaletteWindow  :    public juce::Component,
                                 public ChangeListener
 {
 public:
-    ColourPaletteWindow(/* TODO PALETTE COLOURS */const Array<Array<Colour>>& colourPalettesIn);
+    ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn);
     ~ColourPaletteWindow() override;
 
     void paint (juce::Graphics&) override;
@@ -54,7 +55,7 @@ private:
     /// </summary>
     /// <param name="coloursIn"></param>
     /// <returns>Index of new palette</returns>
-    int generateFilledPaletteComponents(Array<Colour> coloursIn = Array<Colour>());
+    int generateFilledPaletteComponents(Array<Colour>& coloursIn);
 
     /// <summary>
     /// Launches the Palette Edit panel and listens for user interaction.
@@ -79,7 +80,7 @@ private:
 
     ColourSelectionGroup paletteGroup;
 
-    OwnedArray<ColourPaletteComponent> palettes;
+    OwnedArray<ColourPaletteComponent> paletteComponents;
     OwnedArray<TextButton> editButtons;
     OwnedArray<ImageButton> trashButtons;
 
@@ -87,7 +88,7 @@ private:
     bool paletteEditingIsNew = false;
 
     const Image trashCanIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::TrashCanIcon);
-    Array<Array<Colour>> paletteColours;
+    Array<LumatoneColourPalette>& colourPalettes;
 
     const float viewportScrollbarWidthScalar = 0.020833f;
 

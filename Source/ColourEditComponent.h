@@ -21,7 +21,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
-#include "ColourPaletteComponent.h"
+#include "ColourSelectionGroup.h"
 
 /*
 ==============================================================================

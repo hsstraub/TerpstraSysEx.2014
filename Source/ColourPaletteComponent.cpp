@@ -14,11 +14,17 @@
 //==============================================================================
 // ColourPaletteComponent Definitions
 
-ColourPaletteComponent::ColourPaletteComponent(String name, Array<Colour> colours)
-    : PolygonPalette(6)
+ColourPaletteComponent::ColourPaletteComponent(String name)
+    : PolygonPalette(COLOURPALETTESIZE)
 {
     setName(name);
-    
+    setColourPalette(Array<Colour>());
+}
+
+ColourPaletteComponent::ColourPaletteComponent(String name, Array<Colour>& colours)
+    : PolygonPalette(COLOURPALETTESIZE), referencedPalette(&colours)
+{
+    setName(name);
     setColourPalette(colours);
 }
 
@@ -51,6 +57,9 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
 
     PolygonPalette::setColourPalette(colourPaletteIn);
 
+    if (referencedPalette)
+        *referencedPalette = colourPaletteIn;
+
     if (isEnabled())
     {
         int selectedSwatch = getSelectedSwatchNumber();
@@ -67,6 +76,10 @@ void ColourPaletteComponent::setSwatchColour(int swatchNumber, Colour newColour)
 {
     PolygonPalette::setSwatchColour(swatchNumber, newColour);
     
+    // Edit referenced palette
+    if (referencedPalette)
+        referencedPalette->set(swatchNumber, newColour);
+
     if (getSelectedSwatchNumber() == swatchNumber)
         selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
 }
