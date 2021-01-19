@@ -27,6 +27,7 @@
 #include "BoardGeometry.h"
 #include "ScaleStructureController/ScaleStructureComponent.h"
 #include "ScaleStructureController/ScaleDesignWindow.h"
+#include "LumatoneEditorStyleCommon.h"
 //[/Headers]
 
 

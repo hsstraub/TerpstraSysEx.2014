@@ -54,6 +54,10 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="qWvw0s" name="PedalSensitivityDlg.h" compile="0" resource="0"
+            file="Source/PedalSensitivityDlg.h"/>
+      <FILE id="HOM5JO" name="PedalSensitivityDlg.cpp" compile="1" resource="0"
+            file="Source/PedalSensitivityDlg.cpp"/>
       <GROUP id="{A1551A34-4888-5B34-1D07-2E0A5789F7BE}" name="ImageResampling">
         <FILE id="lRQfVj" name="ImageResampler.h" compile="0" resource="0"
               file="Source/ImageResampling/ImageResampler.h"/>
