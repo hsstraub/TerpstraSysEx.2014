@@ -23,17 +23,16 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPal
     for (int p = 0; p < colourPalettes.size(); p++)
     {
         LumatoneColourPalette& palette = colourPalettes.getReference(p);
-        generateFilledPaletteComponents(*palette.palette);
+        createAndListenToPaletteGroup(palette);
     }
 
-    // Empty palette always in last index
-    paletteComponents.add(new ColourPaletteComponent("EmptyPalette"));
-    auto newPaletteButton = editButtons.add(new TextButton("NewButton", translate("NewPaletteTip")));
+    newPaletteVisual.reset(new ColourPaletteComponent("EmptyPalette"));
+    newPaletteButton.reset(new TextButton("NewButton", translate("NewPaletteTip")));
     newPaletteButton->setButtonText(translate("NewPalette"));
     newPaletteButton->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
     newPaletteButton->addListener(this);
 
-    palettePanel.reset(new ColourPalettesPanel(paletteComponents, editButtons, trashButtons));
+    palettePanel.reset(new ColourPalettesPanel(filledPalettes, newPaletteVisual.get(), newPaletteButton.get())); 
 
     palettePanelViewport.reset(new Viewport("PalettePanelViewport"));
     palettePanelViewport->setViewedComponent(palettePanel.get(), false);
@@ -59,42 +58,14 @@ ColourPaletteWindow::~ColourPaletteWindow()
 {
 }
 
-int ColourPaletteWindow::generateFilledPaletteComponents(Array<Colour>& coloursIn)
+int ColourPaletteWindow::createAndListenToPaletteGroup(LumatoneColourPalette& paletteIn)
 {
-    int newIndex = jmax(0, paletteComponents.size() - 1);
-    String iStr = String(newIndex);
+    auto group = filledPalettes.add(new PaletteControlGroup(paletteIn));
+    paletteGroup.addSelector(&group->palette);
+    group->editButton.addListener(this);
+    group->trashButton.addListener(this);
 
-    if (!coloursIn.size() >= COLOURPALETTESIZE)
-        coloursIn.resize(COLOURPALETTESIZE);
-
-    auto p = paletteComponents.insert(newIndex, new ColourPaletteComponent("Palette_" + iStr, coloursIn));
-    paletteGroup.addSelector(p);
-
-    auto edit = editButtons.insert(newIndex, new TextButton("EditButton" + iStr, translate("EditButtonTip")));
-    edit->setButtonText("Edit");
-    edit->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
-    edit->addListener(this);
-
-    auto trash = trashButtons.insert(newIndex, new ImageButton("TrashButton_" + iStr));
-    trash->setImages(false, true, true,
-        trashCanIcon, 1.0f, Colour(),
-        trashCanIcon, 1.0f, Colours::white.withAlpha(0.4f),
-        trashCanIcon, 1.0f, Colour()
-    );
-    trash->addListener(this);
-
-    return newIndex;
-}
-
-void ColourPaletteWindow::paint (juce::Graphics& g)
-{
-    //g.fillAll(Colours::black);
-    
-    //g.setColour(Colours::aqua);
-    //g.drawRect(palettePanelViewport->getBounds()
-    //     .withWidth(palettePanelViewport->getMaximumVisibleWidth())
-    //    .withHeight(palettePanelViewport->getMaximumVisibleHeight())
-    //);
+    return filledPalettes.size() - 1;
 }
 
 void ColourPaletteWindow::resized()
@@ -105,11 +76,9 @@ void ColourPaletteWindow::resized()
     if (paletteEditPanel.get())
         paletteEditPanel->setBounds(getLocalBounds());
 
-    // We shouldn't have to subtract vertical scrollbar width but it's 
-    // the only way I could get the horizontal scrollbar to not appear
     palettePanel->setViewUnits(
-        palettePanelViewport->getMaximumVisibleWidth(),// - palettePanelViewport->getScrollBarThickness(),
-        palettePanelViewport->getMaximumVisibleHeight()// - palettePanelViewport->getScrollBarThickness()
+        palettePanelViewport->getMaximumVisibleWidth(),
+        palettePanelViewport->getMaximumVisibleHeight()
     );
     palettePanel->rebuildPanel();
 }
@@ -117,27 +86,44 @@ void ColourPaletteWindow::resized()
 void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
 {
     paletteIndexEditing = paletteIndexIn;
-    auto paletteToEdit = paletteComponents[paletteIndexIn];
-    paletteEditPanel.reset(new PaletteEditPanel(paletteToEdit->getColourPalette()));
+    auto group = filledPalettes[paletteIndexEditing];
+
+    paletteEditPanel.reset(new PaletteEditPanel(group->palette.getColourPalette()));
     paletteEditPanel->setBounds(getLocalBounds());
     paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
     paletteEditPanel->addChangeListener(this);
 
-    int selectedSwatch = paletteToEdit->getSelectedSwatchNumber();
+    // Retain selected swatch
+    int selectedSwatch = group->palette.getSelectedSwatchNumber();
     if (selectedSwatch >= 0)
         paletteEditPanel->setSelectedSwatch(selectedSwatch);
 }
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
 {
-    paletteGroup.removeSelector(paletteComponents[paletteIndexToRemove]);
-    paletteComponents.remove(paletteIndexToRemove);
-    editButtons.remove(paletteIndexToRemove);
-    trashButtons.remove(paletteIndexToRemove);
+    paletteGroup.removeSelector(&filledPalettes[paletteIndexToRemove]->palette);
+    filledPalettes.remove(paletteIndexToRemove);
     colourPalettes.remove(paletteIndexToRemove);
+    
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneColourPalette::paletteArrayToString(colourPalettes));
     palettePanel->rebuildPanel();
+}
+
+int ColourPaletteWindow::findEditButtonIndex(Button* buttonIn)
+{
+    for (int i = 0; i < filledPalettes.size(); i++)
+        if (&filledPalettes[i]->editButton == buttonIn)
+            return i;
+    return -1;
+}
+
+int ColourPaletteWindow::findTrashButtonIndex(Button* buttonIn)
+{
+    for (int i = 0; i < filledPalettes.size(); i++)
+        if (&filledPalettes[i]->trashButton == buttonIn)
+            return i;
+    return -1;
 }
 
 void ColourPaletteWindow::buttonClicked(Button* btn)
@@ -145,8 +131,8 @@ void ColourPaletteWindow::buttonClicked(Button* btn)
     // Begin editing a palette
     if (btn->getName().startsWith("Edit"))
     {
-        int paletteIndex = editButtons.indexOf((TextButton*)btn);
-        if (paletteIndex >= 0 && paletteIndex < editButtons.size())
+        int paletteIndex = findEditButtonIndex(btn);
+        if (paletteIndex >= 0 && paletteIndex < filledPalettes.size())
         {
             startEditingPalette(paletteIndex);
         }
@@ -160,17 +146,17 @@ void ColourPaletteWindow::buttonClicked(Button* btn)
         paletteEditingIsNew = true;
 
         colourPalettes.add(LumatoneColourPalette());
-        
+
         startEditingPalette(
-            generateFilledPaletteComponents(*colourPalettes.getReference(colourPalettes.size() - 1).palette)
+            createAndListenToPaletteGroup(colourPalettes.getReference(colourPalettes.size() - 1))
         );
     }
 
     // Delete palette
     else if (btn->getName().startsWith("Trash"))
     {
-        int paletteIndex = trashButtons.indexOf((ImageButton*)btn);
-        if (paletteIndex >= 0 && paletteIndex < paletteComponents.size() - 1)
+        int paletteIndex = findTrashButtonIndex(btn);
+        if (paletteIndex >= 0 && paletteIndex < filledPalettes.size())
         {
             removePalette(paletteIndex);
         }
@@ -192,9 +178,9 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
     {
         if (paletteEditPanel->wasSaveRequested())
         {
-            if (paletteIndexEditing >= 0 && paletteIndexEditing < paletteComponents.size())
+            if (paletteIndexEditing >= 0 && paletteIndexEditing < filledPalettes.size())
             {
-                paletteComponents.getUnchecked(paletteIndexEditing)->setColourPalette(paletteEditPanel->getCurrentPalette());
+                filledPalettes[paletteIndexEditing]->palette.setColourPalette(paletteEditPanel->getCurrentPalette());
 
                 if (paletteEditingIsNew)
                     palettePanel->rebuildPanel();
@@ -212,11 +198,6 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
         paletteEditingIsNew = false;
         paletteEditPanel = nullptr;
     }
-}
-
-void ColourPaletteWindow::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
-{
-    // TODO
 }
 
 void ColourPaletteWindow::listenToColourSelection(ColourSelectionListener* listenerIn)

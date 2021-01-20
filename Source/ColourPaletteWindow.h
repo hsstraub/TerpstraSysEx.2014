@@ -28,7 +28,6 @@ public:
     ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn);
     ~ColourPaletteWindow() override;
 
-    void paint (juce::Graphics&) override;
     void resized() override;
 
     void buttonClicked(Button* btn) override;
@@ -38,7 +37,7 @@ public:
     //====================================================================
     // ColourSelectionListener implementation
 
-    void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
+    void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override {};
     
     //====================================================================
 
@@ -55,7 +54,7 @@ private:
     /// </summary>
     /// <param name="coloursIn"></param>
     /// <returns>Index of new palette</returns>
-    int generateFilledPaletteComponents(Array<Colour>& coloursIn);
+    int createAndListenToPaletteGroup(LumatoneColourPalette& paletteIn);
 
     /// <summary>
     /// Launches the Palette Edit panel and listens for user interaction.
@@ -69,6 +68,10 @@ private:
     /// <param name="paletteIndexToRemove"></param>
     void removePalette(int paletteIndexToRemove);
 
+    int findEditButtonIndex(Button* buttonIn);
+
+    int findTrashButtonIndex(Button* buttonIn);
+
 private:
 
     std::unique_ptr<TabbedComponent> colourToolTabs;
@@ -80,14 +83,13 @@ private:
 
     ColourSelectionGroup paletteGroup;
 
-    OwnedArray<ColourPaletteComponent> paletteComponents;
-    OwnedArray<TextButton> editButtons;
-    OwnedArray<ImageButton> trashButtons;
+    OwnedArray<PaletteControlGroup> filledPalettes;
+    std::unique_ptr<ColourPaletteComponent> newPaletteVisual;
+    std::unique_ptr<TextButton> newPaletteButton;
 
     int paletteIndexEditing = -1;
     bool paletteEditingIsNew = false;
 
-    const Image trashCanIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::TrashCanIcon);
     Array<LumatoneColourPalette>& colourPalettes;
 
     const float viewportScrollbarWidthScalar = 0.020833f;

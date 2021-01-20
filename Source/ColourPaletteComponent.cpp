@@ -95,3 +95,22 @@ void ColourPaletteComponent::deselectColour()
 {
     PolygonPalette::setSelectedSwatchNumber(-1);
 }
+
+//==============================================================================
+// PaletteControlGroup Definitions
+
+PaletteControlGroup::PaletteControlGroup(LumatoneColourPalette& paletteIn)
+    : palette("Palette" + paletteIn.id, *paletteIn.palette),
+    editButton("EditButton_" + paletteIn.id, translate("EditButtonTip")),
+    trashButton("TrashButton" + paletteIn.id)
+{
+    editButton.setButtonText("Edit");
+    editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
+
+    const Image trashIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::TrashCanIcon);
+    trashButton.setImages(false, true, true,
+        trashIcon, 1.0f, Colour(),
+        trashIcon, 1.0f, Colours::white.withAlpha(0.4f),
+        trashIcon, 1.0f, Colour()
+    );
+}

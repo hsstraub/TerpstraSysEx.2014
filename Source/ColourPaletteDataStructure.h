@@ -91,7 +91,7 @@ public:
             if (paletteString.length() > 0)
                 palettesOut.add(LumatoneColourPalette(stringIn.substring(i, endIndex)));
             
-            i += endIndex + 1;
+            i += paletteString.length() + 1;
         }
         
         return palettesOut;
@@ -106,7 +106,7 @@ public:
             palettesString += ' ';
         }
 
-        return palettesString;
+        return palettesString.trimEnd();
     }
 
 private:

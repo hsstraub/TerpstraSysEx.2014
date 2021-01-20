@@ -64,6 +64,8 @@
             file="Source/HexagonTilingGeometry.cpp"/>
       <FILE id="XG6hrZ" name="HexagonTilingGeometry.h" compile="0" resource="0"
             file="Source/HexagonTilingGeometry.h"/>
+      <FILE id="VkauEV" name="ColourPaletteDataStructure.h" compile="0" resource="0"
+            file="Source/ColourPaletteDataStructure.h"/>
       <FILE id="JYVlaB" name="ColourSelectionPanels.h" compile="0" resource="0"
             file="Source/ColourSelectionPanels.h"/>
       <FILE id="PC8X53" name="ColourPaletteComponent.cpp" compile="1" resource="0"
