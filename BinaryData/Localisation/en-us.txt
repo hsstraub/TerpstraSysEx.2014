@@ -1,7 +1,7 @@
 language: English
 countries: us
 
-"KeyColour" = "Key Color"
+"KeyColour" = "Key Color:"
 "Channel" = "Channel"
 "PresetButtonColours" = "Preset Button Colors:"
 "ColourPalettes" = "Color Palettes"

@@ -20,12 +20,11 @@
 /*
 */
 class ColourPaletteWindow  :    public juce::Component,
-                                public ColourSelectionListener,
                                 public Button::Listener,
                                 public ChangeListener
 {
 public:
-    ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn);
+    ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn, ColourSelectionGroup* selectionGroupIn = nullptr);
     ~ColourPaletteWindow() override;
 
     void resized() override;
@@ -33,19 +32,6 @@ public:
     void buttonClicked(Button* btn) override;
 
     void changeListenerCallback(ChangeBroadcaster* source) override;
-
-    //====================================================================
-    // ColourSelectionListener implementation
-
-    void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override {};
-    
-    //====================================================================
-
-    /// <summary>
-    /// Registers a listener to receive the colour the user's input resolves to
-    /// </summary>
-    /// <param name="listenerIn"></param>
-    void listenToColourSelection(ColourSelectionListener* listenerIn);
 
 private:
 
@@ -81,7 +67,7 @@ private:
 
     std::unique_ptr<Viewport> palettePanelViewport;
 
-    ColourSelectionGroup paletteGroup;
+    ColourSelectionGroup* paletteGroup;
 
     OwnedArray<PaletteControlGroup> filledPalettes;
     std::unique_ptr<ColourPaletteComponent> newPaletteVisual;

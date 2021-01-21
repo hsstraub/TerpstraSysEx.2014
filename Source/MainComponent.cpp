@@ -31,7 +31,7 @@ MainContentComponent::MainContentComponent()
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
 	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
-	noteEditArea->registerPaletteWindowRequestListener(this);
+	noteEditArea->getColourEditComponent()->addListener(this); // Open up ColourPaletteWindow
 
 	generalOptionsArea.reset(new GeneralOptionsDlg());
 	addAndMakeVisible(generalOptionsArea.get());
@@ -54,6 +54,15 @@ MainContentComponent::MainContentComponent()
 	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
 
 	noteEditArea->changeSingleKeySelection(0);
+
+
+	// Connect colour selectors
+	colourSelectionGroup.reset(new ColourSelectionGroup());
+	colourSelectionGroup->addColourSelectionListener(noteEditArea->getColourEditComponent());
+
+	auto colourTextEditor = noteEditArea->getSingleNoteColourTextEditor();
+	colourSelectionGroup->addColourSelectionListener(colourTextEditor);
+	colourSelectionGroup->addSelector(colourTextEditor);
 }
 
 MainContentComponent::~MainContentComponent()
@@ -307,9 +316,8 @@ void MainContentComponent::buttonClicked(Button* btn)
 	if (colourEdit)
 	{
 		// TODO: Set swatch # or custom colour as current colour
-		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
+		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes(), colourSelectionGroup.get());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
-		paletteWindow->listenToColourSelection(colourEdit);
 
 		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());
 

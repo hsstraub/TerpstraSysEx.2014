@@ -24,6 +24,7 @@
 
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
+#include "ColourEditComponent.h"
 
 #include "HexagonTilingGeometry.h"
 #include "LumatoneEditorStyleCommon.h"
@@ -66,6 +67,10 @@ public:
 
 	TabbedButtonBar* getOctaveBoardSelectorTab() { return octaveBoardSelectorTab.get(); }
 
+    ColourEditComponent* getColourEditComponent();
+
+    ColourTextEditor* getSingleNoteColourTextEditor();
+
 	void changeSingleKeySelection(int newSelection);
 
 	void refreshKeyFields();
@@ -75,8 +80,6 @@ public:
     // Helper method for aligning the Octave Section TabbedButtonBar
     void setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY);
 
-    // Register listener for key colour edit popup
-    void registerPaletteWindowRequestListener(TextButton::Listener* listenerIn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
