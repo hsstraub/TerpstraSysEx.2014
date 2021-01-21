@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "NoteOnOffVelocityCurveDialog.h"
 #include "ViewConstants.h"
+#include "Main.h"
 //[/Headers]
 
 #include "CurvesArea.h"
@@ -55,7 +56,8 @@ CurvesArea::CurvesArea ()
     : Component("CurvesArea")
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	showDeveloperMode = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false);
+	//[/Constructor_pre]
 
     labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
@@ -81,7 +83,7 @@ CurvesArea::CurvesArea ()
 
 
     //[UserPreSize]
-
+	btnDeveloperMode->setVisible(showDeveloperMode);
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..

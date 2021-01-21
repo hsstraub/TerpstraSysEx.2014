@@ -36,6 +36,9 @@ MainContentComponent::MainContentComponent()
 	generalOptionsArea.reset(new GeneralOptionsDlg());
 	addAndMakeVisible(generalOptionsArea.get());
 
+	pedalSensitivityDlg.reset(new PedalSensitivityDlg());
+	addAndMakeVisible(pedalSensitivityDlg.get());
+
 	curvesArea.reset(new CurvesArea());
 	addAndMakeVisible(curvesArea.get());
 
@@ -76,6 +79,7 @@ MainContentComponent::~MainContentComponent()
 	generalOptionsArea = nullptr;
 	curvesArea = nullptr;
 	globalSettingsArea = nullptr;
+	pedalSensitivityDlg = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -108,6 +112,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 		refreshAllKeysOverview();
 		noteEditArea->refreshKeyFields();
 		generalOptionsArea->loadFromMapping();
+		pedalSensitivityDlg->loadFromMapping();
 		curvesArea->loadFromMapping();
 		curvesArea->repaint();
 	}
@@ -369,6 +374,8 @@ void MainContentComponent::resized()
 	noteEditArea->setControlsTopLeftPosition(proportionOfWidth(assignMarginX), controlsArea.getY());
 	
 	generalOptionsArea->setBounds(getLocalBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
+	pedalSensitivityDlg->setBounds(getLocalBounds().toFloat().getProportion(pedalSettingsBounds).toNearestInt());
+
 	curvesArea->setBounds(getLocalBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
 
 	globalSettingsArea->setBounds(getLocalBounds()

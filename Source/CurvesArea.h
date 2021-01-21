@@ -74,7 +74,9 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    
+ 
+	bool showDeveloperMode = false;
+
     //==============================================================================
     // Size and position constants
     const float curvesLabelHeight   = 0.075f;
