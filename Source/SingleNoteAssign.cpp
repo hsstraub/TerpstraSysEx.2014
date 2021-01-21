@@ -197,7 +197,7 @@ void SingleNoteAssign::resized()
     int controlAreaTop = round(h * controlAreaYScalar);
 
     instructionsBounds.setBounds(0, 0, w, controlAreaTop);
-    instructionsFont.setHeight(round(instructionsBounds.getHeight() * fontHeightInBounds));
+    instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
 
     controlsX = round(w * controlsXScalar);
     int marginY = round(h * yMarginScalar);
