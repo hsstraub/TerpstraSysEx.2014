@@ -171,9 +171,12 @@ public:
 
         Colour colour = (shouldDrawButtonAsDown) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
 
-        if (shouldDrawButtonAsHighlighted)
+        if (!btn.isEnabled())
+            colour = colour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+
+        else if (shouldDrawButtonAsHighlighted)
             colour = colour.brighter(0.075f);
-        
+
         g.setColour(colour);
         g.fillPath(getButtonShape(btn));
     }
@@ -205,7 +208,11 @@ public:
 
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             Colour textColour = btn.findColour(colourId);
-            if (shouldDrawButtonAsHighlighted)
+            
+            if (!btn.isEnabled())
+                textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+
+            else if (shouldDrawButtonAsHighlighted)
                 textColour = textColour.brighter();
 
             g.setColour(textColour);
@@ -312,13 +319,22 @@ public:
         Path shape;
         shape.addRoundedRectangle(x, y, w, h, w * 0.1f);
        
-        g.setColour(Colours::white);
+        Colour boxColour = Colours::white;
+        Colour tickColour = Colours::black;
+
+        if (!c.isEnabled())
+        {
+            boxColour = boxColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+            tickColour = findColour(LumatoneEditorColourIDs::InactiveText);
+        }
+
+        g.setColour(boxColour);
         g.fillPath(shape);
 
         // TODO: Proper "tick" drawing
         if (ticked)
         {
-            g.setColour(Colours::black);
+            g.setColour(tickColour);
             g.setFont(LumatoneEditorFonts::GothamNarrowMedium(h).withHorizontalScale(1.333333f));
             g.drawFittedText("X", x, y, w, h, Justification::centred, 1, 1.0f);
         }
@@ -332,12 +348,16 @@ public:
         g.setFont(LumatoneEditorFonts::GothamNarrowMedium(btn.getHeight() * 1.125f));
 
         Colour textColour = btn.findColour(ToggleButton::ColourIds::textColourId);
-        
-        if (shouldDrawButtonAsHighlighted)
-            textColour = textColour.brighter(0.1f);
-        
+       
         if (shouldDrawButtonAsDown)
             textColour = textColour.darker();
+
+        if (!btn.isEnabled())
+            textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+
+        else if (shouldDrawButtonAsHighlighted)
+            textColour = textColour.brighter(0.1f);
+       
 
         g.setColour(textColour);
         g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withLeft(btn.getHeight() * 1.5f), Justification::centredLeft, 1);
@@ -373,10 +393,19 @@ public:
         addArcToPath(ring, innerBounds, rotaryAngleEnd, rotaryAngleStart, false);
         ring.closeSubPath();
 
-        ColourGradient grad(
-            findColour(LumatoneEditorColourIDs::RotaryGradientMin), outerBounds.getTopLeft(), 
-            findColour(LumatoneEditorColourIDs::RotaryGradientMax), outerBounds.getTopRight(), false
-        );
+        Colour minColour = findColour(LumatoneEditorColourIDs::RotaryGradientMin);
+        Colour maxColour = findColour(LumatoneEditorColourIDs::RotaryGradientMin);
+        Colour dialColour = Colours::white;
+
+        if (!sld.isEnabled())
+        {
+            minColour = minColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+            maxColour = maxColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+            dialColour = findColour(LumatoneEditorColourIDs::InactiveText);
+        }
+
+        ColourGradient grad(minColour, outerBounds.getTopLeft(), maxColour, outerBounds.getTopRight(), false);
+
         g.setGradientFill(grad);
         g.fillPath(ring);
 
@@ -397,8 +426,13 @@ public:
             Label* label = new Label(sld.getName() + "_ValueLabel");
             label->setText(String(sld.getValue()), dontSendNotification);
             label->setJustificationType(Justification::centred);
-            label->setColour(Label::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
             label->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+
+            Colour textColour = (sld.isEnabled())
+                ? findColour(LumatoneEditorColourIDs::DescriptionText)
+                : findColour(LumatoneEditorColourIDs::InactiveText);
+
+            label->setColour(Label::ColourIds::textColourId, textColour);
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
             sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, round(sliderSize * 0.5f), round((sld.getHeight() - sliderSize * 0.5f) * 0.6f));
@@ -423,9 +457,19 @@ public:
         int margin = round(height * comboBoxRoundedCornerScalar);
 
         Colour backgroundColour = box.findColour(ComboBox::ColourIds::backgroundColourId);
+        Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
 
-        if (box.isMouseOver(true))
+        if (!box.isEnabled())
+        {
+            backgroundColour = backgroundColour.withMultipliedSaturation(0.33f);
+            textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+        }
+
+        else if (box.isMouseOver(true))
+        {
             backgroundColour = backgroundColour.brighter(0.1f);
+            textColour       = textColour.brighter(0.1f);
+        }
 
         g.setColour(backgroundColour);
 
@@ -436,7 +480,7 @@ public:
         g.fillPath(boxShape);
 
         g.setFont(getComboBoxFont(box));
-        g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
+        g.setColour(textColour);
 
         int realButtonX = jmax(margin, box.getWidth() - box.getHeight());
 
@@ -449,7 +493,7 @@ public:
                 g.drawFittedText(text, margin, 0, realButtonX - margin, height, Justification::centredLeft, 1);
             }
 
-            g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
+            g.setColour(textColour);
 
             g.setFont(LumatoneEditorFonts::GothamNarrowMedium(buttonH * 0.5f).withTypefaceStyle("Narrow Light").withHorizontalScale(2.0f));
             g.drawFittedText("v", realButtonX, 0, box.getHeight(), box.getHeight(), Justification::centred, 1);
@@ -482,8 +526,14 @@ public:
     Label* createComboBoxTextBox(ComboBox& box) override
     {
         Label* l = new Label(box.getName(), box.getText());
-        l->setColour(Label::ColourIds::textColourId, box.findColour(ComboBox::ColourIds::textColourId));
         l->setFont(getComboBoxFont(box));
+
+        Colour textColour = box.findColour(ComboBox::ColourIds::textColourId);
+
+        if (!box.isEnabled())
+            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+
+        l->setColour(Label::ColourIds::textColourId, textColour);
         
         for (auto prop : box.getProperties())
             l->getProperties().set(prop.name, prop.value);
@@ -661,7 +711,7 @@ public:
 
     void drawTabButtonText(TabBarButton& tbb, Graphics& g, bool isMouseOver, bool isMouseDown) override
     {
-        Colour c = findColour(LumatoneEditorColourIDs::InactiveText);
+        Colour c = findColour(LumatoneEditorColourIDs::InactiveText); // Maybe should change this even though it's the same default colour
 
         if (tbb.isFrontTab())
             c = findColour(LumatoneEditorColourIDs::ActiveText);
@@ -837,6 +887,7 @@ private:
         setColour(LumatoneEditorColourIDs::CurveGridColour,                 Colour(0xff303030));
         setColour(LumatoneEditorColourIDs::RotaryGradientMin,               Colour(0xff5497b6));
         setColour(LumatoneEditorColourIDs::RotaryGradientMax,               Colour(0xff77a8b3));
+        setColour(LumatoneEditorColourIDs::DisabledOverlay,                 Colour(0x601b1b1b));
     }
 
 private:

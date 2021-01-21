@@ -356,7 +356,8 @@ enum LumatoneEditorColourIDs
     CurveGradientMax,
     CurveGridColour,
     RotaryGradientMin,
-    RotaryGradientMax
+    RotaryGradientMax,
+    DisabledOverlay
 };
 
 // Static functions for getting default Lumatone Editor fonts
