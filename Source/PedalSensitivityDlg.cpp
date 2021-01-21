@@ -117,10 +117,8 @@ void PedalSensitivityDlg::resized()
 
 	int marginX = roundToInt(getParentWidth() * settingsControlMarginParentWidthScalar);
 
-	float labelHeight = proportionOfHeight(settingsLabelHeight);
-	labelExprContrSensivity->setFont(LumatoneEditorFonts::FranklinGothic(labelHeight * 1.1f));
 	labelExprContrSensivity->setBounds(
-		marginX, proportionOfHeight(0.3f), proportionOfWidth(1.0f), labelHeight
+		marginX, proportionOfHeight(0.3f), proportionOfWidth(1.0f), proportionOfHeight(settingsToggleButtonHeight)
 	);
 
 	btnInvertFootCtrl->setBounds(
