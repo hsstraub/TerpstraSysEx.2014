@@ -386,8 +386,6 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 		jassertfalse;
 		return nullptr;
 	}
-
-	return nullptr;
 }
 
 VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()

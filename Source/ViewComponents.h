@@ -22,7 +22,7 @@
 Display of the data of one key
 ==============================================================================
 */
-class TerpstraKeyEdit : public Component
+class TerpstraKeyEdit : public Component, public SettableTooltipClient
 {
 public:
 	TerpstraKeyEdit();

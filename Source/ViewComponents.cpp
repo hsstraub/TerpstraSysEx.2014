@@ -54,6 +54,13 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	keyColour = newValue.colour;
 	keyType = newValue.keyType;
 
+	String newTooltip = "Colour: " + (Colour(keyColour).toDisplayString(false));
+	// ToDo more info; all or at least key type
+	
+	setTooltip(newTooltip);
+	midiNoteLabel->setTooltip(newTooltip);
+	midiChannelLabel->setTooltip(newTooltip);
+
 	repaint();
 }
 
