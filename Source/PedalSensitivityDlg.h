@@ -36,8 +36,8 @@
                                                                     //[/Comments]
 */
 class PedalSensitivityDlg  : public juce::Component,
-                             public TextEditor::Listener,
-                             public juce::Button::Listener
+                             public juce::Button::Listener,
+                             public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -46,9 +46,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void textEditorTextChanged(TextEditor& textEdit) override;
-	void textEditorFocusLost(TextEditor& textEdit) override;
-
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
 
@@ -58,19 +55,25 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	int roundedCornerSize;
+    Rectangle<float> controlBounds;
+
+    // Style Constants
+    const Rectangle<float> sliderBoundsProps = { 0.54f, 0.38f, 0.4f, 0.52f };
+
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::Label> labelExprContrSensivity;
-    std::unique_ptr<juce::TextEditor> txtExprCtrlSensivity;
     std::unique_ptr<juce::ToggleButton> btnInvertFootCtrl;
     std::unique_ptr<juce::Label> labelEXpressionPedalTitle;
+    std::unique_ptr<juce::Slider> sldExprCtrlSensivity;
 
 
     //==============================================================================
