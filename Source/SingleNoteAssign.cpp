@@ -46,6 +46,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->addItem("Lumatouch", 3);
     keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Gotham");
     keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Narrow Medium");
+    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.2f);
     keyTypeCombo->addListener(this);
 
     setColourToggleButton.reset(new juce::ToggleButton("setColourToggleButton"));
@@ -110,7 +111,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[UserPreSize]
-    colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "ff60aac5"));
+    colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "ff60aac5")); // TODO: load last active colour?
     addAndMakeVisible(colourTextEditor.get());
     //[/UserPreSize]
 
@@ -207,13 +208,14 @@ void SingleNoteAssign::resized()
     int toggleHeight = round(h * toggleHeightScalar);
     int halfMarginX = round(marginX * 0.5f);
     int halfMarginY = round(marginY * 0.5f);
+    int rightMarginX = marginX * 2 - halfMarginX;
 
     parametersFont.setHeight(toggleHeight * 1.25f);
     int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
 
     keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
-    keyTypeCombo->setSize(w - marginX * 2 - keyTypeToggleButton->getRight(), controlH);
+    keyTypeCombo->setSize(w - rightMarginX - keyTypeToggleButton->getRight(), controlH);
     keyTypeCombo->setCentrePosition(
         round(keyTypeCombo->getWidth() / 2.0f) + keyTypeToggleButton->getRight(),
         keyTypeToggleButton->getBounds().getCentreY()
@@ -228,11 +230,12 @@ void SingleNoteAssign::resized()
     );
 
     colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
-    colourTextEditor->setSize(w - halfMarginX - colourTextEditor->getX(), controlH);
+    colourTextEditor->setSize(w - colourTextEditor->getX() - rightMarginX, controlH);
+    colourTextEditor->applyFontToAllText(LumatoneEditorFonts::GothamNarrowMedium(controlH * 0.9f), true);
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteBox->setSize(comboBoxWidth, controlH);
+    noteBox->setSize(w - noteBox->getX() - rightMarginX, controlH);
     noteBox->setCentrePosition(
         round(noteBox->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
@@ -373,6 +376,7 @@ void SingleNoteAssign::lookAndFeelChanged()
         lookAndFeel->setupComboBox(*channelBox);
         lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
         lookAndFeel->setupComboBox(*keyTypeCombo);
+        lookAndFeel->setupTextEditor(*colourTextEditor);
     }
 }
 

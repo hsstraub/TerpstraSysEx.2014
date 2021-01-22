@@ -413,7 +413,7 @@ ColourTextEditor::ColourTextEditor(String componentName, String initialString)
 
 String ColourTextEditor::checkInputAndUpdate(bool sendSelectorListenerUpdate)
 {
-    String text = parseTextToColourString(getText());
+    String text = parseTextToColourString(getText().toLowerCase());
     if (text.length() > 0)
     {
         setText(text, NotificationType::dontSendNotification);
@@ -440,7 +440,7 @@ void ColourTextEditor::resetToLastUpdated(bool sendSelectorListenerUpdate)
         ? NotificationType::sendNotification 
         : NotificationType::dontSendNotification;
 
-    setText(lastBroadcastedColour.toDisplayString(true), notification);
+    setText(lastBroadcastedColour.toDisplayString(true).toLowerCase(), notification);
 }
 
 /** Called when the user changes the text in some way. */
