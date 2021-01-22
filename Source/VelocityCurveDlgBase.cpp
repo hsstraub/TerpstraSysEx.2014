@@ -50,8 +50,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 
     cbEditMode->setBounds (8, 8, 296, 24);
 
-	beamColourGradient.addColour(0.0f, Colour(0x66ff5e00));
-	beamColourGradient.addColour(1.0f, Colour(0x66ff5e00));
     //[UserPreSize]
 	drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::linearSegments] = &linearDrawingStrategy;
@@ -135,7 +133,7 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
 
 	// Draw grid overlay
 	g.setColour(gridColour);
-	g.strokePath(beamTableGrid, PathStrokeType(0.8f));
+	g.strokePath(beamTableGrid, PathStrokeType(1.0f));
     //[/UserPaint]
 }
 
@@ -180,18 +178,17 @@ void VelocityCurveDlgBase::resized()
 
 	// Build grid
 	beamTableGrid.clear();
-
 	while (x < w)
 	{
-		beamTableGrid.addLineSegment(Line<float>(x, 0, x, (float)h), 1.0f);
+		beamTableGrid.addLineSegment(Line<float>(x, 0, x, (float)h), 0.1f);
 		x += xUnit;
 	}
 
-	float y = xUnit;
-	while (y < h)
+	float y = h;
+	while (xUnit > 0 && y > 0)
 	{
-		beamTableGrid.addLineSegment(Line<float>(0, y, (float)w, y), 1.0f);
-		y += xUnit;
+		beamTableGrid.addLineSegment(Line<float>(0, y, (float)w, y), 0.1f);
+		y -= xUnit;
 	}
 
 	beamColourGradient.point1 = { 0.0f, (float)h };
@@ -237,10 +234,10 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
 {
-	int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
-	Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
-	g.setColour(Colour(0xff272b2f));
-	g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
+	//int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
+	//Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
+	//g.setColour(Colour(0xff272b2f));
+	//g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
 }
 
 void VelocityCurveDlgBase::lookAndFeelChanged()
