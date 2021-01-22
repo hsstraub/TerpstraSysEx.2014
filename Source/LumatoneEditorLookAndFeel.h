@@ -163,7 +163,7 @@ public:
                 float halfTextLength = getTextButtonFont(static_cast<TextButton&>(btn), btn.getHeight()).getStringWidthFloat(btn.getButtonText()) * 0.5f;
                 float xCenter = btn.getWidth() * 0.5f;
                 float yLine = btn.proportionOfHeight(0.9f);
-                g.drawLine(round(xCenter - halfTextLength), yLine, round(xCenter + halfTextLength), yLine);
+                g.drawLine(roundToInt(xCenter - halfTextLength), yLine, roundToInt(xCenter + halfTextLength), yLine);
             }
 
             return;
@@ -193,17 +193,14 @@ public:
 
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
-            int iconW = round(iconH * ((double)icon.getWidth() / icon.getHeight()));
-            int iconY = round((btn.getHeight() - iconH) * 0.5f);
-#if JUCE_WINDOWS
+            int iconW = roundToInt(iconH * ((double)icon.getWidth() / icon.getHeight()));
+            int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
+
             icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
-#else
-            icon = icon.rescaled(iconW, iconH, Graphics::ResamplingQuality::highResamplingQuality);
-#endif
 
             int margin = font.getStringWidth("_");
             int textWidth = font.getStringWidth(btn.getButtonText());
-            int lineStart = round((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
+            int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
             int secondHalf = lineStart + margin;
 
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
@@ -261,12 +258,12 @@ public:
     //        ? (float) properties[LumatoneEditorStyleIDs::componentImageHeightScalar]
     //        : 19.0f / 41.0f;
 
-    //    int height = round(btn.getHeight() * heightScalar);
-    //    int width = round(imageW / (float)imageH * height);
+    //    int height = roundToInt(btn.getHeight() * heightScalar);
+    //    int width = roundToInt(imageW / (float)imageH * height);
 
     //    g.setColour(textColour);
     //    g.drawImageWithin(*img, 
-    //        round((btn.getWidth() - width) * 0.5f), ((btn.getHeight() - height) * 0.5f), 
+    //        roundToInt((btn.getWidth() - width) * 0.5f), ((btn.getHeight() - height) * 0.5f), 
     //        width, height, 
     //        RectanglePlacement::centred, btn.getClickingTogglesState()
     //    );
@@ -376,14 +373,14 @@ public:
         const float endAngleNorm = rotaryAngleEnd - halfPi;
 
         const int w = sld.getWidth();
-        const int h = round(sld.getHeight() * (1.5 - 0.5 * sinf(endAngleNorm))); // translated to compensate for dial radius
+        const int h = roundToInt(sld.getHeight() * (1.5 - 0.5 * sinf(endAngleNorm))); // translated to compensate for dial radius
 
         const float dialRadiusFactor = 1.1f;
         const float size = jmin(w, h) / dialRadiusFactor;
         const float radiusInner = size * (1 - arcThickness);
 
-        const int textMargin = 5; // TODO: revise if resizing is weird
-        Rectangle<float> outerBounds = Rectangle<float>((w - size) * 0.5f, (h - size + textMargin) * 0.5f, size, size);
+        const int dialMargin = (size * dialRadiusFactor) - size;
+        Rectangle<float> outerBounds = Rectangle<float>((w - size) * 0.5f, dialMargin, size, size);
         Rectangle<float> innerBounds = outerBounds.reduced(size * arcThickness);
         Point<float> center = outerBounds.getCentre();
 
@@ -394,7 +391,7 @@ public:
         ring.closeSubPath();
 
         Colour minColour = findColour(LumatoneEditorColourIDs::RotaryGradientMin);
-        Colour maxColour = findColour(LumatoneEditorColourIDs::RotaryGradientMin);
+        Colour maxColour = findColour(LumatoneEditorColourIDs::RotaryGradientMax);
         Colour dialColour = Colours::white;
 
         if (!sld.isEnabled())
@@ -404,8 +401,7 @@ public:
             dialColour = findColour(LumatoneEditorColourIDs::InactiveText);
         }
 
-        ColourGradient grad(minColour, outerBounds.getTopLeft(), maxColour, outerBounds.getTopRight(), false);
-
+        ColourGradient grad = ColourGradient::horizontal(minColour, maxColour, outerBounds);
         g.setGradientFill(grad);
         g.fillPath(ring);
 
@@ -421,7 +417,7 @@ public:
 
     Label* createSliderTextBox(Slider& sld) override
     {
-        if (sld.getSliderStyle() == Slider::SliderStyle::Rotary)
+        if (sld.getSliderStyle() >= Slider::SliderStyle::Rotary && sld.getSliderStyle() < Slider::SliderStyle::IncDecButtons)
         {
             Label* label = new Label(sld.getName() + "_ValueLabel");
             label->setText(String(sld.getValue()), dontSendNotification);
@@ -435,7 +431,7 @@ public:
             label->setColour(Label::ColourIds::textColourId, textColour);
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
-            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, round(sliderSize * 0.5f), round((sld.getHeight() - sliderSize * 0.5f) * 0.6f));
+            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, roundToInt(sliderSize * 0.5f), roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.5f));
 
             return label;
         }
@@ -454,7 +450,7 @@ public:
 
     void drawComboBox(Graphics& g, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box) override
     {
-        int margin = round(height * comboBoxRoundedCornerScalar);
+        int margin = roundToInt(height * comboBoxRoundedCornerScalar);
 
         Colour backgroundColour = box.findColour(ComboBox::ColourIds::backgroundColourId);
         Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
@@ -474,7 +470,7 @@ public:
         g.setColour(backgroundColour);
 
         Path boxShape = getConnectedRoundedRectPath(box.getLocalBounds().toFloat(), 
-            round(height * comboBoxRoundedCornerScalar), 
+            roundToInt(height * comboBoxRoundedCornerScalar), 
             (box.isPopupActive()) ? Button::ConnectedEdgeFlags::ConnectedOnBottom : 0
         );
         g.fillPath(boxShape);
@@ -547,7 +543,7 @@ public:
         float fontHeight = labelToPosition.getFont().getHeight();
 
         labelToPosition.setBounds(
-            margin, round((box.getHeight() - fontHeight) * 0.5f), 
+            margin, roundToInt((box.getHeight() - fontHeight) * 0.5f), 
             box.getWidth() - box.getHeight() - margin, fontHeight
         );
     }
@@ -624,7 +620,7 @@ public:
         // If it's the last item, reduce size so highlight doesn't pass rounded corners
         if (item.itemID == target->getItemId(target->getNumItems() - 1))
         {
-            areaToUse = areaToUse.withTrimmedBottom(round(margin * 0.5f) + 1);
+            areaToUse = areaToUse.withTrimmedBottom(roundToInt(margin * 0.5f) + 1);
         }
 
         if (isHighlighted)
@@ -649,7 +645,7 @@ public:
         // If the option is the last available option, add a margin
         if (target->getItemText(target->getNumItems() - 1) == text)
         {
-            idealHeight = round(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
+            idealHeight = roundToInt(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
         }
         else
         {
@@ -802,7 +798,7 @@ public:
     // Set Slider style to Rotary
     void setupRotarySlider(Slider& sld)
     {
-        sld.setSliderStyle(Slider::SliderStyle::Rotary);
+        sld.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     }
 
     //void setupLabel(Label& label, Colour textColour = Colours::white, Font font = Font("Univia Pro", 12.0f, Font::bold))
@@ -898,6 +894,6 @@ private:
     const float comboBoxRoundedCornerScalar = 0.304878f;
     const float comboBoxFontHeightScalar = 0.55f;
 
-    const float rotaryAngleStart = -2.0943951f; // pi * -2/3
+    const float rotaryAngleStart = float_Pi * -0.64f; // pi * -2/3
     const float rotaryAngleEnd = -rotaryAngleStart;
 };
