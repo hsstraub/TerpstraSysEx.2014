@@ -42,9 +42,9 @@ public:
 
 	void setSkewed(bool tilingIsSkewed) { useSkewedBasis = tilingIsSkewed; }
 
-	void setColumnAngleBasis(double angleIn) { columnAngleBasis = angleIn; }
+	void setColumnAngle(double angleIn);
 
-	void setRowAngleBasis(double angleIn) { rowAngleBasis = angleIn; }
+	void setRowAngle(double angleIn);
 
 	/// <summary>
 	//  Stretches tiling in the horizontal direction, along the axis where a line extended from the hexagon centres are perpendicular to an edge at 3 and 9 o'clock
@@ -99,7 +99,7 @@ public:
 		int					rowStepsFirstToSecond,
 		Point<float>		thirdKeyCentre,
 		int					colStepsSecondToThird,
-		double				correctionAngle = 0.0
+		bool				calculateAngles = true
 	);
 
 	// TODO: Generalized hex plane for any shapes
@@ -145,9 +145,9 @@ public:
 
 	float getVerticalScalar() const { return verticalScalar; }
 
-	double getColumnAngleBasis() const { return columnAngleBasis; }
+	double getColumnAngleBasis() const { return columnBasisAngle; }
 
-	double getRowAngleBasis() const { return rowAngleBasis; }
+	double getRowAngleBasis() const { return rowBasisAngle; }
 
 	//==============================================================================
 	
@@ -202,8 +202,8 @@ private:
 	float horizontalScalar = 1.0f;
 	float verticalScalar = 1.0f;
 
-	double columnAngleBasis = 0.0;
-	double rowAngleBasis = -double_Pi / 3.0;
+	double columnBasisAngle = 0.0;
+	double rowBasisAngle = -double_Pi / 3.0;
 
 	Point<double> startingCentre = Point<double>(0.4330127, 0.5);
 
@@ -213,10 +213,15 @@ private:
 	float rotationScalar = 1.0f;
 	AffineTransform transform = AffineTransform();
 
-	double columnAngleXComponent = 0;
-	double columnAngleYComponent = 0;
-	double rowAngleXComponent = 0;
-	double rowAngleYComponent = 0;
+	double columnAngleCos = 0;
+	double columnAngleSin = 0;
+	double    rowAngleCos = 0;
+	double    rowAngleSin = 0;
+
+	double columnXComponent = 0;
+	double columnYComponent = 0;
+	double    rowXComponent = 0;
+	double    rowYComponent = 0;
 
 	Rectangle<float> tileBounds;        // Smallest rectangle containing tiles pre-transformation
 	Rectangle<float> transformedBounds; // Smallest rectangle containing tiles post-transformation

@@ -14,11 +14,17 @@
 //==============================================================================
 // ColourPaletteComponent Definitions
 
-ColourPaletteComponent::ColourPaletteComponent(String name, Array<Colour> colours)
-    : PolygonPalette(6)
+ColourPaletteComponent::ColourPaletteComponent(String name)
+    : PolygonPalette(COLOURPALETTESIZE)
 {
     setName(name);
-    
+    setColourPalette(Array<Colour>());
+}
+
+ColourPaletteComponent::ColourPaletteComponent(String name, Array<Colour>& colours)
+    : PolygonPalette(COLOURPALETTESIZE), referencedPalette(&colours)
+{
+    setName(name);
     setColourPalette(colours);
 }
 
@@ -51,6 +57,9 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
 
     PolygonPalette::setColourPalette(colourPaletteIn);
 
+    if (referencedPalette)
+        *referencedPalette = colourPaletteIn;
+
     if (isEnabled())
     {
         int selectedSwatch = getSelectedSwatchNumber();
@@ -67,6 +76,10 @@ void ColourPaletteComponent::setSwatchColour(int swatchNumber, Colour newColour)
 {
     PolygonPalette::setSwatchColour(swatchNumber, newColour);
     
+    // Edit referenced palette
+    if (referencedPalette)
+        referencedPalette->set(swatchNumber, newColour);
+
     if (getSelectedSwatchNumber() == swatchNumber)
         selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
 }
@@ -81,4 +94,23 @@ Colour ColourPaletteComponent::getSelectedColour()
 void ColourPaletteComponent::deselectColour()
 {
     PolygonPalette::setSelectedSwatchNumber(-1);
+}
+
+//==============================================================================
+// PaletteControlGroup Definitions
+
+PaletteControlGroup::PaletteControlGroup(LumatoneColourPalette& paletteIn)
+    : palette("Palette" + paletteIn.id, *paletteIn.palette),
+    editButton("EditButton_" + paletteIn.id, translate("EditButtonTip")),
+    trashButton("TrashButton" + paletteIn.id)
+{
+    editButton.setButtonText("Edit");
+    editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
+
+    const Image trashIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::TrashCanIcon);
+    trashButton.setImages(false, true, true,
+        trashIcon, 1.0f, Colour(),
+        trashIcon, 1.0f, Colours::white.withAlpha(0.4f),
+        trashIcon, 1.0f, Colour()
+    );
 }

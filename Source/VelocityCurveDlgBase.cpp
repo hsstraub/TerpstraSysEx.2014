@@ -51,7 +51,6 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
     cbEditMode->setBounds (8, 8, 296, 24);
 
     //[UserPreSize]
-
 	drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::linearSegments] = &linearDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::quadraticCurves] = &quadraticDrawingStrategy;
@@ -59,7 +58,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveTyp
 	for (int x = 0; x < 128; x++)
 	{
 		velocityBeamTable[x].reset(new  VelocityCurveBeam());
-		addAndMakeVisible(velocityBeamTable[x].get());
+		addChildComponent(velocityBeamTable[x].get());
 		velocityBeamTable[x]->addMouseListener(this, true);
 	}
 
@@ -99,21 +98,42 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
-
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.fillAll(backgroundColour);
 
-	g.setColour(findColour(VelocityCurveBeam::outlineColourId));
-	g.strokePath(beamTableFrame, PathStrokeType(1.000f));
+	int h = getHeight();
+
+	// Build contour path
+	beamTableContour.clear();
+	beamTableContour.startNewSubPath(0, h);
+	
+	for (int x = 0; x < 128; x++)
+		beamTableContour.lineTo(velocityBeamTable[x]->getX(), h - velocityBeamTable[x]->getBeamHeightFromValue());
+	
+	beamTableContour.lineTo(getWidth(), h);
+	beamTableContour.closeSubPath();
+
+	// Fill velocity contour
+	g.setGradientFill(beamColourGradient);
+	g.fillPath(beamTableContour);
+
+	//g.setColour(findColour(VelocityCurveBeam::outlineColourId));
+	//g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 	{
 		for (int x = 0; x < 128; x++)
-			velocityBeamTable[x]->setTooltip(currentDrawingStrategy->getDescriptionText());
+		{
+			auto beam = velocityBeamTable[x].get();
+			beam->setTooltip(currentDrawingStrategy->getDescriptionText());
+		}
 		currentDrawingStrategy->paint(g, getLookAndFeel());
 	}
+
+	// Draw grid overlay
+	g.setColour(gridColour);
+	g.strokePath(beamTableGrid, PathStrokeType(1.0f));
     //[/UserPaint]
 }
 
@@ -122,33 +142,57 @@ void VelocityCurveDlgBase::resized()
     //[UserPreResize] Add your own custom resize code here..
 	int w = this->getWidth();
 	int h = this->getHeight();
+
+	// Grid units
+	float xUnit = w * CURVEGRIDXRESOLUTION;
+	float x = xUnit;
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
 
-	float graphicsXPadding = cbEditMode->getX();
-	float graphicsYPos = cbEditMode->getBottom() + BEAMTABLERIMABOVE;
-	float graphicsBottom = h - BEAMTABLERIMABOVE;
+	//float graphicsXPadding = cbEditMode->getX();
+	//float graphicsYPos = cbEditMode->getBottom() + BEAMTABLERIMABOVE;
+	//float graphicsBottom = h - BEAMTABLERIMABOVE;
 
-	beamTableFrame.clear();
-	beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPos);
-	beamTableFrame.lineTo(graphicsXPadding, graphicsBottom);
-	beamTableFrame.lineTo(w - graphicsXPadding, graphicsBottom);
-	beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
-	beamTableFrame.closeSubPath();
+	//beamTableFrame.clear();
+	//beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPos);
+	//beamTableFrame.lineTo(graphicsXPadding, graphicsBottom);
+	//beamTableFrame.lineTo(w - graphicsXPadding, graphicsBottom);
+	//beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
+	//beamTableFrame.closeSubPath();
+
+	cbEditMode->setBounds(0, 0, xUnit * 11, xUnit * 3);
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 		currentDrawingStrategy->resized();
 
-	float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
-	float velocityBeamXPos = graphicsXPadding;
+	//float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
+	float velocityBeamXPos = 0;
 	for (int x = 0; x < 128; x++)
 	{
 		auto velocityBeamWidth = beamWidth(x);
-		velocityBeamTable[x]->setBounds(velocityBeamXPos, graphicsYPos, velocityBeamWidth, velocityGraphicsHeight);
+		velocityBeamTable[x]->setBounds(velocityBeamXPos, 0, velocityBeamWidth, h);
 		velocityBeamXPos += velocityBeamWidth;
 	}
+
+	// Build grid
+	beamTableGrid.clear();
+	while (x < w)
+	{
+		beamTableGrid.addLineSegment(Line<float>(x, 0, x, (float)h), 0.1f);
+		x += xUnit;
+	}
+
+	float y = h;
+	while (xUnit > 0 && y > 0)
+	{
+		beamTableGrid.addLineSegment(Line<float>(0, y, (float)w, y), 0.1f);
+		y -= xUnit;
+	}
+
+	beamColourGradient.point1 = { 0.0f, (float)h };
+	beamColourGradient.point2 = { velocityBeamXPos, (float)h };
 
     //[/UserResized]
 }
@@ -187,6 +231,31 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
+{
+	//int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
+	//Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
+	//g.setColour(Colour(0xff272b2f));
+	//g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
+}
+
+void VelocityCurveDlgBase::lookAndFeelChanged()
+{
+	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (lookAndFeel)
+	{
+		beamColourGradient.clearColours();
+		beamColourGradient.addColour(0.0, lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGradientMin));
+		beamColourGradient.addColour(1.0, lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGradientMax));
+		
+		backgroundColour = lookAndFeel->findColour(LumatoneEditorColourIDs::ControlBoxBackground);
+		gridColour = lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGridColour);
+
+		cbEditMode->setColour(ComboBox::ColourIds::backgroundColourId, Colours::black);
+		cbEditMode->setColour(ComboBox::ColourIds::textColourId, Colours::white);
+	}
+}
 
 void VelocityCurveDlgBase::loadFromMapping()
 {
@@ -317,6 +386,8 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 		jassertfalse;
 		return nullptr;
 	}
+
+	return nullptr;
 }
 
 VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()

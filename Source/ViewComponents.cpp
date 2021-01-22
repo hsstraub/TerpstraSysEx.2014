@@ -77,7 +77,12 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	// Color: empty or the parametrized color
 	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
         .withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
-    Colour textColour = bgColour.contrasting(1.0).darker(1.0f);
+    Colour textColour = bgColour.contrasting(0.7f);
+
+	if (bgColour.getPerceivedBrightness() < 0.5)
+	{
+		textColour = textColour.brighter();
+	}
 
     midiChannelLabel->setColour(juce::Label::textColourId, textColour);
     midiNoteLabel->setColour(juce::Label::textColourId, textColour);
@@ -89,7 +94,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
         float w = this->getWidth();
         float h = this->getHeight();
 		g.setGradientFill(
-			ColourGradient(bgColour.darker(), w / 2.0f, h / 2.0f, bgColour.brighter(), w / 2.0f, 0.0f, true));
+			ColourGradient(bgColour.darker(), w * 0.5f, h * 0.5f, bgColour.brighter(), w * 0.5f, 0.0f, true));
 	}
 	else
 	{
@@ -109,30 +114,30 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	// Something parametrized or not?
 	if (currentValue.isEmpty())
 	{
-		midiChannelLabel->setAlpha(0.3);
-		midiNoteLabel->setAlpha(0.3);
+		midiChannelLabel->setAlpha(0.3f);
+		midiNoteLabel->setAlpha(0.3f);
 	}
 	else
 	{
-		midiChannelLabel->setAlpha(1.0);
-		midiNoteLabel->setAlpha(1.0);
+		midiChannelLabel->setAlpha(1.0f);
+		midiNoteLabel->setAlpha(1.0f);
 	}
 }
 
 void TerpstraKeyEdit::resized()
 {
 	Point<int> centre = getLocalBounds().getCentre();
-	float radius = keySize / 2.0f;
+	float radius = keySize * 0.5f;
 
 	// Draw hexagon
 	hexPath.clear();
 	hexPath.addPolygon(centre.toFloat(), 6, radius, TERPSTRASINGLEKEYROTATIONANGLE);
 
 	float lblSize = radius * TERPSTRASINGLEKEYLABELSIZE;
-	float lblOffset = radius / 3.0f;
+	float lblOffset = radius * 0.333333f;
 
 	midiChannelLabel->setSize(radius, lblSize);
-	midiChannelLabel->setCentrePosition(centre.translated(-lblOffset, -(radius / 2.3f)));
+	midiChannelLabel->setCentrePosition(centre.translated(-lblOffset, -(radius * channelLabelRadiusScalar)));
 
 	midiNoteLabel->setSize(radius, lblSize);
 	midiNoteLabel->setCentrePosition(centre.translated(0, lblOffset));

@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "NoteOnOffVelocityCurveDialog.h"
 #include "ViewConstants.h"
+#include "Main.h"
 //[/Headers]
 
 #include "CurvesArea.h"
@@ -55,7 +56,8 @@ CurvesArea::CurvesArea ()
     : Component("CurvesArea")
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	showDeveloperMode = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false);
+	//[/Constructor_pre]
 
     labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
@@ -65,8 +67,9 @@ CurvesArea::CurvesArea ()
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
-
-    curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
+    curvesTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+    curvesTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+    curvesTab->addTab (TRANS("Note Velocity"), Colour(), new NoteOnOffVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
 
     curvesTab->setBounds (8, 40, 464, 200);
@@ -80,7 +83,7 @@ CurvesArea::CurvesArea ()
 
 
     //[UserPreSize]
-
+	btnDeveloperMode->setVisible(showDeveloperMode);
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..
@@ -110,16 +113,6 @@ void CurvesArea::paint (juce::Graphics& g)
     //g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
-
-    //==========================================================================
-    // DEBUG DRAWING
-    Rectangle<float> controlsBounds = getLocalBounds().toFloat().withTop(curvesTab->getBottom());
-    g.setColour(Colour(0xffc19520));
-    g.drawRoundedRectangle(controlsBounds, getParentHeight() * roundedCornerLayoutAppHeightScalar, 1.0f);
-
-    g.setColour(Colour(0xffcd6f2e));
-    g.drawRect(getLocalBounds());
-    //==========================================================================
 
     //[/UserPaint]
 }

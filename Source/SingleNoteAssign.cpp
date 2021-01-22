@@ -46,6 +46,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->addItem("Lumatouch", 3);
     keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Gotham");
     keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Narrow Medium");
+    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.2f);
     keyTypeCombo->addListener(this);
 
     setColourToggleButton.reset(new juce::ToggleButton("setColourToggleButton"));
@@ -56,7 +57,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     colourSubwindow.reset(new ColourEditComponent());
     addAndMakeVisible(colourSubwindow.get());
-    //colourSubwindow->setColourAsString("ff60aac5");
+    colourSubwindow->setColour("ff60aac5");
 
     setNoteToggleButton.reset(new juce::ToggleButton("setNoteToggleButton"));
     addAndMakeVisible(setNoteToggleButton.get());
@@ -110,6 +111,8 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[UserPreSize]
+    colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "ff60aac5")); // TODO: load last active colour?
+    addAndMakeVisible(colourTextEditor.get());
     //[/UserPreSize]
 
 
@@ -185,28 +188,34 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+
+    float w = getWidth();
+    float h = getHeight();
+
     if (getParentComponent()) // This changes when the tab changes
         roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * roundedCornerLayoutAppHeightScalar);
 
-    int controlAreaTop = proportionOfHeight(controlAreaYScalar);
+    int controlAreaTop = round(h * controlAreaYScalar);
 
-    instructionsBounds.setBounds(0, 0, getWidth(), controlAreaTop);
-    instructionsFont.setHeight(instructionsBounds.proportionOfHeight(fontHeightInBounds));
+    instructionsBounds.setBounds(0, 0, w, controlAreaTop);
+    instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
 
-    controlsX = proportionOfWidth(controlsXScalar);
-    int marginY = proportionOfHeight(yMarginScalar);
-    int controlH = proportionOfHeight(controlHeightScalar);
-    int marginX = round(controlH / 2.0f);
-    int halfWidth = proportionOfWidth(0.5f);
-    int toggleHeight = proportionOfHeight(toggleHeightScalar);
-    int halfMarginY = round(marginY / 2.0f);
+    controlsX = round(w * controlsXScalar);
+    int marginY = round(h * yMarginScalar);
+    int controlH = round(h * controlHeightScalar);
+    int marginX = round(controlH * 0.5f);
+    int halfWidth = round(w * 0.5f);
+    int toggleHeight = round(h * toggleHeightScalar);
+    int halfMarginX = round(marginX * 0.5f);
+    int halfMarginY = round(marginY * 0.5f);
+    int rightMarginX = marginX * 2 - halfMarginX;
 
     parametersFont.setHeight(toggleHeight * 1.25f);
     int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
 
     keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
-    keyTypeCombo->setSize(getWidth() - marginX * 2 - keyTypeToggleButton->getRight(), controlH);
+    keyTypeCombo->setSize(w - rightMarginX - keyTypeToggleButton->getRight(), controlH);
     keyTypeCombo->setCentrePosition(
         round(keyTypeCombo->getWidth() / 2.0f) + keyTypeToggleButton->getRight(),
         keyTypeToggleButton->getBounds().getCentreY()
@@ -220,9 +229,13 @@ void SingleNoteAssign::resized()
         setColourToggleButton->getBounds().getCentreY()
     );
 
+    colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
+    colourTextEditor->setSize(w - colourTextEditor->getX() - rightMarginX, controlH);
+    colourTextEditor->applyFontToAllText(LumatoneEditorFonts::GothamNarrowMedium(controlH * 0.9f), true);
+
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteBox->setSize(comboBoxWidth, controlH);
+    noteBox->setSize(w - noteBox->getX() - rightMarginX, controlH);
     noteBox->setCentrePosition(
         round(noteBox->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
@@ -238,7 +251,7 @@ void SingleNoteAssign::resized()
 
     separatorY = setChannelToggleButton->getBottom() + halfMarginY;
 
-    autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, getWidth() - controlsX, controlH);
+    autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, w - controlsX, controlH);
 
     noteAutoIncrButton->setTopLeftPosition(controlsX, autoIncrementLabel->getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(noteAutoIncrButton.get(), parametersFont, toggleHeight);
@@ -336,6 +349,7 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_setColourToggleButton] -- add your button handler code here..
 		bool fieldActive = setColourToggleButton->getToggleState();
 		colourSubwindow->setEnabled(fieldActive);
+        colourTextEditor->setEnabled(fieldActive);
         //[/UserButtonCode_setColourToggleButton]
     }
     else if (buttonThatWasClicked == keyTypeToggleButton.get())
@@ -353,6 +367,18 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void SingleNoteAssign::lookAndFeelChanged() 
+{
+    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+    if (lookAndFeel)
+    {
+        lookAndFeel->setupComboBox(*noteBox);
+        lookAndFeel->setupComboBox(*channelBox);
+        lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
+        lookAndFeel->setupComboBox(*keyTypeCombo);
+        lookAndFeel->setupTextEditor(*colourTextEditor);
+    }
+}
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
 /// <returns>Mapping was changed yes/no</returns>
@@ -451,11 +477,6 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("SingleNoteColourSetActive", setColourToggleButton->getToggleState());
 	propertiesFile->setValue("SingleNoteKeyTypeSetActive", keyTypeToggleButton->getToggleState());
 
-}
-
-void SingleNoteAssign::listenForPaletteWindowRequest(TextButton::Listener* listenerIn)
-{
-    colourSubwindow->addListener(listenerIn);
 }
 //[/MiscUserCode]
 

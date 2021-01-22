@@ -27,7 +27,7 @@
 #include "ScaleStructure.h"
 #include "TransparentDropDown.h"
 #include "NoteNames.h"
-
+#include "../LumatoneEditorStyleCommon.h"
 //[/Headers]
 
 
@@ -153,6 +153,22 @@ private:
 
 	Array<int> periodFactors;
 	int periodFactorSelected = 0;
+
+	// Style
+	const float controlRadius = 0.875f;
+	const float sliderHeight = 0.155f;
+	const float controlUnit = 0.142857f;
+
+	const float periodButtonXOffset = 0.8f;
+	const float sizeRadiusScalar = 0.493827f;
+
+	const float offsetFontHeightScalar = 0.0208333f;
+	const float offsetArrowAngle1 = float_Pi * 0.083333f;
+	const float offsetArrowAngle2 = offsetArrowAngle1 * 0.5f;
+	const float offsetArrowAngle3 = float_Pi * 0.071429f;
+	const float offsetArrowRadScalar0 = 0.0769231f;
+	const float offsetArrowRadScalar1 = 0.92857f;
+
     //[/UserVariables]
 
     //==============================================================================

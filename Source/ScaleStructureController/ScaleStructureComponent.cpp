@@ -161,41 +161,40 @@ void ScaleStructureComponent::resized()
     //[UserResized] Add your own custom resize handling here..
 
 	// TODO: implement (probably ex-projucer) this so that the bounds don't have to be set twice
-	periodSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(0.155f));
+	periodSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(sliderHeight));
 	periodSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.4f, 0));
 
-	generatorSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(0.155f));
+	generatorSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(sliderHeight));
 	generatorSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.125f, float_Pi));
 
-	generatorValueLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 2.0f / 3.0f, float_Pi * 11.0f / 8.0f));
-	stepSizePatternLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 2.0f / 3.0f, float_Pi * 5.0f / 8.0f));
-
-	offsetLabel->setFont(Font().withHeight(getHeight() / 48.0f));
+	offsetLabel->setFont(Font().withHeight(offsetFontHeightScalar));
 	offsetLabel->setSize(offsetLabel->getFont().getStringWidth("Offset") * 2, offsetLabel->getFont().getHeight() * 3);
-	offsetLabel->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 7.0f / 8.0f, 0));
+	offsetLabel->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * controlRadius, 0));
 
-	sizeSelector->setSize(proportionOfWidth(0.175f), (circle->getOuterRadius() - circle->getMiddleRadius()) * 7.0f / 8.0f);
-	sizeSelector->setCentrePosition(circle->getIntPointFromCenter((circle->getOuterRadius() + circle->getMiddleRadius()) / 2.025f, 0));
+	sizeSelector->setSize(proportionOfWidth(0.175f), (circle->getOuterRadius() - circle->getMiddleRadius()) * controlRadius);
+	sizeSelector->setCentrePosition(circle->getIntPointFromCenter((circle->getOuterRadius() + circle->getMiddleRadius()) * sizeRadiusScalar, 0));
 
 	// TODO: add other part of arrow / improve drawing
 	offsetArrows.clear();
-	Rectangle<float> offsetLabelCircleBounds = circle->getInnerCircleBounds().reduced(circle->getInnerRadius() / 13.0f);
-	GroupingCircle::addArcToPath(offsetArrows, offsetLabelCircleBounds, float_Pi / 24, float_Pi / 12, true);
-	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * 13.0f / 14.0f, float_Pi / 14));
-	GroupingCircle::addArcToPath(offsetArrows, offsetLabelCircleBounds, -float_Pi / 24, -float_Pi / 12, true);
-	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * 13.0f / 14.0f, -float_Pi / 14));
+	Rectangle<float> offsetLabelCircleBounds = circle->getInnerCircleBounds().reduced(circle->getInnerRadius() * offsetArrowRadScalar0);
+	GroupingCircle::addArcToPath(offsetArrows, offsetLabelCircleBounds, offsetArrowAngle2, offsetArrowAngle1, true);
+	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * offsetArrowRadScalar1, offsetArrowAngle3));
+	GroupingCircle::addArcToPath(offsetArrows, offsetLabelCircleBounds, -offsetArrowAngle2, -offsetArrowAngle1, true);
+	offsetArrows.lineTo(circle->getFloatPointFromCenter(circle->getInnerRadius() * offsetArrowRadScalar1, -offsetArrowAngle3));
 
-	float periodFBtnSize = periodSlider->getHeight() / 8.0f;
+	float periodFBtnSize = periodSlider->getHeight() * 0.125f;
 	periodFactorButtonShape.clear();
 	periodFactorButtonShape.addEllipse(periodSlider->getRight(), periodSlider->getY(), periodFBtnSize, periodFBtnSize);
 	periodFactorButton->setShape(periodFactorButtonShape, true, true, true);
-	periodFactorButton->setTopLeftPosition(periodSlider->getPosition().translated(periodSlider->getWidth() * 4 / 5.0f, 0));
+	periodFactorButton->setTopLeftPosition(periodSlider->getPosition().translated(periodSlider->getWidth() * periodButtonXOffset, 0));
 
-	generatorValueLbl->setSize(getWidth(), proportionOfHeight(0.15f));
-	generatorValueLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 3.0f / 7.0f, float_Pi));
+	resizeLabelWithWidth(generatorValueLbl.get(), proportionOfWidth(0.25f));
+	generatorValueLbl->setSize(proportionOfWidth(0.4f), generatorValueLbl->getHeight());
+	generatorValueLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 3.0f * controlUnit, float_Pi));
 
-	stepSizePatternLbl->setSize(getWidth(), proportionOfHeight(0.15f));
-	stepSizePatternLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 4.0 / 7.0f, float_Pi));
+	resizeLabelWithWidth(stepSizePatternLbl.get(), proportionOfWidth(0.25f));
+	stepSizePatternLbl->setSize(proportionOfWidth(0.4f), stepSizePatternLbl->getHeight());
+	stepSizePatternLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 4.5 * controlUnit, float_Pi));
 
     //[/UserResized]
 }

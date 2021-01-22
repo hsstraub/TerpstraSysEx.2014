@@ -25,7 +25,7 @@
 #include "KeyboardDataStructure.h"
 #include "HexagonTilingGeometry.h"
 
-#include "ImageResampling\ImageResampler.h"
+#include "ImageResampling/ImageResampler.h"
 #include "BoardGeometry.h"
 #include "TerpstraMidiDriver.h"
 

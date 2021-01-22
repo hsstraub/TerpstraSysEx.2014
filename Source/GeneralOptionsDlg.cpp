@@ -140,7 +140,13 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void GeneralOptionsDlg::lookAndFeelChanged()
 {
-    labelGeneralSettingslTitle->setColour(Label::ColourIds::textColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::LabelBlue));
+    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+    if (lookAndFeel)
+    {
+        labelGeneralSettingslTitle->setColour(Label::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
+        lookAndFeel->setupToggleButton(*buttonAfterTouchActive);
+        lookAndFeel->setupToggleButton(*buttonLightOnKeyStrokes);
+    }
 }
 
 void GeneralOptionsDlg::loadFromMapping()

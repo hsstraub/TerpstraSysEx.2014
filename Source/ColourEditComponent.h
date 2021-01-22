@@ -21,7 +21,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
-#include "ColourPaletteComponent.h"
+#include "ColourSelectionGroup.h"
 
 /*
 ==============================================================================
@@ -135,5 +135,57 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
+
+/**
+
+    TextEditor container for parsing colour strings
+
+*/
+
+class ColourTextEditor :
+    public juce::TextEditor,
+    public ColourSelectionListener,
+    public ColourSelectionBroadcaster,
+    private juce::TextEditor::Listener
+{
+public:
+
+    ColourTextEditor(String componentName, String initialString);
+
+    String checkInputAndUpdate(bool sendSelectorListenerUpdate = true);
+
+    void resetToLastUpdated(bool sendSelectorListenerUpdate = true);
+
+    Colour getLastUpdatedColour();
+
+    // ColourSelectionBroadcaster Implementation
+    Colour getSelectedColour() override;
+
+    void deselectColour() override {};
+
+    // ColourSelectionListener Implementation
+    void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
+
+    static String parseTextToColourString(String textIn);
+
+private:
+    // TextEditor::Listener Implementation
+    /** Called when the user changes the text in some way. */
+    void textEditorTextChanged(TextEditor&) override;
+
+    /** Called when the user presses the return key. */
+    void textEditorReturnKeyPressed(TextEditor&) override;
+
+    /** Called when the user presses the escape key. */
+    void textEditorEscapeKeyPressed(TextEditor&) override;
+
+    /** Called when the text editor loses focus. */
+    void textEditorFocusLost(TextEditor&) override;
+
+private:
+
+    Colour lastBroadcastedColour;
+};
+
 //[/EndFile]
 

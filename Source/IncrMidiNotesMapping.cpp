@@ -46,12 +46,7 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     labelMidiNotesUntil.reset (new juce::Label ("labelMidiNotesUntil",
                                                 TRANS("MIDI notes from 0 to the scale size")));
     addAndMakeVisible (labelMidiNotesUntil.get());
-    labelMidiNotesUntil->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelMidiNotesUntil->setJustificationType (juce::Justification::centredLeft);
-    labelMidiNotesUntil->setEditable (false, false, false);
-    labelMidiNotesUntil->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelMidiNotesUntil->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
+    labelMidiNotesUntil->setFont(LumatoneEditorFonts::GothamNarrowMedium());
     labelMidiNotesUntil->setBounds (8, 8, 432, 24);
 
     singleChannelButton.reset (new juce::ToggleButton ("singleChannelButton"));
@@ -77,6 +72,8 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
 
 
     //[UserPreSize]
+    flexBox.flexWrap = FlexBox::Wrap::noWrap;
+    flexBox.flexDirection = FlexBox::Direction::column;
     //[/UserPreSize]
 
     setSize (416, 220);
@@ -116,19 +113,35 @@ void IncrMidiNotesMapping::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffb8d0de));
+    //g.fillAll (juce::Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	//g.fillAll(findColour(ResizableWindow::backgroundColourId));
     //[/UserPaint]
 }
 
 void IncrMidiNotesMapping::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+    int width = getWidth();
+    int height = getHeight();
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+
+    
+    float itemWidth = width * 0.6f;
+    float itemHeight = height * 0.2f;
+    float bottomMargin = height * 0.1f;
+    
+    flexBox.items.clear();
+    flexBox.items.add(FlexItem(*channelAutoIncrButton).withFlex(1.0f).withWidth(width).withHeight(itemHeight).withMargin(FlexItem::Margin(bottomMargin, 0, 0, 0)));
+    flexBox.items.add(FlexItem(*labelMidiNotesUntil).withFlex(1.0f).withWidth(width).withHeight(itemHeight));
+    flexBox.items.add(FlexItem(*singleChannelButton).withFlex(1.0f).withWidth(itemWidth).withHeight(itemHeight).withMargin(FlexItem::Margin(itemHeight, 0, bottomMargin, 0)));
+    flexBox.performLayout(getLocalBounds());
+
+    channelBox->setBounds(singleChannelButton->getRight(), singleChannelButton->getY(), width - singleChannelButton->getWidth(), singleChannelButton->getHeight());
+
     //[/UserResized]
 }
 
@@ -142,7 +155,7 @@ void IncrMidiNotesMapping::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
 		if (channelAutoIncrButton->getToggleState())
 		{
-			channelBox->setVisible(false);
+			channelBox->setEnabled(false);
 			this->mappingLogic.setChannelInCaseOfSingleChannel(0);	// 0 for no selection or 1-16
 		}
         //[/UserButtonCode_channelAutoIncrButton]
@@ -152,7 +165,7 @@ void IncrMidiNotesMapping::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_singleChannelButton] -- add your button handler code here..
 		if (singleChannelButton->getToggleState())
 		{
-			channelBox->setVisible(true);
+			channelBox->setEnabled(true);
 			// Make sure something is selected
 			if (channelBox->getSelectedId() <= 0)
 				channelBox->setSelectedId(1);   // This will generate an update of the mapping logic via comboBoxChanged

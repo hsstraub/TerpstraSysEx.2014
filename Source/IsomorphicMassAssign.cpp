@@ -34,17 +34,67 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
     periodSize = 0;
+
+    labelMappingType.reset(new juce::Label("labelMappingType", translate("Type")));
+    addAndMakeVisible(labelMappingType.get());
+    labelMappingType->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+
+    labelMappingType->setBounds(20, 64, 88, 24);
+
+    cbMappingType.reset(new juce::ComboBox("cbMappingType"));
+    addAndMakeVisible(cbMappingType.get());
+    cbMappingType->setEditableText(false);
+    cbMappingType->setJustificationType(juce::Justification::centredLeft);
+    cbMappingType->setTextWhenNothingSelected(juce::String());
+    cbMappingType->setTextWhenNoChoicesAvailable(translate("NoChoices"));
+    cbMappingType->addItem(translate("MIDINotesIncreasingOrder"), 1);
+    cbMappingType->addItem(translate("Scala KBM mappings"), 2);
+    cbMappingType->addListener(this);
+
+    cbMappingType->setBounds(64, 64, 240, 24);
+
+    mappingLogic = nullptr;
+
     // Create the mapping sub components. Do not make them visible (when one becomes visible it will automatically update the mapping logic)
-	incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize, scaleStructure, colourTable));
-	incrMidiNotesMapping->setVisible(false);
-	addChildComponent(incrMidiNotesMapping.get());
+    incrMidiNotesMapping.reset(new IncrMidiNotesMapping(periodSize, scaleStructure, colourTable));
+    incrMidiNotesMapping->setVisible(false);
+    addChildComponent(incrMidiNotesMapping.get());
 
-	kbmMappingDlg.reset(new KBMMappingDlg(periodSize, scaleStructure, colourTable));
-	kbmMappingDlg->setVisible(false);
-	addChildComponent(kbmMappingDlg.get());
 
-	mappingLogic = nullptr;
-    //[/Constructor_pre]
+    kbmMappingDlg.reset(new KBMMappingDlg(periodSize, scaleStructure, colourTable));
+    kbmMappingDlg->setVisible(false);
+    addChildComponent(kbmMappingDlg.get());
+
+
+    //groupMapping.reset(new juce::GroupComponent("groupMapping", translate("Mapping")));
+    //addAndMakeVisible(groupMapping.get());
+    //groupMapping->setBounds(8, 40, 304, 152);
+
+    //editInstructionText.reset(new juce::Label("editInstructionText", translate("IsomorphicAssignDirections")));
+    //addAndMakeVisible(editInstructionText.get());
+    //editInstructionText->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+    //editInstructionText->setJustificationType(juce::Justification::topLeft);
+    //editInstructionText->setEditable(false, false, false);
+    //editInstructionText->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+    //editInstructionText->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+    //editInstructionText->setBounds(8, 200, 296, 48);
+
+
+    btnScaleStructureEditor.reset(new juce::TextButton("btnScaleStructureEditor"));
+    addAndMakeVisible(btnScaleStructureEditor.get());
+    btnScaleStructureEditor->setTooltip(translate("ShowHide") + " " + translate("ScaleStructureEditor"));
+    btnScaleStructureEditor->setButtonText(translate("ScaleStructureEditor"));
+    btnScaleStructureEditor->addListener(this);
+
+    btnScaleStructureEditor->setBounds(160, 264, 152, 24);
+
+    labelStartingPoint.reset(new juce::Label("labelStartingPoint", translate("StartingValue")));
+    addAndMakeVisible(labelStartingPoint.get());
+    labelStartingPoint->setTooltip(translate("StartingPointTooltip"));
+    labelStartingPoint->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+
+    labelStartingPoint->setBounds(8, 344, 150, 24);
 
     startingPointBox.reset (new juce::ComboBox ("startingPointBox"));
     addAndMakeVisible (startingPointBox.get());
@@ -54,107 +104,13 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     startingPointBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
     startingPointBox->addListener (this);
 
-    startingPointBox->setBounds (8, 368, 150, 24);
+    startingPointBox->setBounds(8, 368, 150, 24);
 
-    labelStartingPoint.reset (new juce::Label ("labelStartingPoint", translate("StartingValue")));
-    addAndMakeVisible (labelStartingPoint.get());
-    labelStartingPoint->setTooltip (translate("StartingPointTooltip"));
-    labelStartingPoint->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelStartingPoint->setJustificationType (juce::Justification::centredLeft);
-    labelStartingPoint->setEditable (false, false, false);
-    labelStartingPoint->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelStartingPoint->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelStartingPoint->setBounds (8, 344, 150, 24);
-
-    labelHorizontalSteps.reset (new juce::Label ("labelHorizontalSteps", translate("HorizontalSteps")));
-    addAndMakeVisible (labelHorizontalSteps.get());
-    labelHorizontalSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelHorizontalSteps->setJustificationType (juce::Justification::centredLeft);
-    labelHorizontalSteps->setEditable (false, false, false);
-    labelHorizontalSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelHorizontalSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelHorizontalSteps->setBounds (208, 344, 112, 24);
-
-    editHorizontalSteps.reset (new juce::TextEditor ("editHorizontalSteps"));
-    addAndMakeVisible (editHorizontalSteps.get());
-    editHorizontalSteps->setMultiLine (false);
-    editHorizontalSteps->setReturnKeyStartsNewLine (false);
-    editHorizontalSteps->setReadOnly (false);
-    editHorizontalSteps->setScrollbarsShown (true);
-    editHorizontalSteps->setCaretVisible (true);
-    editHorizontalSteps->setPopupMenuEnabled (true);
-    editHorizontalSteps->setText (juce::String());
-
-    editHorizontalSteps->setBounds (216, 368, 40, 24);
-
-    labelRightUpwardSteps.reset (new juce::Label ("labelRightUpwardSteps", translate("RightUpwardSteps")));
-    addAndMakeVisible (labelRightUpwardSteps.get());
-    labelRightUpwardSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelRightUpwardSteps->setJustificationType (juce::Justification::centredLeft);
-    labelRightUpwardSteps->setEditable (false, false, false);
-    labelRightUpwardSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelRightUpwardSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelRightUpwardSteps->setBounds (152, 296, 136, 24);
-
-    editRightUpwardSteps.reset (new juce::TextEditor ("editRightUpwardSteps"));
-    addAndMakeVisible (editRightUpwardSteps.get());
-    editRightUpwardSteps->setMultiLine (false);
-    editRightUpwardSteps->setReturnKeyStartsNewLine (false);
-    editRightUpwardSteps->setReadOnly (false);
-    editRightUpwardSteps->setScrollbarsShown (true);
-    editRightUpwardSteps->setCaretVisible (true);
-    editRightUpwardSteps->setPopupMenuEnabled (true);
-    editRightUpwardSteps->setText (juce::String());
-
-    editRightUpwardSteps->setBounds (160, 320, 39, 24);
-
-    editInstructionText.reset (new juce::Label ("editInstructionText", translate("IsomorphicAssignDirections")));
-    addAndMakeVisible (editInstructionText.get());
-    editInstructionText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    editInstructionText->setJustificationType (juce::Justification::topLeft);
-    editInstructionText->setEditable (false, false, false);
-    editInstructionText->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    editInstructionText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    editInstructionText->setBounds (8, 200, 296, 48);
-
-    groupMapping.reset (new juce::GroupComponent ("groupMapping", translate("Mapping")));
-    addAndMakeVisible (groupMapping.get());
-
-    groupMapping->setBounds (8, 40, 304, 152);
-
-    cbMappingType.reset (new juce::ComboBox ("cbMappingType"));
-    addAndMakeVisible (cbMappingType.get());
-    cbMappingType->setEditableText (false);
-    cbMappingType->setJustificationType (juce::Justification::centredLeft);
-    cbMappingType->setTextWhenNothingSelected (juce::String());
-    cbMappingType->setTextWhenNoChoicesAvailable (translate("NoChoices"));
-    cbMappingType->addItem (translate("MIDINotesIncreasingOrder"), 1);
-    cbMappingType->addItem (translate("Scala KBM mappings"), 2);
-    cbMappingType->addListener (this);
-
-    cbMappingType->setBounds (64, 64, 240, 24);
-
-    labelMappingType.reset (new juce::Label ("labelMappingType", translate("Type")));
-    addAndMakeVisible (labelMappingType.get());
-    labelMappingType->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelMappingType->setJustificationType (juce::Justification::centredLeft);
-    labelMappingType->setEditable (false, false, false);
-    labelMappingType->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelMappingType->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelMappingType->setBounds (20, 64, 88, 24);
-
-    btnScaleStructureEditor.reset (new juce::TextButton ("btnScaleStructureEditor"));
-    addAndMakeVisible (btnScaleStructureEditor.get());
-    btnScaleStructureEditor->setTooltip (translate("ShowHide") + " " + translate("ScaleStructureEditor"));
-    btnScaleStructureEditor->setButtonText (translate("ScaleStructureEditor"));
-    btnScaleStructureEditor->addListener (this);
-
-    btnScaleStructureEditor->setBounds (160, 264, 152, 24);
+    labelPeriodSize.reset(new juce::Label("labelPeriodSize", TRANS("Period")));
+    addAndMakeVisible(labelPeriodSize.get());
+    labelPeriodSize->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+  
+    labelPeriodSize->setBounds(16, 8, 168, 24);
 
     periodSizeBox.reset (new juce::ComboBox ("periodSizeBox"));
     addAndMakeVisible (periodSizeBox.get());
@@ -167,16 +123,6 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     periodSizeBox->setBounds (200, 8, 56, 24);
 
-    labelPeriodSize.reset (new juce::Label ("labelPeriodSize", TRANS("Period")));
-    addAndMakeVisible (labelPeriodSize.get());
-    labelPeriodSize->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelPeriodSize->setJustificationType (juce::Justification::centredLeft);
-    labelPeriodSize->setEditable (false, false, false);
-    labelPeriodSize->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelPeriodSize->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelPeriodSize->setBounds (16, 8, 168, 24);
-
     setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
     setColourToggleButton->setButtonText (TRANS("ColourAssignment"));
@@ -185,7 +131,53 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     setColourToggleButton->setBounds (8, 264, 152, 24);
 
 
+    labelHorizontalSteps.reset(new juce::Label("labelHorizontalSteps", translate("HorizontalSteps")));
+    addAndMakeVisible(labelHorizontalSteps.get());
+    labelHorizontalSteps->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+ 
+    labelHorizontalSteps->setBounds(208, 344, 112, 24);
+
+    editHorizontalSteps.reset(new juce::TextEditor("editHorizontalSteps"));
+    addAndMakeVisible(editHorizontalSteps.get());
+    editHorizontalSteps->setMultiLine(false);
+    editHorizontalSteps->setReturnKeyStartsNewLine(false);
+    editHorizontalSteps->setReadOnly(false);
+    editHorizontalSteps->setScrollbarsShown(true);
+    editHorizontalSteps->setCaretVisible(true);
+    editHorizontalSteps->setPopupMenuEnabled(true);
+    editHorizontalSteps->setText(juce::String());
+
+    editHorizontalSteps->setBounds(216, 368, 40, 24);
+
+    labelRightUpwardSteps.reset(new juce::Label("labelRightUpwardSteps", translate("RightUpwardSteps")));
+    addAndMakeVisible(labelRightUpwardSteps.get());
+    labelRightUpwardSteps->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelRightUpwardSteps->setBounds(152, 296, 136, 24);
+
+    editRightUpwardSteps.reset(new juce::TextEditor("editRightUpwardSteps"));
+    addAndMakeVisible(editRightUpwardSteps.get());
+    editRightUpwardSteps->setMultiLine(false);
+    editRightUpwardSteps->setReturnKeyStartsNewLine(false);
+    editRightUpwardSteps->setReadOnly(false);
+    editRightUpwardSteps->setScrollbarsShown(true);
+    editRightUpwardSteps->setCaretVisible(true);
+    editRightUpwardSteps->setPopupMenuEnabled(true);
+    editRightUpwardSteps->setText(juce::String());
+
+    editRightUpwardSteps->setBounds(160, 320, 39, 24);
+
+    //[/Constructor_pre]
+
     //[UserPreSize]
+
+    flexBoxComponents.add(setColourToggleButton.get());
+    flexBoxComponents.add(labelStartingPoint.get());
+    flexBoxComponents.add(labelPeriodSize.get());
+    flexBoxComponents.add(labelHorizontalSteps.get());
+    flexBoxComponents.add(labelRightUpwardSteps.get());
+
+    flexBox.flexWrap = FlexBox::Wrap::noWrap;
+    flexBox.flexDirection = FlexBox::Direction::column;
     //[/UserPreSize]
 
     setSize (320, 400);
@@ -239,10 +231,18 @@ void IsomorphicMassAssign::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffbad0de));
+    //g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+    g.fillAll(Colour(0xff2d3135));
+
+	g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
+    g.fillRect(instructionsBounds);
+
+    g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::InactiveText));
+    g.setFont(instructionsFont);
+    g.drawFittedText(translate("IsomorphicAssignDirections"), instructionsBounds, Justification::centred, 3, 1.0f);
+
     //[/UserPaint]
 }
 
@@ -250,12 +250,52 @@ void IsomorphicMassAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 	int width = getWidth();
+    int height = getHeight();
 
-	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
-	kbmMappingDlg->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
+    int controlWidth = round(width * 0.4f);
+    int controlHeight = round(height * controlHeightScalar);
+
+    int xMargin = round(width * xMarginScalar);
+    int yMargin = round(height * yMarginScalar);
+    int xEnd = width - xMargin;
+
+    flexBox.items.clear();
+    for (auto child : flexBoxComponents)
+    {
+        flexBox.items.add(FlexItem(*child).withHeight(controlHeight).withMargin(FlexItem::Margin(yMargin, 0, 0, 0)));
+    }
+
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    instructionsBounds = getLocalBounds().withBottom(round(height * instructionsBottom));
+    instructionsFont.setHeight(instructionsBounds.proportionOfHeight(fontHeightInBounds));
+
+    resizeLabelWithHeight(labelMappingType.get(), controlHeight);
+    labelMappingType->setTopLeftPosition(xMargin, labelMappingType->getY());
+    cbMappingType->setBounds(labelMappingType->getBounds().withLeft(labelMappingType->getRight()).withRight(xEnd));
+
+    Rectangle<int> mappingTypeBounds(xMargin, labelMappingType->getBottom() + yMargin, width - xMargin * 2, instructionsBounds.getHeight() + controlHeight);
+
+    incrMidiNotesMapping->setBounds(mappingTypeBounds);
+    kbmMappingDlg->setBounds(mappingTypeBounds);
+
+    flexBox.performLayout(getLocalBounds().withTop(mappingTypeBounds.getBottom() + yMargin).withBottom(height - yMargin).reduced(xMargin, 0));
+
+    resizeLabelWithHeight(labelStartingPoint.get(),     controlHeight);
+    resizeLabelWithHeight(labelPeriodSize.get(),        controlHeight);
+    resizeLabelWithHeight(labelHorizontalSteps.get(),   controlHeight);
+    resizeLabelWithHeight(labelRightUpwardSteps.get(),  controlHeight);
+
+    setColourToggleButton->setSize(controlWidth, controlHeight * 0.75);
+
+    btnScaleStructureEditor->   setBounds(setColourToggleButton->   getBounds().withLeft(setColourToggleButton->    getRight() + xMargin).withRight(xEnd));
+    startingPointBox->          setBounds(labelStartingPoint->      getBounds().withLeft(labelStartingPoint->       getRight()).withRight(xEnd));
+    periodSizeBox->             setBounds(labelPeriodSize->         getBounds().withLeft(labelPeriodSize->          getRight()).withRight(xEnd));
+    editHorizontalSteps->       setBounds(labelHorizontalSteps->    getBounds().withLeft(labelHorizontalSteps->     getRight()).withRight(xEnd));
+    editRightUpwardSteps->      setBounds(labelRightUpwardSteps->   getBounds().withLeft(labelRightUpwardSteps->    getRight()).withRight(xEnd));
+
+
     //[/UserResized]
 }
 
@@ -347,6 +387,19 @@ void IsomorphicMassAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void IsomorphicMassAssign::lookAndFeelChanged()
+{
+    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+
+    if (lookAndFeel)
+    {
+        lookAndFeel->setupTextButton(*btnScaleStructureEditor);
+        lookAndFeel->setupComboBox(*cbMappingType);
+        lookAndFeel->setupComboBox(*startingPointBox);
+        lookAndFeel->setupComboBox(*periodSizeBox);
+    }
+}
+
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
     periodSizeBox->setSelectedId(
@@ -364,6 +417,7 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
 
 	// TODO: Full scaleStructure state recall
+    scaleStructure.resetToPeriod(periodSizeBox->getSelectedId());
 }
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)

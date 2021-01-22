@@ -13,6 +13,8 @@
 #include <JuceHeader.h>
 #include "PolygonPalette.h"
 #include "ColourSelectionGroup.h"
+#include "ColourPaletteDataStructure.h"
+#include "LumatoneEditorStyleCommon.h"
 
 //==============================================================================
 /*
@@ -21,7 +23,8 @@
 class ColourPaletteComponent  : public PolygonPalette, public ColourSelectionBroadcaster
 {
 public:
-    ColourPaletteComponent(String name, Array<Colour> colours = Array<Colour>());
+    ColourPaletteComponent(String name);
+    ColourPaletteComponent(String name, Array<Colour>& colours);
     ~ColourPaletteComponent() override;
 
     //==========================================================================
@@ -42,5 +45,21 @@ public:
     void deselectColour() override;
 
 private:
+
+    Array<Colour>* referencedPalette = nullptr;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourPaletteComponent)
+};
+
+//==============================================================================
+/*
+    Container object for controlling colour palettes
+*/
+struct PaletteControlGroup
+{
+    PaletteControlGroup(LumatoneColourPalette& paletteIn);
+
+    ColourPaletteComponent palette;
+    TextButton editButton;
+    ImageButton trashButton;
 };

@@ -15,6 +15,7 @@
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
+#include "ColourPaletteDataStructure.h"
 #include "LocalisationMap.h"
 
 
@@ -46,6 +47,7 @@ public:
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	Array<LumatoneColourPalette>& getColourPalettes() { return colourPalettes; }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
 
 	// Menu functionality
@@ -143,6 +145,8 @@ private:
 	PropertiesFile*				propertiesFile;
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
+
+	Array<LumatoneColourPalette> colourPalettes;
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;

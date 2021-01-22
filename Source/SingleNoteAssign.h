@@ -23,7 +23,7 @@
 #include "JuceHeader.h"
 #include "KeyboardDataStructure.h"
 #include "ColourEditComponent.h"
-#include "LumatoneEditorStyleCommon.h"
+#include "LumatoneEditorLookAndFeel.h"
 //[/Headers]
 
 
@@ -38,7 +38,8 @@
 */
 class SingleNoteAssign  : public Component,
                           public juce::ComboBox::Listener,
-                          public juce::Button::Listener
+                          public juce::Button::Listener,
+                          public juce::TextEditor::Listener
 {
 public:
     //==============================================================================
@@ -53,7 +54,11 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-    void listenForPaletteWindowRequest(TextButton::Listener* listenerIn);
+    void lookAndFeelChanged() override;
+    
+    ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
+    ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -66,6 +71,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<ColourEditComponent> colourSubwindow;
+    std::unique_ptr<ColourTextEditor> colourTextEditor;
 
     //==============================================================================
     // Style Helpers
@@ -84,9 +90,9 @@ private:
 
     const float xMarginScalar       = 0.0917f;
     const float yMarginScalar       = 0.0813f;
-    const float controlAreaYScalar  = 11.0f / 60.0f;
+    const float controlAreaYScalar  = 0.183333f;
     const float controlsXScalar     = 0.092;
-    const float separatorYScalar    = 2.0f / 3.0f;
+    const float separatorYScalar    = 0.666667f;
     const float toggleHeightScalar  = 0.034f;
     const float controlHeightScalar = 0.0647f;
 

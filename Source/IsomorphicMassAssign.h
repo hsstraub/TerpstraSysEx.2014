@@ -84,6 +84,8 @@ public:
 	void scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize) override;
 
 	bool performMouseDown(int setSelection, int keySelection);
+
+	void lookAndFeelChanged() override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -104,9 +106,16 @@ private:
 	TerpstraBoardGeometry		boardGeometry;
 	ScaleStructure				scaleStructure;
 
+	// Style helpers
+	Array<Component*> flexBoxComponents;
+	FlexBox          flexBox;
+
+	Rectangle<int> instructionsBounds;
+	Font           instructionsFont;
+
 	// Can be replaced, but ScaleStructureComponent currently needs a reference to a list of Colours
 	// to use and update them automatically in realtime
-	Array<Colour>				colourTable =
+	Array<Colour>	colourTable =
 	{
 		Colours::white,
 		Colours::red,
@@ -116,6 +125,13 @@ private:
 		Colours::rebeccapurple,
 		Colours::orange
 	};
+
+	const float xMarginScalar = 0.0917f;
+	const float yMarginScalar = 0.025f;
+	const float instructionsBottom = 0.183333f;
+	const float fontHeightInBounds = 0.2f;
+	const float controlHeightScalar = 0.058f;
+
     //[/UserVariables]
 
     //==============================================================================

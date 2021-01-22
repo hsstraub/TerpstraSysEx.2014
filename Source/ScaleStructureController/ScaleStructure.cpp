@@ -1770,7 +1770,8 @@ String ScaleStructure::getIntervalSteps(bool withModifications)
 	}
 	else
 	{
-		return arrayToString(scalesInIntervals[sizeIndexSelected]);
+		Array<int> intervals = scalesInIntervals[sizeIndexSelected];
+		return arrayToString(intervals);
 	}
 }
 

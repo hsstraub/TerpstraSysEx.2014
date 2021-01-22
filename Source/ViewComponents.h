@@ -56,6 +56,8 @@ private:
 	TerpstraKey::KEYTYPE	keyType;
 	
 	float					keySize;
+
+	const float				channelLabelRadiusScalar = 0.4347826f;
 };
 
 

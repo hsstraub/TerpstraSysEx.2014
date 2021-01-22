@@ -298,6 +298,16 @@ void NoteEditArea::setKeyFieldValues(const TerpstraKeys& keySet)
 		terpstraKeyFields[i]->setValue(keySet.theKeys[i]);
 }
 
+ColourEditComponent* NoteEditArea::getColourEditComponent()
+{
+	return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->getColourEditComponent();
+}
+
+ColourTextEditor* NoteEditArea::getSingleNoteColourTextEditor() 
+{
+	return dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->getColourTextEditor();;
+}
+
 void NoteEditArea::changeSingleKeySelection(int newSelection)
 {
 	// Unselect previous key
@@ -315,11 +325,6 @@ void NoteEditArea::refreshKeyFields()
 	auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
-}
-
-void NoteEditArea::registerPaletteWindowRequestListener(TextButton::Listener* listenerIn)
-{
-	dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(0))->listenForPaletteWindowRequest(listenerIn);
 }
 //[/MiscUserCode]
 
