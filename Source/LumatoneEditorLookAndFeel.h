@@ -146,6 +146,8 @@ public:
         return BorderSize<int>(0);
     }
 
+
+
     //==================================================================
     //
     // BUTTON METHODS
@@ -441,6 +443,35 @@ public:
         }
     }
 
+    //==================================================================
+    //
+    // TEXTEDITOR METHODS
+    //
+    //==================================================================
+
+    void fillTextEditorBackground(Graphics& g, int width, int height, TextEditor& editor) override
+    {
+        Colour backgroundColour = editor.findColour(TextEditor::ColourIds::backgroundColourId);
+
+        if (!backgroundColour.isTransparent())
+        {
+            if (!editor.isEnabled())
+                backgroundColour = backgroundColour.withMultipliedSaturation(0.33f);
+
+            Path boxShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height),
+                roundToInt(height * comboBoxRoundedCornerScalar), 0);
+
+            g.setColour(backgroundColour);
+            g.fillPath(boxShape);
+            return;
+        }
+        
+        g.fillAll(backgroundColour);
+    }
+
+    void drawTextEditorOutline(Graphics&, int width, int height, TextEditor&) override {}
+
+
 
     //==================================================================
     //
@@ -463,7 +494,7 @@ public:
 
         else if (box.isMouseOver(true))
         {
-            backgroundColour = backgroundColour.brighter(0.1f);
+            backgroundColour = backgroundColour.withMultipliedSaturation(1.5f);// .brighter(0.05f);
             textColour       = textColour.brighter(0.1f);
         }
 
@@ -498,7 +529,7 @@ public:
 
     Font getComboBoxFont(ComboBox& box) override
     {
-        Font font = LumatoneEditorFonts::UniviaProBold(box.proportionOfHeight(comboBoxFontHeightScalar));
+        Font font = LumatoneEditorFonts::UniviaProBold(box.getHeight() * comboBoxFontHeightScalar);
 
         NamedValueSet& properties = box.getProperties();
         if (properties.contains(LumatoneEditorStyleIDs::fontOverride))
@@ -513,7 +544,7 @@ public:
 
         if (properties.contains(LumatoneEditorStyleIDs::fontHeightScalar))
         {
-            font.setHeight(box.proportionOfHeight(properties[LumatoneEditorStyleIDs::fontHeightScalar]));
+            font.setHeight(font.getHeight() * (float) properties[LumatoneEditorStyleIDs::fontHeightScalar]);
         }
 
         return font;
@@ -583,9 +614,9 @@ public:
 
         auto box = dynamic_cast<ComboBox*>(target);
         if (box)
-            g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).brighter(0.1f)); // Box colour will always be highlighted
+            g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
         else
-            g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxBackground).brighter(0.1f)); 
+            g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxHighlighted)); 
 
         Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, target->getWidth(), height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
         g.fillPath(menuShape);
@@ -801,32 +832,22 @@ public:
         sld.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     }
 
-    //void setupLabel(Label& label, Colour textColour = Colours::white, Font font = Font("Univia Pro", 12.0f, Font::bold))
-    //{
-    //    label.setEditable(false, false);
-    //    label.setColourAsString(Label::ColourIds::backgroundColourId, Colour());
-    //    label.setColourAsString(Label::ColourIds::outlineColourId, Colour());
-    //    label.setColourAsString(Label::ColourIds::textColourId, textColour);
-    //    label.setBorderSize(BorderSize<int>(0));
-    //    label.setFont(font);
-    //}
-
-    void setupTextEditorAsLabel(TextEditor& editor)
-    {
-        editor.setReadOnly(true);
-        editor.setColour(TextEditor::ColourIds::textColourId, Colour(0xff777777));
-        editor.setColour(TextEditor::ColourIds::outlineColourId, Colour());
-        editor.setColour(TextEditor::ColourIds::backgroundColourId, Colour());
-        editor.setJustification(Justification::bottomLeft);
-        editor.setBorder(BorderSize<int>(0));
-        editor.setIndents(0, 0);
-    }
-
     // Set generic ComboBox colours
     void setupComboBox(ComboBox& box)
     {
         box.setColour(ComboBox::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
-        box.setColour(ComboBox::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        box.setColour(ComboBox::ColourIds::textColourId,       findColour(LumatoneEditorColourIDs::DescriptionText));
+    }
+
+    // Set generic TextEditor colours
+    void setupTextEditor(TextEditor& editor)
+    {
+        editor.setColour(TextEditor::ColourIds::backgroundColourId,      findColour(LumatoneEditorColourIDs::ControlBoxBackground));
+        editor.setColour(TextEditor::ColourIds::textColourId,            findColour(LumatoneEditorColourIDs::DescriptionText));
+        editor.setColour(TextEditor::ColourIds::highlightColourId,       findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
+        editor.setColour(TextEditor::ColourIds::highlightedTextColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        editor.setColour(TextEditor::ColourIds::shadowColourId,          Colour());
+        editor.setIndents(4, 0);
     }
 
 public:
@@ -875,6 +896,7 @@ private:
         setColour(LumatoneEditorColourIDs::InactiveText,                    Colour(0xffb1b1b1));
         setColour(LumatoneEditorColourIDs::DescriptionText,                 Colour(0xffcbcbcb));
         setColour(LumatoneEditorColourIDs::ControlBoxBackground,            Colour(0xff212427));
+        setColour(LumatoneEditorColourIDs::ControlBoxHighlighted,           Colour(0xff3d5a78));
         setColour(LumatoneEditorColourIDs::DefaultPresetButtonActive,       Colour(0xffff84e6));
         setColour(LumatoneEditorColourIDs::DefaultPresetButtonInactive,     Colour(0xff5c7cf2));
         setColour(LumatoneEditorColourIDs::OutlineColourId,                 Colours::white);

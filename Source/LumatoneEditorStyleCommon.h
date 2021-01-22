@@ -345,6 +345,7 @@ enum LumatoneEditorColourIDs
     MediumBackground,
     LightBackground,
     ControlAreaBackground,
+    ControlBoxHighlighted,
     ActiveText,
     InactiveText,
     DescriptionText,
@@ -378,6 +379,9 @@ namespace LumatoneEditorStyleIDs
 
     // A component with text can have it scaled with this property
     static Identifier fontHeightScalar = Identifier("FontHeightScalar");
+
+    // Override background colour for a Label's TextEditor when being edited
+    static Identifier labelTextEditorBackgroundColour = Identifier("LabelTextEditorBackgroundColour");
 
     static Identifier tabbedButtonBarDepthScalar = Identifier("TabbedButtonBarDepthScalar");
 
