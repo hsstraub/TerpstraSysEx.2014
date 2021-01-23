@@ -90,13 +90,6 @@ public:
         virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) = 0;
 	};
 
- 	typedef enum
-	{
-		noteOnNoteOff = 1,
-		fader = 2,
-		afterTouch = 3
-	} VelocityCurveType;
-
 	typedef enum
 	{
 	    NACK = 0x00,    // Not recognized
@@ -172,13 +165,13 @@ public:
 	void sendLightOnKeyStrokes(bool value);
 
 	// Send a value for a velocity lookup table
-	void sendVelocityConfig(VelocityCurveType velocityCurveType, unsigned char velocityTable[]);
+	void sendVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType, unsigned char velocityTable[]);
 
 	// Save velocity config to EEPROM
-	void saveVelocityConfig(VelocityCurveType velocityCurveType);
+	void saveVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
 	// reset velocity config to value from EEPROM
-	void resetVelocityConfig(VelocityCurveType velocityCurveType);
+	void resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
 	void sendAfterTouchActivation(bool value);
 
@@ -198,7 +191,7 @@ public:
 
 	void sendKeyTypeConfigurationRequest(int boardIndex);
 
-	void sendVelocityConfigurationRequest(VelocityCurveType velocityCurveType);
+	void sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
 	void sendVelocityIntervalConfigRequest();
 
@@ -224,7 +217,7 @@ public:
     bool messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage);
 
     // Message contains velocity curve data from controller for the specified velocity curve type yes/no
-    bool messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, VelocityCurveType velocityCurveType);
+    bool messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
     bool messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage);
 

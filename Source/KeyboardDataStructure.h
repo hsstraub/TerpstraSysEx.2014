@@ -54,6 +54,13 @@ class TerpstraVelocityCurveConfig
 public:
 	typedef enum
 	{
+		noteOnNoteOff = 1,
+		fader = 2,
+		afterTouch = 3
+	} VelocityCurveType;
+
+	typedef enum
+	{
 		none = -1,
 		freeDrawing = 0,
 		linearSegments = 1,

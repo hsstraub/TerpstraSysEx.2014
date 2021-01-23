@@ -28,7 +28,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue)
+VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraVelocityCurveConfig::VelocityCurveType typeValue)
     : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
       linearDrawingStrategy(beamTableFrame, velocityBeamTable),
       quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
@@ -375,12 +375,12 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 
 	switch(velocityCurveType)
 	{
-	case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
 		return &mappingInEdit->noteOnOffVelocityCurveConfig;
 
-	case TerpstraMidiDriver::VelocityCurveType::fader:
+	case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
 		return &mappingInEdit->faderConfig;
-	case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
 		return &mappingInEdit->afterTouchConfig;
 	default:
 		jassertfalse;
