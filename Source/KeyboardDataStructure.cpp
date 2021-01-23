@@ -49,13 +49,45 @@ TerpstraVelocityCurveConfig class
 ==============================================================================
 */
 
+int DefaultFaderVelocityTable[128] = {
+	1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 15, 15, 16, 16,
+	17, 17, 17, 18, 18, 19, 19, 20, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 31, 31, 32, 32, 33, 33,
+	34, 35, 35, 36, 37, 37, 38, 39, 39, 40, 41, 41, 42, 43, 44, 45, 45, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57, 59, 62, 65, 68, 71, 74, 77,
+	79, 82, 85, 88, 91, 94, 97, 99, 102, 105, 108, 111, 114, 117, 119, 122, 125, 127 };
+
 TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig()
 {
-	editStrategy = EDITSTRATEGYINDEX::none;
-
 	// Default config: one to one
 	for (int x = 0; x < 128; x++)
 		velocityValues[x] = x;
+
+	editStrategy = EDITSTRATEGYINDEX::none;
+}
+
+TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+{
+	switch (velocityCurveType)
+	{
+	case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
+		jassert(sizeof(DefaultFaderVelocityTable) == sizeof(velocityValues));
+		memmove(velocityValues, DefaultFaderVelocityTable, sizeof(DefaultFaderVelocityTable));
+		editStrategy = EDITSTRATEGYINDEX::freeDrawing;
+		break;
+
+	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
+		// ToDo
+
+	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
+	default:
+	{
+		// Default config: one to one
+		for (int x = 0; x < 128; x++)
+			velocityValues[x] = x;
+
+		editStrategy = EDITSTRATEGYINDEX::none;
+	}
+	break;
+	}
 }
 
 TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(const String& velocityCurveConfigString)
@@ -191,9 +223,9 @@ void TerpstraKeyMapping::clearAll()
 	expressionControllerSensivity = 0;
 
 	clearVelocityIntervalTable();
-	noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig();
-	faderConfig = TerpstraVelocityCurveConfig();
-	afterTouchConfig = TerpstraVelocityCurveConfig();
+	noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
+	faderConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
+	afterTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
 }
 
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)

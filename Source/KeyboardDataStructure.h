@@ -69,6 +69,8 @@ public:
 
 public:
 	TerpstraVelocityCurveConfig();
+	// Default value for the given curve type
+	TerpstraVelocityCurveConfig(VelocityCurveType velocityCurveType);
 	TerpstraVelocityCurveConfig(const String& velocityCurveConfigString);
 
 	String createConfigStringForSaving();
