@@ -57,6 +57,7 @@ public:
 		noteOnNoteOff = 1,
 		fader = 2,
 		afterTouch = 3
+		// ToDo Lumatouch, modulation wheel
 	} VelocityCurveType;
 
 	typedef enum
