@@ -113,6 +113,7 @@ SingleNoteAssign::SingleNoteAssign ()
     //[UserPreSize]
     colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "ff60aac5")); // TODO: load last active colour?
     addAndMakeVisible(colourTextEditor.get());
+    colourTextEditor->addColourSelectionListener(this);
     //[/UserPreSize]
 
 
@@ -378,6 +379,12 @@ void SingleNoteAssign::lookAndFeelChanged()
         lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
+}
+
+void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
+{
+    if (source == colourTextEditor.get())
+        colourSubwindow->setColour(colourTextEditor->getText());
 }
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
