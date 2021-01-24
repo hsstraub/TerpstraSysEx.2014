@@ -14,8 +14,8 @@
 //==============================================================================
 // ColourPaletteWindow Definitions
 
-ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn, ColourSelectionGroup* selectionGroupIn)
-    : colourPalettes(colourPalettesIn), paletteGroup(selectionGroupIn)
+ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn)
+    : colourPalettes(colourPalettesIn)
 {
     setName("ColourPaletteWindow");
 
@@ -23,7 +23,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPal
     for (int p = 0; p < colourPalettes.size(); p++)
     {
         LumatoneColourPalette& palette = colourPalettes.getReference(p);
-        createAndListenToPaletteGroup(palette);
+        createAndListenToPaletteControls(palette);
     }
 
     newPaletteVisual.reset(new ColourPaletteComponent("EmptyPalette"));
@@ -48,34 +48,40 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPal
     colourToolTabs->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
     addAndMakeVisible(*colourToolTabs);
 
-    if (paletteGroup)
-    {
-        paletteGroup->addSelector(customPickerPanel.get());
-    }
+    paletteGroup.addSelector(customPickerPanel.get()); 
 
     colourToolTabs->getTabbedButtonBar().addChangeListener(this);
 }
 
 ColourPaletteWindow::~ColourPaletteWindow()
 {
-    if (paletteGroup)
+    paletteGroup.removeSelector(customPickerPanel.get());
+    for (auto p : filledPalettes)
     {
-        paletteGroup->removeSelector(customPickerPanel.get());
-        for (auto p : filledPalettes)
-        {
-            paletteGroup->removeSelector(&p->palette);
-        }
+        paletteGroup.removeSelector(&p->palette);
     }
+    
+    filledPalettes.clear();
+
+    palettePanelViewport    = nullptr;
+    colourToolTabs          = nullptr;
+    palettePanel            = nullptr;
+    customPickerPanel       = nullptr;
+    paletteEditPanel        = nullptr;
+    newPaletteVisual        = nullptr;
+    newPaletteButton        = nullptr;
+
+    // Let MainComponent know this is closed
+    sendChangeMessage();
 }
 
-int ColourPaletteWindow::createAndListenToPaletteGroup(LumatoneColourPalette& paletteIn)
+int ColourPaletteWindow::createAndListenToPaletteControls(LumatoneColourPalette& paletteIn)
 {
     auto group = filledPalettes.add(new PaletteControlGroup(paletteIn));
     group->editButton.addListener(this);
     group->trashButton.addListener(this);
 
-    if (paletteGroup)
-        paletteGroup->addSelector(&group->palette);
+    paletteGroup.addSelector(&group->palette);
 
     return filledPalettes.size() - 1;
 }
@@ -114,8 +120,7 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
 {
-    if (paletteGroup)
-        paletteGroup->removeSelector(&filledPalettes[paletteIndexToRemove]->palette);
+    paletteGroup.removeSelector(&filledPalettes[paletteIndexToRemove]->palette);
 
     filledPalettes.remove(paletteIndexToRemove);
     colourPalettes.remove(paletteIndexToRemove);
@@ -162,7 +167,7 @@ void ColourPaletteWindow::buttonClicked(Button* btn)
         colourPalettes.add(LumatoneColourPalette());
 
         startEditingPalette(
-            createAndListenToPaletteGroup(colourPalettes.getReference(colourPalettes.size() - 1))
+            createAndListenToPaletteControls(colourPalettes.getReference(colourPalettes.size() - 1))
         );
     }
 
@@ -184,8 +189,7 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
     // Custom picker colour changed
     if (source == &colourToolTabs->getTabbedButtonBar())
     {
-        if (paletteGroup)
-            customPickerPanel->setCurrentColour(paletteGroup->getSelectedColour());
+        customPickerPanel->setCurrentColour(paletteGroup.getSelectedColour());
     }
 
     // Palette editting finished
