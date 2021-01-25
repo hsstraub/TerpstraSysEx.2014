@@ -111,7 +111,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[UserPreSize]
-    colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "ff60aac5")); // TODO: load last active colour?
+    colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "60aac5")); // TODO: load last active colour?
     addAndMakeVisible(colourTextEditor.get());
     colourTextEditor->addColourSelectionListener(this);
     //[/UserPreSize]

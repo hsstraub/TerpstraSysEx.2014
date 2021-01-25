@@ -359,7 +359,10 @@ void ColourEditComponent::setColour(String colourAsString)
 	//jassert(colourCombo != nullptr);
 
     currentColourAsString = colourAsString;
-    currentColour = Colour::fromString(colourAsString);
+    if (currentColourAsString.length() == 6)
+        currentColourAsString = "FF" + colourAsString;
+
+    currentColour = Colour::fromString(currentColourAsString);
     Component::setColour(TextButton::ColourIds::buttonColourId, currentColour);
     repaint();
 
@@ -404,7 +407,7 @@ ColourTextEditor::ColourTextEditor(String componentName, String initialString)
     : TextEditor(componentName)
 {
     setTooltip(translate("ColourHexValueEditorTool"));
-    setInputRestrictions(8, "0123456789ABCDEFabcdef");
+    setInputRestrictions(6, "0123456789ABCDEFabcdef");
     addListener(this);
 
     setText(initialString, NotificationType::dontSendNotification);
@@ -416,16 +419,16 @@ String ColourTextEditor::checkInputAndUpdate(bool sendSelectorListenerUpdate)
     String text = parseTextToColourString(getText().toLowerCase());
     if (text.length() > 0)
     {
+        // only accept RGB
+        if (text.length() > 6)
+            text = text.substring(text.length() - 6);
+
+        // restrict to lowercase display
         setText(text, NotificationType::dontSendNotification);
 
         if (sendSelectorListenerUpdate)
         {
-            String opaque = text;
-
-            // Make RGB full alpha
-            if (opaque.length() == 6)
-                opaque = "ff" + text;
-
+            String opaque = "ff" + text;
             lastBroadcastedColour = Colour(opaque.getHexValue32());
             selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, lastBroadcastedColour);
         }
@@ -446,40 +449,45 @@ void ColourTextEditor::resetToLastUpdated(bool sendSelectorListenerUpdate)
 /** Called when the user changes the text in some way. */
 void ColourTextEditor::textEditorTextChanged(TextEditor&)
 {
+    // confirm changes
     checkInputAndUpdate();
 }
 
 /** Called when the user presses the return key. */
 void ColourTextEditor::textEditorReturnKeyPressed(TextEditor&)
 {
+    // confirm changes
     checkInputAndUpdate();
 }
 
 /** Called when the user presses the escape key. */
 void ColourTextEditor::textEditorEscapeKeyPressed(TextEditor&)
 {
+    // reset changes
     resetToLastUpdated();
 }
 
 /** Called when the text editor loses focus. */
 void ColourTextEditor::textEditorFocusLost(TextEditor&)
 {
-    resetToLastUpdated();
+    // confirm changes
+    checkInputAndUpdate();
 }
 
 Colour ColourTextEditor::getSelectedColour()
 {
-    return Colour(parseTextToColourString(getText()).getHexValue32());
+    String opaque = "ff" + parseTextToColourString(getText());
+    return Colour(opaque.getHexValue32());
 }
 
 void ColourTextEditor::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
 {
     // Safeguard
     if (this != source)
-        setText(newColour.toString(), false);
+        setText(newColour.toString().substring(2), false);
 }
 
-Colour ColourTextEditor::getLastUpdatedColour()
+Colour ColourTextEditor::getLastUpdatedColour() const
 {
     return lastBroadcastedColour;
 }
@@ -487,7 +495,7 @@ Colour ColourTextEditor::getLastUpdatedColour()
 String ColourTextEditor::parseTextToColourString(String textIn)
 {
     // Skip odd-numbered lengths and those less than 6 for RGB
-    if (textIn.length() % 2 == 1 || textIn.length() < 6)
+    if (textIn.length() % 2 == 1 || textIn.length() != 6)
     {
         return String();
     }

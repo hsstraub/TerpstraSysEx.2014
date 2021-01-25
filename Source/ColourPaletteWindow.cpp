@@ -70,9 +70,6 @@ ColourPaletteWindow::~ColourPaletteWindow()
     paletteEditPanel        = nullptr;
     newPaletteVisual        = nullptr;
     newPaletteButton        = nullptr;
-
-    // Let MainComponent know this is closed
-    sendChangeMessage();
 }
 
 int ColourPaletteWindow::createAndListenToPaletteControls(LumatoneColourPalette& paletteIn)

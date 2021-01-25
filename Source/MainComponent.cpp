@@ -306,22 +306,20 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 
 void MainContentComponent::buttonClicked(Button* btn)
 {
-	ColourEditComponent* colourEdit = nullptr;
-
-	if (btn == noteEditArea->getColourEditComponent())
-	{
-		colourEdit = noteEditArea->getColourEditComponent();
-	}
-	else
-	{
-		// If this resolves, a preset button colour button was pressed
-		colourEdit = dynamic_cast<ColourEditComponent*>(btn);
-	}
+	ColourEditComponent* colourEdit = dynamic_cast<ColourEditComponent*>(btn);
 
 	if (colourEdit)
 	{
 		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
+
+		if (btn == noteEditArea->getColourEditComponent())
+		{
+			colourEdit = noteEditArea->getColourEditComponent();
+			paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
+		}
+		// else, a preset button colour button was pressed
+
 		paletteWindow->listenToColourSelection(colourEdit);
 
 		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());

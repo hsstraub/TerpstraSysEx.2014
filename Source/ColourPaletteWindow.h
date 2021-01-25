@@ -21,8 +21,7 @@
 */
 class ColourPaletteWindow  :    public juce::Component,
                                 public Button::Listener,
-                                public ChangeListener,
-                                public ChangeBroadcaster
+                                public ChangeListener
 {
 public:
     ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn);
