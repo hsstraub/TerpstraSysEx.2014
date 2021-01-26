@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
+#include "CalibrationDlg.h"
 //[/Headers]
 
 #include "GlobalSettingsArea.h"
@@ -145,8 +146,19 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
-		// ToDo popup dialog
-		TerpstraSysExApplication::getApp().getMidiDriver().sendCalibrateAfterTouch();
+		CalibrationDlg* optionsWindow = new CalibrationDlg();
+
+		DialogWindow::LaunchOptions launchOptions;
+		launchOptions.content.setOwned(optionsWindow);
+		launchOptions.content->setSize(480, 240);
+
+		launchOptions.dialogTitle = "Calibration";
+		launchOptions.escapeKeyTriggersCloseButton = true;
+		launchOptions.useNativeTitleBar = false;
+		launchOptions.resizable = true;
+
+		DialogWindow* dw = launchOptions.launchAsync();
+		dw->centreWithSize(464, 360);
 
         //[/UserButtonCode_buttonCalibrate]
     }
