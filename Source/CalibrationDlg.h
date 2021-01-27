@@ -66,10 +66,18 @@ private:
 	};
 
 	std::unique_ptr<TabbedButtonBar> calibrationSelectorTab;
+
+	String instructionText;
+
+	// Style Helpers
+	Rectangle<int> instructionsBounds;
+	Font instructionsFont = LumatoneEditorFonts::GothamNarrowMedium().withTypefaceStyle("Narrow 325");
+	const float fontHeightInBounds = 0.1f;
+	const int generalRim = 12;
+
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> labelInfoText;
     std::unique_ptr<juce::TextButton> btnStart;
     std::unique_ptr<juce::TextButton> btnStop;
 

@@ -125,6 +125,9 @@ void CurvesArea::resized()
     curvesTab->setTabBarDepth(tabBarDepth);
     curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));
     curvesTab->setBounds(getLocalBounds());
+
+	int buttonHeight = roundToInt(getHeight() * settingsToggleButtonHeight);
+	btnDeveloperMode->setBounds(btnDeveloperMode->getX(), proportionOfHeight(0.0f), btnDeveloperMode->getWidth(), buttonHeight);
 }
 
 void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)

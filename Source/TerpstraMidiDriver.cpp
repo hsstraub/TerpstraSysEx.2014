@@ -261,6 +261,17 @@ void TerpstraMidiDriver::sendCalibrateAfterTouch()
 	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0');
 }
 
+void TerpstraMidiDriver::sendCalibrateKeys()
+{
+	sendSysEx(0, CALIBRATE_KEYS, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendCalibratePitchModWheel(bool startCalibration)
+{
+	sendSysEx(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration ? '\1' : '\0', '\0', '\0', '\0');
+
+}
+
 void TerpstraMidiDriver::sendRedLEDConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_RED_LED_CONFIG, '\0', '\0', '\0', '\0');

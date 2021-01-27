@@ -147,6 +147,7 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
 		CalibrationDlg* optionsWindow = new CalibrationDlg();
+		optionsWindow->setLookAndFeel(&getLookAndFeel());
 
 		DialogWindow::LaunchOptions launchOptions;
 		launchOptions.content.setOwned(optionsWindow);
@@ -158,7 +159,7 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		launchOptions.resizable = true;
 
 		DialogWindow* dw = launchOptions.launchAsync();
-		dw->centreWithSize(464, 360);
+		dw->centreWithSize(548, 240);
 
         //[/UserButtonCode_buttonCalibrate]
     }

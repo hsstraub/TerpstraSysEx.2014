@@ -67,6 +67,10 @@ System exclusive command bytes
 #define SET_VELOCITY_INTERVALS 0x20
 #define GET_VELOCITY_INTERVALS 0x21
 
+#define CALIBRATE_KEYS 0x24
+
+#define CALIBRATE_PITCH_MOD_WHEEL 0x26
+
 
 /*
 ==============================================================================
@@ -176,6 +180,10 @@ public:
 	void sendAfterTouchActivation(bool value);
 
 	void sendCalibrateAfterTouch();
+
+	void sendCalibrateKeys();
+
+	void sendCalibratePitchModWheel(bool startCalibration);
 
     void sendVelocityIntervalConfig(int velocityIntervalTable[]);
 

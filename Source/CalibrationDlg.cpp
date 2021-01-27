@@ -34,17 +34,6 @@ CalibrationDlg::CalibrationDlg ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelInfoText.reset (new juce::Label ("labelINfoText",
-                                          TRANS("Click \'Start calibration\' to calibrate. Click \'End calibration\' to stop.")));
-    addAndMakeVisible (labelInfoText.get());
-    labelInfoText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelInfoText->setJustificationType (juce::Justification::centredLeft);
-    labelInfoText->setEditable (false, false, false);
-    labelInfoText->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelInfoText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelInfoText->setBounds (16, 48, 432, 96);
-
     btnStart.reset (new juce::TextButton ("btnStart"));
     addAndMakeVisible (btnStart.get());
     btnStart->setButtonText (TRANS("Start calibration"));
@@ -71,12 +60,16 @@ CalibrationDlg::CalibrationDlg ()
 	calibrationSelectorTab->addTab(translate("Calibrate Modulation Wheel"), juce::Colours::lightgrey, 3);
 
 	calibrationSelectorTab->addChangeListener(this);
+
     //[/UserPreSize]
 
-    setSize (500, 400);
+    setSize (524, 212);
 
 
     //[Constructor] You can add your own custom stuff here..
+	calibrationSelectorTab->setCurrentTabIndex(0);
+	// Force calling the callback routine
+	changeListenerCallback(calibrationSelectorTab.get());
     //[/Constructor]
 }
 
@@ -85,7 +78,6 @@ CalibrationDlg::~CalibrationDlg()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    labelInfoText = nullptr;
     btnStart = nullptr;
     btnStop = nullptr;
 
@@ -104,6 +96,9 @@ void CalibrationDlg::paint (juce::Graphics& g)
     g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
+	g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::InactiveText));
+	g.setFont(instructionsFont);
+	g.drawFittedText(instructionText, instructionsBounds, Justification::centred, 2, 1.0f);
     //[/UserPaint]
 }
 
@@ -113,7 +108,15 @@ void CalibrationDlg::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-	calibrationSelectorTab->setBounds(labelInfoText->getX(), 0, getWidth() - labelInfoText->getX(), labelInfoText->getY() - CURVETABRIMABOVE);
+	calibrationSelectorTab->setBounds(0, 0, getWidth() - generalRim, round(getHeight() * 2.0f / 17.0f));
+
+	instructionsBounds.setBounds(
+		generalRim,
+		calibrationSelectorTab->getBottom() + generalRim,
+		getWidth() - generalRim,
+		btnStart->getY() - calibrationSelectorTab->getBottom() - 2* generalRim);
+	instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
+
     //[/UserResized]
 }
 
@@ -131,7 +134,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			// ToDO
+			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibrateKeys();
 			break;
 
 		case calibrateAftertouch:
@@ -139,7 +142,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 			break;
 
 		case calibrateModulationWheel:
-			// ToDo
+			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibratePitchModWheel(true);
 			break;
 
 		default:
@@ -159,8 +162,11 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 		{
 		case calibrateKeys:
 		case calibrateAftertouch:
+			// No function for the stop button in this mode. Whe should never get here.
+			jassertfalse;
+			break;
 		case calibrateModulationWheel:
-			// ToDo
+			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibratePitchModWheel(false);
 			break;
 		default:
 			jassertfalse;
@@ -183,28 +189,28 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == calibrationSelectorTab.get())
 	{
 		// Instructions depending on tab selection
-		String msg;
 		auto tabSelection = calibrationSelectorTab->getCurrentTabIndex();
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			msg << translate("Click \'Start calibration\' to calibrate. Hit any key on the Lumatone to stop.");
-			labelInfoText->setText(msg, NotificationType::dontSendNotification);
+			instructionText = translate("Click \'Start calibration\' to calibrate. Hit any key on the Lumatone to stop.");
 			btnStop->setVisible(false);
+			repaint();
 			break;
 
 		case calibrateAftertouch:
-			msg << translate("Click \'Start calibration\' to calibrate. Hit any key on the Lumatone to stop.");
-			labelInfoText->setText(msg, NotificationType::dontSendNotification);
+			instructionText = translate("Click \'Start calibration\' to calibrate. Hit any key on the Lumatone to stop.");
 			btnStop->setVisible(false);
+			repaint();
 			break;
 
 		case calibrateModulationWheel:
-			msg << translate("Click \'Start calibration\' to start calibratin, then turn the wheels to their extremities to update the wheel range values.")
+			instructionText.clear();
+			instructionText << translate("Click \'Start calibration\' to start calibrating, then turn the wheels to their extremities to update the wheel range values.")
 				<< newLine
 				<< translate("Click \'End calibration\' to stop.");
-			labelInfoText->setText(msg, NotificationType::dontSendNotification);
 			btnStop->setVisible(true);
+			repaint();
 			break;
 		default:
 			jassertfalse;
@@ -228,15 +234,9 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="CalibrationDlg" componentName=""
                  parentClasses="public juce::Component, public ChangeListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="500"
-                 initialHeight="400">
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="524"
+                 initialHeight="212">
   <BACKGROUND backgroundColour="ff323e44"/>
-  <LABEL name="labelINfoText" id="21d38888763cccbc" memberName="labelInfoText"
-         virtualName="" explicitFocusOrder="0" pos="16 48 432 96" edTextCol="ff000000"
-         edBkgCol="0" labelText="Click 'Start calibration' to calibrate. Click 'End calibration' to stop."
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
   <TEXTBUTTON name="btnStart" id="b61e736f368865ec" memberName="btnStart" virtualName=""
               explicitFocusOrder="0" pos="16 176 144 24" buttonText="Start calibration"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
