@@ -127,8 +127,10 @@ MidiEditArea::MidiEditArea ()
 
 
     //[UserPreSize]
-	lookAndFeel.setupComboBox(*cbMidiInput.get());
-	lookAndFeel.setupComboBox(*cbMidiOutput.get());
+	//lookAndFeel.setupComboBox(*cbMidiInput.get());
+	//lookAndFeel.setupComboBox(*cbMidiOutput.get());
+	cbMidiInput->setVisible(false);
+	cbMidiOutput->setVisible(false);
 
 	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[connectedToLumatone]);
@@ -136,8 +138,8 @@ MidiEditArea::MidiEditArea ()
 	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
-	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
-	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
+	//cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
+	//cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
     //[/UserPreSize]
 
@@ -218,8 +220,6 @@ void MidiEditArea::resized()
 	resizeLabelWithWidth(lumatoneLabel.get(), lumatoneLabelBounds.proportionOfWidth(lumatoneLabelWidthInArea));
 	lumatoneLabel->setCentrePosition(lumatoneLabelBounds.getCentre());
 
-	resizeLabelWithHeight(lblConnectionState.get(), round(h* connectivityHeight));
-
 	// Also used to position logomark
 	ioBounds.setBounds(
 		round(w * controlBoundsX), round(h* controlBoundsY),
@@ -246,6 +246,7 @@ void MidiEditArea::resized()
 
 		connectivityArea = getBounds().toFloat().withLeft(round(w * connectedAreaX));
 
+		resizeLabelWithHeight(lblConnectionState.get(), round(h * connectivityHeight));
 		lblConnectionState->setTopLeftPosition(
 			round(w * connectedX),
 			round((h - lblConnectionState->getHeight()) * 0.5f)
@@ -255,18 +256,23 @@ void MidiEditArea::resized()
 	{
 		connectivityArea = getBounds().toFloat().withLeft(round(w * disconnectedAreaX));
 
-		lblConnectionState->setTopLeftPosition(
-			ioBounds.getX() + ioBounds.proportionOfWidth(disconnectedControlBoundsX),
-			round((float)ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) * 0.5f)
-		);
+		//lblConnectionState->setSize(ioBounds.getWidth() - ioBoundsLblMargin, lblHeight);
+		//lblConnectionState->setTopLeftPosition(
+		//	ioBounds.getX() + ioBoundsLblMargin,
+		//	round((float)ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) * 0.5f)
+		//);
 
-		cbMidiInput->setBounds(ioBounds.getProportion(Rectangle<float>(
-			{ midiInputControlBoundsX, midiDeviceControlBoundsHeight / 4.0f, midiDeviceControlBoundsWidth, midiDeviceControlBoundsHeight }
-		)).toNearestInt());
+		int lblMarginX = round(ioBounds.getWidth() * errorVizualizerControlBoundsX);
+		int lblMarginY = round((ioBounds.getHeight() - h * connectivityHeight) * 0.5);
+		lblConnectionState->setBounds(ioBounds.reduced(lblMarginX, lblMarginY).toNearestInt());
 
-		cbMidiOutput->setBounds(cbMidiInput->getBounds().withX(
-			ioBounds.getX() + ioBounds.proportionOfWidth(midiOutputControlBoundsX))
-		);
+		//cbMidiInput->setBounds(ioBounds.getProportion(Rectangle<float>(
+		//	{ midiInputControlBoundsX, midiDeviceControlBoundsHeight / 4.0f, midiDeviceControlBoundsWidth, midiDeviceControlBoundsHeight }
+		//)).toNearestInt());
+
+		//cbMidiOutput->setBounds(cbMidiInput->getBounds().withX(
+		//	ioBounds.getX() + ioBounds.proportionOfWidth(midiOutputControlBoundsX))
+		//);
 
 		pleaseConnectLabel->setTopLeftPosition(round(w * pleaseConnectX), round(h * pleaseConnectY));
 		pleaseConnectLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * pleaseConnectHeight));
@@ -371,8 +377,8 @@ void MidiEditArea::buttonClicked(Button* btn)
 
 void MidiEditArea::setConnectivity(bool isConnected)
 {
-	cbMidiInput->setVisible(!isConnected);
-	cbMidiOutput->setVisible(!isConnected);
+	//cbMidiInput->setVisible(!isConnected);
+	//cbMidiOutput->setVisible(!isConnected);
 	pleaseConnectLabel->setVisible(!isConnected);
 	offlineMsgLabel->setVisible(!isConnected);
 

@@ -140,15 +140,16 @@ private:
     const float controlBoundsHeight             = 0.4375f;
     const float controlBoundsCornerRadius       = 0.1273f;
 
-    const float  midiInputControlBoundsX        = 0.0625f;
-    const float midiOutputControlBoundsX        = 0.4138f;
-    const float midiDeviceControlBoundsWidth    = 0.2955f;
-    const float midiDeviceControlBoundsHeight   = 0.66f;
+    //const float  midiInputControlBoundsX        = 0.0625f;
+    //const float midiOutputControlBoundsX        = 0.4138f;
+    //const float midiDeviceControlBoundsWidth    = 0.2955f;
+    //const float midiDeviceControlBoundsHeight   = 0.66f;
 
-    const float disconnectedAreaX               = 0.5f;
-    const float connectedAreaX                  = 0.8387f;
+    const float disconnectedAreaX = 0.5f;
+    const float connectedAreaX = 0.8387f;
 
-    const float disconnectedControlBoundsX      = 0.7632f;
+    const float errorVizualizerControlBoundsX   = 0.0625f;
+    //const float disconnectedControlBoundsX      = 0.7632f;
     const float connectedX                      = 0.871f;
     const float connectivityHeight              = 0.1957f;
 
