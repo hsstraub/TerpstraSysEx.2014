@@ -317,6 +317,11 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
+void TerpstraMidiDriver::sendSerialIdentityRequest()
+{
+    sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
@@ -420,6 +425,17 @@ bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const M
     auto midiCmd = midiMessage.getSysExData()[4];
 
     return midiCmd == GET_VELOCITY_INTERVALS;
+}
+
+bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return midiCmd == GET_SERIAL_IDENTITY;
 }
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)

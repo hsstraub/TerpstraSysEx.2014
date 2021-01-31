@@ -67,6 +67,8 @@ System exclusive command bytes
 #define SET_VELOCITY_INTERVALS 0x20
 #define GET_VELOCITY_INTERVALS 0x21
 
+#define GET_SERIAL_IDENTITY 0x23
+
 
 /*
 ==============================================================================
@@ -202,6 +204,9 @@ public:
 
 	void sendVelocityIntervalConfigRequest();
 
+	// This command is used to read back the serial identification number of the keyboard.
+	void sendSerialIdentityRequest();
+
 	////////////////////////////////////////////////////////////////////////////
 	// Implementation of bidirectional communication with acknowledge messages
 
@@ -227,6 +232,9 @@ public:
     bool messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, VelocityCurveType velocityCurveType);
 
     bool messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage);
+
+	// Message contains the serial identification number of the controller
+	bool messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage);
 
 private:
 	// Low-level SysEx message sending
