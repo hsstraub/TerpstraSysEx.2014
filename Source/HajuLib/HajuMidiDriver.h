@@ -32,6 +32,9 @@ public:
 	// List of MIDI output device names
 	StringArray getMidiOutputList();
 
+	// Re-initializes device list in case of changes
+	void refreshDeviceLists();
+
 	// Open the specified input device
 	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
 

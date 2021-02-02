@@ -49,6 +49,12 @@ StringArray HajuMidiDriver::getMidiOutputList()
 	return midiOutputNames;
 }
 
+void HajuMidiDriver::refreshDeviceLists()
+{
+	midiInputs = MidiInput::getAvailableDevices();
+	midiOutputs = MidiOutput::getAvailableDevices();
+}
+
 void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
 {
     if (lastInputIndex >= 0)

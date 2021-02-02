@@ -39,6 +39,7 @@
 class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
                       public juce::Button::Listener,
+                      public Timer,
                       public juce::ComboBox::Listener
 {
 public:
@@ -61,9 +62,30 @@ public:
 	void midiSendQueueSize(int queueSize) override {}
 	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
 
+    // Implementation of juce::Timer
+    void timerCallback() override;
+
 private:
 
     void setConnectivity(bool isConnected);
+
+    /// <summary>
+    /// Refreshes MIDI device list, finds input/output pairs, and sends Serial Identification Request to each waiting for a response.
+    /// If none is received after timeout, next pair is attempted until they're exhausted, and the process will repeat after a timeout.
+    /// TODO: alt. method could be: open all devices, send a request method to each, and find the one that responds properly.
+    ///       This would require another class or more changes to Haju and TerpstraMidiDriver
+    /// </summary>
+    void initializeDeviceDetection();
+
+    // Sends Serial Identification Number request to devices
+    void tryToConnectToDevices(int inputDeviceIndex, int outputDeviceIndex);
+    
+    // Sends Serial Identification Number request to device pair, then increments the index.
+    // Warning: does not check for valid indicies
+    void tryDevicePairAndIncrement(int& devicePairIndexIn);
+
+    // TODO
+    void intializeConnectionLossDetection();
 
 public:
     //[/UserMethods]
@@ -85,23 +107,47 @@ private:
 
 	HajuErrorVisualizer     errorVisualizer;
 
-    LumatoneEditorLookAndFeel& lookAndFeel;
+    enum DetectConnectionMode
+    {
+        lookingForDevice = 0,
+        waitingForConnectionLoss
+    };
 
-    std::unique_ptr<Label> lumatoneLabel;
+    DetectConnectionMode deviceConnectionMode;
+    bool                 deviceDetectInProgress;
+
+    bool isConnected = false;
+
+    const int    deviceChangeTimeoutMs = 1000;
+    const int waitForResponseTimeoutMs = 1000;
+
+    StringArray  inputDeviceCache;
+    StringArray outputDeviceCache;
+
+    Array<std::pair<int, int>>  detectedDevicePairs;
+    int                         devicePairIndex;
+
+    bool                        detectDevicesIfDisconnected = true;
+    bool                        checkConnectionOnInactivity = true;
+    
+    StringArray                 midiDeviceBlockList;
+
+
+    LumatoneEditorLookAndFeel&  lookAndFeel;
+
+    std::unique_ptr<Label>      lumatoneLabel;
 
     std::unique_ptr<TextButton> liveEditorBtn;
     std::unique_ptr<TextButton> offlineEditorBtn;
 
-    std::unique_ptr<Label> pleaseConnectLabel;
-    std::unique_ptr<Label> offlineMsgLabel;
+    std::unique_ptr<Label>      pleaseConnectLabel;
+    std::unique_ptr<Label>      offlineMsgLabel;
 
-    std::unique_ptr<Component> logomark;
-    Path logomarkPath;
+    std::unique_ptr<Component>  logomark;
+    Path                        logomarkPath;
 
     //==============================================================================
     // Helpers
-
-    bool connectedToLumatone = false;
 
     Rectangle<int>   lumatoneLabelBounds;
     Rectangle<float> connectivityArea;
@@ -145,8 +191,8 @@ private:
     //const float midiDeviceControlBoundsWidth    = 0.2955f;
     //const float midiDeviceControlBoundsHeight   = 0.66f;
 
-    const float disconnectedAreaX = 0.5f;
-    const float connectedAreaX = 0.8387f;
+    const float disconnectedAreaX               = 0.5f;
+    const float connectedAreaX                  = 0.8387f;
 
     const float errorVizualizerControlBoundsX   = 0.0625f;
     //const float disconnectedControlBoundsX      = 0.7632f;
