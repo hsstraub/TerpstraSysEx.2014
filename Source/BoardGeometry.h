@@ -49,6 +49,8 @@ public:
 
 	int getMaxHorizontalLineSize() const;
 
+	Array<Point<int>> getOctaveCoordinates(int boardIndex) const;
+
 	// Attributes
 private:
 	StraightLineSet	horizontalLines;
