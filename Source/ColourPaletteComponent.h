@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PolygonPalette.h"
+#include "HexagonPalette.h"
 #include "ColourSelectionGroup.h"
 #include "ColourPaletteDataStructure.h"
 #include "LumatoneEditorStyleCommon.h"
@@ -20,7 +21,7 @@
 /*
 * Inherits from PolygonPalette for Lumatone Editor specific functionality
 */
-class ColourPaletteComponent  : public PolygonPalette, public ColourSelectionBroadcaster
+class ColourPaletteComponent  : public TenHexagonPalette, public ColourSelectionBroadcaster
 {
 public:
     ColourPaletteComponent(String name);

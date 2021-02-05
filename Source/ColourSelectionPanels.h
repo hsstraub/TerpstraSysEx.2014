@@ -243,7 +243,7 @@ public:
         ));
         addAndMakeVisible(*colourPicker);
 
-        palette.reset(new PolygonPalette(paletteColours.size()));
+        palette.reset(new TenHexagonPalette());
         palette->setColourPalette(paletteColours);
         palette->attachColourSelector(colourPicker.get());
         addAndMakeVisible(*palette);
@@ -332,7 +332,7 @@ public:
 
 private:
 
-    std::unique_ptr<PolygonPalette> palette;
+    std::unique_ptr<Palette> palette;
     std::unique_ptr<ColourSelector> colourPicker;
 
     Image saveImage;

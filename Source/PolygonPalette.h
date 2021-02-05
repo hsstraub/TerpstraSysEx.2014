@@ -42,12 +42,12 @@ public:
 //            g.setColour(palette[i].contrasting());
 //            g.drawFittedText(String(i), swatch.getBounds().toNearestInt(), Justification::centred, 1);
 //#endif
+        }
 
-            if (i == selectedSwatch)
-            {
-                g.setColour(Colours::white);
-                g.strokePath(swatch, PathStrokeType(2.0f));
-            }
+        if (selectedSwatch >= 0)
+        {
+            g.setColour(Colours::white);
+            g.strokePath(swatchPaths[selectedSwatch], PathStrokeType(2.0f));
         }
     }
 

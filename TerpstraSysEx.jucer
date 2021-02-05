@@ -94,6 +94,9 @@
             file="Source/ColourPaletteWindow.h"/>
       <FILE id="mNuPcY" name="ColourSelectionGroup.h" compile="0" resource="0"
             file="Source/ColourSelectionGroup.h"/>
+      <FILE id="P9Pppb" name="Palette.h" compile="0" resource="0" file="Source/Palette.h"/>
+      <FILE id="KhdUGm" name="HexagonPalette.h" compile="0" resource="0"
+            file="Source/HexagonPalette.h"/>
       <FILE id="htw0nj" name="PolygonPalette.h" compile="0" resource="0"
             file="Source/PolygonPalette.h"/>
       <FILE id="UgHvU1" name="LocalisationMap.h" compile="0" resource="0"
