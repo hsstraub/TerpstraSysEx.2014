@@ -107,7 +107,7 @@ void GlobalSettingsArea::resized()
     int calibrateWidth = getLookAndFeel().getTextButtonWidthToFitText(*buttonCalibrate, calbrateBtnHeight);
     
     buttonCalibrate->setSize(calibrateWidth, calbrateBtnHeight);
-    buttonCalibrate->setTopRightPosition(getWidth(), roundToInt((getHeight() - buttonCalibrate->getHeight()) / 2.0f));
+    buttonCalibrate->setTopRightPosition(getWidth(), roundToInt((getHeight() - buttonCalibrate->getHeight()) * 0.5f));
     
     float margin = roundToInt(getHeight() * 0.1f);
     float colourEditHeight = proportionOfHeight(controlsHeight);
@@ -146,11 +146,11 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
-		CalibrationDlg* optionsWindow = new CalibrationDlg();
-		optionsWindow->setLookAndFeel(&getLookAndFeel());
+		SettingsContainer* settingsWindow = new SettingsContainer();
+        settingsWindow->setLookAndFeel(&getLookAndFeel());
 
 		DialogWindow::LaunchOptions launchOptions;
-		launchOptions.content.setOwned(optionsWindow);
+		launchOptions.content.setOwned(settingsWindow);
 		launchOptions.content->setSize(480, 240);
 
 		launchOptions.dialogTitle = "Calibration";
