@@ -14,7 +14,7 @@
 
 //==============================================================================
 NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
-	: VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+	: VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)
 {
 }
 
