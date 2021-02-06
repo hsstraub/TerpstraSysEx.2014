@@ -25,7 +25,7 @@ public:
 
     SettingsCategoryModel() {}
 
-    int getNumRows() { return categories.size() - 1; }
+    int getNumRows() { return categories.size(); }
 
     void paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected) override;
 
@@ -65,6 +65,5 @@ public:
     std::unique_ptr<Component> settingsPanel;
 
     //=========================================================================
-
 
 };

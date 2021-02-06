@@ -54,6 +54,10 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="Lu0NhD" name="FirmwareDlg.cpp" compile="1" resource="0" file="Source/FirmwareDlg.cpp"/>
+      <FILE id="dJal0V" name="FirmwareDlg.h" compile="0" resource="0" file="Source/FirmwareDlg.h"/>
+      <FILE id="HO5Z3P" name="SettingsContainer.cpp" compile="1" resource="0"
+            file="Source/SettingsContainer.cpp"/>
       <FILE id="xvu0bc" name="SettingsContainer.h" compile="0" resource="0"
             file="Source/SettingsContainer.h"/>
       <FILE id="l4C6a1" name="CalibrationDlg.cpp" compile="1" resource="0"

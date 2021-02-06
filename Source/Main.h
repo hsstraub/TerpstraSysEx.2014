@@ -84,6 +84,10 @@ public:
 
 	bool aboutTerpstraSysEx();
 
+	String getLatestFirmwareVersion() { return ""; /*TODO*/ }
+	bool   isFirmwareUpdateAvailable() { return true; /*TODO*/ }
+	int    initializeFirmwareUpdate() { return 1; /*TODO*/ }
+
 	//==============================================================================
 	/*
 	This class implements the desktop window that contains an instance of

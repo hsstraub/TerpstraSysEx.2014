@@ -54,9 +54,7 @@ void SettingsContainer::paint(Graphics& g)
 
 void SettingsContainer::resized()
 {
-    
-
-    categoryList->setBounds(getLocalBounds().withRight(proportionOfWidth(0.3)));
+    categoryList->setBounds(getLocalBounds().withRight(proportionOfWidth(0.3)).withLeft(8));
     
     if (settingsPanel.get())
     {
@@ -79,7 +77,7 @@ void SettingsContainer::displayPanel(int editorSettingCategory)
         break;
 
     case LumatoneEditorSettingCategories::Firmware:
-        // TODO
+        newPanel = new FirmwareDlg();
         break;
     }
 
