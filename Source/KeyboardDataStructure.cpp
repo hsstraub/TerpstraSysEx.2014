@@ -404,7 +404,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			sets[boardIndex].theKeys[54] = TerpstraKey();
 		}
 	}
-	else if ((TerpstraSysExApplication::getApp().getOctaveBoardSize() == 55 && hasFiftySixKeys)
+	else if (TerpstraSysExApplication::getApp().getOctaveBoardSize() == 55 && hasFiftySixKeys)
 	{
 		// Loaded layout has 56-key layout. Adjust geometry to 55-key layout
 		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
@@ -413,7 +413,6 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			sets[boardIndex].theKeys[55] = TerpstraKey();
 		}
 	}
-
 }
 
 StringArray TerpstraKeyMapping::toStringArray()
