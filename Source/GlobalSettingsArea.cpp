@@ -156,7 +156,7 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		launchOptions.dialogTitle = "Calibration";
 		launchOptions.escapeKeyTriggersCloseButton = true;
 		launchOptions.useNativeTitleBar = false;
-		launchOptions.resizable = true;
+		launchOptions.resizable = false;
 
 		DialogWindow* dw = launchOptions.launchAsync();
 		dw->centreWithSize(548, 240);

@@ -108,13 +108,13 @@ void CalibrationDlg::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-	calibrationSelectorTab->setBounds(0, 0, getWidth() - generalRim, round(getHeight() * 2.0f / 17.0f));
+	calibrationSelectorTab->setBounds(0, 0, getWidth() - generalRim, OCTAVEBOARDTABHEIGHT);
 
 	instructionsBounds.setBounds(
 		generalRim,
 		calibrationSelectorTab->getBottom() + generalRim,
-		getWidth() - generalRim,
-		btnStart->getY() - calibrationSelectorTab->getBottom() - 2* generalRim);
+		getWidth() - 2 * generalRim,
+		btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim);
 	instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
 
     //[/UserResized]
@@ -193,13 +193,17 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			instructionText = translate("Click \'Start calibration\' to calibrate. Hit any key on the Lumatone to stop.");
+			instructionText = translate("Click \'Start calibration\' to let the keyboard operate in key calibration mode.")
+				<< newLine
+				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
 			repaint();
 			break;
 
 		case calibrateAftertouch:
-			instructionText = translate("Click \'Start calibration\' to calibrate. Hit any key on the Lumatone to stop.");
+			instructionText = translate("Click \'Start calibration\'to let the keyboard operate in aftertouch calibration mode.")
+				<< newLine
+				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
 			repaint();
 			break;
@@ -234,7 +238,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="CalibrationDlg" componentName=""
                  parentClasses="public juce::Component, public ChangeListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="524"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="524"
                  initialHeight="212">
   <BACKGROUND backgroundColour="ff323e44"/>
   <TEXTBUTTON name="btnStart" id="b61e736f368865ec" memberName="btnStart" virtualName=""
