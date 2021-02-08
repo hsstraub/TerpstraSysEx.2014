@@ -109,9 +109,6 @@ private:
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;
 
-	// Listening system to broadcast key selection changes with multiple selection types available
-	std::unique_ptr<ColourSelectionGroup> colourSelectionGroup;
-
 	//==============================================================================
 	// Position and Size helpers
 

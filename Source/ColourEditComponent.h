@@ -156,7 +156,7 @@ public:
 
     void resetToLastUpdated(bool sendSelectorListenerUpdate = true);
 
-    Colour getLastUpdatedColour();
+    Colour getLastUpdatedColour() const;
 
     // ColourSelectionBroadcaster Implementation
     Colour getSelectedColour() override;
