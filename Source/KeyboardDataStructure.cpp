@@ -247,7 +247,8 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
 	clearAll();
 
-	// Buffer data in case stringArray is from an older 56-keys subset 
+	bool hasFiftySixKeys = false;
+
 	int boardIndex = -1;
 	for (int i = 0; i < stringArray.size(); i++)
 	{
@@ -291,7 +292,12 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
 				{
 					if (keyIndex >= 0 && keyIndex < 56)
+					{
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
+
+						if (keyIndex == 55)
+							hasFiftySixKeys = true;
+					}
 					else
 						jassert(false);
 				}
@@ -389,14 +395,31 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 	}
 
 	// Conversion between 55-key and 56-key layout
-	// ToDo ?
+	if (TerpstraSysExApplication::getApp().getOctaveBoardSize() == 56 && !hasFiftySixKeys)
+	{
+		// Loaded layout has 55-key layout. Adjust geometry to 56-key layout
+		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		{
+			sets[boardIndex].theKeys[55] = sets[boardIndex].theKeys[54];
+			sets[boardIndex].theKeys[54] = TerpstraKey();
+		}
+	}
+	else if ((TerpstraSysExApplication::getApp().getOctaveBoardSize() == 55 && hasFiftySixKeys)
+	{
+		// Loaded layout has 56-key layout. Adjust geometry to 55-key layout
+		for (boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
+		{
+			sets[boardIndex].theKeys[54] = sets[boardIndex].theKeys[55];
+			sets[boardIndex].theKeys[55] = TerpstraKey();
+		}
+	}
+
 }
 
 StringArray TerpstraKeyMapping::toStringArray()
 {
 	StringArray result;
 
-	// ToDO Write version (for detection of old 56-key layout - those will be layouts with 56 keys but without version)
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 	{
 		result.add("[Board" + String(boardIndex) + "]");
