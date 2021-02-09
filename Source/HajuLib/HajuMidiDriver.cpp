@@ -51,7 +51,23 @@ StringArray HajuMidiDriver::getMidiOutputList()
 
 void HajuMidiDriver::refreshDeviceLists()
 {
+    String lastDeviceId = "";
+    if (lastInputIndex >= 0)
+    {
+        lastDeviceId = midiInputs[lastInputIndex].identifier;
+    }
+    
 	midiInputs = MidiInput::getAvailableDevices();
+    
+    // Reset last opened device to be the same index
+    // so we close the correct one if that's requested
+    if (lastDeviceId != "")
+    {
+        for (int i = 0; i < midiInputs.size(); i++)
+            if (midiInputs[i].identifier == lastDeviceId)
+                lastInputIndex = i;
+    }
+    
 	midiOutputs = MidiOutput::getAvailableDevices();
 }
 
@@ -83,7 +99,11 @@ void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
 {
 	// Send only if output device is there
 	if (midiOutput != nullptr)
+    {
 		midiOutput->sendMessageNow(message);
+        MessageManagerLock mml;
+        DBG("sending message to " + midiOutput->getName());
+    }
 }
 
 void HajuMidiDriver::sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity)
@@ -96,4 +116,19 @@ void HajuMidiDriver::sendNoteOffMessage(int noteNumber, int channelNumber, uint8
 {
 	if (channelNumber > 0 && noteNumber >= 0)
 		sendMessageNow(MidiMessage::noteOff(channelNumber, noteNumber, velocity));
+}
+
+void HajuMidiDriver::closeMidiInput()
+{
+    if (lastInputIndex >= 0)
+    {
+        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex].identifier, lastInputCallback);
+        lastInputIndex = -1;
+        lastInputCallback = nullptr;
+    }
+}
+
+void HajuMidiDriver::closeMidiOutput()
+{
+    midiOutput = nullptr;
 }

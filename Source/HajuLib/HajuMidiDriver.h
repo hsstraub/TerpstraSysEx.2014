@@ -47,7 +47,12 @@ public:
 	// Higher level commands
 	void sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity);
 	void sendNoteOffMessage(int noteNumber, int channelNumber, uint8 velocity);
-
+    
+    // Close current input device
+    void closeMidiInput();
+    
+    // Close current output device
+    void closeMidiOutput();
 
 	// Attributes
 protected:

@@ -82,7 +82,10 @@ private:
     
     // Sends Serial Identification Number request to device pair, then increments the index.
     // Warning: does not check for valid indicies
-    void tryDevicePairAndIncrement(int& devicePairIndexIn);
+    void tryDevicePairAndIncrement();
+    
+    // Determines whether or not to try to continue device detection, tries next pair if so
+    void checkDetectionStatus();
 
     // TODO
     void intializeConnectionLossDetection();
@@ -105,7 +108,7 @@ private:
 		offlineEditor = 1
 	};
 
-	HajuErrorVisualizer     errorVisualizer;
+	HajuErrorVisualizer         errorVisualizer;
 
     enum DetectConnectionMode
     {
@@ -113,16 +116,15 @@ private:
         waitingForConnectionLoss
     };
 
-    DetectConnectionMode deviceConnectionMode;
-    bool                 deviceDetectInProgress;
+    DetectConnectionMode        deviceConnectionMode;
+    bool                        deviceDetectInProgress;
 
-    bool isConnected = false;
+    bool                        isConnected = false;
 
-    const int    deviceChangeTimeoutMs = 1000;
-    const int waitForResponseTimeoutMs = 1000;
+    const int                   deviceChangeTimeoutMs = 1000;
 
-    StringArray  inputDeviceCache;
-    StringArray outputDeviceCache;
+    StringArray                 inputDeviceCache;
+    StringArray                 outputDeviceCache;
 
     Array<std::pair<int, int>>  detectedDevicePairs;
     int                         devicePairIndex;

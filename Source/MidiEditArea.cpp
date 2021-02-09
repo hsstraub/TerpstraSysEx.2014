@@ -155,7 +155,7 @@ MidiEditArea::MidiEditArea ()
 		HajuErrorVisualizer::ErrorLevel::error,
 		"Select both a MIDI input and a MIDI output");
 
-	initializeDeviceDetection();
+    startTimer(deviceChangeTimeoutMs);
     //[/Constructor]
 }
 
@@ -399,7 +399,6 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 
 void MidiEditArea::initializeDeviceDetection()
 {
-	deviceDetectInProgress = true;
 	deviceConnectionMode = MidiEditArea::DetectConnectionMode::lookingForDevice;
 
 	// Refresh available devices
@@ -409,11 +408,14 @@ void MidiEditArea::initializeDeviceDetection()
 	StringArray availableInputs = midiDriver.getMidiInputList();
 	StringArray availableOutputs = midiDriver.getMidiOutputList();
 
+    detectedDevicePairs.clear();
 	devicePairIndex = 0;
 
 	// Only resume detection if there was a change
 	if (availableInputs != inputDeviceCache || availableOutputs != outputDeviceCache)
 	{
+        deviceDetectInProgress = true;
+
 		inputDeviceCache = availableInputs;
 		outputDeviceCache = availableOutputs;
 
@@ -423,11 +425,14 @@ void MidiEditArea::initializeDeviceDetection()
 		cbMidiOutput->clear(NotificationType::dontSendNotification);
 		cbMidiOutput->addItemList(availableOutputs, 1);
 
-		detectedDevicePairs.clear();
-
+//        DBG("Finding pairs of new devices");
 		// Iterate through lists and find devices with matching names
 		for (int inputIndex = 0; inputIndex < availableInputs.size(); inputIndex++)
 		{
+            // Inter-app communication on Mac - will cause loops if a pair is set as the MIDI i/o device
+            if (availableInputs[inputIndex].startsWith("IAC Driver"))
+                continue;
+                
 			for (int outputIndex = 0; outputIndex < availableOutputs.size(); outputIndex++)
 			{
 				// TODO: Improve
@@ -438,13 +443,16 @@ void MidiEditArea::initializeDeviceDetection()
 				}
 			}
 		}
-
-		tryDevicePairAndIncrement(devicePairIndex);
 	}
+    
+    if (detectedDevicePairs.size() > 0)
+    {
+        tryDevicePairAndIncrement();
+    }
 	else
 	{
 		deviceDetectInProgress = false;
-		//DBG("No new devices found");
+//		DBG("No new device pairs found");
 		startTimer(deviceChangeTimeoutMs);
 	}
 }
@@ -459,17 +467,67 @@ void MidiEditArea::tryToConnectToDevices(int inputDeviceIndex, int outputDeviceI
 	midiDriver.setMidiInput(inputDeviceIndex);
 	midiDriver.setMidiOutput(outputDeviceIndex);
 
-	//DBG("Attempting to connect to input " + inputDeviceCache[inputDeviceIndex] + " and output " + outputDeviceCache[outputDeviceIndex]);
+//	DBG("Attempting to connect to input " + inputDeviceCache[inputDeviceIndex] + " and output " + outputDeviceCache[outputDeviceIndex]);
 
 	midiDriver.sendSerialIdentityRequest();
-	startTimer(waitForResponseTimeoutMs);
 }
 
-void MidiEditArea::tryDevicePairAndIncrement(int& devicePairIndexIn)
+void MidiEditArea::tryDevicePairAndIncrement()
 {
-	tryToConnectToDevices(detectedDevicePairs[devicePairIndexIn].first, detectedDevicePairs[devicePairIndexIn].second);
-	devicePairIndexIn++;
+	tryToConnectToDevices(detectedDevicePairs[devicePairIndex].first, detectedDevicePairs[devicePairIndex].second);
+	devicePairIndex++;
 }
+
+void MidiEditArea::checkDetectionStatus()
+{
+    // If turned off, stop detection immediately
+    // For future use
+    if (!detectDevicesIfDisconnected)
+    {
+        deviceDetectInProgress = false;
+    }
+    else
+    {
+        // Successful
+        if (isConnected)
+        {
+            deviceDetectInProgress = false;
+
+            if (checkConnectionOnInactivity)
+            {
+                intializeConnectionLossDetection(); // TODO
+            }
+        }
+
+        // Continue trying
+        else if (deviceDetectInProgress)
+        {
+            if (devicePairIndex < detectedDevicePairs.size())
+                tryDevicePairAndIncrement();
+                        
+            // Tried all devices, set timeout
+            else
+            {
+//                DBG("Detect device timeout.");
+                deviceDetectInProgress = false;
+                startTimer(deviceChangeTimeoutMs);
+                
+                lblConnectionState->setText("No answer from device", NotificationType::dontSendNotification);
+                errorVisualizer.setErrorLevel(*lblConnectionState.get(),
+                    HajuErrorVisualizer::ErrorLevel::error,
+                    "No answer from device");
+            }
+        }
+        
+        // Restart detection
+        else
+        {
+            initializeDeviceDetection();
+        }
+    }
+
+}
+
 
 void MidiEditArea::intializeConnectionLossDetection()
 {
@@ -561,78 +619,48 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			break;
 		}
 
-		// TODO: revise - is the the proper return code / condition?
-		if (answerState == TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ACK)
-		{
-			if (isConfigurationReception || isSerialIdentityReception || !isConnected)
-			{
-				onOpenConnectionToDevice();
-			}
-		}
+        // May need some logic to handle "Busy" if trying to auto-connect to device
+        if (!isConnected)
+        {
+            onOpenConnectionToDevice();
+        }
 	}
 }
 
 void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
 {
-	lblConnectionState->setText(textMessage, NotificationType::dontSendNotification);
-	errorVisualizer.setErrorLevel(*lblConnectionState.get(), errorLevel, textMessage);
+    // Did not get a response to a Get Serial Identity
+    if (deviceDetectInProgress && errorLevel == HajuErrorVisualizer::ErrorLevel::error)
+    {
+        auto lastPair = detectedDevicePairs[devicePairIndex - 1];
+        DBG("No response from pair of input " + inputDeviceCache[lastPair.first] + " and output " + outputDeviceCache[lastPair.second]);
+        
+        // Disconnect pair
+        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiInput();
+        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiOutput();
+        
+        // Possibly try again
+        checkDetectionStatus();
+    }
+    
+    // Problem after some other action
+    else
+    {
+        lblConnectionState->setText(textMessage, NotificationType::dontSendNotification);
+        errorVisualizer.setErrorLevel(*lblConnectionState.get(), errorLevel, textMessage);
+    }
 }
 
 void MidiEditArea::timerCallback()
 {
-	// Under valid conditions this will call functions that start the timer again.
 	stopTimer();
 
 	if (deviceConnectionMode == MidiEditArea::DetectConnectionMode::lookingForDevice)
 	{
-		if (isConnected)
-		{
-			deviceDetectInProgress = false;
-
-			if (checkConnectionOnInactivity)
-			{
-				intializeConnectionLossDetection(); // TODO
-			}
-		}
-		else if (deviceDetectInProgress)
-		{
-			// Successful
-			if (isConnected)
-			{
-				intializeConnectionLossDetection();
-			}
-
-			else if (detectDevicesIfDisconnected)
-			{
-				auto lastPair = detectedDevicePairs[devicePairIndex - 1];
-				//DBG("No response from pair of input " + inputDeviceCache[lastPair.first] + " and output " + outputDeviceCache[lastPair.second]);
-
-				// Still have device pairs to test
-				if (devicePairIndex >= 0 && devicePairIndex < detectedDevicePairs.size())
-				{
-					tryDevicePairAndIncrement(devicePairIndex);
-				}
-
-				// Tried all devices, set timeout
-				else
-				{
-					//DBG("Detect device timeout.");
-					deviceDetectInProgress = false;
-					startTimer(deviceChangeTimeoutMs);
-				}
-			}
-		}
-		// Start detection
-		else if (detectDevicesIfDisconnected)
-		{
-			initializeDeviceDetection();
-		}
-
-		if (!detectDevicesIfDisconnected)
-		{
-			deviceDetectInProgress = false;
-		}
-			
+        if (detectDevicesIfDisconnected && !deviceDetectInProgress)
+        {
+            initializeDeviceDetection();
+        }
 	}
 	else if (deviceConnectionMode == MidiEditArea::DetectConnectionMode::waitingForConnectionLoss)
 	{
