@@ -54,6 +54,31 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	keyColour = newValue.colour;
 	keyType = newValue.keyType;
 
+	String newTooltip = translate("KeyType") + " ";
+	switch (keyType)
+	{
+	case TerpstraKey::noteOnNoteOff:
+		newTooltip += translate("NoteOnOff");
+		break;
+	case TerpstraKey::continuousController:
+		newTooltip += translate("ContinuousController");
+		break;
+	case TerpstraKey::lumaTouch:
+		newTooltip += translate("Lumatouch");
+		break;
+	default:
+		jassertfalse;
+		newTooltip += translate("Unknown");
+		break;
+	}
+
+	newTooltip += newLine;
+	newTooltip += translate("KeyColour") + " " + (Colour(keyColour).toDisplayString(false));
+	
+	setTooltip(newTooltip);
+	midiNoteLabel->setTooltip(newTooltip);
+	midiChannelLabel->setTooltip(newTooltip);
+
 	repaint();
 }
 

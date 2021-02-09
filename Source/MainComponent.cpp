@@ -204,7 +204,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 				curvesArea->resized();
 				curvesArea->repaint();
 			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff))
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff))
 			{
 				// After the answer state byte there must be 128 bytes of data
 				// Values are in reverse order (shortest ticks count is the highest velocity)
@@ -214,7 +214,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[127-x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
 			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::fader))
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::fader))
 			{
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
@@ -223,7 +223,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
 			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::afterTouch))
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch))
 			{
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
@@ -251,7 +251,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					case GET_RED_LED_CONFIG:
 					{
 						auto theColour = Colour(keyData.colour);
-						theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
+						theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());	// This creates an opaque colour (alpha 0xff)
 						keyData.colour = theColour.toDisplayString(false).getHexValue32();
 						break;
 					}
