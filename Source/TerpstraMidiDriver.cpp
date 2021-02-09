@@ -139,7 +139,7 @@ void TerpstraMidiDriver::sendLightOnKeyStrokes(bool value)
 
 
 // Send a value for a velocity lookup table
-void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType, unsigned char velocityTable[])
+void TerpstraMidiDriver::sendVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType, unsigned char velocityTable[])
 {
 	if (midiOutput != nullptr)
 	{
@@ -151,13 +151,13 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
 
 		switch(velocityCurveType)
 		{
-		    case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+		    case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
                 sysExData[4] = SET_VELOCITY_CONFIG;
                 break;
-            case TerpstraMidiDriver::VelocityCurveType::fader:
+            case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
                 sysExData[4] = SET_FADER_CONFIG;
                 break;
-            case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+            case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
                 sysExData[4] = SET_AFTERTOUCH_CONFIG;
                 break;
             default:
@@ -165,7 +165,7 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
                 break;
 		}
 
-		if (velocityCurveType == TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+		if (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)
 		{
 			// Values are in reverse order (shortest ticks count is the highest velocity)
 			for (int x = 0; x < 128; x++)
@@ -210,17 +210,17 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
 }
 
 // Save velocity config to EEPROM
-void TerpstraMidiDriver::saveVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType)
+void TerpstraMidiDriver::saveVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
 {
     switch(velocityCurveType)
     {
-        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
             sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        case TerpstraMidiDriver::VelocityCurveType::fader:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
             sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
         default:
@@ -230,17 +230,17 @@ void TerpstraMidiDriver::saveVelocityConfig(TerpstraMidiDriver::VelocityCurveTyp
 }
 
 // reset velocity config to value from EEPROM
-void TerpstraMidiDriver::resetVelocityConfig(TerpstraMidiDriver::VelocityCurveType velocityCurveType)
+void TerpstraMidiDriver::resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
 {
     switch(velocityCurveType)
     {
-        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
             sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        case TerpstraMidiDriver::VelocityCurveType::fader:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
             sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             sendSysEx(0, RESET_AFTERTOCUH_CONFIG, '\0', '\0', '\0', '\0');
             break;
         default:
@@ -259,6 +259,17 @@ void TerpstraMidiDriver::sendAfterTouchActivation(bool value)
 void TerpstraMidiDriver::sendCalibrateAfterTouch()
 {
 	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendCalibrateKeys()
+{
+	sendSysEx(0, CALIBRATE_KEYS, '\0', '\0', '\0', '\0');
+}
+
+void TerpstraMidiDriver::sendCalibratePitchModWheel(bool startCalibration)
+{
+	sendSysEx(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration ? '\1' : '\0', '\0', '\0', '\0');
+
 }
 
 void TerpstraMidiDriver::sendRedLEDConfigurationRequest(int boardIndex)
@@ -292,17 +303,17 @@ void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(int boardIndex)
 
 }
 
-void TerpstraMidiDriver::sendVelocityConfigurationRequest(VelocityCurveType velocityCurveType)
+void TerpstraMidiDriver::sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
 {
     switch(velocityCurveType)
     {
-        case TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
             sendSysEx(0, GET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        case TerpstraMidiDriver::VelocityCurveType::fader:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
             sendSysEx(0, GET_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        case TerpstraMidiDriver::VelocityCurveType::afterTouch:
+        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             sendSysEx(0, GET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
         default:
@@ -402,7 +413,7 @@ bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(cons
         midiCmd == GET_KEYTYPE_CONFIG;
 }
 
-bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, VelocityCurveType velocityCurveType)
+bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
 {
     if (!messageIsTerpstraSysExMessage(midiMessage))
         return false;
@@ -411,9 +422,9 @@ bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const M
     auto midiCmd = midiMessage.getSysExData()[4];
 
     return
-        (velocityCurveType == VelocityCurveType::noteOnNoteOff && midiCmd == GET_VELOCITY_CONFIG) ||
-        (velocityCurveType == VelocityCurveType::fader && midiCmd == GET_FADER_CONFIG) ||
-        (velocityCurveType == VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG);
+        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff && midiCmd == GET_VELOCITY_CONFIG) ||
+        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::fader && midiCmd == GET_FADER_CONFIG) ||
+        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG);
 }
 
 bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage)

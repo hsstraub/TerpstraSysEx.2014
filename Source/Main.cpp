@@ -238,7 +238,7 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
+	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn;*.tsx");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();
@@ -351,7 +351,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
 {
-	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
 	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648);
@@ -375,7 +375,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 
 bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
 {
-	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
 	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);
@@ -520,9 +520,9 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 
 	// Velocity curve config
 	getMidiDriver().sendVelocityIntervalConfigRequest();
-	getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff);
-	getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::fader);
-	getMidiDriver().sendVelocityConfigurationRequest(TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
+	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
+	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
 }
 
 void TerpstraSysExApplication::updateMainTitle()

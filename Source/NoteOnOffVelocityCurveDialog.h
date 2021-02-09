@@ -28,11 +28,11 @@ protected:
 class FaderVelocityCurveDialog : public VelocityCurveDlgBase
 {
 public:
-	FaderVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader) {}
+	FaderVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::fader) {}
 };
 
 class AftertouchVelocityCurveDialog : public VelocityCurveDlgBase
 {
 public:
-	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch) {}
+	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch) {}
 };

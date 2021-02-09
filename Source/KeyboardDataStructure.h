@@ -54,6 +54,14 @@ class TerpstraVelocityCurveConfig
 public:
 	typedef enum
 	{
+		noteOnNoteOff = 1,
+		fader = 2,
+		afterTouch = 3
+		// ToDo Lumatouch, modulation wheel
+	} VelocityCurveType;
+
+	typedef enum
+	{
 		none = -1,
 		freeDrawing = 0,
 		linearSegments = 1,
@@ -62,6 +70,8 @@ public:
 
 public:
 	TerpstraVelocityCurveConfig();
+	// Default value for the given curve type
+	TerpstraVelocityCurveConfig(VelocityCurveType velocityCurveType);
 	TerpstraVelocityCurveConfig(const String& velocityCurveConfigString);
 
 	String createConfigStringForSaving();
