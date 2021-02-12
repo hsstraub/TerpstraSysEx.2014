@@ -326,15 +326,9 @@ void AllKeysOverview::resized()
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
 
 	// Scale key graphics once
-#if JUCE_WINDOWS
 	lumatoneGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), "lanczos3", 1.0f);
 	keyShapeGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight, "lanczos3", 1.0f);
 	keyShadowGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight, "lanczos3", 1.0f);
-#else // TODO: Determine whether or not to use resampling on Mac and Linux
-	lumatoneGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic).rescaled(lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), Graphics::ResamplingQuality::highResamplingQuality);
-	keyShapeGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
-	keyShadowGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
-#endif
 	
 	oct1Key1  = Point<float>(oct1Key1X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key1Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct1Key56 = Point<float>(oct1Key56X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key56Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());

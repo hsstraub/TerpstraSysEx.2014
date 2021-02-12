@@ -138,8 +138,8 @@ void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const M
         // Is an acknowledged answer and success connection
         else
         {
-            //const MessageManagerLock mml;
-            //DBG("Response received from: " + source->getName());
+//            const MessageManagerLock mml;
+//            DBG("Response received from: " + source->getName());
             confirmedOutputIndex = pingOutputIndex;
             confirmedInputIndex = inputsListening.indexOf(source);
             expectedResponseReceived = true;

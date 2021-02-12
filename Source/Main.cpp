@@ -102,8 +102,11 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 			// ToDo switch on/off isomorphic mass assign mode
 
 			// Try to open a config file
-			currentFile = File(commandLineParameter);
-			if (!currentFile.existsAsFile())
+            if (File::isAbsolutePath(commandLineParameter))
+            {
+                currentFile = File(commandLineParameter);
+            }
+			else
 			{
 				// If file name is with quotes, try removing the quotes
 				if (commandLine.startsWithChar('"') && commandLine.endsWithChar('"'))
