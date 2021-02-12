@@ -207,6 +207,7 @@ public:
 
 	// This command is used to read back the serial identification number of the keyboard.
 	void sendSerialIdentityRequest();
+	MidiMessage getSerialIdentityRequestMessage() const;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Implementation of bidirectional communication with acknowledge messages
@@ -246,6 +247,9 @@ private:
 
 	// Send the message marked as current and start waiting for answer
     void sendCurrentMessage();
+
+	// Create a SysEx message with standardized length
+	MidiMessage createTerpstraSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4) const;
 
     // Send a SysEx message with standardized length
 	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4);

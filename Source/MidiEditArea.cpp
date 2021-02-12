@@ -153,9 +153,9 @@ MidiEditArea::MidiEditArea ()
 	errorVisualizer.setErrorLevel(
 		*lblConnectionState.get(),
 		HajuErrorVisualizer::ErrorLevel::error,
-		"Select both a MIDI input and a MIDI output");
+		"Searching for Lumatone...");
 
-    startTimer(deviceChangeTimeoutMs);
+	deviceMonitor.initializeDeviceDetection();
     //[/Constructor]
 }
 
@@ -397,143 +397,25 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 	repaint();
 }
 
-void MidiEditArea::initializeDeviceDetection()
+void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 {
-	deviceConnectionMode = MidiEditArea::DetectConnectionMode::lookingForDevice;
-
-	// Refresh available devices
-	TerpstraMidiDriver& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
-	midiDriver.refreshDeviceLists();
-
-	StringArray availableInputs = midiDriver.getMidiInputList();
-	StringArray availableOutputs = midiDriver.getMidiOutputList();
-
-    detectedDevicePairs.clear();
-	devicePairIndex = 0;
-
-	// Only resume detection if there was a change
-	if (availableInputs != inputDeviceCache || availableOutputs != outputDeviceCache)
+	if (source == static_cast<ChangeBroadcaster*>(&deviceMonitor))
 	{
-        deviceDetectInProgress = true;
+		int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
+		int currentInputIndex =  deviceMonitor.getConfirmedInputIndex();
 
-		inputDeviceCache = availableInputs;
-		outputDeviceCache = availableOutputs;
-
-		cbMidiInput->clear(NotificationType::dontSendNotification);
-		cbMidiInput->addItemList(availableInputs, 1);
-
-		cbMidiOutput->clear(NotificationType::dontSendNotification);
-		cbMidiOutput->addItemList(availableOutputs, 1);
-
-//        DBG("Finding pairs of new devices");
-		// Iterate through lists and find devices with matching names
-		for (int inputIndex = 0; inputIndex < availableInputs.size(); inputIndex++)
+		if (currentOutputIndex >= 0 && currentInputIndex >= 0)
 		{
-            // Inter-app communication on Mac - will cause loops if a pair is set as the MIDI i/o device
-            if (availableInputs[inputIndex].startsWith("IAC Driver"))
-                continue;
-                
-			for (int outputIndex = 0; outputIndex < availableOutputs.size(); outputIndex++)
-			{
-				// TODO: Improve
-				// Not robust if the same device input and output have slightly different names
-				if (availableOutputs[outputIndex] == availableInputs[inputIndex])
-				{
-					detectedDevicePairs.add({ inputIndex, outputIndex });
-				}
-			}
+			refreshOutputDevicesAndSetSelected(currentOutputIndex);
+			refreshInputDevicesAndSetSelected(currentInputIndex);
+		}
+		else
+		{
+			DBG("One or both device indicies returned are invalid");
+			setConnectivity(false);
 		}
 	}
-    
-    if (detectedDevicePairs.size() > 0)
-    {
-        tryDevicePairAndIncrement();
-    }
-	else
-	{
-		deviceDetectInProgress = false;
-//		DBG("No new device pairs found");
-		startTimer(deviceChangeTimeoutMs);
-	}
-}
-
-void MidiEditArea::tryToConnectToDevices(int inputDeviceIndex, int outputDeviceIndex)
-{
-	TerpstraMidiDriver& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
-
-	jassert(inputDeviceIndex >= 0 && inputDeviceIndex < midiDriver.getMidiInputList().size());
-	jassert(outputDeviceIndex >= 0 && outputDeviceIndex < midiDriver.getMidiOutputList().size());
 	
-	midiDriver.setMidiInput(inputDeviceIndex);
-	midiDriver.setMidiOutput(outputDeviceIndex);
-
-//	DBG("Attempting to connect to input " + inputDeviceCache[inputDeviceIndex] + " and output " + outputDeviceCache[outputDeviceIndex]);
-
-	midiDriver.sendSerialIdentityRequest();
-}
-
-void MidiEditArea::tryDevicePairAndIncrement()
-{
-	tryToConnectToDevices(detectedDevicePairs[devicePairIndex].first, detectedDevicePairs[devicePairIndex].second);
-	devicePairIndex++;
-}
-
-void MidiEditArea::checkDetectionStatus()
-{
-    // If turned off, stop detection immediately
-    // For future use
-    if (!detectDevicesIfDisconnected)
-    {
-        deviceDetectInProgress = false;
-    }
-    else
-    {
-        // Successful
-        if (isConnected)
-        {
-            deviceDetectInProgress = false;
-
-            if (checkConnectionOnInactivity)
-            {
-                intializeConnectionLossDetection(); // TODO
-            }
-        }
-
-        // Continue trying
-        else if (deviceDetectInProgress)
-        {
-            if (devicePairIndex < detectedDevicePairs.size())
-                tryDevicePairAndIncrement();
-                        
-            // Tried all devices, set timeout
-            else
-            {
-//                DBG("Detect device timeout.");
-                deviceDetectInProgress = false;
-                startTimer(deviceChangeTimeoutMs);
-                
-                lblConnectionState->setText("No answer from device", NotificationType::dontSendNotification);
-                errorVisualizer.setErrorLevel(*lblConnectionState.get(),
-                    HajuErrorVisualizer::ErrorLevel::error,
-                    "No answer from device");
-            }
-        }
-        
-        // Restart detection
-        else
-        {
-            initializeDeviceDetection();
-        }
-    }
-
-}
-
-
-void MidiEditArea::intializeConnectionLossDetection()
-{
-	deviceConnectionMode = MidiEditArea::DetectConnectionMode::waitingForConnectionLoss;
-
-	// TODO
 }
 
 void MidiEditArea::onOpenConnectionToDevice()
@@ -554,11 +436,26 @@ void MidiEditArea::onOpenConnectionToDevice()
 
 	if (retc)
 		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-	
-	// else if (!waitingForConnectionResponse)
-		// start request for finding lumatone connection / serial identification key
 
 	setConnectivity(true);
+}
+
+void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
+{
+	jassert(inputDeviceIndex > 0);
+
+	cbMidiInput->clear(NotificationType::dontSendNotification);
+	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 0);
+	cbMidiInput->setSelectedItemIndex(inputDeviceIndex, notificationType);
+}
+
+void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
+{
+	jassert(outputDeviceIndex > 0);
+
+	cbMidiOutput->clear(NotificationType::dontSendNotification);
+	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 0);
+	cbMidiOutput->setSelectedItemIndex(outputDeviceIndex, notificationType);
 }
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
@@ -569,14 +466,11 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			*lblConnectionState.get(),
 			HajuErrorVisualizer::ErrorLevel::error,
 			"Message too short");
-		
+
 		return;
 	}
 
-	bool isConfigurationReception = TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage);
-	bool isSerialIdentityReception = TerpstraSysExApplication::getApp().getMidiDriver().messageIsGetSerialIdentityMessage(midiMessage);
-	
-	if (isConfigurationReception || isSerialIdentityReception)
+	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
 	{
 		auto sysExData = midiMessage.getSysExData();
 		auto answerState = sysExData[5];
@@ -629,46 +523,11 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 
 void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
 {
-    // Did not get a response to a Get Serial Identity
-    if (deviceDetectInProgress && errorLevel == HajuErrorVisualizer::ErrorLevel::error)
-    {
-        auto lastPair = detectedDevicePairs[devicePairIndex - 1];
-        DBG("No response from pair of input " + inputDeviceCache[lastPair.first] + " and output " + outputDeviceCache[lastPair.second]);
-        
-        // Disconnect pair
-        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiInput();
-        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiOutput();
-        
-        // Possibly try again
-        checkDetectionStatus();
-    }
-    
-    // Problem after some other action
-    else
-    {
-        lblConnectionState->setText(textMessage, NotificationType::dontSendNotification);
-        errorVisualizer.setErrorLevel(*lblConnectionState.get(), errorLevel, textMessage);
-    }
+    lblConnectionState->setText(textMessage, NotificationType::dontSendNotification);
+    errorVisualizer.setErrorLevel(*lblConnectionState.get(), errorLevel, textMessage);
 }
 
-void MidiEditArea::timerCallback()
-{
-	stopTimer();
 
-	if (deviceConnectionMode == MidiEditArea::DetectConnectionMode::lookingForDevice)
-	{
-        if (detectDevicesIfDisconnected && !deviceDetectInProgress)
-        {
-            initializeDeviceDetection();
-        }
-	}
-	else if (deviceConnectionMode == MidiEditArea::DetectConnectionMode::waitingForConnectionLoss)
-	{
-		// TODO
-		// Maybe look at the last message time stamp and only check if there hasn't been activity
-		// Then stop if there is
-	}
-}
 
 //[/MiscUserCode]
 
@@ -683,7 +542,7 @@ void MidiEditArea::timerCallback()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MidiEditArea" componentName=""
-                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public juce::Button::Listener, public Timer"
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public juce::Button::Listener, public juce::ChangeListener"
                  constructorParams="" variableInitialisers="lookAndFeel(static_cast&lt;LumatoneEditorLookAndFeel&amp;&gt;(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="1024" initialHeight="48">

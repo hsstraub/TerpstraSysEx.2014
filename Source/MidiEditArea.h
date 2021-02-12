@@ -24,6 +24,7 @@
 #include "TerpstraMidiDriver.h"
 #include "HajuLib/HajuErrorVisualizer.h"
 #include "LumatoneEditorLookAndFeel.h"
+#include "DeviceActivityMonitor.h"
 //[/Headers]
 
 
@@ -39,7 +40,7 @@
 class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
                       public juce::Button::Listener,
-                      public Timer,
+                      public juce::ChangeListener,
                       public juce::ComboBox::Listener
 {
 public:
@@ -54,7 +55,14 @@ public:
     // Implementation of Button::Listener
     void buttonClicked(Button* btn) override;
 
+    // Implementation of ChangeListener
+    void changeListenerCallback(ChangeBroadcaster* source) override;
+
 	void onOpenConnectionToDevice();
+
+    // For now, preserve connection functionality and make sure internal combo boxes are up to date
+    void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotificationAsync);
+    void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotificationAsync);
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
@@ -62,33 +70,9 @@ public:
 	void midiSendQueueSize(int queueSize) override {}
 	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
 
-    // Implementation of juce::Timer
-    void timerCallback() override;
-
 private:
 
     void setConnectivity(bool isConnected);
-
-    /// <summary>
-    /// Refreshes MIDI device list, finds input/output pairs, and sends Serial Identification Request to each waiting for a response.
-    /// If none is received after timeout, next pair is attempted until they're exhausted, and the process will repeat after a timeout.
-    /// TODO: alt. method could be: open all devices, send a request method to each, and find the one that responds properly.
-    ///       This would require another class or more changes to Haju and TerpstraMidiDriver
-    /// </summary>
-    void initializeDeviceDetection();
-
-    // Sends Serial Identification Number request to devices
-    void tryToConnectToDevices(int inputDeviceIndex, int outputDeviceIndex);
-    
-    // Sends Serial Identification Number request to device pair, then increments the index.
-    // Warning: does not check for valid indicies
-    void tryDevicePairAndIncrement();
-    
-    // Determines whether or not to try to continue device detection, tries next pair if so
-    void checkDetectionStatus();
-
-    // TODO
-    void intializeConnectionLossDetection();
 
 public:
     //[/UserMethods]
@@ -110,30 +94,9 @@ private:
 
 	HajuErrorVisualizer         errorVisualizer;
 
-    enum DetectConnectionMode
-    {
-        lookingForDevice = 0,
-        waitingForConnectionLoss
-    };
-
-    DetectConnectionMode        deviceConnectionMode;
-    bool                        deviceDetectInProgress;
+    DeviceActivityMonitor       deviceMonitor;
 
     bool                        isConnected = false;
-
-    const int                   deviceChangeTimeoutMs = 1000;
-
-    StringArray                 inputDeviceCache;
-    StringArray                 outputDeviceCache;
-
-    Array<std::pair<int, int>>  detectedDevicePairs;
-    int                         devicePairIndex;
-
-    bool                        detectDevicesIfDisconnected = true;
-    bool                        checkConnectionOnInactivity = true;
-    
-    StringArray                 midiDeviceBlockList;
-
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
 

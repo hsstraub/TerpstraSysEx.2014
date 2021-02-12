@@ -333,28 +333,40 @@ void TerpstraMidiDriver::sendSerialIdentityRequest()
     sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
 }
 
+MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
+{
+    MidiMessage msg = createTerpstraSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
+    return msg;
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
 */
+
+MidiMessage TerpstraMidiDriver::createTerpstraSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4) const
+{
+    unsigned char sysExData[9];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = boardIndex;
+    sysExData[4] = cmd;
+    sysExData[5] = data1;
+    sysExData[6] = data2;
+    sysExData[7] = data3;
+    sysExData[8] = data4;
+
+    MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 9);
+    return msg;
+}
 
 void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
 {
 	// Send only if output device is there and SysEx sending is meant to be active
 	if (midiOutput != nullptr & currentSysExSendingMode == sysExSendingMode::liveEditor)
 	{
-		unsigned char sysExData[9];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = boardIndex;
-		sysExData[4] = cmd;
-		sysExData[5] = data1;
-		sysExData[6] = data2;
-		sysExData[7] = data3;
-		sysExData[8] = data4;
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 9);
+        MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
 		sendMessageWithAcknowledge(msg);
 	}
 }
