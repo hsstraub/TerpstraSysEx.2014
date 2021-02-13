@@ -40,7 +40,7 @@ MidiEditArea::MidiEditArea ()
 	setName("MidiEditArea");
 
 	lumatoneLabel.reset(new Label("LumatoneLabel", "lumatone"));
-	lumatoneLabel->setFont(LumatoneEditorFonts::UniviaProBold());
+	lumatoneLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lumatoneLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 	lumatoneLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(lumatoneLabel.get());
@@ -66,12 +66,12 @@ MidiEditArea::MidiEditArea ()
 	offlineEditorBtn->addListener(this);
 
 	pleaseConnectLabel.reset(new Label("PleaseConnectLabel", translate("PleaseConnect")));
-	pleaseConnectLabel->setFont(LumatoneEditorFonts::UniviaProBold());
+	pleaseConnectLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	pleaseConnectLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::ActiveText));
 	addAndMakeVisible(*pleaseConnectLabel);
 
 	offlineMsgLabel.reset(new Label("DirectionsLabel", translate("OfflineMessage")));
-	offlineMsgLabel->setFont(LumatoneEditorFonts::FranklinGothic());
+	offlineMsgLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
 	offlineMsgLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::DescriptionText));
 	addAndMakeVisible(*offlineMsgLabel);
 
@@ -132,10 +132,10 @@ MidiEditArea::MidiEditArea ()
 	cbMidiInput->setVisible(false);
 	cbMidiOutput->setVisible(false);
 
-	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblConnectionState->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
 
-	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblEditMode->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
 	//cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
@@ -415,7 +415,7 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 			setConnectivity(false);
 		}
 	}
-	
+
 }
 
 void MidiEditArea::onOpenConnectionToDevice()

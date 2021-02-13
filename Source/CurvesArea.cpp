@@ -61,7 +61,7 @@ CurvesArea::CurvesArea ()
 
     labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
-    labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
+    labelWindowTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
     labelWindowTitle->setColour (Label::backgroundColourId, Colour());
 
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
@@ -126,7 +126,7 @@ void CurvesArea::resized()
     curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));
     curvesTab->setBounds(getLocalBounds());
 
-	int buttonHeight = roundToInt(getHeight() * settingsToggleButtonHeight);
+	int buttonHeight = roundToInt(getHeight() * SETTINGSTOGGLEHEIGHTSCALAR);
 	btnDeveloperMode->setBounds(btnDeveloperMode->getX(), proportionOfHeight(0.0f), btnDeveloperMode->getWidth(), buttonHeight);
 }
 

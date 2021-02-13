@@ -56,7 +56,7 @@ NoteEditArea::NoteEditArea ()
 	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
 
   labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
-	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
+	labelWindowTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
   addAndMakeVisible (labelWindowTitle.get());
 
   //[UserPreSize]
@@ -140,7 +140,7 @@ void NoteEditArea::resized()
 		getWidth() * assignControlsWidth, contentBackground.getHeight() * assignControlsHeightInContent
 	);
 
-	roundedCornerLayout = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
+	roundedCornerLayout = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
 	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 2.0f / 29.0f));
 

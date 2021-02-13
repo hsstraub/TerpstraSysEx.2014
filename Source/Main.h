@@ -15,6 +15,7 @@
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
+#include "LumatoneEditorFonts.h"
 #include "ColourPaletteDataStructure.h"
 #include "LocalisationMap.h"
 
@@ -48,6 +49,7 @@ public:
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	Array<LumatoneColourPalette>& getColourPalettes() { return colourPalettes; }
+	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
 
 	// Menu functionality
@@ -140,6 +142,8 @@ private:
 	std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+	
+	LumatoneEditorFonts			appFonts;
 	LumatoneEditorLookAndFeel	lookAndFeel;
 
 	PropertiesFile*				propertiesFile;

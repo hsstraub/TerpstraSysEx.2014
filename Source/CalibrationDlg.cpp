@@ -32,6 +32,7 @@
 CalibrationDlg::CalibrationDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium).withTypefaceStyle("Narrow 325");
     //[/Constructor_pre]
 
     btnStart.reset (new juce::TextButton ("btnStart"));

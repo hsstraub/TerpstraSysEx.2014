@@ -85,8 +85,8 @@ private:
     int controlsX;
     int separatorY;
 
-    Font instructionsFont = LumatoneEditorFonts::GothamNarrowMedium().withTypefaceStyle("Narrow 325");
-    Font parametersFont = LumatoneEditorFonts::GothamNarrowMedium();
+    Font instructionsFont;
+    Font parametersFont;
 
     //==============================================================================
     // Size and position constants

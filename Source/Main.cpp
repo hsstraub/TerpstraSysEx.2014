@@ -18,7 +18,7 @@
 //==============================================================================
 
 TerpstraSysExApplication::TerpstraSysExApplication()
-	: lookAndFeel(true), tooltipWindow(), hasChangesToSave(false)
+	: lookAndFeel(appFonts.fonts, true), tooltipWindow(), hasChangesToSave(false)
 {
 	PropertiesFile::Options options;
 	options.applicationName = "LumatoneSetup";

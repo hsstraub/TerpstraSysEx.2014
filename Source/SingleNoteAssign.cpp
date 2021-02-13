@@ -86,7 +86,7 @@ SingleNoteAssign::SingleNoteAssign ()
     channelBox->addListener(this);
 
     autoIncrementLabel.reset(new Label("AutoIncrementLabel", translate("AutoIncrement")));
-    autoIncrementLabel->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    autoIncrementLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
     autoIncrementLabel->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.75f);
     addAndMakeVisible(*autoIncrementLabel);
 
@@ -111,6 +111,10 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[UserPreSize]
+
+    instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium).withTypefaceStyle("Narrow 325");
+    parametersFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium);
+
     colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "60aac5")); // TODO: load last active colour?
     addAndMakeVisible(colourTextEditor.get());
     colourTextEditor->addColourSelectionListener(this);
@@ -194,7 +198,7 @@ void SingleNoteAssign::resized()
     float h = getHeight();
 
     if (getParentComponent()) // This changes when the tab changes
-        roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * roundedCornerLayoutAppHeightScalar);
+        roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     int controlAreaTop = round(h * controlAreaYScalar);
 
@@ -232,7 +236,7 @@ void SingleNoteAssign::resized()
 
     colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
     colourTextEditor->setSize(w - colourTextEditor->getX() - rightMarginX, controlH);
-    colourTextEditor->applyFontToAllText(LumatoneEditorFonts::GothamNarrowMedium(controlH * 0.9f), true);
+    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * 0.9f), true);
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);

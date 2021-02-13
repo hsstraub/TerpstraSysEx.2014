@@ -37,7 +37,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelMappingType.reset(new juce::Label("labelMappingType", translate("Type")));
     addAndMakeVisible(labelMappingType.get());
-    labelMappingType->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelMappingType->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
 
     labelMappingType->setBounds(20, 64, 88, 24);
 
@@ -92,7 +92,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelStartingPoint.reset(new juce::Label("labelStartingPoint", translate("StartingValue")));
     addAndMakeVisible(labelStartingPoint.get());
     labelStartingPoint->setTooltip(translate("StartingPointTooltip"));
-    labelStartingPoint->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelStartingPoint->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
 
     labelStartingPoint->setBounds(8, 344, 150, 24);
 
@@ -108,7 +108,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelPeriodSize.reset(new juce::Label("labelPeriodSize", TRANS("Period")));
     addAndMakeVisible(labelPeriodSize.get());
-    labelPeriodSize->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelPeriodSize->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
   
     labelPeriodSize->setBounds(16, 8, 168, 24);
 
@@ -133,7 +133,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelHorizontalSteps.reset(new juce::Label("labelHorizontalSteps", translate("HorizontalSteps")));
     addAndMakeVisible(labelHorizontalSteps.get());
-    labelHorizontalSteps->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelHorizontalSteps->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
  
     labelHorizontalSteps->setBounds(208, 344, 112, 24);
 
@@ -151,7 +151,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     labelRightUpwardSteps.reset(new juce::Label("labelRightUpwardSteps", translate("RightUpwardSteps")));
     addAndMakeVisible(labelRightUpwardSteps.get());
-    labelRightUpwardSteps->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelRightUpwardSteps->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
     labelRightUpwardSteps->setBounds(152, 296, 136, 24);
 
     editRightUpwardSteps.reset(new juce::TextEditor("editRightUpwardSteps"));
