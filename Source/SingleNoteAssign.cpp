@@ -414,7 +414,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		keyData.colour = colourSubwindow->getColourAsNumber();
+		keyData.colour = colourSubwindow->getColourAsObject();
 		mappingChanged = true;
 	}
 

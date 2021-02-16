@@ -178,7 +178,7 @@ Colour KeyMiniDisplayInsideAllKeysOverview::getKeyColour() const
 {
 	auto keyData = getKeyData();
 	if ( keyData != nullptr)
-		return Colour(keyData->colour).withAlpha(1.0f);
+		return keyData->colour;
 	else
 		return findColour(TerpstraKeyEdit::backgroundColourId);
 }

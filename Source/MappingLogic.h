@@ -30,7 +30,7 @@ public:
 
 	virtual int indexToMIDIChannel(int inx) const = 0;
 	virtual int indexToMIDINote(int inx) const = 0;
-	virtual int indexToColour(int inx) const;
+	virtual juce::Colour indexToColour(int inx) const;
 
 	// sets the Terpstra key specification for the "inx"-th note
 	virtual void indexToTerpstraKey(int inx, TerpstraKey& keyData) const;
