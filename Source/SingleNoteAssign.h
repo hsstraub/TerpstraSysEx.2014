@@ -60,7 +60,7 @@ public:
     ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
 
-    virtual void textEditorFocusLost(TextEditor&) {}
+	void textEditorFocusLost(TextEditor& textEdit) override;
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
     //[/UserMethods]
@@ -105,7 +105,6 @@ private:
 
     //==============================================================================
     std::unique_ptr<juce::Label> autoIncrementLabel;
-    std::unique_ptr<juce::ComboBox> noteBox;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
     std::unique_ptr<juce::ComboBox> channelBox;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
@@ -115,6 +114,7 @@ private:
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
+    std::unique_ptr<juce::TextEditor> noteEdit;
 
 
     //==============================================================================
