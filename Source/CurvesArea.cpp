@@ -120,7 +120,8 @@ void CurvesArea::paint (juce::Graphics& g)
 void CurvesArea::resized()
 {
     int tabBarDepth = roundToInt(getHeight() * tabDepth);
-    resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth);
+    resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth * 0.9f);
+    labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * 0.01f), 0);
 
     curvesTab->setTabBarDepth(tabBarDepth);
     curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));

@@ -61,7 +61,7 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
 
     //[UserPreSize]
     labelEXpressionPedalTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
-    labelExprContrSensivity->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMediumBold));
+    labelExprContrSensivity->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
     //[/UserPreSize]
 
     setSize (134, 96);

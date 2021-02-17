@@ -42,10 +42,8 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->setTextWhenNothingSelected(juce::String());
     keyTypeCombo->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
     keyTypeCombo->addItem(translate("NoteOnOff"), 1);
-    keyTypeCombo->addItem(translate("ContinuousController"), 2);
+    keyTypeCombo->addItem(translate("MIDI CC"), 2);
     keyTypeCombo->addItem("Lumatouch", 3);
-    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Gotham");
-    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Narrow Medium");
     keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.2f);
     keyTypeCombo->addListener(this);
 
@@ -112,7 +110,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     //[UserPreSize]
 
-    instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium).withTypefaceStyle("Narrow 325");
+    instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
     parametersFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium);
 
     colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "60aac5")); // TODO: load last active colour?
@@ -169,9 +167,9 @@ void SingleNoteAssign::paint (juce::Graphics& g)
     //[/UserPrePaint]
     g.fillAll(Colour(0xff212626));
 
-    Rectangle<float> bottomPart = getLocalBounds().toFloat().withTrimmedTop(instructionsBounds.getBottom());
+    Rectangle<float> bottomPart = getLocalBounds().toFloat().withTrimmedTop(instructionsAreaBounds.getBottom());
 
-    Path topBack = getConnectedRoundedRectPath(instructionsBounds.toFloat(), roundedCornerSize, Button::ConnectedEdgeFlags::ConnectedOnBottom);
+    Path topBack = getConnectedRoundedRectPath(instructionsAreaBounds.toFloat(), roundedCornerSize, Button::ConnectedEdgeFlags::ConnectedOnBottom);
     Path bottomBack = getConnectedRoundedRectPath(bottomPart, roundedCornerSize, Button::ConnectedEdgeFlags::ConnectedOnTop);
 
     g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
@@ -202,8 +200,8 @@ void SingleNoteAssign::resized()
 
     int controlAreaTop = round(h * controlAreaYScalar);
 
-    instructionsBounds.setBounds(0, 0, w, controlAreaTop);
-    instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
+    instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
+    instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
 
     controlsX = round(w * controlsXScalar);
     int marginY = round(h * yMarginScalar);
@@ -214,15 +212,17 @@ void SingleNoteAssign::resized()
     int halfMarginX = round(marginX * 0.5f);
     int halfMarginY = round(marginY * 0.5f);
     int rightMarginX = marginX * 2 - halfMarginX;
-
+    
+    instructionsBounds.setBounds(marginX, 0, w - marginX - rightMarginX, controlAreaTop);
+    
     parametersFont.setHeight(toggleHeight * 1.25f);
     int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
 
-    keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsBounds.getBottom() + halfMarginY);
+    keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsAreaBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
     keyTypeCombo->setSize(w - rightMarginX - keyTypeToggleButton->getRight(), controlH);
     keyTypeCombo->setCentrePosition(
-        round(keyTypeCombo->getWidth() / 2.0f) + keyTypeToggleButton->getRight(),
+        round(keyTypeCombo->getWidth() * 0.5f) + keyTypeToggleButton->getRight(),
         keyTypeToggleButton->getBounds().getCentreY()
     );
 
@@ -230,19 +230,19 @@ void SingleNoteAssign::resized()
     resizeToggleButtonWithHeight(setColourToggleButton.get(), parametersFont, toggleHeight);
     colourSubwindow->setSize(controlH * 1.5f, controlH);
     colourSubwindow->setCentrePosition(
-        round(colourSubwindow->getWidth() / 2.0f) + setColourToggleButton->getRight(),
+        round(colourSubwindow->getWidth() * 0.5f) + setColourToggleButton->getRight(),
         setColourToggleButton->getBounds().getCentreY()
     );
 
     colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
     colourTextEditor->setSize(w - colourTextEditor->getX() - rightMarginX, controlH);
-    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * 0.9f), true);
+    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * 1.2f), true);
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
     noteBox->setSize(w - noteBox->getX() - rightMarginX, controlH);
     noteBox->setCentrePosition(
-        round(noteBox->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
+        round(noteBox->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
     );
 
@@ -250,7 +250,7 @@ void SingleNoteAssign::resized()
     resizeToggleButtonWithHeight(setChannelToggleButton.get(), parametersFont, toggleHeight);
     channelBox->setSize(comboBoxWidth, controlH);
     channelBox->setCentrePosition(
-        round(channelBox->getWidth() / 2.0f) + setChannelToggleButton->getRight(),
+        round(channelBox->getWidth() * 0.5f) + setChannelToggleButton->getRight(),
         setChannelToggleButton->getBounds().getCentreY()
     );
 
@@ -265,7 +265,7 @@ void SingleNoteAssign::resized()
     resizeToggleButtonWithHeight(channelAutoIncrButton.get(), parametersFont, toggleHeight);
     channelAutoIncrNoteBox->setSize(comboBoxWidth, controlH);
     channelAutoIncrNoteBox->setCentrePosition(
-        round(channelAutoIncrNoteBox->getWidth() / 2.0f) + channelAutoIncrButton->getRight(),
+        round(channelAutoIncrNoteBox->getWidth() * 0.5f) + channelAutoIncrButton->getRight(),
         channelAutoIncrButton->getBounds().getCentreY()
     );
     //[/UserPreResize]

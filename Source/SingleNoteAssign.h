@@ -80,8 +80,8 @@ private:
     //==============================================================================
     // Style Helpers
     int roundedCornerSize;
+    Rectangle<int> instructionsAreaBounds;
     Rectangle<int> instructionsBounds;
-
     int controlsX;
     int separatorY;
 
@@ -90,7 +90,7 @@ private:
 
     //==============================================================================
     // Size and position constants
-    const float fontHeightInBounds  = 0.2f;
+    const float fontHeightInBounds  = 0.21f;
 
     const float xMarginScalar       = 0.0917f;
     const float yMarginScalar       = 0.0813f;

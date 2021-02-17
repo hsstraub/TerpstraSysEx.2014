@@ -247,13 +247,16 @@ void MidiEditArea::resized()
 			liveEditorBtn->getRight(), liveEditorBtn->getY(), round(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
 		);
 
+        
 		connectivityArea = getBounds().toFloat().withLeft(round(w * connectedAreaX));
 
+        lblConnectionState->setJustificationType (juce::Justification::centredLeft);
 		resizeLabelWithHeight(lblConnectionState.get(), round(h * connectivityHeight));
 		lblConnectionState->setTopLeftPosition(
 			round(w * connectedX),
 			round((h - lblConnectionState->getHeight()) * 0.5f)
 		);
+        
 	}
 	else
 	{
@@ -268,6 +271,7 @@ void MidiEditArea::resized()
 		int lblMarginX = round(ioBounds.getWidth() * errorVizualizerControlBoundsX);
 		int lblMarginY = round((ioBounds.getHeight() - h * connectivityHeight) * 0.5);
 		lblConnectionState->setBounds(ioBounds.reduced(lblMarginX, lblMarginY).toNearestInt());
+        lblConnectionState->setJustificationType (juce::Justification::centredRight);
 
 		//cbMidiInput->setBounds(ioBounds.getProportion(Rectangle<float>(
 		//	{ midiInputControlBoundsX, midiDeviceControlBoundsHeight / 4.0f, midiDeviceControlBoundsWidth, midiDeviceControlBoundsHeight }

@@ -125,17 +125,17 @@ private:
     //==============================================================================
     // Position & Size constants
     const float lumatoneLabelAreaWidth          = 0.1579f;
-    const float lumatoneLabelWidthInArea        = 2.0f / 3.0f;
+    const float lumatoneLabelWidthInArea        = 0.6667f;
 
-    const float pleaseConnectX                  = 0.1816f;
-    const float pleaseConnectY                  = 0.325f;
-    const float pleaseConnectHeight             = 0.17f;
+    const float pleaseConnectX                  = 0.17f;
+    const float pleaseConnectY                  = 0.28f;
+    const float pleaseConnectHeight             = 0.15f;
 
-    const float connectionDirectionsX           = 0.1812;
-    const float connectionDirectionsY           = 0.51f;
-    const float connectionDirectionsHeight      = 0.17f;
+    const float connectionDirectionsX           = 0.17f;
+    const float connectionDirectionsY           = 0.47f;
+    const float connectionDirectionsHeight      = 0.18f;
 
-    const float editModeX                       = 2.0f / 75.0f;
+    const float editModeX                       = 0.0267f;
     const float editModeHeight                  = 0.2394f;
 
     const float editModeButtonX                 = 0.10606f;

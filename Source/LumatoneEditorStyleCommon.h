@@ -30,6 +30,8 @@
 // Rounded corner size over app height ratio for layout elements
 #define ROUNDEDCORNERTOAPPHEIGHT 0.00555556f
 
+#define CONTROLBOXFONTHEIGHTSCALAR 0.55f
+
 #define SETTINGSAREAMARGINHEIGHT 0.1714f
 #define SETTINGSLABELHEIGHT      0.14f
 #define SETTINGSLABELMARGINWIDTH 0.01f

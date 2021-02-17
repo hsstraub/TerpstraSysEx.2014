@@ -406,6 +406,8 @@ void ColourEditComponent::colourChangedCallback(ColourSelectionBroadcaster* sour
 ColourTextEditor::ColourTextEditor(String componentName, String initialString)
     : TextEditor(componentName)
 {
+    setMultiLine(false);
+    setJustification(Justification::centredLeft);
     setTooltip(translate("ColourHexValueEditorTool"));
     setInputRestrictions(6, "0123456789ABCDEFabcdef");
     addListener(this);
@@ -468,7 +470,7 @@ void ColourTextEditor::textEditorEscapeKeyPressed(TextEditor&)
 }
 
 /** Called when the text editor loses focus. */
-void ColourTextEditor::textEditorFocusLost(TextEditor&)
+void ColourTextEditor::textEditorFocusLost(TextEditor& editor)
 {
     // confirm changes
     checkInputAndUpdate();

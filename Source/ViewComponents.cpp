@@ -23,11 +23,11 @@ TerpstraKeyEdit::TerpstraKeyEdit()
 	midiNoteLabel = new Label("midiNoteLabel", "0");
 	addAndMakeVisible(midiNoteLabel);
 	midiNoteLabel->setJustificationType(Justification::centredRight);
-	midiNoteLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+	midiNoteLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowBold));
 	
 	midiChannelLabel = new Label("midiChannelLabel", "0");
 	addAndMakeVisible(midiChannelLabel);
-	midiChannelLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaPro));
+	midiChannelLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
 	midiChannelLabel->setJustificationType(Justification::centredRight);
 }
 
