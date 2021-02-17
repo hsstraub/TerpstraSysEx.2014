@@ -59,24 +59,12 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
-		//.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
-	// NEW STYLE TODO: Use above alpha, or do octave outline?
-	//// ToDo if highlighted: even different alpha?
-	g.setColour(hexagonColour);
-	//g.fillPath(hexPath);
-
-	//// Key highlighted or not: color and thickness of the line
-	//float lineWidth = isHighlighted ? 1.5 : 1;
-	//Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
-	//g.setColour(lineColour);
-	//g.strokePath(hexPath, PathStrokeType(1));
+    g.setColour(hexagonColour);
 
 	if (colourGraphic && shadowGraphic)
 	{
-		int w = getWidth();
-		int h = getHeight();
-		int x = round((getWidth() - colourGraphic->getWidth()) / 2.0f);
-		int y = round((getHeight() - colourGraphic->getHeight()) / 2.0f);
+		int x = round((getWidth()  - colourGraphic->getWidth()) * 0.5f);
+		int y = round((getHeight() - colourGraphic->getHeight()) * 0.5f);
 
 		g.drawImageAt(*colourGraphic, x, y, true);
 		g.drawImageAt(*shadowGraphic, x, y);
@@ -334,8 +322,6 @@ void AllKeysOverview::resized()
 	oct1Key56 = Point<float>(oct1Key56X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key56Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct5Key7  = Point<float>(oct5Key7X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct5Key7Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 
-	int boardLineLength = boardGeometry.getMaxHorizontalLineSize() * NUMBEROFBOARDS;
-	int boardNumLines = boardGeometry.horizontalLineCount() + BOARDROWOFFSET * (NUMBEROFBOARDS - 1);
 	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24, false);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
