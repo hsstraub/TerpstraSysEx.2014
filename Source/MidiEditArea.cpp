@@ -155,6 +155,7 @@ MidiEditArea::MidiEditArea ()
 		HajuErrorVisualizer::ErrorLevel::error,
 		"Searching for Lumatone...");
 
+    deviceMonitor.addChangeListener(this);
 	deviceMonitor.initializeDeviceDetection();
     //[/Constructor]
 }

@@ -417,7 +417,7 @@ void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* proper
     kbmMappingDlg->restoreStateFromPropertiesFile(propertiesFile);
 
 	// TODO: Full scaleStructure state recall
-    scaleStructure.resetToPeriod(periodSizeBox->getSelectedId());
+    //scaleStructure.resetToPeriod(periodSizeBox->getSelectedId());
 }
 
 void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
