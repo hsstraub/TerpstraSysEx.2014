@@ -194,17 +194,17 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			instructionText = translate("Click \'Start calibration\' to let the keyboard operate in key calibration mode.")
-				+ newLine
-				+ translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
+			instructionText << translate("Click \'Start calibration\' to let the keyboard operate in key calibration mode.")
+				<< newLine
+				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
 			repaint();
 			break;
 
 		case calibrateAftertouch:
-			instructionText = translate("Click \'Start calibration\'to let the keyboard operate in aftertouch calibration mode.")
-				+ newLine
-				+ translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
+			instructionText << translate("Click \'Start calibration\'to let the keyboard operate in aftertouch calibration mode.")
+				<< newLine
+				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
 			repaint();
 			break;
