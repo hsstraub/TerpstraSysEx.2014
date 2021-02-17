@@ -11,8 +11,6 @@
 #pragma once
 #include <JuceHeader.h>
 
-#define LICENSEDFONTENVVAR "LUMATONE_EDITOR_USE_LICENSED_FONTS"
-
 typedef enum
 {
     UniviaPro = 0,
@@ -23,20 +21,10 @@ typedef enum
     GothamNarrowMediumItalic
 } LumatoneEditorFont;
 
-typedef Array<Font> LumatoneEditorFontCollection;
-
-/// <summary>
-/// Returns whether or not the licensed font environment variable is defined.
-/// </summary>
-/// <returns></returns>
-static bool useLicensedFonts()
-{
-    return getenv(LICENSEDFONTENVVAR);
-}
-
 struct LumatoneEditorFonts
 {
-    LumatoneEditorFontCollection fonts;
+    typedef Array<Font> Library;
+    LumatoneEditorFonts::Library fonts;
 
     LumatoneEditorFonts()
     {
@@ -62,34 +50,32 @@ struct LumatoneEditorFonts
         fonts.add(Font("Trebuchet MS", 12.0f, Font::italic));
 
 
-        // Define environment variable LUMATONE_EDITOR_USE_LICENSED_FONTS
-        // if you have the official fonts and want to build with them
-        if (useLicensedFonts())
-        {
-            fonts.set(LumatoneEditorFont::UniviaPro,
-                Font(Typeface::createSystemTypefaceFor(BinaryData::UniviaProRegular_ttf, BinaryData::UniviaProRegular_ttfSize))
-            );
+#if USE_LICENSED_FONTS
+        
+        fonts.set(LumatoneEditorFont::UniviaPro,
+            Font(Typeface::createSystemTypefaceFor(BinaryData::UniviaProRegular_ttf, BinaryData::UniviaProRegular_ttfSize))
+        );
 
-            fonts.set(LumatoneEditorFont::UniviaProBold,
-                Font(Typeface::createSystemTypefaceFor(BinaryData::UniviaProBold_ttf, BinaryData::UniviaProBold_ttfSize))
-            );
+        fonts.set(LumatoneEditorFont::UniviaProBold,
+            Font(Typeface::createSystemTypefaceFor(BinaryData::UniviaProBold_ttf, BinaryData::UniviaProBold_ttfSize))
+        );
 
-            fonts.set(LumatoneEditorFont::FranklinGothic,
-                Font(Typeface::createSystemTypefaceFor(BinaryData::framd_ttf, BinaryData::framd_ttfSize))
-            );
+        fonts.set(LumatoneEditorFont::FranklinGothic,
+            Font(Typeface::createSystemTypefaceFor(BinaryData::framd_ttf, BinaryData::framd_ttfSize))
+        );
 
-            fonts.set(LumatoneEditorFont::GothamNarrowMedium,
-                Font(Typeface::createSystemTypefaceFor(BinaryData::GothamNarrowMedium_otf, BinaryData::GothamNarrowMedium_otfSize))
-            );
+        fonts.set(LumatoneEditorFont::GothamNarrowMedium,
+            Font(Typeface::createSystemTypefaceFor(BinaryData::GothamNarrowMedium_otf, BinaryData::GothamNarrowMedium_otfSize))
+        );
 
-            fonts.set(LumatoneEditorFont::GothamNarrowMediumBold,
-                Font(Typeface::createSystemTypefaceFor(BinaryData::GothamNarrowBold_otf, BinaryData::GothamNarrowBoldItalic_otfSize))
-            );
-            
-            fonts.set(LumatoneEditorFont::GothamNarrowMediumBold,
-                Font(Typeface::createSystemTypefaceFor(BinaryData::GothamNarrowLightItalic_otf, BinaryData::GothamNarrowLightItalic_otfSize))
-            );
-        }
+        fonts.set(LumatoneEditorFont::GothamNarrowMediumBold,
+            Font(Typeface::createSystemTypefaceFor(BinaryData::GothamNarrowBold_otf, BinaryData::GothamNarrowBoldItalic_otfSize))
+        );
+
+        fonts.set(LumatoneEditorFont::GothamNarrowMediumBold,
+            Font(Typeface::createSystemTypefaceFor(BinaryData::GothamNarrowLightItalic_otf, BinaryData::GothamNarrowLightItalic_otfSize))
+        );
+#endif
     }
 
     Font getFont(LumatoneEditorFont fontId, float heightIn)

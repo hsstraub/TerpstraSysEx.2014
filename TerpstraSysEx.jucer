@@ -3,7 +3,8 @@
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.9"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
-              jucerFormatVersion="1" displaySplashScreen="1">
+              jucerFormatVersion="1" displaySplashScreen="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
+              defines="USE_LICENSED_FONTS=0">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="s3Ze61" name="logomark.png" compile="0" resource="1" file="BinaryData/logomark.png"/>
@@ -12,56 +13,6 @@
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
             file="BinaryData/TerpstraIcon.png"/>
       <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
-        <GROUP id="{D3D178B5-D236-00A5-069E-6C61C40F708F}" name="Fonts">
-          <GROUP id="{D70E0E91-29BD-1508-2635-FDFB6D3DBCD6}" name="Gotham">
-            <FILE id="DZuhlA" name="GothamNarrow-Black.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Black.otf"/>
-            <FILE id="OpSM54" name="GothamNarrow-BlackItalic.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-BlackItalic.otf"/>
-            <FILE id="b1pjns" name="GothamNarrow-Bold.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Bold.otf"/>
-            <FILE id="ZDhZm1" name="GothamNarrow-BoldItalic.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-BoldItalic.otf"/>
-            <FILE id="evgQs9" name="GothamNarrow-Book.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Book.otf"/>
-            <FILE id="eno8J2" name="GothamNarrow-BookItalic.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-BookItalic.otf"/>
-            <FILE id="X8PoKr" name="GothamNarrow-Light.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Light.otf"/>
-            <FILE id="tps8JY" name="GothamNarrow-LightItalic.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-LightItalic.otf"/>
-            <FILE id="kSLBD4" name="GothamNarrow-Medium.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Medium.otf"/>
-            <FILE id="jJQEuT" name="GothamNarrow-MediumItalic.otf" compile="0"
-                  resource="1" file="BinaryData/Assets/Fonts/GothamNarrow-MediumItalic.otf"/>
-            <FILE id="ZWJRXl" name="GothamNarrow-Thin.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Thin.otf"/>
-            <FILE id="aUuEPR" name="GothamNarrow-ThinItalic.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-ThinItalic.otf"/>
-            <FILE id="zxtSZZ" name="GothamNarrow-Ultra.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-Ultra.otf"/>
-            <FILE id="pSXVrp" name="GothamNarrow-UltraItalic.otf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/GothamNarrow-UltraItalic.otf"/>
-          </GROUP>
-          <GROUP id="{EADCE2E1-B31C-6BF5-9756-7608C27FB224}" name="UniviaPro">
-            <FILE id="t4Ewvv" name="UniviaPro-Black.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-Black.ttf"/>
-            <FILE id="pGkHk3" name="UniviaPro-Bold.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-Bold.ttf"/>
-            <FILE id="Eaglt6" name="UniviaPro-Light.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-Light.ttf"/>
-            <FILE id="mMgHO9" name="UniviaPro-LightItalic.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-LightItalic.ttf"/>
-            <FILE id="ip6Rmm" name="UniviaPro-Medium.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-Medium.ttf"/>
-            <FILE id="ycxyi7" name="UniviaPro-MediumItalic.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-MediumItalic.ttf"/>
-            <FILE id="ryNw2p" name="UniviaPro-Regular.ttf" compile="0" resource="1"
-                  file="BinaryData/Assets/Fonts/UniviaPro/UniviaPro-Regular.ttf"/>
-          </GROUP>
-          <FILE id="TVMvdy" name="framd.ttf" compile="0" resource="1" file="BinaryData/Assets/Fonts/framd.ttf"/>
-          <FILE id="Acsh14" name="framdit.ttf" compile="0" resource="1" file="BinaryData/Assets/Fonts/framdit.ttf"/>
-        </GROUP>
         <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
           <FILE id="ozCTsq" name="SaveIcon@4x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/SaveIcon@4x.png"/>
           <FILE id="l3SxsH" name="ImportIcon@4x.png" compile="0" resource="1"

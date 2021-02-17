@@ -23,7 +23,7 @@ class LumatoneEditorLookAndFeel : public LookAndFeel_V4
 public:
 
     LumatoneEditorLookAndFeel(
-        LumatoneEditorFontCollection appFontsIn,
+        LumatoneEditorFonts::Library appFontsIn,
         bool doImageCache = false
     ) : appFonts(appFontsIn)
     {
@@ -920,7 +920,7 @@ private:
 
 private:
 
-    LumatoneEditorFontCollection appFonts;
+    LumatoneEditorFonts::Library appFonts;
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;
