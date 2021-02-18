@@ -175,6 +175,7 @@ Array<Point<float>> HexagonTilingGeometry::transformPointsFromOrigin(Array<Point
 	const double rad = radius * verticalScalar;
 	const double lat = radius * LATERALRADIUSRATIO * horizontalScalar;
 
+	const double xUnit = lat * 2 + margin;
 	const double yUnitX = distanceStepsAwayX(lat, margin, 1, 1) - distanceStepsAwayX(lat, margin, 1, 0);
 	const double yUnitY = distanceStepsAwayY(rad, margin, 1);
 
@@ -183,7 +184,7 @@ Array<Point<float>> HexagonTilingGeometry::transformPointsFromOrigin(Array<Point
 	for (auto point : hexagonalCoordinatesIn)
 	{
 		Point<float> pointTrans = Point<float>(
-			point.x * lat + point.y * yUnitX,
+			point.x * xUnit + point.y * yUnitX,
 			point.y * yUnitY
 			);
 

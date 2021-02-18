@@ -89,9 +89,9 @@ private:
 
     void createSwatches()
     {
-        HexagonalTiling tiling;
-        tiling.fitTilingTo(Rectangle<double>(0.0, 0.0, width, height),
-            numColumns, numRows, margin, 0, false
+        HexagonTilingGeometry tiling;
+        tiling.fitTilingTo(Rectangle<float>(0.0, 0.0, width, height),
+            numColumns, numRows, margin, 0, true
         );
 
         Array<Point<float>> centres = tiling.transformPointsFromOrigin(hexCoordinates);
