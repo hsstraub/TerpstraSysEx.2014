@@ -167,6 +167,32 @@ void HexagonTilingGeometry::recalculateTransform(Point<float> rotateOrigin, bool
 	}
 }
 
+Array<Point<float>> HexagonTilingGeometry::transformPointsFromOrigin(Array<Point<int>> hexagonalCoordinatesIn)
+{
+	Array<Point<float>> hexagonCentres;
+	AffineTransform transform = AffineTransform::translation(startingCentre).followedBy(AffineTransform::rotation(angle, startingCentre.x, startingCentre.y));
+
+	const double rad = radius * verticalScalar;
+	const double lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+
+	const double yUnitX = distanceStepsAwayX(lat, margin, 1, 1) - distanceStepsAwayX(lat, margin, 1, 0);
+	const double yUnitY = distanceStepsAwayY(rad, margin, 1);
+
+	Array<Point<float>> pointsOut;
+
+	for (auto point : hexagonalCoordinatesIn)
+	{
+		Point<float> pointTrans = Point<float>(
+			point.x * lat + point.y * yUnitX,
+			point.y * yUnitY
+			);
+
+		pointsOut.add(pointTrans.transformedBy(transform));
+	}
+
+	return pointsOut;
+}
+
 Array<Point<float>> HexagonTilingGeometry::calculateCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctaves) const
 {
 	Array<Point<float>> hexagonCentres;

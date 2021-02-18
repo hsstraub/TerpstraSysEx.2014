@@ -108,6 +108,10 @@ public:
 	Array<Point<float>> getHexagonCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave = 0, int numOctavesIn = 1) const;
 
 	Array<Point<float>> getHexagonCentresSkewed(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctavesIn) const;
+
+	// I have a new model of this class in the TilingGeometry branch that is based on this function, but it happened to perform worse 
+	// in terms of rounding errors, so this is a quick-fix for implementing HexPalettes before I can officially clean this class up
+	Array<Point<float>> transformPointsFromOrigin(Array<Point<int>> hexagonalCoordinatesIn);
 	
 	//==============================================================================
 	// Property getters
