@@ -37,10 +37,11 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public juce::ComboBox::Listener,
+                          public ColourSelectionListener,
+                          public TextEditor::Listener,
                           public juce::Button::Listener,
-                          public juce::TextEditor::Listener,
-                          public ColourSelectionListener
+                          public juce::ComboBox::Listener,
+                          public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -56,7 +57,7 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
     void lookAndFeelChanged() override;
-    
+
     ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
 
@@ -67,16 +68,14 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::unique_ptr<ColourEditComponent> colourSubwindow;
-    std::unique_ptr<ColourTextEditor> colourTextEditor;
-
     //==============================================================================
     // Style Helpers
     int roundedCornerSize;
@@ -104,7 +103,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> autoIncrementLabel;
+    std::unique_ptr<juce::Label> editInstructionText;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
     std::unique_ptr<juce::ComboBox> channelBox;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
@@ -115,6 +114,10 @@ private:
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
     std::unique_ptr<juce::TextEditor> noteEdit;
+    std::unique_ptr<juce::Slider> noteEditBox;
+    std::unique_ptr<ColourEditComponent> colourSubwindow;
+    std::unique_ptr<juce::Label> autoIncrementLabel;
+    std::unique_ptr<ColourTextEditor> colourTextEditor;
 
 
     //==============================================================================
