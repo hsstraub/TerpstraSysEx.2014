@@ -49,8 +49,7 @@ MidiEditArea::MidiEditArea ()
 	lookAndFeel.setupRadioTextButton(*liveEditorBtn, 10, true);
 	liveEditorBtn->setButtonText(translate("LiveEditor"));
 	liveEditorBtn->setConnectedEdges(Button::ConnectedOnRight);
-	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Univia Pro");
-	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Bold");
+	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, LumatoneEditorFont::UniviaProBold);
 	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editModeFontScalar);
 	addChildComponent(liveEditorBtn.get());
 	liveEditorBtn->addListener(this);
@@ -59,8 +58,7 @@ MidiEditArea::MidiEditArea ()
 	lookAndFeel.setupRadioTextButton(*offlineEditorBtn, 10, false);
 	offlineEditorBtn->setButtonText(translate("OfflineEditor"));
 	offlineEditorBtn->setConnectedEdges(Button::ConnectedOnLeft);
-	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Univia Pro");
-	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Bold");
+	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, LumatoneEditorFont::UniviaProBold);
 	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editModeFontScalar);
 	addChildComponent(offlineEditorBtn.get());
 	offlineEditorBtn->addListener(this);
