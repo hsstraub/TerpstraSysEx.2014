@@ -58,7 +58,7 @@ ColourPaletteWindow::~ColourPaletteWindow()
     paletteGroup.removeSelector(customPickerPanel.get());
     for (auto p : filledPalettes)
     {
-        paletteGroup.removeSelector(&p->palette);
+        paletteGroup.removeSelector(p->palette);
     }
     
     filledPalettes.clear();
@@ -78,7 +78,7 @@ int ColourPaletteWindow::createAndListenToPaletteControls(LumatoneEditorColourPa
     group->editButton.addListener(this);
     group->trashButton.addListener(this);
 
-    paletteGroup.addSelector(&group->palette);
+    paletteGroup.addSelector(group->palette);
 
     return filledPalettes.size() - 1;
 }
@@ -103,21 +103,21 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
     paletteIndexEditing = paletteIndexIn;
     auto group = filledPalettes[paletteIndexEditing];
 
-    paletteEditPanel.reset(new PaletteEditPanel(group->palette.getColourPalette()));
+    paletteEditPanel.reset(new PaletteEditPanel(group->palette->getColourPalette()));
     paletteEditPanel->setBounds(getLocalBounds());
     paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
     paletteEditPanel->addChangeListener(this);
 
     // Retain selected swatch
-    int selectedSwatch = group->palette.getSelectedSwatchNumber();
+    int selectedSwatch = group->palette->getSelectedSwatchNumber();
     if (selectedSwatch >= 0)
         paletteEditPanel->setSelectedSwatch(selectedSwatch);
 }
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
 {
-    paletteGroup.removeSelector(&filledPalettes[paletteIndexToRemove]->palette);
+    paletteGroup.removeSelector(filledPalettes[paletteIndexToRemove]->palette);
 
     filledPalettes.remove(paletteIndexToRemove);
     colourPalettes.remove(paletteIndexToRemove);
@@ -196,16 +196,22 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
         {
             if (paletteIndexEditing >= 0 && paletteIndexEditing < filledPalettes.size())
             {
-                filledPalettes[paletteIndexEditing]->palette.setColourPalette(paletteEditPanel->getCurrentPalette());
+                auto palette = filledPalettes[paletteIndexEditing];
+                palette->palette->setColourPalette(paletteEditPanel->getCurrentPalette());
+                palette->palette->setPaletteName(paletteEditPanel->getPaletteName());
 
                 if (paletteEditingIsNew)
                     palettePanel->rebuildPanel();
+                else
+                    palettePanel->repaint();
             }
             else
                 jassert(true); // Something bad happened!
 
             // Save to properties
             TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneEditorColourPalette::paletteArrayToString(colourPalettes));
+            String data = LumatoneEditorColourPalette::paletteArrayToString(colourPalettes);
+            DBG(data);
         }
         else if (paletteEditingIsNew)
             removePalette(paletteIndexEditing);

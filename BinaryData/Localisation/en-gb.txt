@@ -64,7 +64,7 @@ countries: ca gb au
 "Inactive" = "Inactive"
 "CalibrateKeys" = "Calibrate Keys"
 "Edit" = "Edit"
-"EditPalette" = "Edit Palette"
+"EditPalette" = "Edit Palette:"
 "NewPalette" = "New Palette"
 "ColourPalettes" = "Colour Palettes"
 "CustomPicker" = "Custom Picker"

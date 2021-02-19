@@ -24,9 +24,16 @@
 class ColourPaletteComponent  : public TenHexagonPalette, public ColourSelectionBroadcaster
 {
 public:
-    ColourPaletteComponent(String name);
-    ColourPaletteComponent(String name, Array<Colour>& colours);
+    ColourPaletteComponent(String nameIn);
+    ColourPaletteComponent(LumatoneEditorColourPalette* paletteIn);
+    ColourPaletteComponent(const ColourPaletteComponent& paletteToCopy);
     ~ColourPaletteComponent() override;
+
+    LumatoneEditorColourPalette* getPalette() { return referencedPalette; }
+
+    String getPaletteName() const;
+
+    void setPaletteName(String nameIn);
 
     //==========================================================================
     // PolygonPalette overrides
@@ -47,9 +54,8 @@ public:
 
 private:
 
-    Array<Colour>* referencedPalette = nullptr;
+    LumatoneEditorColourPalette* referencedPalette = nullptr;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourPaletteComponent)
 };
 
 //==============================================================================
@@ -58,9 +64,11 @@ private:
 */
 struct PaletteControlGroup
 {
-    PaletteControlGroup(LumatoneEditorColourPalette& paletteIn);
+    PaletteControlGroup(LumatoneEditorColourPalette& newPaletteIn);
 
-    ColourPaletteComponent palette;
+    ~PaletteControlGroup() { delete palette; }
+
+    ColourPaletteComponent* palette;
     TextButton editButton;
     ImageButton trashButton;
 };

@@ -13,7 +13,6 @@
 #include "ColourPaletteComponent.h"
 #include "LumatoneEditorLookAndFeel.h"
 
-
 //==============================================================================
 /*
 *   Panel that displays the palettes and allows users to select a swatch
@@ -95,6 +94,9 @@ public:
             Rectangle<int> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
             int halfItemWidth = bottomMarginBounds.proportionOfWidth(0.5f);
 
+            auto label = paletteLabels[i];
+            label->setBounds(item.currentBounds.withTrimmedTop(itemWidth * 0.8f).toNearestInt());
+
             auto group = palettes.getUnchecked(i);
 
             group->editButton.setSize(halfItemWidth, bottomMarginBounds.proportionOfHeight(0.5f));
@@ -111,6 +113,13 @@ public:
     {
         removeAllChildren();
         flexBox.items.clear();
+        
+        for (auto label : paletteLabels)
+        {
+            removeChildComponent(label);
+        }
+        
+        paletteLabels.clear();
 
         // Palettes with colour
         for (int i = 0; i < palettes.size(); i++)
@@ -118,10 +127,15 @@ public:
             auto group = palettes.getUnchecked(i);
             
             addAndMakeVisible(group->palette);
-            flexBox.items.add(group->palette);
+            flexBox.items.add(*group->palette);
 
             addAndMakeVisible(group->editButton);
             addAndMakeVisible(group->trashButton);
+
+            String name = group->palette->getPaletteName();
+            auto label = paletteLabels.add(new Label("Label_" + name, name));
+            label->setJustificationType(Justification::centred);
+            addAndMakeVisible(label);
         }
 
         addAndMakeVisible(newPalette);
@@ -150,6 +164,8 @@ private:
     OwnedArray<PaletteControlGroup>& palettes;
     ColourPaletteComponent* newPalette;
     TextButton* newPaletteBtn;
+
+    OwnedArray<juce::Label> paletteLabels;
 
     int numRows = 1;
     int viewableWidth = 0;
@@ -230,11 +246,15 @@ private:
 /*
 *   Colour palette edtior panel
 */
-class PaletteEditPanel : public Component, public Button::Listener, public ChangeBroadcaster
+class PaletteEditPanel    : public Component, 
+                            public Button::Listener, 
+                            public Label::Listener,
+                            public ChangeBroadcaster
 {
 public:
 
-    PaletteEditPanel(Array<Colour> paletteColours)
+    PaletteEditPanel(LumatoneEditorColourPalette paletteIn)
+        : colourPalette(paletteIn)
     {
         colourPicker.reset(new ColourSelector(
               ColourSelector::ColourSelectorOptions::editableColour
@@ -243,16 +263,28 @@ public:
         ));
         addAndMakeVisible(*colourPicker);
 
-        palette.reset(new TenHexagonPalette());
-        palette->setColourPalette(paletteColours);
-        palette->attachColourSelector(colourPicker.get());
-        addAndMakeVisible(*palette);
+        paletteControl.reset(new TenHexagonPalette());
+        paletteControl->setColourPalette(*colourPalette.palette);
+        paletteControl->attachColourSelector(colourPicker.get());
+        addAndMakeVisible(*paletteControl);
 
         editPaletteLabel.reset(new Label("EditPaletteLabel", translate("EditPalette")));
         editPaletteLabel->setJustificationType(Justification::centred);
         addAndMakeVisible(*editPaletteLabel);
 
-        saveImage = ImageCache::getFromHashCode(LumatoneEditorAssets::SavePalette);
+        String displayName = colourPalette.name;
+        if (displayName == String())
+        {
+            paletteUnnamed = true;
+            displayName = "unnamed";
+        }
+
+        paletteNameLabel.reset(new Label("PaletteNameLabel", displayName));
+        paletteNameLabel->setJustificationType(Justification::centred);
+        paletteNameLabel->setEditable(true);
+        paletteNameLabel->addListener(this);
+        addAndMakeVisible(*paletteNameLabel);
+
         saveButton.reset(new TextButton("SaveButton", translate("SavePaletteTip")));
         saveButton->setButtonText("Save");
         saveButton->addListener(this);
@@ -266,7 +298,7 @@ public:
 
     ~PaletteEditPanel()
     {
-        palette = nullptr;
+        paletteControl = nullptr;
     }
 
     void paint(Graphics& g) override 
@@ -283,12 +315,15 @@ public:
         editPaletteLabel->setCentrePosition(leftCenter, round(editPaletteLabel->getHeight() * 0.5f + proportionOfHeight(editPaletteLabelY)));
 
         float paletteSize = proportionOfWidth(paletteWidthSize);
-        palette->setSize(paletteSize, paletteSize);
-        palette->setCentrePosition(leftCenter, round(paletteSize * 0.5f + proportionOfHeight(paletteY)));
+        paletteControl->setSize(paletteSize, paletteSize);
+        paletteControl->setCentrePosition(leftCenter, round(paletteSize * 0.5f + proportionOfHeight(paletteY)));
 
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
         saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
+
+        float midY = paletteControl->getLocalBounds().getBottom() + 0.5f * (saveButton->getY() - paletteControl->getLocalBounds().getBottom());
+        paletteNameLabel->setBounds(editPaletteLabel->getLocalBounds().withY(roundToInt(midY)));
 
         colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
         colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
@@ -296,7 +331,7 @@ public:
 
     void lookAndFeelChanged() override
     {
-        auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+        lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
         if (lookAndFeel)
         {
             lookAndFeel->setupTextButton(*saveButton);
@@ -304,16 +339,7 @@ public:
         }
     }
 
-    Array<Colour> getCurrentPalette() const
-    {
-        return palette->getColourPalette();
-    }
-
-    void setSelectedSwatch(int selectedSwatchNumber)
-    {
-        if (selectedSwatchNumber >= 0 && selectedSwatchNumber < palette->getNumberOfSwatches())
-            palette->setSelectedSwatchNumber(selectedSwatchNumber);
-    }
+    //==============================================================================
 
     void buttonClicked(Button* btn) override
     {
@@ -325,6 +351,57 @@ public:
         sendChangeMessage();
     }
 
+    //==============================================================================
+
+    void labelTextChanged(Label* labelThatHasChanged) override
+    {
+        bool nameIsEmpty = labelThatHasChanged->getText() == "";
+
+        if (!nameIsEmpty && paletteUnnamed)
+        {
+            paletteUnnamed = false;
+
+            if (lookAndFeel)
+                paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+
+            colourPalette.name = paletteNameLabel->getText();
+            repaint();
+        }
+
+        else if (nameIsEmpty && !paletteUnnamed)
+        {
+            paletteUnnamed = true;
+        }
+
+        if (paletteUnnamed)
+        {
+            if (lookAndFeel)
+                paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic));
+
+            paletteNameLabel->setText("unnamed", NotificationType::dontSendNotification);
+
+            repaint();
+        }
+    }
+
+    //==============================================================================
+
+    Array<Colour> getCurrentPalette() const
+    {
+        return paletteControl->getColourPalette();
+    }
+
+    void setSelectedSwatch(int selectedSwatchNumber)
+    {
+        if (selectedSwatchNumber >= 0 && selectedSwatchNumber < paletteControl->getNumberOfSwatches())
+            paletteControl->setSelectedSwatchNumber(selectedSwatchNumber);
+    }
+
+    String getPaletteName()
+    {
+        return colourPalette.name;
+    }
+
     bool wasSaveRequested() const
     {
         return saveRequested;
@@ -332,16 +409,21 @@ public:
 
 private:
 
-    std::unique_ptr<Palette> palette;
+    LumatoneEditorColourPalette     colourPalette;
+
+    std::unique_ptr<Palette>        paletteControl;
     std::unique_ptr<ColourSelector> colourPicker;
 
-    Image saveImage;
+    std::unique_ptr<Label>          editPaletteLabel;
+    std::unique_ptr<Label>          paletteNameLabel;
+    std::unique_ptr<TextButton>     saveButton;
+    std::unique_ptr<TextButton>     cancelButton;
 
-    std::unique_ptr<Label> editPaletteLabel;
-    std::unique_ptr<TextButton> saveButton;
-    std::unique_ptr<TextButton> cancelButton;
+    LumatoneEditorLookAndFeel*      lookAndFeel = nullptr;
 
     bool saveRequested = false;
+
+    bool paletteUnnamed = false;
 
     // Drawing constants
 

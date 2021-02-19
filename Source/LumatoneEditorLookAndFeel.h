@@ -35,6 +35,11 @@ public:
         }
     }
 
+    Font getAppFont(LumatoneEditorFont fontIdIn)
+    {
+        return appFonts[fontIdIn];
+    }
+
 public:
     //==================================================================
     // LookAndFeel_V4 Implementation
