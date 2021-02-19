@@ -58,7 +58,7 @@ private:
 */
 struct PaletteControlGroup
 {
-    PaletteControlGroup(LumatoneColourPalette& paletteIn);
+    PaletteControlGroup(LumatoneEditorColourPalette& paletteIn);
 
     ColourPaletteComponent palette;
     TextButton editButton;

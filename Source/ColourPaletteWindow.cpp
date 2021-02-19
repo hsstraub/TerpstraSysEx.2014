@@ -14,7 +14,7 @@
 //==============================================================================
 // ColourPaletteWindow Definitions
 
-ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn)
+ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& colourPalettesIn)
     : colourPalettes(colourPalettesIn)
 {
     setName("ColourPaletteWindow");
@@ -22,7 +22,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneColourPalette>& colourPal
     // Generate palettes that are filled with saved palettes, or filler palettes to preserve layout
     for (int p = 0; p < colourPalettes.size(); p++)
     {
-        LumatoneColourPalette& palette = colourPalettes.getReference(p);
+        LumatoneEditorColourPalette& palette = colourPalettes.getReference(p);
         createAndListenToPaletteControls(palette);
     }
 
@@ -72,7 +72,7 @@ ColourPaletteWindow::~ColourPaletteWindow()
     newPaletteButton        = nullptr;
 }
 
-int ColourPaletteWindow::createAndListenToPaletteControls(LumatoneColourPalette& paletteIn)
+int ColourPaletteWindow::createAndListenToPaletteControls(LumatoneEditorColourPalette& paletteIn)
 {
     auto group = filledPalettes.add(new PaletteControlGroup(paletteIn));
     group->editButton.addListener(this);
@@ -122,7 +122,7 @@ void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
     filledPalettes.remove(paletteIndexToRemove);
     colourPalettes.remove(paletteIndexToRemove);
     
-    TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneColourPalette::paletteArrayToString(colourPalettes));
+    TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneEditorColourPalette::paletteArrayToString(colourPalettes));
     palettePanel->rebuildPanel();
 }
 
@@ -161,7 +161,7 @@ void ColourPaletteWindow::buttonClicked(Button* btn)
     {
         paletteEditingIsNew = true;
 
-        colourPalettes.add(LumatoneColourPalette());
+        colourPalettes.add(LumatoneEditorColourPalette());
 
         startEditingPalette(
             createAndListenToPaletteControls(colourPalettes.getReference(colourPalettes.size() - 1))
@@ -205,7 +205,7 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
                 jassert(true); // Something bad happened!
 
             // Save to properties
-            TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneColourPalette::paletteArrayToString(colourPalettes));
+            TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneEditorColourPalette::paletteArrayToString(colourPalettes));
         }
         else if (paletteEditingIsNew)
             removePalette(paletteIndexEditing);

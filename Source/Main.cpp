@@ -61,7 +61,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
 
 	// Colour palettes
-	colourPalettes = LumatoneColourPalette::loadPalettesFromString(propertiesFile->getValue("ColourPalettes"));
+	colourPalettes = LumatoneEditorColourPalette::loadPalettesFromString(propertiesFile->getValue("ColourPalettes"));
 
 	// Recent files list
 	recentFiles.restoreFromString(propertiesFile->getValue("RecentFiles"));

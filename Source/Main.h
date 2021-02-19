@@ -48,7 +48,7 @@ public:
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	Array<LumatoneColourPalette>& getColourPalettes() { return colourPalettes; }
+	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
 
@@ -150,7 +150,7 @@ private:
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
 
-	Array<LumatoneColourPalette> colourPalettes;
+	Array<LumatoneEditorColourPalette> colourPalettes;
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;

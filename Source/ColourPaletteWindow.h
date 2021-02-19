@@ -24,7 +24,7 @@ class ColourPaletteWindow  :    public juce::Component,
                                 public ChangeListener
 {
 public:
-    ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn);
+    ColourPaletteWindow(Array<LumatoneEditorColourPalette>& colourPalettesIn);
     ~ColourPaletteWindow() override;
 
     void resized() override;
@@ -48,7 +48,7 @@ private:
     /// </summary>
     /// <param name="coloursIn"></param>
     /// <returns>Index of new palette</returns>
-    int createAndListenToPaletteControls(LumatoneColourPalette& paletteIn);
+    int createAndListenToPaletteControls(LumatoneEditorColourPalette& paletteIn);
 
     /// <summary>
     /// Launches the Palette Edit panel and listens for user interaction.
@@ -84,7 +84,7 @@ private:
     int paletteIndexEditing = -1;
     bool paletteEditingIsNew = false;
 
-    Array<LumatoneColourPalette>& colourPalettes;
+    Array<LumatoneEditorColourPalette>& colourPalettes;
 
     const float viewportScrollbarWidthScalar = 0.020833f;
 

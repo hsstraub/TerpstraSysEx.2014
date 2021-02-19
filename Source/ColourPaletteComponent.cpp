@@ -99,10 +99,10 @@ void ColourPaletteComponent::deselectColour()
 //==============================================================================
 // PaletteControlGroup Definitions
 
-PaletteControlGroup::PaletteControlGroup(LumatoneColourPalette& paletteIn)
-    : palette("Palette" + paletteIn.id, *paletteIn.palette),
-    editButton("EditButton_" + paletteIn.id, translate("EditButtonTip")),
-    trashButton("TrashButton" + paletteIn.id)
+PaletteControlGroup::PaletteControlGroup(LumatoneEditorColourPalette& paletteIn)
+    : palette("Palette" + paletteIn.name, *paletteIn.palette),
+    editButton("EditButton_" + paletteIn.name, translate("EditButtonTip")),
+    trashButton("TrashButton" + paletteIn.name)
 {
     editButton.setButtonText("Edit");
     editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
