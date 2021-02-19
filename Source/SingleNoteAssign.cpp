@@ -115,6 +115,9 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[UserPreSize]
+	noteEdit->setInputRestrictions(3, "0123456789");
+	noteEdit->addListener(this);
+
     colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "60aac5")); // TODO: load last active colour?
     addAndMakeVisible(colourTextEditor.get());
     colourTextEditor->addColourSelectionListener(this);
@@ -239,7 +242,7 @@ void SingleNoteAssign::resized()
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteEdit->setSize(w - noteEdit->getX() - rightMarginX, controlH);
+    noteEdit->setSize(comboBoxWidth, controlH);
 	noteEdit->setCentrePosition(
         round(noteEdit->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
@@ -387,7 +390,7 @@ void SingleNoteAssign::textEditorFocusLost(TextEditor& textEdit)
 		auto noteNumber = noteEdit->getText().getIntValue();
 		if (noteNumber < 0 || noteNumber > 127)
 		{
-			// ToDo beep to emphasize error?
+			getLookAndFeel().playAlertSound();
 			noteNumber = 0;
 			noteEdit->setText(String(noteNumber));
 		}
@@ -415,8 +418,9 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		keyData.noteNumber = noteEdit->getText().getIntValue();
 		if (keyData.noteNumber < 0 || keyData.noteNumber > 127)
 		{
-			// ToDo beep to emphasize error?
+			getLookAndFeel().playAlertSound();
 			keyData.noteNumber = 0;
+			noteEdit->setText(String(keyData.noteNumber));
 		}
 		mappingChanged = true;
 	}
