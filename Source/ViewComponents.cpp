@@ -18,7 +18,7 @@ TerpstraKeyEdit class
 */
 
 TerpstraKeyEdit::TerpstraKeyEdit()
-	: isSelected(false), keyColour(0), keyType(TerpstraKey::noteOnNoteOff)
+	: isSelected(false), keyColour(juce::Colour()), keyType(TerpstraKey::noteOnNoteOff)
 {
 	midiNoteLabel = new Label("midiNoteLabel", "0");
 	addAndMakeVisible(midiNoteLabel);
@@ -73,7 +73,7 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	}
 
 	newTooltip += newLine;
-	newTooltip += translate("KeyColour") + " " + (Colour(keyColour).toDisplayString(false));
+	newTooltip += translate("KeyColour") + " " + keyColour.toDisplayString(false);
 	
 	setTooltip(newTooltip);
 	midiNoteLabel->setTooltip(newTooltip);
@@ -100,8 +100,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	Colour lineColor = findColour(selectedKeyOutlineId);
 
 	// Color: empty or the parametrized color
-	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
-        .withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
+	Colour bgColour = findColour(backgroundColourId).overlaidWith(currentValue.colour.withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
     Colour textColour = bgColour.contrasting(0.7f);
 
 	if (bgColour.getPerceivedBrightness() < 0.5)

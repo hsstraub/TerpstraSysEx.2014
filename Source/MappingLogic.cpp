@@ -44,19 +44,19 @@ int MappingLogicBase::getIndexFromStartOfMap(int inx) const
 
 }
 
-int MappingLogicBase::indexToColour(int inx) const
+juce::Colour MappingLogicBase::indexToColour(int inx) const
 {
 	if (inx < 0 || inx >= this->globalMappingSize() || !this->assignColours)
-        return 0;
+        return juce::Colour();
 
     auto noteRelativeToStart = getIndexFromStartOfMap(inx);
     auto colourGroupIndex = scaleStructure.getGroupOfDegree(noteRelativeToStart);
     if (colourGroupIndex < 0 || colourGroupIndex >= colourTable.size())
     {
         jassertfalse;
-        return 0;
+        return juce::Colour();
     }
-    return colourTable.getReference(colourGroupIndex).getARGB();
+    return colourTable.getReference(colourGroupIndex);
 }
 
 void MappingLogicBase::indexToTerpstraKey(int inx, TerpstraKey& keyData) const

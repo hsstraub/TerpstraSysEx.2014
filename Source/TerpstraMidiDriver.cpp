@@ -98,8 +98,7 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType);
 
 	// Colour. Values from 0x00 to 0x7f (127 decimal, as the maximal value for data bytes is according to the MIDI standard)
-	Colour theColour(keyData.colour);
-	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2);
+	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, keyData.colour.getRed() / 2, keyData.colour.getGreen() / 2, keyData.colour.getBlue() / 2);
 }
 
 // Send expression pedal sensivity

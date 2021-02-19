@@ -59,17 +59,9 @@ SingleNoteAssign::SingleNoteAssign ()
 
     setNoteToggleButton.reset(new juce::ToggleButton("setNoteToggleButton"));
     addAndMakeVisible(setNoteToggleButton.get());
-    setNoteToggleButton->setButtonText(TRANS("Note (0-127):"));
+	setNoteToggleButton->setButtonText(TRANS("Note # (0-127):"));
     setNoteToggleButton->addListener(this);
     setNoteToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
-    noteBox.reset(new juce::ComboBox("noteBox"));
-    addAndMakeVisible(noteBox.get());
-    noteBox->setTooltip(TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
-    noteBox->setTextWhenNothingSelected(juce::String());
-    noteBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-    noteBox->getProperties().set(LumatoneEditorStyleIDs::popupMenuMaxColumns, 8);
-    noteBox->addListener(this);
 
     setChannelToggleButton.reset(new juce::ToggleButton("setChannelToggleButton"));
     addAndMakeVisible(setChannelToggleButton.get());
@@ -106,6 +98,18 @@ SingleNoteAssign::SingleNoteAssign ()
     channelAutoIncrNoteBox->setTextWhenNothingSelected(juce::String());
     channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
     channelAutoIncrNoteBox->addListener(this);
+    noteEdit.reset (new juce::TextEditor ("noteEdit"));
+    addAndMakeVisible (noteEdit.get());
+    noteEdit->setTooltip (TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
+    noteEdit->setMultiLine (false);
+    noteEdit->setReturnKeyStartsNewLine (false);
+    noteEdit->setReadOnly (false);
+    noteEdit->setScrollbarsShown (true);
+    noteEdit->setCaretVisible (true);
+    noteEdit->setPopupMenuEnabled (true);
+    noteEdit->setText (juce::String());
+
+    noteEdit->setBounds (120, 128, 56, 24);
 
 
     //[UserPreSize]
@@ -122,7 +126,6 @@ SingleNoteAssign::SingleNoteAssign ()
     //[Constructor] You can add your own custom stuff here..
 	for (int i = 0; i <= 127; i++)
 	{
-		noteBox->addItem(String(i), i + 1);
 		channelAutoIncrNoteBox->addItem(String(i), i + 1);
 	}
 
@@ -143,8 +146,7 @@ SingleNoteAssign::~SingleNoteAssign()
 	colourSubwindow = nullptr;
     autoIncrementLabel = nullptr;
     //[/Destructor_pre]
-    
-    noteBox = nullptr;
+
     noteAutoIncrButton = nullptr;
     channelBox = nullptr;
     channelAutoIncrButton = nullptr;
@@ -154,6 +156,7 @@ SingleNoteAssign::~SingleNoteAssign()
     setColourToggleButton = nullptr;
     keyTypeToggleButton = nullptr;
     keyTypeCombo = nullptr;
+    noteEdit = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -240,9 +243,9 @@ void SingleNoteAssign::resized()
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteBox->setSize(w - noteBox->getX() - rightMarginX, controlH);
-    noteBox->setCentrePosition(
-        round(noteBox->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
+    noteEdit->setSize(w - noteEdit->getX() - rightMarginX, controlH);
+	noteEdit->setCentrePosition(
+        round(noteEdit->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
     );
 
@@ -279,12 +282,7 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == noteBox.get())
-    {
-        //[UserComboBoxCode_noteBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_noteBox]
-    }
-    else if (comboBoxThatHasChanged == channelBox.get())
+	if (comboBoxThatHasChanged == channelBox.get())
     {
         //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_channelBox]
@@ -336,7 +334,7 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_setNoteToggleButton] -- add your button handler code here..
 		bool fieldActive = setNoteToggleButton->getToggleState();
-		noteBox->setEnabled(fieldActive);
+		noteEdit->setEnabled(fieldActive);
 		noteAutoIncrButton->setEnabled(fieldActive);
         //[/UserButtonCode_setNoteToggleButton]
     }
@@ -372,17 +370,32 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SingleNoteAssign::lookAndFeelChanged() 
+void SingleNoteAssign::lookAndFeelChanged()
 {
     auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (lookAndFeel)
     {
-        lookAndFeel->setupComboBox(*noteBox);
+        lookAndFeel->setupTextEditor(*noteEdit);
         lookAndFeel->setupComboBox(*channelBox);
         lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
         lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
+}
+
+void SingleNoteAssign::textEditorFocusLost(TextEditor& textEdit)
+{
+	if (&textEdit == noteEdit.get())
+	{
+		// allowed: 0 to 127
+		auto noteNumber = noteEdit->getText().getIntValue();
+		if (noteNumber < 0 || noteNumber > 127)
+		{
+			// ToDo beep to emphasize error?
+			noteNumber = 0;
+			noteEdit->setText(String(noteNumber));
+		}
+	}
 }
 
 void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
@@ -403,8 +416,12 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set note if specified
 	if (setNoteToggleButton->getToggleState())
 	{
-		keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-		if (keyData.noteNumber < 0) keyData.noteNumber = 0;
+		keyData.noteNumber = noteEdit->getText().getIntValue();
+		if (keyData.noteNumber < 0 || keyData.noteNumber > 127)
+		{
+			// ToDo beep to emphasize error?
+			keyData.noteNumber = 0;
+		}
 		mappingChanged = true;
 	}
 
@@ -418,7 +435,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		keyData.colour = colourSubwindow->getColourAsNumber();
+		keyData.colour = colourSubwindow->getColourAsObject();
 		mappingChanged = true;
 	}
 
@@ -451,7 +468,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		if (newNote > 127)
 			newNote = 0;
 
-		noteBox->setSelectedItemIndex(newNote);
+		noteEdit->setText(String(newNote));
 	}
 
 	return mappingChanged;
@@ -512,9 +529,6 @@ BEGIN_JUCER_METADATA
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
-  <COMBOBOX name="noteBox" id="123cacc6155f964" memberName="noteBox" virtualName=""
-            explicitFocusOrder="0" pos="120 128 56 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
-            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 232 160 24" buttonText="Notes-Per-Click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
@@ -528,7 +542,7 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="176 264 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
             editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note (0-127):"
+                virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note # (0-127):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setChannelToggleButton" id="f79f82eef6095c3c" memberName="setChannelToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 160 112 24" buttonText="Channel (1-16):"
@@ -545,6 +559,10 @@ BEGIN_JUCER_METADATA
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <GROUPCOMPONENT name="autoIncrementgroup" id="249745a33736e282" memberName="juce__groupComponent"
                   virtualName="" explicitFocusOrder="0" pos="0 209 240 95" title="Auto-Increment:"/>
+  <TEXTEDITOR name="noteEdit" id="ce81933f6d1e9b7d" memberName="noteEdit" virtualName=""
+              explicitFocusOrder="0" pos="120 128 56 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -250,25 +250,19 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					{
 					case GET_RED_LED_CONFIG:
 					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());	// This creates an opaque colour (alpha 0xff)
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						keyData.colour = Colour(newValue, keyData.colour.getGreen(), keyData.colour.getBlue());	// This creates an opaque colour (alpha 0xff)
 						break;
 					}
 
 					case GET_GREEN_LED_CONFIG:
 					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						keyData.colour = Colour(keyData.colour.getRed(), newValue, keyData.colour.getBlue());
 						break;
 					}
 
 					case GET_BLUE_LED_CONFIG:
 					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue);
 						break;
 					}
 
