@@ -129,7 +129,7 @@ private:
 
     const float pleaseConnectX                  = 0.17f;
     const float pleaseConnectY                  = 0.28f;
-    const float pleaseConnectHeight             = 0.15f;
+    const float pleaseConnectHeight             = 0.162f;
 
     const float connectionDirectionsX           = 0.17f;
     const float connectionDirectionsY           = 0.47f;

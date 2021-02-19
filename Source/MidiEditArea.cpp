@@ -311,7 +311,7 @@ void MidiEditArea::resized()
 		);
 
 		pleaseConnectLabel->setTopLeftPosition(round(w * pleaseConnectX), round(h * pleaseConnectY));
-		pleaseConnectLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * pleaseConnectHeight));
+		resizeLabelWithHeight(pleaseConnectLabel.get(), round(h * pleaseConnectHeight));
 
 		offlineMsgLabel->setTopLeftPosition(round(w * connectionDirectionsX), round(h * connectionDirectionsY));
 		offlineMsgLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * connectionDirectionsHeight));
