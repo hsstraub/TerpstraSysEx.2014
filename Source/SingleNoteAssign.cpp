@@ -100,24 +100,21 @@ SingleNoteAssign::SingleNoteAssign ()
     channelAutoIncrNoteBox->setTextWhenNothingSelected(juce::String());
     channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
     channelAutoIncrNoteBox->addListener(this);
-    noteEdit.reset (new juce::TextEditor ("noteEdit"));
-    addAndMakeVisible (noteEdit.get());
-    noteEdit->setTooltip (TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
-    noteEdit->setMultiLine (false);
-    noteEdit->setReturnKeyStartsNewLine (false);
-    noteEdit->setReadOnly (false);
-    noteEdit->setScrollbarsShown (true);
-    noteEdit->setCaretVisible (true);
-    noteEdit->setPopupMenuEnabled (true);
-    noteEdit->setText (juce::String());
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
-    noteEdit->setBounds (120, 128, 56, 24);
+
+    noteInput.reset (new juce::Slider ("noteInput"));
+    addAndMakeVisible (noteInput.get());
+    noteInput->setRange (0, 127, 1);
+    noteInput->setSliderStyle (juce::Slider::IncDecButtons);
+    noteInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    noteInput->addListener (this);
+
+    noteInput->setBounds (120, 128, 80, 24);
 
 
     //[UserPreSize]
-	noteEdit->setInputRestrictions(3, "0123456789");
-	noteEdit->addListener(this);
-
     colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "60aac5")); // TODO: load last active colour?
     addAndMakeVisible(colourTextEditor.get());
     colourTextEditor->addColourSelectionListener(this);
@@ -157,7 +154,7 @@ SingleNoteAssign::~SingleNoteAssign()
     setColourToggleButton = nullptr;
     keyTypeToggleButton = nullptr;
     keyTypeCombo = nullptr;
-    noteEdit = nullptr;
+    noteInput = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -242,9 +239,10 @@ void SingleNoteAssign::resized()
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteEdit->setSize(comboBoxWidth, controlH);
-	noteEdit->setCentrePosition(
-        round(noteEdit->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
+
+    noteInput->setSize(noteInput->getWidth(), controlH);
+	noteInput->setCentrePosition(
+        round(noteInput->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
     );
 
@@ -333,7 +331,7 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_setNoteToggleButton] -- add your button handler code here..
 		bool fieldActive = setNoteToggleButton->getToggleState();
-		noteEdit->setEnabled(fieldActive);
+		noteInput->setEnabled(fieldActive);
 		noteAutoIncrButton->setEnabled(fieldActive);
         //[/UserButtonCode_setNoteToggleButton]
     }
@@ -366,6 +364,21 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
+void SingleNoteAssign::sliderValueChanged (juce::Slider* sliderThatWasMoved)
+{
+    //[UsersliderValueChanged_Pre]
+    //[/UsersliderValueChanged_Pre]
+
+    if (sliderThatWasMoved == noteInput.get())
+    {
+        //[UserSliderCode_noteInput] -- add your slider handling code here..
+        //[/UserSliderCode_noteInput]
+    }
+
+    //[UsersliderValueChanged_Post]
+    //[/UsersliderValueChanged_Post]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -374,27 +387,12 @@ void SingleNoteAssign::lookAndFeelChanged()
     auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (lookAndFeel)
     {
-        lookAndFeel->setupTextEditor(*noteEdit);
+        //lookAndFeel->setupSlider(*noteInput);
         lookAndFeel->setupComboBox(*channelBox);
         lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
         lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
-}
-
-void SingleNoteAssign::textEditorFocusLost(TextEditor& textEdit)
-{
-	if (&textEdit == noteEdit.get())
-	{
-		// allowed: 0 to 127
-		auto noteNumber = noteEdit->getText().getIntValue();
-		if (noteNumber < 0 || noteNumber > 127)
-		{
-			getLookAndFeel().playAlertSound();
-			noteNumber = 0;
-			noteEdit->setText(String(noteNumber));
-		}
-	}
 }
 
 void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
@@ -415,13 +413,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set note if specified
 	if (setNoteToggleButton->getToggleState())
 	{
-		keyData.noteNumber = noteEdit->getText().getIntValue();
-		if (keyData.noteNumber < 0 || keyData.noteNumber > 127)
-		{
-			getLookAndFeel().playAlertSound();
-			keyData.noteNumber = 0;
-			noteEdit->setText(String(keyData.noteNumber));
-		}
+		keyData.noteNumber = noteInput->getValue();
 		mappingChanged = true;
 	}
 
@@ -468,7 +460,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		if (newNote > 127)
 			newNote = 0;
 
-		noteEdit->setText(String(newNote));
+		noteInput->setValue(newNote);
 	}
 
 	return mappingChanged;
@@ -559,10 +551,11 @@ BEGIN_JUCER_METADATA
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <GROUPCOMPONENT name="autoIncrementgroup" id="249745a33736e282" memberName="juce__groupComponent"
                   virtualName="" explicitFocusOrder="0" pos="0 209 240 95" title="Auto-Increment:"/>
-  <TEXTEDITOR name="noteEdit" id="ce81933f6d1e9b7d" memberName="noteEdit" virtualName=""
-              explicitFocusOrder="0" pos="120 128 56 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
-              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
-              scrollbars="1" caret="1" popupmenu="1"/>
+  <SLIDER name="noteInput" id="1f80893edc791111" memberName="noteInput"
+          virtualName="" explicitFocusOrder="0" pos="120 128 80 24" min="0.0"
+          max="127.0" int="0.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

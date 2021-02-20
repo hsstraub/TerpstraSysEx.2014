@@ -37,10 +37,10 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public juce::ComboBox::Listener,
                           public juce::Button::Listener,
-                          public juce::TextEditor::Listener,
-                          public ColourSelectionListener
+                          public ColourSelectionListener,
+                          public juce::ComboBox::Listener,
+                          public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -56,19 +56,18 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
     void lookAndFeelChanged() override;
-    
+
     ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
-
-	void textEditorFocusLost(TextEditor& textEdit) override;
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
 
 
 
@@ -114,7 +113,7 @@ private:
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
-    std::unique_ptr<juce::TextEditor> noteEdit;
+    std::unique_ptr<juce::Slider> noteInput;
 
 
     //==============================================================================
