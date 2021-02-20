@@ -75,6 +75,7 @@ public:
 
         float horizontalMargin  = viewportBounds.proportionOfWidth(horizontalMarginScalar);
         float itemWidth         = viewportBounds.proportionOfWidth(itemWidthScalar);
+        float itemHeight        = viewportBounds.proportionOfWidth(itemHeightScalar);
         float topMargin         = viewportBounds.proportionOfHeight(topMarginScalar);
         float bottomMargin      = viewportBounds.proportionOfHeight(bottomMarginScalar);
 
@@ -82,7 +83,7 @@ public:
         {
             FlexItem& item = flexBox.items.getReference(i);
             item.width = itemWidth;
-            item.height = itemWidth;
+            item.height = itemHeight;
             item.margin = FlexItem::Margin(topMargin, horizontalMargin, bottomMargin, horizontalMargin);
         }
 
@@ -95,12 +96,11 @@ public:
             int halfItemWidth = bottomMarginBounds.proportionOfWidth(0.5f);
 
             auto label = paletteLabels[i];
-            label->setBounds(item.currentBounds.withTrimmedTop(itemWidth * 0.8f).toNearestInt());
+            label->setBounds(item.currentBounds.withTrimmedTop(itemHeight * 0.8f).toNearestInt());
 
             auto group = palettes.getUnchecked(i);
-
-            group->editButton.setSize(halfItemWidth, bottomMarginBounds.proportionOfHeight(0.5f));
-            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition());
+            group->editButton.setSize(halfItemWidth, roundToInt(bottomMarginBounds.getHeight() * 0.6667f));
+            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginBounds.getHeight() - group->editButton.getHeight()));
             group->trashButton.setBounds(group->editButton.getBounds().translated(halfItemWidth, 0));
         }
 
@@ -171,16 +171,17 @@ private:
     int viewableWidth = 0;
     int viewableHeight = 0;
 
-    const float itemWidthScalar         = 0.25f;
+    const float itemWidthScalar = 0.28f;
+    const float itemHeightScalar        = 0.25981f;
 
-    const float topMarginScalar         = 1.0f / 24.0f;
-    const float bottomMarginScalar      = 1.0f / 9.0f;
-    const float horizontalMarginScalar  = 1.0f / 24.0f;
+    const float topMarginScalar         = 0.04167f;
+    const float bottomMarginScalar      = 0.1f;
+    const float horizontalMarginScalar  = 0.03f;
 
-    const float buttonWidthScalar       = 1.0f / 3.0f;
-    const float buttonHeightScalar      = 1.0f / 6.0f;
+    const float buttonWidthScalar       = 0.333333f;
+    const float buttonHeightScalar      = 0.166667f;
 
-    const float panelLeftMarginWidth    = 1.0f / 48.0f;
+    const float panelLeftMarginWidth    = 0.020833f;
 };
 
 //==============================================================================
@@ -253,7 +254,7 @@ class PaletteEditPanel    : public Component,
 {
 public:
 
-    PaletteEditPanel(LumatoneEditorColourPalette paletteIn)
+    PaletteEditPanel(const LumatoneEditorColourPalette& paletteIn)
         : colourPalette(paletteIn)
     {
         colourPicker.reset(new ColourSelector(
@@ -279,11 +280,12 @@ public:
             displayName = "unnamed";
         }
 
-        paletteNameLabel.reset(new Label("PaletteNameLabel", displayName));
-        paletteNameLabel->setJustificationType(Justification::centred);
-        paletteNameLabel->setEditable(true);
-        paletteNameLabel->addListener(this);
-        addAndMakeVisible(*paletteNameLabel);
+        paletteNameEditor.reset(new Label("PaletteNameEditor"));
+        paletteNameEditor->setJustificationType(Justification::centred);
+        paletteNameEditor->setEditable(true);
+        paletteNameEditor->addListener(this);
+        addAndMakeVisible(*paletteNameEditor);
+        paletteNameEditor->setText(displayName, NotificationType::dontSendNotification);
 
         saveButton.reset(new TextButton("SaveButton", translate("SavePaletteTip")));
         saveButton->setButtonText("Save");
@@ -314,19 +316,36 @@ public:
         resizeLabelWithHeight(editPaletteLabel.get(), proportionOfHeight(editPaletteHeight));
         editPaletteLabel->setCentrePosition(leftCenter, round(editPaletteLabel->getHeight() * 0.5f + proportionOfHeight(editPaletteLabelY)));
 
-        float paletteSize = proportionOfWidth(paletteWidthSize);
-        paletteControl->setSize(paletteSize, paletteSize);
-        paletteControl->setCentrePosition(leftCenter, round(paletteSize * 0.5f + proportionOfHeight(paletteY)));
+        float paletteWidth = proportionOfWidth(paletteWidthScalar);
+        float paletteHeight = proportionOfWidth(paletteHeightScalar);
+        paletteControl->setSize(paletteWidth, paletteHeight);
+        paletteControl->setCentrePosition(leftCenter, round(paletteHeight * 0.5f + proportionOfHeight(paletteY)));
 
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
         saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
 
         float midY = paletteControl->getLocalBounds().getBottom() + 0.5f * (saveButton->getY() - paletteControl->getLocalBounds().getBottom());
-        paletteNameLabel->setBounds(editPaletteLabel->getLocalBounds().withY(roundToInt(midY)));
-
+        
         colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
         colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
+
+        float leftMargin = colourPicker->getRight() * 0.03f * 0.5f;
+        paletteNameEditor->setBounds(Rectangle<int>(
+            Point<int>(roundToInt(leftMargin),  paletteControl->getBottom()),
+            Point<int>(colourPicker->getX() - leftMargin, saveButton->getY())
+        ));
+        paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editPaletteLabel->getHeight() / (float) paletteNameEditor->getHeight());
+
+        if (lookAndFeel)
+        {
+            Font labelFont = (paletteUnnamed)
+                ? lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic)
+                : lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium);
+
+            paletteNameEditor->setFont(labelFont);
+        }
+
     }
 
     void lookAndFeelChanged() override
@@ -353,20 +372,16 @@ public:
 
     //==============================================================================
 
-    void labelTextChanged(Label* labelThatHasChanged) override
+    void labelTextChanged(Label* label) override
     {
-        if (labelThatHasChanged == paletteNameLabel.get())
+        if (label == paletteNameEditor.get())
         {
-            bool nameIsEmpty = paletteNameLabel->getText() == "";
+            bool nameIsEmpty = paletteNameEditor->getText() == "";
 
-            if (!nameIsEmpty && paletteUnnamed)
+            if (!nameIsEmpty)
             {
                 paletteUnnamed = false;
-
-                if (lookAndFeel)
-                    paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium));
-
-                colourPalette.name = paletteNameLabel->getText();
+                colourPalette.name = paletteNameEditor->getText();
             }
 
             else if (nameIsEmpty && !paletteUnnamed)
@@ -376,13 +391,10 @@ public:
 
             if (paletteUnnamed)
             {
-                if (lookAndFeel)
-                    paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic));
-
-                paletteNameLabel->setText("unnamed", NotificationType::dontSendNotification);
+                paletteNameEditor->setText("unnamed", NotificationType::dontSendNotification);
             }
 
-            paletteNameLabel->repaint();
+            resized();
         }
     }
 
@@ -417,7 +429,7 @@ private:
     std::unique_ptr<ColourSelector> colourPicker;
 
     std::unique_ptr<Label>          editPaletteLabel;
-    std::unique_ptr<Label>          paletteNameLabel;
+    std::unique_ptr<Label>          paletteNameEditor;
     std::unique_ptr<TextButton>     saveButton;
     std::unique_ptr<TextButton>     cancelButton;
 
@@ -435,7 +447,8 @@ private:
     const float editPaletteHeight   = 0.0606f;
 
     const float paletteY            = 0.2581f;
-    const float paletteWidthSize    = 0.2727f;
+    const float paletteWidthScalar  = 0.2727f;
+    const float paletteHeightScalar = 0.1574f;
 
     const float buttonY             = 0.6739f;
     const float buttonWidth         = 0.2208f;

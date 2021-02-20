@@ -103,7 +103,7 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
     paletteIndexEditing = paletteIndexIn;
     auto group = filledPalettes[paletteIndexEditing];
 
-    paletteEditPanel.reset(new PaletteEditPanel(group->palette->getColourPalette()));
+    paletteEditPanel.reset(new PaletteEditPanel(*group->palette->getPalette()));
     paletteEditPanel->setBounds(getLocalBounds());
     paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
