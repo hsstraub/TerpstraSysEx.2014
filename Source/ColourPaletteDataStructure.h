@@ -91,7 +91,7 @@ struct LumatoneEditorColourPalette
     // Public members
 
     Array<Colour>* palette;
-    String name;
+    String name = "";
 
     //==============================================================================
     
