@@ -30,6 +30,9 @@ public:
         newPalette(newPaletteIn),
         newPaletteBtn(newPaletteBtnIn)
     {
+        addMouseListener(this, true);
+        setRepaintsOnMouseActivity(true);
+
         flexBox.flexWrap = FlexBox::Wrap::wrap;
         flexBox.justifyContent = FlexBox::JustifyContent::flexStart;
         rebuildPanel(false);
@@ -92,7 +95,7 @@ public:
         for (int i = 0; i < palettes.size(); i++)
         {
             FlexItem& item = flexBox.items.getReference(i);
-            Rectangle<int> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
+            Rectangle<float> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
             int halfItemWidth = bottomMarginBounds.proportionOfWidth(0.5f);
 
             auto label = paletteLabels[i];
@@ -100,12 +103,49 @@ public:
 
             auto group = palettes.getUnchecked(i);
             group->editButton.setSize(halfItemWidth, roundToInt(bottomMarginBounds.getHeight() * 0.6667f));
-            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginBounds.getHeight() - group->editButton.getHeight()));
+            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginBounds.getHeight() - group->editButton.getHeight()).roundToInt());
             group->trashButton.setBounds(group->editButton.getBounds().translated(halfItemWidth, 0));
+
+            Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomLeft());
+            controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
         }
 
-        newPaletteBtn->setSize(itemWidth, round(bottomMargin * 0.5f));
+        newPaletteBtn->setSize(itemWidth, round(bottomMargin * 0.6667f));
         newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom());
+    }
+
+    void mouseMove(const MouseEvent& mouse) override
+    {
+        int newIndex = -1;
+        if (mouse.eventComponent->getProperties().contains("index"))
+        {
+            newIndex = mouse.eventComponent->getProperties()["index"];
+        }
+        else
+        {
+            for (int i = 0; i < controlGroupHitBoxes.size(); i++)
+            {
+                if (controlGroupHitBoxes[i].contains(mouse.getEventRelativeTo(this).position.roundToInt()))
+                {
+                    newIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (newIndex >= 0 && newIndex != lastPaletteMouseOver)
+        {
+            if (lastPaletteMouseOver >= 0 && lastPaletteMouseOver < palettes.size())
+            {
+                setControlsVisibleForPalette(lastPaletteMouseOver, false);
+            }
+
+            if (newIndex < palettes.size())
+            {
+                setControlsVisibleForPalette(newIndex, true);
+                lastPaletteMouseOver = newIndex;
+            }
+        }
     }
 
     // Setup panels from scratch
@@ -120,22 +160,30 @@ public:
         }
         
         paletteLabels.clear();
+        controlGroupHitBoxes.clear();
 
         // Palettes with colour
         for (int i = 0; i < palettes.size(); i++)
         {
             auto group = palettes.getUnchecked(i);
             
+            group->palette->getProperties().set("index", i);
             addAndMakeVisible(group->palette);
             flexBox.items.add(*group->palette);
 
-            addAndMakeVisible(group->editButton);
-            addAndMakeVisible(group->trashButton);
+            group->editButton.getProperties().set("index", i);
+            addChildComponent(group->editButton);
+
+            group->trashButton.getProperties().set("index", i);
+            addChildComponent(group->trashButton);
 
             String name = group->palette->getPaletteName();
             auto label = paletteLabels.add(new Label("Label_" + name, name));
             label->setJustificationType(Justification::centred);
+            label->getProperties().set("index", i);
             addAndMakeVisible(label);
+
+            controlGroupHitBoxes.add(Rectangle<int>());
         }
 
         addAndMakeVisible(newPalette);
@@ -159,6 +207,15 @@ public:
 
 private:
 
+    void setControlsVisibleForPalette(int paletteIndex, bool areVisible)
+    {
+        auto group = palettes.getUnchecked(paletteIndex);
+        group->editButton.setVisible(areVisible);
+        group->trashButton.setVisible(areVisible);
+    }
+
+private:
+
     FlexBox flexBox;
 
     OwnedArray<PaletteControlGroup>& palettes;
@@ -171,7 +228,11 @@ private:
     int viewableWidth = 0;
     int viewableHeight = 0;
 
-    const float itemWidthScalar = 0.28f;
+
+    Array<Rectangle<int>> controlGroupHitBoxes;
+    int lastPaletteMouseOver = -1;
+
+    const float itemWidthScalar         = 0.28f;
     const float itemHeightScalar        = 0.25981f;
 
     const float topMarginScalar         = 0.04167f;
