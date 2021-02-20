@@ -30,30 +30,18 @@ namespace LumatoneEditorPaletteIds
 */
 struct LumatoneEditorColourPalette
 {
-    LumatoneEditorColourPalette()
+    LumatoneEditorColourPalette(String paletteName="")
     {
         colourPalette.reset(new Array<Colour>());
         palette = colourPalette.get();
+        name = paletteName;
     }
 
-    LumatoneEditorColourPalette(Array<Colour> colourPaletteIn)
-        : LumatoneEditorColourPalette()
+    LumatoneEditorColourPalette(Array<Colour> colourPaletteIn, String paletteName="")
+        : LumatoneEditorColourPalette(paletteName)
     {
         for (auto colour : colourPaletteIn)
             palette->add(colour);
-    }
-
-    LumatoneEditorColourPalette(String paletteAsString)
-        : LumatoneEditorColourPalette()
-    {
-        int i = 0;
-        int nextInd = STRINGCOLOURSIZE;
-        while(i < paletteAsString.length())
-        {
-            colourPalette->add(Colour::fromString(paletteAsString.substring(i, nextInd)));
-            i = nextInd;
-            nextInd = i + STRINGCOLOURSIZE;
-        }
     }
 
     LumatoneEditorColourPalette(ValueTree paletteNode)
@@ -69,7 +57,7 @@ struct LumatoneEditorColourPalette
     }
 
     LumatoneEditorColourPalette(const LumatoneEditorColourPalette& palette)
-        : LumatoneEditorColourPalette(*palette.palette) {}
+        : LumatoneEditorColourPalette(*palette.palette, palette.name) {}
 
     ~LumatoneEditorColourPalette()
     {

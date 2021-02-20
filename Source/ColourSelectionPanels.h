@@ -355,32 +355,34 @@ public:
 
     void labelTextChanged(Label* labelThatHasChanged) override
     {
-        bool nameIsEmpty = labelThatHasChanged->getText() == "";
-
-        if (!nameIsEmpty && paletteUnnamed)
+        if (labelThatHasChanged == paletteNameLabel.get())
         {
-            paletteUnnamed = false;
+            bool nameIsEmpty = paletteNameLabel->getText() == "";
 
-            if (lookAndFeel)
-                paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+            if (!nameIsEmpty && paletteUnnamed)
+            {
+                paletteUnnamed = false;
 
-            colourPalette.name = paletteNameLabel->getText();
-            repaint();
-        }
+                if (lookAndFeel)
+                    paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium));
 
-        else if (nameIsEmpty && !paletteUnnamed)
-        {
-            paletteUnnamed = true;
-        }
+                colourPalette.name = paletteNameLabel->getText();
+            }
 
-        if (paletteUnnamed)
-        {
-            if (lookAndFeel)
-                paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic));
+            else if (nameIsEmpty && !paletteUnnamed)
+            {
+                paletteUnnamed = true;
+            }
 
-            paletteNameLabel->setText("unnamed", NotificationType::dontSendNotification);
+            if (paletteUnnamed)
+            {
+                if (lookAndFeel)
+                    paletteNameLabel->setFont(lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic));
 
-            repaint();
+                paletteNameLabel->setText("unnamed", NotificationType::dontSendNotification);
+            }
+
+            paletteNameLabel->repaint();
         }
     }
 

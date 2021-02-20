@@ -199,19 +199,13 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
                 auto palette = filledPalettes[paletteIndexEditing];
                 palette->palette->setColourPalette(paletteEditPanel->getCurrentPalette());
                 palette->palette->setPaletteName(paletteEditPanel->getPaletteName());
-
-                if (paletteEditingIsNew)
-                    palettePanel->rebuildPanel();
-                else
-                    palettePanel->repaint();
+                palettePanel->rebuildPanel();
             }
             else
                 jassert(true); // Something bad happened!
 
             // Save to properties
             TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneEditorColourPalette::paletteArrayToString(colourPalettes));
-            String data = LumatoneEditorColourPalette::paletteArrayToString(colourPalettes);
-            DBG(data);
         }
         else if (paletteEditingIsNew)
             removePalette(paletteIndexEditing);
