@@ -202,7 +202,13 @@ public:
         {
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
-            Font font = getTextButtonFont(btn, btn.getHeight());
+            
+            float fontScalar = 1.0f;
+#if JUCE_MAC
+            fontScalar = 0.9f;
+#endif
+            
+            Font font = getTextButtonFont(btn, btn.getHeight() * fontScalar);
 
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
@@ -211,7 +217,7 @@ public:
 
             icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
 
-            int margin = font.getStringWidth("_");
+            int margin = font.getStringWidth("  ");
             int textWidth = font.getStringWidth(btn.getButtonText());
             int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
             int secondHalf = lineStart + margin;
@@ -247,55 +253,6 @@ public:
             LookAndFeel_V4::drawButtonText(g, btn, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
         }
     }
-
-    //// TODO: REVIEW
-    //void drawImageButton(Graphics& g, Image* img, int imageX, int imageY, int imageW, int imageH, const Colour& overlayColour, float imageOpacity, ImageButton& btn) override
-    //{
-    //    Path buttonShape = getButtonShape(btn);
-
-    //    Colour colour = Colour(0xff383b3d);
-    //    Colour textColour = Colours::white;
-
-    //    if (!btn.getToggleState())
-    //    {
-    //        colour = Colour(0xff1c1c1c);
-    //        textColour = Colour(0xffb5b5b5);
-    //    }
-
-    //    g.setColour(colour);
-    //    g.fillPath(buttonShape);
-    //    
-    //    NamedValueSet& properties = btn.getProperties();
-
-    //    float heightScalar = (properties.contains(LumatoneEditorStyleIDs::componentImageHeightScalar))
-    //        ? (float) properties[LumatoneEditorStyleIDs::componentImageHeightScalar]
-    //        : 19.0f / 41.0f;
-
-    //    int height = roundToInt(btn.getHeight() * heightScalar);
-    //    int width = roundToInt(imageW / (float)imageH * height);
-
-    //    g.setColour(textColour);
-    //    g.drawImageWithin(*img, 
-    //        roundToInt((btn.getWidth() - width) * 0.5f), ((btn.getHeight() - height) * 0.5f), 
-    //        width, height, 
-    //        RectanglePlacement::centred, btn.getClickingTogglesState()
-    //    );
-
-    //    if (!btn.getClickingTogglesState() || !btn.getToggleState())
-    //    {
-    //        if (btn.getToggleState() && btn.isMouseButtonDown())
-    //        {
-    //            g.setColour(Colours::black.withAlpha(0.1f));
-    //            g.fillPath(buttonShape);
-    //        }
-
-    //        else if (btn.isMouseOver())
-    //        {
-    //            g.setColour(Colours::white.withAlpha(0.07f));
-    //            g.fillPath(buttonShape);
-    //        }
-    //    }
-    //}
 
     Font getTextButtonFont(TextButton& btn, int buttonHeight) override
     {
