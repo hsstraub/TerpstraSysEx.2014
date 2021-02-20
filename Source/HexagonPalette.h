@@ -66,16 +66,20 @@ public:
 
     void resized() override
     {
-        // Original bounds
-        Rectangle<float> originalBounds = { 0.0f, 0.0f, 1.0f, 1.0f };
+        float scalar = (width > height)
+            ? getWidth() / width
+            : getHeight() / height;
 
-        float size = jmin(getWidth(), getHeight());
+        float newWidth = width * scalar;
+        float newHeight = height * scalar;
 
-        // Crop to square
-        Rectangle<float> scaled = { 0, 0, size, size };
+        float xOffset = (getWidth() - newWidth) * 0.5f - getWidth() * 0.125f; // Last bit is a correction needed in HexagonTiling
+        float yOffset = (getHeight() - newHeight) * 0.5f;
 
         // Get scaling and centering transform
-        AffineTransform transform = RectanglePlacement().getTransformToFit(originalBounds, scaled.withCentre({ (float)getLocalBounds().getCentreX(), size * 0.5f }));
+        AffineTransform transform = AffineTransform()
+            .followedBy(AffineTransform::scale(scalar))
+            .followedBy(AffineTransform::translation(xOffset, 0));
 
         for (int i = 0; i < getNumberOfSwatches(); i++)
         {
@@ -102,6 +106,9 @@ private:
         if (angleOffset != 0.0)
             transform = AffineTransform::rotation(angleOffset);
 
+        // For finding actual width and height
+        Path tilePath;
+
         swatchPaths.clear();
         for (auto c : centres)
         {
@@ -110,7 +117,13 @@ private:
             Path hex;
             hex.addPolygon(c, 6, tiling.getRadius());
             swatchPaths.add(hex);
+
+            tilePath.addPath(hex);
         }
+
+        Rectangle<float> tileBounds = tilePath.getBounds(); // does this clip (translate) for optimal size, or does it retain original origin?
+        width = tileBounds.getWidth();
+        height = tileBounds.getHeight();
     }
 
 private:
@@ -118,9 +131,7 @@ private:
     const Array<Point<int>> hexCoordinates;
     const float angleOffset;
 
-    const Point<float> center = { 0.5f, 0.5f };
-
-    const float margin = 0.001f;
+    const float margin = 0.024f;
     float width = 1, height = 1;
     
     int numColumns = 0;
