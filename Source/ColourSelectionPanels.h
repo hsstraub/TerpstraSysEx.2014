@@ -109,7 +109,7 @@ public:
             group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginControlSpace).roundToInt());
             group->trashButton.setBounds(group->editButton.getBounds().translated(halfItemWidth, 0));
 
-            Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomLeft());
+            Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomRight());
             controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
         }
 
@@ -136,18 +136,13 @@ public:
             }
         }
 
-        if (newIndex >= 0 && newIndex != lastPaletteMouseOver)
-        {
-            if (lastPaletteMouseOver >= 0 && lastPaletteMouseOver < palettes.size())
-            {
-                setControlsVisibleForPalette(lastPaletteMouseOver, false);
-            }
+        if (newIndex != lastPaletteMouseOver && lastPaletteMouseOver >= 0 && lastPaletteMouseOver < palettes.size())
+            setControlsVisibleForPalette(lastPaletteMouseOver, false);
 
-            if (newIndex < palettes.size())
-            {
-                setControlsVisibleForPalette(newIndex, true);
-                lastPaletteMouseOver = newIndex;
-            }
+        if (newIndex >= 0 && newIndex < palettes.size())
+        {
+            setControlsVisibleForPalette(newIndex, true);
+            lastPaletteMouseOver = newIndex;
         }
     }
 
