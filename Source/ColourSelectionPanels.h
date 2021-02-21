@@ -55,21 +55,21 @@ public:
     void paint(Graphics& g) override 
     {
         ////Draws rectangles around items and margins 
-        //for (auto item : flexBox.items)
-        //{
-        //    g.setColour(Colours::red);
-        //    g.drawRect(item.currentBounds);
-
-        //    g.setColour(Colours::green);
-        //    g.drawRect(item.currentBounds.getX(), item.currentBounds.getBottom(), item.width, item.margin.bottom, 1.0f);
-
-        //    g.setColour(Colours::yellow);
-        //    g.drawRect(item.currentBounds.getX() - item.margin.left - 1, item.currentBounds.getY(), item.margin.left - 1, item.currentBounds.getHeight(), 1.0f);
-        //    g.drawRect(item.currentBounds.getRight() + 1, item.currentBounds.getY(), item.margin.right - 1, item.currentBounds.getHeight(), 1.0f);
-
-        //    g.setColour(Colours::violet);
-        //    g.drawRect(item.currentBounds.getX(), item.currentBounds.getY() - item.margin.top, item.width, item.margin.top);
-        //}
+//        for (auto item : flexBox.items)
+//        {
+//            g.setColour(Colours::red);
+//            g.drawRect(item.currentBounds);
+//
+//            g.setColour(Colours::green);
+//            g.drawRect(item.currentBounds.getX(), item.currentBounds.getBottom(), item.width, item.margin.bottom, 1.0f);
+//
+//            g.setColour(Colours::yellow);
+//            g.drawRect(item.currentBounds.getX() - item.margin.left - 1, item.currentBounds.getY(), item.margin.left - 1, item.currentBounds.getHeight(), 1.0f);
+//            g.drawRect(item.currentBounds.getRight() + 1, item.currentBounds.getY(), item.margin.right - 1, item.currentBounds.getHeight(), 1.0f);
+//
+//            g.setColour(Colours::violet);
+//            g.drawRect(item.currentBounds.getX(), item.currentBounds.getY() - item.margin.top, item.width, item.margin.top);
+//        }
     };
 
     void resized() override
@@ -91,6 +91,9 @@ public:
         }
 
         flexBox.performLayout(viewportBounds);
+        
+        float bottomMarginControlHeight = roundToInt(viewportBounds.proportionOfHeight(btmMarginCtrlScalar));
+        float bottomMarginControlSpace  = (bottomMargin - bottomMarginControlHeight) * 0.5f;
 
         for (int i = 0; i < palettes.size(); i++)
         {
@@ -102,16 +105,16 @@ public:
             label->setBounds(item.currentBounds.withTrimmedTop(itemHeight * 0.8f).toNearestInt());
 
             auto group = palettes.getUnchecked(i);
-            group->editButton.setSize(halfItemWidth, roundToInt(bottomMarginBounds.getHeight() * 0.6667f));
-            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginBounds.getHeight() - group->editButton.getHeight()).roundToInt());
+            group->editButton.setSize(halfItemWidth, bottomMarginControlHeight);
+            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginControlSpace).roundToInt());
             group->trashButton.setBounds(group->editButton.getBounds().translated(halfItemWidth, 0));
 
             Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomLeft());
             controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
         }
 
-        newPaletteBtn->setSize(itemWidth, round(bottomMargin * 0.6667f));
-        newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom());
+        newPaletteBtn->setSize(itemWidth, bottomMarginControlHeight);
+        newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom() + bottomMarginControlSpace);
     }
 
     void mouseMove(const MouseEvent& mouse) override
@@ -233,11 +236,12 @@ private:
     int lastPaletteMouseOver = -1;
 
     const float itemWidthScalar         = 0.28f;
-    const float itemHeightScalar        = 0.25981f;
+    const float itemHeightScalar        = 0.25f;
 
-    const float topMarginScalar         = 0.04167f;
-    const float bottomMarginScalar      = 0.1f;
-    const float horizontalMarginScalar  = 0.03f;
+    const float topMarginScalar         = 0.042f;
+    const float horizontalMarginScalar  = 0.025f;
+    const float bottomMarginScalar      = 0.075f;
+    const float btmMarginCtrlScalar     = 0.06f;
 
     const float buttonWidthScalar       = 0.333333f;
     const float buttonHeightScalar      = 0.166667f;
@@ -385,8 +389,6 @@ public:
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
         saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
-
-        float midY = paletteControl->getLocalBounds().getBottom() + 0.5f * (saveButton->getY() - paletteControl->getLocalBounds().getBottom());
         
         colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
         colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
