@@ -123,8 +123,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 
 	mainWindow.reset(new MainWindow());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
-
-	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+	mainWindow->restoreStateFromPropertiesFile(propertiesFile);
 
 	if (currentFile.existsAsFile())
 		openFromCurrentFile();
@@ -140,7 +139,7 @@ void TerpstraSysExApplication::shutdown()
 	propertiesFile->setValue("RecentFiles", recentFiles.toString());
 
 	// Save state of main window
-	((MainContentComponent*)(mainWindow->getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+	mainWindow->saveStateToPropertiesFile(propertiesFile);
 
 	propertiesFile->saveIfNeeded();
 	delete propertiesFile;

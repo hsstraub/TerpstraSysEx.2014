@@ -110,7 +110,7 @@ public:
 			setVisible(true);
 		}
 
-		void closeButtonPressed()
+		void closeButtonPressed() override
 		{
 			// This is called when the user tries to close this window. Here, we'll just
 			// ask the app to quit when this happens, but you can change this to do
@@ -129,6 +129,24 @@ public:
 		you really have to override any DocumentWindow methods, make sure your
 		subclass also calls the superclass's method.
 		*/
+
+		void saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+		{
+			// Save state of main window
+			propertiesFile->setValue("MainWindowState", getWindowStateAsString());
+			((MainContentComponent*)(getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+		}
+
+		void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+		{
+			if (!restoreWindowStateFromString(propertiesFile->getValue("MainWindowState")))
+			{
+				// Default window state
+				setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
+			}
+
+			((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+		}
 
 	private:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
