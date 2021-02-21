@@ -72,7 +72,7 @@ void DeviceActivityMonitor::pingNextOutput()
 {
     pingOutputIndex++;
 
-    if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size())
+    if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
     {
         DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
         TerpstraSysExApplication::getApp().getMidiDriver().sendMessageNow(monitorMessage);
