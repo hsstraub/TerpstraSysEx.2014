@@ -209,7 +209,6 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
                     // Delete previous version to ensure name is up to date.
                     // This is optional - palettes can retain file name and have palette 
                     // name changed if that's preferred behavior
-
                     File paletteFile = palette->getPalette()->getPathToFile();
                     if (paletteFile.existsAsFile())
                     {
@@ -219,9 +218,9 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
                         paletteFile = paletteFile.getParentDirectory().getChildFile(newName).withFileExtension("ltp");
                         palette->getPalette()->setPathToFile(paletteFile.getFullPathName());
                     }
-
-                    palette->setPaletteName(newName);
                 }
+
+                palette->setPaletteName(newName);
             }
             else
                 jassert(true); // Something bad happened!
