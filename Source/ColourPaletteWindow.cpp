@@ -54,7 +54,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 }
 
 ColourPaletteWindow::~ColourPaletteWindow()
-{
+{ 
     paletteGroup.removeSelector(customPickerPanel.get());
     for (auto p : filledPalettes)
     {
@@ -120,9 +120,12 @@ void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
     paletteGroup.removeSelector(filledPalettes[paletteIndexToRemove]->palette);
 
     filledPalettes.remove(paletteIndexToRemove);
+
+    String deletedPalette = colourPalettes[paletteIndexToRemove].getPathToFile();
     colourPalettes.remove(paletteIndexToRemove);
-    
-    TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneEditorColourPalette::paletteArrayToString(colourPalettes));
+
+    TerpstraSysExApplication::getApp().deletePaletteFile(deletedPalette);
+
     palettePanel->rebuildPanel();
 }
 
@@ -189,23 +192,43 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
         customPickerPanel->setCurrentColour(paletteGroup.getSelectedColour());
     }
 
-    // Palette editting finished
+    // Palette editing finished
     else if (source == paletteEditPanel.get())
     {
         if (paletteEditPanel->wasSaveRequested())
         {
             if (paletteIndexEditing >= 0 && paletteIndexEditing < filledPalettes.size())
             {
-                auto palette = filledPalettes[paletteIndexEditing];
-                palette->palette->setColourPalette(paletteEditPanel->getCurrentPalette());
-                palette->palette->setPaletteName(paletteEditPanel->getPaletteName());
-                palettePanel->rebuildPanel();
+                auto palette = filledPalettes[paletteIndexEditing]->palette;
+                palette->setColourPalette(paletteEditPanel->getCurrentPalette());
+
+                String newName = paletteEditPanel->getPaletteName();
+                // File name handling if palette already exists
+                if (File::isAbsolutePath(palette->getPalette()->getPathToFile()) && palette->getPaletteName() != newName)
+                {
+                    // Delete previous version to ensure name is up to date.
+                    // This is optional - palettes can retain file name and have palette 
+                    // name changed if that's preferred behavior
+
+                    File paletteFile = palette->getPalette()->getPathToFile();
+                    if (paletteFile.existsAsFile())
+                    {
+                        paletteFile.deleteFile();
+
+                        // Rename file with new palette name
+                        paletteFile = paletteFile.getParentDirectory().getChildFile(newName).withFileExtension("ltp");
+                        palette->getPalette()->setPathToFile(paletteFile.getFullPathName());
+                    }
+
+                    palette->setPaletteName(newName);
+                }
             }
             else
                 jassert(true); // Something bad happened!
 
             // Save to properties
-            TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("ColourPalettes", LumatoneEditorColourPalette::paletteArrayToString(colourPalettes));
+            TerpstraSysExApplication::getApp().saveColourPalettes();
+            palettePanel->rebuildPanel();
         }
         else if (paletteEditingIsNew)
             removePalette(paletteIndexEditing);

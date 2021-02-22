@@ -52,6 +52,10 @@ public:
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
 
+	void reloadColourPalettes();
+	void saveColourPalettes();
+	bool deletePaletteFile(File pathToPalette);
+
 	// Menu functionality
 	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
 	void getAllCommands(Array <CommandID>& commands) override;
@@ -167,6 +171,10 @@ private:
 	PropertiesFile*				propertiesFile;
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
+
+	File						userDocumentsDirectory;
+	File						userMappingsDirectory;
+	File						userPalettesDirectory;
 
 	Array<LumatoneEditorColourPalette> colourPalettes;
 
