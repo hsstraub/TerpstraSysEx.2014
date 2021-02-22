@@ -230,11 +230,13 @@ void TerpstraSysExApplication::reloadColourPalettes()
 
 	colourPalettes.clear();
 
+	auto paletteSorter = LumatoneEditorPaletteSorter();
 	for (auto file : foundPaletteFiles)
 	{
 		LumatoneEditorColourPalette palette = LumatoneEditorColourPalette::loadFromFile(file);
-		colourPalettes.add(palette);
+		colourPalettes.addSorted(paletteSorter, palette);
 	}
+
 }
 
 void TerpstraSysExApplication::saveColourPalettes()
@@ -269,7 +271,7 @@ void TerpstraSysExApplication::saveColourPalettes()
 			int nameId = 0;
 
 			// One thousand should be enough...right?
-			while (paletteFile.existsAsFile() && nameId < 1000)
+			while (paletteFile.withFileExtension("ltp").existsAsFile() && nameId < 1000)
 			{
 				nameId++;
 				paletteFile = userPalettesDirectory.getChildFile("UnnamedPalette" + String(nameId));

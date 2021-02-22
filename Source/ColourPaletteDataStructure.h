@@ -80,6 +80,12 @@ struct LumatoneEditorColourPalette
 
     int size() const { return palette->size(); }
 
+    /// <summary>
+    /// The timestamp from when this was first created
+    /// </summary>
+    /// <returns>String created from Time::toISO8601()</returns>
+    String getDateCreated() const { return dateCreated; }
+
     String getPathToFile() const { return pathToFile; }
 
     void setPathToFile(String newPathToFile) { pathToFile = newPathToFile; }
@@ -207,3 +213,16 @@ private:
     // Internal use only
     String pathToFile = "";
 };
+
+class LumatoneEditorPaletteSorter : juce::DefaultElementComparator<const LumatoneEditorColourPalette&>
+{
+public:
+    static int compareElements(const LumatoneEditorColourPalette& first, const LumatoneEditorColourPalette& second)
+    {
+        // Reverse chronological sort
+        Time t0 = Time::fromISO8601(first.getDateCreated());
+        Time t1 = Time::fromISO8601(second.getDateCreated());
+        return (t1 < t0) ? -1 : ((t0 < t1) ? 1 : 0);
+    }
+};
+
