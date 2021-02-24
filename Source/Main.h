@@ -53,7 +53,7 @@ public:
 	int getOctaveBoardSize() const { return octaveBoardSize; }
 
 	void reloadColourPalettes();
-	void saveColourPalettes();
+	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
 	bool deletePaletteFile(File pathToPalette);
 
 	// Menu functionality

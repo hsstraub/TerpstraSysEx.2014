@@ -226,7 +226,7 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
 
 void TerpstraSysExApplication::reloadColourPalettes()
 {
-	auto foundPaletteFiles = userPalettesDirectory.findChildFiles(File::TypesOfFileToFind::findFiles, true, "*.ltp");
+	auto foundPaletteFiles = userPalettesDirectory.findChildFiles(File::TypesOfFileToFind::findFiles, true, '*' + String(PALETTEFILEEXTENSION));
 
 	colourPalettes.clear();
 
@@ -239,51 +239,42 @@ void TerpstraSysExApplication::reloadColourPalettes()
 
 }
 
-void TerpstraSysExApplication::saveColourPalettes()
+bool TerpstraSysExApplication::saveColourPalette(LumatoneEditorColourPalette& palette, File pathToFile)
 {
-	MessageManagerLock mml;
+	bool success = false;
 
-	for (int i = 0; i < colourPalettes.size(); i++)
+	if (palette.hasBeenModified())
 	{
-		LumatoneEditorColourPalette& palette = colourPalettes.getReference(i);
-
 		ValueTree paletteNode = palette.toValueTree();
-		String pathToPalette = palette.getPathToFile();
-
-		File paletteFile;
-
-		// TODO: only save modified files
-		// Update existing palette
-		if (File::isAbsolutePath(pathToPalette))
-		{
-			paletteFile = File(pathToPalette);
-		}
 
 		// New file
-		else
+		if (!pathToFile.existsAsFile())
 		{
-			if (palette.name != String())
-				paletteFile = userPalettesDirectory.getChildFile(palette.name);
+			if (palette.getName() != String())
+				pathToFile = userPalettesDirectory.getChildFile(palette.getName());
 			else
-				paletteFile = userPalettesDirectory.getChildFile("UnnamedPalette");
+				pathToFile = userPalettesDirectory.getChildFile("UnnamedPalette");
 
 			// Make sure filename is unique since saving happens automatically
 			int nameId = 0;
 
 			// One thousand should be enough...right?
-			while (paletteFile.withFileExtension("ltp").existsAsFile() && nameId < 1000)
+			while (pathToFile.withFileExtension(PALETTEFILEEXTENSION).existsAsFile() && nameId < 1000)
 			{
 				nameId++;
-				paletteFile = userPalettesDirectory.getChildFile("UnnamedPalette" + String(nameId));
+				pathToFile = userPalettesDirectory.getChildFile("UnnamedPalette" + String(nameId));
 			}
-
-			palette.setPathToFile(paletteFile.getFullPathName());
 		}
 
-		bool success = paletteFile.withFileExtension("ltp").replaceWithText(paletteNode.toXmlString());
-
+		 success = palette.saveToFile(pathToFile);
+			
 		// TODO error handling?
 	}
+
+	if (success)
+		reloadColourPalettes();
+
+	return success;
 }
 
 bool TerpstraSysExApplication::deletePaletteFile(File pathToPalette)
