@@ -13,7 +13,7 @@
 
 namespace LumatoneEditorPaletteIds
 {
-    static Identifier libraryId         = Identifier("PaletteLibrary");
+    static Identifier libraryId         = Identifier("PaletteLibrary"); // Currently unused
     static Identifier paletteId         = Identifier("ColourPalette");
     static Identifier swatchId          = Identifier("Swatch");
     static Identifier colourId          = Identifier("Colour");
@@ -24,17 +24,20 @@ namespace LumatoneEditorPaletteIds
     static Identifier notesId           = Identifier("Notes");
 }
 
+#define PALETTEFILEEXTENSION ".ltp"
+#define DEFAULTPALETTESIZE 10
+
 //==============================================================================
 /*
 * Container for colour palette data
 */
-struct LumatoneEditorColourPalette
+class LumatoneEditorColourPalette
 {
-
+public:
     LumatoneEditorColourPalette(String paletteName="")
     {
-        colourPalette.reset(new Array<Colour>());
-        palette = colourPalette.get();
+        colourPalette.resize(DEFAULTPALETTESIZE);
+        colourPalette.fill(Colour(0xff1b1b1b));
         name = paletteName;
         dateCreated = Time::getCurrentTime().toISO8601(false);
     }
@@ -42,8 +45,7 @@ struct LumatoneEditorColourPalette
     LumatoneEditorColourPalette(Array<Colour> colourPaletteIn, String paletteName="")
         : LumatoneEditorColourPalette(paletteName)
     {
-        palette->clear();
-        palette->addArray(colourPaletteIn);
+        setColours(colourPaletteIn);
     }
 
     LumatoneEditorColourPalette(Array<Colour> colourPaletteIn, String paletteName, String paletteAuthor, String paletteNotes="")
@@ -53,32 +55,20 @@ struct LumatoneEditorColourPalette
         author = paletteAuthor;
         notes = paletteNotes;
 
-        palette->clear();
-        palette->addArray(colourPaletteIn);
+        setColours(colourPaletteIn);
     }
 
-    LumatoneEditorColourPalette(const LumatoneEditorColourPalette& paletteToCopy) : LumatoneEditorColourPalette() { *this = paletteToCopy; }
+    int size() const { return colourPalette.size(); }
 
-    ~LumatoneEditorColourPalette()
-    {
-        palette = nullptr;
-        colourPalette = nullptr;
-    }
+    Array<Colour>* getColours() { return &colourPalette; }
 
-    void operator=(const LumatoneEditorColourPalette& paletteToCopy)
-    {
-        this->palette->clear();
-        this->palette->addArray(*paletteToCopy.palette);
+    String getName() const { return name; }
 
-        this->name          = paletteToCopy.name;
-        this->author        = paletteToCopy.author;
-        this->notes         = paletteToCopy.notes;
-        this->dateCreated   = paletteToCopy.dateCreated;
+    String getAuthor() const { return author; }
 
-        this->pathToFile    = paletteToCopy.pathToFile;
-    }
+    String getNotes() const { return notes; }
 
-    int size() const { return palette->size(); }
+    bool hasBeenModified() const { return modifiedSinceLastSave; }
 
     /// <summary>
     /// The timestamp from when this was first created
@@ -88,7 +78,55 @@ struct LumatoneEditorColourPalette
 
     String getPathToFile() const { return pathToFile; }
 
-    void setPathToFile(String newPathToFile) { pathToFile = newPathToFile; }
+    void setColours(const Array<Colour>& newColourPalette)
+    {
+        setModifiedIfChanged(colourPalette, newColourPalette);
+
+        colourPalette.clear();
+        colourPalette.addArray(newColourPalette);
+    }
+
+    void setName(String nameIn)     { setModifiedIfChanged(name, nameIn); name = nameIn; }
+
+    void setAuthor(String authorIn) { setModifiedIfChanged(author, authorIn); author = authorIn; }
+
+    void setNotes(String notesIn)   { setModifiedIfChanged(notes, notesIn); notes = notesIn; }
+
+    /// <summary>
+    /// Save palette to a .ltp file (and update internal file path)
+    /// Warning: deletes old version regardless if file path is not different from the previous version
+    /// </summary>
+    /// <param name="fileToSaveTo"></param>
+    /// <param name="deleteOldVersion"></param>
+    bool saveToFile(File fileToSaveTo, bool deleteOldVersion = true)
+    {
+        // Make sure it has proper extension
+        fileToSaveTo = fileToSaveTo.withFileExtension(PALETTEFILEEXTENSION);
+
+        if (fileToSaveTo.getFullPathName() == pathToFile)
+            deleteOldVersion = true;
+
+        if (deleteOldVersion)
+        {
+            File originalFile = pathToFile;
+
+            if (originalFile.existsAsFile())
+                originalFile.deleteFile();
+        }
+
+        if (!fileToSaveTo.existsAsFile())
+            fileToSaveTo.create();
+
+        if (fileToSaveTo.replaceWithText(toValueTree().toXmlString()))
+        {
+            modifiedSinceLastSave = false;
+            pathToFile = fileToSaveTo.getFullPathName();
+
+            return true;
+        }
+
+        return false;
+    }
 
     ValueTree toValueTree() const
     {
@@ -98,7 +136,7 @@ struct LumatoneEditorColourPalette
         node.setProperty(LumatoneEditorPaletteIds::dateCreatedId, dateCreated, nullptr);
         node.setProperty(LumatoneEditorPaletteIds::notesId, notes, nullptr);
 
-        for (auto c : *colourPalette)
+        for (auto c : colourPalette)
         {
             ValueTree swatch(LumatoneEditorPaletteIds::swatchId);
             swatch.setProperty(LumatoneEditorPaletteIds::colourId, c.toString(), nullptr);
@@ -108,18 +146,7 @@ struct LumatoneEditorColourPalette
         return node;
     }
 
-    String toString() const
-    {
-        return toValueTree().toXmlString();
-    }
-
-    //==============================================================================
-    // Public members
-
-    Array<Colour>* palette;
-    String name = "";
-    String author = "";
-    String notes = "";
+    String toString() const { return toValueTree().toXmlString(); }
 
     //==============================================================================
     // Palette static methods
@@ -146,6 +173,8 @@ struct LumatoneEditorColourPalette
 
             if (paletteNode[LumatoneEditorPaletteIds::dateCreatedId].toString() != String())
                 loadedPalette.dateCreated = paletteNode[LumatoneEditorPaletteIds::dateCreatedId];
+
+            loadedPalette.modifiedSinceLastSave = false;
         }
 
         return loadedPalette;
@@ -171,47 +200,24 @@ struct LumatoneEditorColourPalette
         return loadedPalette;
     }
 
-    //==============================================================================
-    // Palette Library based static methods, currently unused in favor of separate palette files
+private:
 
-    //static String paletteArrayToString(const Array<LumatoneEditorColourPalette>& palettes)
-    //{
-    //    ValueTree libraryNode(LumatoneEditorPaletteIds::libraryId);
-
-    //    for (int p = 0; p < palettes.size(); p++)
-    //    {
-    //        libraryNode.appendChild(palettes[p].toValueTree(), nullptr);
-    //    }
-
-    //    return libraryNode.toXmlString();
-    //}
-
-    //static Array<LumatoneEditorColourPalette> loadPalettesFromString(String stringIn)
-    //{
-    //    ValueTree libraryNode = ValueTree::fromXml(stringIn);
-    //    return loadPalettesFromNode(libraryNode);
-    //}
-
-    //static Array<LumatoneEditorColourPalette> loadPalettesFromNode(ValueTree nodeIn)
-    //{
-    //    Array<LumatoneEditorColourPalette> library;
-
-    //    if (nodeIn.hasType(LumatoneEditorPaletteIds::libraryId))
-    //    {
-    //        for (auto palette : nodeIn)
-    //            library.add(LumatoneEditorColourPalette(palette));
-    //    }
-
-    //    return library;
-    //}
+    template <class T>
+    void setModifiedIfChanged(const T& originalValue, const T& newValue) { if (originalValue != newValue) modifiedSinceLastSave = true; }
 
 private:
     
-    std::unique_ptr<Array<Colour>> colourPalette;
+    Array<Colour> colourPalette;
+    
+    String name = "";
+    String author = "";
+    String notes = "";
+
     String dateCreated = "";
 
     // Internal use only
     String pathToFile = "";
+    bool modifiedSinceLastSave = true;
 };
 
 class LumatoneEditorPaletteSorter : juce::DefaultElementComparator<const LumatoneEditorColourPalette&>
@@ -225,4 +231,3 @@ public:
         return (t1 < t0) ? -1 : ((t0 < t1) ? 1 : 0);
     }
 };
-
