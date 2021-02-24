@@ -19,20 +19,8 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 {
     setName("ColourPaletteWindow");
 
-    // Generate palettes that are filled with saved palettes, or filler palettes to preserve layout
-    for (int p = 0; p < colourPalettes.size(); p++)
-    {
-        LumatoneEditorColourPalette& palette = colourPalettes.getReference(p);
-        createAndListenToPaletteControls(palette);
-    }
-
-    newPaletteVisual.reset(new ColourPaletteComponent("EmptyPalette"));
-    newPaletteButton.reset(new TextButton("NewButton", translate("NewPaletteTip")));
-    newPaletteButton->setButtonText(translate("NewPalette"));
-    newPaletteButton->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
-    newPaletteButton->addListener(this);
-
-    palettePanel.reset(new ColourPalettesPanel(filledPalettes, newPaletteVisual.get(), newPaletteButton.get())); 
+    palettePanel.reset(new ColourPalettesPanel(colourPalettes, &paletteGroup));
+    palettePanel->addListener(this);
 
     palettePanelViewport.reset(new Viewport("PalettePanelViewport"));
     palettePanelViewport->setViewedComponent(palettePanel.get(), false);
@@ -40,6 +28,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     palettePanelViewport->getVerticalScrollBar().setColour(ScrollBar::ColourIds::thumbColourId, Colour(0xff2d3135));
 
     customPickerPanel.reset(new CustomPickerPanel());
+    paletteGroup.addSelector(customPickerPanel.get());
 
     colourToolTabs.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
     colourToolTabs->setName("ColourSelectionToolTabs");
@@ -48,39 +37,18 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     colourToolTabs->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
     addAndMakeVisible(*colourToolTabs);
 
-    paletteGroup.addSelector(customPickerPanel.get()); 
-
     colourToolTabs->getTabbedButtonBar().addChangeListener(this);
 }
 
 ColourPaletteWindow::~ColourPaletteWindow()
 { 
     paletteGroup.removeSelector(customPickerPanel.get());
-    for (auto p : filledPalettes)
-    {
-        paletteGroup.removeSelector(p->palette);
-    }
-    
-    filledPalettes.clear();
 
     palettePanelViewport    = nullptr;
     colourToolTabs          = nullptr;
     palettePanel            = nullptr;
     customPickerPanel       = nullptr;
     paletteEditPanel        = nullptr;
-    newPaletteVisual        = nullptr;
-    newPaletteButton        = nullptr;
-}
-
-int ColourPaletteWindow::createAndListenToPaletteControls(LumatoneEditorColourPalette& paletteIn)
-{
-    auto group = filledPalettes.add(new PaletteControlGroup(paletteIn));
-    group->editButton.addListener(this);
-    group->trashButton.addListener(this);
-
-    paletteGroup.addSelector(group->palette);
-
-    return filledPalettes.size() - 1;
 }
 
 void ColourPaletteWindow::resized()
@@ -95,93 +63,59 @@ void ColourPaletteWindow::resized()
         palettePanelViewport->getMaximumVisibleWidth(),
         palettePanelViewport->getMaximumVisibleHeight()
     );
-    palettePanel->rebuildPanel();
+    palettePanel->rebuildPanel(colourPalettes);
 }
 
-void ColourPaletteWindow::startEditingPalette(int paletteIndexIn)
+void ColourPaletteWindow::startEditingPalette(int paletteIndexIn, int selectedSwatchIndex)
 {
     paletteIndexEditing = paletteIndexIn;
-    auto group = filledPalettes[paletteIndexEditing];
-
-    paletteEditPanel.reset(new PaletteEditPanel(*group->palette->getPalette()));
+    paletteEditPanel.reset(new PaletteEditPanel(colourPalettes[paletteIndexIn]));
     paletteEditPanel->setBounds(getLocalBounds());
     paletteEditPanel->setLookAndFeel(&getLookAndFeel());
     addAndMakeVisible(*paletteEditPanel);
     paletteEditPanel->addChangeListener(this);
 
     // Retain selected swatch
-    int selectedSwatch = group->palette->getSelectedSwatchNumber();
-    if (selectedSwatch >= 0)
-        paletteEditPanel->setSelectedSwatch(selectedSwatch);
+    if (selectedSwatchIndex >= 0)
+        paletteEditPanel->setSelectedSwatch(selectedSwatchIndex);
 }
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
 {
-    paletteGroup.removeSelector(filledPalettes[paletteIndexToRemove]->palette);
-
-    filledPalettes.remove(paletteIndexToRemove);
-
+    // Remove loaded colour palette
     String deletedPalette = colourPalettes[paletteIndexToRemove].getPathToFile();
     colourPalettes.remove(paletteIndexToRemove);
 
     TerpstraSysExApplication::getApp().deletePaletteFile(deletedPalette);
 
-    palettePanel->rebuildPanel();
+    palettePanel->rebuildPanel(colourPalettes);
 }
 
-int ColourPaletteWindow::findEditButtonIndex(Button* buttonIn)
+void ColourPaletteWindow::editPaletteRequested(int paletteIndex, int selectedSwatchIndex)
 {
-    for (int i = 0; i < filledPalettes.size(); i++)
-        if (&filledPalettes[i]->editButton == buttonIn)
-            return i;
-    return -1;
+    if (paletteIndex >= 0 && paletteIndex < colourPalettes.size())
+    {
+        startEditingPalette(paletteIndex, selectedSwatchIndex);
+    }
+    else
+        jassert(true); // Something bad happened!   
 }
 
-int ColourPaletteWindow::findTrashButtonIndex(Button* buttonIn)
+void ColourPaletteWindow::deletePaletteRequested(int paletteIndex)
 {
-    for (int i = 0; i < filledPalettes.size(); i++)
-        if (&filledPalettes[i]->trashButton == buttonIn)
-            return i;
-    return -1;
+    if (paletteIndex >= 0 && paletteIndex < colourPalettes.size())
+    {
+        removePalette(paletteIndex);
+    }
+    else
+        jassert(true); // Something bad happened!
 }
 
-void ColourPaletteWindow::buttonClicked(Button* btn)
+void ColourPaletteWindow::newPaletteRequested()
 {
-    // Begin editing a palette
-    if (btn->getName().startsWith("Edit"))
-    {
-        int paletteIndex = findEditButtonIndex(btn);
-        if (paletteIndex >= 0 && paletteIndex < filledPalettes.size())
-        {
-            startEditingPalette(paletteIndex);
-        }
-        else
-            jassert(true); // Something bad happened!   
-    }
-
-    // Create new palette and edit
-    else if (btn->getName().startsWith("New"))
-    {
-        paletteEditingIsNew = true;
-
-        colourPalettes.add(LumatoneEditorColourPalette());
-
-        startEditingPalette(
-            createAndListenToPaletteControls(colourPalettes.getReference(colourPalettes.size() - 1))
-        );
-    }
-
-    // Delete palette
-    else if (btn->getName().startsWith("Trash"))
-    {
-        int paletteIndex = findTrashButtonIndex(btn);
-        if (paletteIndex >= 0 && paletteIndex < filledPalettes.size())
-        {
-            removePalette(paletteIndex);
-        }
-        else
-            jassert(true); // Something bad happened!
-    }
+    paletteEditingIsNew = true;
+    colourPalettes.insert(0, LumatoneEditorColourPalette());
+    startEditingPalette(0);
 }
 
 void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
@@ -197,37 +131,46 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
     {
         if (paletteEditPanel->wasSaveRequested())
         {
-            if (paletteIndexEditing >= 0 && paletteIndexEditing < filledPalettes.size())
+            if (paletteIndexEditing >= 0 && paletteIndexEditing < colourPalettes.size())
             {
-                auto palette = filledPalettes[paletteIndexEditing]->palette;
-                palette->setColourPalette(paletteEditPanel->getCurrentPalette());
+                auto palette = colourPalettes.getReference(paletteIndexEditing);
+                palette.setColours(paletteEditPanel->getCurrentPalette());
 
                 String newName = paletteEditPanel->getPaletteName();
-                // File name handling if palette already exists
-                if (File::isAbsolutePath(palette->getPalette()->getPathToFile()) && palette->getPaletteName() != newName)
-                {
-                    // Delete previous version to ensure name is up to date.
-                    // This is optional - palettes can retain file name and have palette 
-                    // name changed if that's preferred behavior
-                    File paletteFile = palette->getPalette()->getPathToFile();
-                    if (paletteFile.existsAsFile())
-                    {
-                        paletteFile.deleteFile();
 
-                        // Rename file with new palette name
-                        paletteFile = paletteFile.getParentDirectory().getChildFile(newName).withFileExtension("ltp");
-                        palette->getPalette()->setPathToFile(paletteFile.getFullPathName());
+                // TODO: Move this elsewhere?
+                String paletteFilePath = palette.getPathToFile();
+                File paletteFile;
+                // File name handling if palette already exists
+                if (File::isAbsolutePath(paletteFilePath))
+                {
+                    paletteFile = paletteFilePath;
+
+                    if (palette.getName() != newName)
+                    {
+                        // Delete previous version to ensure name is up to date.
+                        // This is optional - palettes can retain file name and have palette 
+                        // name changed if that's preferred behavior
+                        if (paletteFile.existsAsFile())
+                        {
+                            paletteFile.deleteFile();
+
+                            // Rename file with new palette name
+                            paletteFile = paletteFile.getSiblingFile(newName).withFileExtension(PALETTEFILEEXTENSION);
+                        }
                     }
                 }
 
-                palette->setPaletteName(newName);
+                palette.setName(newName);
+
+                // Save to properties
+                TerpstraSysExApplication::getApp().saveColourPalette(palette, paletteFile);
             }
             else
                 jassert(true); // Something bad happened!
 
-            // Save to properties
-            TerpstraSysExApplication::getApp().saveColourPalettes();
-            palettePanel->rebuildPanel();
+
+            palettePanel->rebuildPanel(colourPalettes);
         }
         else if (paletteEditingIsNew)
             removePalette(paletteIndexEditing);
