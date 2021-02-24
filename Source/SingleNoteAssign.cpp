@@ -40,7 +40,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo.reset(new juce::ComboBox("keyTypeCombo"));
     addAndMakeVisible(keyTypeCombo.get());
     keyTypeCombo->setTextWhenNothingSelected(juce::String());
-    keyTypeCombo->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
+    keyTypeCombo->setTextWhenNoChoicesAvailable(translate("(no choices)"));
     keyTypeCombo->addItem(translate("NoteOnOff"), 1);
     keyTypeCombo->addItem(translate("ContinuousController"), 2);
     keyTypeCombo->addItem("Lumatouch", 3);
@@ -61,7 +61,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     setNoteToggleButton.reset(new juce::ToggleButton("setNoteToggleButton"));
     addAndMakeVisible(setNoteToggleButton.get());
-	setNoteToggleButton->setButtonText(TRANS("Note # (0-127):"));
+	setNoteToggleButton->setButtonText(translate("Note # (0-127):"));
     setNoteToggleButton->addListener(this);
     setNoteToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
@@ -88,35 +88,39 @@ SingleNoteAssign::SingleNoteAssign ()
     channelAutoIncrButton->addListener(this);
     channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
-    channelAutoIncrNoteBox.reset(new juce::ComboBox("channelAutoIncrNoteBox"));
-    addAndMakeVisible(channelAutoIncrNoteBox.get());
-    channelAutoIncrNoteBox->setTooltip(TRANS("After reaching this note, the channel is incremented and the note is reset to 0."));
-    channelAutoIncrNoteBox->setTextWhenNothingSelected(juce::String());
-    channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-    channelAutoIncrNoteBox->addListener(this);
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
 
     noteInput.reset (new juce::Slider ("noteInput"));
     addAndMakeVisible (noteInput.get());
-    noteInput->setTooltip (TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
+    noteInput->setTooltip (translate("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
     noteInput->setRange (0, 127, 1);
     noteInput->setSliderStyle (juce::Slider::IncDecButtons);
-    noteInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    noteInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 72, 20);
     noteInput->addListener (this);
 
-    noteInput->setBounds (120, 128, 80, 24);
+    noteInput->setBounds (120, 128, 72, 24);
 
     channelInput.reset (new juce::Slider ("channelInput"));
     addAndMakeVisible (channelInput.get());
-    channelInput->setTooltip (TRANS("MIDI channel (1-16)"));
+    channelInput->setTooltip (translate("MIDI channel (1-16)"));
     channelInput->setRange (1, 16, 1);
     channelInput->setSliderStyle (juce::Slider::IncDecButtons);
-    channelInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    channelInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 72, 20);
     channelInput->addListener (this);
 
-    channelInput->setBounds (120, 160, 80, 24);
+    channelInput->setBounds (120, 160, 72, 24);
+
+	channelAutoIncrNoteInput.reset (new juce::Slider ("channelAutoIncrNoteInput"));
+    addAndMakeVisible (channelAutoIncrNoteInput.get());
+    channelAutoIncrNoteInput->setTooltip (translate("After reaching this note, the channel is incremented and the note is reset to 0."));
+    channelAutoIncrNoteInput->setRange (0, 127, 1);
+    channelAutoIncrNoteInput->setSliderStyle (juce::Slider::IncDecButtons);
+    channelAutoIncrNoteInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 72, 20);
+    channelAutoIncrNoteInput->addListener (this);
+
+    channelAutoIncrNoteInput->setBounds (176, 264, 72, 24);
 
 
     //[UserPreSize]
@@ -127,11 +131,6 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[Constructor] You can add your own custom stuff here..
-	for (int i = 0; i <= 127; i++)
-	{
-		channelAutoIncrNoteBox->addItem(String(i), i + 1);
-	}
-
 	setNoteToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
@@ -144,12 +143,10 @@ SingleNoteAssign::~SingleNoteAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	colourSubwindow = nullptr;
-    autoIncrementLabel = nullptr;
     //[/Destructor_pre]
 
     noteAutoIncrButton = nullptr;
     channelAutoIncrButton = nullptr;
-    channelAutoIncrNoteBox = nullptr;
     setNoteToggleButton = nullptr;
     setChannelToggleButton = nullptr;
     setColourToggleButton = nullptr;
@@ -157,6 +154,8 @@ SingleNoteAssign::~SingleNoteAssign()
     keyTypeCombo = nullptr;
     noteInput = nullptr;
     channelInput = nullptr;
+    channelAutoIncrNoteInput = nullptr;
+    autoIncrementLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -217,7 +216,7 @@ void SingleNoteAssign::resized()
     int rightMarginX = marginX * 2 - halfMarginX;
 
     parametersFont.setHeight(toggleHeight * 1.25f);
-    int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
+    //int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
 
     keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
@@ -266,9 +265,9 @@ void SingleNoteAssign::resized()
 
     channelAutoIncrButton->setTopLeftPosition(controlsX, noteAutoIncrButton->getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(channelAutoIncrButton.get(), parametersFont, toggleHeight);
-    channelAutoIncrNoteBox->setSize(comboBoxWidth, controlH);
-    channelAutoIncrNoteBox->setCentrePosition(
-        round(channelAutoIncrNoteBox->getWidth() / 2.0f) + channelAutoIncrButton->getRight(),
+    channelAutoIncrNoteInput->setSize(channelAutoIncrNoteInput->getWidth(), controlH);
+	channelAutoIncrNoteInput->setCentrePosition(
+        round(channelAutoIncrNoteInput->getWidth() / 2.0f) + channelAutoIncrButton->getRight(),
         channelAutoIncrButton->getBounds().getCentreY()
     );
     //[/UserPreResize]
@@ -282,12 +281,7 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
 
-	if (comboBoxThatHasChanged == channelAutoIncrNoteBox.get())
-    {
-        //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_channelAutoIncrNoteBox]
-    }
-    else if (comboBoxThatHasChanged == keyTypeCombo.get())
+	if (comboBoxThatHasChanged == keyTypeCombo.get())
     {
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
 
@@ -339,7 +333,7 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 		bool fieldActive = setChannelToggleButton->getToggleState();
 		channelInput->setEnabled(fieldActive);
 		channelAutoIncrButton->setEnabled(fieldActive);
-		channelAutoIncrNoteBox->setEnabled(fieldActive);
+		channelAutoIncrNoteInput->setEnabled(fieldActive);
         //[/UserButtonCode_setChannelToggleButton]
     }
     else if (buttonThatWasClicked == setColourToggleButton.get())
@@ -377,6 +371,11 @@ void SingleNoteAssign::sliderValueChanged (juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_channelInput] -- add your slider handling code here..
         //[/UserSliderCode_channelInput]
     }
+    else if (sliderThatWasMoved == channelAutoIncrNoteInput.get())
+    {
+        //[UserSliderCode_channelAutoIncrNoteInput] -- add your slider handling code here..
+        //[/UserSliderCode_channelAutoIncrNoteInput]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -392,7 +391,7 @@ void SingleNoteAssign::lookAndFeelChanged()
     {
         //lookAndFeel->setupSlider(*noteInput);
         //lookAndFeel->setupSlider(*channelInput);
-        lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
+        //lookAndFeel->setupSlider(*channelAutoIncrNoteInput);
         lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
@@ -450,8 +449,8 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		int newNote = keyData.noteNumber + 1;
 
 		// Auto increment channel
-		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
-			newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
+		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteInput->getValue() > 0 &&
+			newNote > channelAutoIncrNoteInput->getValue())
 		{
 			newNote = 0;
 			int newChannel = keyData.channelNumber + 1;
@@ -519,21 +518,12 @@ BEGIN_JUCER_METADATA
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="320"
                  initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 8 304 32" edTextCol="ff000000"
-         edBkgCol="0" labelText="Define which values you'd like to apply to a key, and then click on the desired key-face"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 232 160 24" buttonText="Notes-Per-Click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="channelAutoIncrButton" id="1749290d10236ec3" memberName="channelAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 264 160 24" buttonText="Channels, after Note #"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <COMBOBOX name="channelAutoIncrNoteBox" id="4560285c5e467e2f" memberName="channelAutoIncrNoteBox"
-            virtualName="" explicitFocusOrder="0" pos="176 264 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
-            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note # (0-127):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
@@ -550,18 +540,26 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="120 64 192 24" editable="0"
             layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <GROUPCOMPONENT name="autoIncrementgroup" id="249745a33736e282" memberName="juce__groupComponent"
-                  virtualName="" explicitFocusOrder="0" pos="0 209 240 95" title="Auto-Increment:"/>
   <SLIDER name="noteInput" id="1f80893edc791111" memberName="noteInput"
-          virtualName="" explicitFocusOrder="0" pos="120 128 80 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
+          virtualName="" explicitFocusOrder="0" pos="120 128 72 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
           min="0.0" max="127.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          textBoxEditable="1" textBoxWidth="72" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <SLIDER name="channelInput" id="ec7750e8db204963" memberName="channelInput"
-          virtualName="" explicitFocusOrder="0" pos="120 160 80 24" tooltip="MIDI channel (1-16)"
+          virtualName="" explicitFocusOrder="0" pos="120 160 72 24" tooltip="MIDI channel (1-16)"
           min="1.0" max="16.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          textBoxEditable="1" textBoxWidth="72" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
+  <SLIDER name="channelAutoIncrNoteInput" id="3e1517e7357c3cb3" memberName="channelAutoIncrNoteInput"
+          virtualName="" explicitFocusOrder="0" pos="176 264 72 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
+          min="0.0" max="127.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="72" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <LABEL name="autoIncrementLabel" id="3115c15c5103263f" memberName="autoIncrementLabel"
+         virtualName="" explicitFocusOrder="0" pos="16 200 150 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="AutoIncrement" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

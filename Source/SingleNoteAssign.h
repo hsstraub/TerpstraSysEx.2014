@@ -103,10 +103,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> autoIncrementLabel;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
-    std::unique_ptr<juce::ComboBox> channelAutoIncrNoteBox;
     std::unique_ptr<juce::ToggleButton> setNoteToggleButton;
     std::unique_ptr<juce::ToggleButton> setChannelToggleButton;
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
@@ -114,6 +112,8 @@ private:
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
     std::unique_ptr<juce::Slider> noteInput;
     std::unique_ptr<juce::Slider> channelInput;
+    std::unique_ptr<juce::Slider> channelAutoIncrNoteInput;
+    std::unique_ptr<juce::Label> autoIncrementLabel;
 
 
     //==============================================================================
