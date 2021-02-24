@@ -21,50 +21,23 @@ ColourPaletteComponent::ColourPaletteComponent(String nameIn)
     setColourPalette(Array<Colour>());
 }
 
-ColourPaletteComponent::ColourPaletteComponent(LumatoneEditorColourPalette* paletteIn)
+ColourPaletteComponent::ColourPaletteComponent(LumatoneEditorColourPalette paletteIn)
     : TenHexagonPalette()
 {
-    if (paletteIn)
-    {
-        referencedPalette = paletteIn;
-
-        setName(referencedPalette->name);
-        setColourPalette(*referencedPalette->palette);
-    }
-    else
-    {
-        setName("ColourPaletteComponent");
-        setColourPalette(Array<Colour>());
-    }
+    setName(paletteIn.getName());
+    setColourPalette(*paletteIn.getColours());
 }
 
 ColourPaletteComponent::ColourPaletteComponent(const ColourPaletteComponent& paletteToCopy)
     : TenHexagonPalette()
 {
     setName(paletteToCopy.getName());
-    referencedPalette = paletteToCopy.referencedPalette;
-    setColourPalette(*referencedPalette->palette);
+    setColourPalette(paletteToCopy.getColourPalette());
 }
 
 ColourPaletteComponent::~ColourPaletteComponent()
 {
     
-}
-
-//==========================================================================
-
-String ColourPaletteComponent::getPaletteName() const
-{
-    if (referencedPalette)
-        return referencedPalette->name;
-    else
-        return String();
-}
-
-void ColourPaletteComponent::setPaletteName(String nameIn)
-{
-    if (referencedPalette)
-        referencedPalette->name = nameIn;
 }
 
 //==========================================================================
@@ -79,9 +52,6 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
 {
     if (colourPaletteIn.size() == 0)
     {
-        for (int i = 0; i < getNumberOfSwatches(); i++)
-            colourPaletteIn.add(Colour(0xff1b1b1b));
-
         setEnabled(false);
     }
     else
@@ -89,10 +59,12 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
         setEnabled(true);
     }
 
-    Palette::setColourPalette(colourPaletteIn);
+    while (colourPaletteIn.size() < getNumberOfSwatches())
+    {
+        colourPaletteIn.add(Colour(0xff1b1b1b));
+    }
 
-    if (referencedPalette)
-        *referencedPalette->palette = colourPaletteIn;
+    Palette::setColourPalette(colourPaletteIn);
 
     if (isEnabled())
     {
@@ -110,10 +82,6 @@ void ColourPaletteComponent::setSwatchColour(int swatchNumber, Colour newColour)
 {
     Palette::setSwatchColour(swatchNumber, newColour);
     
-    // Edit referenced palette
-    if (referencedPalette)
-        referencedPalette->palette->set(swatchNumber, newColour);
-
     if (getSelectedSwatchNumber() == swatchNumber)
         selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
 }
@@ -133,10 +101,10 @@ void ColourPaletteComponent::deselectColour()
 //==============================================================================
 // PaletteControlGroup Definitions
 
-PaletteControlGroup::PaletteControlGroup(LumatoneEditorColourPalette& newPaletteIn)
-    : palette(new ColourPaletteComponent(&newPaletteIn)),
-      editButton("EditButton_" + palette->getPaletteName(), translate("EditButtonTip")),
-      trashButton("TrashButton_" + palette->getPaletteName())
+PaletteControlGroup::PaletteControlGroup(LumatoneEditorColourPalette newPaletteIn)
+    : palette(ColourPaletteComponent(newPaletteIn)),
+      editButton("EditButton_" + newPaletteIn.getName(), translate("EditButtonTip")),
+      trashButton("TrashButton_" + newPaletteIn.getName())
 {
     editButton.setButtonText("Edit");
     editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
