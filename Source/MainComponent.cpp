@@ -297,6 +297,9 @@ void MainContentComponent::buttonClicked(Button* btn)
 
 	if (colourEdit)
 	{
+		// May be better asynchronous on a timer
+		TerpstraSysExApplication::getApp().reloadColourPalettes();
+
 		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
 
