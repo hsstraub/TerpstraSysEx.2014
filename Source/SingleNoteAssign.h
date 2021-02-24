@@ -37,8 +37,8 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public juce::Button::Listener,
                           public ColourSelectionListener,
+                          public juce::Button::Listener,
                           public juce::ComboBox::Listener,
                           public juce::Slider::Listener
 {
@@ -105,7 +105,6 @@ private:
     //==============================================================================
     std::unique_ptr<juce::Label> autoIncrementLabel;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
-    std::unique_ptr<juce::ComboBox> channelBox;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
     std::unique_ptr<juce::ComboBox> channelAutoIncrNoteBox;
     std::unique_ptr<juce::ToggleButton> setNoteToggleButton;
@@ -114,6 +113,7 @@ private:
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
     std::unique_ptr<juce::Slider> noteInput;
+    std::unique_ptr<juce::Slider> channelInput;
 
 
     //==============================================================================
