@@ -208,7 +208,6 @@ SingleNoteAssign::~SingleNoteAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	colourSubwindow = nullptr;
-    autoIncrementLabel = nullptr;
     //[/Destructor_pre]
 
     editInstructionText = nullptr;
@@ -290,7 +289,7 @@ void SingleNoteAssign::resized()
     instructionsBounds.setBounds(marginX, 0, w - marginX - rightMarginX, controlAreaTop);
 
     parametersFont.setHeight(toggleHeight * 1.25f);
-    int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
+    //int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
 
     keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsAreaBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
@@ -355,6 +354,34 @@ void SingleNoteAssign::resized()
     //[/UserResized]
 }
 
+void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+	if (comboBoxThatHasChanged == keyTypeCombo.get())
+    {
+        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
+
+        // Label the "note box" accordingly (controller no. for key type "Fader")
+        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        {
+            setNoteToggleButton->setButtonText("CC Type:");
+
+            // ToDo Auto increment does not make sense in this case?
+        }
+        else
+        {
+            setNoteToggleButton->setButtonText("Note (0-127):");
+        }
+
+        //[/UserComboBoxCode_keyTypeCombo]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
+}
+
 void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
@@ -407,34 +434,6 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
-{
-    //[UsercomboBoxChanged_Pre]
-    //[/UsercomboBoxChanged_Pre]
-
-    if (comboBoxThatHasChanged == keyTypeCombo.get())
-    {
-        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
-
-        // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
-        {
-            setNoteToggleButton->setButtonText("CC Type:");
-
-            // ToDo Auto increment does not make sense in this case?
-        }
-        else
-        {
-            setNoteToggleButton->setButtonText("Note # (0-127):");
-        }
-
-        //[/UserComboBoxCode_keyTypeCombo]
-    }
-
-    //[UsercomboBoxChanged_Post]
-    //[/UsercomboBoxChanged_Post]
-}
-
 void SingleNoteAssign::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
@@ -473,21 +472,6 @@ void SingleNoteAssign::lookAndFeelChanged()
     }
 }
 
-//void SingleNoteAssign::textEditorFocusLost(TextEditor& textEdit)
-//{
-//	if (&textEdit == noteInput.get())
-//	{
-//		// allowed: 0 to 127
-//		auto noteNumber = noteInput->getText().getIntValue();
-//		if (noteNumber < 0 || noteNumber > 127)
-//		{
-//			// ToDo beep to emphasize error?
-//			noteNumber = 0;
-//			noteInput->setText(String(noteNumber));
-//		}
-//	}
-//}
-
 void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
 {
     if (source == colourTextEditor.get())
@@ -507,18 +491,13 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	if (setNoteToggleButton->getToggleState())
 	{
 		keyData.noteNumber = noteInput->getValue();
-		if (keyData.noteNumber < 0 || keyData.noteNumber > 127)
-		{
-			// ToDo beep to emphasize error?
-			keyData.noteNumber = 0;
-		}
 		mappingChanged = true;
 	}
 
 	// Set channel if specified
 	if (setChannelToggleButton->getToggleState())
 	{
-		keyData.channelNumber = channelInput->getValue();	// 0 for no selection or 1-16
+		keyData.channelNumber = channelInput->getValue();	// 1-16
 		mappingChanged = true;
 	}
 
@@ -614,12 +593,6 @@ BEGIN_JUCER_METADATA
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="320"
                  initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 8 304 32" edTextCol="ff000000"
-         edBkgCol="0" labelText="Define which values you'd like to apply to a key, and then click on the desired key-face"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 232 160 24" buttonText="Notes-Per-Click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>

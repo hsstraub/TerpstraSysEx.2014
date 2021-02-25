@@ -38,7 +38,6 @@
 */
 class SingleNoteAssign  : public Component,
                           public ColourSelectionListener,
-                          public TextEditor::Listener,
                           public juce::Button::Listener,
                           public juce::ComboBox::Listener,
                           public juce::Slider::Listener
@@ -60,8 +59,6 @@ public:
 
     ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
-
-	//void textEditorFocusLost(TextEditor& textEdit) override;
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
     //[/UserMethods]
