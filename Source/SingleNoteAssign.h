@@ -98,7 +98,7 @@ private:
     const float separatorYScalar    = 0.666667f;
     const float toggleHeightScalar  = 0.034f;
     const float controlHeightScalar = 0.0647f;
-    
+
     const float controlBoxFontHeightScalar     = 0.75f;
     const float incDecButtonTextBoxWidthScalar = 0.4f;
 
@@ -114,12 +114,12 @@ private:
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
-    std::unique_ptr<juce::Slider> noteEdit;
+    std::unique_ptr<juce::Slider> noteInput;
     std::unique_ptr<ColourEditComponent> colourSubwindow;
     std::unique_ptr<juce::Label> autoIncrementLabel;
     std::unique_ptr<ColourTextEditor> colourTextEditor;
-    std::unique_ptr<juce::Slider> channelBox;
-    std::unique_ptr<juce::Slider> channelAutoIncrNoteBox;
+    std::unique_ptr<juce::Slider> channelInput;
+    std::unique_ptr<juce::Slider> channelAutoIncrNoteInput;
 
 
     //==============================================================================
