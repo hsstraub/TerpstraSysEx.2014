@@ -157,7 +157,16 @@ public:
         return BorderSize<int>(0);
     }
 
+    void Label::LookAndFeelMethods::drawLabel(Graphics& g, Label& l)
+    {
+        Path roundedBounds = getConnectedRoundedRectPath(l.getBounds().toFloat(), l.getHeight() * comboBoxRoundedCornerScalar, 0);
+        g.setColour(l.findColour(Label::ColourIds::backgroundColourId));
+        g.fillPath(roundedBounds);
 
+        g.setColour(l.findColour(Label::ColourIds::textColourId));
+        g.setFont(getLabelFont(l));
+        g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), 3);
+    }
 
     //==================================================================
     //
@@ -253,7 +262,31 @@ public:
         }
         else
         {
-            LookAndFeel_V4::drawButtonText(g, btn, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
+            int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+
+            Font font = getTextButtonFont(btn, btn.getHeight());
+            int margin = font.getStringWidth("  ");
+            int textWidth = font.getStringWidth(btn.getButtonText());
+            int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
+            
+            Colour textColour = btn.findColour(colourId);
+
+            if (shouldDrawButtonAsDown)
+                textColour = textColour.darker(0.5f);
+            
+            else
+            {
+                if (!btn.isEnabled())
+                    textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+
+                else if (shouldDrawButtonAsHighlighted)
+                    textColour = textColour.brighter();
+            }
+
+            g.setColour(textColour);
+            g.setFont(font);
+            g.drawFittedText(btn.getButtonText(), btn.getLocalBounds(), Justification::centred, 1);
         }
     }
 
@@ -341,6 +374,56 @@ public:
     //
     //==================================================================
 
+    void drawIncDecButtonsBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider& sld)
+    {
+        Rectangle<int> bounds(x, y, width, height);
+        g.setColour(Colours::red);
+        g.fillRect(bounds);
+
+        g.setColour(Colours::blue.withAlpha(0.5f));
+        g.fillRect(bounds.withLeft(minSliderPos));
+
+        g.setColour(Colours::yellow.withAlpha(0.5f));
+        g.fillRect(bounds.withLeft(maxSliderPos));
+    }
+
+    void drawLinearSliderBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const Slider::SliderStyle style, Slider& sld) override
+    {
+        if (style == Slider::SliderStyle::IncDecButtons)
+        {
+            drawIncDecButtonsBackground(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, sld);
+        }
+        else
+        {
+            LookAndFeel_V4::drawLinearSliderBackground(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, sld);
+        }
+    }
+
+    Button* createSliderButton(Slider& sld, bool isIncrement) override
+    {
+        auto btn = new TextButton();
+
+        btn->setColour(TextButton::ColourIds::buttonColourId, Colour());
+        btn->setColour(TextButton::ColourIds::buttonOnColourId, Colour());
+
+        Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
+        
+        if (!sld.isEnabled())
+            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+
+        btn->setColour(TextButton::ColourIds::textColourOnId, textColour);
+        btn->setColour(TextButton::ColourIds::textColourOffId, textColour);
+
+        if (isIncrement) 
+            btn->setButtonText("+"); 
+        else 
+            btn->setButtonText("-");
+
+        btn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.25f);
+
+        return btn;
+    }
+
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, Slider& sld) override
     {
         const float halfPi = float_Pi * 0.5f;
@@ -407,6 +490,31 @@ public:
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
             sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, roundToInt(sliderSize * 0.5f), roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.5f));
+
+            return label;
+        }
+        else if (sld.getSliderStyle() == Slider::SliderStyle::IncDecButtons)
+        {
+            Label* label = new Label(sld.getName() + "_ValueLabel");
+            label->setText(String(sld.getValue()), dontSendNotification);
+            label->setJustificationType(Justification::centred);
+            label->setFont(appFonts[LumatoneEditorFont::GothamNarrowMedium]);
+            
+            if (sld.getProperties().contains(LumatoneEditorStyleIDs::fontHeightScalar))
+                label->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, sld.getProperties()[LumatoneEditorStyleIDs::fontHeightScalar]);
+
+            Colour backgroundColour = findColour(LumatoneEditorColourIDs::ControlBoxBackground);
+            Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
+
+            if (!sld.isEnabled())
+            {
+                backgroundColour = backgroundColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+                textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+            }
+
+            label->setColour(Label::ColourIds::backgroundColourId, backgroundColour);
+            label->setColour(Label::ColourIds::backgroundWhenEditingColourId, backgroundColour);
+            label->setColour(Label::ColourIds::textColourId, textColour);
 
             return label;
         }
