@@ -34,17 +34,6 @@ SingleNoteAssign::SingleNoteAssign ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    editInstructionText.reset (new juce::Label ("editInstructionText",
-                                                TRANS("Define which values you\'d like to apply to a key, and then click on the desired key-face")));
-    addAndMakeVisible (editInstructionText.get());
-    editInstructionText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    editInstructionText->setJustificationType (juce::Justification::centredLeft);
-    editInstructionText->setEditable (false, false, false);
-    editInstructionText->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    editInstructionText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    editInstructionText->setBounds (8, 8, 304, 32);
-
     noteAutoIncrButton.reset (new juce::ToggleButton ("noteAutoIncrButton"));
     addAndMakeVisible (noteAutoIncrButton.get());
     noteAutoIncrButton->setButtonText (TRANS("Notes-Per-Click"));
@@ -181,8 +170,6 @@ SingleNoteAssign::SingleNoteAssign ()
     channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
     channelAutoIncrNoteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
-    editInstructionText->setVisible(false);
-
     instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
     parametersFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium);
 
@@ -210,7 +197,6 @@ SingleNoteAssign::~SingleNoteAssign()
 	colourSubwindow = nullptr;
     //[/Destructor_pre]
 
-    editInstructionText = nullptr;
     noteAutoIncrButton = nullptr;
     channelAutoIncrButton = nullptr;
     setNoteToggleButton = nullptr;
@@ -354,34 +340,6 @@ void SingleNoteAssign::resized()
     //[/UserResized]
 }
 
-void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
-{
-    //[UsercomboBoxChanged_Pre]
-    //[/UsercomboBoxChanged_Pre]
-
-	if (comboBoxThatHasChanged == keyTypeCombo.get())
-    {
-        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
-
-        // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
-        {
-            setNoteToggleButton->setButtonText("CC Type:");
-
-            // ToDo Auto increment does not make sense in this case?
-        }
-        else
-        {
-            setNoteToggleButton->setButtonText("Note (0-127):");
-        }
-
-        //[/UserComboBoxCode_keyTypeCombo]
-    }
-
-    //[UsercomboBoxChanged_Post]
-    //[/UsercomboBoxChanged_Post]
-}
-
 void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
@@ -432,6 +390,34 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
+}
+
+void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+    if (comboBoxThatHasChanged == keyTypeCombo.get())
+    {
+        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
+
+        // Label the "note box" accordingly (controller no. for key type "Fader")
+        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        {
+            setNoteToggleButton->setButtonText("CC Type:");
+
+            // ToDo Auto increment does not make sense in this case?
+        }
+        else
+        {
+            setNoteToggleButton->setButtonText("Note (0-127):");
+        }
+
+        //[/UserComboBoxCode_keyTypeCombo]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
 }
 
 void SingleNoteAssign::sliderValueChanged (juce::Slider* sliderThatWasMoved)

@@ -38,6 +38,7 @@
 */
 class SingleNoteAssign  : public Component,
                           public ColourSelectionListener,
+                          public TextEditor::Listener,
                           public juce::Button::Listener,
                           public juce::ComboBox::Listener,
                           public juce::Slider::Listener
@@ -103,7 +104,6 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> editInstructionText;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
     std::unique_ptr<juce::ToggleButton> setNoteToggleButton;
