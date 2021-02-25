@@ -129,7 +129,13 @@ private:
 
     const float pleaseConnectX                  = 0.17f;
     const float pleaseConnectY                  = 0.28f;
-    const float pleaseConnectHeight             = 0.162f;
+
+    const float pleaseConnectHeight
+#if JUCE_MAC
+        = 0.162f;
+#else
+        = 0.17f;
+#endif
 
     const float connectionDirectionsX           = 0.17f;
     const float connectionDirectionsY           = 0.47f;
