@@ -193,7 +193,7 @@ public:
 
         Colour colour = (shouldDrawButtonAsDown) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
 
-        if (!btn.isEnabled())
+        if (!btn.isEnabled() && colour.isOpaque())
             colour = colour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
 
         else if (shouldDrawButtonAsHighlighted)
