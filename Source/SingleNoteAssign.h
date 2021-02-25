@@ -61,7 +61,7 @@ public:
     ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
 
-	void textEditorFocusLost(TextEditor& textEdit) override;
+	//void textEditorFocusLost(TextEditor& textEdit) override;
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
     //[/UserMethods]
@@ -98,6 +98,9 @@ private:
     const float separatorYScalar    = 0.666667f;
     const float toggleHeightScalar  = 0.034f;
     const float controlHeightScalar = 0.0647f;
+    
+    const float controlBoxFontHeightScalar     = 0.75f;
+    const float incDecButtonTextBoxWidthScalar = 0.4f;
 
     const Colour toggleTextColour = Colour(0xffcbcbcb);
     //[/UserVariables]
@@ -105,19 +108,18 @@ private:
     //==============================================================================
     std::unique_ptr<juce::Label> editInstructionText;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
-    std::unique_ptr<juce::ComboBox> channelBox;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
-    std::unique_ptr<juce::ComboBox> channelAutoIncrNoteBox;
     std::unique_ptr<juce::ToggleButton> setNoteToggleButton;
     std::unique_ptr<juce::ToggleButton> setChannelToggleButton;
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
-    std::unique_ptr<juce::TextEditor> noteEdit;
-    std::unique_ptr<juce::Slider> noteEditBox;
+    std::unique_ptr<juce::Slider> noteEdit;
     std::unique_ptr<ColourEditComponent> colourSubwindow;
     std::unique_ptr<juce::Label> autoIncrementLabel;
     std::unique_ptr<ColourTextEditor> colourTextEditor;
+    std::unique_ptr<juce::Slider> channelBox;
+    std::unique_ptr<juce::Slider> channelAutoIncrNoteBox;
 
 
     //==============================================================================
