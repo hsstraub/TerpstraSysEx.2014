@@ -246,14 +246,8 @@ AllKeysOverview::~AllKeysOverview()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	//for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-	//{
-	//	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
-	//	{
-	//		octaveBoards[subBoardIndex]->keyMiniDisplay[i] = nullptr;
-	//	}
-	//}
-  //[/Destructor]
+	imageProcessor = nullptr;
+    //[/Destructor]
 }
 
 //==============================================================================
@@ -314,9 +308,9 @@ void AllKeysOverview::resized()
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
 
 	// Scale key graphics once
-	lumatoneGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), "lanczos3", 1.0f);
-	keyShapeGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight, "lanczos3", 1.0f);
-	keyShadowGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight, "lanczos3", 1.0f);
+	lumatoneGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight());
+	keyShapeGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight);
+	keyShadowGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight);
 	
 	oct1Key1  = Point<float>(oct1Key1X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key1Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct1Key56 = Point<float>(oct1Key56X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key56Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());

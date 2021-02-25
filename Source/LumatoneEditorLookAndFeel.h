@@ -215,7 +215,10 @@ public:
             int iconW = roundToInt(iconH * ((double)icon.getWidth() / icon.getHeight()));
             int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
 
-            icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
+            {
+                ImageProcessor ip;
+                icon = ip.resizeImage(icon, iconW, iconH);
+            }
 
             int margin = font.getStringWidth("  ");
             int textWidth = font.getStringWidth(btn.getButtonText());
