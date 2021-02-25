@@ -48,6 +48,17 @@ MainContentComponent::MainContentComponent()
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
+	//lblAppName.reset(new Label("lblAppName", TerpstraSysExApplication::getApp().getApplicationName()));
+	lblAppName.reset(new Label("lblAppName", "lumatone editor"));
+	lblAppName->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
+	lblAppName->setColour(Label::ColourIds::textColourId, Colour(0xff777777));
+	addAndMakeVisible(lblAppName.get());
+
+	lblAppVersion.reset(new Label("lblAppVersion", "v" + TerpstraSysExApplication::getApp().getApplicationVersion()));
+	lblAppVersion->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
+	lblAppVersion->setColour(Label::ColourIds::textColourId, Colour(0xff777777));
+	addAndMakeVisible(lblAppVersion.get());
+
 	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
@@ -71,6 +82,9 @@ MainContentComponent::~MainContentComponent()
 	curvesArea = nullptr;
 	globalSettingsArea = nullptr;
 	pedalSensitivityDlg = nullptr;
+
+	lblAppName = nullptr;
+	lblAppVersion = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -371,6 +385,12 @@ void MainContentComponent::resized()
 		.withTop(roundToInt(getHeight() * footerAreaY))
 		.withTrimmedRight(footerHeight)
 	);
+
+	resizeLabelWithHeight(lblAppName.get(), roundToInt(footerHeight * lumatoneVersionHeight), 1.0f, " ");
+	lblAppName->setTopLeftPosition(proportionOfWidth(lumatoneVersionMarginX), footerY + (footerHeight - lblAppName->getHeight()) * 0.5f);
+
+	resizeLabelWithHeight(lblAppVersion.get(), roundToInt(lblAppName->getHeight() * 0.75f));
+	lblAppVersion->setTopLeftPosition(lblAppName->getRight(), lblAppName->getBottom() - lblAppVersion->getHeight());
 }
 
 void MainContentComponent::refreshAllKeysOverview()
