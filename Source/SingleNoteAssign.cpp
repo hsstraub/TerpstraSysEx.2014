@@ -353,6 +353,8 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == channelAutoIncrButton.get())
     {
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
+        bool fieldActive = channelAutoIncrButton->getToggleState();
+        channelAutoIncrNoteInput->setEnabled(fieldActive);
         //[/UserButtonCode_channelAutoIncrButton]
     }
     else if (buttonThatWasClicked == setNoteToggleButton.get())
