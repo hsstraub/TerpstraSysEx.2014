@@ -232,6 +232,15 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					this->mappingData.afterTouchConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
 			}
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch))
+			{
+				// After the answer state byte there must be 128 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+				this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+				for (int x = 0; x < 128; x++)
+					this->mappingData.lumaTouchConfig.velocityValues[x] = sysExData[6 + x];
+				curvesArea->loadFromMapping();
+			}
 
 			// Key configurations
 			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||

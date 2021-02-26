@@ -122,12 +122,16 @@ void CurvesArea::resized()
     int tabBarDepth = roundToInt(getHeight() * tabDepth);
     resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth);
 
+	btnDeveloperMode->setBounds(
+		getWidth() - btnDeveloperMode->getWidth(), 
+		proportionOfHeight(0.0f), 
+		btnDeveloperMode->getWidth(), 
+		proportionOfHeight(settingsToggleButtonHeight));
+
     curvesTab->setTabBarDepth(tabBarDepth);
     curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));
-    curvesTab->setBounds(getLocalBounds());
-
-	int buttonHeight = roundToInt(getHeight() * settingsToggleButtonHeight);
-	btnDeveloperMode->setBounds(btnDeveloperMode->getX(), proportionOfHeight(0.0f), btnDeveloperMode->getWidth(), buttonHeight);
+	auto curvesTabTop = btnDeveloperMode->getBottom();
+    curvesTab->setBounds(0, curvesTabTop, getWidth(), getHeight() - curvesTabTop);
 }
 
 void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
@@ -142,10 +146,12 @@ void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		{
 			curvesTab->addTab(TRANS("CC Fader"), juce::Colours::lightgrey, new FaderVelocityCurveDialog(), true);
 			curvesTab->addTab(TRANS("Aftertouch"), juce::Colours::lightgrey, new AftertouchVelocityCurveDialog(), true);
+			curvesTab->addTab(TRANS("Lumatouch"), juce::Colours::lightgrey, new LumatouchVelocityCurveDialog(), true);
 		}
 		else
 		{
 			curvesTab->setCurrentTabIndex(0);
+			curvesTab->removeTab(3);
 			curvesTab->removeTab(2);
 			curvesTab->removeTab(1);
 		}
@@ -165,10 +171,19 @@ void CurvesArea::loadFromMapping()
 	dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getCurrentContentComponent())->loadFromMapping();
 }
 
+void CurvesArea::lookAndFeelChanged()
+{
+	auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (newLookAndFeel)
+	{
+		newLookAndFeel->setupToggleButton(*btnDeveloperMode);
+	}
+}
+
 void CurvesArea::sendConfigToController()
 {
 	// Send all curves configurations to controller
-	// The "developer mode" curve configs (fader, aftertouch, Lumatouch, modulation wheel) are snet only if developer mode is active.
+	// The "developer mode" curve configs (fader, aftertouch, Lumatouch, modulation wheel) are sent only if developer mode is active.
 	for (int i = 0; i < curvesTab->getNumTabs(); i++)
 	{
 		dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getTabContentComponent(i))->sendVelocityTableToController();

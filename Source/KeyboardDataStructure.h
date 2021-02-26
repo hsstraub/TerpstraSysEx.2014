@@ -58,8 +58,9 @@ public:
 	{
 		noteOnNoteOff = 1,
 		fader = 2,
-		afterTouch = 3
-		// ToDo Lumatouch, modulation wheel
+		afterTouch = 3,
+		lumaTouch = 4
+		// ToDo modulation wheel
 	} VelocityCurveType;
 
 	typedef enum
@@ -131,4 +132,5 @@ public:
 	TerpstraVelocityCurveConfig	noteOnOffVelocityCurveConfig;
 	TerpstraVelocityCurveConfig faderConfig;
 	TerpstraVelocityCurveConfig afterTouchConfig;
+	TerpstraVelocityCurveConfig lumaTouchConfig;
 };
