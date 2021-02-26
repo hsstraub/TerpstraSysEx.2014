@@ -126,7 +126,7 @@ void CurvesArea::resized()
 		getWidth() - btnDeveloperMode->getWidth(), 
 		proportionOfHeight(0.0f), 
 		btnDeveloperMode->getWidth(), 
-		proportionOfHeight(settingsToggleButtonHeight));
+		proportionOfHeight(0.06f));
 
     curvesTab->setTabBarDepth(tabBarDepth);
     curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));
