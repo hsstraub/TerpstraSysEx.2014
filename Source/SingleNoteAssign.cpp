@@ -307,12 +307,13 @@ void SingleNoteAssign::resized()
     noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
 
     setChannelToggleButton->setTopLeftPosition(controlsX, setNoteToggleButton->getBottom() + marginY);
-    resizeToggleButtonWithHeight(setChannelToggleButton.get(), parametersFont, toggleHeight);
+    setChannelToggleButton->setSize(noteInput->getX() - controlsX, toggleHeight);
     channelInput->setCentrePosition(
         round(channelInput->getWidth() * 0.5f) + setChannelToggleButton->getRight(),
         setChannelToggleButton->getBounds().getCentreY()
     );
-    channelInput->setSize(w - rightMarginX - channelInput->getX(), controlH);
+    channelInput->setTopLeftPosition(noteInput->getX(), channelInput->getY());
+    channelInput->setSize(noteInput->getWidth(), controlH);
     channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
 
     separatorY = setChannelToggleButton->getBottom() + halfMarginY;
