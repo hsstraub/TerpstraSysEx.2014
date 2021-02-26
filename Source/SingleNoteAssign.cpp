@@ -412,7 +412,7 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         }
         else
         {
-            setNoteToggleButton->setButtonText("Note (0-127):");
+            setNoteToggleButton->setButtonText("Note # (0-127):");
         }
 
         //[/UserComboBoxCode_keyTypeCombo]
