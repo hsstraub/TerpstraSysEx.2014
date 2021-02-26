@@ -8,10 +8,8 @@
   ==============================================================================
 */
 
-#ifndef VIEWCOMPOONENTS_H_INCLUDED
-#define VIEWCOMPOONENTS_H_INCLUDED
-
-#include "../JuceLibraryCode/JuceHeader.h"
+#pragma once
+#include <JuceHeader.h>
 
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -59,6 +57,3 @@ private:
 
 	const float				channelLabelRadiusScalar = 0.4347826f;
 };
-
-
-#endif  // VIEWCOMPOONENTS_H_INCLUDED

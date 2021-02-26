@@ -207,12 +207,12 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
 void PedalSensitivityDlg::lookAndFeelChanged()
 {
-    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-    if (lookAndFeel)
+    auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+    if (newLookAndFeel)
     {
-        lookAndFeel->setupToggleButton(*btnInvertFootCtrl);
-        labelEXpressionPedalTitle->setColour(Label::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
-          labelExprContrSensivity->setColour(Label::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::DescriptionText));
+		newLookAndFeel->setupToggleButton(*btnInvertFootCtrl);
+        labelEXpressionPedalTitle->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
+          labelExprContrSensivity->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::DescriptionText));
     }
 }
 

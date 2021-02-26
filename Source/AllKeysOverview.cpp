@@ -73,8 +73,6 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 
 	if (colourGraphic && shadowGraphic)
 	{
-		int w = getWidth();
-		int h = getHeight();
 		int x = round((getWidth() - colourGraphic->getWidth()) / 2.0f);
 		int y = round((getHeight() - colourGraphic->getHeight()) / 2.0f);
 
@@ -411,12 +409,12 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 
 void AllKeysOverview::lookAndFeelChanged()
 {
-	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-	if (lookAndFeel)
+	auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (newLookAndFeel)
 	{
-		lookAndFeel->setupTextButton(*btnLoadFile);
-		lookAndFeel->setupTextButton(*btnSaveFile);
-		lookAndFeel->setupTextButton(*buttonReceive);
+		newLookAndFeel->setupTextButton(*btnLoadFile);
+		newLookAndFeel->setupTextButton(*btnSaveFile);
+		newLookAndFeel->setupTextButton(*buttonReceive);
 	}
 }
 

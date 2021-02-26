@@ -385,6 +385,8 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 		return &mappingInEdit->faderConfig;
 	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
 		return &mappingInEdit->afterTouchConfig;
+	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+		return &mappingInEdit->lumaTouchConfig;
 	default:
 		jassertfalse;
 		return nullptr;
