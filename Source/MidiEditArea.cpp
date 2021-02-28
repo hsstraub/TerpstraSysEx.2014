@@ -40,7 +40,7 @@ MidiEditArea::MidiEditArea ()
 	setName("MidiEditArea");
 
 	lumatoneLabel.reset(new Label("LumatoneLabel", "lumatone"));
-	lumatoneLabel->setFont(LumatoneEditorFonts::UniviaProBold());
+	lumatoneLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lumatoneLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 	lumatoneLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(lumatoneLabel.get());
@@ -49,8 +49,7 @@ MidiEditArea::MidiEditArea ()
 	lookAndFeel.setupRadioTextButton(*liveEditorBtn, 10, true);
 	liveEditorBtn->setButtonText(translate("LiveEditor"));
 	liveEditorBtn->setConnectedEdges(Button::ConnectedOnRight);
-	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Univia Pro");
-	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Bold");
+	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, LumatoneEditorFont::UniviaProBold);
 	liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editModeFontScalar);
 	addChildComponent(liveEditorBtn.get());
 	liveEditorBtn->addListener(this);
@@ -59,19 +58,18 @@ MidiEditArea::MidiEditArea ()
 	lookAndFeel.setupRadioTextButton(*offlineEditorBtn, 10, false);
 	offlineEditorBtn->setButtonText(translate("OfflineEditor"));
 	offlineEditorBtn->setConnectedEdges(Button::ConnectedOnLeft);
-	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Univia Pro");
-	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Bold");
+	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontOverride, LumatoneEditorFont::UniviaProBold);
 	offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editModeFontScalar);
 	addChildComponent(offlineEditorBtn.get());
 	offlineEditorBtn->addListener(this);
 
 	pleaseConnectLabel.reset(new Label("PleaseConnectLabel", translate("PleaseConnect")));
-	pleaseConnectLabel->setFont(LumatoneEditorFonts::UniviaProBold());
+	pleaseConnectLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	pleaseConnectLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::ActiveText));
 	addAndMakeVisible(*pleaseConnectLabel);
 
 	offlineMsgLabel.reset(new Label("DirectionsLabel", translate("OfflineMessage")));
-	offlineMsgLabel->setFont(LumatoneEditorFonts::FranklinGothic());
+	offlineMsgLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
 	offlineMsgLabel->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::DescriptionText));
 	addAndMakeVisible(*offlineMsgLabel);
 
@@ -125,20 +123,38 @@ MidiEditArea::MidiEditArea ()
 
     lblEditMode->setBounds (8, 8, 96, 24);
 
+    btnAutoConnect.reset (new juce::TextButton ("btnAutoConnect"));
+    addAndMakeVisible (btnAutoConnect.get());
+    btnAutoConnect->setTooltip (TRANS("Toggle between automatic or manual connection to Lumatone"));
+    btnAutoConnect->setButtonText (TRANS("auto"));
+    btnAutoConnect->addListener (this);
+
+    btnAutoConnect->setBounds (184, 8, 39, 24);
+
 
     //[UserPreSize]
 	lookAndFeel.setupComboBox(*cbMidiInput.get());
 	lookAndFeel.setupComboBox(*cbMidiOutput.get());
 
-	lblConnectionState->setFont(LumatoneEditorFonts::UniviaProBold());
-	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[connectedToLumatone]);
+	cbMidiInput->setVisible(false);
+	cbMidiOutput->setVisible(false);
 
-	lblEditMode->setFont(LumatoneEditorFonts::UniviaProBold());
+	lblConnectionState->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
+
+	lblEditMode->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
+	btnAutoConnect->setClickingTogglesState(true);
+	btnAutoConnect->setToggleState(true, NotificationType::dontSendNotification);
+	lookAndFeel.setupTextButton(*btnAutoConnect.get());
+
+	ioAreaFlexBox.alignContent = FlexBox::AlignContent::center;
+	ioAreaFlexBox.alignItems = FlexBox::AlignItems::center;
+	ioAreaFlexBox.justifyContent = FlexBox::JustifyContent::spaceBetween;
     //[/UserPreSize]
 
     setSize (1024, 48);
@@ -151,7 +167,10 @@ MidiEditArea::MidiEditArea ()
 	errorVisualizer.setErrorLevel(
 		*lblConnectionState.get(),
 		HajuErrorVisualizer::ErrorLevel::error,
-		"Select both a MIDI input and a MIDI output");
+		"Searching for Lumatone...");
+
+    deviceMonitor.addChangeListener(this);
+	deviceMonitor.initializeDeviceDetection();
     //[/Constructor]
 }
 
@@ -169,6 +188,7 @@ MidiEditArea::~MidiEditArea()
     cbMidiOutput = nullptr;
     lblConnectionState = nullptr;
     lblEditMode = nullptr;
+    btnAutoConnect = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -194,13 +214,13 @@ void MidiEditArea::paint (juce::Graphics& g)
 	g.fillRect(connectivityArea);
 
 	// Rounded rect for device boxes
-	if (!connectedToLumatone)
+	if (!isConnected)
 	{
 		g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
 		g.fillRoundedRectangle(ioBounds, round(getHeight() * controlBoundsCornerRadius));
 	}
 
-	g.setColour(connectedColours[connectedToLumatone]);
+	g.setColour(connectedColours[isConnected]);
 	drawPathToFillBounds(g, logomarkPath, logomarkBounds);
     //[/UserPaint]
 }
@@ -218,15 +238,13 @@ void MidiEditArea::resized()
 	resizeLabelWithWidth(lumatoneLabel.get(), lumatoneLabelBounds.proportionOfWidth(lumatoneLabelWidthInArea));
 	lumatoneLabel->setCentrePosition(lumatoneLabelBounds.getCentre());
 
-	resizeLabelWithHeight(lblConnectionState.get(), round(h* connectivityHeight));
-
 	// Also used to position logomark
 	ioBounds.setBounds(
-		round(w * controlBoundsX), round(h* controlBoundsY),
-		round(w * controlBoundsWidth), round(h* controlBoundsHeight)
+		round(w * controlBoundsX), round(h * controlBoundsY),
+		round(w * controlBoundsWidth), round(h * controlBoundsHeight)
 	);
 
-	if (connectedToLumatone)
+	if (isConnected)
 	{
 		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight));
 		lblEditMode->setTopLeftPosition(
@@ -244,8 +262,11 @@ void MidiEditArea::resized()
 			liveEditorBtn->getRight(), liveEditorBtn->getY(), round(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
 		);
 
+
 		connectivityArea = getBounds().toFloat().withLeft(round(w * connectedAreaX));
 
+        lblConnectionState->setJustificationType (juce::Justification::centredLeft);
+		resizeLabelWithHeight(lblConnectionState.get(), round(h * connectivityHeight));
 		lblConnectionState->setTopLeftPosition(
 			round(w * connectedX),
 			round((h - lblConnectionState->getHeight()) * 0.5f)
@@ -253,28 +274,50 @@ void MidiEditArea::resized()
 	}
 	else
 	{
+		int controlHeight = roundToInt(ioBounds.getHeight() * midiDeviceControlBoundsHeight);
+
 		connectivityArea = getBounds().toFloat().withLeft(round(w * disconnectedAreaX));
 
-		lblConnectionState->setTopLeftPosition(
-			ioBounds.getX() + ioBounds.proportionOfWidth(disconnectedControlBoundsX),
-			round((float)ioBounds.getY() + (ioBounds.getHeight() - lblConnectionState->getHeight()) * 0.5f)
-		);
+		int lblMarginX = round(ioBounds.getWidth() * controlBoundsMarginScalar);
+		int lblMarginY = round((ioBounds.getHeight() - h * connectivityHeight) * 0.5f);
 
-		cbMidiInput->setBounds(ioBounds.getProportion(Rectangle<float>(
-			{ midiInputControlBoundsX, midiDeviceControlBoundsHeight / 4.0f, midiDeviceControlBoundsWidth, midiDeviceControlBoundsHeight }
-		)).toNearestInt());
+		ioAreaFlexBox.items.clear();
+		ioAreaFlexBox.items.add(FlexItem(*btnAutoConnect).withFlex(0).withWidth(controlHeight * 1.6f).withHeight(controlHeight));
 
-		cbMidiOutput->setBounds(cbMidiInput->getBounds().withX(
-			ioBounds.getX() + ioBounds.proportionOfWidth(midiOutputControlBoundsX))
+		if (btnAutoConnect->getToggleState())
+		{
+			lblConnectionState->setJustificationType(juce::Justification::centredLeft);
+		}
+		else
+		{
+			int deviceBoxWidth = roundToInt(ioBounds.getWidth() * midiDeviceControlBoundsWidth);
+			ioAreaFlexBox.items.add(FlexItem(*cbMidiInput).withFlex(0).withWidth(deviceBoxWidth).withHeight(controlHeight));
+			ioAreaFlexBox.items.add(FlexItem(*cbMidiOutput).withFlex(0).withWidth(deviceBoxWidth).withHeight(controlHeight));
+
+			lblConnectionState->setJustificationType(juce::Justification::centredRight);
+		}
+
+		// Not sure why AlignSelf is necessary...
+		ioAreaFlexBox.items.add(FlexItem(*lblConnectionState).withFlex(1).withHeight(h * connectivityHeight).withAlignSelf(FlexItem::AlignSelf::center));
+
+		float itemMargin = lblMarginX * 0.5f;
+		for (int i = 0; i < ioAreaFlexBox.items.size(); i++)
+		{
+			ioAreaFlexBox.items.getReference(i).margin = FlexItem::Margin(0, itemMargin, 0, 0);
+		}
+
+		ioAreaFlexBox.performLayout(
+			ioBounds.reduced(lblMarginX, lblMarginY)
 		);
 
 		pleaseConnectLabel->setTopLeftPosition(round(w * pleaseConnectX), round(h * pleaseConnectY));
-		pleaseConnectLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * pleaseConnectHeight));
+		resizeLabelWithHeight(pleaseConnectLabel.get(), round(h * pleaseConnectHeight));
 
 		offlineMsgLabel->setTopLeftPosition(round(w * connectionDirectionsX), round(h * connectionDirectionsY));
 		offlineMsgLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * connectionDirectionsHeight));
 		offlineMsgLabel->setFont(offlineMsgLabel->getFont().withHeight(offlineMsgLabel->getHeight()));
 	}
+
 
 	int logomarkSize = round(h * logomarkHeight);
 	logomarkBounds.setSize(logomarkSize, logomarkSize);
@@ -332,6 +375,60 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     //[/UsercomboBoxChanged_Post]
 }
 
+void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
+{
+    //[UserbuttonClicked_Pre]
+
+    //[/UserbuttonClicked_Pre]
+
+    if (buttonThatWasClicked == btnAutoConnect.get())
+    {
+        //[UserButtonCode_btnAutoConnect] -- add your button handler code here..
+		cbMidiInput->setVisible(!btnAutoConnect->getToggleState());
+		cbMidiOutput->setVisible(!btnAutoConnect->getToggleState());
+
+		if (btnAutoConnect->getToggleState())
+		{
+			deviceMonitor.initializeDeviceDetection();
+		}
+		else
+		{
+			deviceMonitor.stopTimer();
+		}
+
+		resized();
+        //[/UserButtonCode_btnAutoConnect]
+    }
+
+    //[UserbuttonClicked_Post]
+	else if (buttonThatWasClicked == liveEditorBtn.get())
+	{
+		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)liveEditorBtn->getToggleState());
+
+		TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
+
+		switch (sysExSendingMode)
+		{
+		case TerpstraMidiDriver::sysExSendingMode::liveEditor:
+			onOpenConnectionToDevice();
+			break;
+
+		case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
+			lblConnectionState->setText(translate("OfflineMode"), NotificationType::dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::noError,
+				"Offline mode");
+			break;
+
+		default:
+			jassertfalse;
+			break;
+		}
+	}
+    //[/UserbuttonClicked_Post]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -343,50 +440,48 @@ void MidiEditArea::lookAndFeelChanged()
 	connectedColours.add(getLookAndFeel().findColour(LumatoneEditorColourIDs::ConnectedGreen));
 }
 
-void MidiEditArea::buttonClicked(Button* btn)
+void MidiEditArea::setConnectivity(bool isConnectedIn)
 {
-	auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)liveEditorBtn->getToggleState());
+	bool isNotConnected = !isConnectedIn;
 
-	TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
+	btnAutoConnect->setVisible(isNotConnected);
+	cbMidiInput->setVisible(isNotConnected && !btnAutoConnect->getToggleState());
+	cbMidiOutput->setVisible(isNotConnected && !btnAutoConnect->getToggleState());
+	pleaseConnectLabel->setVisible(isNotConnected);
+	offlineMsgLabel->setVisible(isNotConnected);
 
-	switch (sysExSendingMode)
-	{
-	case TerpstraMidiDriver::sysExSendingMode::liveEditor:
-		onOpenConnectionToDevice();
-		break;
+	lblConnectionState->setText(connectedText[isConnectedIn], dontSendNotification);
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
 
-	case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
-		lblConnectionState->setText(translate("OfflineMode"), NotificationType::dontSendNotification);
-		errorVisualizer.setErrorLevel(
-			*lblConnectionState.get(),
-			HajuErrorVisualizer::ErrorLevel::noError,
-			"Offline mode");
-		break;
+	lblEditMode->setVisible(isConnectedIn);
+	liveEditorBtn->setVisible(isConnectedIn);
+	offlineEditorBtn->setVisible(isConnectedIn);
 
-	default:
-		jassertfalse;
-		break;
-	}
-}
-
-void MidiEditArea::setConnectivity(bool isConnected)
-{
-	cbMidiInput->setVisible(!isConnected);
-	cbMidiOutput->setVisible(!isConnected);
-	pleaseConnectLabel->setVisible(!isConnected);
-	offlineMsgLabel->setVisible(!isConnected);
-
-	lblConnectionState->setText(connectedText[isConnected], dontSendNotification);
-	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
-
-	lblEditMode->setVisible(isConnected);
-	liveEditorBtn->setVisible(isConnected);
-	offlineEditorBtn->setVisible(isConnected);
-
-	connectedToLumatone = isConnected;
+	isConnected = isConnectedIn;
 
 	resized();
 	repaint();
+}
+
+void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
+{
+	if (source == static_cast<ChangeBroadcaster*>(&deviceMonitor))
+	{
+		int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
+		int currentInputIndex =  deviceMonitor.getConfirmedInputIndex();
+
+		if (currentOutputIndex >= 0 && currentInputIndex >= 0)
+		{
+			refreshOutputDevicesAndSetSelected(currentOutputIndex);
+			refreshInputDevicesAndSetSelected(currentInputIndex);
+		}
+		else
+		{
+			DBG("One or both device indicies returned are invalid");
+			setConnectivity(false);
+		}
+	}
+
 }
 
 void MidiEditArea::onOpenConnectionToDevice()
@@ -409,70 +504,95 @@ void MidiEditArea::onOpenConnectionToDevice()
 		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
 }
 
+void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
+{
+	jassert(inputDeviceIndex > 0);
+
+	cbMidiInput->clear(NotificationType::dontSendNotification);
+	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 0);
+	cbMidiInput->setSelectedItemIndex(inputDeviceIndex, notificationType);
+}
+
+void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
+{
+	jassert(outputDeviceIndex > 0);
+
+	cbMidiOutput->clear(NotificationType::dontSendNotification);
+	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 0);
+	cbMidiOutput->setSelectedItemIndex(outputDeviceIndex, notificationType);
+}
+
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
+	if (midiMessage.getSysExDataSize() < 6)
+	{
+		errorVisualizer.setErrorLevel(
+			*lblConnectionState.get(),
+			HajuErrorVisualizer::ErrorLevel::error,
+			"Message too short");
+
+		return;
+	}
+
 	if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
 	{
-		setConnectivity(false);
+		auto sysExData = midiMessage.getSysExData();
+		auto answerState = sysExData[5];
 
-		if (midiMessage.getSysExDataSize() < 6)
+		switch (answerState)
 		{
+		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
-				"Message too short");
+				"Not Recognized");
+			break;
+
+		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::noError,
+				"Ack");
+			break;
+
+		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::warning,
+				"Busy");
+			break;
+
+		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ERROR:    // Error
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::error,
+				"Error from device");
+			break;
+
+		default:
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::noError,
+				"");
+			break;
 		}
-		else
-		{
-			auto sysExData = midiMessage.getSysExData();
-			auto answerState = sysExData[5];
 
-			switch (answerState)
-			{
-			case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
-				errorVisualizer.setErrorLevel(
-					*lblConnectionState.get(),
-					HajuErrorVisualizer::ErrorLevel::error,
-					"Not Recognized");
-				break;
-
-			case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
-				errorVisualizer.setErrorLevel(
-					*lblConnectionState.get(),
-					HajuErrorVisualizer::ErrorLevel::noError,
-					"Ack");
-				break;
-
-			case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
-				errorVisualizer.setErrorLevel(
-					*lblConnectionState.get(),
-					HajuErrorVisualizer::ErrorLevel::warning,
-					"Busy");
-				break;
-
-			case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::ERROR:    // Error
-				errorVisualizer.setErrorLevel(
-					*lblConnectionState.get(),
-					HajuErrorVisualizer::ErrorLevel::error,
-					"Error from device");
-				break;
-
-			default:
-				errorVisualizer.setErrorLevel(
-					*lblConnectionState.get(),
-					HajuErrorVisualizer::ErrorLevel::noError,
-					"");
-				break;
-			}
-		}
+        // May need some logic to handle "Busy" if trying to auto-connect to device
+        if (!isConnected)
+        {
+			setConnectivity(true);
+            onOpenConnectionToDevice();
+        }
 	}
 }
 
 void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
 {
-	lblConnectionState->setText(textMessage, NotificationType::dontSendNotification);
-	errorVisualizer.setErrorLevel(*lblConnectionState.get(), errorLevel, textMessage);
+    lblConnectionState->setText(textMessage, NotificationType::dontSendNotification);
+    errorVisualizer.setErrorLevel(*lblConnectionState.get(), errorLevel, textMessage);
 }
+
+
 
 //[/MiscUserCode]
 
@@ -487,7 +607,7 @@ void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::Er
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MidiEditArea" componentName=""
-                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public juce::Button::Listener"
+                 parentClasses="public Component, public TerpstraMidiDriver::Listener, public juce::ChangeListener"
                  constructorParams="" variableInitialisers="lookAndFeel(static_cast&lt;LumatoneEditorLookAndFeel&amp;&gt;(TerpstraSysExApplication::getApp().getLookAndFeel())),errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="1024" initialHeight="48">
@@ -510,6 +630,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Edit Mode:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="18.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TEXTBUTTON name="btnAutoConnect" id="381f46e171b5df06" memberName="btnAutoConnect"
+              virtualName="" explicitFocusOrder="0" pos="184 8 39 24" tooltip="Toggle between automatic or manual connection to Lumatone"
+              buttonText="auto" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

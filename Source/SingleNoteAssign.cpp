@@ -31,102 +31,158 @@
 //==============================================================================
 SingleNoteAssign::SingleNoteAssign ()
 {
-    keyTypeToggleButton.reset(new juce::ToggleButton("keyTypeToggleButton"));
-    addAndMakeVisible(keyTypeToggleButton.get());
-    keyTypeToggleButton->setButtonText(translate("KeyType"));
-    keyTypeToggleButton->addListener(this);
-    keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
-    keyTypeCombo.reset(new juce::ComboBox("keyTypeCombo"));
-    addAndMakeVisible(keyTypeCombo.get());
-    keyTypeCombo->setTextWhenNothingSelected(juce::String());
-    keyTypeCombo->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-    keyTypeCombo->addItem(translate("NoteOnOff"), 1);
-    keyTypeCombo->addItem(translate("ContinuousController"), 2);
-    keyTypeCombo->addItem("Lumatouch", 3);
-    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverride, "Gotham");
-    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Narrow Medium");
-    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.2f);
-    keyTypeCombo->addListener(this);
+    noteAutoIncrButton.reset (new juce::ToggleButton ("noteAutoIncrButton"));
+    addAndMakeVisible (noteAutoIncrButton.get());
+    noteAutoIncrButton->setButtonText (TRANS("Notes-Per-Click"));
+    noteAutoIncrButton->addListener (this);
 
-    setColourToggleButton.reset(new juce::ToggleButton("setColourToggleButton"));
-    addAndMakeVisible(setColourToggleButton.get());
-    setColourToggleButton->setButtonText(translate("KeyColour"));
-    setColourToggleButton->addListener(this);
-    setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    noteAutoIncrButton->setBounds (8, 232, 160, 24);
 
-    colourSubwindow.reset(new ColourEditComponent());
-    addAndMakeVisible(colourSubwindow.get());
-    colourSubwindow->setColour("ff60aac5");
+    channelAutoIncrButton.reset (new juce::ToggleButton ("channelAutoIncrButton"));
+    addAndMakeVisible (channelAutoIncrButton.get());
+    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #"));
+    channelAutoIncrButton->addListener (this);
 
-    setNoteToggleButton.reset(new juce::ToggleButton("setNoteToggleButton"));
-    addAndMakeVisible(setNoteToggleButton.get());
-    setNoteToggleButton->setButtonText(TRANS("Note (0-127):"));
-    setNoteToggleButton->addListener(this);
-    setNoteToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    channelAutoIncrButton->setBounds (8, 264, 160, 24);
 
-    noteBox.reset(new juce::ComboBox("noteBox"));
-    addAndMakeVisible(noteBox.get());
-    noteBox->setTooltip(TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
-    noteBox->setTextWhenNothingSelected(juce::String());
-    noteBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-    noteBox->getProperties().set(LumatoneEditorStyleIDs::popupMenuMaxColumns, 8);
-    noteBox->addListener(this);
+    setNoteToggleButton.reset (new juce::ToggleButton ("setNoteToggleButton"));
+    addAndMakeVisible (setNoteToggleButton.get());
+    setNoteToggleButton->setButtonText (TRANS("Note # (0-127):"));
+    setNoteToggleButton->addListener (this);
 
-    setChannelToggleButton.reset(new juce::ToggleButton("setChannelToggleButton"));
-    addAndMakeVisible(setChannelToggleButton.get());
-    setChannelToggleButton->setButtonText(translate("Channel") + " (1-16):");
-    setChannelToggleButton->addListener(this);
-    setChannelToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    setNoteToggleButton->setBounds (8, 128, 112, 24);
 
-    channelBox.reset(new juce::ComboBox("channelBox"));
-    addAndMakeVisible(channelBox.get());
-    channelBox->setTextWhenNothingSelected(juce::String());
-    channelBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-    channelBox->addListener(this);
+    setChannelToggleButton.reset (new juce::ToggleButton ("setChannelToggleButton"));
+    addAndMakeVisible (setChannelToggleButton.get());
+    setChannelToggleButton->setButtonText (TRANS("Channel (1-16):"));
+    setChannelToggleButton->addListener (this);
 
-    autoIncrementLabel.reset(new Label("AutoIncrementLabel", translate("AutoIncrement")));
-    autoIncrementLabel->setFont(LumatoneEditorFonts::GothamNarrowMedium());
-    autoIncrementLabel->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.75f);
-    addAndMakeVisible(*autoIncrementLabel);
+    setChannelToggleButton->setBounds (8, 160, 112, 24);
 
-    noteAutoIncrButton.reset(new juce::ToggleButton("noteAutoIncrButton"));
-    addAndMakeVisible(noteAutoIncrButton.get());
-    noteAutoIncrButton->setButtonText(translate("NotesPerClick"));
-    noteAutoIncrButton->addListener(this);
-    noteAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
+    addAndMakeVisible (setColourToggleButton.get());
+    setColourToggleButton->setButtonText (TRANS("Key Colour:"));
+    setColourToggleButton->addListener (this);
 
-    channelAutoIncrButton.reset(new juce::ToggleButton("channelAutoIncrButton"));
-    addAndMakeVisible(channelAutoIncrButton.get());
-    channelAutoIncrButton->setButtonText(translate("ChannelsAfterNote"));
-    channelAutoIncrButton->addListener(this);
-    channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    setColourToggleButton->setBounds (8, 96, 112, 24);
 
-    channelAutoIncrNoteBox.reset(new juce::ComboBox("channelAutoIncrNoteBox"));
-    addAndMakeVisible(channelAutoIncrNoteBox.get());
-    channelAutoIncrNoteBox->setTooltip(TRANS("After reaching this note, the channel is incremented and the note is reset to 0."));
-    channelAutoIncrNoteBox->setTextWhenNothingSelected(juce::String());
-    channelAutoIncrNoteBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-    channelAutoIncrNoteBox->addListener(this);
+    keyTypeToggleButton.reset (new juce::ToggleButton ("keyTypeToggleButton"));
+    addAndMakeVisible (keyTypeToggleButton.get());
+    keyTypeToggleButton->setButtonText (TRANS("Key type:"));
+    keyTypeToggleButton->addListener (this);
+
+    keyTypeToggleButton->setBounds (8, 64, 112, 24);
+
+    keyTypeCombo.reset (new juce::ComboBox ("keyTypeCombo"));
+    addAndMakeVisible (keyTypeCombo.get());
+    keyTypeCombo->setEditableText (false);
+    keyTypeCombo->setJustificationType (juce::Justification::centredLeft);
+    keyTypeCombo->setTextWhenNothingSelected (juce::String());
+    keyTypeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
+    keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
+    keyTypeCombo->addItem (TRANS("Lumatouch"), 3);
+    keyTypeCombo->addListener (this);
+
+    keyTypeCombo->setBounds (120, 64, 192, 24);
+
+    noteInput.reset (new juce::Slider ("noteInput"));
+    addAndMakeVisible (noteInput.get());
+    noteInput->setTooltip (TRANS("MIDI note or MIDI controller no. (for key type \'continuous controller\')"));
+    noteInput->setRange (0, 127, 1);
+    noteInput->setSliderStyle (juce::Slider::IncDecButtons);
+    noteInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 56, 20);
+    noteInput->addListener (this);
+
+    noteInput->setBounds (120, 128, 112, 24);
+
+    colourSubwindow.reset (new ColourEditComponent());
+    addAndMakeVisible (colourSubwindow.get());
+    colourSubwindow->setName ("colourSubwindow");
+
+    colourSubwindow->setBounds (120, 96, 56, 24);
+
+    autoIncrementLabel.reset (new juce::Label ("autoIncrementLabel",
+                                               TRANS("Auto-Increment")));
+    addAndMakeVisible (autoIncrementLabel.get());
+    autoIncrementLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    autoIncrementLabel->setJustificationType (juce::Justification::centredLeft);
+    autoIncrementLabel->setEditable (false, false, false);
+    autoIncrementLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    autoIncrementLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    autoIncrementLabel->setBounds (8, 204, 111, 24);
+
+    colourTextEditor.reset (new ColourTextEditor ("colourTextEditor", "60aac5"));
+    addAndMakeVisible (colourTextEditor.get());
+    colourTextEditor->setName ("colourTextEditor");
+
+    colourTextEditor->setBounds (184, 96, 128, 24);
+
+    channelInput.reset (new juce::Slider ("channelInput"));
+    addAndMakeVisible (channelInput.get());
+    channelInput->setRange (1, 16, 1);
+    channelInput->setSliderStyle (juce::Slider::IncDecButtons);
+    channelInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 56, 20);
+    channelInput->addListener (this);
+
+    channelInput->setBounds (120, 160, 112, 24);
+
+    channelAutoIncrNoteInput.reset (new juce::Slider ("channelAutoIncrNoteInput"));
+    addAndMakeVisible (channelAutoIncrNoteInput.get());
+    channelAutoIncrNoteInput->setTooltip (TRANS("After reaching this note, the channel is incremented and the note is reset to 0."));
+    channelAutoIncrNoteInput->setRange (0, 127, 1);
+    channelAutoIncrNoteInput->setSliderStyle (juce::Slider::IncDecButtons);
+    channelAutoIncrNoteInput->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 56, 20);
+    channelAutoIncrNoteInput->addListener (this);
+
+    channelAutoIncrNoteInput->setBounds (176, 264, 112, 24);
 
 
     //[UserPreSize]
-    colourTextEditor.reset(new ColourTextEditor("colourTextEditor", "60aac5")); // TODO: load last active colour?
-    addAndMakeVisible(colourTextEditor.get());
+
+    keyTypeToggleButton->setButtonText(translate("KeyType"));
+    keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+
+    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.2f);
+
+    setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+
+    colourSubwindow->setColour("ff60aac5");
+
+    setNoteToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+
+    noteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
+
+    setChannelToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+
+    channelInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
+
+    autoIncrementLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+    autoIncrementLabel->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
+
+    noteAutoIncrButton->setButtonText(translate("NotesPerClick"));
+    noteAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+
+    channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    channelAutoIncrNoteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
+
+    instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
+    parametersFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium);
+
+    //noteInputBox->setVisible(false);
+
+    // TODO: load last active colour?
     colourTextEditor->addColourSelectionListener(this);
     //[/UserPreSize]
 
+    setSize (320, 400);
+
 
     //[Constructor] You can add your own custom stuff here..
-	for (int i = 0; i <= 127; i++)
-	{
-		noteBox->addItem(String(i), i + 1);
-		channelAutoIncrNoteBox->addItem(String(i), i + 1);
-	}
-
-	for (int i = 1; i <= 16; i++)
-		channelBox->addItem(String(i), i);
-
 	setNoteToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
@@ -139,19 +195,21 @@ SingleNoteAssign::~SingleNoteAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	colourSubwindow = nullptr;
-    autoIncrementLabel = nullptr;
     //[/Destructor_pre]
-    
-    noteBox = nullptr;
+
     noteAutoIncrButton = nullptr;
-    channelBox = nullptr;
     channelAutoIncrButton = nullptr;
-    channelAutoIncrNoteBox = nullptr;
     setNoteToggleButton = nullptr;
     setChannelToggleButton = nullptr;
     setColourToggleButton = nullptr;
     keyTypeToggleButton = nullptr;
     keyTypeCombo = nullptr;
+    noteInput = nullptr;
+    colourSubwindow = nullptr;
+    autoIncrementLabel = nullptr;
+    colourTextEditor = nullptr;
+    channelInput = nullptr;
+    channelAutoIncrNoteInput = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -163,11 +221,15 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
+
+    g.fillAll (juce::Colour (0xffbad0de));
+
+    //[UserPaint] Add your own custom painting code here..
     g.fillAll(Colour(0xff212626));
 
-    Rectangle<float> bottomPart = getLocalBounds().toFloat().withTrimmedTop(instructionsBounds.getBottom());
+    Rectangle<float> bottomPart = getLocalBounds().toFloat().withTrimmedTop(instructionsAreaBounds.getBottom());
 
-    Path topBack = getConnectedRoundedRectPath(instructionsBounds.toFloat(), roundedCornerSize, Button::ConnectedEdgeFlags::ConnectedOnBottom);
+    Path topBack = getConnectedRoundedRectPath(instructionsAreaBounds.toFloat(), roundedCornerSize, Button::ConnectedEdgeFlags::ConnectedOnBottom);
     Path bottomBack = getConnectedRoundedRectPath(bottomPart, roundedCornerSize, Button::ConnectedEdgeFlags::ConnectedOnTop);
 
     g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
@@ -182,7 +244,6 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 
     g.setColour(Colours::darkgrey);
     g.drawLine(controlsX, separatorY, getWidth() - controlsX, separatorY);
-
     //[/UserPaint]
 }
 
@@ -194,12 +255,12 @@ void SingleNoteAssign::resized()
     float h = getHeight();
 
     if (getParentComponent()) // This changes when the tab changes
-        roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * roundedCornerLayoutAppHeightScalar);
+        roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     int controlAreaTop = round(h * controlAreaYScalar);
 
-    instructionsBounds.setBounds(0, 0, w, controlAreaTop);
-    instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
+    instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
+    instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
 
     controlsX = round(w * controlsXScalar);
     int marginY = round(h * yMarginScalar);
@@ -211,14 +272,16 @@ void SingleNoteAssign::resized()
     int halfMarginY = round(marginY * 0.5f);
     int rightMarginX = marginX * 2 - halfMarginX;
 
-    parametersFont.setHeight(toggleHeight * 1.25f);
-    int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
+    instructionsBounds.setBounds(marginX, 0, w - marginX - rightMarginX, controlAreaTop);
 
-    keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsBounds.getBottom() + halfMarginY);
+    parametersFont.setHeight(toggleHeight * 1.25f);
+    //int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
+
+    keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsAreaBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
     keyTypeCombo->setSize(w - rightMarginX - keyTypeToggleButton->getRight(), controlH);
     keyTypeCombo->setCentrePosition(
-        round(keyTypeCombo->getWidth() / 2.0f) + keyTypeToggleButton->getRight(),
+        round(keyTypeCombo->getWidth() * 0.5f) + keyTypeToggleButton->getRight(),
         keyTypeToggleButton->getBounds().getCentreY()
     );
 
@@ -226,29 +289,32 @@ void SingleNoteAssign::resized()
     resizeToggleButtonWithHeight(setColourToggleButton.get(), parametersFont, toggleHeight);
     colourSubwindow->setSize(controlH * 1.5f, controlH);
     colourSubwindow->setCentrePosition(
-        round(colourSubwindow->getWidth() / 2.0f) + setColourToggleButton->getRight(),
+        round(colourSubwindow->getWidth() * 0.5f) + setColourToggleButton->getRight(),
         setColourToggleButton->getBounds().getCentreY()
     );
 
     colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
     colourTextEditor->setSize(w - colourTextEditor->getX() - rightMarginX, controlH);
-    colourTextEditor->applyFontToAllText(LumatoneEditorFonts::GothamNarrowMedium(controlH * 0.9f), true);
+    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * 1.2f), true);
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteBox->setSize(w - noteBox->getX() - rightMarginX, controlH);
-    noteBox->setCentrePosition(
-        round(noteBox->getWidth() / 2.0f) + setNoteToggleButton->getRight(),
+    noteInput->setSize(w - noteInput->getX() - rightMarginX, controlH);
+	noteInput->setCentrePosition(
+        round(noteInput->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
     );
+    noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
 
     setChannelToggleButton->setTopLeftPosition(controlsX, setNoteToggleButton->getBottom() + marginY);
-    resizeToggleButtonWithHeight(setChannelToggleButton.get(), parametersFont, toggleHeight);
-    channelBox->setSize(comboBoxWidth, controlH);
-    channelBox->setCentrePosition(
-        round(channelBox->getWidth() / 2.0f) + setChannelToggleButton->getRight(),
+    setChannelToggleButton->setSize(noteInput->getX() - controlsX, toggleHeight);
+    channelInput->setCentrePosition(
+        round(channelInput->getWidth() * 0.5f) + setChannelToggleButton->getRight(),
         setChannelToggleButton->getBounds().getCentreY()
     );
+    channelInput->setTopLeftPosition(noteInput->getX(), channelInput->getY());
+    channelInput->setSize(noteInput->getWidth(), controlH);
+    channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
 
     separatorY = setChannelToggleButton->getBottom() + halfMarginY;
 
@@ -259,58 +325,20 @@ void SingleNoteAssign::resized()
 
     channelAutoIncrButton->setTopLeftPosition(controlsX, noteAutoIncrButton->getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(channelAutoIncrButton.get(), parametersFont, toggleHeight);
-    channelAutoIncrNoteBox->setSize(comboBoxWidth, controlH);
-    channelAutoIncrNoteBox->setCentrePosition(
-        round(channelAutoIncrNoteBox->getWidth() / 2.0f) + channelAutoIncrButton->getRight(),
+
+    int chAutoIncBtnRightAdj = channelAutoIncrButton->getRight() - halfMarginX;
+
+    channelAutoIncrNoteInput->setSize(w - rightMarginX - chAutoIncBtnRightAdj, controlH);
+    channelAutoIncrNoteInput->setCentrePosition(
+        chAutoIncBtnRightAdj + roundToInt(channelAutoIncrNoteInput->getWidth() * 0.5f),
         channelAutoIncrButton->getBounds().getCentreY()
     );
+    //channelAutoIncrNoteInput->setBounds(channelAutoIncrButton->getRight(), channelAutoIncrButton->getY(),
+    channelAutoIncrNoteInput->setTextBoxStyle(Slider::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelAutoIncrNoteInput->getHeight());
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
-}
-
-void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
-{
-    //[UsercomboBoxChanged_Pre]
-    //[/UsercomboBoxChanged_Pre]
-
-    if (comboBoxThatHasChanged == noteBox.get())
-    {
-        //[UserComboBoxCode_noteBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_noteBox]
-    }
-    else if (comboBoxThatHasChanged == channelBox.get())
-    {
-        //[UserComboBoxCode_channelBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_channelBox]
-    }
-    else if (comboBoxThatHasChanged == channelAutoIncrNoteBox.get())
-    {
-        //[UserComboBoxCode_channelAutoIncrNoteBox] -- add your combo box handling code here..
-        //[/UserComboBoxCode_channelAutoIncrNoteBox]
-    }
-    else if (comboBoxThatHasChanged == keyTypeCombo.get())
-    {
-        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
-
-        // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
-        {
-            setNoteToggleButton->setButtonText("CC Type:");
-
-            // ToDo Auto increment does not make sense in this case?
-        }
-        else
-        {
-            setNoteToggleButton->setButtonText("Note (0-127):");
-        }
-
-        //[/UserComboBoxCode_keyTypeCombo]
-    }
-
-    //[UsercomboBoxChanged_Post]
-    //[/UsercomboBoxChanged_Post]
 }
 
 void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
@@ -326,13 +354,15 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == channelAutoIncrButton.get())
     {
         //[UserButtonCode_channelAutoIncrButton] -- add your button handler code here..
+        bool fieldActive = channelAutoIncrButton->getToggleState();
+        channelAutoIncrNoteInput->setEnabled(fieldActive);
         //[/UserButtonCode_channelAutoIncrButton]
     }
     else if (buttonThatWasClicked == setNoteToggleButton.get())
     {
         //[UserButtonCode_setNoteToggleButton] -- add your button handler code here..
 		bool fieldActive = setNoteToggleButton->getToggleState();
-		noteBox->setEnabled(fieldActive);
+		noteInput->setEnabled(fieldActive);
 		noteAutoIncrButton->setEnabled(fieldActive);
         //[/UserButtonCode_setNoteToggleButton]
     }
@@ -340,9 +370,9 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_setChannelToggleButton] -- add your button handler code here..
 		bool fieldActive = setChannelToggleButton->getToggleState();
-		channelBox->setEnabled(fieldActive);
+		channelInput->setEnabled(fieldActive);
 		channelAutoIncrButton->setEnabled(fieldActive);
-		channelAutoIncrNoteBox->setEnabled(fieldActive);
+		channelAutoIncrNoteInput->setEnabled(fieldActive);
         //[/UserButtonCode_setChannelToggleButton]
     }
     else if (buttonThatWasClicked == setColourToggleButton.get())
@@ -365,17 +395,67 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
+void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+    if (comboBoxThatHasChanged == keyTypeCombo.get())
+    {
+        //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
+
+        // Label the "note box" accordingly (controller no. for key type "Fader")
+        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        {
+            setNoteToggleButton->setButtonText("CC Type:");
+
+            // ToDo Auto increment does not make sense in this case?
+        }
+        else
+        {
+            setNoteToggleButton->setButtonText("Note # (0-127):");
+        }
+
+        //[/UserComboBoxCode_keyTypeCombo]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
+}
+
+void SingleNoteAssign::sliderValueChanged (juce::Slider* sliderThatWasMoved)
+{
+    //[UsersliderValueChanged_Pre]
+    //[/UsersliderValueChanged_Pre]
+
+    if (sliderThatWasMoved == noteInput.get())
+    {
+        //[UserSliderCode_noteInput] -- add your slider handling code here..
+        //[/UserSliderCode_noteInput]
+    }
+    else if (sliderThatWasMoved == channelInput.get())
+    {
+        //[UserSliderCode_channelInput] -- add your slider handling code here..
+        //[/UserSliderCode_channelInput]
+    }
+    else if (sliderThatWasMoved == channelAutoIncrNoteInput.get())
+    {
+        //[UserSliderCode_channelAutoIncrNoteInput] -- add your slider handling code here..
+        //[/UserSliderCode_channelAutoIncrNoteInput]
+    }
+
+    //[UsersliderValueChanged_Post]
+    //[/UsersliderValueChanged_Post]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SingleNoteAssign::lookAndFeelChanged() 
+void SingleNoteAssign::lookAndFeelChanged()
 {
     auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (lookAndFeel)
     {
-        lookAndFeel->setupComboBox(*noteBox);
-        lookAndFeel->setupComboBox(*channelBox);
-        lookAndFeel->setupComboBox(*channelAutoIncrNoteBox);
         lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
@@ -399,22 +479,21 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set note if specified
 	if (setNoteToggleButton->getToggleState())
 	{
-		keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-		if (keyData.noteNumber < 0) keyData.noteNumber = 0;
+		keyData.noteNumber = noteInput->getValue();
 		mappingChanged = true;
 	}
 
 	// Set channel if specified
 	if (setChannelToggleButton->getToggleState())
 	{
-		keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
+		keyData.channelNumber = channelInput->getValue();	// 1-16
 		mappingChanged = true;
 	}
 
 	// Set colour if specified
 	if (setColourToggleButton->getToggleState())
 	{
-		keyData.colour = colourSubwindow->getColourAsNumber();
+		keyData.colour = colourSubwindow->getColourAsObject();
 		mappingChanged = true;
 	}
 
@@ -434,20 +513,20 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		int newNote = keyData.noteNumber + 1;
 
 		// Auto increment channel
-		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
-			newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
+		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteInput->getValue() > 0 &&
+			newNote > channelAutoIncrNoteInput->getValue())
 		{
 			newNote = 0;
 			int newChannel = keyData.channelNumber + 1;
 			if (newChannel > 16)
 				newChannel = 1;
-			channelBox->setSelectedId(newChannel);
+			channelInput->setValue(newChannel);
 		}
 
 		if (newNote > 127)
 			newNote = 0;
 
-		noteBox->setSelectedItemIndex(newNote);
+		noteInput->setValue(newNote);
 	}
 
 	return mappingChanged;
@@ -498,33 +577,19 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SingleNoteAssign" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="320" initialHeight="400">
+                 parentClasses="public Component, public ColourSelectionListener, public TextEditor::Listener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="320"
+                 initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
-         virtualName="" explicitFocusOrder="0" pos="8 8 304 32" edTextCol="ff000000"
-         edBkgCol="0" labelText="Define which values you'd like to apply to a key, and then click on the desired key-face"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
-  <COMBOBOX name="noteBox" id="123cacc6155f964" memberName="noteBox" virtualName=""
-            explicitFocusOrder="0" pos="120 128 56 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
-            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="noteAutoIncrButton" id="49829699593b11f7" memberName="noteAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 232 160 24" buttonText="Notes-Per-Click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <COMBOBOX name="channelBox" id="208bbc8901c22319" memberName="channelBox"
-            virtualName="" explicitFocusOrder="0" pos="120 160 56 24" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="channelAutoIncrButton" id="1749290d10236ec3" memberName="channelAutoIncrButton"
                 virtualName="" explicitFocusOrder="0" pos="8 264 160 24" buttonText="Channels, after Note #"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <COMBOBOX name="channelAutoIncrNoteBox" id="4560285c5e467e2f" memberName="channelAutoIncrNoteBox"
-            virtualName="" explicitFocusOrder="0" pos="176 264 56 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
-            editable="0" layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note (0-127):"
+                virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note # (0-127):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setChannelToggleButton" id="f79f82eef6095c3c" memberName="setChannelToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 160 112 24" buttonText="Channel (1-16):"
@@ -539,8 +604,32 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="120 64 192 24" editable="0"
             layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <GROUPCOMPONENT name="autoIncrementgroup" id="249745a33736e282" memberName="juce__groupComponent"
-                  virtualName="" explicitFocusOrder="0" pos="0 209 240 95" title="Auto-Increment:"/>
+  <SLIDER name="noteInput" id="5858bc8c893dc11" memberName="noteInput"
+          virtualName="" explicitFocusOrder="0" pos="120 128 112 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
+          min="0.0" max="127.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="56" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <GENERICCOMPONENT name="colourSubwindow" id="e66042f7ac61358f" memberName="colourSubwindow"
+                    virtualName="ColourEditComponent" explicitFocusOrder="0" pos="120 96 56 24"
+                    class="ColourEditComponent" params=""/>
+  <LABEL name="autoIncrementLabel" id="5657d893807891e2" memberName="autoIncrementLabel"
+         virtualName="" explicitFocusOrder="0" pos="8 204 111 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Auto-Increment" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <GENERICCOMPONENT name="colourTextEditor" id="b2537113bfe0b3f9" memberName="colourTextEditor"
+                    virtualName="ColourTextEditor" explicitFocusOrder="0" pos="184 96 128 24"
+                    class="ColourTextEditor" params="&quot;colourTextEditor&quot;, &quot;60aac5&quot;"/>
+  <SLIDER name="channelInput" id="acf3b651919a83fd" memberName="channelInput"
+          virtualName="" explicitFocusOrder="0" pos="120 160 112 24" min="1.0"
+          max="16.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="56" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <SLIDER name="channelAutoIncrNoteInput" id="6f0004856a09c2f5" memberName="channelAutoIncrNoteInput"
+          virtualName="" explicitFocusOrder="0" pos="176 264 112 24" tooltip="After reaching this note, the channel is incremented and the note is reset to 0."
+          min="0.0" max="127.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="56" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

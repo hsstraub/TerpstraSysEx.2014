@@ -71,7 +71,7 @@ private:
 
 	// Style Helpers
 	Rectangle<int> instructionsBounds;
-	Font instructionsFont = LumatoneEditorFonts::GothamNarrowMedium().withTypefaceStyle("Narrow 325");
+    Font instructionsFont;
 	const float fontHeightInBounds = 0.1f;
 	const int generalRim = 12;
 

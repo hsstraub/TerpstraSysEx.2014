@@ -20,16 +20,14 @@
 /*
 */
 class ColourPaletteWindow  :    public juce::Component,
-                                public Button::Listener,
-                                public ChangeListener
+                                public ChangeListener,
+                                public ColourPalettesPanel::Listener
 {
 public:
-    ColourPaletteWindow(Array<LumatoneColourPalette>& colourPalettesIn);
+    ColourPaletteWindow(Array<LumatoneEditorColourPalette>& colourPalettesIn);
     ~ColourPaletteWindow() override;
 
     void resized() override;
-
-    void buttonClicked(Button* btn) override;
 
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
@@ -44,17 +42,10 @@ public:
 private:
 
     /// <summary>
-    /// Creates a set of components for a filled palette and adds it to the arrays.
-    /// </summary>
-    /// <param name="coloursIn"></param>
-    /// <returns>Index of new palette</returns>
-    int createAndListenToPaletteControls(LumatoneColourPalette& paletteIn);
-
-    /// <summary>
     /// Launches the Palette Edit panel and listens for user interaction.
     /// </summary>
     /// <param name="paletteIn"></param>
-    void startEditingPalette(int paletteIndexIn);
+    void startEditingPalette(int paletteIndexIn, int selectedSwatchIndex = -1);
 
     /// <summary>
     /// Removes a palette and associated buttons
@@ -62,11 +53,17 @@ private:
     /// <param name="paletteIndexToRemove"></param>
     void removePalette(int paletteIndexToRemove);
 
-    int findEditButtonIndex(Button* buttonIn);
+protected:
 
-    int findTrashButtonIndex(Button* buttonIn);
+    void editPaletteRequested(int paletteIndex, int selectedSwatchIndex) override;
+
+    void deletePaletteRequested(int paletteIndex) override;
+
+    void newPaletteRequested() override;
 
 private:
+
+    Array<LumatoneEditorColourPalette>& colourPalettes;
 
     std::unique_ptr<TabbedComponent> colourToolTabs;
     std::unique_ptr<ColourPalettesPanel> palettePanel;
@@ -77,14 +74,8 @@ private:
 
     ColourSelectionGroup paletteGroup;
 
-    OwnedArray<PaletteControlGroup> filledPalettes;
-    std::unique_ptr<ColourPaletteComponent> newPaletteVisual;
-    std::unique_ptr<TextButton> newPaletteButton;
-
     int paletteIndexEditing = -1;
     bool paletteEditingIsNew = false;
-
-    Array<LumatoneColourPalette>& colourPalettes;
 
     const float viewportScrollbarWidthScalar = 0.020833f;
 

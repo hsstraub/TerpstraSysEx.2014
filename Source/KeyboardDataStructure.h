@@ -17,6 +17,8 @@ Author:  hsstraub
 class TerpstraKey
 {
 public:
+	typedef juce::Colour COLOURTYPE;
+
 	typedef enum
 	{
 		noteOnNoteOff = 1,
@@ -25,16 +27,16 @@ public:
 	} KEYTYPE;
 
 public:
-	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
+	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = noteOnNoteOff; };
 	bool isEmpty() const { return channelNumber == 0; }
 
 	bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType; }
 
 public:
-	int		noteNumber;
-	int		channelNumber;
-	int		colour;
-	KEYTYPE	keyType;
+	int			noteNumber;
+	int			channelNumber;
+	COLOURTYPE	colour;
+	KEYTYPE		keyType;
 };
 
 // Subset of 56 (or 55) keys
@@ -109,7 +111,7 @@ public:
 	StringArray toStringArray();
 
 	// The colours that are used
-	SortedSet<int> getUsedColours();
+	//SortedSet<TerpstraKey::COLOURTYPE> getUsedColours();
 
 	// Ticks count of a position in the celocity interval table
 	static int ticksCountFromXPos(int xPos) { return xPos * 16; }

@@ -22,21 +22,22 @@ void HajuErrorVisualizer::setErrorLevel(
     String toolTipText,
     int bgColourId)
 {
-    Colour bgColour = lookAndFeel.findColour(bgColourId);
+    //Colour bgColour = lookAndFeel.findColour(bgColourId);
 
-    switch(errorLevel)
-    {
-    case ErrorLevel::warning:
-        bgColour = bgColour.overlaidWith(Colours::yellow).withAlpha(0.5f);
-        break;
-    case ErrorLevel::error:
-        bgColour = bgColour.overlaidWith(Colours::red).withAlpha(0.5f);
-        break;
-    default:
-        break;
-    }
+
+    //switch(errorLevel)
+    //{
+    //case ErrorLevel::warning:
+    //    bgColour = bgColour.overlaidWith(Colours::yellow).withAlpha(0.5f);
+    //    break;
+    //case ErrorLevel::error:
+    //    bgColour = bgColour.overlaidWith(Colours::red).withAlpha(0.5f);
+    //    break;
+    //default:
+    //    break;
+    //}
 
     tooltipClient.setTooltip(toolTipText);
-    component.setColour(bgColourId, bgColour);
+    component.setColour(bgColourId, errorLevelColours[errorLevel]);
     component.repaint();
 }

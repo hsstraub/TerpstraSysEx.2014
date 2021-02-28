@@ -14,30 +14,37 @@
 //==============================================================================
 // ColourPaletteComponent Definitions
 
-ColourPaletteComponent::ColourPaletteComponent(String name)
-    : PolygonPalette(COLOURPALETTESIZE)
+ColourPaletteComponent::ColourPaletteComponent(String nameIn)
+    : TenHexagonPalette()
 {
-    setName(name);
+    setName(nameIn);
     setColourPalette(Array<Colour>());
 }
 
-ColourPaletteComponent::ColourPaletteComponent(String name, Array<Colour>& colours)
-    : PolygonPalette(COLOURPALETTESIZE), referencedPalette(&colours)
+ColourPaletteComponent::ColourPaletteComponent(LumatoneEditorColourPalette paletteIn)
+    : TenHexagonPalette()
 {
-    setName(name);
-    setColourPalette(colours);
+    setName(paletteIn.getName());
+    setColourPalette(*paletteIn.getColours());
+}
+
+ColourPaletteComponent::ColourPaletteComponent(const ColourPaletteComponent& paletteToCopy)
+    : TenHexagonPalette()
+{
+    setName(paletteToCopy.getName());
+    setColourPalette(paletteToCopy.getColourPalette());
 }
 
 ColourPaletteComponent::~ColourPaletteComponent()
 {
-
+    
 }
 
 //==========================================================================
 
 void ColourPaletteComponent::setSelectedSwatchNumber(int swatchIndex)
 {
-    PolygonPalette::setSelectedSwatchNumber(swatchIndex);
+    Palette::setSelectedSwatchNumber(swatchIndex);
     selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
 }
 
@@ -45,9 +52,6 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
 {
     if (colourPaletteIn.size() == 0)
     {
-        for (int i = 0; i < getNumberOfSwatches(); i++)
-            colourPaletteIn.add(Colour(0xff1b1b1b));
-
         setEnabled(false);
     }
     else
@@ -55,10 +59,12 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
         setEnabled(true);
     }
 
-    PolygonPalette::setColourPalette(colourPaletteIn);
+    while (colourPaletteIn.size() < getNumberOfSwatches())
+    {
+        colourPaletteIn.add(Colour(0xff1b1b1b));
+    }
 
-    if (referencedPalette)
-        *referencedPalette = colourPaletteIn;
+    Palette::setColourPalette(colourPaletteIn);
 
     if (isEnabled())
     {
@@ -74,12 +80,8 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
 
 void ColourPaletteComponent::setSwatchColour(int swatchNumber, Colour newColour)
 {
-    PolygonPalette::setSwatchColour(swatchNumber, newColour);
+    Palette::setSwatchColour(swatchNumber, newColour);
     
-    // Edit referenced palette
-    if (referencedPalette)
-        referencedPalette->set(swatchNumber, newColour);
-
     if (getSelectedSwatchNumber() == swatchNumber)
         selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
 }
@@ -88,21 +90,21 @@ void ColourPaletteComponent::setSwatchColour(int swatchNumber, Colour newColour)
 
 Colour ColourPaletteComponent::getSelectedColour()
 {
-    return PolygonPalette::getSelectedSwatchColour();
+    return Palette::getSelectedSwatchColour();
 }
 
 void ColourPaletteComponent::deselectColour()
 {
-    PolygonPalette::setSelectedSwatchNumber(-1);
+    Palette::setSelectedSwatchNumber(-1);
 }
 
 //==============================================================================
 // PaletteControlGroup Definitions
 
-PaletteControlGroup::PaletteControlGroup(LumatoneColourPalette& paletteIn)
-    : palette("Palette" + paletteIn.id, *paletteIn.palette),
-    editButton("EditButton_" + paletteIn.id, translate("EditButtonTip")),
-    trashButton("TrashButton" + paletteIn.id)
+PaletteControlGroup::PaletteControlGroup(LumatoneEditorColourPalette newPaletteIn)
+    : palette(ColourPaletteComponent(newPaletteIn)),
+      editButton("EditButton_" + newPaletteIn.getName(), translate("EditButtonTip")),
+      trashButton("TrashButton_" + newPaletteIn.getName())
 {
     editButton.setButtonText("Edit");
     editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);

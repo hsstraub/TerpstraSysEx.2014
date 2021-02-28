@@ -24,6 +24,7 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+#include "Main.h"
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -46,7 +47,7 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     labelMidiNotesUntil.reset (new juce::Label ("labelMidiNotesUntil",
                                                 TRANS("MIDI notes from 0 to the scale size")));
     addAndMakeVisible (labelMidiNotesUntil.get());
-    labelMidiNotesUntil->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    labelMidiNotesUntil->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
     labelMidiNotesUntil->setBounds (8, 8, 432, 24);
 
     singleChannelButton.reset (new juce::ToggleButton ("singleChannelButton"));

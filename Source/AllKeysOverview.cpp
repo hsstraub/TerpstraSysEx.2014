@@ -59,22 +59,12 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
-		//.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
-	// NEW STYLE TODO: Use above alpha, or do octave outline?
-	//// ToDo if highlighted: even different alpha?
-	g.setColour(hexagonColour);
-	//g.fillPath(hexPath);
-
-	//// Key highlighted or not: color and thickness of the line
-	//float lineWidth = isHighlighted ? 1.5 : 1;
-	//Colour lineColour = findColour(isHighlighted ? TerpstraKeyEdit::selectedKeyOutlineId : TerpstraKeyEdit::outlineColourId);
-	//g.setColour(lineColour);
-	//g.strokePath(hexPath, PathStrokeType(1));
+    g.setColour(hexagonColour);
 
 	if (colourGraphic && shadowGraphic)
 	{
-		int x = round((getWidth() - colourGraphic->getWidth()) / 2.0f);
-		int y = round((getHeight() - colourGraphic->getHeight()) / 2.0f);
+		int x = round((getWidth()  - colourGraphic->getWidth()) * 0.5f);
+		int y = round((getHeight() - colourGraphic->getHeight()) * 0.5f);
 
 		g.drawImageAt(*colourGraphic, x, y, true);
 		g.drawImageAt(*shadowGraphic, x, y);
@@ -176,7 +166,7 @@ Colour KeyMiniDisplayInsideAllKeysOverview::getKeyColour() const
 {
 	auto keyData = getKeyData();
 	if ( keyData != nullptr)
-		return Colour(keyData->colour).withAlpha(1.0f);
+		return keyData->colour;
 	else
 		return findColour(TerpstraKeyEdit::backgroundColourId);
 }
@@ -256,14 +246,8 @@ AllKeysOverview::~AllKeysOverview()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	//for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-	//{
-	//	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
-	//	{
-	//		octaveBoards[subBoardIndex]->keyMiniDisplay[i] = nullptr;
-	//	}
-	//}
-  //[/Destructor]
+	imageProcessor = nullptr;
+    //[/Destructor]
 }
 
 //==============================================================================
@@ -324,22 +308,14 @@ void AllKeysOverview::resized()
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
 
 	// Scale key graphics once
-#if JUCE_WINDOWS
-	lumatoneGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), "lanczos3", 1.0f);
-	keyShapeGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight, "lanczos3", 1.0f);
-	keyShadowGraphic = resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight, "lanczos3", 1.0f);
-#else // TODO: Determine whether or not to use resampling on Mac and Linux
-	lumatoneGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic).rescaled(lumatoneBounds.getWidth(), lumatoneBounds.getHeight(), Graphics::ResamplingQuality::highResamplingQuality);
-	keyShapeGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
-	keyShadowGraphic = ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow).rescaled(keyWidth, keyHeight, Graphics::ResamplingQuality::highResamplingQuality);
-#endif
+	lumatoneGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight());
+	keyShapeGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight);
+	keyShadowGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight);
 	
 	oct1Key1  = Point<float>(oct1Key1X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key1Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct1Key56 = Point<float>(oct1Key56X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key56Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct5Key7  = Point<float>(oct5Key7X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct5Key7Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 
-	int boardLineLength = boardGeometry.getMaxHorizontalLineSize() * NUMBEROFBOARDS;
-	int boardNumLines = boardGeometry.horizontalLineCount() + BOARDROWOFFSET * (NUMBEROFBOARDS - 1);
 	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24, false);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);

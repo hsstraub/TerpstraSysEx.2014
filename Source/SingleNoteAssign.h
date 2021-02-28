@@ -37,10 +37,11 @@
                                                                     //[/Comments]
 */
 class SingleNoteAssign  : public Component,
-                          public juce::ComboBox::Listener,
+                          public ColourSelectionListener,
+                          public TextEditor::Listener,
                           public juce::Button::Listener,
-                          public juce::TextEditor::Listener,
-                          public ColourSelectionListener
+                          public juce::ComboBox::Listener,
+                          public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -56,41 +57,37 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
     void lookAndFeelChanged() override;
-    
+
     ColourEditComponent* getColourEditComponent() { return colourSubwindow.get(); }
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
-
-    virtual void textEditorFocusLost(TextEditor&) {}
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::unique_ptr<ColourEditComponent> colourSubwindow;
-    std::unique_ptr<ColourTextEditor> colourTextEditor;
-
     //==============================================================================
     // Style Helpers
     int roundedCornerSize;
+    Rectangle<int> instructionsAreaBounds;
     Rectangle<int> instructionsBounds;
-
     int controlsX;
     int separatorY;
 
-    Font instructionsFont = LumatoneEditorFonts::GothamNarrowMedium().withTypefaceStyle("Narrow 325");
-    Font parametersFont = LumatoneEditorFonts::GothamNarrowMedium();
+    Font instructionsFont;
+    Font parametersFont;
 
     //==============================================================================
     // Size and position constants
-    const float fontHeightInBounds  = 0.2f;
+    const float fontHeightInBounds  = 0.21f;
 
     const float xMarginScalar       = 0.0917f;
     const float yMarginScalar       = 0.0813f;
@@ -100,21 +97,26 @@ private:
     const float toggleHeightScalar  = 0.034f;
     const float controlHeightScalar = 0.0647f;
 
+    const float controlBoxFontHeightScalar     = 0.75f;
+    const float incDecButtonTextBoxWidthScalar = 0.4f;
+
     const Colour toggleTextColour = Colour(0xffcbcbcb);
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> autoIncrementLabel;
-    std::unique_ptr<juce::ComboBox> noteBox;
     std::unique_ptr<juce::ToggleButton> noteAutoIncrButton;
-    std::unique_ptr<juce::ComboBox> channelBox;
     std::unique_ptr<juce::ToggleButton> channelAutoIncrButton;
-    std::unique_ptr<juce::ComboBox> channelAutoIncrNoteBox;
     std::unique_ptr<juce::ToggleButton> setNoteToggleButton;
     std::unique_ptr<juce::ToggleButton> setChannelToggleButton;
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
     std::unique_ptr<juce::ToggleButton> keyTypeToggleButton;
     std::unique_ptr<juce::ComboBox> keyTypeCombo;
+    std::unique_ptr<juce::Slider> noteInput;
+    std::unique_ptr<ColourEditComponent> colourSubwindow;
+    std::unique_ptr<juce::Label> autoIncrementLabel;
+    std::unique_ptr<ColourTextEditor> colourTextEditor;
+    std::unique_ptr<juce::Slider> channelInput;
+    std::unique_ptr<juce::Slider> channelAutoIncrNoteInput;
 
 
     //==============================================================================

@@ -188,24 +188,6 @@ ColourEditComponent::ColourEditComponent (Colour initialColour)
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    //btnColourPicker.reset (new juce::TextButton ("btnColourPicker"));
-    //addAndMakeVisible (btnColourPicker.get());
-    //btnColourPicker->setButtonText (TRANS(".."));
-    //btnColourPicker->addListener (this);
-
-    //btnColourPicker->setBounds (88, 0, 24, 24);
-
-    //colourCombo.reset (new ColourComboBox ("colourCombo"));
-    //addAndMakeVisible (colourCombo.get());
-    //colourCombo->setEditableText (true);
-    //colourCombo->setJustificationType (juce::Justification::centredLeft);
-    //colourCombo->setTextWhenNothingSelected (juce::String());
-    //colourCombo->setTextWhenNoChoicesAvailable (translate("NoChoices"));
-    //colourCombo->addListener (this);
-
-    //colourCombo->setBounds (0, 0, 79, 24);
-
-
     //[UserPreSize]
     //[/UserPreSize]
 
@@ -213,11 +195,6 @@ ColourEditComponent::ColourEditComponent (Colour initialColour)
 
 
     //[Constructor] You can add your own custom stuff here..
-    //colourComboLookAndFeel.reset(new ColourComboLookAndFeel());
-	//colourComboLookAndFeel->setColour(juce::ComboBox::backgroundColourId, findColour(juce::ComboBox::backgroundColourId));
-	//colourComboLookAndFeel->setColour(juce::ComboBox::textColourId, findColour(juce::ComboBox::textColourId));
-
-	//colourCombo->setLookAndFeel(colourComboLookAndFeel.get());
 
     currentColour = initialColour;
     currentColourAsString = currentColour.toString();
@@ -231,92 +208,9 @@ ColourEditComponent::~ColourEditComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    //btnColourPicker = nullptr;
-    //colourCombo = nullptr;
-
-
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
 }
-
-//==============================================================================
-//void ColourEditComponent::paint (juce::Graphics& g)
-//{
-//    //[UserPrePaint] Add your own custom painting code here..
-//    //[/UserPrePaint]
-//
-//    g.fillAll (juce::Colour (0xffb8d0de));
-//
-//    //[UserPaint] Add your own custom painting code here..
-//	g.fillAll(findColour(ResizableWindow::backgroundColourId));
-//
-//	colourComboLookAndFeel->setColour(juce::ComboBox::arrowColourId, findColour(juce::ComboBox::arrowColourId));
-//	colourComboLookAndFeel->setColour(TerpstraKeyEdit::backgroundColourId, findColour(TerpstraKeyEdit::backgroundColourId));
-//    //[/UserPaint]
-//}
-//
-//void ColourEditComponent::resized()
-//{
-//    //[UserPreResize] Add your own custom resize code here..
-//    //[/UserPreResize]
-//
-//    //[UserResized] Add your own custom resize handling here..
-//    //[/UserResized]
-//}
-//
-//void ColourEditComponent::buttonClicked (juce::Button* buttonThatWasClicked)
-//{
-//    //[UserbuttonClicked_Pre]
-//    //[/UserbuttonClicked_Pre]
-//
-//    if (buttonThatWasClicked == btnColourPicker.get())
-//    {
-//        //[UserButtonCode_btnColourPicker] -- add your button handler code here..
-//		auto colourSelector = std::make_unique<ColourSelector>(ColourSelector::showSliders | ColourSelector::showColourspace);
-//		colourSelector->setName("Colour picker");
-//		colourSelector->addChangeListener(this);
-//
-//		Colour currentColor = colourCombo->getColourAsObjectFromText(ColourComboBox::AddColourToComboBox);
-//
-//		colourSelector->setCurrentColour(currentColor);
-//
-//		colourSelector->setColour(ColourSelector::backgroundColourId, currentColor);
-//		colourSelector->setSize(300, 400);
-//
-//		CallOutBox::launchAsynchronously(std::move(colourSelector), buttonThatWasClicked->getScreenBounds(), nullptr);
-//        //[/UserButtonCode_btnColourPicker]
-//    }
-//
-//    //[UserbuttonClicked_Post]
-//    //[/UserbuttonClicked_Post]
-//}
-//
-//void ColourEditComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
-//{
-//    //[UsercomboBoxChanged_Pre]
-//    //[/UsercomboBoxChanged_Pre]
-//
-//    if (comboBoxThatHasChanged == colourCombo.get())
-//    {
-//        //[UserComboBoxCode_colourCombo] -- add your combo box handling code here..
-//
-//        // Set background colour of combo box to current selection
-//         auto bgColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(
-//            colourCombo->getColourAsObjectFromText(ColourComboBox::DoNotAddColourToCombobox).withAlpha(TERPSTRASINGLEKEYCOLOURALPHA));
-//
-//        colourCombo->setColour(juce::ComboBox::backgroundColourId, bgColour);
-//        colourCombo->setColour(juce::ComboBox::textColourId, bgColour.contrasting(1.0));
-//
-//		// Notify parent that value has changed and can be sent to MIDI controller
-//		sendChangeMessage();
-//
-//        //[/UserComboBoxCode_colourCombo]
-//    }
-//
-//    //[UsercomboBoxChanged_Post]
-//    //[/UsercomboBoxChanged_Post]
-//}
-
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -347,13 +241,6 @@ void ColourEditComponent::paintButton(Graphics& g, bool shouldDrawButtonAsHighli
     g.drawFittedText(getButtonText(), getLocalBounds(), Justification::centred, 1);
 }
 
-//void ColourEditComponent::changeListenerCallback(ChangeBroadcaster *source)
-//{
-//	ColourSelector* cs = dynamic_cast <ColourSelector*> (source);
-//	Colour currentColor = cs->getCurrentColour();
-//	colourCombo->setTextFieldToColourAsObject(currentColor);
-//}
-
 void ColourEditComponent::setColour(String colourAsString)
 {
 	//jassert(colourCombo != nullptr);
@@ -372,15 +259,11 @@ void ColourEditComponent::setColour(String colourAsString)
 
 String ColourEditComponent::getColourAsString()
 {
-	//jassert(colourCombo != nullptr);
-
     return currentColourAsString;
 }
 
 int ColourEditComponent::getColourAsNumber()
 {
-	//jassert(colourCombo != nullptr);
-
 	return currentColourAsString.getHexValue32();
 }
 
@@ -388,12 +271,6 @@ Colour ColourEditComponent::getColourAsObject()
 {
     return currentColour;
 }
-
-//void ColourEditComponent::addColourToBox(int newColourAsNumber)
-//{
-//	//jassert(colourCombo != nullptr);
-//	colourCombo->addColourToBox(newColourAsNumber);
-//}
 
 void ColourEditComponent::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
 {
@@ -406,6 +283,8 @@ void ColourEditComponent::colourChangedCallback(ColourSelectionBroadcaster* sour
 ColourTextEditor::ColourTextEditor(String componentName, String initialString)
     : TextEditor(componentName)
 {
+    setMultiLine(false);
+    setJustification(Justification::centredLeft);
     setTooltip(translate("ColourHexValueEditorTool"));
     setInputRestrictions(6, "0123456789ABCDEFabcdef");
     addListener(this);
@@ -468,7 +347,7 @@ void ColourTextEditor::textEditorEscapeKeyPressed(TextEditor&)
 }
 
 /** Called when the text editor loses focus. */
-void ColourTextEditor::textEditorFocusLost(TextEditor&)
+void ColourTextEditor::textEditorFocusLost(TextEditor& editor)
 {
     // confirm changes
     checkInputAndUpdate();

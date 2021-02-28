@@ -13,7 +13,6 @@
 #include "ColourPaletteComponent.h"
 #include "LumatoneEditorLookAndFeel.h"
 
-
 //==============================================================================
 /*
 *   Panel that displays the palettes and allows users to select a swatch
@@ -22,18 +21,22 @@ class ColourPalettesPanel : public Component
 {
 public:
 
-    ColourPalettesPanel(
-        OwnedArray<PaletteControlGroup>& paletteGroupsIn,
-        ColourPaletteComponent* newPaletteIn,
-        TextButton* newPaletteBtnIn
-    ) :
-        palettes(paletteGroupsIn),
-        newPalette(newPaletteIn),
-        newPaletteBtn(newPaletteBtnIn)
+    ColourPalettesPanel(Array<LumatoneEditorColourPalette> palettesIn, ColourSelectionGroup* colourSelectionGroup = nullptr)
+        : selectionGroup(colourSelectionGroup)
     {
+        addMouseListener(this, true);
+        setRepaintsOnMouseActivity(true);
+
+        newPalette.reset(new ColourPaletteComponent("EmptyPalette"));
+        newPaletteBtn.reset(new TextButton("NewButton", translate("NewPaletteTip")));
+        newPaletteBtn->setButtonText(translate("NewPalette"));
+        newPaletteBtn->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
+        newPaletteBtn->onClick = [&] { listeners.call(&ColourPalettesPanel::Listener::newPaletteRequested); };
+
         flexBox.flexWrap = FlexBox::Wrap::wrap;
         flexBox.justifyContent = FlexBox::JustifyContent::flexStart;
-        rebuildPanel(false);
+        
+        rebuildPanel(palettesIn, false);
     };
 
     // Used to make this component resize itself depending on how many swatches there are
@@ -53,21 +56,21 @@ public:
     void paint(Graphics& g) override 
     {
         ////Draws rectangles around items and margins 
-        //for (auto item : flexBox.items)
-        //{
-        //    g.setColour(Colours::red);
-        //    g.drawRect(item.currentBounds);
-
-        //    g.setColour(Colours::green);
-        //    g.drawRect(item.currentBounds.getX(), item.currentBounds.getBottom(), item.width, item.margin.bottom, 1.0f);
-
-        //    g.setColour(Colours::yellow);
-        //    g.drawRect(item.currentBounds.getX() - item.margin.left - 1, item.currentBounds.getY(), item.margin.left - 1, item.currentBounds.getHeight(), 1.0f);
-        //    g.drawRect(item.currentBounds.getRight() + 1, item.currentBounds.getY(), item.margin.right - 1, item.currentBounds.getHeight(), 1.0f);
-
-        //    g.setColour(Colours::violet);
-        //    g.drawRect(item.currentBounds.getX(), item.currentBounds.getY() - item.margin.top, item.width, item.margin.top);
-        //}
+//        for (auto item : flexBox.items)
+//        {
+//            g.setColour(Colours::red);
+//            g.drawRect(item.currentBounds);
+//
+//            g.setColour(Colours::green);
+//            g.drawRect(item.currentBounds.getX(), item.currentBounds.getBottom(), item.width, item.margin.bottom, 1.0f);
+//
+//            g.setColour(Colours::yellow);
+//            g.drawRect(item.currentBounds.getX() - item.margin.left - 1, item.currentBounds.getY(), item.margin.left - 1, item.currentBounds.getHeight(), 1.0f);
+//            g.drawRect(item.currentBounds.getRight() + 1, item.currentBounds.getY(), item.margin.right - 1, item.currentBounds.getHeight(), 1.0f);
+//
+//            g.setColour(Colours::violet);
+//            g.drawRect(item.currentBounds.getX(), item.currentBounds.getY() - item.margin.top, item.width, item.margin.top);
+//        }
     };
 
     void resized() override
@@ -76,6 +79,7 @@ public:
 
         float horizontalMargin  = viewportBounds.proportionOfWidth(horizontalMarginScalar);
         float itemWidth         = viewportBounds.proportionOfWidth(itemWidthScalar);
+        float itemHeight        = viewportBounds.proportionOfWidth(itemHeightScalar);
         float topMargin         = viewportBounds.proportionOfHeight(topMarginScalar);
         float bottomMargin      = viewportBounds.proportionOfHeight(bottomMarginScalar);
 
@@ -83,53 +87,118 @@ public:
         {
             FlexItem& item = flexBox.items.getReference(i);
             item.width = itemWidth;
-            item.height = itemWidth;
+            item.height = itemHeight;
             item.margin = FlexItem::Margin(topMargin, horizontalMargin, bottomMargin, horizontalMargin);
         }
 
         flexBox.performLayout(viewportBounds);
+        
+        float bottomMarginControlHeight = roundToInt(viewportBounds.proportionOfHeight(btmMarginCtrlScalar));
+        float bottomMarginControlSpace  = (bottomMargin - bottomMarginControlHeight) * 0.5f;
 
-        for (int i = 0; i < palettes.size(); i++)
+        for (int i = 0; i < controlGroups.size(); i++)
         {
-            FlexItem& item = flexBox.items.getReference(i);
-            Rectangle<int> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
+            FlexItem& item = flexBox.items.getReference(i + 1);
+            Rectangle<float> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
             int halfItemWidth = bottomMarginBounds.proportionOfWidth(0.5f);
 
-            auto group = palettes.getUnchecked(i);
+            auto label = paletteLabels[i];
+            label->setBounds(item.currentBounds.withTrimmedTop(itemHeight * 0.8f).toNearestInt());
 
-            group->editButton.setSize(halfItemWidth, bottomMarginBounds.proportionOfHeight(0.5f));
-            group->editButton.setTopLeftPosition(bottomMarginBounds.getPosition());
-            group->trashButton.setBounds(group->editButton.getBounds().translated(halfItemWidth, 0));
+            auto group = controlGroups.getUnchecked(i);
+            group->getEditButton()->setSize(halfItemWidth, bottomMarginControlHeight);
+            group->getEditButton()->setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginControlSpace).roundToInt());
+            group->getTrashButton()->setBounds(group->getEditButton()->getBounds().translated(halfItemWidth, 0));
+
+            Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomRight());
+            controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
         }
 
-        newPaletteBtn->setSize(itemWidth, round(bottomMargin * 0.5f));
-        newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom());
+        newPaletteBtn->setSize(itemWidth, bottomMarginControlHeight);
+        newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom() + bottomMarginControlSpace);
+    }
+
+    void mouseMove(const MouseEvent& mouse) override
+    {
+        int newIndex = -1;
+        if (mouse.eventComponent->getProperties().contains("index"))
+        {
+            newIndex = mouse.eventComponent->getProperties()["index"];
+        }
+        else
+        {
+            for (int i = 0; i < controlGroupHitBoxes.size(); i++)
+            {
+                if (controlGroupHitBoxes[i].contains(mouse.getEventRelativeTo(this).position.roundToInt()))
+                {
+                    newIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (newIndex != lastPaletteMouseOver && lastPaletteMouseOver >= 0 && lastPaletteMouseOver < controlGroups.size())
+            setControlsVisibleForPalette(lastPaletteMouseOver, false);
+
+        if (newIndex >= 0 && newIndex < controlGroups.size())
+        {
+            setControlsVisibleForPalette(newIndex, true);
+            lastPaletteMouseOver = newIndex;
+        }
     }
 
     // Setup panels from scratch
-    void rebuildPanel(bool resize = true)
+    void rebuildPanel(Array<LumatoneEditorColourPalette> palettesIn, bool resize = true)
     {
         removeAllChildren();
         flexBox.items.clear();
-
-        // Palettes with colour
-        for (int i = 0; i < palettes.size(); i++)
+        
+        for (auto label : paletteLabels)
         {
-            auto group = palettes.getUnchecked(i);
-            
-            addAndMakeVisible(group->palette);
-            flexBox.items.add(group->palette);
-
-            addAndMakeVisible(group->editButton);
-            addAndMakeVisible(group->trashButton);
+            removeChildComponent(label);
         }
 
-        addAndMakeVisible(newPalette);
+        addAndMakeVisible(newPalette.get());
         flexBox.items.add(*newPalette);
 
-        addAndMakeVisible(newPaletteBtn);
+        addAndMakeVisible(newPaletteBtn.get());
+        
+        // Remove old ones from colour selection group?
+        controlGroups.clear();
+        paletteLabels.clear();
+        controlGroupHitBoxes.clear();
 
-        int rows = ceil((palettes.size() + 1) * 0.333333f);
+        // Palettes with colour
+        for (int i = 0; i < palettesIn.size(); i++)
+        {
+            auto group = controlGroups.add(new PaletteControlGroup(palettesIn.getReference(i)));
+
+            auto paletteComponent = group->getPaletteComponent();
+            paletteComponent->getProperties().set("index", i);
+            addAndMakeVisible(paletteComponent);
+            flexBox.items.add(*paletteComponent);
+
+            if (selectionGroup)
+                selectionGroup->addSelector(paletteComponent);
+
+            group->getEditButton()->getProperties().set("index", i);
+            group->getEditButton()->onClick = [&, i, paletteComponent] { listeners.call(&ColourPalettesPanel::Listener::editPaletteRequested, i, paletteComponent->getSelectedSwatchNumber()); };
+            addChildComponent(group->getEditButton());
+
+            group->getTrashButton()->getProperties().set("index", i);
+            group->getTrashButton()->onClick = [&, i] { listeners.call(&ColourPalettesPanel::Listener::deletePaletteRequested, i); };
+            addChildComponent(group->getTrashButton());
+
+            String name = palettesIn[i].getName();
+            auto label = paletteLabels.add(new Label("Label_" + name, name));
+            label->setJustificationType(Justification::centred);
+            label->getProperties().set("index", i);
+            addAndMakeVisible(label);
+
+            controlGroupHitBoxes.add(Rectangle<int>());
+        }
+
+        int rows = ceil((palettesIn.size() + 1) * 0.333333f);
 
         // Set height depending on how many rows
         if (resize)
@@ -145,26 +214,65 @@ public:
 
 private:
 
+    void setControlsVisibleForPalette(int paletteIndex, bool areVisible)
+    {
+        auto group = controlGroups.getUnchecked(paletteIndex);
+        group->getEditButton()->setVisible(areVisible);
+        group->getTrashButton()->setVisible(areVisible);
+    }
+
+private:
+
+    ColourSelectionGroup* selectionGroup;
+
     FlexBox flexBox;
 
-    OwnedArray<PaletteControlGroup>& palettes;
-    ColourPaletteComponent* newPalette;
-    TextButton* newPaletteBtn;
+    std::unique_ptr<ColourPaletteComponent> newPalette;
+    std::unique_ptr<TextButton> newPaletteBtn;
+    OwnedArray<PaletteControlGroup> controlGroups;
+    OwnedArray<juce::Label> paletteLabels;
 
     int numRows = 1;
     int viewableWidth = 0;
     int viewableHeight = 0;
 
-    const float itemWidthScalar         = 0.25f;
+    Array<Rectangle<int>> controlGroupHitBoxes;
+    int lastPaletteMouseOver = -1;
 
-    const float topMarginScalar         = 1.0f / 24.0f;
-    const float bottomMarginScalar      = 1.0f / 9.0f;
-    const float horizontalMarginScalar  = 1.0f / 24.0f;
+    const float itemWidthScalar         = 0.28f;
+    const float itemHeightScalar        = 0.25f;
 
-    const float buttonWidthScalar       = 1.0f / 3.0f;
-    const float buttonHeightScalar      = 1.0f / 6.0f;
+    const float topMarginScalar         = 0.042f;
+    const float horizontalMarginScalar  = 0.025f;
+    const float bottomMarginScalar      = 0.075f;
+    const float btmMarginCtrlScalar     = 0.06f;
 
-    const float panelLeftMarginWidth    = 1.0f / 48.0f;
+    const float buttonWidthScalar       = 0.333333f;
+    const float buttonHeightScalar      = 0.166667f;
+
+    const float panelLeftMarginWidth    = 0.020833f;
+
+
+
+    //==============================================================================
+
+public:
+
+    class Listener
+    {
+    public:
+
+        virtual void editPaletteRequested(int paletteIndex, int selectedSwatchIndex) = 0;
+        virtual void deletePaletteRequested(int paletteIndex) = 0;
+        virtual void newPaletteRequested() = 0;
+    };
+
+    void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+    void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
+
+protected:
+
+    ListenerList<ColourPalettesPanel::Listener> listeners;
 };
 
 //==============================================================================
@@ -230,11 +338,15 @@ private:
 /*
 *   Colour palette edtior panel
 */
-class PaletteEditPanel : public Component, public Button::Listener, public ChangeBroadcaster
+class PaletteEditPanel    : public Component, 
+                            public Button::Listener, 
+                            public Label::Listener,
+                            public ChangeBroadcaster
 {
 public:
 
-    PaletteEditPanel(Array<Colour> paletteColours)
+    PaletteEditPanel(const LumatoneEditorColourPalette& paletteIn)
+        : colourPalette(paletteIn)
     {
         colourPicker.reset(new ColourSelector(
               ColourSelector::ColourSelectorOptions::editableColour
@@ -243,16 +355,30 @@ public:
         ));
         addAndMakeVisible(*colourPicker);
 
-        palette.reset(new PolygonPalette(paletteColours.size()));
-        palette->setColourPalette(paletteColours);
-        palette->attachColourSelector(colourPicker.get());
-        addAndMakeVisible(*palette);
+        paletteControl.reset(new TenHexagonPalette());
+        paletteControl->setColourPalette(*colourPalette.getColours());
+        paletteControl->attachColourSelector(colourPicker.get());
+        addAndMakeVisible(*paletteControl);
 
         editPaletteLabel.reset(new Label("EditPaletteLabel", translate("EditPalette")));
         editPaletteLabel->setJustificationType(Justification::centred);
         addAndMakeVisible(*editPaletteLabel);
 
-        saveImage = ImageCache::getFromHashCode(LumatoneEditorAssets::SavePalette);
+        String displayName = colourPalette.getName();
+        if (displayName == String())
+        {
+            paletteUnnamed = true;
+            displayName = "unnamed";
+        }
+
+        paletteNameEditor.reset(new Label("PaletteNameEditor"));
+        paletteNameEditor->setJustificationType(Justification::centred);
+        paletteNameEditor->setEditable(true);
+        paletteNameEditor->addListener(this);
+        paletteNameEditor->setColour(Label::ColourIds::backgroundColourId, Colour());
+        addAndMakeVisible(*paletteNameEditor);
+        paletteNameEditor->setText(displayName, NotificationType::dontSendNotification);
+
         saveButton.reset(new TextButton("SaveButton", translate("SavePaletteTip")));
         saveButton->setButtonText("Save");
         saveButton->addListener(this);
@@ -266,7 +392,7 @@ public:
 
     ~PaletteEditPanel()
     {
-        palette = nullptr;
+        paletteControl = nullptr;
     }
 
     void paint(Graphics& g) override 
@@ -282,21 +408,39 @@ public:
         resizeLabelWithHeight(editPaletteLabel.get(), proportionOfHeight(editPaletteHeight));
         editPaletteLabel->setCentrePosition(leftCenter, round(editPaletteLabel->getHeight() * 0.5f + proportionOfHeight(editPaletteLabelY)));
 
-        float paletteSize = proportionOfWidth(paletteWidthSize);
-        palette->setSize(paletteSize, paletteSize);
-        palette->setCentrePosition(leftCenter, round(paletteSize * 0.5f + proportionOfHeight(paletteY)));
+        float paletteWidth = proportionOfWidth(paletteWidthScalar);
+        float paletteHeight = proportionOfHeight(paletteHeightScalar);
+        paletteControl->setSize(paletteWidth, paletteHeight);
+        paletteControl->setCentrePosition(leftCenter, round(paletteHeight * 0.5f + proportionOfHeight(paletteY)));
 
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
         saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
-
+        
         colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
         colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
+
+        float leftMargin = colourPicker->getRight() * 0.03f * 0.5f;
+        paletteNameEditor->setBounds(Rectangle<int>(
+            Point<int>(roundToInt(leftMargin),  paletteControl->getBottom()),
+            Point<int>(colourPicker->getX() - leftMargin, saveButton->getY())
+        ));
+        paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editPaletteLabel->getHeight() / (float) paletteNameEditor->getHeight());
+
+        if (lookAndFeel)
+        {
+            Font labelFont = (paletteUnnamed)
+                ? lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic)
+                : lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium);
+
+            paletteNameEditor->setFont(labelFont);
+        }
+
     }
 
     void lookAndFeelChanged() override
     {
-        auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+        lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
         if (lookAndFeel)
         {
             lookAndFeel->setupTextButton(*saveButton);
@@ -304,16 +448,7 @@ public:
         }
     }
 
-    Array<Colour> getCurrentPalette() const
-    {
-        return palette->getColourPalette();
-    }
-
-    void setSelectedSwatch(int selectedSwatchNumber)
-    {
-        if (selectedSwatchNumber >= 0 && selectedSwatchNumber < palette->getNumberOfSwatches())
-            palette->setSelectedSwatchNumber(selectedSwatchNumber);
-    }
+    //==============================================================================
 
     void buttonClicked(Button* btn) override
     {
@@ -325,6 +460,52 @@ public:
         sendChangeMessage();
     }
 
+    //==============================================================================
+
+    void labelTextChanged(Label* label) override
+    {
+        if (label == paletteNameEditor.get())
+        {
+            bool nameIsEmpty = paletteNameEditor->getText() == "";
+
+            if (!nameIsEmpty)
+            {
+                paletteUnnamed = false;
+                colourPalette.setName(paletteNameEditor->getText());
+            }
+
+            else if (nameIsEmpty && !paletteUnnamed)
+            {
+                paletteUnnamed = true;
+            }
+
+            if (paletteUnnamed)
+            {
+                paletteNameEditor->setText("unnamed", NotificationType::dontSendNotification);
+            }
+
+            resized();
+        }
+    }
+
+    //==============================================================================
+
+    Array<Colour> getCurrentPalette() const
+    {
+        return paletteControl->getColourPalette();
+    }
+
+    void setSelectedSwatch(int selectedSwatchNumber)
+    {
+        if (selectedSwatchNumber >= 0 && selectedSwatchNumber < paletteControl->getNumberOfSwatches())
+            paletteControl->setSelectedSwatchNumber(selectedSwatchNumber);
+    }
+
+    String getPaletteName()
+    {
+        return colourPalette.getName();
+    }
+
     bool wasSaveRequested() const
     {
         return saveRequested;
@@ -332,16 +513,21 @@ public:
 
 private:
 
-    std::unique_ptr<PolygonPalette> palette;
+    LumatoneEditorColourPalette     colourPalette;
+
+    std::unique_ptr<Palette>        paletteControl;
     std::unique_ptr<ColourSelector> colourPicker;
 
-    Image saveImage;
+    std::unique_ptr<Label>          editPaletteLabel;
+    std::unique_ptr<Label>          paletteNameEditor;
+    std::unique_ptr<TextButton>     saveButton;
+    std::unique_ptr<TextButton>     cancelButton;
 
-    std::unique_ptr<Label> editPaletteLabel;
-    std::unique_ptr<TextButton> saveButton;
-    std::unique_ptr<TextButton> cancelButton;
+    LumatoneEditorLookAndFeel*      lookAndFeel = nullptr;
 
     bool saveRequested = false;
+
+    bool paletteUnnamed = false;
 
     // Drawing constants
 
@@ -350,8 +536,9 @@ private:
     const float editPaletteLabelY   = 0.1212f;
     const float editPaletteHeight   = 0.0606f;
 
-    const float paletteY            = 0.2581f;
-    const float paletteWidthSize    = 0.2727f;
+    const float paletteY            = 0.26f;
+    const float paletteWidthScalar  = 0.27f;
+    const float paletteHeightScalar = 0.25f;
 
     const float buttonY             = 0.6739f;
     const float buttonWidth         = 0.2208f;

@@ -32,6 +32,7 @@
 CalibrationDlg::CalibrationDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium).withTypefaceStyle("Narrow 325");
     //[/Constructor_pre]
 
     btnStart.reset (new juce::TextButton ("btnStart"));
@@ -193,7 +194,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			instructionText = translate("Click \'Start calibration\' to let the keyboard operate in key calibration mode.")
+			instructionText << translate("Click \'Start calibration\' to let the keyboard operate in key calibration mode.")
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
@@ -201,7 +202,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 			break;
 
 		case calibrateAftertouch:
-			instructionText = translate("Click \'Start calibration\'to let the keyboard operate in aftertouch calibration mode.")
+			instructionText << translate("Click \'Start calibration\'to let the keyboard operate in aftertouch calibration mode.")
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);

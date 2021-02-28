@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PolygonPalette.h"
+#include "HexagonPalette.h"
 #include "ColourSelectionGroup.h"
 #include "ColourPaletteDataStructure.h"
 #include "LumatoneEditorStyleCommon.h"
@@ -20,11 +21,12 @@
 /*
 * Inherits from PolygonPalette for Lumatone Editor specific functionality
 */
-class ColourPaletteComponent  : public PolygonPalette, public ColourSelectionBroadcaster
+class ColourPaletteComponent  : public TenHexagonPalette, public ColourSelectionBroadcaster
 {
 public:
-    ColourPaletteComponent(String name);
-    ColourPaletteComponent(String name, Array<Colour>& colours);
+    ColourPaletteComponent(String nameIn);
+    ColourPaletteComponent(LumatoneEditorColourPalette paletteIn);
+    ColourPaletteComponent(const ColourPaletteComponent& paletteToCopy);
     ~ColourPaletteComponent() override;
 
     //==========================================================================
@@ -44,20 +46,27 @@ public:
 
     void deselectColour() override;
 
-private:
-
-    Array<Colour>* referencedPalette = nullptr;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ColourPaletteComponent)
 };
 
 //==============================================================================
 /*
     Container object for controlling colour palettes
 */
-struct PaletteControlGroup
+class PaletteControlGroup
 {
-    PaletteControlGroup(LumatoneColourPalette& paletteIn);
+public:
+
+    PaletteControlGroup(LumatoneEditorColourPalette newPaletteIn);
+
+    ~PaletteControlGroup() {}
+
+    ColourPaletteComponent* getPaletteComponent() { return &palette; }
+
+    TextButton* getEditButton() { return &editButton; }
+
+    ImageButton* getTrashButton() { return &trashButton; }
+
+private:
 
     ColourPaletteComponent palette;
     TextButton editButton;

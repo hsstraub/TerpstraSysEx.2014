@@ -234,7 +234,7 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
 {
-	//int roundedCornerSize = getParentHeight() * roundedCornerLayoutAppHeightScalar;
+	//int roundedCornerSize = getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT;
 	//Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
 	//g.setColour(Colour(0xff272b2f));
 	//g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);

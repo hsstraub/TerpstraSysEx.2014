@@ -3,9 +3,11 @@
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.9"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
+              defines="USE_LICENSED_FONTS=0">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
+      <FILE id="s3Ze61" name="logomark.png" compile="0" resource="1" file="BinaryData/logomark.png"/>
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
             file="BinaryData/LumatoneIcon.png"/>
       <FILE id="KQ7uKE" name="TerpstraIcon.png" compile="0" resource="1"
@@ -54,6 +56,12 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="wf7BNc" name="LumatoneEditorFonts.h" compile="0" resource="0"
+            file="Source/LumatoneEditorFonts.h"/>
+      <FILE id="lGiexB" name="DeviceActivityMonitor.cpp" compile="1" resource="0"
+            file="Source/DeviceActivityMonitor.cpp"/>
+      <FILE id="BD6Z4N" name="DeviceActivityMonitor.h" compile="0" resource="0"
+            file="Source/DeviceActivityMonitor.h"/>
       <FILE id="l4C6a1" name="CalibrationDlg.cpp" compile="1" resource="0"
             file="Source/CalibrationDlg.cpp"/>
       <FILE id="cNe4Ty" name="CalibrationDlg.h" compile="0" resource="0"
@@ -86,6 +94,9 @@
             file="Source/ColourPaletteWindow.h"/>
       <FILE id="mNuPcY" name="ColourSelectionGroup.h" compile="0" resource="0"
             file="Source/ColourSelectionGroup.h"/>
+      <FILE id="P9Pppb" name="Palette.h" compile="0" resource="0" file="Source/Palette.h"/>
+      <FILE id="KhdUGm" name="HexagonPalette.h" compile="0" resource="0"
+            file="Source/HexagonPalette.h"/>
       <FILE id="htw0nj" name="PolygonPalette.h" compile="0" resource="0"
             file="Source/PolygonPalette.h"/>
       <FILE id="UgHvU1" name="LocalisationMap.h" compile="0" resource="0"
@@ -244,10 +255,11 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="nhV3bK" hardenedRuntime="1">
+    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="s3Ze61" hardenedRuntime="1">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
+                       osxArchitecture="64BitIntel"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -260,7 +272,7 @@
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2017 targetFolder="Builds/VisualStudio2017" smallIcon="nhV3bK" bigIcon="nhV3bK">
+    <VS2017 targetFolder="Builds/VisualStudio2017" smallIcon="s3Ze61" bigIcon="s3Ze61">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
@@ -276,7 +288,7 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
-    <VS2019 targetFolder="Builds/VisualStudio2019">
+    <VS2019 targetFolder="Builds/VisualStudio2019" smallIcon="s3Ze61" bigIcon="s3Ze61">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>

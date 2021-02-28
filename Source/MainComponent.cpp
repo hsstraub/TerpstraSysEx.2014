@@ -48,6 +48,17 @@ MainContentComponent::MainContentComponent()
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
+	//lblAppName.reset(new Label("lblAppName", TerpstraSysExApplication::getApp().getApplicationName()));
+	lblAppName.reset(new Label("lblAppName", "lumatone editor"));
+	lblAppName->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
+	lblAppName->setColour(Label::ColourIds::textColourId, Colour(0xff777777));
+	addAndMakeVisible(lblAppName.get());
+
+	lblAppVersion.reset(new Label("lblAppVersion", "v" + TerpstraSysExApplication::getApp().getApplicationVersion()));
+	lblAppVersion->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
+	lblAppVersion->setColour(Label::ColourIds::textColourId, Colour(0xff777777));
+	addAndMakeVisible(lblAppVersion.get());
+
 	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
@@ -71,22 +82,18 @@ MainContentComponent::~MainContentComponent()
 	curvesArea = nullptr;
 	globalSettingsArea = nullptr;
 	pedalSensitivityDlg = nullptr;
+
+	lblAppName = nullptr;
+	lblAppVersion = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	setSize(
-		propertiesFile->getIntValue("MainWindowWidth", DEFAULTMAINWINDOWWIDTH),
-		propertiesFile->getIntValue("MainWindowHeight", DEFAULTMAINWINDOWHEIGHT));
-
 	noteEditArea->restoreStateFromPropertiesFile(propertiesFile);
 }
 
 void MainContentComponent::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 {
-	propertiesFile->setValue("MainWindowWidth", getWidth());
-	propertiesFile->setValue("MainWindowHeight", getHeight());
-
 	noteEditArea->saveStateToPropertiesFile(propertiesFile);
 	globalSettingsArea->saveStateToPropertiesFile(propertiesFile);
 }
@@ -259,25 +266,19 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					{
 					case GET_RED_LED_CONFIG:
 					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());	// This creates an opaque colour (alpha 0xff)
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						keyData.colour = Colour(newValue, keyData.colour.getGreen(), keyData.colour.getBlue());	// This creates an opaque colour (alpha 0xff)
 						break;
 					}
 
 					case GET_GREEN_LED_CONFIG:
 					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						keyData.colour = Colour(keyData.colour.getRed(), newValue, keyData.colour.getBlue());
 						break;
 					}
 
 					case GET_BLUE_LED_CONFIG:
 					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
+						keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue);
 						break;
 					}
 
@@ -319,6 +320,9 @@ void MainContentComponent::buttonClicked(Button* btn)
 
 	if (colourEdit)
 	{
+		// May be better asynchronous on a timer
+		TerpstraSysExApplication::getApp().reloadColourPalettes();
+
 		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
 
@@ -390,6 +394,12 @@ void MainContentComponent::resized()
 		.withTop(roundToInt(getHeight() * footerAreaY))
 		.withTrimmedRight(footerHeight)
 	);
+
+	resizeLabelWithHeight(lblAppName.get(), roundToInt(footerHeight * lumatoneVersionHeight), 1.0f, " ");
+	lblAppName->setTopLeftPosition(proportionOfWidth(lumatoneVersionMarginX), footerY + (footerHeight - lblAppName->getHeight()) * 0.5f);
+
+	resizeLabelWithHeight(lblAppVersion.get(), roundToInt(lblAppName->getHeight() * 0.75f));
+	lblAppVersion->setTopLeftPosition(lblAppName->getRight(), lblAppName->getBottom() - lblAppVersion->getHeight());
 }
 
 void MainContentComponent::refreshAllKeysOverview()
