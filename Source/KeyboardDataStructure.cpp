@@ -92,6 +92,12 @@ TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(TerpstraVelocityCurveCo
 		editStrategy = EDITSTRATEGYINDEX::freeDrawing;
 		break;
 
+	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+		jassert(sizeof(DefaulLumatouchVelocityTable) == sizeof(velocityValues));
+		memmove(velocityValues, DefaulLumatouchVelocityTable, sizeof(DefaulLumatouchVelocityTable));
+		editStrategy = EDITSTRATEGYINDEX::freeDrawing;
+		break;
+
 	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
 	default:
 	{
@@ -241,6 +247,7 @@ void TerpstraKeyMapping::clearAll()
 	noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
 	faderConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
 	afterTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
+	lumaTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch);
 }
 
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
@@ -392,6 +399,11 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 		{
 			afterTouchConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 17));
 		}
+		// Lumatouch configuration
+		else if ((pos1 = currentLine.indexOf("LumaTouchConfig=")) >= 0)
+		{
+			lumaTouchConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 17));
+		}
 	}
 
 	// Conversion between 55-key and 56-key layout
@@ -452,6 +464,8 @@ StringArray TerpstraKeyMapping::toStringArray()
 	result.add("FaderConfig=" + faderConfig.createConfigStringForSaving());
 	// Aftertouch configuration
 	result.add("afterTouchConfig=" + afterTouchConfig.createConfigStringForSaving());
+	// Lumatouch configuration
+	result.add("LumaTouchConfig=" + lumaTouchConfig.createConfigStringForSaving());
 
 	return result;
 }

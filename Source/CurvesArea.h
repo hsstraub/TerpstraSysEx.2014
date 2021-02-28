@@ -64,7 +64,9 @@ public:
 	// New mapping is loaded. Display data.
 	void loadFromMapping();
 
-	// Send curves configS to controller
+	void lookAndFeelChanged() override;
+
+	// Send curves configs to controller
 	void sendConfigToController();
   //[/UserMethods]
 

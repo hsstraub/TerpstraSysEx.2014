@@ -36,3 +36,9 @@ class AftertouchVelocityCurveDialog : public VelocityCurveDlgBase
 public:
 	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch) {}
 };
+
+class LumatouchVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	LumatouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch) {}
+};

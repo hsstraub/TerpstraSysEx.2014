@@ -385,12 +385,12 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 
 void AllKeysOverview::lookAndFeelChanged()
 {
-	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-	if (lookAndFeel)
+	auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (newLookAndFeel)
 	{
-		lookAndFeel->setupTextButton(*btnLoadFile);
-		lookAndFeel->setupTextButton(*btnSaveFile);
-		lookAndFeel->setupTextButton(*buttonReceive);
+		newLookAndFeel->setupTextButton(*btnLoadFile);
+		newLookAndFeel->setupTextButton(*btnSaveFile);
+		newLookAndFeel->setupTextButton(*buttonReceive);
 	}
 }
 
