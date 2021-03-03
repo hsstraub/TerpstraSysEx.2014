@@ -27,15 +27,17 @@
 #define PATH_PI_2_CW   1.5707963 // pi / 2
 #define PATH_PI_2_CCW -1.5707963
 
-// Rounded corner ratio of app neight for layout elements
-static const float roundedCornerLayoutAppHeightScalar       = 1.0f / 180.0f;
+// Rounded corner size over app height ratio for layout elements
+#define ROUNDEDCORNERTOAPPHEIGHT 0.00555556f
 
-static const float settingsAreaMarginHeight                 = 0.1714f;
-static const float settingsLabelHeight                      = 0.14f;
-static const float settingsLabelMarginWidth                 = 0.01f;
+#define CONTROLBOXFONTHEIGHTSCALAR 0.55f
 
-static const float settingsControlMarginParentWidthScalar   = 0.01171875f;
-static const float settingsToggleButtonHeight               = 0.087f;
+#define SETTINGSAREAMARGINHEIGHT 0.1714f
+#define SETTINGSLABELHEIGHT      0.14f
+#define SETTINGSLABELMARGINWIDTH 0.01f
+
+#define SETTINGSCONTROLMARGINTOAPPWIDTH 0.01171875f
+#define SETTINGSTOGGLEHEIGHTSCALAR      0.087f
 
 
 /// <summary>
@@ -255,10 +257,10 @@ static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
     setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
 }
 
-static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f)
+static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix="__")
 {
     label->setFont(label->getFont().withHeight(height * fontHeightScalar));
-    label->setSize(round(label->getFont().getStringWidthFloat(label->getText() + "__")), height);
+    label->setSize(round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height);
 }
 
 static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f)
@@ -362,19 +364,21 @@ enum LumatoneEditorColourIDs
 };
 
 // Static functions for getting default Lumatone Editor fonts
-struct LumatoneEditorFonts
-{
-    static Font UniviaPro                (float height = 12.0f)  { return Font("Univia Pro",       height, Font::plain);                                          }  
-    static Font UniviaProBold            (float height = 12.0f)  { return Font("Univia Pro",       height, Font::bold );                                          }
-    static Font FranklinGothic           (float height = 12.0f)  { return Font("Franklin Gothic",  height, Font::plain).withTypefaceStyle("Medium");              }
-    static Font GothamNarrowMedium       (float height = 12.0f)  { return Font("Gotham",           height, Font::plain).withTypefaceStyle("Narrow Medium");       }
-    static Font GothamNarrowMediumBold   (float height = 12.0f)  { return       GothamNarrowMedium(height)             .withTypefaceStyle("Narrow Bold");         }
-    static Font GothamNarrowMediumItalic (float height = 12.0f)  { return       GothamNarrowMedium(height)             .withTypefaceStyle("Narrow Light Italic"); }
-};
+//struct LumatoneEditorFonts
+//{
+//    static Font UniviaPro                (float height = 12.0f)  { return Font("Univia Pro",       height, Font::plain);                                          }  
+//    static Font UniviaProBold            (float height = 12.0f)  { return Font("Univia Pro",       height, Font::bold );                                          }
+//    static Font FranklinGothic           (float height = 12.0f)  { return Font("Franklin Gothic",  height, Font::plain).withTypefaceStyle("Medium");              }
+//    static Font GothamNarrowMedium       (float height = 12.0f)  { return Font("Gotham",           height, Font::plain).withTypefaceStyle("Narrow Medium");       }
+//    static Font GothamNarrowMediumBold   (float height = 12.0f)  { return       GothamNarrowMedium, height)             .withTypefaceStyle("Narrow Bold");         }
+//    static Font GothamNarrowMediumItalic (float height = 12.0f)  { return       GothamNarrowMedium, height)             .withTypefaceStyle("Narrow Light Italic"); }
+//};
 
 namespace LumatoneEditorStyleIDs
 {    
-    static Identifier fontOverride = Identifier("ComponentFont");
+    // Index of LumatoneEditorFontCollection
+    static Identifier fontOverride = Identifier("AppFontIndex");
+    // TODO: Review with new Font access method
     static Identifier fontOverrideTypefaceStyle = Identifier("ComponentTypefaceStyle");
 
     // A component with text can have it scaled with this property

@@ -102,6 +102,11 @@ private:
 
 	std::unique_ptr<PedalSensitivityDlg> pedalSensitivityDlg;
 
+	// Version signature in bottom left of window
+	std::unique_ptr<Label> lblAppName;
+
+	std::unique_ptr<Label> lblAppVersion;
+
 	//==============================================================================
 	// Data
 	TerpstraKeyMapping	mappingData;
@@ -128,8 +133,9 @@ private:
     const float popupWidth                  = 0.2879f;
     const float popupHeight                 = 0.2615f;
 
-    const float lumatoneVersionMarginX      = 1.0f / 46.0f;
-    const float lumatoneVersionWidth        = 1.0f / 5.0f;
+    const float lumatoneVersionMarginX      = 0.02f;
+	const float lumatoneVersionWidth        = 0.2f;
+	const float lumatoneVersionHeight       = 0.5f;
 
     const float presetButtonColoursX        = 0.7237f;
     const float presetButtonColoursHeight   = 0.2258f;

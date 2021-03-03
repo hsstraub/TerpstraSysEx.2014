@@ -52,7 +52,7 @@ private:
 	Label*	midiNoteLabel;
 	Label*  midiChannelLabel;
 
-	int						keyColour;
+	juce::Colour			keyColour;
 	TerpstraKey::KEYTYPE	keyType;
 	
 	float					keySize;

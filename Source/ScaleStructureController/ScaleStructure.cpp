@@ -1510,7 +1510,7 @@ int ScaleStructure::getSuggestedGeneratorIndex()
 int ScaleStructure::getSuggestedSizeIndex()
 {
 	int index = -1;
-	int dif1, dif2 = INT_MAX;
+	int dif1, dif2 = 0x7fffffff;
 	int scaleSize = 7 / periodFactorSelected;
 
 	for (int i = 0; i < scaleSizes.size(); i++)
@@ -1530,7 +1530,7 @@ int ScaleStructure::getSuggestedSizeIndex()
 int ScaleStructure::getPrefferedSizeIndex(int prefferedSize, bool preferLarger)
 {
 	int index = -1;
-	int dif1, dif2 = INT_MAX;
+	int dif1, dif2 = 0x7fffffff;
 	int scaleSize = prefferedSize / periodFactorSelected;
 
 	for (int i = 0; i < scaleSizes.size(); i++)

@@ -36,7 +36,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle", translate("GeneralSettings")));
     addAndMakeVisible (labelGeneralSettingslTitle.get());
-    labelGeneralSettingslTitle->setFont(LumatoneEditorFonts::UniviaProBold());
+    labelGeneralSettingslTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 
 
     buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
@@ -80,7 +80,7 @@ void GeneralOptionsDlg::paint (juce::Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
     g.setColour(Colour(0xff212626));
-    g.fillRoundedRectangle(getLocalBounds().toFloat().withTop(proportionOfHeight(settingsAreaMarginHeight)), roundedCornerSize);
+    g.fillRoundedRectangle(getLocalBounds().toFloat().withTop(proportionOfHeight(SETTINGSAREAMARGINHEIGHT)), roundedCornerSize);
     //[/UserPaint]
 }
 
@@ -91,19 +91,19 @@ void GeneralOptionsDlg::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    roundedCornerSize = round(getParentHeight() * roundedCornerLayoutAppHeightScalar);
+    roundedCornerSize = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
-    resizeLabelWithHeight(labelGeneralSettingslTitle.get(), roundToInt(getHeight() * settingsLabelHeight));
-    labelGeneralSettingslTitle->setTopLeftPosition(roundToInt(getWidth() * settingsLabelMarginWidth), 0);
+    resizeLabelWithHeight(labelGeneralSettingslTitle.get(), roundToInt(getHeight() * SETTINGSLABELHEIGHT));
+    labelGeneralSettingslTitle->setTopLeftPosition(roundToInt(getWidth() * SETTINGSLABELMARGINWIDTH), 0);
 
-    int marginX = roundToInt(getParentWidth() * settingsControlMarginParentWidthScalar);
+    int marginX = roundToInt(getParentWidth() * SETTINGSCONTROLMARGINTOAPPWIDTH);
 
     buttonAfterTouchActive->setBounds(
-        marginX, proportionOfHeight(0.3f), proportionOfWidth(1.0f), proportionOfHeight(settingsToggleButtonHeight)
+        marginX, proportionOfHeight(0.3f), proportionOfWidth(1.0f), proportionOfHeight(SETTINGSTOGGLEHEIGHTSCALAR)
     );
 
     buttonLightOnKeyStrokes->setBounds(
-        marginX, proportionOfHeight(0.5f), proportionOfWidth(1.0f), proportionOfHeight(settingsToggleButtonHeight)
+        marginX, proportionOfHeight(0.5f), proportionOfWidth(1.0f), proportionOfHeight(SETTINGSTOGGLEHEIGHTSCALAR)
     );
 
     //[/UserResized]

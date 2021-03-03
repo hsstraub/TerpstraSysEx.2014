@@ -18,7 +18,7 @@
 //==============================================================================
 
 TerpstraSysExApplication::TerpstraSysExApplication()
-	: lookAndFeel(true), tooltipWindow(), hasChangesToSave(false)
+	: lookAndFeel(appFonts.fonts, true), tooltipWindow(), hasChangesToSave(false)
 {
 	PropertiesFile::Options options;
 	options.applicationName = "LumatoneSetup";
@@ -60,12 +60,46 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	lookAndFeel.setColour(VelocityCurveBeam::beamColourId, Colour(0x66ff5e00));
 	lookAndFeel.setColour(VelocityCurveBeam::outlineColourId, Colour(0xffd7d9da));
 
-	// Colour palettes
-	colourPalettes = LumatoneColourPalette::loadPalettesFromString(propertiesFile->getValue("ColourPalettes"));
-
 	// Recent files list
 	recentFiles.restoreFromString(propertiesFile->getValue("RecentFiles"));
 	recentFiles.removeNonExistentFiles();
+
+	// Save/Load location preferences or default fallback values
+
+	String possibleDirectory = propertiesFile->getValue("UserDocumentsDirectory");
+	if (File::isAbsolutePath(possibleDirectory))
+	{
+		userDocumentsDirectory = File(possibleDirectory);
+	}
+	if (!userDocumentsDirectory.exists() || userDocumentsDirectory.existsAsFile())
+	{
+		userDocumentsDirectory = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("Lumatone Editor");
+		userDocumentsDirectory.createDirectory();
+	}
+	
+	possibleDirectory = propertiesFile->getValue("UserMappingsDirectory");
+	if (File::isAbsolutePath(possibleDirectory))
+	{
+		userMappingsDirectory = File(possibleDirectory);
+	}
+	if (!userMappingsDirectory.exists() || userMappingsDirectory.existsAsFile())
+	{
+		userMappingsDirectory = userDocumentsDirectory.getChildFile("Mappings");
+		userMappingsDirectory.createDirectory();
+	}
+	
+	possibleDirectory = propertiesFile->getValue("UserPalettesDirectory");
+	if (File::isAbsolutePath(possibleDirectory))
+	{
+		userPalettesDirectory = File(possibleDirectory);
+	}
+	if (!userPalettesDirectory.exists() || userPalettesDirectory.existsAsFile())
+	{
+		userPalettesDirectory = userDocumentsDirectory.getChildFile("Palettes");
+		userPalettesDirectory.createDirectory();
+	}
+
+	reloadColourPalettes();
 
 	// State of main window will be read from properties file when main window is created
 }
@@ -102,8 +136,11 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 			// ToDo switch on/off isomorphic mass assign mode
 
 			// Try to open a config file
-			currentFile = File(commandLineParameter);
-			if (!currentFile.existsAsFile())
+            if (File::isAbsolutePath(commandLineParameter))
+            {
+                currentFile = File(commandLineParameter);
+            }
+			else
 			{
 				// If file name is with quotes, try removing the quotes
 				if (commandLine.startsWithChar('"') && commandLine.endsWithChar('"'))
@@ -120,8 +157,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 
 	mainWindow.reset(new MainWindow());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
-
-	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+	mainWindow->restoreStateFromPropertiesFile(propertiesFile);
 
 	if (currentFile.existsAsFile())
 		openFromCurrentFile();
@@ -131,13 +167,18 @@ void TerpstraSysExApplication::shutdown()
 {
     // Add your application's shutdown code here..
 
+	// Save documents directories (Future: provide option to change them and save after changed by user)
+	propertiesFile->setValue("UserDocumentsDirectory", userDocumentsDirectory.getFullPathName());
+	propertiesFile->setValue("UserMappingsDirectory",   userMappingsDirectory.getFullPathName());
+	propertiesFile->setValue("UserPalettesDirectory",   userPalettesDirectory.getFullPathName());
+
 	// Save recent files list
 	recentFiles.removeNonExistentFiles();
 	jassert(propertiesFile != nullptr);
 	propertiesFile->setValue("RecentFiles", recentFiles.toString());
 
 	// Save state of main window
-	((MainContentComponent*)(mainWindow->getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+	mainWindow->saveStateToPropertiesFile(propertiesFile);
 
 	propertiesFile->saveIfNeeded();
 	delete propertiesFile;
@@ -181,6 +222,71 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what
     // the other instance's command-line arguments were.
+}
+
+void TerpstraSysExApplication::reloadColourPalettes()
+{
+	auto foundPaletteFiles = userPalettesDirectory.findChildFiles(File::TypesOfFileToFind::findFiles, true, '*' + String(PALETTEFILEEXTENSION));
+
+	colourPalettes.clear();
+
+	auto paletteSorter = LumatoneEditorPaletteSorter();
+	for (auto file : foundPaletteFiles)
+	{
+		LumatoneEditorColourPalette palette = LumatoneEditorColourPalette::loadFromFile(file);
+		colourPalettes.addSorted(paletteSorter, palette);
+	}
+
+}
+
+bool TerpstraSysExApplication::saveColourPalette(LumatoneEditorColourPalette& palette, File pathToFile)
+{
+	bool success = false;
+
+	if (palette.hasBeenModified())
+	{
+		ValueTree paletteNode = palette.toValueTree();
+
+		// New file
+		if (!pathToFile.existsAsFile())
+		{
+			if (palette.getName() != String())
+				pathToFile = userPalettesDirectory.getChildFile(palette.getName());
+			else
+				pathToFile = userPalettesDirectory.getChildFile("UnnamedPalette");
+
+			// Make sure filename is unique since saving happens automatically
+			int nameId = 0;
+
+			// One thousand should be enough...right?
+			while (pathToFile.withFileExtension(PALETTEFILEEXTENSION).existsAsFile() && nameId < 1000)
+			{
+				nameId++;
+				pathToFile = userPalettesDirectory.getChildFile("UnnamedPalette" + String(nameId));
+			}
+		}
+
+		 success = palette.saveToFile(pathToFile);
+			
+		// TODO error handling?
+	}
+
+	if (success)
+		reloadColourPalettes();
+
+	return success;
+}
+
+bool TerpstraSysExApplication::deletePaletteFile(File pathToPalette)
+{
+	bool success = false;
+
+	if (pathToPalette.existsAsFile())
+	{
+		success = pathToPalette.deleteFile();
+	}
+
+	return success;
 }
 
 void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
@@ -238,7 +344,7 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
+	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn;*.tsx");
 	if (chooser.browseForFileToOpen())
 	{
 		currentFile = chooser.getResult();

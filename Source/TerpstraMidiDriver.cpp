@@ -98,8 +98,7 @@ void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType);
 
 	// Colour. Values from 0x00 to 0x7f (127 decimal, as the maximal value for data bytes is according to the MIDI standard)
-	Colour theColour(keyData.colour);
-	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2);
+	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, keyData.colour.getRed() / 2, keyData.colour.getGreen() / 2, keyData.colour.getBlue() / 2);
 }
 
 // Send expression pedal sensivity
@@ -328,28 +327,45 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
+void TerpstraMidiDriver::sendSerialIdentityRequest()
+{
+    sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
+}
+
+MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
+{
+    MidiMessage msg = createTerpstraSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
+    return msg;
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
 */
+
+MidiMessage TerpstraMidiDriver::createTerpstraSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4) const
+{
+    unsigned char sysExData[9];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = boardIndex;
+    sysExData[4] = cmd;
+    sysExData[5] = data1;
+    sysExData[6] = data2;
+    sysExData[7] = data3;
+    sysExData[8] = data4;
+
+    MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 9);
+    return msg;
+}
 
 void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
 {
 	// Send only if output device is there and SysEx sending is meant to be active
 	if (midiOutput != nullptr & currentSysExSendingMode == sysExSendingMode::liveEditor)
 	{
-		unsigned char sysExData[9];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = boardIndex;
-		sysExData[4] = cmd;
-		sysExData[5] = data1;
-		sysExData[6] = data2;
-		sysExData[7] = data3;
-		sysExData[8] = data4;
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 9);
+        MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
 		sendMessageWithAcknowledge(msg);
 	}
 }
@@ -431,6 +447,17 @@ bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const M
     auto midiCmd = midiMessage.getSysExData()[4];
 
     return midiCmd == GET_VELOCITY_INTERVALS;
+}
+
+bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return midiCmd == GET_SERIAL_IDENTITY;
 }
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)

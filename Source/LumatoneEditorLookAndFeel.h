@@ -16,12 +16,16 @@
 #pragma once
 
 #include "LumatoneEditorStyleCommon.h"
+#include "LumatoneEditorFonts.h"
 
 class LumatoneEditorLookAndFeel : public LookAndFeel_V4
 {
 public:
 
-    LumatoneEditorLookAndFeel(bool doImageCache = false)
+    LumatoneEditorLookAndFeel(
+        LumatoneEditorFonts::Library appFontsIn,
+        bool doImageCache = false
+    ) : appFonts(appFontsIn)
     {
         setupDefaultColours();
 
@@ -29,6 +33,11 @@ public:
         {
             cacheImages();
         }
+    }
+
+    Font getAppFont(LumatoneEditorFont fontIdIn)
+    {
+        return appFonts[fontIdIn];
     }
 
 public:
@@ -47,7 +56,7 @@ public:
         g.fillAll(findColour(LumatoneEditorColourIDs::MediumBackground));
         
         const float fontHeight = h * 0.5f;
-        const Font font = LumatoneEditorFonts::UniviaProBold(fontHeight);
+        const Font font = appFonts[LumatoneEditorFont::UniviaProBold].withHeight(fontHeight);
         g.setFont(font);
 
         const float margin = (h - fontHeight) * 0.5f;
@@ -125,7 +134,9 @@ public:
         NamedValueSet& properties = l.getProperties();
         if (properties.contains(LumatoneEditorStyleIDs::fontOverride))
         {
-            font = Font(properties[LumatoneEditorStyleIDs::fontOverride], l.getHeight(), Font::plain);
+            int overrideIndex = properties[LumatoneEditorStyleIDs::fontOverride];
+            if (overrideIndex >= 0 && overrideIndex < appFonts.size())
+                font = appFonts[overrideIndex].withHeight(l.getHeight());
         }
 
         if (properties.contains(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle))
@@ -146,7 +157,16 @@ public:
         return BorderSize<int>(0);
     }
 
+    void Label::LookAndFeelMethods::drawLabel(Graphics& g, Label& l)
+    {
+        Path roundedBounds = getConnectedRoundedRectPath(l.getBounds().toFloat(), l.getHeight() * comboBoxRoundedCornerScalar, 0);
+        g.setColour(l.findColour(Label::ColourIds::backgroundColourId));
+        g.fillPath(roundedBounds);
 
+        g.setColour(l.findColour(Label::ColourIds::textColourId));
+        g.setFont(getLabelFont(l));
+        g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), 3);
+    }
 
     //==================================================================
     //
@@ -173,7 +193,7 @@ public:
 
         Colour colour = (shouldDrawButtonAsDown) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
 
-        if (!btn.isEnabled())
+        if (!btn.isEnabled() && colour.isOpaque())
             colour = colour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
 
         else if (shouldDrawButtonAsHighlighted)
@@ -191,16 +211,25 @@ public:
         {
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
-            Font font = getTextButtonFont(btn, btn.getHeight());
+            
+            float fontScalar = 1.0f;
+#if JUCE_MAC
+            fontScalar = 0.9f;
+#endif
+            
+            Font font = getTextButtonFont(btn, btn.getHeight() * fontScalar);
 
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
             int iconW = roundToInt(iconH * ((double)icon.getWidth() / icon.getHeight()));
             int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
 
-            icon = resizeImage(icon, iconW, iconH, "lanczos3", 1.0f);
+            {
+                ImageProcessor ip;
+                icon = ip.resizeImage(icon, iconW, iconH);
+            }
 
-            int margin = font.getStringWidth("_");
+            int margin = font.getStringWidth("  ");
             int textWidth = font.getStringWidth(btn.getButtonText());
             int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
             int secondHalf = lineStart + margin;
@@ -233,58 +262,33 @@ public:
         }
         else
         {
-            LookAndFeel_V4::drawButtonText(g, btn, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
+            int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+
+            Font font = getTextButtonFont(btn, btn.getHeight());
+            int margin = font.getStringWidth("  ");
+            int textWidth = font.getStringWidth(btn.getButtonText());
+            int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
+            
+            Colour textColour = btn.findColour(colourId);
+
+            if (shouldDrawButtonAsDown)
+                textColour = textColour.darker(0.5f);
+            
+            else
+            {
+                if (!btn.isEnabled())
+                    textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+
+                else if (shouldDrawButtonAsHighlighted)
+                    textColour = textColour.brighter();
+            }
+
+            g.setColour(textColour);
+            g.setFont(font);
+            g.drawFittedText(btn.getButtonText(), btn.getLocalBounds(), Justification::centred, 1);
         }
     }
-
-    //// TODO: REVIEW
-    //void drawImageButton(Graphics& g, Image* img, int imageX, int imageY, int imageW, int imageH, const Colour& overlayColour, float imageOpacity, ImageButton& btn) override
-    //{
-    //    Path buttonShape = getButtonShape(btn);
-
-    //    Colour colour = Colour(0xff383b3d);
-    //    Colour textColour = Colours::white;
-
-    //    if (!btn.getToggleState())
-    //    {
-    //        colour = Colour(0xff1c1c1c);
-    //        textColour = Colour(0xffb5b5b5);
-    //    }
-
-    //    g.setColour(colour);
-    //    g.fillPath(buttonShape);
-    //    
-    //    NamedValueSet& properties = btn.getProperties();
-
-    //    float heightScalar = (properties.contains(LumatoneEditorStyleIDs::componentImageHeightScalar))
-    //        ? (float) properties[LumatoneEditorStyleIDs::componentImageHeightScalar]
-    //        : 19.0f / 41.0f;
-
-    //    int height = roundToInt(btn.getHeight() * heightScalar);
-    //    int width = roundToInt(imageW / (float)imageH * height);
-
-    //    g.setColour(textColour);
-    //    g.drawImageWithin(*img, 
-    //        roundToInt((btn.getWidth() - width) * 0.5f), ((btn.getHeight() - height) * 0.5f), 
-    //        width, height, 
-    //        RectanglePlacement::centred, btn.getClickingTogglesState()
-    //    );
-
-    //    if (!btn.getClickingTogglesState() || !btn.getToggleState())
-    //    {
-    //        if (btn.getToggleState() && btn.isMouseButtonDown())
-    //        {
-    //            g.setColour(Colours::black.withAlpha(0.1f));
-    //            g.fillPath(buttonShape);
-    //        }
-
-    //        else if (btn.isMouseOver())
-    //        {
-    //            g.setColour(Colours::white.withAlpha(0.07f));
-    //            g.fillPath(buttonShape);
-    //        }
-    //    }
-    //}
 
     Font getTextButtonFont(TextButton& btn, int buttonHeight) override
     {
@@ -292,12 +296,14 @@ public:
             ? buttonHeight
             : buttonHeight / 1.75f;
 
-        Font font = LumatoneEditorFonts::GothamNarrowMedium(fontHeight);
+        Font font = appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(fontHeight);
 
         NamedValueSet& properties = btn.getProperties();
         if (properties.contains(LumatoneEditorStyleIDs::fontOverride))
         {
-            font = Font(properties[LumatoneEditorStyleIDs::fontOverride], btn.getHeight() * comboBoxFontHeightScalar, Font::plain);
+            int overrideIndex = properties[LumatoneEditorStyleIDs::fontOverride];
+            if (overrideIndex >= 0 && overrideIndex < appFonts.size())
+                font = appFonts[overrideIndex].withHeight(btn.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
         }
 
         if (properties.contains(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle))
@@ -334,7 +340,7 @@ public:
         if (ticked)
         {
             g.setColour(tickColour);
-            g.setFont(LumatoneEditorFonts::GothamNarrowMedium(h).withHorizontalScale(1.333333f));
+            g.setFont(appFonts[LumatoneEditorFont::GothamNarrowBold].withHeight(h).withHorizontalScale(1.333333f));
             g.drawFittedText("X", x, y, w, h, Justification::centred, 1, 1.0f);
         }
     }   
@@ -344,7 +350,7 @@ public:
         drawTickBox(g, btn, 0, 0, btn.getHeight(), btn.getHeight(), btn.getToggleState(), btn.isEnabled(),
             shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
-        g.setFont(LumatoneEditorFonts::GothamNarrowMedium(btn.getHeight() * 1.125f));
+        g.setFont(appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(btn.getHeight() * 1.125f));
 
         Colour textColour = btn.findColour(ToggleButton::ColourIds::textColourId);
        
@@ -367,6 +373,56 @@ public:
     // SLIDER METHODS
     //
     //==================================================================
+
+    void drawIncDecButtonsBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider& sld)
+    {
+        Rectangle<int> bounds(x, y, width, height);
+        g.setColour(Colours::red);
+        g.fillRect(bounds);
+
+        g.setColour(Colours::blue.withAlpha(0.5f));
+        g.fillRect(bounds.withLeft(minSliderPos));
+
+        g.setColour(Colours::yellow.withAlpha(0.5f));
+        g.fillRect(bounds.withLeft(maxSliderPos));
+    }
+
+    void drawLinearSliderBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const Slider::SliderStyle style, Slider& sld) override
+    {
+        if (style == Slider::SliderStyle::IncDecButtons)
+        {
+            drawIncDecButtonsBackground(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, sld);
+        }
+        else
+        {
+            LookAndFeel_V4::drawLinearSliderBackground(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, sld);
+        }
+    }
+
+    Button* createSliderButton(Slider& sld, bool isIncrement) override
+    {
+        auto btn = new TextButton();
+
+        btn->setColour(TextButton::ColourIds::buttonColourId, Colour());
+        btn->setColour(TextButton::ColourIds::buttonOnColourId, Colour());
+
+        Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
+        
+        if (!sld.isEnabled())
+            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+
+        btn->setColour(TextButton::ColourIds::textColourOnId, textColour);
+        btn->setColour(TextButton::ColourIds::textColourOffId, textColour);
+
+        if (isIncrement) 
+            btn->setButtonText("+"); 
+        else 
+            btn->setButtonText("-");
+
+        btn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.25f);
+
+        return btn;
+    }
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, Slider& sld) override
     {
@@ -424,7 +480,7 @@ public:
             Label* label = new Label(sld.getName() + "_ValueLabel");
             label->setText(String(sld.getValue()), dontSendNotification);
             label->setJustificationType(Justification::centred);
-            label->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+            label->setFont(appFonts[LumatoneEditorFont::GothamNarrowMedium]);
 
             Colour textColour = (sld.isEnabled())
                 ? findColour(LumatoneEditorColourIDs::DescriptionText)
@@ -434,6 +490,31 @@ public:
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
             sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, roundToInt(sliderSize * 0.5f), roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.5f));
+
+            return label;
+        }
+        else if (sld.getSliderStyle() == Slider::SliderStyle::IncDecButtons)
+        {
+            Label* label = new Label(sld.getName() + "_ValueLabel");
+            label->setText(String(sld.getValue()), dontSendNotification);
+            label->setJustificationType(Justification::centred);
+            label->setFont(appFonts[LumatoneEditorFont::GothamNarrowMedium]);
+            
+            if (sld.getProperties().contains(LumatoneEditorStyleIDs::fontHeightScalar))
+                label->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, sld.getProperties()[LumatoneEditorStyleIDs::fontHeightScalar]);
+
+            Colour backgroundColour = findColour(LumatoneEditorColourIDs::ControlBoxBackground);
+            Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
+
+            if (!sld.isEnabled())
+            {
+                backgroundColour = backgroundColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
+                textColour = findColour(LumatoneEditorColourIDs::InactiveText);
+            }
+
+            label->setColour(Label::ColourIds::backgroundColourId, backgroundColour);
+            label->setColour(Label::ColourIds::backgroundWhenEditingColourId, backgroundColour);
+            label->setColour(Label::ColourIds::textColourId, textColour);
 
             return label;
         }
@@ -522,19 +603,21 @@ public:
 
             g.setColour(textColour);
 
-            g.setFont(LumatoneEditorFonts::GothamNarrowMedium(buttonH * 0.5f).withTypefaceStyle("Narrow Light").withHorizontalScale(2.0f));
+            g.setFont(appFonts[LumatoneEditorFont::GothamNarrowLight].withHeight(buttonH * 0.5f).withHorizontalScale(2.0f));
             g.drawFittedText("v", realButtonX, 0, box.getHeight(), box.getHeight(), Justification::centred, 1);
         }
     }
 
     Font getComboBoxFont(ComboBox& box) override
     {
-        Font font = LumatoneEditorFonts::UniviaProBold(box.getHeight() * comboBoxFontHeightScalar);
+        Font font = appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(box.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
 
         NamedValueSet& properties = box.getProperties();
         if (properties.contains(LumatoneEditorStyleIDs::fontOverride))
         {
-            font = Font(properties[LumatoneEditorStyleIDs::fontOverride], box.getHeight() * comboBoxFontHeightScalar, Font::plain);
+            int overrideIndex = properties[LumatoneEditorStyleIDs::fontOverride];
+            if (overrideIndex >= 0 && overrideIndex < appFonts.size())
+                font = appFonts[overrideIndex].withHeight(box.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
         }
         
         if (properties.contains(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle))
@@ -642,7 +725,7 @@ public:
         }
         else
         {
-            font = getPopupMenuFont().withHeight(area.getHeight() * comboBoxFontHeightScalar);
+            font = getPopupMenuFont().withHeight(area.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
             textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
         }
 
@@ -686,7 +769,7 @@ public:
 
     Font getPopupMenuFont() override
     {
-        return LumatoneEditorFonts::UniviaProBold().withStyle(Font::plain);
+        return appFonts[LumatoneEditorFont::UniviaProBold];
     }
 
     int getMenuWindowFlags() override
@@ -733,7 +816,7 @@ public:
 
     Font getTabButtonFont(TabBarButton& tbb, float height) override
     {
-        return LumatoneEditorFonts::GothamNarrowMedium(height).withHorizontalScale(1.05f);
+        return appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(height).withHorizontalScale(1.05f);
     }
 
     void drawTabButtonText(TabBarButton& tbb, Graphics& g, bool isMouseOver, bool isMouseDown) override
@@ -754,8 +837,19 @@ public:
             ? (float) barProperties[LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar]
             : defaultHeightScalar;
 
-        g.setFont(getTabButtonFont(tbb, tbb.getHeight() * heightScalar));
-        g.drawFittedText(tbb.getButtonText(), tbb.getTextArea(), Justification::centred, 0.0f);
+        Font font = getTabButtonFont(tbb, tbb.getHeight() * heightScalar);
+        g.setFont(font);
+        
+        int textMargin = 0;
+        Justification textJustify = Justification::centred;
+        
+        if (tbb.getTabbedButtonBar().getNumTabs() == 1)
+        {
+            textMargin = font.getStringWidth("  ");
+            textJustify = Justification::centredLeft;
+        }
+  
+        g.drawFittedText(tbb.getButtonText(), tbb.getTextArea().translated(textMargin, 0).toNearestInt(), textJustify, 0.0f);
     }
 
     void drawTabAreaBehindFrontButton(TabbedButtonBar& tbb, Graphics& g, int w, int h) override {}
@@ -910,11 +1004,12 @@ private:
 
 private:
 
+    LumatoneEditorFonts::Library appFonts;
+
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;
 
     const float comboBoxRoundedCornerScalar = 0.304878f;
-    const float comboBoxFontHeightScalar = 0.55f;
 
     const float rotaryAngleStart = float_Pi * -0.64f; // pi * -2/3
     const float rotaryAngleEnd = -rotaryAngleStart;

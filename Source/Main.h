@@ -15,6 +15,7 @@
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
+#include "LumatoneEditorFonts.h"
 #include "ColourPaletteDataStructure.h"
 #include "LocalisationMap.h"
 #include "FirmwareTransfer.h"
@@ -48,8 +49,13 @@ public:
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	Array<LumatoneColourPalette>& getColourPalettes() { return colourPalettes; }
+	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
+	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
+
+	void reloadColourPalettes();
+	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
+	bool deletePaletteFile(File pathToPalette);
 
 	// Menu functionality
 	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
@@ -109,7 +115,7 @@ public:
 			setVisible(true);
 		}
 
-		void closeButtonPressed()
+		void closeButtonPressed() override
 		{
 			// This is called when the user tries to close this window. Here, we'll just
 			// ask the app to quit when this happens, but you can change this to do
@@ -129,6 +135,24 @@ public:
 		subclass also calls the superclass's method.
 		*/
 
+		void saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+		{
+			// Save state of main window
+			propertiesFile->setValue("MainWindowState", getWindowStateAsString());
+			((MainContentComponent*)(getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+		}
+
+		void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+		{
+			if (!restoreWindowStateFromString(propertiesFile->getValue("MainWindowState")))
+			{
+				// Default window state
+				setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
+			}
+
+			((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+		}
+
 	private:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 	};
@@ -141,13 +165,19 @@ private:
 	std::unique_ptr<ApplicationCommandManager> commandManager;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+	
+	LumatoneEditorFonts			appFonts;
 	LumatoneEditorLookAndFeel	lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
 
-	Array<LumatoneColourPalette> colourPalettes;
+	File						userDocumentsDirectory;
+	File						userMappingsDirectory;
+	File						userPalettesDirectory;
+
+	Array<LumatoneEditorColourPalette> colourPalettes;
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;

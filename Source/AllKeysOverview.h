@@ -123,6 +123,8 @@ private:
 	//==============================================================================
 	// Style helpers
 
+	std::unique_ptr<ImageProcessor> imageProcessor;
+
 	Rectangle<int> lumatoneBounds;
 	int octaveLineY = 0;
 	

@@ -34,7 +34,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 {
     lblPresetButtonColours.reset(new juce::Label("lblPresetButtonColours", translate("PresetButtonColours")));
     addAndMakeVisible(lblPresetButtonColours.get());
-    lblPresetButtonColours->setFont(LumatoneEditorFonts::UniviaProBold());
+    lblPresetButtonColours->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 
     activeMacroButtonColourEdit.reset(new ColourEditComponent());
     addAndMakeVisible(activeMacroButtonColourEdit.get());
@@ -42,7 +42,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
     lblColourActiveMacroButton.reset(new juce::Label("lblColourActiveMacroButton", translate("Active")));
     addAndMakeVisible(lblColourActiveMacroButton.get());
-    lblColourActiveMacroButton->setFont(LumatoneEditorFonts::GothamNarrowMedium());
+    lblColourActiveMacroButton->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
 
 	inactiveMacroButtonColourEdit.reset(new ColourEditComponent());
 	addAndMakeVisible(inactiveMacroButtonColourEdit.get());
@@ -50,7 +50,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
     lblColourInactiveMacroButton.reset(new juce::Label("lblColourInactiveMacroButton", translate("Inactive")));
     addAndMakeVisible(lblColourInactiveMacroButton.get());
-    lblPresetButtonColours->setFont(LumatoneEditorFonts::UniviaProBold());
+    lblPresetButtonColours->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 
 
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
@@ -113,7 +113,7 @@ void GlobalSettingsArea::resized()
     float colourEditHeight = proportionOfHeight(controlsHeight);
     float controlY = proportionOfHeight((1 - controlsHeight) / 2.0f);
     float colourButtonWidth = colourEditHeight * colourButtonAspect;
-    Font colourLabelsFont = LumatoneEditorFonts::FranklinGothic(colourEditHeight * 1.1f);
+    Font colourLabelsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic, colourEditHeight * 1.1f);
 
     lblColourInactiveMacroButton->setFont(colourLabelsFont);
     resizeLabelWithHeight(lblColourInactiveMacroButton.get(), colourEditHeight);
@@ -159,7 +159,7 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		launchOptions.dialogTitle = "Calibration";
 		launchOptions.escapeKeyTriggersCloseButton = true;
 		launchOptions.useNativeTitleBar = false;
-		launchOptions.resizable = true;
+		launchOptions.resizable = false;
 
 		DialogWindow* dw = launchOptions.launchAsync();
 		dw->centreWithSize(548, 240);
