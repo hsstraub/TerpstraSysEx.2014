@@ -17,6 +17,7 @@
 #include "TerpstraMidiDriver.h"
 #include "ColourPaletteDataStructure.h"
 #include "LocalisationMap.h"
+#include "FirmwareTransfer.h"
 
 
 //==============================================================================
@@ -83,10 +84,6 @@ public:
 	void setHasChangesToSave(bool value);
 
 	bool aboutTerpstraSysEx();
-
-	String getLatestFirmwareVersion() { return ""; /*TODO*/ }
-	bool   isFirmwareUpdateAvailable() { return true; /*TODO*/ }
-	int    initializeFirmwareUpdate() { return 1; /*TODO*/ }
 
 	//==============================================================================
 	/*
@@ -157,5 +154,8 @@ private:
 
 	// Size of octaver board. Usually 56, but there are a few devices with55.
 	int octaveBoardSize = 56;
+
+	// Helper class for Firmware versions and updating
+	FirmwareTransfer firmwareTransfer;
 };
 

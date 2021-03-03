@@ -566,7 +566,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	label->setText(m, dontSendNotification);
 	options.content.setOwned(label);
 
-	Rectangle<int> area(0, 0, 400, 200);
+	juce::Rectangle<int> area(0, 0, 400, 200);
 	options.content->setSize(area.getWidth(), area.getHeight());
 
 	options.dialogTitle = "About LumatoneSetup";
@@ -583,7 +583,6 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 	return true;
 }
-
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.

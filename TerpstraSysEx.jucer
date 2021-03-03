@@ -3,7 +3,8 @@
 <JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="0.9.8"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" defines="SERVERHOST=&quot;192.168.7.2&quot; SERVERKEY=&quot;debian&quot; SERVERPWD=&quot;tmppwd&quot;"
+              displaySplashScreen="1">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="nhV3bK" name="LumatoneIcon.png" compile="0" resource="1"
@@ -229,6 +230,10 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="pVqj5T" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="PJosGU" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="Gz5I44" name="FirmwareTransfer.cpp" compile="1" resource="0"
+            file="Source/FirmwareTransfer.cpp"/>
+      <FILE id="ik71Lw" name="FirmwareTransfer.h" compile="0" resource="0"
+            file="Source/FirmwareTransfer.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
@@ -282,10 +287,10 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
-    <VS2019 targetFolder="Builds/VisualStudio2019">
+    <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="libssh2.dll.a">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
+        <CONFIGURATION isDebug="1" name="Debug" useRuntimeLibDLL="1" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2-1.9.0-win64-mingw\lib"/>
+        <CONFIGURATION isDebug="0" name="Release" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>
@@ -309,7 +314,7 @@
     <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
-  <JUCEOPTIONS JUCE_WEB_BROWSER="0"/>
+  <JUCEOPTIONS JUCE_WEB_BROWSER="0" JUCE_USE_CURL="1"/>
   <LIVE_SETTINGS>
     <OSX/>
     <WINDOWS/>
