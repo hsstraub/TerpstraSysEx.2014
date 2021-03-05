@@ -132,8 +132,6 @@ void GlobalSettingsArea::resized()
     resizeLabelWithHeight(lblPresetButtonColours.get(), colourEditHeight);
     lblPresetButtonColours->setTopRightPosition(activeMacroButtonColourEdit->getX() - margin, controlY);
 
-    // DEBUG
-    buttonCalibrate->setTopLeftPosition(0, 0);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..

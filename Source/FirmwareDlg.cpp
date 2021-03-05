@@ -56,7 +56,8 @@ void FirmwareDlg::buttonClicked(Button* btn)
     if (btn == checkUpdateBtn.get())
     {
         DBG("Version check requested");
-        TerpstraSysExApplication::getApp().requestFirmwareDownloadAndUpdate();
+        FirmwareTransfer firmTrans(TerpstraSysExApplication::getApp().getMidiDriver());
+        firmTrans.requestFirmwareDownloadAndUpdate();
     }
     else if (btn == doUpdateBtn.get())
     {

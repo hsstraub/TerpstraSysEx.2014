@@ -10,17 +10,20 @@
 
 #include "FirmwareTransfer.h"
 #include "Main.h"
+#include <stdio.h>
+
+#define LIBSSH_STATIC 1
+
 #if JUCE_WINDOWS
-	#include "Networking/curl-7.75.0-win64-mingw/include/curl/curl.h"
-	#include "Networking/libssh2-1.9.0-win64-mingw/include/libssh2.h"
+	#include "libssh2.h"
+#else
+	#include "libssh2.h"
 #endif
-
-
 
 FirmwareTransfer::FirmwareTransfer(TerpstraMidiDriver& driverIn)
 	: midiDriver(driverIn)
 {
-
+	
 }
 
 FirmwareTransfer::~FirmwareTransfer()
@@ -349,21 +352,6 @@ int FirmwareTransfer::requestFirmwareDownloadAndUpdate()
 }
 
 void FirmwareTransfer::midiMessageReceived(const MidiMessage& midiMessage)
-{
-
-}
-
-void FirmwareTransfer::midiMessageSent(const MidiMessage& midiMessage)
-{
-
-}
-
-void FirmwareTransfer::midiSendQueueSize(int queueSize)
-{
-
-}
-
-void FirmwareTransfer::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
 {
 
 }

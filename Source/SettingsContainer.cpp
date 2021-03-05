@@ -22,7 +22,7 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
     }
 
     g.setColour(backgroundColour.contrasting());
-    g.setFont(LumatoneEditorFonts::GothamNarrowMedium(height));
+    //g.setFont( LumatoneEditorFonts::GothamNarrowMedium(height));
     g.drawFittedText(categories[rowNumber], rowBounds, Justification::left, 1, 1.0f);
 }
 

@@ -184,8 +184,5 @@ private:
 
 	// Size of octaver board. Usually 56, but there are a few devices with55.
 	int octaveBoardSize = 56;
-
-	// Helper class for Firmware versions and updating
-	FirmwareTransfer firmwareTransfer;
 };
 

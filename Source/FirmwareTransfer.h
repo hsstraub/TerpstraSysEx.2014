@@ -44,13 +44,13 @@ public:
 private:
 
     // header only in .cpp
-    //int shutdownSSHSession(LIBSSH2_SESSION*, int, FILE*, int returnCode = 0);
+    //static int shutdownSSHSession(LIBSSH2_SESSION*, int, FILE*, int returnCode = 0);
     //static int waitForSSHSocket(int, LIBSSH2_SESSION*); 
 
     void midiMessageReceived(const MidiMessage& midiMessage) override;
-    void midiMessageSent(const MidiMessage& midiMessage) override;
-    void midiSendQueueSize(int queueSize) override;
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
+    void midiMessageSent(const MidiMessage& midiMessage) override {};
+    void midiSendQueueSize(int queueSize) override {};
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
 
 private:
 
