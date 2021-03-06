@@ -74,6 +74,8 @@
           <FILE id="Nxtv8K" name="README.txt" compile="0" resource="1" file="Source/Networking/libssh2/README.txt"/>
         </GROUP>
       </GROUP>
+      <FILE id="W7Jek7" name="FileBrowserComponent.h" compile="0" resource="0"
+            file="Source/FileBrowserComponent.h"/>
       <FILE id="wf7BNc" name="LumatoneEditorFonts.h" compile="0" resource="0"
             file="Source/LumatoneEditorFonts.h"/>
       <FILE id="lGiexB" name="DeviceActivityMonitor.cpp" compile="1" resource="0"
