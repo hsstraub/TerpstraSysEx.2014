@@ -53,7 +53,8 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     Point<float> origin = bounds.getPosition();
     Point<float> endpoint = bounds.getBottomRight();
 
-    if (connectedFlags == 0 || connectedFlags == 3 || connectedFlags == 12 || connectedFlags == 15)
+    // TODO: finish implementing 3 and 12
+    if (connectedFlags == 0 || connectedFlags == 3 || connectedFlags == 12)
     {
         rect.addRoundedRectangle(bounds, roundedCornerSize);
         return rect;
@@ -404,4 +405,6 @@ namespace LumatoneEditorStyleIDs
     static Identifier textButtonHyperlinkFlag = Identifier("TextButtonHyperlinkFlag");
 
     static Identifier popupMenuMaxColumns = Identifier("PopupMenuMaxColumns");
+
+    static Identifier connectedEdgeFlags = Identifier("ConnectedEdgesFlags");
 }

@@ -539,8 +539,17 @@ public:
             if (!editor.isEnabled())
                 backgroundColour = backgroundColour.withMultipliedSaturation(0.33f);
 
-            Path boxShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height),
-                roundToInt(height * comboBoxRoundedCornerScalar), 0);
+            // This will assume all edges are connected (default TextEditor) if not "connectedEdgeFlag" property is set
+
+            Path boxShape;
+            if ((int)editor.getProperties()[LumatoneEditorStyleIDs::connectedEdgeFlags] < 15) // 15 = All edges connected
+            {
+                boxShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height), roundToInt(height * comboBoxRoundedCornerScalar), editor.getProperties()[LumatoneEditorStyleIDs::connectedEdgeFlags]);
+            }
+            else
+            {
+                boxShape.addRectangle(0, 0, width, height);
+            }
 
             g.setColour(backgroundColour);
             g.fillPath(boxShape);
