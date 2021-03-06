@@ -23,7 +23,7 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
     }
 
     g.setColour(backgroundColour.contrasting());
-    g.setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic, height));
+    g.setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, height));
     g.drawFittedText(categories[rowNumber], rowBounds.withLeft(8), Justification::left, 1, 1.0f);
 }
 

@@ -45,7 +45,7 @@ public:
 	}
 
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
-	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
+	LumatoneEditorLookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }

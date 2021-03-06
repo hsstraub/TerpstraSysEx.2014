@@ -163,6 +163,7 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
 		auto dw = launchOptions.launchAsync();
 		dw->centreWithSize(548, 240);
+        dw->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
         //[/UserButtonCode_buttonCalibrate]
     }
 

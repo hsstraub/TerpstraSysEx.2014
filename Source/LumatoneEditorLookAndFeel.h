@@ -25,7 +25,7 @@ public:
     LumatoneEditorLookAndFeel(
         LumatoneEditorFonts::Library appFontsIn,
         bool doImageCache = false
-    ) : appFonts(appFontsIn)
+    ) : appFonts(appFontsIn), compactWindowStyle(this)
     {
         setupDefaultColours();
 
@@ -120,6 +120,63 @@ public:
 
         return btn;
     }
+
+    class LumatoneEditorCompactWindow : public LookAndFeel_V4
+    {
+    public:
+
+        LumatoneEditorCompactWindow(const LumatoneEditorLookAndFeel* parentIn) : parent(parentIn) {};
+
+        void drawDocumentWindowTitleBar(DocumentWindow& window, Graphics& g,
+            int w, int h, int titleSpaceX, int titleSpaceW, const Image* icon, bool drawTitleTextOnLeft) override
+        {
+            g.fillAll(parent->findColour(LumatoneEditorColourIDs::DarkBackground));
+
+            g.setColour(parent->findColour(LumatoneEditorColourIDs::DescriptionText));
+            g.setFont(parent->appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(h * 0.75f));
+            g.drawFittedText(window.getName(), 0, 0, w, h, Justification::centred, 1, 1.0f);
+        }
+
+        Button* createDocumentWindowButton(int buttonType) override
+        {
+            // Pulled from LookAndFeel_V4::createDocumentWindowButton();
+            Path shape;
+            auto crossThickness = 0.15f;
+
+            const float btnSize = 96.0f;
+            const float vectorSize = btnSize * 0.333333f;
+            const float vecHalfSize = vectorSize * 0.5f;
+
+            ImageButton* btn = new ImageButton();
+            Image btnImage(Image::PixelFormat::RGB, btnSize, btnSize, false);
+
+            Graphics g(btnImage);
+            g.fillAll(parent->findColour(LumatoneEditorColourIDs::DarkBackground));
+
+            if (buttonType == DocumentWindow::closeButton)
+            {
+                shape.addLineSegment({ 0.0f, 0.0f, vectorSize, vectorSize }, crossThickness);
+                shape.addLineSegment({ vectorSize, 0.0f, 0.0f, vectorSize }, crossThickness);
+
+                g.setColour(parent->findColour(LumatoneEditorColourIDs::DescriptionText));
+            }
+
+            float margin = (btnSize - vectorSize) * 0.5f;
+            g.strokePath(shape, PathStrokeType(3.0f), AffineTransform::translation(margin, margin));
+
+            btn->setImages(false, true, true,
+                btnImage, 1.0f, Colour(),
+                btnImage, 1.0f, Colours::white.withAlpha(0.1f),
+                btnImage, 1.0f, Colours::black.withAlpha(0.1f)
+            );
+            
+            return btn;
+        }
+
+    private:
+
+        const LumatoneEditorLookAndFeel* parent;
+    };
 
     //==================================================================
     //
@@ -1011,9 +1068,13 @@ private:
         setColour(LumatoneEditorColourIDs::DisabledOverlay,                 Colour(0x601b1b1b));
     }
 
+public:
+    LumatoneEditorCompactWindow compactWindowStyle;
+
 private:
 
     LumatoneEditorFonts::Library appFonts;
+    
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;
