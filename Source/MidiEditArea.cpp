@@ -145,6 +145,14 @@ MidiEditArea::MidiEditArea ()
 	lblEditMode->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
+	offlineEditorBtn->setClickingTogglesState(true);
+	offlineEditorBtn->setRadioGroupId(10, dontSendNotification);
+	liveEditorBtn->setClickingTogglesState(true);
+	liveEditorBtn->setRadioGroupId(10, dontSendNotification);
+	liveEditorBtn->setToggleState(true, dontSendNotification);
+	lookAndFeel.setupTextButton(*offlineEditorBtn);
+	lookAndFeel.setupTextButton(*liveEditorBtn);
+
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
@@ -170,7 +178,7 @@ MidiEditArea::MidiEditArea ()
 		"Searching for Lumatone...");
 
     deviceMonitor.addChangeListener(this);
-	deviceMonitor.initializeDeviceDetection();
+    deviceMonitor.initializeDeviceDetection();
     //[/Constructor]
 }
 
@@ -395,7 +403,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		}
 		else
 		{
-			deviceMonitor.stopTimer();
+			deviceMonitor.stopDeviceDetection();
 
 			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
 		}
@@ -407,7 +415,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
     //[UserbuttonClicked_Post]
 	else if (buttonThatWasClicked == liveEditorBtn.get())
 	{
-		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)liveEditorBtn->getToggleState());
+		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)!liveEditorBtn->getToggleState());
 
 		TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
 
@@ -418,11 +426,11 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 			break;
 
 		case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
-			lblConnectionState->setText(translate("OfflineMode"), NotificationType::dontSendNotification);
+			lblConnectionState->setText(translate("Offline"), NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::noError,
-				"Offline mode");
+				"Offline");
 			break;
 
 		default:
@@ -470,6 +478,10 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
 
+	//if (isConnected && deviceMonitor.isSearchingForLumatone())
+	//{
+		// TODO: verify connection
+	//}
 
 	resized();
 	repaint();
@@ -498,9 +510,9 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 
 void MidiEditArea::onOpenConnectionToDevice()
 {
-	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
+	//jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
 
-	lblConnectionState->setText("Connecting,,", NotificationType::dontSendNotification);
+	lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
 	errorVisualizer.setErrorLevel(
 		*lblConnectionState.get(),
 		HajuErrorVisualizer::ErrorLevel::noError,
@@ -514,7 +526,16 @@ void MidiEditArea::onOpenConnectionToDevice()
 	);
 
 	if (retc)
+	{
 		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+		liveEditorBtn->setToggleState(true, dontSendNotification);
+		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+	}
+	else
+	{
+		offlineEditorBtn->setToggleState(true, sendNotification);
+		lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
+	}
 }
 
 void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
@@ -554,6 +575,8 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 
 		switch (answerState)
 		{
+		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+
 		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
