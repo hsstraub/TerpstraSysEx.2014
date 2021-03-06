@@ -647,10 +647,24 @@ public:
 
         g.setColour(backgroundColour);
 
-        Path boxShape = getConnectedRoundedRectPath(box.getLocalBounds().toFloat(), 
-            roundToInt(height * comboBoxRoundedCornerScalar), 
-            (box.isPopupActive()) ? Button::ConnectedEdgeFlags::ConnectedOnBottom : 0
-        );
+        auto properties = box.getProperties();
+        Path boxShape; 
+        
+        if (properties.contains(LumatoneEditorStyleIDs::roundedDiagonalCorners))
+        {
+            boxShape = getDiagonalRoundedCornersPath(box.getLocalBounds().toFloat(),
+                roundToInt(height * comboBoxRoundedCornerScalar),
+                (int)properties[LumatoneEditorStyleIDs::roundedDiagonalCorners],
+                box.isPopupActive()
+            );
+        }
+        else
+        {
+            boxShape = getConnectedRoundedRectPath(box.getLocalBounds().toFloat(),
+                roundToInt(height * comboBoxRoundedCornerScalar),
+                (box.isPopupActive()) ? Button::ConnectedEdgeFlags::ConnectedOnBottom : 0
+            );
+        }
         g.fillPath(boxShape);
 
         g.setFont(getComboBoxFont(box));

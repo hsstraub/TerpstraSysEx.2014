@@ -109,6 +109,70 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     return rect;
 }
 
+// TODO: Integrate this into the above function somehow
+static Path getDiagonalRoundedCornersPath(Rectangle<float> bounds, float roundedCornerSize, bool roundedTopRightAndBottomLeft, bool hasPopup = false)
+{
+    Path rect;
+    roundedCornerSize *= 2;
+    int xTo, yTo;
+
+    if (roundedTopRightAndBottomLeft)
+    {
+        rect.startNewSubPath(bounds.getPosition());
+
+        xTo = bounds.getRight() - roundedCornerSize;
+        yTo = bounds.getY();
+        rect.lineTo(xTo, yTo);
+        rect.addArc(xTo, yTo, roundedCornerSize, roundedCornerSize, 0, PATH_PI_2_CW);
+
+        xTo = bounds.getRight();
+        yTo = bounds.getBottom();
+        rect.lineTo(xTo, yTo);
+
+        xTo = bounds.getX();
+        if (!hasPopup)
+        {
+            xTo += roundedCornerSize;
+            rect.lineTo(xTo, yTo);
+            rect.addArc(xTo - roundedCornerSize, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, -float_Pi, PATH_PI_2_CCW);
+        }
+        else
+        {
+            rect.lineTo(xTo, yTo);
+        }
+    }
+    else
+    {
+        rect.startNewSubPath(bounds.getTopRight());
+
+        xTo = bounds.getRight();
+        yTo = bounds.getBottom();
+
+        if (!hasPopup)
+        {
+            yTo -= roundedCornerSize;
+            rect.lineTo(xTo, yTo);
+            rect.addArc(xTo - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, float_Pi);
+        }
+        else
+        {
+            rect.lineTo(xTo, yTo);
+        }
+
+        xTo = bounds.getX();
+        yTo = bounds.getBottom();
+        rect.lineTo(xTo, yTo);
+
+        yTo = bounds.getY() + roundedCornerSize;
+        rect.lineTo(xTo, yTo);
+
+        rect.addArc(xTo, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, PATH_PI_2_CCW, 0);
+    }
+
+    rect.closeSubPath();
+    return rect;
+}
+
 /// <summary>
 /// Adds an arc to a Path using a juce::Rectangle object for bounds.
 /// </summary>
@@ -407,4 +471,8 @@ namespace LumatoneEditorStyleIDs
     static Identifier popupMenuMaxColumns = Identifier("PopupMenuMaxColumns");
 
     static Identifier connectedEdgeFlags = Identifier("ConnectedEdgesFlags");
+
+    // Odd values will have top right and bottom left rounded corners
+    // Even values will have top left and bottom right rounded corners
+    static Identifier roundedDiagonalCorners = Identifier("RoundedDiagonalCorners");
 }
