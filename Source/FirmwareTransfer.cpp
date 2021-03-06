@@ -92,6 +92,8 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 		DBG("FIRMWARE: Input file is not a valid path");
 		return 1;
 	}
+
+	// TODO: Check if looks like a valid firmware file?
 	
 	// Shared SSH session data
 	const char* deviceHostName = SERVERHOST;

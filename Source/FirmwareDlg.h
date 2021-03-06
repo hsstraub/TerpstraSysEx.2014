@@ -10,9 +10,10 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "FileBrowserComponent.h"
 
 
-class FirmwareDlg : public Component, protected Button::Listener
+class FirmwareDlg : public Component, protected Button::Listener, protected PathBrowserComponent::Listener
 {
 public:
 
@@ -23,12 +24,20 @@ public:
 
     void resized() override;
 
+    void lookAndFeelChanged() override;
+
     void buttonClicked(Button* btn) override;
+
+    void fileChanged(PathBrowserComponent* source, File) override;
 
 private:
 
     bool updateIsAvailable = false;
+    
+    File firmwareFileSelected;
 
-    std::unique_ptr<TextButton> checkUpdateBtn;
+    //std::unique_ptr<TextButton> checkUpdateBtn;
+    std::unique_ptr<PathBrowserComponent> fileBrowser;
     std::unique_ptr<TextButton> doUpdateBtn;
+    std::unique_ptr<TextEditor> infoBox;
 };
