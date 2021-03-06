@@ -27,11 +27,11 @@ DeviceActivityMonitor::~DeviceActivityMonitor()
 void DeviceActivityMonitor::initializeDeviceDetection()
 {
     TerpstraMidiDriver& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
+    monitorMessage = midiDriver.getSerialIdentityRequestMessage();
 
     if (deviceConnectionMode != DetectConnectionMode::lookingForDevice)
     {
         deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-        monitorMessage = midiDriver.getSerialIdentityRequestMessage();
     }
     
     // Refresh available devices
@@ -45,7 +45,6 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     {
         outputsToPing.add(MidiOutput::openDevice(outputDeviceInfo.identifier));
     }
-
 
 
     for (auto inputDeviceInfo : MidiInput::getAvailableDevices())
@@ -88,6 +87,15 @@ void DeviceActivityMonitor::pingNextOutput()
     }
 }
 
+void DeviceActivityMonitor::stopDeviceDetection()
+{
+    if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
+    {
+        deviceDetectInProgress = false;
+        stopTimer();
+    }
+}
+
 //void DeviceActivityMonitor::pingAvailableDevices()
 //{
 //    const MidiMessage pingMsg = TerpstraSysExApplication::getApp().getMidiDriver().getSerialIdentityRequestMessage();
@@ -115,10 +123,40 @@ void DeviceActivityMonitor::closeInputDevices()
     inputsListening.clear();
 }
 
+//void DeviceActivityMonitor::closeInputDevicesExcept(int inputDeviceIndexToRetain)
+//{
+//    if (inputDeviceIndexToRetain >= 0 && inputDeviceIndexToRetain < inputsListening.size() && inputsListening[inputDeviceIndexToRetain])
+//    {
+//        auto inputToRetain = inputsListening.getUnchecked(inputDeviceIndexToRetain);
+//
+//        for (auto input : inputsListening)
+//        {
+//            if (input != inputToRetain)
+//            {
+//                input->stop();
+//                inputsListening.removeObject(input, true);
+//            }
+//        }
+//    }
+//}
+
 void DeviceActivityMonitor::closeOutputDevices()
 {
     // juce::MidiOutput stops background threads in its destructor
     outputsToPing.clear();
+}
+
+void DeviceActivityMonitor::testConnectionToDevices(int inputDeviceIndex, int outputDeviceIndex)
+{
+    manualDeviceInputWait = inputDeviceIndex;
+    deviceConnectionMode = DetectConnectionMode::testingManualConnection;
+
+    if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
+    {
+        DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
+        TerpstraSysExApplication::getApp().getMidiDriver().sendMessageNow(monitorMessage);
+        startTimer(responseTimeoutMs);
+    }
 }
 
 void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& response)
