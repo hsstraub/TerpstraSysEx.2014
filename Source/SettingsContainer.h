@@ -9,8 +9,7 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
-#include "LumatoneEditorStyleCommon.h"
+#include "LumatoneEditorLookAndFeel.h"
 #include "CalibrationDlg.h"
 #include "FirmwareDlg.h"
 
@@ -51,19 +50,18 @@ public:
 
     void resized() override;
 
+    void lookAndFeelChanged() override;
+
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
     //=========================================================================
     
-    void displayPanel(int editorSettingCategory);
-    
-    //=========================================================================
+    void showPanel(int editorSettingCategory);
+
+private:
 
     SettingsCategoryModel model;
     std::unique_ptr<ListBox> categoryList;
-
     std::unique_ptr<Component> settingsPanel;
-
-    //=========================================================================
 
 };

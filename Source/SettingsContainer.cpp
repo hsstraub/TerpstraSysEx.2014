@@ -9,6 +9,7 @@
 */
 
 #include "SettingsContainer.h"
+#include "Main.h"
 
 void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
 {
@@ -22,8 +23,8 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
     }
 
     g.setColour(backgroundColour.contrasting());
-    //g.setFont( LumatoneEditorFonts::GothamNarrowMedium(height));
-    g.drawFittedText(categories[rowNumber], rowBounds, Justification::left, 1, 1.0f);
+    g.setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic, height));
+    g.drawFittedText(categories[rowNumber], rowBounds.withLeft(8), Justification::left, 1, 1.0f);
 }
 
 //=========================================================================
@@ -32,14 +33,9 @@ SettingsContainer::SettingsContainer()
     : Component("SettingsContainer")
 {
     categoryList.reset(new ListBox("CategoryList", &model));
+
     addAndMakeVisible(categoryList.get());
     model.addChangeListener(this);
-
-    // Find category width
-    //for (auto category : model.categories)
-    //{
-
-    //}
 }
 
 SettingsContainer::~SettingsContainer()
@@ -49,25 +45,35 @@ SettingsContainer::~SettingsContainer()
 
 void SettingsContainer::paint(Graphics& g)
 {
-
+    g.fillAll(findColour(ResizableWindow::ColourIds::backgroundColourId));
 }
 
 void SettingsContainer::resized()
 {
-    categoryList->setBounds(getLocalBounds().withRight(proportionOfWidth(0.3)).withLeft(8));
+    categoryList->setBounds(getLocalBounds().withRight(proportionOfWidth(0.2)));
     
     if (settingsPanel.get())
     {
-        settingsPanel->setBounds(getLocalBounds().withLeft(proportionOfWidth(0.3f)).reduced(0.033333f));
+        settingsPanel->setBounds(getLocalBounds().withLeft(categoryList->getRight()).reduced(0.033333f));
+    }
+}
+
+void SettingsContainer::lookAndFeelChanged()
+{
+    auto* lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+    if (lookAndFeel)
+    {
+        setColour(ResizableWindow::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LightBackground));
+        categoryList->setColour(ListBox::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::MediumBackground));
     }
 }
 
 void SettingsContainer::changeListenerCallback(ChangeBroadcaster* source)
 {
-    displayPanel(categoryList->getSelectedRow());
+    showPanel(categoryList->getSelectedRow());
 }
 
-void SettingsContainer::displayPanel(int editorSettingCategory)
+void SettingsContainer::showPanel(int editorSettingCategory)
 {
     Component* newPanel = nullptr;
     switch (editorSettingCategory)
@@ -87,6 +93,7 @@ void SettingsContainer::displayPanel(int editorSettingCategory)
         settingsPanel = nullptr;
         settingsPanel.reset(std::move(newPanel));
         addAndMakeVisible(settingsPanel.get());
+        settingsPanel->setLookAndFeel(&getLookAndFeel());
         resized();
     }
 }

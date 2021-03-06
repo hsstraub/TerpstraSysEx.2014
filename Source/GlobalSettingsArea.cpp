@@ -147,21 +147,22 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
-		SettingsContainer* settingsWindow = new SettingsContainer();
+		auto settingsWindow = new SettingsContainer();
         settingsWindow->setLookAndFeel(&getLookAndFeel());
 
 		DialogWindow::LaunchOptions launchOptions;
 		launchOptions.content.setOwned(settingsWindow);
 		launchOptions.content->setSize(480, 240);
 
-		launchOptions.dialogTitle = "Calibration";
+		launchOptions.dialogTitle = "Settings";
 		launchOptions.escapeKeyTriggersCloseButton = true;
 		launchOptions.useNativeTitleBar = false;
 		launchOptions.resizable = false;
 
-		DialogWindow* dw = launchOptions.launchAsync();
-		dw->centreWithSize(548, 240);
+        launchOptions.dialogBackgroundColour = Colour();
 
+		auto dw = launchOptions.launchAsync();
+		dw->centreWithSize(548, 240);
         //[/UserButtonCode_buttonCalibrate]
     }
 
