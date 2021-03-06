@@ -214,7 +214,7 @@ public:
         return BorderSize<int>(0);
     }
 
-    void Label::LookAndFeelMethods::drawLabel(Graphics& g, Label& l)
+    void drawLabel(Graphics& g, Label& l) override	
     {
         Path roundedBounds = getConnectedRoundedRectPath(l.getBounds().toFloat(), l.getHeight() * comboBoxRoundedCornerScalar, 0);
         g.setColour(l.findColour(Label::ColourIds::backgroundColourId));
