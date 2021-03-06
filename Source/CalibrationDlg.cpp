@@ -32,7 +32,7 @@
 CalibrationDlg::CalibrationDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium).withTypefaceStyle("Narrow 325");
+	instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
     //[/Constructor_pre]
 
     btnStart.reset (new juce::TextButton ("btnStart"));
@@ -56,9 +56,9 @@ CalibrationDlg::CalibrationDlg ()
 	calibrationSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
 	addAndMakeVisible(calibrationSelectorTab.get());
 
-	calibrationSelectorTab->addTab(translate("Calibrate Keys"), juce::Colours::lightgrey, 1);
-	calibrationSelectorTab->addTab(translate("Calibrate Aftertouch"), juce::Colours::lightgrey, 2);
-	calibrationSelectorTab->addTab(translate("Calibrate Modulation Wheel"), juce::Colours::lightgrey, 3);
+	calibrationSelectorTab->addTab(translate("Keys"), juce::Colours::lightgrey, 1);
+	calibrationSelectorTab->addTab(translate("Aftertouch"), juce::Colours::lightgrey, 2);
+	calibrationSelectorTab->addTab(translate("Modulation Wheel"), juce::Colours::lightgrey, 3);
 
 	calibrationSelectorTab->addChangeListener(this);
 
@@ -97,7 +97,9 @@ void CalibrationDlg::paint (juce::Graphics& g)
     g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
-	g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::InactiveText));
+	g.fillAll(findColour(ResizableWindow::ColourIds::backgroundColourId));
+
+	g.setColour(findColour(DocumentWindow::ColourIds::textColourId));
 	g.setFont(instructionsFont);
 	g.drawFittedText(instructionText, instructionsBounds, Justification::centred, 2, 1.0f);
     //[/UserPaint]
@@ -117,6 +119,13 @@ void CalibrationDlg::resized()
 		getWidth() - 2 * generalRim,
 		btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim);
 	instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
+
+	int buttonWidth = proportionOfWidth(0.3f);
+	int buttonHeight = proportionOfHeight(0.125f);
+	btnStart->setSize(buttonWidth, buttonHeight);
+	btnStart->setTopLeftPosition(generalRim, getHeight() - generalRim - buttonHeight);
+
+	btnStop->setBounds(btnStart->getBounds().withX(getWidth() - generalRim - buttonWidth));
 
     //[/UserResized]
 }
@@ -181,6 +190,20 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
+void CalibrationDlg::lookAndFeelChanged()
+{
+    //[UserCode_lookAndFeelChanged] -- Add your code here...
+	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
+	if (lookAndFeel)
+	{
+		setColour(ResizableWindow::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LightBackground));
+		setColour(DocumentWindow::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::InactiveText));
+		lookAndFeel->setupTextButton(*btnStart);
+		lookAndFeel->setupTextButton(*btnStop);
+	}
+    //[/UserCode_lookAndFeelChanged]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -194,6 +217,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
+			instructionText.clear();
 			instructionText << translate("Click \'Start calibration\' to let the keyboard operate in key calibration mode.")
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
@@ -202,6 +226,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 			break;
 
 		case calibrateAftertouch:
+			instructionText.clear();
 			instructionText << translate("Click \'Start calibration\'to let the keyboard operate in aftertouch calibration mode.")
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
@@ -241,6 +266,9 @@ BEGIN_JUCER_METADATA
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="524"
                  initialHeight="212">
+  <METHODS>
+    <METHOD name="lookAndFeelChanged()"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ff323e44"/>
   <TEXTBUTTON name="btnStart" id="b61e736f368865ec" memberName="btnStart" virtualName=""
               explicitFocusOrder="0" pos="16 176 144 24" buttonText="Start calibration"

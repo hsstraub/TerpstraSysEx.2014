@@ -88,7 +88,6 @@ void FirmwareDlg::lookAndFeelChanged()
     }
 }
 
-
 void FirmwareDlg::buttonClicked(Button* btn)
 {
     //if (btn == checkUpdateBtn.get())
