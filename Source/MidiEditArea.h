@@ -119,7 +119,6 @@ private:
     Rectangle<float> logomarkBounds;
     Rectangle<float> ioBounds;
 
-    const StringArray connectedText = { translate("Disconnected"), translate("Connected") };
     Array<Colour> connectedColours = { Colour(0xffd7002a), Colour(0xff84aea3) };
 
     //==============================================================================

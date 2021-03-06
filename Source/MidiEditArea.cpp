@@ -342,7 +342,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
-				"Select both a MIDI input and a MIDI output");
+				translate("Select both a MIDI input and output"));
 		}
 		else
 		{
@@ -362,7 +362,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
-				"Select both a MIDI input and a MIDI output");
+				translate("Select both a MIDI input and output"));
 		}
 		else
 		{
@@ -390,10 +390,14 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		if (btnAutoConnect->getToggleState())
 		{
 			deviceMonitor.initializeDeviceDetection();
+
+			lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
 		}
 		else
 		{
 			deviceMonitor.stopTimer();
+
+			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
 		}
 
 		resized();
@@ -450,14 +454,22 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 	pleaseConnectLabel->setVisible(isNotConnected);
 	offlineMsgLabel->setVisible(isNotConnected);
 
-	lblConnectionState->setText(connectedText[isConnectedIn], dontSendNotification);
-	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
-
 	lblEditMode->setVisible(isConnectedIn);
 	liveEditorBtn->setVisible(isConnectedIn);
 	offlineEditorBtn->setVisible(isConnectedIn);
 
 	isConnected = isConnectedIn;
+	btnAutoConnect->setEnabled(!isConnected);
+
+	if (isConnected)
+		lblConnectionState->setText(translate("Connected"), dontSendNotification);
+	else if (btnAutoConnect->getToggleState())
+		lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
+	else
+		lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
+
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
+
 
 	resized();
 	repaint();
@@ -488,17 +500,18 @@ void MidiEditArea::onOpenConnectionToDevice()
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
 
-	lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
+	lblConnectionState->setText("Connecting,,", NotificationType::dontSendNotification);
 	errorVisualizer.setErrorLevel(
 		*lblConnectionState.get(),
 		HajuErrorVisualizer::ErrorLevel::noError,
-		"Connecting");
+		"Connecting...");
 
 	// Send current configuration to device, if desired
 	auto retc = AlertWindow::showOkCancelBox(
 		AlertWindow::AlertIconType::QuestionIcon,
-		"Establishing connection to controller",
-		"Do you want to send the current configuration to the controller?");
+		translate("Establishing connection"),
+		translate("Do you want to send the current setup to your Lumatone?")
+	);
 
 	if (retc)
 		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
