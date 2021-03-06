@@ -248,12 +248,12 @@ public:
             return;
         }
 
-        Colour colour = (shouldDrawButtonAsDown) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
+        Colour colour = (btn.getToggleState()) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
 
         if (!btn.isEnabled() && colour.isOpaque())
             colour = colour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
 
-        else if (shouldDrawButtonAsHighlighted)
+        if (shouldDrawButtonAsHighlighted)
             colour = colour.brighter(0.075f);
 
         g.setColour(colour);
@@ -267,7 +267,7 @@ public:
         if (properties.contains(LumatoneEditorStyleIDs::textButtonIconHashCode))
         {
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
-            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
             
             float fontScalar = 1.0f;
 #if JUCE_MAC
@@ -319,25 +319,22 @@ public:
         }
         else
         {
-            int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
-            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+            int bkgdColourId = (btn.getToggleState()) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
             Font font = getTextButtonFont(btn, btn.getHeight());
             int margin = font.getStringWidth("  ");
             int textWidth = font.getStringWidth(btn.getButtonText());
-            int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
+            int colourId = (btn.getToggleState()) ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             
             Colour textColour = btn.findColour(colourId);
 
-            if (shouldDrawButtonAsDown)
-                textColour = textColour.darker(0.5f);
-            
-            else
+            if ((btn.getClickingTogglesState() && !btn.getToggleState()) || !shouldDrawButtonAsDown)
             {
                 if (!btn.isEnabled())
                     textColour = findColour(LumatoneEditorColourIDs::InactiveText);
 
-                else if (shouldDrawButtonAsHighlighted)
+                if (shouldDrawButtonAsHighlighted)
                     textColour = textColour.brighter();
             }
 
@@ -976,8 +973,18 @@ public:
 
     void setupTextButton(Button& btn)
     {
-        btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
-        btn.setColour(TextButton::ColourIds::textColourOffId, Colour(0xffffffff));
+        btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
+
+        if (btn.getClickingTogglesState())
+        {
+            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
+            btn.setColour(TextButton::ColourIds::textColourOffId, Colour(0xff808080));
+            btn.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+        }
+        else
+        {
+            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
+        }
     }
 
     // Set colours of Image button based on Live and Offline Editor Buttons
