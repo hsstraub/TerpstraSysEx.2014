@@ -22,7 +22,7 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
         g.fillRect(rowBounds);
     }
 
-    g.setColour(backgroundColour.contrasting());
+    g.setColour(Colours::white);
     g.setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, height));
     g.drawFittedText(categories[rowNumber], rowBounds.withLeft(8), Justification::left, 1, 1.0f);
 }
@@ -30,10 +30,11 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
 //=========================================================================
 
 SettingsContainer::SettingsContainer()
-    : Component("SettingsContainer")
+    : Component("SettingsContainer"),
+      model({"Calibrate", "Firmware"})
 {
-    categoryList.reset(new ListBox("CategoryList", &model));
-
+    categoryList.reset(new ListBox("CategoryList"));
+    categoryList->setModel(&model);
     addAndMakeVisible(categoryList.get());
     model.addChangeListener(this);
 }

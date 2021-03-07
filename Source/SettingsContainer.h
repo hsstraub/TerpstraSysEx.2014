@@ -22,21 +22,26 @@ class SettingsCategoryModel : public ListBoxModel, public ChangeBroadcaster
 {
 public:
 
-    SettingsCategoryModel() {}
+    SettingsCategoryModel(StringArray categoryNamesIn)
+    {
+        for (auto name : categoryNamesIn)
+        {
+            categories.add(name);
+        }
+    }
 
-    int getNumRows() { return categories.size(); }
+    int getNumRows() override { return categories.size(); }
 
     void paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected) override;
 
     void selectedRowsChanged(int lastRowSelected) override { sendChangeMessage(); }
+    
+    
 
     //=========================================================================
-
-    const Array<String> categories =
-    {
-        "Calibration",
-        "Firmware"
-    };
+private:
+    Array<String> categories;
+    
 };
 
 class SettingsContainer : public Component, protected ChangeListener
