@@ -25,7 +25,7 @@ FirmwareDlg::FirmwareDlg()
     fileBrowser->getEditor()->setColour(TextEditor::ColourIds::backgroundColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::ControlBoxBackground));
     fileBrowser->getEditor()->setColour(TextEditor::ColourIds::textColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
     fileBrowser->getEditor()->getProperties().set(LumatoneEditorStyleIDs::connectedEdgeFlags, Button::ConnectedEdgeFlags::ConnectedOnRight);
-
+    fileBrowser->addListener(this);
     addAndMakeVisible(fileBrowser.get());
 
     doUpdateBtn.reset(new TextButton("checkUpdateBtn"));
@@ -70,9 +70,7 @@ void FirmwareDlg::resized()
     //checkUpdateBtn->setBounds(margin, margin, buttonWidth, buttonHeight);
 
     doUpdateBtn->setBounds(getWidth() - margin - buttonWidth, margin, buttonWidth, buttonHeight);
-    fileBrowser->setBounds(margin, margin,
-doUpdateBtn->getX() - margin * 2, buttonHeight
-    );
+    fileBrowser->setBounds(margin, margin, doUpdateBtn->getX() - margin * 2, buttonHeight);
 
     infoBox->setBounds(getLocalBounds().withTop(doUpdateBtn->getBottom()).reduced(margin));
     infoBox->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
