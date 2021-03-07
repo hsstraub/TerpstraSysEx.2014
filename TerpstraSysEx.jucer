@@ -58,20 +58,22 @@
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
       <GROUP id="{73774C94-87A0-12A0-1C36-360B6E2D24C5}" name="Networking">
         <GROUP id="{EAA7DFED-A28C-193D-50AC-EEF7F290E85A}" name="libssh2">
-          <GROUP id="{460C3E0B-F2E1-025A-D2E7-28C30ECD0EC5}" name="bin">
-            <FILE id="d8U8hI" name="libssh2-x64.dll" compile="0" resource="1" file="Source/Networking/libssh2/bin/libssh2-x64.dll"/>
+          <GROUP id="{A04CCCD6-429F-B1B7-DE5F-1824938F1C3B}" name="win64">
+            <GROUP id="{8C806A82-6161-9867-6FE7-2EA81D5E2865}" name="bin">
+              <FILE id="Xl3bKv" name="libssh2-x64.dll" compile="0" resource="1" file="Source/Networking/libssh2/win64/bin/libssh2-x64.dll"/>
+            </GROUP>
+            <GROUP id="{382C5A91-9088-23B9-72DF-99547B98C7BB}" name="include">
+              <FILE id="nJjCzY" name="libssh2.h" compile="0" resource="0" file="Source/Networking/libssh2/win64/include/libssh2.h"/>
+              <FILE id="hO5u6x" name="libssh2_publickey.h" compile="0" resource="0"
+                    file="Source/Networking/libssh2/win64/include/libssh2_publickey.h"/>
+              <FILE id="LBOa7C" name="libssh2_sftp.h" compile="0" resource="0" file="Source/Networking/libssh2/win64/include/libssh2_sftp.h"/>
+            </GROUP>
+            <GROUP id="{FF9FD896-2CBF-3ABB-D4C3-D9CE3A5AE164}" name="lib">
+              <FILE id="i7wsIr" name="libssh2.a" compile="0" resource="1" file="Source/Networking/libssh2/win64/lib/libssh2.a"/>
+              <FILE id="kyqo7F" name="libssh2.dll.a" compile="0" resource="1" file="Source/Networking/libssh2/win64/lib/libssh2.dll.a"/>
+            </GROUP>
           </GROUP>
-          <GROUP id="{9F2B66DB-7507-7BA9-BB4E-B3763FDC4EA7}" name="include">
-            <FILE id="NAgnJg" name="libssh2.h" compile="0" resource="0" file="Source/Networking/libssh2/include/libssh2.h"/>
-            <FILE id="GqXckC" name="libssh2_publickey.h" compile="0" resource="0"
-                  file="Source/Networking/libssh2/include/libssh2_publickey.h"/>
-            <FILE id="sCfLtc" name="libssh2_sftp.h" compile="0" resource="0" file="Source/Networking/libssh2/include/libssh2_sftp.h"/>
-          </GROUP>
-          <GROUP id="{9B63C3CC-191E-6D2A-6043-8A11DD11065A}" name="lib">
-            <FILE id="fNZWTP" name="libssh2.a" compile="0" resource="1" file="Source/Networking/libssh2/lib/libssh2.a"/>
-            <FILE id="LrONH1" name="libssh2.dll.a" compile="0" resource="1" file="Source/Networking/libssh2/lib/libssh2.dll.a"/>
-          </GROUP>
-          <FILE id="Nxtv8K" name="README.txt" compile="0" resource="1" file="Source/Networking/libssh2/README.txt"/>
+          <FILE id="b6Tx8t" name="README.txt" compile="0" resource="1" file="Source/Networking/libssh2/README.txt"/>
         </GROUP>
       </GROUP>
       <FILE id="W7Jek7" name="FileBrowserComponent.h" compile="0" resource="0"
@@ -285,11 +287,15 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="s3Ze61" hardenedRuntime="1">
+    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="s3Ze61" hardenedRuntime="1"
+               extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1&#10;"
+               xcodeValidArchs="arm64,x86_64" extraCompilerFlags="-I/usr/local/include&#10;"
+               extraLinkerFlags="-L/usr/local/lib -lssh2&#10;">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
+                       defines="LIBSSH2_STATIC=1" osxArchitecture="64BitIntel"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel"/>
+                       osxArchitecture="64BitIntel" defines="LIBSSH2_STATIC=1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -321,10 +327,10 @@
     <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="libssh2.dll.a"
             smallIcon="s3Ze61" bigIcon="s3Ze61">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" useRuntimeLibDLL="0" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2\lib"
-                       headerPath="$(ProjectDir)..\..\Source\Networking\libssh2\include"/>
-        <CONFIGURATION isDebug="0" name="Release" useRuntimeLibDLL="0" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2\lib"
-                       headerPath="$(ProjectDir)..\..\Source\Networking\libssh2\include"/>
+        <CONFIGURATION isDebug="1" name="Debug" useRuntimeLibDLL="0" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\lib"
+                       headerPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\include"/>
+        <CONFIGURATION isDebug="0" name="Release" useRuntimeLibDLL="0" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\lib"
+                       headerPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>
@@ -348,7 +354,7 @@
     <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
-  <JUCEOPTIONS JUCE_WEB_BROWSER="0" JUCE_USE_CURL="1"/>
+  <JUCEOPTIONS JUCE_WEB_BROWSER="0" JUCE_USE_CURL="1" JUCE_DISABLE_COREGRAPHICS_FONT_SMOOTHING="1"/>
   <LIVE_SETTINGS>
     <OSX/>
     <WINDOWS/>
