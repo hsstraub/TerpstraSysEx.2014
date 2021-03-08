@@ -9,22 +9,32 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
 #include "TerpstraMidiDriver.h"
 
 class FirmwareTransfer : public TerpstraMidiDriver::Listener
 {
 public:
 
-    enum class ErrorCode
+    enum class StatusCode
     {
-        NoErr           = 0,
-        StartupErr      = -1,
-        HostConnectErr  = -2,
-        SessionEstErr   = -3,
-        AuthErr         = -4,
-        ChannelErr      = -5,
-        ExecChnlErr     = -6
+        /* NON ERRORS */
+        NoErr           = 0x0000,   // Firmware update was performed successfully
+        Initialize,                 // Firmware update process was requested
+        FileIntegrityCheck,         // Checking firmware file integrity before transfer
+        SessionBegin,               // Preparing communication with Lumatone
+        AuthBegin,                  // Authenticating connection
+        TransferBegin,              // File transfer started
+        InstallBegin,               // Reboot request sent
+        VerificationBegin,          // Sent GetFirmwareVersion sysex and waiting for answer
+        
+        /* ERRORS */
+        IntegrityErr    = -1,       // Firmware file integrity check is not successful
+        StartupErr      = -2,       // Couldn't initialize libssh2 or open firmware file
+        HostConnectErr  = -3,       // Couldn't create socket or session
+        SessionEstErr   = -4,       // Session handshake failed
+        AuthErr         = -5,       // Password authentication failed
+        ChannelErr      = -6,       // Couldn't open a channel (for file transfer or reboot execution)
+        ExecChnlErr     = -7        // Couldn't prepare channel for reboot execution
     };
 
 public:
@@ -32,8 +42,16 @@ public:
     FirmwareTransfer(TerpstraMidiDriver& driverIn);
     ~FirmwareTransfer();
 
-    int    initializeFirmwareUpdate(String firmwareFilePath);
-    int    requestFirmwareDownloadAndUpdate();
+    /// <summary>
+    /// Return 0 on success, nonzero on error
+    /// </summary>
+    /// <param name="firmwareFilePath"></param>
+    /// <returns></returns>
+    int    checkFirmwareFileIntegrity(String firmwareFilePath); /***TODO****/
+
+    bool   startFirmwareUpdate(String firmwareFilePath);
+    bool   requestFirmwareDownloadAndUpdate();
+
 
     bool   isFirmwareUpdateAvailable() { return true; /*TODO*/ }
 
@@ -41,7 +59,28 @@ public:
 
     static String getLatestFirmwareVersion() { return ""; /*TODO*/ }
 
+
+    //=========================================================================
+
+    class Listener
+    {
+    public:
+        virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode)=0;
+    };
+
+    void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+
+    void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
+
+    
+protected:
+
+    ListenerList<Listener> listeners;
+
+
 private:
+
+    StatusCode performFirmwareUpdate(String firmwareFilePath);
 
     // header only in .cpp
     //static int shutdownSSHSession(LIBSSH2_SESSION*, int, FILE*, int returnCode = 0);

@@ -99,8 +99,11 @@ void FirmwareDlg::buttonClicked(Button* btn)
 
         if (firmwareFileSelected.existsAsFile())
         {
-            FirmwareTransfer firmTrans(TerpstraSysExApplication::getApp().getMidiDriver());
-            firmTrans.initializeFirmwareUpdate(firmwareFileSelected.getFullPathName());
+            // TODO: perform asynchronously
+            FirmwareTransfer firmwareTransfer(TerpstraSysExApplication::getApp().getMidiDriver());
+            firmwareUpdateInProgress = true;
+            firmwareTransfer.addListener(this);
+            firmwareTransfer.startFirmwareUpdate(firmwareFileSelected.getFullPathName());
         }
         else
         {
@@ -112,5 +115,78 @@ void FirmwareDlg::buttonClicked(Button* btn)
 void FirmwareDlg::fileChanged(PathBrowserComponent* source, File newFile)
 {
     firmwareFileSelected = newFile;
-    // TODO: valid firmware file detection
+}
+
+void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode)
+{
+    String postMsg;
+
+    switch (statusCode)
+    {
+    case FirmwareTransfer::StatusCode::Initialize:
+        postMsg = translate("\nFirmware update process initiated!");
+        break;
+    
+    case FirmwareTransfer::StatusCode::FileIntegrityCheck:
+        postMsg = translate("\nChecking integrity of firmware file...");
+        break;
+
+    case FirmwareTransfer::StatusCode::SessionBegin:
+        postMsg = translate("\nEstablishing connection to Lumatone...");
+        break;
+
+    case FirmwareTransfer::StatusCode::AuthBegin:
+        postMsg = translate("\nProviding credentials...");
+        break;
+
+    case FirmwareTransfer::StatusCode::TransferBegin:
+        postMsg = translate("\nTransferring firmware file...");
+        break;
+
+    case FirmwareTransfer::StatusCode::InstallBegin:
+        postMsg = translate("\nRebooting device for installation...");
+        break;
+
+    case FirmwareTransfer::StatusCode::VerificationBegin:
+        postMsg = translate("\nVerifying installation was successful...");
+        break;
+
+    case FirmwareTransfer::StatusCode::IntegrityErr:
+        postMsg = translate("\nError: Not a valid Lumatone firmware file");
+        break;
+
+    case FirmwareTransfer::StatusCode::StartupErr:
+        postMsg = translate("\nError: Could not prepare device communication protool");
+        break;
+
+    case FirmwareTransfer::StatusCode::HostConnectErr:
+        postMsg = translate("\nError: Could not create communication session");
+        break;
+
+    case FirmwareTransfer::StatusCode::SessionEstErr:
+        postMsg = translate("\nError: Could not verify connection with Lumatone");
+        break;
+
+    case FirmwareTransfer::StatusCode::AuthErr:
+        postMsg = translate("\nError: Authentication for Lumatone failed");
+        break;
+
+    case FirmwareTransfer::StatusCode::ChannelErr:
+        postMsg = translate("\nError: Communication channel failure");
+        break;
+
+    case FirmwareTransfer::StatusCode::ExecChnlErr:
+        postMsg = translate("\nError: Could not request device reboot. Try manually rebooting your Lumatone.");
+        break;
+
+    default: // NoErr
+        postMsg = translate("\nEverything looks good, firmware update complete!");
+    }
+
+    if ((int)statusCode <= 0)
+    {
+        firmwareUpdateInProgress = false;
+    }
+
+    infoBox->insertTextAtCaret(postMsg);
 }

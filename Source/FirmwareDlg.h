@@ -9,11 +9,14 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
 #include "FileBrowserComponent.h"
+#include "FirmwareTransfer.h"
 
 
-class FirmwareDlg : public Component, protected Button::Listener, protected PathBrowserComponent::Listener
+class FirmwareDlg : public Component, 
+    protected Button::Listener, 
+    protected PathBrowserComponent::Listener,
+    protected FirmwareTransfer::Listener
 {
 public:
 
@@ -28,12 +31,19 @@ public:
 
     void buttonClicked(Button* btn) override;
 
+    //=========================================================================
+    // PathBrowserComponent::Listener Implementation
     void fileChanged(PathBrowserComponent* source, File) override;
+
+    //=========================================================================
+    // FirmwareTransfer::Listener Implementation
+    void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode) override;
 
 private:
 
     bool updateIsAvailable = false;
-    
+    bool firmwareUpdateInProgress = false;
+
     File firmwareFileSelected;
 
     //std::unique_ptr<TextButton> checkUpdateBtn;

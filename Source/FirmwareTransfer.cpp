@@ -53,6 +53,71 @@ FirmwareTransfer::~FirmwareTransfer()
 
 }
 
+int FirmwareTransfer::checkFirmwareFileIntegrity(String firmwareFilePath)
+{
+	/***TODO****/ 
+	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::FileIntegrityCheck);
+	return 0; 
+}
+
+bool FirmwareTransfer::startFirmwareUpdate(String firmwareFilePath)
+{
+	if (!File::isAbsolutePath(firmwareFilePath))
+	{
+		DBG("FIRMWARE: Input file is not a valid path");
+		listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::IntegrityErr);
+		return false;
+	}
+
+	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::Initialize);
+	bool firmwareFileIsValid = checkFirmwareFileIntegrity(firmwareFilePath) == 0;
+	if (!firmwareFileIsValid)
+	{
+		// TODO: TRY TO HANDLE ERRORS
+		firmwareFileIsValid = true; // debug / TODO
+	}
+
+	if (firmwareFileIsValid)
+	{
+		StatusCode returnStatus = performFirmwareUpdate(firmwareFilePath);
+
+		if (returnStatus == StatusCode::NoErr)
+		{
+			// TODO: start verification process
+			listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::NoErr);
+			return true;
+		}
+		else if ((int)returnStatus < 0)
+		{
+			listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, returnStatus);
+			// TODO: need to do anything else before shutdown?
+		}
+		else
+		{
+			// This currently shouldn't happen
+			jassert((int)returnStatus <= 0);
+		}
+	}
+	else
+	{
+		listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::IntegrityErr);
+	}
+
+	
+	return false;
+}
+
+bool FirmwareTransfer::requestFirmwareDownloadAndUpdate()
+{
+	// TODO download firmware file - THIS IS CURRENTLY FOR DEBUGGING
+	File firmwareFile = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("zeta.py");
+
+	bool success = startFirmwareUpdate(firmwareFile.getFullPathName().getCharPointer());
+	bool fileDeleted = false;//.firmwareFile.deleteFile();
+
+	return success;
+}
+
 static int waitForSSHSocket(int socket_fd, LIBSSH2_SESSION* session)
 {
 	struct timeval timeout;
@@ -84,7 +149,7 @@ static int waitForSSHSocket(int socket_fd, LIBSSH2_SESSION* session)
 	return rc;
 }
 
-static int shutdownSSHSession(LIBSSH2_SESSION* session, int sock, FILE* localFile, int returnCode)
+static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session, int sock, FILE* localFile, FirmwareTransfer::StatusCode returnCode)
 {
 	DBG("Shutting down...");
 	while (libssh2_session_disconnect(session, "Normal Shutdown,") == LIBSSH2_ERROR_EAGAIN);
@@ -107,16 +172,8 @@ static int shutdownSSHSession(LIBSSH2_SESSION* session, int sock, FILE* localFil
 // adapted from:
 // https://www.libssh2.org/examples/scp_write_nonblock.html
 // https://www.libssh2.org/examples/ssh2_exec.html
-int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
+FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firmwareFilePath)
 {
-	if (!File::isAbsolutePath(firmwareFilePath))
-	{
-		DBG("FIRMWARE: Input file is not a valid path");
-		return 1;
-	}
-
-	// TODO: Check if looks like a valid firmware file?
-	
 	// Shared SSH session data
 	const char* deviceHostName = SERVERHOST;
 	unsigned long hostaddr = inet_addr(deviceHostName);
@@ -126,10 +183,10 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 	int sock, i, auth_pw = 1;
 	struct sockaddr_in sin;
 	const char* fingerprint;
-	
+
 	LIBSSH2_SESSION* session = NULL;
 	LIBSSH2_CHANNEL* channel;
-	
+
 	// SCP Transfer
 	String serverFilePath = "/home/" + String(SERVERKEY) + "/" + File(firmwareFilePath).getFileName(); // JUCE convenience
 	const char* targetPath = serverFilePath.getCharPointer();
@@ -144,12 +201,12 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 	// SSH Exec
 	String rebootCmd = "echo " + String(password) + " | sudo -S -p \"\" reboot";
 
-    int exitcode;
-    char *exitsignal = (char *)"none";
-    int bytecount = 0;
-    size_t len;
-    LIBSSH2_KNOWNHOSTS *nh;
-    int type;
+	int exitcode;
+	char* exitsignal = (char*)"none";
+	int bytecount = 0;
+	size_t len;
+	LIBSSH2_KNOWNHOSTS* nh;
+	int type;
 
 
 #ifdef WIN32
@@ -159,91 +216,97 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 	err = WSAStartup(MAKEWORD(2, 0), &wsadata);
 	if (err != 0) {
 		DBG("WSAStartup failed with error: " + String(err));
-		return (int)ErrorCode::StartupErr;
+		return StatusCode::StartupErr;
 	}
 #endif
 
 	int returnCode = libssh2_init(0);
 
-	if (returnCode != 0) 
+	if (returnCode != 0)
 	{
 		DBG("libssh2 initialization failed! error: " + String(returnCode));
-		return (int)ErrorCode::StartupErr;
+		return StatusCode::StartupErr;
 	}
 
 	// Prepare data for file transfer
 	localFile = fopen(filePath, "rb");
-	if (!localFile) 
+	if (!localFile)
 	{
 		DBG("failed to open file!");
-		return (int)ErrorCode::StartupErr;
+		return StatusCode::StartupErr;
 	}
 
 	stat(filePath, &fileinfo);
 
+	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::SessionBegin);
+
 	// Create socket and connect to port 22
 	sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock < 0) 
+	if (sock < 0)
 	{
 		DBG("failed to create socket!");
-		return (int)ErrorCode::StartupErr;
+		return StatusCode::StartupErr;
 	}
 
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(22);
 	sin.sin_addr.s_addr = hostaddr;
-	if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) 
+	if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0)
 	{
 		DBG("failed to connect!");
-		return (int)ErrorCode::HostConnectErr;
+		return StatusCode::HostConnectErr;
 	}
 
-    /* Create a session instance */ 
+	/* Create a session instance */
 	session = libssh2_session_init();
 	if (!session)
 	{
 		DBG("failed to create session!");
-		return (int)ErrorCode::HostConnectErr;
+		return StatusCode::HostConnectErr;
 	}
 
-	/* tell libssh2 we want it all done non-blocking */ 
-    libssh2_session_set_blocking(session, 0);
+	/* tell libssh2 we want it all done non-blocking */
+	libssh2_session_set_blocking(session, 0);
 
 
 	/* ... start it up. This will trade welcome banners, exchange keys,
 	 * and setup crypto, compression, and MAC layers
 	 */
-	while((returnCode = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN);
-	if (returnCode) 
+	while ((returnCode = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN);
+	if (returnCode)
 	{
 		DBG("Failure establishing SSH session, libssh2 error: " + String(returnCode));
-		return (int)ErrorCode::SessionEstErr;
+		return StatusCode::SessionEstErr;
 	}
 
-	/* At least for now, disregard "known hosts" since we're using a private, local network over USB 
+	/* At least for now, disregard "known hosts" since we're using a private, local network over USB
 	 * Now, we must properly close the session regardless of outcome
 	 */
-	
-	// Authenticate via password
-	while((returnCode = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
+
+	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::AuthBegin);
+
+	 // Authenticate via password
+	while ((returnCode = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
 	if (returnCode != 0)
 	{
 		DBG("Authentication by password failed.\n");
-		return shutdownSSHSession(session, sock, localFile, (int)ErrorCode::AuthErr);
+		return shutdownSSHSession(session, sock, localFile, StatusCode::AuthErr);
 	}
 
 	// BEGIN FIRMWARE FILE TRANSFER
 
+	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::TransferBegin);
+
 	/* Send a file via scp. The mode parameter must only have permissions! */
 	do {
 		channel = libssh2_scp_send(session, targetPath, fileinfo.st_mode & 0777, (unsigned long)fileinfo.st_size);
-		
+
 		if ((!channel) && (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN))
 		{
 			char* errmsg;
 			libssh2_session_last_error(session, &errmsg, NULL, 0);
 			DBG("Unable to open a session, libssh2 error: " + String(errmsg));
-			return shutdownSSHSession(session, sock, localFile, (int)ErrorCode::ChannelErr);
+			return shutdownSSHSession(session, sock, localFile, StatusCode::ChannelErr);
 		}
 
 	} while (!channel);
@@ -259,7 +322,7 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 
 		do {
 			/* write the same data over and over, until error or completion */
-			while((returnCode = libssh2_channel_write(channel, bufferPtr, numBytesRead)) == LIBSSH2_ERROR_EAGAIN) waitForSSHSocket(sock, session);
+			while ((returnCode = libssh2_channel_write(channel, bufferPtr, numBytesRead)) == LIBSSH2_ERROR_EAGAIN) waitForSSHSocket(sock, session);
 
 			if (returnCode < 0) {
 				DBG("Error writing to channel, libssh2 error: " + String(returnCode));
@@ -271,10 +334,10 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 				numBytesRead -= returnCode;
 			}
 		} while (numBytesRead);
-	} while (!numBytesRead); /* only continue if numBytesRead was drained */ 
+	} while (!numBytesRead); /* only continue if numBytesRead was drained */
 
 	DBG("Sending EOF");
-	while((returnCode = libssh2_channel_send_eof(channel)) == LIBSSH2_ERROR_EAGAIN);
+	while ((returnCode = libssh2_channel_send_eof(channel)) == LIBSSH2_ERROR_EAGAIN);
 
 	DBG("Waiting for EOF");
 	while ((returnCode = libssh2_channel_wait_eof(channel)) == LIBSSH2_ERROR_EAGAIN);
@@ -287,92 +350,82 @@ int FirmwareTransfer::initializeFirmwareUpdate(String firmwareFilePath)
 
 	// REQUEST REBOOT FOR FIRMWARE INSTALL
 
-	/* Exec non-blocking on the remove host */ 
-    while((channel = libssh2_channel_open_session(session))  == NULL &&
-	      libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) 
+	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::InstallBegin);
+
+	/* Exec non-blocking on the remove host */
+	while ((channel = libssh2_channel_open_session(session)) == NULL &&
+		libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN)
 	{
 		waitForSSHSocket(sock, session);
-    }
-    if(channel == NULL) 
+	}
+	if (channel == NULL)
 	{
-        DBG("Error opening channel for reboot request");
-		return shutdownSSHSession(session, sock, nullptr, (int)ErrorCode::ChannelErr);
-    }
-    
-	while((returnCode = libssh2_channel_exec(channel, rebootCmd.getCharPointer())) == LIBSSH2_ERROR_EAGAIN) 
+		DBG("Error opening channel for reboot request");
+		return shutdownSSHSession(session, sock, nullptr, StatusCode::ChannelErr);
+	}
+
+	while ((returnCode = libssh2_channel_exec(channel, rebootCmd.getCharPointer())) == LIBSSH2_ERROR_EAGAIN)
 	{
 		waitForSSHSocket(sock, session);
-    }
-    if(returnCode != 0) 
+	}
+	if (returnCode != 0)
 	{
-        DBG("Error preparing channel for command execution ");
-        return shutdownSSHSession(session, sock, nullptr, (int)ErrorCode::ExecChnlErr);
-    }
+		DBG("Error preparing channel for command execution ");
+		return shutdownSSHSession(session, sock, nullptr, StatusCode::ExecChnlErr);
+	}
 
-    for(;;)
+	for (;;)
 	{
-        /* loop until we block */ 
-        int channelReturnCode;
-        do {
-            char buffer[0x4000];
-            channelReturnCode = libssh2_channel_read(channel, buffer, sizeof(buffer));
+		/* loop until we block */
+		int channelReturnCode;
+		do {
+			char buffer[0x4000];
+			channelReturnCode = libssh2_channel_read(channel, buffer, sizeof(buffer));
 
-            if(channelReturnCode > 0) 
+			if (channelReturnCode > 0)
 			{
-                int i;
-                bytecount += channelReturnCode;
-                for(i = 0; i < channelReturnCode; ++i)
-                    fputc(buffer[i], stderr);
-            }
-            else 
+				int i;
+				bytecount += channelReturnCode;
+				for (i = 0; i < channelReturnCode; ++i)
+					fputc(buffer[i], stderr);
+			}
+			else
 			{
-                if(channelReturnCode != LIBSSH2_ERROR_EAGAIN)
-                    /* no need to output this for the EAGAIN case */ 
-                    DBG("libssh2_channel_read returned: " + String(channelReturnCode));
-            }
-        }
-        while(channelReturnCode > 0);
- 
-        /* this is due to blocking that would occur otherwise so we loop on
-           this condition */ 
-        if(channelReturnCode == LIBSSH2_ERROR_EAGAIN) {
+				if (channelReturnCode != LIBSSH2_ERROR_EAGAIN)
+					/* no need to output this for the EAGAIN case */
+					DBG("libssh2_channel_read returned: " + String(channelReturnCode));
+			}
+		} while (channelReturnCode > 0);
+
+		/* this is due to blocking that would occur otherwise so we loop on
+		   this condition */
+		if (channelReturnCode == LIBSSH2_ERROR_EAGAIN) {
 			waitForSSHSocket(sock, session);
-        }
-        else
-            break;
-    }
-    exitcode = 127;
-    while((returnCode = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
+		}
+		else
+			break;
+	}
+	exitcode = 127;
+	while ((returnCode = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
 		waitForSSHSocket(sock, session);
- 
-    if(returnCode == 0) 
+
+	if (returnCode == 0)
 	{
-        exitcode = libssh2_channel_get_exit_status(channel);
-        libssh2_channel_get_exit_signal(channel, &exitsignal,
-                                        NULL, NULL, NULL, NULL, NULL);
-    }
- 
-    if(exitsignal)
-        DBG("Got signal: " + String(exitsignal));
-    else
-        DBG("Exit: " + String(exitcode) + "bytecount: " + String(bytecount));
- 
-    libssh2_channel_free(channel);
+		exitcode = libssh2_channel_get_exit_status(channel);
+		libssh2_channel_get_exit_signal(channel, &exitsignal,
+			NULL, NULL, NULL, NULL, NULL);
+	}
 
-    channel = NULL;
+	if (exitsignal)
+		DBG("Got signal: " + String(exitsignal));
+	else
+		DBG("Exit: " + String(exitcode) + "bytecount: " + String(bytecount));
 
-	return shutdownSSHSession(session, sock, nullptr, (int)ErrorCode::NoErr);
-}
+	libssh2_channel_free(channel);
 
-int FirmwareTransfer::requestFirmwareDownloadAndUpdate()
-{
-	// TODO download firmware file
-	File firmwareFile = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("zeta.py");
+	channel = NULL;
 
-	int updateCode = initializeFirmwareUpdate(firmwareFile.getFullPathName().getCharPointer());
-	bool fileDeleted = false;//.firmwareFile.deleteFile();
-
-	return updateCode;
+	return shutdownSSHSession(session, sock, nullptr, StatusCode::NoErr);
 }
 
 void FirmwareTransfer::midiMessageReceived(const MidiMessage& midiMessage)
