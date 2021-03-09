@@ -43,7 +43,7 @@
 #include "libssh2.h"
 
 FirmwareTransfer::FirmwareTransfer(TerpstraMidiDriver& driverIn)
-	: midiDriver(driverIn)
+	: midiDriver(driverIn), juce::Thread("FirmwareThread")
 {
 	
 }
@@ -53,58 +53,27 @@ FirmwareTransfer::~FirmwareTransfer()
 
 }
 
-int FirmwareTransfer::checkFirmwareFileIntegrity(String firmwareFilePath)
+int FirmwareTransfer::checkFirmwareFileIntegrity()
 {
 	/***TODO****/ 
-	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::FileIntegrityCheck);
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::FileIntegrityCheck);
 	return 0; 
 }
 
-bool FirmwareTransfer::startFirmwareUpdate(String firmwareFilePath)
+bool FirmwareTransfer::requestFirmwareUpdate(String firmwareFilePath)
 {
 	if (!File::isAbsolutePath(firmwareFilePath))
 	{
-		DBG("FIRMWARE: Input file is not a valid path");
-		listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::IntegrityErr);
+		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::IntegrityErr);
 		return false;
 	}
 
-	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::Initialize);
-	bool firmwareFileIsValid = checkFirmwareFileIntegrity(firmwareFilePath) == 0;
-	if (!firmwareFileIsValid)
-	{
-		// TODO: TRY TO HANDLE ERRORS
-		firmwareFileIsValid = true; // debug / TODO
-	}
+	selectedFileToTransfer = firmwareFilePath;
+	transferRequested = true;
 
-	if (firmwareFileIsValid)
-	{
-		StatusCode returnStatus = performFirmwareUpdate(firmwareFilePath);
+	startThread();
 
-		if (returnStatus == StatusCode::NoErr)
-		{
-			// TODO: start verification process
-			listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::NoErr);
-			return true;
-		}
-		else if ((int)returnStatus < 0)
-		{
-			listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, returnStatus);
-			// TODO: need to do anything else before shutdown?
-		}
-		else
-		{
-			// This currently shouldn't happen
-			jassert((int)returnStatus <= 0);
-		}
-	}
-	else
-	{
-		listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::IntegrityErr);
-	}
-
-	
-	return false;
+	return true;
 }
 
 bool FirmwareTransfer::requestFirmwareDownloadAndUpdate()
@@ -112,10 +81,33 @@ bool FirmwareTransfer::requestFirmwareDownloadAndUpdate()
 	// TODO download firmware file - THIS IS CURRENTLY FOR DEBUGGING
 	File firmwareFile = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("zeta.py");
 
-	bool success = startFirmwareUpdate(firmwareFile.getFullPathName().getCharPointer());
-	bool fileDeleted = false;//.firmwareFile.deleteFile();
+	//bool success = startFirmwareUpdate(firmwareFile.getFullPathName().getCharPointer());
+	//bool fileDeleted = false;//.firmwareFile.deleteFile();
 
-	return success;
+	return false;
+}
+
+void FirmwareTransfer::run()
+{
+	if (threadShouldExit())
+	{
+		return;
+	}
+
+	if (downloadRequested)
+	{
+		// TODO perform download operation
+
+		downloadRequested = false;
+	}
+
+	else if (transferRequested)
+	{
+		prepareForUpdate();
+		transferRequested = false;
+	}
+
+	signalThreadShouldExit();
 }
 
 static int waitForSSHSocket(int socket_fd, LIBSSH2_SESSION* session)
@@ -169,10 +161,49 @@ static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session,
 	return returnCode;
 }
 
+bool FirmwareTransfer::prepareForUpdate()
+{
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::Initialize);
+	bool firmwareFileIsValid = checkFirmwareFileIntegrity() == 0;
+	if (!firmwareFileIsValid)
+	{
+		// TODO: TRY TO HANDLE ERRORS
+		firmwareFileIsValid = true; // debug / TODO
+	}
+
+	if (firmwareFileIsValid)
+	{
+		StatusCode returnStatus = performFirmwareUpdate();
+
+		if (returnStatus == StatusCode::NoErr)
+		{
+			// TODO: start verification process
+			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::NoErr);
+			return true;
+		}
+		else if ((int)returnStatus < 0)
+		{
+			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus);
+			// TODO: need to do anything else before shutdown?
+		}
+		else
+		{
+			// This currently shouldn't happen
+			jassert((int)returnStatus <= 0);
+		}
+	}
+	else
+	{
+		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::IntegrityErr);
+	}
+
+	return false;
+}
+
 // adapted from:
 // https://www.libssh2.org/examples/scp_write_nonblock.html
 // https://www.libssh2.org/examples/ssh2_exec.html
-FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firmwareFilePath)
+FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 {
 	// Shared SSH session data
 	const char* deviceHostName = SERVERHOST;
@@ -188,9 +219,9 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firm
 	LIBSSH2_CHANNEL* channel;
 
 	// SCP Transfer
-	String serverFilePath = "/home/" + String(SERVERKEY) + "/" + File(firmwareFilePath).getFileName(); // JUCE convenience
+	String serverFilePath = "/home/" + String(SERVERKEY) + "/" + File(selectedFileToTransfer).getFileName(); // JUCE convenience
 	const char* targetPath = serverFilePath.getCharPointer();
-	const char* filePath = firmwareFilePath.getCharPointer();
+	const char* filePath = selectedFileToTransfer.getCharPointer();
 	struct stat fileinfo;
 	FILE* localFile;
 	char fileBuffer[1024];
@@ -238,7 +269,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firm
 
 	stat(filePath, &fileinfo);
 
-	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::SessionBegin);
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::SessionBegin);
 
 	// Create socket and connect to port 22
 	sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -283,7 +314,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firm
 	 * Now, we must properly close the session regardless of outcome
 	 */
 
-	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::AuthBegin);
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::AuthBegin);
 
 	 // Authenticate via password
 	while ((returnCode = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
@@ -295,7 +326,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firm
 
 	// BEGIN FIRMWARE FILE TRANSFER
 
-	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::TransferBegin);
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::TransferBegin);
 
 	/* Send a file via scp. The mode parameter must only have permissions! */
 	do {
@@ -350,7 +381,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firm
 
 	// REQUEST REBOOT FOR FIRMWARE INSTALL
 
-	listeners.call(&FirmwareTransfer::Listener::firmwareTransferUpdate, StatusCode::InstallBegin);
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::InstallBegin);
 
 	/* Exec non-blocking on the remove host */
 	while ((channel = libssh2_channel_open_session(session)) == NULL &&
@@ -430,5 +461,5 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate(String firm
 
 void FirmwareTransfer::midiMessageReceived(const MidiMessage& midiMessage)
 {
-
+	// TODO
 }

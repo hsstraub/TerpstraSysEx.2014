@@ -16,7 +16,8 @@
 class FirmwareDlg : public Component, 
     protected Button::Listener, 
     protected PathBrowserComponent::Listener,
-    protected FirmwareTransfer::Listener
+    protected FirmwareTransfer::ProcessListener,
+    protected Thread::Listener
 {
 public:
 
@@ -39,12 +40,18 @@ public:
     // FirmwareTransfer::Listener Implementation
     void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode) override;
 
+    //=========================================================================
+    // Thread::Listener Implementation
+    void exitSignalSent() override;
+
 private:
 
     bool updateIsAvailable = false;
     bool firmwareUpdateInProgress = false;
 
     File firmwareFileSelected;
+
+    std::unique_ptr<FirmwareTransfer> firmwareTransfer;
 
     //std::unique_ptr<TextButton> checkUpdateBtn;
     std::unique_ptr<PathBrowserComponent> fileBrowser;

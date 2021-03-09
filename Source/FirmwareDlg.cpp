@@ -34,6 +34,7 @@ FirmwareDlg::FirmwareDlg()
     addAndMakeVisible(doUpdateBtn.get());
 
     infoBox.reset(new TextEditor("FirmwareUpdateInfoBox"));
+    infoBox->setMouseClickGrabsKeyboardFocus(false);
     infoBox->setReadOnly(true);
     infoBox->setMultiLine(true);
     infoBox->insertTextAtCaret(translate("Select a firmware file and then click \"Begin Update\""));
@@ -99,11 +100,10 @@ void FirmwareDlg::buttonClicked(Button* btn)
 
         if (firmwareFileSelected.existsAsFile())
         {
-            // TODO: perform asynchronously
-            FirmwareTransfer firmwareTransfer(TerpstraSysExApplication::getApp().getMidiDriver());
+            firmwareTransfer.reset(new FirmwareTransfer(TerpstraSysExApplication::getApp().getMidiDriver()));
             firmwareUpdateInProgress = true;
-            firmwareTransfer.addListener(this);
-            firmwareTransfer.startFirmwareUpdate(firmwareFileSelected.getFullPathName());
+            firmwareTransfer->addListener(this);
+            firmwareTransfer->requestFirmwareUpdate(firmwareFileSelected.getFullPathName());
         }
         else
         {
@@ -119,12 +119,15 @@ void FirmwareDlg::fileChanged(PathBrowserComponent* source, File newFile)
 
 void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode)
 {
+    const MessageManagerLock mml;
+
     String postMsg;
 
     switch (statusCode)
     {
     case FirmwareTransfer::StatusCode::Initialize:
-        postMsg = translate("\nFirmware update process initiated!");
+        //postMsg = translate("\nFirmware update process initiated!");
+        // This might be too verbose
         break;
     
     case FirmwareTransfer::StatusCode::FileIntegrityCheck:
@@ -160,7 +163,7 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         break;
 
     case FirmwareTransfer::StatusCode::HostConnectErr:
-        postMsg = translate("\nError: Could not create communication session");
+        postMsg = translate("\nError: Could not communicate with Lumatone");
         break;
 
     case FirmwareTransfer::StatusCode::SessionEstErr:
@@ -188,5 +191,11 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         firmwareUpdateInProgress = false;
     }
 
-    infoBox->insertTextAtCaret(postMsg);
+    infoBox->setText(infoBox->getText() + postMsg);
+}
+
+void FirmwareDlg::exitSignalSent()
+{
+    firmwareTransfer->waitForThreadToExit(20);
+    firmwareTransfer = nullptr;
 }

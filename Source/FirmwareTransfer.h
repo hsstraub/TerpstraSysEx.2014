@@ -11,7 +11,8 @@
 #pragma once
 #include "TerpstraMidiDriver.h"
 
-class FirmwareTransfer : public TerpstraMidiDriver::Listener
+
+class FirmwareTransfer : public juce::Thread, public TerpstraMidiDriver::Listener
 {
 public:
 
@@ -42,51 +43,63 @@ public:
     FirmwareTransfer(TerpstraMidiDriver& driverIn);
     ~FirmwareTransfer();
 
-    /// <summary>
-    /// Return 0 on success, nonzero on error
-    /// </summary>
-    /// <param name="firmwareFilePath"></param>
-    /// <returns></returns>
-    int    checkFirmwareFileIntegrity(String firmwareFilePath); /***TODO****/
-
-    bool   startFirmwareUpdate(String firmwareFilePath);
-    bool   requestFirmwareDownloadAndUpdate();
+    bool   requestFirmwareUpdate(String firmwareFilePath);
+    bool   requestFirmwareDownloadAndUpdate(); // TODO
 
 
     bool   isFirmwareUpdateAvailable() { return true; /*TODO*/ }
 
+    // TODO - member should be filled on instantiation
     String getCurrentFirmwareVersion() { return currentFirmwareVersion; }
 
     static String getLatestFirmwareVersion() { return ""; /*TODO*/ }
 
 
+    bool isDownloadInProgress() const { return downloadRequested; }
+    bool isTransferInProgress() const { return transferRequested; }
+
+    //=========================================================================
+    //juce::Thread implementation
+
+    // Begin transfer process with currently set file
+    // Will exit if file doesn't exit or upon error
+    void run() override;
+
     //=========================================================================
 
-    class Listener
+    class ProcessListener
     {
     public:
         virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode)=0;
     };
 
-    void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+    void addListener(ProcessListener* listenerIn) { listeners.add(listenerIn); }
 
-    void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
+    void removeListener(ProcessListener* listenerIn) { listeners.remove(listenerIn); }
 
-    
+
 protected:
 
-    ListenerList<Listener> listeners;
+    ListenerList<ProcessListener> listeners;
 
 
 private:
 
-    StatusCode performFirmwareUpdate(String firmwareFilePath);
+    /// <summary>
+    /// Return 0 on success, nonzero on error
+    /// </summary>
+    /// <param name="firmwareFilePath"></param>
+    /// <returns></returns>
+    int checkFirmwareFileIntegrity(); /***TODO****/
+
+    bool       prepareForUpdate();
+    StatusCode performFirmwareUpdate();
 
     // header only in .cpp
     //static int shutdownSSHSession(LIBSSH2_SESSION*, int, FILE*, int returnCode = 0);
     //static int waitForSSHSocket(int, LIBSSH2_SESSION*); 
 
-    void midiMessageReceived(const MidiMessage& midiMessage) override;
+    void midiMessageReceived(const MidiMessage& midiMessage) override; // TODO
     void midiMessageSent(const MidiMessage& midiMessage) override {};
     void midiSendQueueSize(int queueSize) override {};
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
@@ -95,4 +108,9 @@ private:
 
     TerpstraMidiDriver& midiDriver;
     String currentFirmwareVersion;
+
+    String selectedFileToTransfer;
+
+    bool downloadRequested = false;
+    bool transferRequested = false;
 };
