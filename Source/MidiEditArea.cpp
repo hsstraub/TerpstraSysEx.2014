@@ -540,7 +540,7 @@ void MidiEditArea::onOpenConnectionToDevice()
 
 void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(inputDeviceIndex > 0);
+	jassert(inputDeviceIndex >= 0);
 
 	cbMidiInput->clear(NotificationType::dontSendNotification);
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 0);
@@ -549,7 +549,7 @@ void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce:
 
 void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(outputDeviceIndex > 0);
+	jassert(outputDeviceIndex >= 0);
 
 	cbMidiOutput->clear(NotificationType::dontSendNotification);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 0);
