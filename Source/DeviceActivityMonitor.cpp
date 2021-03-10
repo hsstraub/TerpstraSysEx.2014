@@ -9,13 +9,12 @@
 */
 
 #include "DeviceActivityMonitor.h"
-
 #include "Main.h"
 
 
 DeviceActivityMonitor::DeviceActivityMonitor()
 {
-
+    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 }
 
 DeviceActivityMonitor::~DeviceActivityMonitor()
@@ -74,7 +73,8 @@ void DeviceActivityMonitor::pingNextOutput()
     if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
     {
         DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
-        TerpstraSysExApplication::getApp().getMidiDriver().sendMessageNow(monitorMessage);
+
+        outputsToPing[pingOutputIndex]->sendMessageNow(monitorMessage);
         startTimer(responseTimeoutMs);
     }
 
@@ -176,8 +176,6 @@ void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const M
         // Is an acknowledged answer and success connection
         else
         {
-//            const MessageManagerLock mml;
-//            DBG("Response received from: " + source->getName());
             confirmedOutputIndex = pingOutputIndex;
             confirmedInputIndex = inputsListening.indexOf(source);
             expectedResponseReceived = true;

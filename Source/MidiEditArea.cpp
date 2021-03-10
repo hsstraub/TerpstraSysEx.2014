@@ -496,8 +496,19 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 
 		if (currentOutputIndex >= 0 && currentInputIndex >= 0)
 		{
-			refreshOutputDevicesAndSetSelected(currentOutputIndex);
-			refreshInputDevicesAndSetSelected(currentInputIndex);
+			// TODO: more planned-out / unified connection between manual & automatic 
+			// There's a race condition resulting in two "onOpenConnection" calls when device selection happens during ComboBox callbacks 
+			// and one resulting in no calls if it happens after
+			
+			// + 1 for ComboBox indicies
+			refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
+			refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
+
+			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
+			TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
+
+			setConnectivity(true);
+			onOpenConnectionToDevice();
 		}
 		else
 		{
@@ -540,20 +551,20 @@ void MidiEditArea::onOpenConnectionToDevice()
 
 void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(inputDeviceIndex >= 0);
+	jassert(inputDeviceIndex > 0);
 
 	cbMidiInput->clear(NotificationType::dontSendNotification);
-	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 0);
-	cbMidiInput->setSelectedItemIndex(inputDeviceIndex, notificationType);
+	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
+	cbMidiInput->setSelectedId(inputDeviceIndex, notificationType);
 }
 
 void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(outputDeviceIndex >= 0);
+	jassert(outputDeviceIndex > 0);
 
 	cbMidiOutput->clear(NotificationType::dontSendNotification);
-	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 0);
-	cbMidiOutput->setSelectedItemIndex(outputDeviceIndex, notificationType);
+	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
+	cbMidiOutput->setSelectedId(outputDeviceIndex, notificationType);
 }
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
@@ -613,8 +624,7 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			break;
 		}
 
-        // May need some logic to handle "Busy" if trying to auto-connect to device
-        if (!isConnected)
+        if (!isConnected && !deviceMonitor.isSearchingForLumatone())
         {
 			setConnectivity(true);
             onOpenConnectionToDevice();
