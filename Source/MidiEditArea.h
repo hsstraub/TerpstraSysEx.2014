@@ -58,8 +58,8 @@ public:
 	void onOpenConnectionToDevice();
 
     // For now, preserve connection functionality and make sure internal combo boxes are up to date
-    void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotificationAsync);
-    void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotificationAsync);
+    void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
+    void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
@@ -119,7 +119,6 @@ private:
     Rectangle<float> logomarkBounds;
     Rectangle<float> ioBounds;
 
-    const StringArray connectedText = { translate("Disconnected"), translate("Connected") };
     Array<Colour> connectedColours = { Colour(0xffd7002a), Colour(0xff84aea3) };
 
     //==============================================================================

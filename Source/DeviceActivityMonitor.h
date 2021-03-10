@@ -25,6 +25,8 @@ public:
     DeviceActivityMonitor();
     ~DeviceActivityMonitor() override;
 
+    bool isSearchingForLumatone() const { return  deviceDetectInProgress; }
+
     /// <summary>
     /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
     /// </summary>
@@ -40,22 +42,30 @@ public:
     ///// </summary>
     //void pingAvailableDevices();
 
+    void stopDeviceDetection();
+
     // Determines whether or not to try to continue device detection, tries next pair if so
     void checkDetectionStatus();
 
     // TODO
     void intializeConnectionLossDetection();
 
-
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
 
     int getConfirmedInputIndex() const { return confirmedInputIndex; }
 
-
     void closeInputDevices();
+
+    //void closeInputDevicesExcept(int inputDeviceIndexToRetain);
 
     void closeOutputDevices();
 
+    /// <summary>
+    /// For use with manual device selection
+    /// </summary>
+    /// <param name="inputDeviceIndex"></param>
+    /// <param name="outputDeviceIndex"></param>
+    void testConnectionToDevices(int inputDeviceIndex, int outputDeviceIndex);
 
     //=========================================================================
     // juce::MidiInputCallback Implementation
@@ -86,13 +96,14 @@ private:
     {
         noActivity = 0,
         lookingForDevice,
-        waitingForConnectionLoss
+        waitingForConnectionLoss,
+        testingManualConnection
     };
 
     DetectConnectionMode    deviceConnectionMode   = noActivity;
     bool                    deviceDetectInProgress = false;
 
-    const int               responseTimeoutMs    = 1000; // Will have to try to adjust when we can test with hardware
+    const int               responseTimeoutMs    = 300; // Will have to try to adjust when we can test with hardware
     const int               pingRoutineTimeoutMs = 1000;
     
     int                     pingOutputIndex = -1;
@@ -106,6 +117,7 @@ private:
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
 
+    int                     manualDeviceInputWait = -1;
 
     MidiMessage                               monitorMessage;
     std::function<bool(const MidiMessage&)>   messageIsExpectedResponse = [&](const MidiMessage&) { return false; };

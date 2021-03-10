@@ -4,7 +4,7 @@
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
               jucerFormatVersion="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
-              defines="USE_LICENSED_FONTS=0">
+              defines="USE_LICENSED_FONTS=0 SERVERHOST=&quot;192.168.7.2&quot; SERVERKEY=&quot;debian&quot; SERVERPWD=&quot;temppwd&quot;">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <FILE id="s3Ze61" name="logomark.png" compile="0" resource="1" file="BinaryData/logomark.png"/>
@@ -56,12 +56,40 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <GROUP id="{73774C94-87A0-12A0-1C36-360B6E2D24C5}" name="Networking">
+        <GROUP id="{EAA7DFED-A28C-193D-50AC-EEF7F290E85A}" name="libssh2">
+          <GROUP id="{A04CCCD6-429F-B1B7-DE5F-1824938F1C3B}" name="win64">
+            <GROUP id="{8C806A82-6161-9867-6FE7-2EA81D5E2865}" name="bin">
+              <FILE id="Xl3bKv" name="libssh2-x64.dll" compile="0" resource="1" file="Source/Networking/libssh2/win64/bin/libssh2-x64.dll"/>
+            </GROUP>
+            <GROUP id="{382C5A91-9088-23B9-72DF-99547B98C7BB}" name="include">
+              <FILE id="nJjCzY" name="libssh2.h" compile="0" resource="0" file="Source/Networking/libssh2/win64/include/libssh2.h"/>
+              <FILE id="hO5u6x" name="libssh2_publickey.h" compile="0" resource="0"
+                    file="Source/Networking/libssh2/win64/include/libssh2_publickey.h"/>
+              <FILE id="LBOa7C" name="libssh2_sftp.h" compile="0" resource="0" file="Source/Networking/libssh2/win64/include/libssh2_sftp.h"/>
+            </GROUP>
+            <GROUP id="{FF9FD896-2CBF-3ABB-D4C3-D9CE3A5AE164}" name="lib">
+              <FILE id="i7wsIr" name="libssh2.a" compile="0" resource="1" file="Source/Networking/libssh2/win64/lib/libssh2.a"/>
+              <FILE id="kyqo7F" name="libssh2.dll.a" compile="0" resource="1" file="Source/Networking/libssh2/win64/lib/libssh2.dll.a"/>
+            </GROUP>
+          </GROUP>
+          <FILE id="b6Tx8t" name="README.txt" compile="0" resource="1" file="Source/Networking/libssh2/README.txt"/>
+        </GROUP>
+      </GROUP>
+      <FILE id="W7Jek7" name="FileBrowserComponent.h" compile="0" resource="0"
+            file="Source/FileBrowserComponent.h"/>
       <FILE id="wf7BNc" name="LumatoneEditorFonts.h" compile="0" resource="0"
             file="Source/LumatoneEditorFonts.h"/>
       <FILE id="lGiexB" name="DeviceActivityMonitor.cpp" compile="1" resource="0"
             file="Source/DeviceActivityMonitor.cpp"/>
       <FILE id="BD6Z4N" name="DeviceActivityMonitor.h" compile="0" resource="0"
             file="Source/DeviceActivityMonitor.h"/>
+      <FILE id="Lu0NhD" name="FirmwareDlg.cpp" compile="1" resource="0" file="Source/FirmwareDlg.cpp"/>
+      <FILE id="dJal0V" name="FirmwareDlg.h" compile="0" resource="0" file="Source/FirmwareDlg.h"/>
+      <FILE id="HO5Z3P" name="SettingsContainer.cpp" compile="1" resource="0"
+            file="Source/SettingsContainer.cpp"/>
+      <FILE id="xvu0bc" name="SettingsContainer.h" compile="0" resource="0"
+            file="Source/SettingsContainer.h"/>
       <FILE id="l4C6a1" name="CalibrationDlg.cpp" compile="1" resource="0"
             file="Source/CalibrationDlg.cpp"/>
       <FILE id="cNe4Ty" name="CalibrationDlg.h" compile="0" resource="0"
@@ -234,6 +262,10 @@
             file="Source/MainComponent.cpp"/>
       <FILE id="pVqj5T" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="PJosGU" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="Gz5I44" name="FirmwareTransfer.cpp" compile="1" resource="0"
+            file="Source/FirmwareTransfer.cpp"/>
+      <FILE id="ik71Lw" name="FirmwareTransfer.h" compile="0" resource="0"
+            file="Source/FirmwareTransfer.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
@@ -255,11 +287,15 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="s3Ze61" hardenedRuntime="1">
+    <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="s3Ze61" hardenedRuntime="1"
+               extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1&#10;"
+               xcodeValidArchs="arm64,x86_64" extraCompilerFlags="-I/usr/local/include&#10;"
+               extraLinkerFlags="-L/usr/local/lib -lssh2&#10;">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
+                       defines="LIBSSH2_STATIC=1" osxArchitecture="64BitIntel"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel"/>
+                       osxArchitecture="64BitIntel" defines="LIBSSH2_STATIC=1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -288,10 +324,13 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\modules"/>
       </MODULEPATHS>
     </VS2017>
-    <VS2019 targetFolder="Builds/VisualStudio2019" smallIcon="s3Ze61" bigIcon="s3Ze61">
+    <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="libssh2.dll.a"
+            smallIcon="s3Ze61" bigIcon="s3Ze61">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
+        <CONFIGURATION isDebug="1" name="Debug" useRuntimeLibDLL="0" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\lib"
+                       headerPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\include"/>
+        <CONFIGURATION isDebug="0" name="Release" useRuntimeLibDLL="0" libraryPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\lib"
+                       headerPath="$(ProjectDir)..\..\Source\Networking\libssh2\win64\include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>
@@ -315,7 +354,7 @@
     <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
-  <JUCEOPTIONS JUCE_WEB_BROWSER="0"/>
+  <JUCEOPTIONS JUCE_WEB_BROWSER="0" JUCE_USE_CURL="1" JUCE_DISABLE_COREGRAPHICS_FONT_SMOOTHING="1"/>
   <LIVE_SETTINGS>
     <OSX/>
     <WINDOWS/>

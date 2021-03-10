@@ -25,7 +25,7 @@ public:
     LumatoneEditorLookAndFeel(
         LumatoneEditorFonts::Library appFontsIn,
         bool doImageCache = false
-    ) : appFonts(appFontsIn)
+    ) : appFonts(appFontsIn), compactWindowStyle(this)
     {
         setupDefaultColours();
 
@@ -121,6 +121,63 @@ public:
         return btn;
     }
 
+    class LumatoneEditorCompactWindow : public LookAndFeel_V4
+    {
+    public:
+
+        LumatoneEditorCompactWindow(const LumatoneEditorLookAndFeel* parentIn) : parent(parentIn) {};
+
+        void drawDocumentWindowTitleBar(DocumentWindow& window, Graphics& g,
+            int w, int h, int titleSpaceX, int titleSpaceW, const Image* icon, bool drawTitleTextOnLeft) override
+        {
+            g.fillAll(parent->findColour(LumatoneEditorColourIDs::DarkBackground));
+
+            g.setColour(parent->findColour(LumatoneEditorColourIDs::DescriptionText));
+            g.setFont(parent->appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(h * 0.75f));
+            g.drawFittedText(window.getName(), 0, 0, w, h, Justification::centred, 1, 1.0f);
+        }
+
+        Button* createDocumentWindowButton(int buttonType) override
+        {
+            // Pulled from LookAndFeel_V4::createDocumentWindowButton();
+            Path shape;
+            auto crossThickness = 0.15f;
+
+            const float btnSize = 96.0f;
+            const float vectorSize = btnSize * 0.333333f;
+            const float vecHalfSize = vectorSize * 0.5f;
+
+            ImageButton* btn = new ImageButton();
+            Image btnImage(Image::PixelFormat::RGB, btnSize, btnSize, false);
+
+            Graphics g(btnImage);
+            g.fillAll(parent->findColour(LumatoneEditorColourIDs::DarkBackground));
+
+            if (buttonType == DocumentWindow::closeButton)
+            {
+                shape.addLineSegment({ 0.0f, 0.0f, vectorSize, vectorSize }, crossThickness);
+                shape.addLineSegment({ vectorSize, 0.0f, 0.0f, vectorSize }, crossThickness);
+
+                g.setColour(parent->findColour(LumatoneEditorColourIDs::DescriptionText));
+            }
+
+            float margin = (btnSize - vectorSize) * 0.5f;
+            g.strokePath(shape, PathStrokeType(3.0f), AffineTransform::translation(margin, margin));
+
+            btn->setImages(false, true, true,
+                btnImage, 1.0f, Colour(),
+                btnImage, 1.0f, Colours::white.withAlpha(0.1f),
+                btnImage, 1.0f, Colours::black.withAlpha(0.1f)
+            );
+            
+            return btn;
+        }
+
+    private:
+
+        const LumatoneEditorLookAndFeel* parent;
+    };
+
     //==================================================================
     //
     // LABEL METHODS
@@ -157,7 +214,7 @@ public:
         return BorderSize<int>(0);
     }
 
-    void Label::LookAndFeelMethods::drawLabel(Graphics& g, Label& l)
+    void drawLabel(Graphics& g, Label& l) override	
     {
         Path roundedBounds = getConnectedRoundedRectPath(l.getBounds().toFloat(), l.getHeight() * comboBoxRoundedCornerScalar, 0);
         g.setColour(l.findColour(Label::ColourIds::backgroundColourId));
@@ -191,12 +248,12 @@ public:
             return;
         }
 
-        Colour colour = (shouldDrawButtonAsDown) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
+        Colour colour = (btn.getToggleState()) ? btn.findColour(TextButton::ColourIds::buttonOnColourId) : backgroundColour;
 
         if (!btn.isEnabled() && colour.isOpaque())
             colour = colour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
 
-        else if (shouldDrawButtonAsHighlighted)
+        if (shouldDrawButtonAsHighlighted)
             colour = colour.brighter(0.075f);
 
         g.setColour(colour);
@@ -210,7 +267,7 @@ public:
         if (properties.contains(LumatoneEditorStyleIDs::textButtonIconHashCode))
         {
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
-            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
             
             float fontScalar = 1.0f;
 #if JUCE_MAC
@@ -262,25 +319,22 @@ public:
         }
         else
         {
-            int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
-            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsDown, shouldDrawButtonAsHighlighted);
+            int bkgdColourId = (btn.getToggleState()) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
+            drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
             Font font = getTextButtonFont(btn, btn.getHeight());
             int margin = font.getStringWidth("  ");
             int textWidth = font.getStringWidth(btn.getButtonText());
-            int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
+            int colourId = (btn.getToggleState()) ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             
             Colour textColour = btn.findColour(colourId);
 
-            if (shouldDrawButtonAsDown)
-                textColour = textColour.darker(0.5f);
-            
-            else
+            if ((btn.getClickingTogglesState() && !btn.getToggleState()) || !shouldDrawButtonAsDown)
             {
                 if (!btn.isEnabled())
                     textColour = findColour(LumatoneEditorColourIDs::InactiveText);
 
-                else if (shouldDrawButtonAsHighlighted)
+                if (shouldDrawButtonAsHighlighted)
                     textColour = textColour.brighter();
             }
 
@@ -539,8 +593,17 @@ public:
             if (!editor.isEnabled())
                 backgroundColour = backgroundColour.withMultipliedSaturation(0.33f);
 
-            Path boxShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height),
-                roundToInt(height * comboBoxRoundedCornerScalar), 0);
+            // This will assume all edges are connected (default TextEditor) if not "connectedEdgeFlag" property is set
+
+            Path boxShape;
+            if ((int)editor.getProperties()[LumatoneEditorStyleIDs::connectedEdgeFlags] < 15) // 15 = All edges connected
+            {
+                boxShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height), roundToInt(height * comboBoxRoundedCornerScalar), editor.getProperties()[LumatoneEditorStyleIDs::connectedEdgeFlags]);
+            }
+            else
+            {
+                boxShape.addRectangle(0, 0, width, height);
+            }
 
             g.setColour(backgroundColour);
             g.fillPath(boxShape);
@@ -581,10 +644,24 @@ public:
 
         g.setColour(backgroundColour);
 
-        Path boxShape = getConnectedRoundedRectPath(box.getLocalBounds().toFloat(), 
-            roundToInt(height * comboBoxRoundedCornerScalar), 
-            (box.isPopupActive()) ? Button::ConnectedEdgeFlags::ConnectedOnBottom : 0
-        );
+        auto properties = box.getProperties();
+        Path boxShape; 
+        
+        if (properties.contains(LumatoneEditorStyleIDs::roundedDiagonalCorners))
+        {
+            boxShape = getDiagonalRoundedCornersPath(box.getLocalBounds().toFloat(),
+                roundToInt(height * comboBoxRoundedCornerScalar),
+                (int)properties[LumatoneEditorStyleIDs::roundedDiagonalCorners],
+                box.isPopupActive()
+            );
+        }
+        else
+        {
+            boxShape = getConnectedRoundedRectPath(box.getLocalBounds().toFloat(),
+                roundToInt(height * comboBoxRoundedCornerScalar),
+                (box.isPopupActive()) ? Button::ConnectedEdgeFlags::ConnectedOnBottom : 0
+            );
+        }
         g.fillPath(boxShape);
 
         g.setFont(getComboBoxFont(box));
@@ -896,8 +973,18 @@ public:
 
     void setupTextButton(Button& btn)
     {
-        btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
-        btn.setColour(TextButton::ColourIds::textColourOffId, Colour(0xffffffff));
+        btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
+
+        if (btn.getClickingTogglesState())
+        {
+            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
+            btn.setColour(TextButton::ColourIds::textColourOffId, Colour(0xff808080));
+            btn.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+        }
+        else
+        {
+            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
+        }
     }
 
     // Set colours of Image button based on Live and Offline Editor Buttons
@@ -1002,9 +1089,13 @@ private:
         setColour(LumatoneEditorColourIDs::DisabledOverlay,                 Colour(0x601b1b1b));
     }
 
+public:
+    LumatoneEditorCompactWindow compactWindowStyle;
+
 private:
 
     LumatoneEditorFonts::Library appFonts;
+    
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;
