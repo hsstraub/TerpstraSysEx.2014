@@ -19,7 +19,9 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 {
     setName("ColourPaletteWindow");
 
-    palettePanel.reset(new ColourPalettesPanel(colourPalettes, &paletteGroup));
+    paletteGroup.reset(new ColourSelectionGroup());
+    
+    palettePanel.reset(new ColourPalettesPanel(colourPalettes, paletteGroup.get()));
     palettePanel->addListener(this);
 
     palettePanelViewport.reset(new Viewport("PalettePanelViewport"));
@@ -28,7 +30,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     palettePanelViewport->getVerticalScrollBar().setColour(ScrollBar::ColourIds::thumbColourId, Colour(0xff2d3135));
 
     customPickerPanel.reset(new CustomPickerPanel());
-    paletteGroup.addSelector(customPickerPanel.get());
+    paletteGroup->addSelector(customPickerPanel.get());
 
     colourToolTabs.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
     colourToolTabs->setName("ColourSelectionToolTabs");
@@ -42,7 +44,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 
 ColourPaletteWindow::~ColourPaletteWindow()
 { 
-    paletteGroup.removeSelector(customPickerPanel.get());
+    paletteGroup->removeSelector(customPickerPanel.get());
 
     palettePanelViewport    = nullptr;
     colourToolTabs          = nullptr;
@@ -123,7 +125,7 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
     // Custom picker colour changed
     if (source == &colourToolTabs->getTabbedButtonBar())
     {
-        customPickerPanel->setCurrentColour(paletteGroup.getSelectedColour());
+        customPickerPanel->setCurrentColour(paletteGroup->getSelectedColour());
     }
 
     // Palette editing finished
