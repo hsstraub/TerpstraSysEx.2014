@@ -56,6 +56,25 @@
       </GROUP>
     </GROUP>
     <GROUP id="{0C0C01A7-7D12-68B9-2CA8-9F3D2FF41CF7}" name="Libraries">
+      <GROUP id="{96667A4F-E44D-2DFC-0749-E88CB35C7C55}" name="mac">
+        <GROUP id="{693844E0-4D97-DCC2-79BD-F8AB2272C2C9}" name="include">
+          <FILE id="aPeFIJ" name="gcrypt.h" compile="0" resource="0" file="Libraries/mac/include/gcrypt.h"/>
+          <FILE id="zM4rN7" name="gpg-error.h" compile="0" resource="0" file="Libraries/mac/include/gpg-error.h"/>
+          <FILE id="xQedbr" name="gpgrt.h" compile="0" resource="0" file="Libraries/mac/include/gpgrt.h"/>
+          <FILE id="kwteHa" name="libssh2.h" compile="0" resource="0" file="Libraries/mac/include/libssh2.h"/>
+          <FILE id="arppeD" name="libssh2_publickey.h" compile="0" resource="0"
+                file="Libraries/mac/include/libssh2_publickey.h"/>
+          <FILE id="KxdO0a" name="libssh2_sftp.h" compile="0" resource="0" file="Libraries/mac/include/libssh2_sftp.h"/>
+        </GROUP>
+        <GROUP id="{3346AA41-2639-B63D-7501-7E199F898ABF}" name="lib">
+          <FILE id="Gu3FVA" name="libgcrypt.20.dylib" compile="0" resource="0"
+                file="Libraries/mac/lib/libgcrypt.20.dylib" xcodeResource="1"/>
+          <FILE id="KP2wfq" name="libgpg-error.0.dylib" compile="0" resource="0"
+                file="Libraries/mac/lib/libgpg-error.0.dylib" xcodeResource="1"/>
+          <FILE id="VpPlIs" name="libssh2.1.dylib" compile="0" resource="0" file="Libraries/mac/lib/libssh2.1.dylib"
+                xcodeResource="1"/>
+        </GROUP>
+      </GROUP>
       <GROUP id="{2DB20667-3258-BE07-5618-CD9A56DD134A}" name="win64">
         <GROUP id="{05820B0E-C8E5-E19B-471F-247617449AE6}" name="bin">
           <FILE id="xCIYax" name="libssh2-x64.dll" compile="0" resource="0" file="Libraries/win64/bin/libssh2-x64.dll"/>
@@ -286,13 +305,13 @@
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="s3Ze61" hardenedRuntime="1"
                extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1&#10;"
-               xcodeValidArchs="arm64,x86_64" extraCompilerFlags="-I/usr/local/include&#10;"
-               extraLinkerFlags="-L/usr/local/lib -lssh2&#10;">
+               xcodeValidArchs="arm64,x86_64" extraCompilerFlags="-I../../Libraries/mac/include"
+               embeddedFrameworks="../../Libraries/mac/lib/libgpg-error.0.dylib&#10;../../Libraries/mac/lib/libgcrypt.20.dylib&#10;../../Libraries/mac/lib/libssh2.1.dylib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
-                       defines="LIBSSH2_STATIC=1" osxArchitecture="64BitIntel"/>
+                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel" defines="LIBSSH2_STATIC=1"/>
+                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
