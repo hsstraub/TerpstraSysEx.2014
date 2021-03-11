@@ -1056,7 +1056,6 @@ private:
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,  BinaryData::KeybedShadows_pngSize),  LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,     BinaryData::KeyShape2x_pngSize),     LumatoneEditorAssets::KeyShape);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShadow2x_png,    BinaryData::KeyShadow2x_pngSize),    LumatoneEditorAssets::KeyShadow);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SavePalette2x_png,  BinaryData::SavePalette2x_pngSize),  LumatoneEditorAssets::SavePalette);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::TrashCanIcon2x_png, BinaryData::TrashCanIcon2x_pngSize), LumatoneEditorAssets::TrashCanIcon);
     }
 
