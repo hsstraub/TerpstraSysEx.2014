@@ -13,8 +13,9 @@
 
 
 DeviceActivityMonitor::DeviceActivityMonitor()
+    : midiDriver(&TerpstraSysExApplication::getApp().getMidiDriver())
 {
-    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+    monitorMessage = midiDriver->getSerialIdentityRequestMessage();
 }
 
 DeviceActivityMonitor::~DeviceActivityMonitor()
@@ -24,33 +25,21 @@ DeviceActivityMonitor::~DeviceActivityMonitor()
 }
 
 void DeviceActivityMonitor::initializeDeviceDetection()
-{
-    TerpstraMidiDriver& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
-    monitorMessage = midiDriver.getSerialIdentityRequestMessage();
+{ 
+    midiDriver->removeListener(this);
 
-    if (deviceConnectionMode != DetectConnectionMode::lookingForDevice)
-    {
-        deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-    }
-    
-    // Refresh available devices
-    midiDriver.refreshDeviceLists();
+    deviceConnectionMode = DetectConnectionMode::lookingForDevice;
+
+    pingOutputIndex = -1;
 
     closeInputDevices();
     closeOutputDevices();
-    pingOutputIndex = -1;
+    
+    // Refresh available devices
+    midiDriver->refreshDeviceLists();
 
-    for (auto outputDeviceInfo : MidiOutput::getAvailableDevices())
-    {
-        outputsToPing.add(MidiOutput::openDevice(outputDeviceInfo.identifier));
-    }
-
-
-    for (auto inputDeviceInfo : MidiInput::getAvailableDevices())
-    {
-        auto input = inputsListening.add(MidiInput::openDevice(inputDeviceInfo.identifier, this));
-        input->start();
-    }
+    openAvailableInputDevices();
+    openAvailableOutputDevices();
 
     if (outputsToPing.size() > 0 && inputsListening.size() > 0)
     {
@@ -98,7 +87,7 @@ void DeviceActivityMonitor::stopDeviceDetection()
 
 //void DeviceActivityMonitor::pingAvailableDevices()
 //{
-//    const MidiMessage pingMsg = TerpstraSysExApplication::getApp().getMidiDriver().getSerialIdentityRequestMessage();
+//    const MidiMessage pingMsg = midiDriver->getSerialIdentityRequestMessage();
 //
 //    for (auto output : outputsToPing)
 //    {
@@ -108,37 +97,39 @@ void DeviceActivityMonitor::stopDeviceDetection()
 
 void DeviceActivityMonitor::intializeConnectionLossDetection()
 {
-    deviceConnectionMode = DetectConnectionMode::waitingForConnectionLoss;
+    jassert(confirmedMidiInput.identifier != "" && confirmedMidiOutput.identifier != "");
 
-    // TODO
+    deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
+    midiDriver->addListener(this);
+    startTimer(inactivityTimeoutMs);
+}
+
+void DeviceActivityMonitor::openAvailableOutputDevices()
+{
+    for (auto outputDeviceInfo : MidiOutput::getAvailableDevices())
+    {
+        outputsToPing.add(MidiOutput::openDevice(outputDeviceInfo.identifier));
+    }
+}
+
+void DeviceActivityMonitor::openAvailableInputDevices()
+{
+    for (auto inputDeviceInfo : MidiInput::getAvailableDevices())
+    {
+        auto input = inputsListening.add(MidiInput::openDevice(inputDeviceInfo.identifier, this));
+        input->start();
+    }
 }
 
 void DeviceActivityMonitor::closeInputDevices()
 {
-    for (auto inputs : inputsListening)
+    for (auto input : inputsListening)
     {
-        inputs->stop();
+        input->stop();
     }
 
     inputsListening.clear();
 }
-
-//void DeviceActivityMonitor::closeInputDevicesExcept(int inputDeviceIndexToRetain)
-//{
-//    if (inputDeviceIndexToRetain >= 0 && inputDeviceIndexToRetain < inputsListening.size() && inputsListening[inputDeviceIndexToRetain])
-//    {
-//        auto inputToRetain = inputsListening.getUnchecked(inputDeviceIndexToRetain);
-//
-//        for (auto input : inputsListening)
-//        {
-//            if (input != inputToRetain)
-//            {
-//                input->stop();
-//                inputsListening.removeObject(input, true);
-//            }
-//        }
-//    }
-//}
 
 void DeviceActivityMonitor::closeOutputDevices()
 {
@@ -146,39 +137,46 @@ void DeviceActivityMonitor::closeOutputDevices()
     outputsToPing.clear();
 }
 
-void DeviceActivityMonitor::testConnectionToDevices(int inputDeviceIndex, int outputDeviceIndex)
+bool DeviceActivityMonitor::initializeConnectionTest()
 {
-    manualDeviceInputWait = inputDeviceIndex;
-    deviceConnectionMode = DetectConnectionMode::testingManualConnection;
+    deviceConnectionMode = DetectConnectionMode::testingConnection;
 
-    if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
+    if (confirmedMidiInput.identifier != "" && confirmedMidiOutput.identifier != "")
     {
-        DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
-        TerpstraSysExApplication::getApp().getMidiDriver().sendMessageNow(monitorMessage);
+        DBG("Testing connection to " + confirmedMidiInput.name);
+        midiDriver->sendMessageNow(monitorMessage);
         startTimer(responseTimeoutMs);
+        return true;
     }
+
+    return false;
 }
 
 void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& response)
 {
-    // Check if SysEx and expected manufacturer ID, board ID, and command ID
-    bool isExpectedResponseType = TerpstraSysExApplication::getApp().getMidiDriver().messageIsResponseToMessage(response, monitorMessage);
-    if (isExpectedResponseType)
+    if (midiDriver->messageIsResponseToMessage(response, monitorMessage))
     {
         auto data = response.getSysExData();
 
-        // Is a duplicate of the request
+        // Is an echo of the request
         if (data[5] == TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK)
         {
             return;
         }
 
-        // Is an acknowledged answer and success connection
+        // Is an acknowledged answer and successful connection
         else
         {
-            confirmedOutputIndex = pingOutputIndex;
-            confirmedInputIndex = inputsListening.indexOf(source);
             expectedResponseReceived = true;
+
+            confirmedMidiOutput = outputsToPing[pingOutputIndex]->getDeviceInfo();
+            confirmedOutputIndex = pingOutputIndex;
+
+            confirmedMidiInput = source->getDeviceInfo();
+            confirmedInputIndex = inputsListening.indexOf(source);
+
+            closeOutputDevices();
+            closeInputDevices(); // Connection loss is handled in TerpstraMidiDriver::Listener callback
         }
     }
 }
@@ -217,14 +215,13 @@ void DeviceActivityMonitor::checkDetectionStatus()
             initializeDeviceDetection();
         }
     }
-
 }
 
 void DeviceActivityMonitor::timerCallback()
 {
     stopTimer();
 
-    if (deviceConnectionMode < DetectConnectionMode::waitingForConnectionLoss)
+    if (deviceConnectionMode < DetectConnectionMode::waitingForInactivity)
     {
         if (detectDevicesIfDisconnected)
         {
@@ -235,11 +232,26 @@ void DeviceActivityMonitor::timerCallback()
                 initializeDeviceDetection();
         }
     }
-    else if (deviceConnectionMode == DetectConnectionMode::waitingForConnectionLoss)
+    else if (deviceConnectionMode >= DetectConnectionMode::waitingForInactivity)
     {
-        // TODO
-        // Maybe look at the last message time stamp and only check if there hasn't been activity
-        // Then stop if there is
+        if (waitingForTestResponse)
+        {
+            DBG("DISCONNECTION DETECTED");
+
+            midiDriver->closeMidiInput();
+            midiDriver->closeMidiOutput();
+
+            expectedResponseReceived = false;
+            sendChangeMessage();
+
+            if (detectDevicesIfDisconnected)
+                initializeDeviceDetection();
+        }
+        else
+        {
+            waitingForTestResponse = true;
+            initializeConnectionTest();
+        }
     }
 }
 
@@ -248,7 +260,18 @@ void DeviceActivityMonitor::timerCallback()
 
 void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
 {
-    // TODO
+    jassert(confirmedMidiInput.identifier != "" && confirmedMidiOutput.identifier != "");
+    if (deviceConnectionMode >= DetectConnectionMode::waitingForInactivity)
+    {
+        waitingForTestResponse = false;
+        expectedResponseReceived = true;
+
+        if (checkConnectionOnInactivity)
+        {
+            deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
+            startTimer(inactivityTimeoutMs);
+        }
+    }
 }
 
 void DeviceActivityMonitor::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)

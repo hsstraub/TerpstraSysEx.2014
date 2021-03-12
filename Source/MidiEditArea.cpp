@@ -491,28 +491,38 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 {
 	if (source == static_cast<ChangeBroadcaster*>(&deviceMonitor))
 	{
-		int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
-		int currentInputIndex =  deviceMonitor.getConfirmedInputIndex();
-
-		if (currentOutputIndex >= 0 && currentInputIndex >= 0)
+		if (deviceMonitor.isConnectionEstablished())
 		{
-			// TODO: more planned-out / unified connection between manual & automatic 
-			// There's a race condition resulting in two "onOpenConnection" calls when device selection happens during ComboBox callbacks 
-			// and one resulting in no calls if it happens after
-			
-			// + 1 for ComboBox indicies
-			refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
-			refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
+			int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
+			int currentInputIndex = deviceMonitor.getConfirmedInputIndex();
 
-			TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
-			TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
+			if (currentOutputIndex >= 0 && currentInputIndex >= 0)
+			{
+				// TODO: more planned-out / unified connection between manual & automatic 
+				// There's a race condition resulting in two "onOpenConnection" calls when device selection happens during ComboBox callbacks 
+				// and one resulting in no calls if it happens after
 
-			setConnectivity(true);
-			onOpenConnectionToDevice();
+				// + 1 for ComboBox indicies
+				refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
+				refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
+
+				TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
+				TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
+
+				setConnectivity(true);
+				onOpenConnectionToDevice();
+			}
+			else
+			{
+				DBG("One or both device indicies returned are invalid");
+				setConnectivity(false);
+			}
 		}
 		else
 		{
-			DBG("One or both device indicies returned are invalid");
+			refreshInputDevicesAndSetSelected(0);
+			refreshOutputDevicesAndSetSelected(0);
+
 			setConnectivity(false);
 		}
 	}
