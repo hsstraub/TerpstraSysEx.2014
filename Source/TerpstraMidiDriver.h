@@ -78,6 +78,7 @@ System exclusive command bytes
 #define RESET_LUMATOUCH_CONFIG 0x2f
 #define GET_LUMATOUCH_CONFIG 0x30
 
+#define GET_FIRMWARE_REVISION 0x31
 
 /*
 ==============================================================================
@@ -115,6 +116,22 @@ public:
 		offlineEditor = 1
 	};
 
+	//==============================================================================
+	// Helper class for parsing and comparing (todo) firmware versions
+
+	struct FirmwareVersion
+	{
+		int major = 0;
+		int minor = 0;
+		int revision = 0;
+
+		FirmwareVersion(int majorVersion, int minorVersion, int revisionNumber)
+			: major(majorVersion), minor(minorVersion), revision(revisionNumber) {}
+
+		String toString() const { return String(major) + "." + String(minor) + "." + String(revision); }
+
+		static FirmwareVersion fromString(String firmwareVersion);
+	};
 
 private:
     typedef enum
@@ -214,6 +231,12 @@ public:
 	void sendSerialIdentityRequest();
 	MidiMessage getSerialIdentityRequestMessage() const;
 
+	// This command is used to read back the current Lumatone firmware revision.
+	// The firmware version format is in the form {Major}.{Minor}.{Revision}
+	// If the board has not been initialized, the Beaglebone will contain a firmware revision of 0.0.0 for the board.
+	void sendGetFirmwareRevisionRequest();
+	MidiMessage getFirmwareRevisionRequestMessage() const;
+
 	////////////////////////////////////////////////////////////////////////////
 	// Implementation of bidirectional communication with acknowledge messages
 
@@ -243,6 +266,8 @@ public:
 	// Message contains the serial identification number of the controller
 	bool messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage);
 
+	bool messageIsGetFirmwareRevisionMessage(const MidiMessage& midiMessage);
+
 private:
 	// Low-level SysEx message sending
 	void sendMessageWithAcknowledge(const MidiMessage& message);
@@ -266,6 +291,7 @@ protected:
 private:
 	bool autoSave;
 	int manufacturerId = 0x002150;
+	FirmwareVersion firmwareVersion = { 0, 0, 0 };
 
     MidiMessage currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available

@@ -350,6 +350,17 @@ MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
     return msg;
 }
 
+void TerpstraMidiDriver::sendGetFirmwareRevisionRequest()
+{
+    sendSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0');
+}
+
+MidiMessage TerpstraMidiDriver::getFirmwareRevisionRequestMessage() const
+{
+    MidiMessage msg = createTerpstraSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0');
+    return msg;
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
@@ -471,6 +482,17 @@ bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& mi
     auto midiCmd = midiMessage.getSysExData()[4];
 
     return midiCmd == GET_SERIAL_IDENTITY;
+}
+
+bool TerpstraMidiDriver::messageIsGetFirmwareRevisionMessage(const MidiMessage& midiMessage)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return midiCmd == GET_FIRMWARE_REVISION;
 }
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
@@ -600,4 +622,39 @@ void TerpstraMidiDriver::timerCallback()
     }
     else
         jassertfalse;
+}
+
+
+TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromString(String firmwareVersion)
+{
+    FirmwareVersion version(0, 0, 0);
+
+    String afterFirstDecimal = firmwareVersion.fromFirstOccurrenceOf(".", false, true);
+
+    // Just check if it contains at least two decimals
+    if (firmwareVersion.contains(".") && afterFirstDecimal.contains("."))
+    {
+        String majorNum = firmwareVersion.upToFirstOccurrenceOf(".", false, true);
+
+        String minorNum = afterFirstDecimal.upToFirstOccurrenceOf(".", false, true);
+
+        if (minorNum == afterFirstDecimal)
+        {
+            // This means there was only one decimal, don't try to parse
+            return version;
+        }
+
+        String revisionNum = firmwareVersion.fromLastOccurrenceOf(".", false, true);
+        if (revisionNum != revisionNum.upToFirstOccurrenceOf(".", false, true))
+        {
+            // This means there's an additional decimal, don't try to parse
+            return version;
+        }
+
+        version.major = majorNum.getIntValue();
+        version.minor = majorNum.getIntValue();
+        version.revision = majorNum.getIntValue();
+    }
+
+    return version;
 }
