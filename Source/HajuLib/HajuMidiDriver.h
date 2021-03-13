@@ -31,6 +31,12 @@ public:
 	StringArray getMidiInputList();
 	// List of MIDI output device names
 	StringArray getMidiOutputList();
+    
+    MidiDeviceInfo getMidiOutputInfo() const;
+    MidiDeviceInfo getMidiInputInfo() const;
+    
+    int getLastMidiInputIndex() const { return lastInputIndex; }
+    int getLastMidiOutputIndex() const { return lastOutputIndex; }
 
 	// Re-initializes device list in case of changes
 	void refreshDeviceLists();
@@ -60,6 +66,7 @@ protected:
 	Array<MidiDeviceInfo> midiOutputs;
 	AudioDeviceManager deviceManager;
 
+    int lastOutputIndex = -1;
 	int lastInputIndex = -1;
 	MidiInputCallback* lastInputCallback = nullptr;
 

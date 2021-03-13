@@ -157,7 +157,6 @@ MidiEditArea::MidiEditArea ()
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 
 	btnAutoConnect->setClickingTogglesState(true);
-	btnAutoConnect->setToggleState(true, NotificationType::dontSendNotification);
 	lookAndFeel.setupTextButton(*btnAutoConnect.get());
 
 	ioAreaFlexBox.alignContent = FlexBox::AlignContent::center;
@@ -172,13 +171,13 @@ MidiEditArea::MidiEditArea ()
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	setConnectivity(false);
-	errorVisualizer.setErrorLevel(
-		*lblConnectionState.get(),
-		HajuErrorVisualizer::ErrorLevel::error,
-		"Searching for Lumatone...");
 
     deviceMonitor.addChangeListener(this);
-    deviceMonitor.initializeDeviceDetection();
+    
+    btnAutoConnect->setToggleState(deviceMonitor.willDetectDeviceIfDisconnected(), sendNotificationSync);
+    if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
+        startTimer(deviceRefreshTimeoutMs);
+    
     //[/Constructor]
 }
 
@@ -354,7 +353,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			onOpenConnectionToDevice();
+			attemptDeviceConnection();
 		}
         //[/UserComboBoxCode_cbMidiInput]
     }
@@ -374,7 +373,7 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			onOpenConnectionToDevice();
+			attemptDeviceConnection();
 		}
         //[/UserComboBoxCode_cbMidiOutput]
     }
@@ -394,8 +393,9 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_btnAutoConnect] -- add your button handler code here..
 		cbMidiInput->setVisible(!btnAutoConnect->getToggleState());
 		cbMidiOutput->setVisible(!btnAutoConnect->getToggleState());
-
-		if (btnAutoConnect->getToggleState())
+        deviceMonitor.setDetectDeviceIfDisconnected(btnAutoConnect->getToggleState());
+		
+        if (btnAutoConnect->getToggleState())
 		{
 			deviceMonitor.initializeDeviceDetection();
 
@@ -404,8 +404,8 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		else
 		{
 			deviceMonitor.stopDeviceDetection();
-
 			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
+            startTimer(deviceRefreshTimeoutMs);
 		}
 
 		resized();
@@ -478,11 +478,6 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
 
-	//if (isConnected && deviceMonitor.isSearchingForLumatone())
-	//{
-		// TODO: verify connection
-	//}
-
 	resized();
 	repaint();
 }
@@ -493,48 +488,86 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 	{
 		if (deviceMonitor.isConnectionEstablished())
 		{
-			int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
-			int currentInputIndex = deviceMonitor.getConfirmedInputIndex();
+            // Manual connection
+            if (isWaitingForConnectionTest)
+            {
+                setConnectivity(true);
+                onOpenConnectionToDevice();
+            }
+            
+            // Auto-connection
+            else
+            {
+                int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
+                int currentInputIndex = deviceMonitor.getConfirmedInputIndex();
 
-			if (currentOutputIndex >= 0 && currentInputIndex >= 0)
-			{
-				// TODO: more planned-out / unified connection between manual & automatic 
-				// There's a race condition resulting in two "onOpenConnection" calls when device selection happens during ComboBox callbacks 
-				// and one resulting in no calls if it happens after
+                if (currentOutputIndex >= 0 && currentInputIndex >= 0)
+                {
+                    // TODO: more planned-out / unified connection between manual & automatic
 
-				// + 1 for ComboBox indicies
-				refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
-				refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
+                    // + 1 for ComboBox indicies
+                    refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
+                    refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
 
-				setConnectivity(true);
-				onOpenConnectionToDevice();
-			}
-			else
-			{
-				DBG("One or both device indicies returned are invalid");
-				setConnectivity(false);
-			}
+                    setConnectivity(true);
+                    onOpenConnectionToDevice();
+                }
+                else
+                {
+                    DBG("One or both device indicies returned are invalid");
+                    setConnectivity(false);
+                }
+            }
 		}
-		else
-		{
-			refreshInputDevicesAndSetSelected(0);
-			refreshOutputDevicesAndSetSelected(0);
-
-			setConnectivity(false);
+        else
+        {
+            setConnectivity(false);
+            
+            if (isWaitingForConnectionTest)
+            {
+                lblConnectionState->setText(translate("No answer"), NotificationType::dontSendNotification);
+                errorVisualizer.setErrorLevel(
+                    *lblConnectionState.get(),
+                    HajuErrorVisualizer::ErrorLevel::error,
+                    "No answer");
+            }
+            else
+            {
+                refreshInputDevicesAndSetSelected(0);
+                refreshOutputDevicesAndSetSelected(0);
+            }
+			
+            if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
+                startTimer(deviceRefreshTimeoutMs);
 		}
 	}
 
 }
 
+void MidiEditArea::attemptDeviceConnection()
+{
+    jassert(!isConnected);
+    
+    lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
+    errorVisualizer.setErrorLevel(
+        *lblConnectionState.get(),
+        HajuErrorVisualizer::ErrorLevel::noError,
+        "Connecting...");
+    
+    if (deviceMonitor.isConnectionEstablished())
+    {
+        onOpenConnectionToDevice();
+    }
+    else
+    {
+        isWaitingForConnectionTest = deviceMonitor.initializeConnectionTest();
+        //jassert(isWaitingForConnectionTest); // Triggered if a test is requested before opening any devices
+    }
+}
+
 void MidiEditArea::onOpenConnectionToDevice()
 {
 	//jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
-
-	lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
-	errorVisualizer.setErrorLevel(
-		*lblConnectionState.get(),
-		HajuErrorVisualizer::ErrorLevel::noError,
-		"Connecting...");
 
 	// Send current configuration to device, if desired
 	auto retc = AlertWindow::showOkCancelBox(
@@ -627,12 +660,34 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			break;
 		}
 
-        if (!isConnected && !deviceMonitor.isSearchingForLumatone())
+        if (!isConnected && deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
         {
 			setConnectivity(true);
             onOpenConnectionToDevice();
         }
 	}
+}
+
+void MidiEditArea::timerCallback()
+{
+    if (isConnected || deviceMonitor.getMode() == DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
+    {
+        stopTimer();
+    }
+    else
+    {
+        TerpstraSysExApplication::getApp().getMidiDriver().refreshDeviceLists();
+        
+        refreshInputDevicesAndSetSelected(
+            TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiInputIndex() + 1,
+            juce::NotificationType::dontSendNotification
+        );
+        
+        refreshOutputDevicesAndSetSelected(
+            TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiOutputIndex() + 1,
+            juce::NotificationType::dontSendNotification
+        );
+    }
 }
 
 void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)

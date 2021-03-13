@@ -22,14 +22,30 @@ class DeviceActivityMonitor : public juce::MidiInputCallback,
                               public juce::Timer,
                               public juce::ChangeBroadcaster
 {
+    
+public:
+    enum class DetectConnectionMode
+    {
+        noDeviceActivity = -1,
+        noDeviceMonitoring,
+        lookingForDevice,
+        testingConnection,
+        waitingForInactivity
+    };
+    
 public:
 
     DeviceActivityMonitor();
     ~DeviceActivityMonitor() override;
 
-    bool isSearchingForLumatone() const { return deviceDetectInProgress; }
-
-    bool isConnectionEstablished() const { return expectedResponseReceived && confirmedMidiInput.identifier != "" && confirmedMidiOutput.identifier != ""; }
+    DetectConnectionMode getMode() const { return deviceConnectionMode; }
+    bool isConnectionEstablished() const { return expectedResponseReceived && confirmedInputIndex >= 0 && confirmedOutputIndex >= 0; }
+    
+    bool willDetectDeviceIfDisconnected() const { return detectDevicesIfDisconnected; }
+    void setDetectDeviceIfDisconnected(bool doDetection);
+    
+    bool willCheckForInactivity() const { return checkConnectionOnInactivity; }
+    void setCheckForInactivity(bool monitorActivity);
 
     /// <summary>
     /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
@@ -51,7 +67,7 @@ public:
     // Determines whether or not to try to continue device detection, tries next pair if so
     void checkDetectionStatus();
 
-    // TODO
+    // Begin monitoring for unresponsiveness from device
     void intializeConnectionLossDetection();
 
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
@@ -64,10 +80,10 @@ public:
     void closeOutputDevices();
 
     /// <summary>
-    /// Test device connectivity after already having confirmed the connection.
+    /// Test device connectivity after a connection has previously been made.
     /// </summary>
-    /// <returns>Returns false if connection not previously confirmed, and true if it an attempt to connect was made</returns>
-    bool initializeConnectionTest();
+    /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
+    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::testingConnection);
 
     //=========================================================================
     // juce::MidiInputCallback Implementation
@@ -89,22 +105,14 @@ protected:
     void midiMessageReceived(const MidiMessage& midiMessage) override;
     void midiMessageSent(const MidiMessage& midiMessage) override {}
     void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
 
 
 private:
-
-    enum DetectConnectionMode
-    {
-        noActivity = 0,
-        lookingForDevice,
-        waitingForInactivity,
-        testingConnection
-    };
-
+    
     TerpstraMidiDriver*     midiDriver;
 
-    DetectConnectionMode    deviceConnectionMode   = noActivity;
+    DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
     bool                    deviceDetectInProgress = false;
 
     const int               responseTimeoutMs    = 1000; // Ideally shorter, but 300 may have been too short
@@ -125,7 +133,6 @@ private:
 
     MidiMessage             monitorMessage;
     bool                    expectedResponseReceived = false;
-
-    MidiDeviceInfo          confirmedMidiInput;
-    MidiDeviceInfo          confirmedMidiOutput;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

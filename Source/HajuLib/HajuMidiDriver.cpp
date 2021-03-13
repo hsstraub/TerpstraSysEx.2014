@@ -49,26 +49,47 @@ StringArray HajuMidiDriver::getMidiOutputList()
 	return midiOutputNames;
 }
 
+MidiDeviceInfo HajuMidiDriver::getMidiInputInfo() const
+{
+    return midiInputs[lastInputIndex];
+}
+
+MidiDeviceInfo HajuMidiDriver::getMidiOutputInfo() const
+{
+    if (midiOutput.get())
+        return midiOutput->getDeviceInfo();
+    return MidiDeviceInfo();
+}
+
 void HajuMidiDriver::refreshDeviceLists()
 {
-    String lastDeviceId = "";
-    if (lastInputIndex >= 0)
-    {
-        lastDeviceId = midiInputs[lastInputIndex].identifier;
-    }
-    
-	midiInputs = MidiInput::getAvailableDevices();
-    
     // Reset last opened device to be the same index
     // so we close the correct one if that's requested
-    if (lastDeviceId != "")
+    // order change is probably rare but can't be guaranteed
+    
+    if (lastInputIndex >= 0)
     {
+        String lastInputId = midiInputs[lastInputIndex].identifier;
+        midiInputs = MidiInput::getAvailableDevices();
+
         for (int i = 0; i < midiInputs.size(); i++)
-            if (midiInputs[i].identifier == lastDeviceId)
+            if (midiInputs[i].identifier == lastInputId)
                 lastInputIndex = i;
     }
+    else
+        midiInputs = MidiInput::getAvailableDevices();
     
-	midiOutputs = MidiOutput::getAvailableDevices();
+    if (lastOutputIndex >= 0)
+    {
+        String lastOutputId = midiOutputs[lastOutputIndex].identifier;
+        midiOutputs = MidiOutput::getAvailableDevices();
+        
+        for (int i = 0; i < midiOutputs.size(); i++)
+            if (midiOutputs[i].identifier == lastOutputId)
+                lastOutputIndex = i;
+    }
+    else
+        midiOutputs = MidiOutput::getAvailableDevices();
 }
 
 void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
@@ -91,8 +112,9 @@ void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
 	jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
-
+    
 	midiOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
+    lastOutputIndex = deviceIndex;
 }
 
 void HajuMidiDriver::sendMessageNow(const MidiMessage& message)

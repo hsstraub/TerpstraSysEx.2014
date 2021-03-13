@@ -41,7 +41,8 @@ class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
                       public juce::ChangeListener,
                       public juce::ComboBox::Listener,
-                      public juce::Button::Listener
+                      public juce::Button::Listener,
+                      public juce::Timer
 {
 public:
     //==============================================================================
@@ -55,18 +56,22 @@ public:
     // Implementation of ChangeListener
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
+    void attemptDeviceConnection();
 	void onOpenConnectionToDevice();
 
     // For now, preserve connection functionality and make sure internal combo boxes are up to date
     void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
     void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
-	// Implementation of TerpstraNidiDriver::Listener
+	// Implementation of TerpstraMidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
 	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
 
+    // Implementation of juce::Timer
+    void timerCallback() override;
+    
 private:
 
     void setConnectivity(bool isConnected);
@@ -95,6 +100,7 @@ private:
     DeviceActivityMonitor       deviceMonitor;
 
     bool                        isConnected = false;
+    bool                        isWaitingForConnectionTest = false;
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
 
@@ -108,6 +114,8 @@ private:
 
     std::unique_ptr<Component>  logomark;
     Path                        logomarkPath;
+    
+    const int                   deviceRefreshTimeoutMs = 1000;
 
     //==============================================================================
     // Helpers
