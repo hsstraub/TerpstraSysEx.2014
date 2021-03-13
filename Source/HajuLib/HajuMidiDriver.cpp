@@ -16,7 +16,7 @@ HajuMidiDriver::HajuMidiDriver()
 	midiInputs = MidiInput::getAvailableDevices();
 	midiOutputs = MidiOutput::getAvailableDevices();
 
-	deviceManager.initialise(midiInputs.size(), midiOutputs.size(), 0, true, String(), 0);
+	deviceManager.initialise(0, 0, 0, true, String(), 0);
 }
 
 HajuMidiDriver::~HajuMidiDriver()
@@ -101,8 +101,6 @@ void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
 	if (midiOutput != nullptr)
     {
 		midiOutput->sendMessageNow(message);
-        MessageManagerLock mml;
-        DBG("sending message to " + midiOutput->getName());
     }
 }
 
