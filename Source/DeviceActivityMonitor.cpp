@@ -25,7 +25,11 @@ DeviceActivityMonitor::~DeviceActivityMonitor()
 }
 
 void DeviceActivityMonitor::initializeDeviceDetection()
-{ 
+{
+    // Safeguard, shouldn't happen
+    if (deviceDetectInProgress)
+        return;
+    
     midiDriver->removeListener(this);
 
     deviceConnectionMode = DetectConnectionMode::lookingForDevice;
@@ -33,6 +37,7 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     pingOutputIndex = -1;
 
     closeInputDevices();
+    inputsListening.clear();
     closeOutputDevices();
     
     // Refresh available devices
@@ -154,6 +159,12 @@ bool DeviceActivityMonitor::initializeConnectionTest()
 
 void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& response)
 {
+    // necessary?
+//    if (!deviceDetectInProgress)
+//        return;
+//
+//    MessageManagerLock mml;
+    
     if (midiDriver->messageIsResponseToMessage(response, monitorMessage))
     {
         auto data = response.getSysExData();
@@ -168,15 +179,10 @@ void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const M
         else
         {
             expectedResponseReceived = true;
-
-            confirmedMidiOutput = outputsToPing[pingOutputIndex]->getDeviceInfo();
-            confirmedOutputIndex = pingOutputIndex;
-
-            confirmedMidiInput = source->getDeviceInfo();
             confirmedInputIndex = inputsListening.indexOf(source);
-
-            closeOutputDevices();
-            closeInputDevices(); // Connection loss is handled in TerpstraMidiDriver::Listener callback
+            confirmedOutputIndex = pingOutputIndex;
+            confirmedMidiOutput = outputsToPing[pingOutputIndex]->getDeviceInfo();
+            confirmedMidiInput = source->getDeviceInfo();
         }
     }
 }
@@ -195,8 +201,15 @@ void DeviceActivityMonitor::checkDetectionStatus()
         if (expectedResponseReceived)
         {
             deviceDetectInProgress = false;
+            
+            closeOutputDevices();
+            closeInputDevices(); // Connection loss is handled in TerpstraMidiDriver::Listener callback
+            
+            midiDriver->setMidiInput(confirmedInputIndex);
+            midiDriver->setMidiOutput(confirmedOutputIndex);
+        
             sendChangeMessage();
-
+            
             if (checkConnectionOnInactivity)
             {
                 intializeConnectionLossDetection(); // TODO
@@ -228,7 +241,7 @@ void DeviceActivityMonitor::timerCallback()
             if (deviceDetectInProgress)
                 checkDetectionStatus();
 
-            else
+            else if (!isConnectionEstablished())
                 initializeDeviceDetection();
         }
     }

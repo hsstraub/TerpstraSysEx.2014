@@ -506,9 +506,6 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 				refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
 				refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
 
-				TerpstraSysExApplication::getApp().getMidiDriver().setMidiInput(cbMidiInput->getSelectedItemIndex());
-				TerpstraSysExApplication::getApp().getMidiDriver().setMidiOutput(cbMidiOutput->getSelectedItemIndex());
-
 				setConnectivity(true);
 				onOpenConnectionToDevice();
 			}
@@ -561,8 +558,6 @@ void MidiEditArea::onOpenConnectionToDevice()
 
 void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(inputDeviceIndex > 0);
-
 	cbMidiInput->clear(NotificationType::dontSendNotification);
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiInput->setSelectedId(inputDeviceIndex, notificationType);
@@ -570,8 +565,6 @@ void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce:
 
 void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(outputDeviceIndex > 0);
-
 	cbMidiOutput->clear(NotificationType::dontSendNotification);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
 	cbMidiOutput->setSelectedId(outputDeviceIndex, notificationType);
@@ -579,7 +572,7 @@ void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juc
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
-	if (midiMessage.getSysExDataSize() < 6)
+	if (midiMessage.isSysEx() && midiMessage.getSysExDataSize() < 6)
 	{
 		errorVisualizer.setErrorLevel(
 			*lblConnectionState.get(),
@@ -596,7 +589,7 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 
 		switch (answerState)
 		{
-		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+		//lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 
 		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
 			errorVisualizer.setErrorLevel(

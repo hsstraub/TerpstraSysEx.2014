@@ -107,9 +107,9 @@ private:
     DetectConnectionMode    deviceConnectionMode   = noActivity;
     bool                    deviceDetectInProgress = false;
 
-    const int               responseTimeoutMs    = 1000; // Will have to try to adjust when we can test with hardware
+    const int               responseTimeoutMs    = 1000; // Ideally shorter, but 300 may have been too short
     const int               pingRoutineTimeoutMs = 1000;
-    const int               inactivityTimeoutMs   = 2000; // TODO: set to 30000
+    const int               inactivityTimeoutMs   = 5000;
     
     int                     pingOutputIndex = -1;
 
