@@ -398,8 +398,11 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
         if (btnAutoConnect->getToggleState())
 		{
 			deviceMonitor.initializeDeviceDetection();
-
 			lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::error,
+				translate("Waiting for response from connected devices..."));
 		}
 		else
 		{

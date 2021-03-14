@@ -115,7 +115,7 @@ private:
     DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
     bool                    deviceDetectInProgress = false;
 
-    const int               responseTimeoutMs    = 1000; // Ideally shorter, but 300 may have been too short
+    const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
     const int               inactivityTimeoutMs   = 5000;
     

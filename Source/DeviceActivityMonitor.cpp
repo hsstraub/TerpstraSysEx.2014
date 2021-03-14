@@ -13,7 +13,8 @@
 
 
 DeviceActivityMonitor::DeviceActivityMonitor()
-    : midiDriver(&TerpstraSysExApplication::getApp().getMidiDriver())
+    : midiDriver(&TerpstraSysExApplication::getApp().getMidiDriver()),
+      responseTimeoutMs(TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("DetectDeviceTimeout", 1000))
 {
     monitorMessage = midiDriver->getSerialIdentityRequestMessage();
     detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
@@ -96,11 +97,9 @@ void DeviceActivityMonitor::pingNextOutput()
 
 void DeviceActivityMonitor::stopDeviceDetection()
 {
-    if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
-    {
-        deviceDetectInProgress = false;
-        stopTimer();
-    }
+    deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
+    deviceDetectInProgress = false;
+    stopTimer();
 }
 
 //void DeviceActivityMonitor::pingAvailableDevices()
