@@ -98,7 +98,8 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
         midiInput->stop();
     }
 
-	midiInput.swap(MidiInput::openDevice(midiInputs[deviceIndex].identifier, this));
+    auto newInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
+	midiInput.swap(newInput);
     midiInput->start();
     
     lastInputIndex = deviceIndex;
