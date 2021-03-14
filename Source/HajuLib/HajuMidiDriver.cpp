@@ -15,16 +15,15 @@ HajuMidiDriver::HajuMidiDriver()
 {
 	midiInputs = MidiInput::getAvailableDevices();
 	midiOutputs = MidiOutput::getAvailableDevices();
-
-	deviceManager.initialise(0, 0, 0, true, String(), 0);
 }
 
 HajuMidiDriver::~HajuMidiDriver()
 {
-    if (lastInputIndex >= 0)
+    if (midiInput.get() != nullptr)
     {
-        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex].identifier, lastInputCallback);
+        midiInput->stop();
     }
+
 
 	midiOutput = nullptr;
 }
@@ -92,29 +91,33 @@ void HajuMidiDriver::refreshDeviceLists()
         midiOutputs = MidiOutput::getAvailableDevices();
 }
 
-void HajuMidiDriver::setMidiInput(int deviceIndex, MidiInputCallback* callback)
+void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
-    if (lastInputIndex >= 0)
+    if (midiInput.get())
     {
-        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex].identifier, lastInputCallback);
+        midiInput->stop();
     }
 
-	auto newInput = midiInputs[deviceIndex];
-	if (!deviceManager.isMidiInputDeviceEnabled(newInput.identifier))
-		deviceManager.setMidiInputDeviceEnabled(newInput.identifier, true);
-
-	deviceManager.addMidiInputDeviceCallback(newInput.identifier, callback);
-
-	lastInputIndex = deviceIndex;
-	lastInputCallback = callback;
+	midiInput.swap(MidiInput::openDevice(midiInputs[deviceIndex].identifier, this));
+    midiInput->start();
+    
+    lastInputIndex = deviceIndex;
 }
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
 	jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
     
-	midiOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
-    lastOutputIndex = deviceIndex;
+    auto newOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
+    
+    if (newOutput == nullptr)
+        DBG("WARNING: Could not open up output device " + midiOutputs[deviceIndex].identifier);
+    
+    else if (newOutput != midiOutput)
+    {
+        midiOutput.swap(newOutput);
+        lastOutputIndex = deviceIndex;
+    }
 }
 
 void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
@@ -140,15 +143,17 @@ void HajuMidiDriver::sendNoteOffMessage(int noteNumber, int channelNumber, uint8
 
 void HajuMidiDriver::closeMidiInput()
 {
-    if (lastInputIndex >= 0)
+    if (midiInput.get())
     {
-        deviceManager.removeMidiInputDeviceCallback(midiInputs[lastInputIndex].identifier, lastInputCallback);
+        midiInput->stop();
+        midiInput = nullptr;
+
         lastInputIndex = -1;
-        lastInputCallback = nullptr;
     }
 }
 
 void HajuMidiDriver::closeMidiOutput()
 {
     midiOutput = nullptr;
+    lastOutputIndex = -1;
 }

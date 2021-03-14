@@ -20,12 +20,6 @@ TerpstraMidiDriver::~TerpstraMidiDriver()
 {
 }
 
-void TerpstraMidiDriver::setMidiInput(int deviceIndex)
-{
-    // For the reaction to answer messages, TerpstraMidiDriver itself must be a MIDI input callback
-    HajuMidiDriver::setMidiInput(deviceIndex, this);
-}
-
 void TerpstraMidiDriver::addListener(TerpstraMidiDriver::Listener* listener)
 {
 	listeners.add(listener);
@@ -499,7 +493,7 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
     // If there is no MIDI input port active: just send, without expecting acknowledge
 	// ToDo Or do nothing?
-    if ( lastInputCallback == nullptr)
+    if (midiInput == nullptr)
     {
         sendMessageNow(message);
 

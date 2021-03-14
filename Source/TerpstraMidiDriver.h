@@ -144,9 +144,6 @@ public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
 
-	void setMidiInput(int deviceIndex, MidiInputCallback* callback) = delete;
-	void setMidiInput(int deviceIndex);
-
 	void setAutoSave(bool value) { this->autoSave = value; }
 	void setManufacturerId(int value) { manufacturerId = value; }
 
