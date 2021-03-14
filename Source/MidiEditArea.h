@@ -146,10 +146,15 @@ private:
 
     const float connectionDirectionsX           = 0.17f;
     const float connectionDirectionsY           = 0.47f;
-    const float connectionDirectionsHeight      = 0.18f;
+    const float connectionDirectionsHeight
+#if JUCE_MAC
+        = 0.19f;
+#else
+        = 0.18f;
+#endif
 
     const float editModeX                       = 0.0267f;
-    const float editModeHeight                  = 0.2394f;
+    const float editModeHeight                  = 0.24f;
 
     const float editModeButtonX                 = 0.10606f;
     const float editModeButtonHeight            = 0.4194f;

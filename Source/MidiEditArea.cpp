@@ -261,7 +261,7 @@ void MidiEditArea::resized()
 
 		liveEditorBtn->setSize(round(w * liveEditButtonWidth), round(h* editModeButtonHeight));
 		liveEditorBtn->setTopLeftPosition(
-			lumatoneLabelBounds.getRight() + round(w * editModeButtonX),
+			lblEditMode->getRight(),
 			round((h - liveEditorBtn->getHeight()) * 0.5f)
 		);
 
