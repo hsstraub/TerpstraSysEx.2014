@@ -624,7 +624,7 @@ public:
         g.fillAll(backgroundColour);
     }
 
-    void drawTextEditorOutline(Graphics&, int width, int height, TextEditor&) override {}
+    void drawTextEditorOutline(Graphics&, int, int, TextEditor&) override {}
 
 
 
