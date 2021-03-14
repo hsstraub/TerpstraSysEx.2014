@@ -223,6 +223,9 @@ public:
         g.setColour(l.findColour(Label::ColourIds::textColourId));
         g.setFont(getLabelFont(l));
         g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), 3);
+
+        g.setColour(l.findColour(Label::ColourIds::outlineColourId));
+        g.drawRect(l.getLocalBounds());
     }
 
     //==================================================================
