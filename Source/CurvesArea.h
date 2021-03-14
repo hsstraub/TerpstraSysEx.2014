@@ -83,7 +83,8 @@ private:
     // Size and position constants
     const float curvesLabelHeight   = 0.0667f;
     const float tabDepth            = 0.115f;
-    const float tabX                = 0.333f;
+    const float tabXScalar          = 0.333f;
+    const float tabYScalar          = 0.06f;
     const float tabWidth            = 0.65f;
     const float tabFontHeight       = 0.058f;
     
