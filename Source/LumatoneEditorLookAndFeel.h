@@ -221,7 +221,15 @@ public:
         g.fillPath(roundedBounds);
 
         g.setColour(l.findColour(Label::ColourIds::textColourId));
+
+#if JUCE_MAC
+        Font font = getLabelFont(l);
+        font.setHeight(font.getHeight() * 0.9f);
+        g.setFont(font);
+#else
         g.setFont(getLabelFont(l));
+#endif
+
         g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), 3);
 
         g.setColour(l.findColour(Label::ColourIds::outlineColourId));

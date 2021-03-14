@@ -322,18 +322,18 @@ static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
     setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
 }
 
-static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix="__")
+static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix="_")
 {
     label->setFont(label->getFont().withHeight(height * fontHeightScalar));
     label->setSize(round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height);
 }
 
-static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f)
+static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f, String textSuffix = "__")
 {
     label->setFont(label->getFont().withHeight(height * fontHeightScalar));
     label->setBounds(
         xPosition, yPosition,
-        round(label->getFont().getStringWidthFloat(label->getText() + "__")), height
+        round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height
     );
 }
 
