@@ -393,7 +393,7 @@ public:
 
         if (properties.contains(LumatoneEditorStyleIDs::fontHeightScalar))
         {
-            font.setHeight(btn.proportionOfHeight(properties[LumatoneEditorStyleIDs::fontHeightScalar]));
+            font.setHeight(font.getHeight() * (float)properties[LumatoneEditorStyleIDs::fontHeightScalar]);
         }
 
         return font;

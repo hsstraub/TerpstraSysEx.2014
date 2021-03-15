@@ -152,6 +152,10 @@ MidiEditArea::MidiEditArea ()
 	liveEditorBtn->setToggleState(true, dontSendNotification);
 	lookAndFeel.setupTextButton(*offlineEditorBtn);
 	lookAndFeel.setupTextButton(*liveEditorBtn);
+#if JUCE_MAC
+    liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.7f);
+    offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.7f);
+#endif
 
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
@@ -253,7 +257,7 @@ void MidiEditArea::resized()
 
 	if (isConnected)
 	{
-		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight));
+		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight), 1.0, "");
 		lblEditMode->setTopLeftPosition(
 			lumatoneLabelBounds.getRight() + round(w * editModeX),
 			round((h - lblEditMode->getHeight()) * 0.5f)

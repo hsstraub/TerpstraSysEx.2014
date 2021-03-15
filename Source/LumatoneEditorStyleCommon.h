@@ -322,13 +322,17 @@ static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
     setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
 }
 
+#if JUCE_MAC
+static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix=""	)
+#else
 static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix="_")
+#endif
 {
     label->setFont(label->getFont().withHeight(height * fontHeightScalar));
     label->setSize(round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height);
 }
 
-static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f, String textSuffix = "__")
+static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f, String textSuffix = "_")
 {
     label->setFont(label->getFont().withHeight(height * fontHeightScalar));
     label->setBounds(
