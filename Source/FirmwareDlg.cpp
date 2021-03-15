@@ -107,7 +107,7 @@ void FirmwareDlg::buttonClicked(Button* btn)
         }
         else
         {
-            infoBox->insertTextAtCaret("\nError: Not a valid firmware file...");
+            infoBox->setText(infoBox->getText() + "\nError: Not a valid firmware file...");
         }
     }
 }

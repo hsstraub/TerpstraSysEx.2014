@@ -211,9 +211,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	const char* username = SERVERKEY;
 	const char* password = SERVERPWD;
 
-	int sock, i, auth_pw = 1;
+    int sock;
 	struct sockaddr_in sin;
-	const char* fingerprint;
 
 	LIBSSH2_SESSION* session = NULL;
 	LIBSSH2_CHANNEL* channel;
@@ -235,9 +234,6 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	int exitcode;
 	char* exitsignal = (char*)"none";
 	int bytecount = 0;
-	size_t len;
-	LIBSSH2_KNOWNHOSTS* nh;
-	int type;
 
 
 #ifdef WIN32
