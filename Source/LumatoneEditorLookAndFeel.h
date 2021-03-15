@@ -278,7 +278,8 @@ public:
         if (!btn.isEnabled() && colour.isOpaque())
             colour = colour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
 
-        if (shouldDrawButtonAsHighlighted)
+        // Do not highlight if the button is a part of a radio group and is already toggled on
+        if (shouldDrawButtonAsHighlighted && !(btn.getRadioGroupId() > 0 && btn.getToggleState()))
             colour = colour.brighter(0.075f);
 
         g.setColour(colour);
