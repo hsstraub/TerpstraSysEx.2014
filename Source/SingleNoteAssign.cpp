@@ -168,6 +168,7 @@ SingleNoteAssign::SingleNoteAssign ()
     noteAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
     channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    
     channelAutoIncrNoteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
@@ -265,21 +266,20 @@ void SingleNoteAssign::resized()
     controlsX = round(w * controlsXScalar);
     int marginY = round(h * yMarginScalar);
     int controlH = round(h * controlHeightScalar);
-    int marginX = round(controlH * 0.5f);
+    int marginX = round(controlH * 0.6f);
     int halfWidth = round(w * 0.5f);
     int toggleHeight = round(h * toggleHeightScalar);
     int halfMarginX = round(marginX * 0.5f);
     int halfMarginY = round(marginY * 0.5f);
-    int rightMarginX = marginX * 2 - halfMarginX;
 
-    instructionsBounds.setBounds(marginX, 0, w - marginX - rightMarginX, controlAreaTop);
+    instructionsBounds.setBounds(marginX, 0, w - marginX - marginX, controlAreaTop);
 
     parametersFont.setHeight(toggleHeight * 1.25f);
     //int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
 
     keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsAreaBounds.getBottom() + halfMarginY);
     resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
-    keyTypeCombo->setSize(w - rightMarginX - keyTypeToggleButton->getRight(), controlH);
+    keyTypeCombo->setSize(w - marginX - keyTypeToggleButton->getRight(), controlH);
     keyTypeCombo->setCentrePosition(
         round(keyTypeCombo->getWidth() * 0.5f) + keyTypeToggleButton->getRight(),
         keyTypeToggleButton->getBounds().getCentreY()
@@ -294,12 +294,12 @@ void SingleNoteAssign::resized()
     );
 
     colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
-    colourTextEditor->setSize(w - colourTextEditor->getX() - rightMarginX, controlH);
+    colourTextEditor->setSize(w - colourTextEditor->getX() - marginX, controlH);
     colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * 1.2f), true);
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteInput->setSize(w - noteInput->getX() - rightMarginX, controlH);
+    noteInput->setSize(w - noteInput->getX() - marginX, controlH);
 	noteInput->setCentrePosition(
         round(noteInput->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
         setNoteToggleButton->getBounds().getCentreY()
@@ -328,13 +328,14 @@ void SingleNoteAssign::resized()
 
     int chAutoIncBtnRightAdj = channelAutoIncrButton->getRight() - halfMarginX;
 
-    channelAutoIncrNoteInput->setSize(w - rightMarginX - chAutoIncBtnRightAdj, controlH);
+    channelAutoIncrNoteInput->setSize(w - marginX - chAutoIncBtnRightAdj, controlH);
     channelAutoIncrNoteInput->setCentrePosition(
         chAutoIncBtnRightAdj + roundToInt(channelAutoIncrNoteInput->getWidth() * 0.5f),
         channelAutoIncrButton->getBounds().getCentreY()
     );
-    //channelAutoIncrNoteInput->setBounds(channelAutoIncrButton->getRight(), channelAutoIncrButton->getY(),
-    channelAutoIncrNoteInput->setTextBoxStyle(Slider::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelAutoIncrNoteInput->getHeight());
+
+    // Logically, setting the width would make the buttons' width 0, but that's not happening...so use max width available
+    channelAutoIncrNoteInput->setTextBoxStyle(Slider::TextBoxLeft, false, channelAutoIncrNoteInput->getWidth(), channelAutoIncrNoteInput->getHeight());
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..

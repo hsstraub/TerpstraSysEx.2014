@@ -92,7 +92,7 @@ private:
     const float xMarginScalar       = 0.0917f;
     const float yMarginScalar       = 0.0813f;
     const float controlAreaYScalar  = 0.183333f;
-    const float controlsXScalar     = 0.092;
+    const float controlsXScalar     = 0.06;
     const float separatorYScalar    = 0.666667f;
     const float toggleHeightScalar  = 0.034f;
     const float controlHeightScalar = 0.0647f;
