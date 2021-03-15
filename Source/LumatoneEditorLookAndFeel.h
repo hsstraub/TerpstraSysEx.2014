@@ -939,7 +939,9 @@ public:
         float heightScalar = (barProperties.contains(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar))
             ? (float) barProperties[LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar]
             : defaultHeightScalar;
-
+#if JUCE_MAC
+        heightScalar *= 0.9f;
+#endif
         Font font = getTabButtonFont(tbb, tbb.getHeight() * heightScalar);
         g.setFont(font);
         
