@@ -37,6 +37,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     colourToolTabs->addTab(translate("ColourPalettes"), Colour(), palettePanelViewport.get(), false);
     colourToolTabs->addTab(translate("CustomPicker"), Colour(), customPickerPanel.get(), false);
     colourToolTabs->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+    colourToolTabs->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.9f);
     addAndMakeVisible(*colourToolTabs);
 
     colourToolTabs->getTabbedButtonBar().addChangeListener(this);

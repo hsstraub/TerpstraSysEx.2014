@@ -430,7 +430,12 @@ public:
         drawTickBox(g, btn, 0, 0, btn.getHeight(), btn.getHeight(), btn.getToggleState(), btn.isEnabled(),
             shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
-        g.setFont(appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(btn.getHeight() * 1.125f));
+#if JUCE_MAC
+        float fontScalar = 1.0675f;
+#else
+        float fontScalar = 1.125f;
+#endif
+        g.setFont(appFonts[LumatoneEditorFont::GothamNarrowMedium].withHeight(btn.getHeight() * fontScalar));
 
         Colour textColour = btn.findColour(ToggleButton::ColourIds::textColourId);
        
@@ -934,15 +939,16 @@ public:
 
         g.setColour(c);
 
-        const float defaultHeightScalar = 0.54545455f;
-        NamedValueSet& barProperties = tbb.getTabbedButtonBar().getProperties();
-        float heightScalar = (barProperties.contains(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar))
-            ? (float) barProperties[LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar]
-            : defaultHeightScalar;
+        float heightScalar = 0.54545455f;
 #if JUCE_MAC
         heightScalar *= 0.9f;
 #endif
         Font font = getTabButtonFont(tbb, tbb.getHeight() * heightScalar);
+        
+        NamedValueSet& barProperties = tbb.getTabbedButtonBar().getProperties();
+        if (barProperties.contains(LumatoneEditorStyleIDs::fontHeightScalar))
+            font = font.withHeight(font.getHeight() * (float)barProperties[LumatoneEditorStyleIDs::fontHeightScalar]);
+        
         g.setFont(font);
         
         int textMargin = 0;

@@ -31,6 +31,7 @@
 CurvesArea::CurvesTabComponent::CurvesTabComponent(TabbedButtonBar::Orientation orientation)
 	: TabbedComponent::TabbedComponent(orientation)
 {
+    getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.25f);
 }
 
 void CurvesArea::CurvesTabComponent::currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName)

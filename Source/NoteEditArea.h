@@ -122,14 +122,14 @@ private:
     //===========================================================================
     // Size & position constants relative to parent unless otherwise noted
 
-    const float contentMarginY                  = 1.0f / 11.0f;
+    const float contentMarginY                  = 0.10101f;
 
     const float assignControlsWidth             = 0.3846f;
     const float assignControlsHeightInContent   = 0.9f;
 
     const float assignMarginX                   = 0.05f;
-    const float assignMarginYInContent          = 2.0f / 45.0f;
-    const float assignTabDepthInContent         = 0.0851f;
+    const float assignMarginYInContent          = 0.0444f;
+    const float assignTabDepthInContent         = 0.075f;
 
     const float assignLabelMarginX              = 0.01f;
     const float assignLabelTabDepthHeight       = 0.9f;
