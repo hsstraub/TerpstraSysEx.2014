@@ -145,7 +145,7 @@ public:
 
             const float btnSize = 96.0f;
             const float vectorSize = btnSize * 0.333333f;
-            const float vecHalfSize = vectorSize * 0.5f;
+//            const float vecHalfSize = vectorSize * 0.5f;
 
             ImageButton* btn = new ImageButton();
             Image btnImage(Image::PixelFormat::RGB, btnSize, btnSize, false);
@@ -238,11 +238,7 @@ public:
             }
         }
 
-#if JUCE_MAC
-        fontScalar *= MACGLOBALFONTSCALAR;
-#endif
-
-        font.setHeight(font.getHeight() * fontScalar);
+        font.setHeight(font.getHeight() * fontScalar * GLOBALFONTSCALAR);
         g.setFont(font);
 
         g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), maxLines, 0.0f);
@@ -294,13 +290,8 @@ public:
         {
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
-            
-            float fontScalar = 1.0f;
-#if JUCE_MAC
-            fontScalar = MACGLOBALFONTSCALAR;
-#endif
-            
-            Font font = getTextButtonFont(btn, btn.getHeight() * fontScalar);
+
+            Font font = getTextButtonFont(btn, btn.getHeight() * GLOBALFONTSCALAR);
 
             Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
             int iconH = font.getHeight();
@@ -349,8 +340,8 @@ public:
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
             Font font = getTextButtonFont(btn, btn.getHeight());
-            int margin = font.getStringWidth("  ");
-            int textWidth = font.getStringWidth(btn.getButtonText());
+//            int margin = font.getStringWidth("  ");
+//            int textWidth = font.getStringWidth(btn.getButtonText());
             int colourId = (btn.getToggleState()) ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             
             Colour textColour = btn.findColour(colourId);
@@ -702,13 +693,6 @@ public:
 
         if (buttonW > 0)
         {
-            if (box.getSelectedId() == 0)
-            {
-
-                String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
-                g.drawFittedText(text, margin, 0, realButtonX - margin, height, Justification::centredLeft, 1);
-            }
-
             g.setColour(textColour);
 
             g.setFont(appFonts[LumatoneEditorFont::GothamNarrowLight].withHeight(buttonH * 0.5f).withHorizontalScale(2.0f));
@@ -735,9 +719,9 @@ public:
 
         if (properties.contains(LumatoneEditorStyleIDs::fontHeightScalar))
         {
-            font.setHeight(font.getHeight() * (float) properties[LumatoneEditorStyleIDs::fontHeightScalar]);
+            font.setHeight(font.getHeight() * (float)properties[LumatoneEditorStyleIDs::fontHeightScalar]);
         }
-
+                
         return font;
     }
 
@@ -755,6 +739,8 @@ public:
         
         for (auto prop : box.getProperties())
             l->getProperties().set(prop.name, prop.value);
+        
+        l->setBounds(box.getLocalBounds());
 
         return l;
     }
@@ -765,17 +751,16 @@ public:
         float fontHeight = labelToPosition.getFont().getHeight();
 
         labelToPosition.setBounds(
-            margin, roundToInt((box.getHeight() - fontHeight) * 0.5f), 
+            margin, roundToInt((box.getHeight() - fontHeight) * 0.5f),
             box.getWidth() - box.getHeight() - margin, fontHeight
         );
     }
 
     void drawComboBoxTextWhenNothingSelected(Graphics& g, ComboBox& box, Label& l) override
     {
-        drawComboBox(g, box.getWidth(), box.getHeight(), box.isMouseButtonDown(),
-            box.getWidth() - box.getHeight(), 0, box.getHeight(), box.getHeight(),
-            box
-        );        
+        String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
+        l.setText(text, NotificationType::dontSendNotification);
+        l.setFont(getComboBoxFont(box));
     }
 
     PopupMenu::Options getOptionsForComboBoxPopupMenu(ComboBox& box, Label& label) override
@@ -836,6 +821,8 @@ public:
             font = getPopupMenuFont().withHeight(area.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
             textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
         }
+        
+        font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
 
         int margin = target->proportionOfHeight(comboBoxRoundedCornerScalar);
 
@@ -939,10 +926,8 @@ public:
 
         g.setColour(c);
 
-        float heightScalar = 0.54545455f;
-#if JUCE_MAC
-        heightScalar *= MACGLOBALFONTSCALAR;
-#endif
+        float heightScalar = 0.54545455f * GLOBALFONTSCALAR;
+
         Font font = getTabButtonFont(tbb, tbb.getHeight() * heightScalar);
         
         NamedValueSet& barProperties = tbb.getTabbedButtonBar().getProperties();

@@ -154,8 +154,8 @@ MidiEditArea::MidiEditArea ()
 	lookAndFeel.setupTextButton(*offlineEditorBtn);
 	lookAndFeel.setupTextButton(*liveEditorBtn);
 #if JUCE_MAC
-    liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.7f);
-    offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.7f);
+    liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
+    offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
 #endif
 
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);

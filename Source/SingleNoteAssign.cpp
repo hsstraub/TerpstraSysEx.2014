@@ -43,7 +43,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     channelAutoIncrButton.reset (new juce::ToggleButton ("channelAutoIncrButton"));
     addAndMakeVisible (channelAutoIncrButton.get());
-    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #"));
+    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #: "));
     channelAutoIncrButton->addListener (this);
 
     channelAutoIncrButton->setBounds (8, 264, 160, 24);
@@ -146,8 +146,6 @@ SingleNoteAssign::SingleNoteAssign ()
 
     keyTypeToggleButton->setButtonText(translate("KeyType"));
     keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
-    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.2f);
 
     setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
@@ -295,7 +293,7 @@ void SingleNoteAssign::resized()
 
     colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
     colourTextEditor->setSize(w - colourTextEditor->getX() - marginX, controlH);
-    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * 1.2f), true);
+    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * GLOBALFONTSCALAR), true);
 
     setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
     resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
