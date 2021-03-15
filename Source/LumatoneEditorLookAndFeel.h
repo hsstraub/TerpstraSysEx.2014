@@ -222,15 +222,28 @@ public:
 
         g.setColour(l.findColour(Label::ColourIds::textColourId));
 
-#if JUCE_MAC
+        // scale font down so that it's never clipped
         Font font = getLabelFont(l);
-        font.setHeight(font.getHeight() * 0.9f);
-        g.setFont(font);
-#else
-        g.setFont(getLabelFont(l));
+        float fontScalar = 1.0f;
+
+        float fullWidth = font.getStringWidthFloat(l.getText());
+        if (fullWidth > l.getWidth())
+        {
+            fontScalar = l.getWidth() / fullWidth;
+        }
+
+#if JUCE_MAC
+        fontScalar *= 0.9f;
 #endif
 
-        g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), 3);
+        font.setHeight(font.getHeight() * fontScalar);
+        g.setFont(font);
+
+        int maxLines = l.getProperties().contains(LumatoneEditorStyleIDs::labelMaximumLineCount)
+            ? (int)l.getProperties()[LumatoneEditorStyleIDs::labelMaximumLineCount]
+            : 1;
+
+        g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), maxLines);
 
         g.setColour(l.findColour(Label::ColourIds::outlineColourId));
         g.drawRect(l.getLocalBounds());
