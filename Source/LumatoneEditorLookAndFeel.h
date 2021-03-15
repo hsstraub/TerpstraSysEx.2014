@@ -239,7 +239,7 @@ public:
         }
 
 #if JUCE_MAC
-        fontScalar *= 0.9f;
+        fontScalar *= MACGLOBALFONTSCALAR;
 #endif
 
         font.setHeight(font.getHeight() * fontScalar);
@@ -297,7 +297,7 @@ public:
             
             float fontScalar = 1.0f;
 #if JUCE_MAC
-            fontScalar = 0.9f;
+            fontScalar = MACGLOBALFONTSCALAR;
 #endif
             
             Font font = getTextButtonFont(btn, btn.getHeight() * fontScalar);
@@ -941,7 +941,7 @@ public:
 
         float heightScalar = 0.54545455f;
 #if JUCE_MAC
-        heightScalar *= 0.9f;
+        heightScalar *= MACGLOBALFONTSCALAR;
 #endif
         Font font = getTabButtonFont(tbb, tbb.getHeight() * heightScalar);
         

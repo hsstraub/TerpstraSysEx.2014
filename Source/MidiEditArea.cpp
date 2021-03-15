@@ -141,6 +141,7 @@ MidiEditArea::MidiEditArea ()
 
 	lblConnectionState->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
+    lblConnectionState->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 2);
 
 	lblEditMode->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));

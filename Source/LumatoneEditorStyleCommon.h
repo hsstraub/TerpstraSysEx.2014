@@ -39,6 +39,8 @@
 #define SETTINGSCONTROLMARGINTOAPPWIDTH 0.01171875f
 #define SETTINGSTOGGLEHEIGHTSCALAR      0.087f
 
+#define MACGLOBALFONTSCALAR 0.9f
+
 
 /// <summary>
 /// Returns a path representing a rectangle shape, considering rounded corners and connected edges
@@ -323,12 +325,14 @@ static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
 }
 
 #if JUCE_MAC
-static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix=""	)
+static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix = "")
+{
+    label->setFont(label->getFont().withHeight(height * fontHeightScalar * MACGLOBALFONTSCALAR));
 #else
-static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix="_")
-#endif
+static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix = "_")
 {
     label->setFont(label->getFont().withHeight(height * fontHeightScalar));
+#endif
     label->setSize(round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height);
 }
 
@@ -355,9 +359,12 @@ static void positionLabelWithWidth(Label* label, int xPosition, int yPosition, i
     label->setFont(label->getFont().withHeight(label->getHeight() * fontHeightScalar));
 }
 
-static void resizeToggleButtonWithHeight(ToggleButton* btn, Font font, int heightIn)
+static void resizeToggleButtonWithHeight(ToggleButton* btn, Font font, int heightIn, String textSuffix = "_")
 {
-    btn->setSize(btn->getHeight() + round(font.getStringWidth(btn->getButtonText() + "_")), heightIn);
+#if JUCE_MAC
+    font.setHeight(font.getHeight() * MACGLOBALFONTSCALAR);
+#endif
+    btn->setSize(btn->getHeight() + round(font.getStringWidth(btn->getButtonText() + textSuffix)), heightIn);
 }
 
 static void drawPathToFillBounds(Graphics& g, const Path& path, Rectangle<float> boundsToFill)
