@@ -297,7 +297,12 @@ void DeviceActivityMonitor::timerCallback()
 
 void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
 {
-    if (midiMessage.isSysEx() && midiMessage.getSysExData()[5] == TerpstraMidiDriver::ACK)
+    // Ignore any non-SysEx related messages
+    if (!midiMessage.isSysEx())
+        return;
+    
+    auto sysExData = midiMessage.getSysExData();
+    if (sysExData[5] > TerpstraMidiDriver::NACK)
     {
         waitingForTestResponse = false;
         expectedResponseReceived = true;
