@@ -30,7 +30,6 @@
 // Rounded corner size over app height ratio for layout elements
 #define ROUNDEDCORNERTOAPPHEIGHT 0.00555556f
 
-#define CONTROLBOXFONTHEIGHTSCALAR 0.66f
 
 #define SETTINGSAREAMARGINHEIGHT 0.1714f
 #define SETTINGSLABELHEIGHT      0.14f
@@ -41,10 +40,13 @@
 
 #if JUCE_MAC
     #define GLOBALFONTSCALAR 0.9f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.66f
 #elif JUCE_WINDOWS
     #define GLOBALFONTSCALAR 1.0f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.75f
 #elif JUCE_LINUX
     #define GLOBALFONTSCALAR 1.0f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.73f
 #endif
 
 /// <summary>
@@ -353,6 +355,24 @@ static void resizeLabelWithWidth(Label* label, int width, float fontHeightScalar
     float heightOverWidth = label->getFont().getHeight() / label->getFont().getStringWidthFloat(label->getText());
     label->setSize(width, round(heightOverWidth * width));
     label->setFont(label->getFont().withHeight(label->getHeight() * fontHeightScalar * GLOBALFONTSCALAR));
+}
+
+// For scaling Labels down so they're not clipped or skewed
+static float scalarToFitString(String lineOfText, Font font, float width)
+{
+    float scalar = 1.0f;
+    float fullWidth = font.getStringWidthFloat(lineOfText);
+    if (fullWidth > width)
+    {
+        scalar = width / fullWidth;
+    }
+    return scalar;
+}
+
+// For scaling Labels down so they're not clipped or skewed
+static float scalarToFitString(Label& labelIn)
+{
+    return scalarToFitString(labelIn.getText(), labelIn.getFont(), labelIn.getWidth());
 }
 
 //static void positionLabelWithWidth(Label* label, int xPosition, int yPosition, int width, float fontHeightScalar = 1.0f)

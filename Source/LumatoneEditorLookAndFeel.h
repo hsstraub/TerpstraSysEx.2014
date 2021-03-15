@@ -230,12 +230,7 @@ public:
 
         if (maxLines == 1)
         {
-            // scale font down so that it's never clipped
-            float fullWidth = font.getStringWidthFloat(l.getText());
-            if (fullWidth > l.getWidth())
-            {
-                fontScalar = l.getWidth() / fullWidth;
-            }
+            fontScalar *= scalarToFitString(l);
         }
 
         font.setHeight(font.getHeight() * fontScalar * GLOBALFONTSCALAR);
@@ -452,15 +447,15 @@ public:
 
     void drawIncDecButtonsBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider& sld)
     {
-        Rectangle<int> bounds(x, y, width, height);
-        g.setColour(Colours::red);
-        g.fillRect(bounds);
+        //Rectangle<int> bounds(x, y, width, height);
+        //g.setColour(Colours::red);
+        //g.fillRect(bounds);
 
-        g.setColour(Colours::blue.withAlpha(0.5f));
-        g.fillRect(bounds.withLeft(minSliderPos));
+        //g.setColour(Colours::blue.withAlpha(0.5f));
+        //g.fillRect(bounds.withLeft(minSliderPos));
 
-        g.setColour(Colours::yellow.withAlpha(0.5f));
-        g.fillRect(bounds.withLeft(maxSliderPos));
+        //g.setColour(Colours::yellow.withAlpha(0.5f));
+        //g.fillRect(bounds.withLeft(maxSliderPos));
     }
 
     void drawLinearSliderBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const Slider::SliderStyle style, Slider& sld) override
@@ -495,7 +490,7 @@ public:
         else 
             btn->setButtonText("-");
 
-        btn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.25f);
+        btn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.6f);
 
         return btn;
     }
@@ -772,7 +767,7 @@ public:
             .withMinimumWidth(box.getWidth())
             //.withMinimumNumColumns(numColumns)
             .withMaximumNumColumns(1)
-            .withStandardItemHeight(label.getFont().getHeight() * 1.1f)
+            .withStandardItemHeight(label.getFont().getHeight() * CONTROLBOXFONTHEIGHTSCALAR)
             .withPreferredPopupDirection(PopupMenu::Options::PopupDirection::downwards);
     }
 
@@ -810,21 +805,23 @@ public:
         auto target = dynamic_cast<ComboBox*>(options.getTargetComponent());
         Font font;
         Colour textColour;
-        
+        int margin = 0;
         if (target)
         {
             font = getComboBoxFont(*target);
+            font.setHeight(font.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
             textColour = target->findColour(ComboBox::ColourIds::textColourId);
+            margin = target->proportionOfHeight(comboBoxRoundedCornerScalar);
         }
         else
         {
-            font = getPopupMenuFont().withHeight(area.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
+            float fontScalar = scalarToFitString(item.text, font, width);
+            font = getPopupMenuFont().withHeight(area.getHeight() * fontScalar * CONTROLBOXFONTHEIGHTSCALAR);
             textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
+            margin = roundToInt(height * comboBoxRoundedCornerScalar);
         }
         
         font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
-
-        int margin = target->proportionOfHeight(comboBoxRoundedCornerScalar);
 
         // If it's the last item, reduce size so highlight doesn't pass rounded corners
         if (item.itemID == target->getItemId(target->getNumItems() - 1))
