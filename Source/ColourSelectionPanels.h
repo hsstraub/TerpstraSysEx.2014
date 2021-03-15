@@ -193,6 +193,7 @@ public:
             auto label = paletteLabels.add(new Label("Label_" + name, name));
             label->setJustificationType(Justification::centred);
             label->getProperties().set("index", i);
+            label->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 2);
             addAndMakeVisible(label);
 
             controlGroupHitBoxes.add(Rectangle<int>());
@@ -369,8 +370,9 @@ public:
         paletteNameEditor->setEditable(true);
         paletteNameEditor->addListener(this);
         paletteNameEditor->setColour(Label::ColourIds::backgroundColourId, Colour());
-        addAndMakeVisible(*paletteNameEditor);
         paletteNameEditor->setText(colourPalette.getName(), dontSendNotification);
+        paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 3);
+        addAndMakeVisible(*paletteNameEditor);
         labelTextChanged(paletteNameEditor.get()); // force update
 
 
@@ -492,6 +494,7 @@ public:
     {
         editor.setColour(TextEditor::ColourIds::backgroundColourId, Colours::black);
         editor.setJustification(Justification::centred);
+        editor.setMultiLine(true);
     }
 
     //==============================================================================

@@ -452,6 +452,8 @@ namespace LumatoneEditorStyleIDs
     // Override background colour for a Label's TextEditor when being edited
     static Identifier labelTextEditorBackgroundColour = Identifier("LabelTextEditorBackgroundColour");
 
+    static Identifier labelMaximumLineCount = Identifier("LabelMaximumLineCount");
+
     static Identifier tabbedButtonBarDepthScalar = Identifier("TabbedButtonBarDepthScalar");
 
     // The Image::Cache hash code for an icon that should be displayed on a TextButton

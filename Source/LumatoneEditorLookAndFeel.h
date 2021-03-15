@@ -222,14 +222,20 @@ public:
 
         g.setColour(l.findColour(Label::ColourIds::textColourId));
 
-        // scale font down so that it's never clipped
         Font font = getLabelFont(l);
         float fontScalar = 1.0f;
+        int maxLines = l.getProperties().contains(LumatoneEditorStyleIDs::labelMaximumLineCount)
+            ? (int)l.getProperties()[LumatoneEditorStyleIDs::labelMaximumLineCount]
+            : 1;
 
-        float fullWidth = font.getStringWidthFloat(l.getText());
-        if (fullWidth > l.getWidth())
+        if (maxLines == 1)
         {
-            fontScalar = l.getWidth() / fullWidth;
+            // scale font down so that it's never clipped
+            float fullWidth = font.getStringWidthFloat(l.getText());
+            if (fullWidth > l.getWidth())
+            {
+                fontScalar = l.getWidth() / fullWidth;
+            }
         }
 
 #if JUCE_MAC
@@ -239,12 +245,7 @@ public:
         font.setHeight(font.getHeight() * fontScalar);
         g.setFont(font);
 
-        int maxLines = l.getProperties().contains(LumatoneEditorStyleIDs::labelMaximumLineCount)
-            ? (int)l.getProperties()[LumatoneEditorStyleIDs::labelMaximumLineCount]
-            : 1;
-
-        g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), maxLines);
-
+        g.drawFittedText(l.getText(), l.getLocalBounds(), l.getJustificationType(), maxLines, 0.0f);
         g.setColour(l.findColour(Label::ColourIds::outlineColourId));
         g.drawRect(l.getLocalBounds());
     }
