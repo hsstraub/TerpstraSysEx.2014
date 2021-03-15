@@ -179,11 +179,11 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         break;
 
     case FirmwareTransfer::StatusCode::ExecChnlErr:
-        postMsg = translate("\nError: Could not request device reboot. Try manually rebooting your Lumatone.");
+        postMsg = translate("\nError: Could not request device reboot. Try rebooting your Lumatone.");
         break;
 
     default: // NoErr
-        postMsg = translate("\nEverything looks good, firmware update complete!");
+        postMsg = translate("\nPlease wait for your Lumatone to install the firmware.");
     }
 
     if ((int)statusCode <= 0)

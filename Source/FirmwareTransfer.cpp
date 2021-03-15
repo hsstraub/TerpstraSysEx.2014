@@ -79,7 +79,7 @@ bool FirmwareTransfer::requestFirmwareUpdate(String firmwareFilePath)
 bool FirmwareTransfer::requestFirmwareDownloadAndUpdate()
 {
 	// TODO download firmware file - THIS IS CURRENTLY FOR DEBUGGING
-	File firmwareFile = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("zeta.py");
+	//File firmwareFile = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("zeta.py");
 
 	//bool success = startFirmwareUpdate(firmwareFile.getFullPathName().getCharPointer());
 	//bool fileDeleted = false;//.firmwareFile.deleteFile();
