@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ColourPalette Name="Benton" Author="Benton Roark" DateCreated="19710101T000007.000-0000"
+               Notes="">
+  <Swatch Colour="ff2d1f93"/>
+  <Swatch Colour="ffb200ae"/>
+  <Swatch Colour="ffc11616"/>
+  <Swatch Colour="ffffffff"/>
+  <Swatch Colour="ff147be2"/>
+  <Swatch Colour="ff46d367"/>
+  <Swatch Colour="ff4ca01c"/>
+  <Swatch Colour="ff12dfe3"/>
+  <Swatch Colour="ffd991db"/>
+  <Swatch Colour="ffe07777"/>
+</ColourPalette>
