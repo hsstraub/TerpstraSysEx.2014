@@ -131,6 +131,8 @@ public:
 		String toString() const { return String(major) + "." + String(minor) + "." + String(revision); }
 
 		static FirmwareVersion fromString(String firmwareVersion);
+
+		static FirmwareVersion fromGetFirmwareRevisionMsg(const MidiMessage& msgIn);
 	};
 
 private:
@@ -152,6 +154,8 @@ public:
 
 	sysExSendingMode getSysExSendingMode() const { return currentSysExSendingMode; }
 	void setSysExSendingMode(sysExSendingMode newMode);
+
+	FirmwareVersion getFirmwareVersion() const { return firmwareVersion; }
 
 	//////////////////////////////////
 	// Combined (hi-level) commands
@@ -261,9 +265,9 @@ public:
     bool messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage);
 
 	// Message contains the serial identification number of the controller
-	bool messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage);
+	bool messageIsGetSerialIdentityResponse(const MidiMessage& midiMessage);
 
-	bool messageIsGetFirmwareRevisionMessage(const MidiMessage& midiMessage);
+	bool messageIsGetFirmwareRevisionResponse(const MidiMessage& midiMessage);
 
 private:
 	// Low-level SysEx message sending

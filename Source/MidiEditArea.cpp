@@ -488,6 +488,7 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 	repaint();
 }
 
+// Called when DeviceActivityMonitor detects a change in devices
 void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 {
 	if (source == static_cast<ChangeBroadcaster*>(&deviceMonitor))
@@ -524,7 +525,12 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
                     setConnectivity(false);
                 }
             }
+
+			// Record firmware version of connected Lumatone
+			TerpstraSysExApplication::getApp().getMidiDriver().sendGetFirmwareRevisionRequest();
 		}
+
+		// Disconnected for some reason
         else
         {
             setConnectivity(false);

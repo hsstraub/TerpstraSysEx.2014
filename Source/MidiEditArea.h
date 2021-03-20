@@ -54,6 +54,7 @@ public:
     void lookAndFeelChanged() override;
 
     // Implementation of ChangeListener
+    // Called when DeviceActivityMonitor detects a change in devices
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
     void attemptDeviceConnection();

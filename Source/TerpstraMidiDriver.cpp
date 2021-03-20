@@ -419,9 +419,9 @@ bool TerpstraMidiDriver::messageIsTerpstraSysExMessage(const MidiMessage& midiMe
     auto sysExData = midiMessage.getSysExData();
 
     return midiMessage.getSysExDataSize() >= 3 &&
-        (sysExData[0] == (manufacturerId >> 16) & 0xff) &&
-        (sysExData[1] == (manufacturerId >> 8) & 0xff) &&
-		(sysExData[2] == manufacturerId & 0xff);
+        (sysExData[0] == ((manufacturerId >> 16) & 0xff)) &&
+        (sysExData[1] == ((manufacturerId >> 8) & 0xff)) &&
+		(sysExData[2] == (manufacturerId & 0xff));
 }
 
 bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage)
@@ -467,7 +467,7 @@ bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const M
     return midiCmd == GET_VELOCITY_INTERVALS;
 }
 
-bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage)
+bool TerpstraMidiDriver::messageIsGetSerialIdentityResponse(const MidiMessage& midiMessage)
 {
     if (!messageIsTerpstraSysExMessage(midiMessage))
         return false;
@@ -478,7 +478,7 @@ bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& mi
     return midiCmd == GET_SERIAL_IDENTITY;
 }
 
-bool TerpstraMidiDriver::messageIsGetFirmwareRevisionMessage(const MidiMessage& midiMessage)
+bool TerpstraMidiDriver::messageIsGetFirmwareRevisionResponse(const MidiMessage& midiMessage)
 {
     if (!messageIsTerpstraSysExMessage(midiMessage))
         return false;
@@ -587,6 +587,17 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
 
             // If there are more messages waiting in the queue: send the next one
             sendOldestMessageInQueue();
+
+            if (messageIsGetFirmwareRevisionResponse(message))
+            {
+                firmwareVersion = FirmwareVersion::fromGetFirmwareRevisionMsg(message);
+#if JUCE_DEBUG
+                {
+                    const MessageManagerLock mml;
+                    DBG("Firmware version is: " + firmwareVersion.toString());
+                }
+#endif
+            }
         }
     }
 
@@ -651,4 +662,10 @@ TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromStr
     }
 
     return version;
+}
+
+TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromGetFirmwareRevisionMsg(const MidiMessage& msgIn)
+{
+    auto data = msgIn.getSysExData();
+    return TerpstraMidiDriver::FirmwareVersion(data[6], data[7], data[8]);
 }

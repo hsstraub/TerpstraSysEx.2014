@@ -20,6 +20,7 @@
 #include "LocalisationMap.h"
 #include "FirmwareTransfer.h"
 
+typedef TerpstraMidiDriver::FirmwareVersion FirmwareVersion;
 
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
@@ -52,6 +53,9 @@ public:
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
+
+	FirmwareVersion getFirmwareVersion() const { return midiDriver.getFirmwareVersion(); }
+	String getFirmwareVersionStr() const { return midiDriver.getFirmwareVersion().toString(); }
 
 	void reloadColourPalettes();
 	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
