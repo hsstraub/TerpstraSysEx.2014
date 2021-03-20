@@ -42,15 +42,20 @@
 
 #include "libssh2.h"
 
+
+#define STOPBEFOREINIT if (threadShouldExit()) { DBG("Stopping, thread shutdown requested."); return StatusCode::ThreadKillErr; }
+#define STOPDURINGEXEC if (threadShouldExit()) { DBG("Stopping, thread shutdown requested."); return shutdownSSHSession(session, sock, localFile, StatusCode::ThreadKillErr); }
+
+
 FirmwareTransfer::FirmwareTransfer(TerpstraMidiDriver& driverIn)
-	: midiDriver(driverIn), juce::Thread("FirmwareThread")
+	: juce::Thread("FirmwareThread"), midiDriver(driverIn)
 {
 	
 }
 
 FirmwareTransfer::~FirmwareTransfer()
 {
-
+    signalThreadShouldExit();
 }
 
 int FirmwareTransfer::checkFirmwareFileIntegrity()
@@ -143,7 +148,7 @@ static int waitForSSHSocket(int socket_fd, LIBSSH2_SESSION* session)
 
 static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session, int sock, FILE* localFile, FirmwareTransfer::StatusCode returnCode)
 {
-	DBG("Shutting down...");
+	DBG("Shutting down SSH session...");
 	while (libssh2_session_disconnect(session, "Normal Shutdown,") == LIBSSH2_ERROR_EAGAIN);
 	libssh2_session_free(session);
 
@@ -154,7 +159,7 @@ static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session,
 #endif
 	if (localFile)
 		fclose(localFile);
-	DBG("all done\n");
+	DBG("All done.");
 
 	libssh2_exit();
 
@@ -247,6 +252,9 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	}
 #endif
 
+    // Do a stop-thread check before making libssh calls
+    STOPBEFOREINIT
+    
 	int returnCode = libssh2_init(0);
 
 	if (returnCode != 0)
@@ -263,6 +271,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 		return StatusCode::StartupErr;
 	}
 
+    STOPBEFOREINIT
+    
 	stat(filePath, &fileinfo);
 
 	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::SessionBegin);
@@ -275,6 +285,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 		return StatusCode::StartupErr;
 	}
 
+    STOPBEFOREINIT
+    
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(22);
 	sin.sin_addr.s_addr = hostaddr;
@@ -283,6 +295,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 		DBG("failed to connect!");
 		return StatusCode::HostConnectErr;
 	}
+    
+    STOPBEFOREINIT
 
 	/* Create a session instance */
 	session = libssh2_session_init();
@@ -299,7 +313,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	/* ... start it up. This will trade welcome banners, exchange keys,
 	 * and setup crypto, compression, and MAC layers
 	 */
-	while ((returnCode = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN);
+    while ((returnCode = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
+    STOPDURINGEXEC
 	if (returnCode)
 	{
 		DBG("Failure establishing SSH session, libssh2 error: " + String(returnCode));
@@ -313,7 +328,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::AuthBegin);
 
 	 // Authenticate via password
-	while ((returnCode = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
+    while ((returnCode = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
+    STOPDURINGEXEC
 	if (returnCode != 0)
 	{
 		DBG("Authentication by password failed.\n");
@@ -336,10 +352,12 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 			return shutdownSSHSession(session, sock, localFile, StatusCode::ChannelErr);
 		}
 
-	} while (!channel);
+	} while (!channel && !threadShouldExit());
+    STOPDURINGEXEC
 
 	DBG("SCP session waiting to send file\n");
 	do {
+        STOPDURINGEXEC
 		numBytesRead = fread(fileBuffer, 1, sizeof(fileBuffer), localFile);
 		if (numBytesRead <= 0) {
 			/* end of file */
@@ -349,7 +367,11 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 
 		do {
 			/* write the same data over and over, until error or completion */
-			while ((returnCode = libssh2_channel_write(channel, bufferPtr, numBytesRead)) == LIBSSH2_ERROR_EAGAIN) waitForSSHSocket(sock, session);
+			while ((returnCode = libssh2_channel_write(channel, bufferPtr, numBytesRead)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit())
+            {
+                STOPDURINGEXEC
+                waitForSSHSocket(sock, session);
+            }
 
 			if (returnCode < 0) {
 				DBG("Error writing to channel, libssh2 error: " + String(returnCode));
@@ -363,49 +385,59 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 		} while (numBytesRead);
 	} while (!numBytesRead); /* only continue if numBytesRead was drained */
 
+    // Try to send EOF even if kill is requested
 	DBG("Sending EOF");
 	while ((returnCode = libssh2_channel_send_eof(channel)) == LIBSSH2_ERROR_EAGAIN);
 
 	DBG("Waiting for EOF");
-	while ((returnCode = libssh2_channel_wait_eof(channel)) == LIBSSH2_ERROR_EAGAIN);
+    while ((returnCode = libssh2_channel_wait_eof(channel)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
+    STOPDURINGEXEC
 
 	DBG("Waiting for channel to close");
-	while ((returnCode = libssh2_channel_wait_closed(channel)) == LIBSSH2_ERROR_EAGAIN);;
-
-	while ((returnCode = libssh2_channel_free(channel)) == LIBSSH2_ERROR_EAGAIN);;
-
+    while ((returnCode = libssh2_channel_wait_closed(channel)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
+    STOPDURINGEXEC
+    
+    while ((returnCode = libssh2_channel_free(channel)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
+    STOPDURINGEXEC
 
 	// REQUEST REBOOT FOR FIRMWARE INSTALL
 
 	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::InstallBegin);
 
 	/* Exec non-blocking on the remove host */
-	while ((channel = libssh2_channel_open_session(session)) == NULL &&
-		libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN)
+	while ((channel = libssh2_channel_open_session(session)) == NULL
+           && libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN
+           && !threadShouldExit())
 	{
 		waitForSSHSocket(sock, session);
 	}
+    STOPDURINGEXEC
 	if (channel == NULL)
 	{
 		DBG("Error opening channel for reboot request");
 		return shutdownSSHSession(session, sock, nullptr, StatusCode::ChannelErr);
 	}
 
-	while ((returnCode = libssh2_channel_exec(channel, rebootCmd.getCharPointer())) == LIBSSH2_ERROR_EAGAIN)
+    
+    DBG("Sending reboot command to Lumatone");
+	while ((returnCode = libssh2_channel_exec(channel, rebootCmd.getCharPointer())) == LIBSSH2_ERROR_EAGAIN
+           && !threadShouldExit())
 	{
 		waitForSSHSocket(sock, session);
 	}
+    STOPDURINGEXEC
 	if (returnCode != 0)
 	{
 		DBG("Error preparing channel for command execution ");
 		return shutdownSSHSession(session, sock, nullptr, StatusCode::ExecChnlErr);
 	}
 
-	for (;;)
+    for (;;)
 	{
 		/* loop until we block */
 		int channelReturnCode;
 		do {
+            STOPDURINGEXEC
 			char buffer[0x4000];
 			channelReturnCode = libssh2_channel_read(channel, buffer, sizeof(buffer));
 
@@ -423,7 +455,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 					DBG("libssh2_channel_read returned: " + String(channelReturnCode));
 			}
 		} while (channelReturnCode > 0);
-
+        STOPDURINGEXEC
 		/* this is due to blocking that would occur otherwise so we loop on
 		   this condition */
 		if (channelReturnCode == LIBSSH2_ERROR_EAGAIN) {
@@ -433,9 +465,9 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 			break;
 	}
 	exitcode = 127;
-	while ((returnCode = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
+	while ((returnCode = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit())
 		waitForSSHSocket(sock, session);
-
+    STOPDURINGEXEC
 	if (returnCode == 0)
 	{
 		exitcode = libssh2_channel_get_exit_status(channel);
@@ -448,6 +480,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	else
 		DBG("Exit: " + String(exitcode) + "bytecount: " + String(bytecount));
 
+    // Ignore kill-request for regular shutdown
+    
 	libssh2_channel_free(channel);
 
 	channel = NULL;

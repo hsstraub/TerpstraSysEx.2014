@@ -35,7 +35,8 @@ public:
         SessionEstErr   = -4,       // Session handshake failed
         AuthErr         = -5,       // Password authentication failed
         ChannelErr      = -6,       // Couldn't open a channel (for file transfer or reboot execution)
-        ExecChnlErr     = -7        // Couldn't prepare channel for reboot execution
+        ExecChnlErr     = -7,       // Couldn't prepare channel for reboot execution
+        ThreadKillErr   = -8        // Thread was requested to shutdown before finishing
     };
 
 public:
