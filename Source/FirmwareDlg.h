@@ -17,7 +17,8 @@ class FirmwareDlg : public Component,
     protected Button::Listener, 
     protected PathBrowserComponent::Listener,
     protected FirmwareTransfer::ProcessListener,
-    protected Thread::Listener
+    protected Thread::Listener,
+    private Timer
 {
 public:
 
@@ -31,7 +32,7 @@ public:
     void lookAndFeelChanged() override;
 
     void buttonClicked(Button* btn) override;
-
+    
     //=========================================================================
     // PathBrowserComponent::Listener Implementation
     void fileChanged(PathBrowserComponent* source, File) override;
@@ -41,9 +42,17 @@ public:
     void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode) override;
 
     //=========================================================================
-    // Thread::Listener Implementation
+    // juce::Thread::Listener Implementation
     void exitSignalSent() override;
+    
+    //=========================================================================
+    // juce::Timer Implementation
+    void timerCallback() override;
 
+private:
+    
+    void initializeFirmwareUpdate();
+    
 private:
 
     bool updateIsAvailable = false;
@@ -57,4 +66,8 @@ private:
     std::unique_ptr<PathBrowserComponent> fileBrowser;
     std::unique_ptr<TextButton> doUpdateBtn;
     std::unique_ptr<TextEditor> infoBox;
+    
+    String msgLog;
+    bool infoNeedsUpdate = false;
+    const int infoUpdateTimeoutMs = 100;
 };
