@@ -32,6 +32,8 @@ public:
     void lookAndFeelChanged() override;
 
     void buttonClicked(Button* btn) override;
+
+    void updateFirmwareVersionLabel();
     
     //=========================================================================
     // PathBrowserComponent::Listener Implementation
@@ -67,6 +69,8 @@ private:
     std::unique_ptr<TextButton> doUpdateBtn;
     std::unique_ptr<TextEditor> infoBox;
     
+    std::unique_ptr<Label> firmwareStatusLabel;
+
     String msgLog;
     bool infoNeedsUpdate = false;
     const int infoUpdateTimeoutMs = 100;

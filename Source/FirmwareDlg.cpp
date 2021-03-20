@@ -44,6 +44,10 @@ FirmwareDlg::FirmwareDlg()
     infoBox->getProperties().set(LumatoneEditorStyleIDs::connectedEdgeFlags, 15);
     addAndMakeVisible(infoBox.get());
 
+    firmwareStatusLabel.reset(new Label("FirmwareVersionStatusLabel"));
+    addAndMakeVisible(firmwareStatusLabel.get());
+    updateFirmwareVersionLabel();
+
     //updateIsAvailable = TerpstraSysExApplication::getApp().isFirmwareUpdateAvailable();
 
     if (!updateIsAvailable)
@@ -65,15 +69,18 @@ void FirmwareDlg::paint(Graphics& g)
 void FirmwareDlg::resized()
 {
     int margin = 12;
+    int doubleMargin = margin * 2;
     int buttonWidth = proportionOfWidth(0.3f);
     int buttonHeight = 30;
 
     //checkUpdateBtn->setBounds(margin, margin, buttonWidth, buttonHeight);
 
     doUpdateBtn->setBounds(getWidth() - margin - buttonWidth, margin, buttonWidth, buttonHeight);
-    fileBrowser->setBounds(margin, margin, doUpdateBtn->getX() - margin * 2, buttonHeight);
+    fileBrowser->setBounds(margin, margin, doUpdateBtn->getX() - doubleMargin, buttonHeight);
 
-    infoBox->setBounds(getLocalBounds().withTop(doUpdateBtn->getBottom()).reduced(margin));
+    firmwareStatusLabel->setBounds(margin, fileBrowser->getBottom() + margin, getWidth() - doubleMargin, buttonHeight / 2);
+
+    infoBox->setBounds(getLocalBounds().withTop(firmwareStatusLabel->getBottom()).reduced(margin));
     infoBox->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
 }
 
@@ -106,6 +113,19 @@ void FirmwareDlg::buttonClicked(Button* btn)
         {
             infoBox->setText(infoBox->getText() + "Error: Not a valid firmware file...");
         }
+    }
+}
+
+void FirmwareDlg::updateFirmwareVersionLabel()
+{
+    String firmwareVersion = TerpstraSysExApplication::getApp().getFirmwareVersionStr();
+    if (firmwareVersion != "0.0.0")
+    {
+        firmwareStatusLabel->setText("Current firmware version is: " + firmwareVersion, dontSendNotification);
+    }
+    else
+    {
+        firmwareStatusLabel->setText("Unable to determine firmware version.", dontSendNotification);
     }
 }
 
