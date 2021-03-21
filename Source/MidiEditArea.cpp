@@ -202,8 +202,8 @@ MidiEditArea::~MidiEditArea()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+	deviceMonitor.stopThread(20);
 	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
-
     //[/Destructor]
 }
 
@@ -400,7 +400,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		
         if (btnAutoConnect->getToggleState())
 		{
-			deviceMonitor.initializeDeviceDetection();
+			deviceMonitor.startThread();
 			lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
@@ -409,7 +409,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		}
 		else
 		{
-			deviceMonitor.stopDeviceDetection();
+			deviceMonitor.signalThreadShouldExit();
 			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
             startTimer(deviceRefreshTimeoutMs);
 		}
@@ -572,7 +572,8 @@ void MidiEditArea::attemptDeviceConnection()
     }
     else
     {
-        isWaitingForConnectionTest = deviceMonitor.initializeConnectionTest();
+		isWaitingForConnectionTest = true;
+		deviceMonitor.startThread();
         //jassert(isWaitingForConnectionTest); // Triggered if a test is requested before opening any devices
     }
 }

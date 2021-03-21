@@ -19,8 +19,9 @@
 
 class DeviceActivityMonitor : public juce::MidiInputCallback,
                               public TerpstraMidiDriver::Listener, 
-                              public juce::Timer,
-                              public juce::ChangeBroadcaster
+                              //public juce::Timer,
+                              public juce::ChangeBroadcaster, 
+                              public juce::Thread
 {
     
 public:
@@ -86,15 +87,20 @@ public:
     bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::testingConnection);
 
     //=========================================================================
+    // juce::Thread Implementation
+
+    void run() override;
+
+    //=========================================================================
     // juce::MidiInputCallback Implementation
-    
+  
     void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) override;
 
 
     //=========================================================================
     // juce::Timer Implementation
     
-    void timerCallback() override;
+    //void timerCallback() override;
 
 
 protected:
