@@ -56,7 +56,7 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     closeOutputDevices();
     
     // Refresh available devices
-    midiDriver->refreshDeviceLists();
+    //midiDriver->refreshDeviceLists();
 
     openAvailableInputDevices();
     openAvailableOutputDevices();
@@ -126,7 +126,7 @@ void DeviceActivityMonitor::intializeConnectionLossDetection()
 
 void DeviceActivityMonitor::openAvailableOutputDevices()
 {
-    for (auto outputDeviceInfo : MidiOutput::getAvailableDevices())
+    for (auto outputDeviceInfo : midiDriver->getMidiOutputList())
     {
         outputsToPing.add(MidiOutput::openDevice(outputDeviceInfo.identifier));
     }
@@ -134,7 +134,7 @@ void DeviceActivityMonitor::openAvailableOutputDevices()
 
 void DeviceActivityMonitor::openAvailableInputDevices()
 {
-    for (auto inputDeviceInfo : MidiInput::getAvailableDevices())
+    for (auto inputDeviceInfo : midiDriver->getMidiInputList())
     {
         auto input = inputsListening.add(MidiInput::openDevice(inputDeviceInfo.identifier, this));
         input->start();

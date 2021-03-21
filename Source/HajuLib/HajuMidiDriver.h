@@ -30,9 +30,9 @@ public:
 	virtual void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) = 0;
 
 	// List of MIDI input device names
-	StringArray getMidiInputList();
+	Array<MidiDeviceInfo> getMidiInputList();
 	// List of MIDI output device names
-	StringArray getMidiOutputList();
+	Array<MidiDeviceInfo> getMidiOutputList();
     
     MidiDeviceInfo getMidiOutputInfo() const;
     MidiDeviceInfo getMidiInputInfo() const;

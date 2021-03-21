@@ -116,7 +116,7 @@ private:
     std::unique_ptr<Component>  logomark;
     Path                        logomarkPath;
     
-    const int                   deviceRefreshTimeoutMs = 1000;
+    const int                   deviceRefreshTimeoutMs = 500;
 
     //==============================================================================
     // Helpers

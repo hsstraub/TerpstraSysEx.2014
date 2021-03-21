@@ -156,8 +156,8 @@ MidiEditArea::MidiEditArea ()
     liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
     offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
 
-	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
-	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
+	refreshInputDevicesAndSetSelected(0, dontSendNotification);
+	refreshOutputDevicesAndSetSelected(0, dontSendNotification);
 
 	btnAutoConnect->setClickingTogglesState(true);
 	lookAndFeel.setupTextButton(*btnAutoConnect.get());
@@ -178,8 +178,10 @@ MidiEditArea::MidiEditArea ()
     deviceMonitor.addChangeListener(this);
     
     btnAutoConnect->setToggleState(deviceMonitor.willDetectDeviceIfDisconnected(), sendNotificationSync);
-    if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
-        startTimer(deviceRefreshTimeoutMs);
+	if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
+	{
+		startTimer(deviceRefreshTimeoutMs);
+	}
     
     //[/Constructor]
 }
@@ -411,7 +413,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		{
 			deviceMonitor.signalThreadShouldExit();
 			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
-            startTimer(deviceRefreshTimeoutMs);
+			startTimer(deviceRefreshTimeoutMs);
 		}
 
 		resized();
@@ -549,8 +551,8 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
                 refreshOutputDevicesAndSetSelected(0);
             }
 			
-            if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
-                startTimer(deviceRefreshTimeoutMs);
+			if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
+				startTimer(deviceRefreshTimeoutMs);
 		}
 	}
 
@@ -605,14 +607,18 @@ void MidiEditArea::onOpenConnectionToDevice()
 void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
 {
 	cbMidiInput->clear(NotificationType::dontSendNotification);
-	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
+	int i = 1;
+	for (auto device : TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList())
+		cbMidiInput->addItem(device.name, i++);
 	cbMidiInput->setSelectedId(inputDeviceIndex, notificationType);
 }
 
 void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
 {
 	cbMidiOutput->clear(NotificationType::dontSendNotification);
-	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
+	int i = 1;
+	for (auto device : TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList())
+		cbMidiOutput->addItem(device.name, i++);
 	cbMidiOutput->setSelectedId(outputDeviceIndex, notificationType);
 }
 
@@ -683,9 +689,9 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 
 void MidiEditArea::timerCallback()
 {
-    if (isConnected || deviceMonitor.getMode() == DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
+    if (isConnected || deviceMonitor.getMode() == DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
     {
-        stopTimer();
+		stopTimer();
     }
     else
     {

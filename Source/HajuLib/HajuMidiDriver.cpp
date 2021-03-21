@@ -28,24 +28,14 @@ HajuMidiDriver::~HajuMidiDriver()
 	midiOutput = nullptr;
 }
 
-StringArray HajuMidiDriver::getMidiInputList() 
+Array<MidiDeviceInfo> HajuMidiDriver::getMidiInputList()
 {
-	juce::StringArray midiInputNames;
-
-	for (auto input : midiInputs)
-		midiInputNames.add(input.name);
-
-	return midiInputNames;
+	return midiInputs;
 }
 
-StringArray HajuMidiDriver::getMidiOutputList() 
+Array<MidiDeviceInfo> HajuMidiDriver::getMidiOutputList()
 { 
-	juce::StringArray midiOutputNames;
-
-	for (auto output : midiOutputs)
-		midiOutputNames.add(output.name);
-
-	return midiOutputNames;
+	return midiOutputs;
 }
 
 MidiDeviceInfo HajuMidiDriver::getMidiInputInfo() const
