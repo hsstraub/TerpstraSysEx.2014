@@ -17,11 +17,10 @@
 
 #include "TerpstraMidiDriver.h"
 
-class DeviceActivityMonitor : public juce::MidiInputCallback,
+class DeviceActivityMonitor : public juce::Thread,
+                              public juce::MidiInputCallback,
                               public TerpstraMidiDriver::Listener, 
-                              //public juce::Timer,
-                              public juce::ChangeBroadcaster, 
-                              public juce::Thread
+                              public juce::ChangeBroadcaster
 {
     
 public:
@@ -95,12 +94,6 @@ public:
     // juce::MidiInputCallback Implementation
   
     void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) override;
-
-
-    //=========================================================================
-    // juce::Timer Implementation
-    
-    //void timerCallback() override;
 
 
 protected:
