@@ -538,7 +538,10 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
         else
         {
             setConnectivity(false);
-            
+
+			if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
+				startTimer(deviceRefreshTimeoutMs);
+
             if (isWaitingForConnectionTest)
             {
                 lblConnectionState->setText(translate("No answer"), NotificationType::dontSendNotification);
@@ -552,9 +555,6 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
                 refreshInputDevicesAndSetSelected(0);
                 refreshOutputDevicesAndSetSelected(0);
             }
-			
-			if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
-				startTimer(deviceRefreshTimeoutMs);
 		}
 	}
 

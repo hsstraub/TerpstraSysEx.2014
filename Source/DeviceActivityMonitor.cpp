@@ -54,7 +54,6 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     pingOutputIndex = -1;
 
     closeInputDevices();
-    inputsListening.clear();
     closeOutputDevices();
 
     openAvailableInputDevices();
@@ -268,7 +267,6 @@ void DeviceActivityMonitor::run()
                         waitingForTestResponse = false;
                     }
                     onDisconnection();
-                    //sendChangeMessage();
                 }
             }
         }
@@ -329,31 +327,6 @@ void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
     }
 }
 
-void DeviceActivityMonitor::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
-{
-    // If we don't receive the response soon and if a connection was previously made
-    //if  (  errorLevel == HajuErrorVisualizer::ErrorLevel::error 
-    //    && waitingForTestResponse
-    //    && textMessage.startsWith("No answer")
-    //    )
-    //{
-    //    if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
-    //    {
-    //        jassert(confirmedInputIndex >= 0 && confirmedOutputIndex >= 0);
-    //        onDisconnection();
-    //    }
-    //    else
-    //    {
-    //        jassert(confirmedInputIndex < 0 && confirmedOutputIndex < 0);
-    //        // Connection to selected devices failed
-    //        DBG("No response from selected MIDI devices.");
-    //        deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
-    //        sendChangeMessage();
-    //    }
-    //}
-}
-
-
 void DeviceActivityMonitor::onSuccessfulDetection()
 {
     {
@@ -390,6 +363,7 @@ void DeviceActivityMonitor::onDisconnection()
 
         waitingForTestResponse = false;
         expectedResponseReceived = false;
+        deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
     }
 
     sendChangeMessage();

@@ -70,7 +70,7 @@ protected:
     void midiMessageReceived(const MidiMessage& midiMessage) override;
     void midiMessageSent(const MidiMessage& midiMessage) override {}
     void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
 
 private:
 
@@ -87,6 +87,7 @@ private:
     /// </summary>
     void pingNextOutput();
 
+    // TODO WITH ECHO FIRMWARE COMMAND
     ///// <summary>
     ///// Send a ping to all available outputs and prepare to listen to responses
     ///// </summary>
