@@ -37,7 +37,7 @@ ColourPaletteComponent::ColourPaletteComponent(const ColourPaletteComponent& pal
 
 ColourPaletteComponent::~ColourPaletteComponent()
 {
-    
+
 }
 
 //==========================================================================
@@ -70,7 +70,7 @@ void ColourPaletteComponent::setColourPalette(Array<Colour> colourPaletteIn)
     {
         int selectedSwatch = getSelectedSwatchNumber();
         if (selectedSwatch >= 0 && selectedSwatch < getNumberOfSwatches())
-            selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
+                selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, getSelectedSwatchColour());
     }
     else
     {

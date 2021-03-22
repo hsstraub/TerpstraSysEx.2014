@@ -35,8 +35,6 @@ public:
 
         flexBox.flexWrap = FlexBox::Wrap::wrap;
         flexBox.justifyContent = FlexBox::JustifyContent::flexStart;
-        
-        rebuildPanel(palettesIn, false);
     };
 
     // Used to make this component resize itself depending on how many swatches there are
