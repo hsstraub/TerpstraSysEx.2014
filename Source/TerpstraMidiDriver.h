@@ -229,7 +229,7 @@ public:
 	void sendVelocityIntervalConfigRequest();
 
 	// This command is used to read back the serial identification number of the keyboard.
-	void sendSerialIdentityRequest();
+	void sendGetSerialIdentityRequest();
 	MidiMessage getSerialIdentityRequestMessage() const;
 
 	// This command is used to read back the current Lumatone firmware revision.

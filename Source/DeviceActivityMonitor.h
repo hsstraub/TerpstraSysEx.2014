@@ -47,43 +47,10 @@ public:
     bool willCheckForInactivity() const { return checkConnectionOnInactivity; }
     void setCheckForInactivity(bool monitorActivity);
 
-    /// <summary>
-    /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
-    /// </summary>
-    void initializeDeviceDetection();
-
-    /// <summary>
-    /// Increments the output index and sends a Get Serial Identity message to this next output to listen for a response 
-    /// </summary>
-    void pingNextOutput();
-
-    ///// <summary>
-    ///// Send a ping to all available outputs and prepare to listen to responses
-    ///// </summary>
-    //void pingAvailableDevices();
-
-    void stopDeviceDetection();
-
-    // Determines whether or not to try to continue device detection, tries next pair if so
-    void checkDetectionStatus();
-
-    // Begin monitoring for unresponsiveness from device
-    void intializeConnectionLossDetection();
-
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
     int getConfirmedInputIndex() const { return confirmedInputIndex; }
 
-    void openAvailableOutputDevices();
-    void openAvailableInputDevices();
-
-    void closeInputDevices();
-    void closeOutputDevices();
-
-    /// <summary>
-    /// Test device connectivity after a connection has previously been made.
-    /// </summary>
-    /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
-    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::testingConnection);
+    void testCurrentDevices() { initializeConnectionTest(); }
 
     //=========================================================================
     // juce::Thread Implementation
@@ -95,7 +62,6 @@ public:
   
     void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) override;
 
-
 protected:
 
     //=========================================================================
@@ -104,15 +70,60 @@ protected:
     void midiMessageReceived(const MidiMessage& midiMessage) override;
     void midiMessageSent(const MidiMessage& midiMessage) override {}
     void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
 
+private:
+
+    /// <summary>
+    /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
+    /// </summary>
+    void initializeDeviceDetection();
+
+    // Determines whether or not to try to continue device detection, tries next pair if so
+    void checkDetectionStatus();
+
+    /// <summary>
+    /// Increments the output index and sends a Get Serial Identity message to this next output to listen for a response 
+    /// </summary>
+    void pingNextOutput();
+
+    ///// <summary>
+    ///// Send a ping to all available outputs and prepare to listen to responses
+    ///// </summary>
+    //void pingAvailableDevices();
+
+    // Turn off device detection and idle
+    void stopDeviceDetection();
+
+    void onSuccessfulDetection();
+
+    void openAvailableOutputDevices();
+    void openAvailableInputDevices();
+
+    void closeInputDevices();
+    void closeOutputDevices();
+
+
+    // Begin monitoring for unresponsiveness from device
+    void intializeConnectionLossDetection();
+
+    /// <summary>
+    /// Test device connectivity after a connection has previously been made.
+    /// </summary>
+    /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
+    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::testingConnection);
+
+    void onDisconnection();
 
 private:
     
+    CriticalSection         criticalSection;
+
     TerpstraMidiDriver*     midiDriver;
 
     DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
     bool                    deviceDetectInProgress = false;
+    MidiMessage             detectMessage;
 
     const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
@@ -130,8 +141,8 @@ private:
     bool                    checkConnectionOnInactivity = true;
     bool                    waitingForTestResponse = false;
 
-    MidiMessage             monitorMessage;
     bool                    expectedResponseReceived = false;
+    bool                    activitySinceLastTimeout = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

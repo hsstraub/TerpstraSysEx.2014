@@ -17,7 +17,7 @@ DeviceActivityMonitor::DeviceActivityMonitor()
       responseTimeoutMs(TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("DetectDeviceTimeout", 1000)),
       Thread("DeviceActivityMonitor")
 {
-    monitorMessage = midiDriver->getSerialIdentityRequestMessage();
+    detectMessage = midiDriver->getSerialIdentityRequestMessage();
     detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
     checkConnectionOnInactivity = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("CheckConnectionIfInactive", true);
     midiDriver->addListener(this);
@@ -44,7 +44,9 @@ void DeviceActivityMonitor::setCheckForInactivity(bool monitorActivity)
 void DeviceActivityMonitor::initializeDeviceDetection()
 {
     jassert(!deviceDetectInProgress);
-    
+    if (threadShouldExit())
+        return;
+
     midiDriver->removeListener(this);
 
     deviceConnectionMode = DetectConnectionMode::lookingForDevice;
@@ -80,7 +82,7 @@ void DeviceActivityMonitor::pingNextOutput()
     {
         DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
 
-        outputsToPing[pingOutputIndex]->sendMessageNow(monitorMessage);
+        outputsToPing[pingOutputIndex]->sendMessageNow(detectMessage);
         wait(responseTimeoutMs);
     }
 
@@ -113,7 +115,6 @@ void DeviceActivityMonitor::intializeConnectionLossDetection()
 {
     deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
     midiDriver->addListener(this);
-    wait(inactivityTimeoutMs);
 }
 
 void DeviceActivityMonitor::openAvailableOutputDevices()
@@ -129,7 +130,7 @@ void DeviceActivityMonitor::openAvailableInputDevices()
     for (auto inputDeviceInfo : midiDriver->getMidiInputList())
     {
         auto input = inputsListening.add(MidiInput::openDevice(inputDeviceInfo.identifier, this));
-        input->start();
+        if (input) input->start();
     }
 }
 
@@ -137,7 +138,7 @@ void DeviceActivityMonitor::closeInputDevices()
 {
     for (auto input : inputsListening)
     {
-        input->stop();
+        if (input) input->stop();
     }
 
     inputsListening.clear();
@@ -151,17 +152,24 @@ void DeviceActivityMonitor::closeOutputDevices()
 
 bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::DetectConnectionMode modeToUse)
 {
+    if (isThreadRunning() && threadShouldExit())
+        return false;
+
     MidiDeviceInfo inputInfo = midiDriver->getMidiOutputInfo();
     MidiDeviceInfo outputInfo = midiDriver->getMidiInputInfo();
     
     if (inputInfo.identifier != "" && outputInfo.identifier != "")
     {
-        deviceConnectionMode = modeToUse;
         //DBG("Testing connection of input " + inputInfo.name + " and output " + outputInfo.name);
         midiDriver->addListener(this);
-        waitingForTestResponse = true;
-        midiDriver->sendMessageNow(monitorMessage);
-        wait(responseTimeoutMs);
+        {
+            ScopedLock lock(criticalSection);
+            deviceConnectionMode = modeToUse;
+            midiDriver->sendGetSerialIdentityRequest();
+            waitingForTestResponse = true;
+            expectedResponseReceived = false;
+        }
+        
         return true;
     }
 
@@ -170,7 +178,7 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
 
 void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& response)
 {
-    if (midiDriver->messageIsResponseToMessage(response, monitorMessage))
+    if (midiDriver->messageIsResponseToMessage(response, detectMessage))
     {
         auto data = response.getSysExData();
 
@@ -196,27 +204,14 @@ void DeviceActivityMonitor::checkDetectionStatus()
     // For future use
     if (!detectDevicesIfDisconnected)
     {
-        deviceDetectInProgress = false;
+        stopDeviceDetection();
     }
     else
     {
         // Successful
         if (expectedResponseReceived)
         {
-            deviceDetectInProgress = false;
-            
-            closeOutputDevices();
-            closeInputDevices(); // Connection loss is handled in TerpstraMidiDriver::Listener callback
-            
-            midiDriver->setMidiInput(confirmedInputIndex);
-            midiDriver->setMidiOutput(confirmedOutputIndex);
-        
-            sendChangeMessage();
-            
-            if (checkConnectionOnInactivity)
-            {
-                intializeConnectionLossDetection();
-            }
+            onSuccessfulDetection();
         }
 
         // Continue trying
@@ -246,52 +241,59 @@ void DeviceActivityMonitor::run()
 
                 else if (!isConnectionEstablished())
                     initializeDeviceDetection();
+
+                else
+                    intializeConnectionLossDetection();
             }
         }
-        else if (deviceConnectionMode >= DetectConnectionMode::testingConnection)
+        else if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
         {
+            if (!waitingForTestResponse)
+            {
+                activitySinceLastTimeout = false;
+                wait(inactivityTimeoutMs);
+                if (!activitySinceLastTimeout)
+                    initializeConnectionTest(deviceConnectionMode);
+            }
+            else if (!expectedResponseReceived)
+            {
+                wait(responseTimeoutMs);
+                // Disconnected!
+                if (!expectedResponseReceived)
+                {
+                    jassert(confirmedInputIndex >= 0 && confirmedOutputIndex >= 0);
+                    {
+                        ScopedLock lock(criticalSection);
+                        expectedResponseReceived = false;
+                        waitingForTestResponse = false;
+                    }
+                    onDisconnection();
+                    //sendChangeMessage();
+                }
+            }
+        }
+        else if (deviceConnectionMode == DetectConnectionMode::testingConnection)
+        {
+            // Connection to selected devices failed
             if (waitingForTestResponse)
             {
-                waitingForTestResponse = false;
-
-                // If we don't receive the response soon and if a connection was previously made
-                if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity
-                    && confirmedInputIndex >= 0 && confirmedOutputIndex >= 0
-                    )
+                jassert(confirmedInputIndex < 0 && confirmedOutputIndex < 0);
                 {
-                    DBG("DISCONNECTION DETECTED");
-
-                    midiDriver->closeMidiInput();
-                    midiDriver->closeMidiOutput();
-
-                    confirmedInputIndex = -1;
-                    confirmedOutputIndex = -1;
-
+                    ScopedLock lock(criticalSection);
                     expectedResponseReceived = false;
-                    sendChangeMessage();
-
-                    if (detectDevicesIfDisconnected)
-                        initializeDeviceDetection();
-                }
-
-                // Connection to selected devices failed
-                else
-                {
-                    DBG("No response from selected MIDI devices.");
+                    waitingForTestResponse = false;
                     deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
-                    sendChangeMessage();
                 }
+                DBG("No response from selected MIDI devices.");
+                sendChangeMessage();
             }
-            else
-            {
-                initializeConnectionTest(deviceConnectionMode);
-            }
+            else if (checkConnectionOnInactivity)
+                intializeConnectionLossDetection();
         }
     }
 
     deviceDetectInProgress = false;
     waitingForTestResponse = false;
-    // TODO?
 }
 
 //=========================================================================
@@ -299,24 +301,105 @@ void DeviceActivityMonitor::run()
 
 void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
 {
+    ScopedLock lock(criticalSection);
+
     // Ignore any non-SysEx related messages
     if (!midiMessage.isSysEx())
         return;
-    
+ 
     auto sysExData = midiMessage.getSysExData();
-    if (sysExData[5] > TerpstraMidiDriver::NACK)
+    if (sysExData[5] > TerpstraMidiDriver::NACK && midiDriver->messageIsGetSerialIdentityResponse(midiMessage))
     {
         waitingForTestResponse = false;
         expectedResponseReceived = true;
-        
-        int currentInput = midiDriver->getLastMidiInputIndex();
-        int currentOutput = midiDriver->getLastMidiOutputIndex();
-        
-        if (confirmedInputIndex != currentInput || confirmedOutputIndex != currentOutput)
+        activitySinceLastTimeout = true;
+
+        if (!isThreadRunning())
         {
-            confirmedInputIndex = currentInput;
-            confirmedOutputIndex = currentOutput;
+            int currentInput = midiDriver->getLastMidiInputIndex();
+            int currentOutput = midiDriver->getLastMidiOutputIndex();
+            if (confirmedInputIndex != currentInput || confirmedOutputIndex != currentOutput)
+            {
+                confirmedInputIndex = currentInput;
+                confirmedOutputIndex = currentOutput;
+            }
+
             sendChangeMessage();
         }
     }
 }
+
+void DeviceActivityMonitor::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
+{
+    // If we don't receive the response soon and if a connection was previously made
+    //if  (  errorLevel == HajuErrorVisualizer::ErrorLevel::error 
+    //    && waitingForTestResponse
+    //    && textMessage.startsWith("No answer")
+    //    )
+    //{
+    //    if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
+    //    {
+    //        jassert(confirmedInputIndex >= 0 && confirmedOutputIndex >= 0);
+    //        onDisconnection();
+    //    }
+    //    else
+    //    {
+    //        jassert(confirmedInputIndex < 0 && confirmedOutputIndex < 0);
+    //        // Connection to selected devices failed
+    //        DBG("No response from selected MIDI devices.");
+    //        deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
+    //        sendChangeMessage();
+    //    }
+    //}
+}
+
+
+void DeviceActivityMonitor::onSuccessfulDetection()
+{
+    {
+        ScopedLock lock(criticalSection);
+
+        deviceDetectInProgress = false;
+
+        closeOutputDevices();
+        closeInputDevices(); // Connection loss is handled in TerpstraMidiDriver::Listener callback
+
+        midiDriver->setMidiInput(confirmedInputIndex);
+        midiDriver->setMidiOutput(confirmedOutputIndex);
+    }
+
+    sendChangeMessage();
+
+    if (checkConnectionOnInactivity)
+    {
+        intializeConnectionLossDetection();
+    }
+}
+
+void DeviceActivityMonitor::onDisconnection()
+{
+    {
+        ScopedLock lock(criticalSection);
+        DBG("DISCONNECTION DETECTED");
+
+        midiDriver->closeMidiInput();
+        midiDriver->closeMidiOutput();
+
+        confirmedInputIndex = -1;
+        confirmedOutputIndex = -1;
+
+        waitingForTestResponse = false;
+        expectedResponseReceived = false;
+    }
+
+    sendChangeMessage();
+
+    if (detectDevicesIfDisconnected)
+    {
+        wait(pingRoutineTimeoutMs);
+        initializeDeviceDetection();
+        // Nullptrs are checked before opening devices but this could maybe be designed better
+        // to prevent trying to open invalid (disconnected) devices altogether
+    }
+}
+

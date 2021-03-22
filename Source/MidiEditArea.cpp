@@ -204,7 +204,7 @@ MidiEditArea::~MidiEditArea()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	deviceMonitor.stopThread(20);
+	deviceMonitor.stopThread(100);
 	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
     //[/Destructor]
 }
@@ -502,6 +502,8 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
             {
                 setConnectivity(true);
                 onOpenConnectionToDevice();
+
+				deviceMonitor.startThread();
             }
             
             // Auto-connection
@@ -575,7 +577,7 @@ void MidiEditArea::attemptDeviceConnection()
     else
     {
 		isWaitingForConnectionTest = true;
-		deviceMonitor.startThread();
+		deviceMonitor.testCurrentDevices();
         //jassert(isWaitingForConnectionTest); // Triggered if a test is requested before opening any devices
     }
 }

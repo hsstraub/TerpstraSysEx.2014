@@ -333,7 +333,7 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
-void TerpstraMidiDriver::sendSerialIdentityRequest()
+void TerpstraMidiDriver::sendGetSerialIdentityRequest()
 {
     sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
 }
