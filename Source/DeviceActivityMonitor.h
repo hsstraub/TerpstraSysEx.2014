@@ -69,7 +69,7 @@ protected:
 
     void midiMessageReceived(const MidiMessage& midiMessage) override;
     void midiMessageSent(const MidiMessage& midiMessage) override {}
-    void midiSendQueueSize(int queueSize) override {}
+    void midiSendQueueSize(int queueSize) override { midiQueueSize = queueSize; }
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
 
 private:
@@ -137,6 +137,8 @@ private:
 
     int                     confirmedInputIndex = -1;
     int                     confirmedOutputIndex = -1;
+
+    int                     midiQueueSize = 0;
     
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;

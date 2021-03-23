@@ -249,10 +249,13 @@ void DeviceActivityMonitor::run()
         {
             if (!waitingForTestResponse)
             {
-                activitySinceLastTimeout = false;
-                wait(inactivityTimeoutMs);
-                if (!activitySinceLastTimeout)
-                    initializeConnectionTest(deviceConnectionMode);
+                if (midiQueueSize == 0)
+                {
+                    activitySinceLastTimeout = false;
+                    wait(inactivityTimeoutMs);
+                    if (!activitySinceLastTimeout)
+                        initializeConnectionTest(deviceConnectionMode);
+                }
             }
             else if (!expectedResponseReceived)
             {
