@@ -35,8 +35,6 @@ public:
 
         flexBox.flexWrap = FlexBox::Wrap::wrap;
         flexBox.justifyContent = FlexBox::JustifyContent::flexStart;
-        
-        rebuildPanel(palettesIn, false);
     };
 
     // Used to make this component resize itself depending on how many swatches there are
@@ -193,6 +191,7 @@ public:
             auto label = paletteLabels.add(new Label("Label_" + name, name));
             label->setJustificationType(Justification::centred);
             label->getProperties().set("index", i);
+            label->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 2);
             addAndMakeVisible(label);
 
             controlGroupHitBoxes.add(Rectangle<int>());
@@ -338,10 +337,10 @@ private:
 /*
 *   Colour palette edtior panel
 */
-class PaletteEditPanel    : public Component, 
-                            public Button::Listener, 
-                            public Label::Listener,
-                            public ChangeBroadcaster
+class PaletteEditPanel : public Component,
+    public Button::Listener,
+    public Label::Listener,
+    public ChangeBroadcaster
 {
 public:
 
@@ -349,7 +348,7 @@ public:
         : colourPalette(paletteIn)
     {
         colourPicker.reset(new ColourSelector(
-              ColourSelector::ColourSelectorOptions::editableColour
+            ColourSelector::ColourSelectorOptions::editableColour
             + ColourSelector::ColourSelectorOptions::showColourAtTop
             + ColourSelector::ColourSelectorOptions::showColourspace
         ));
@@ -364,20 +363,16 @@ public:
         editPaletteLabel->setJustificationType(Justification::centred);
         addAndMakeVisible(*editPaletteLabel);
 
-        String displayName = colourPalette.getName();
-        if (displayName == String())
-        {
-            paletteUnnamed = true;
-            displayName = "unnamed";
-        }
-
         paletteNameEditor.reset(new Label("PaletteNameEditor"));
         paletteNameEditor->setJustificationType(Justification::centred);
         paletteNameEditor->setEditable(true);
         paletteNameEditor->addListener(this);
         paletteNameEditor->setColour(Label::ColourIds::backgroundColourId, Colour());
+        paletteNameEditor->setText(colourPalette.getName(), dontSendNotification);
+        paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 3);
         addAndMakeVisible(*paletteNameEditor);
-        paletteNameEditor->setText(displayName, NotificationType::dontSendNotification);
+        labelTextChanged(paletteNameEditor.get()); // force update
+
 
         saveButton.reset(new TextButton("SaveButton", translate("SavePaletteTip")));
         saveButton->setButtonText("Save");
@@ -395,7 +390,7 @@ public:
         paletteControl = nullptr;
     }
 
-    void paint(Graphics& g) override 
+    void paint(Graphics& g) override
     {
         g.fillAll(Colours::black);
     }
@@ -416,25 +411,25 @@ public:
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
         saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
-        
+
         colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
         colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
 
         float leftMargin = colourPicker->getRight() * 0.03f * 0.5f;
         paletteNameEditor->setBounds(Rectangle<int>(
-            Point<int>(roundToInt(leftMargin),  paletteControl->getBottom()),
+            Point<int>(roundToInt(leftMargin), paletteControl->getBottom()),
             Point<int>(colourPicker->getX() - leftMargin, saveButton->getY())
-        ));
-        paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editPaletteLabel->getHeight() / (float) paletteNameEditor->getHeight());
+            ));
+        paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, editPaletteLabel->getHeight() / (float)paletteNameEditor->getHeight());
 
-        if (lookAndFeel)
-        {
-            Font labelFont = (paletteUnnamed)
-                ? lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowItalic)
-                : lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium);
+        //if (lookAndFeel)
+        //{
+        //    Font labelFont = (paletteUnnamed)
+        //        ? lookAndFeel->getAppFont(LumatoneEditorFont::UniviaProBold)
+        //        : lookAndFeel->getAppFont(LumatoneEditorFont::GothamNarrowMedium);
 
-            paletteNameEditor->setFont(labelFont);
-        }
+        //    paletteNameEditor->setFont(labelFont);
+        //}
 
     }
 
@@ -464,6 +459,7 @@ public:
 
     void labelTextChanged(Label* label) override
     {
+        // Italics and font override here is a bit of a hack
         if (label == paletteNameEditor.get())
         {
             bool nameIsEmpty = paletteNameEditor->getText() == "";
@@ -472,6 +468,8 @@ public:
             {
                 paletteUnnamed = false;
                 colourPalette.setName(paletteNameEditor->getText());
+                paletteNameEditor->getProperties().remove(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle);
+                paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::fontOverride, LumatoneEditorFont::GothamNarrowMedium);
             }
 
             else if (nameIsEmpty && !paletteUnnamed)
@@ -482,10 +480,19 @@ public:
             if (paletteUnnamed)
             {
                 paletteNameEditor->setText("unnamed", NotificationType::dontSendNotification);
+                paletteNameEditor->getProperties().set(LumatoneEditorStyleIDs::fontOverrideTypefaceStyle, "Italic");
+                paletteNameEditor->getProperties().remove(LumatoneEditorStyleIDs::fontOverride);
             }
 
-            resized();
+            //resized();
         }
+    }
+
+    void editorShown(Label* label, TextEditor& editor) override
+    {
+        editor.setColour(TextEditor::ColourIds::backgroundColourId, Colours::black);
+        editor.setJustification(Justification::centred);
+        editor.setMultiLine(true);
     }
 
     //==============================================================================

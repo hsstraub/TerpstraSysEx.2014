@@ -30,7 +30,6 @@
 // Rounded corner size over app height ratio for layout elements
 #define ROUNDEDCORNERTOAPPHEIGHT 0.00555556f
 
-#define CONTROLBOXFONTHEIGHTSCALAR 0.55f
 
 #define SETTINGSAREAMARGINHEIGHT 0.1714f
 #define SETTINGSLABELHEIGHT      0.14f
@@ -39,6 +38,16 @@
 #define SETTINGSCONTROLMARGINTOAPPWIDTH 0.01171875f
 #define SETTINGSTOGGLEHEIGHTSCALAR      0.087f
 
+#if JUCE_MAC
+    #define GLOBALFONTSCALAR 0.9f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.66f
+#elif JUCE_WINDOWS
+    #define GLOBALFONTSCALAR 1.0f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.75f
+#elif JUCE_LINUX
+    #define GLOBALFONTSCALAR 1.0f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.73f
+#endif
 
 /// <summary>
 /// Returns a path representing a rectangle shape, considering rounded corners and connected edges
@@ -53,7 +62,8 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     Point<float> origin = bounds.getPosition();
     Point<float> endpoint = bounds.getBottomRight();
 
-    if (connectedFlags == 0 || connectedFlags == 3 || connectedFlags == 12 || connectedFlags == 15)
+    // TODO: finish implementing 3 and 12
+    if (connectedFlags == 0 || connectedFlags == 3 || connectedFlags == 12)
     {
         rect.addRoundedRectangle(bounds, roundedCornerSize);
         return rect;
@@ -108,6 +118,70 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     return rect;
 }
 
+// TODO: Integrate this into the above function somehow
+static Path getDiagonalRoundedCornersPath(Rectangle<float> bounds, float roundedCornerSize, bool roundedTopRightAndBottomLeft, bool hasPopup = false)
+{
+    Path rect;
+    roundedCornerSize *= 2;
+    int xTo, yTo;
+
+    if (roundedTopRightAndBottomLeft)
+    {
+        rect.startNewSubPath(bounds.getPosition());
+
+        xTo = bounds.getRight() - roundedCornerSize;
+        yTo = bounds.getY();
+        rect.lineTo(xTo, yTo);
+        rect.addArc(xTo, yTo, roundedCornerSize, roundedCornerSize, 0, PATH_PI_2_CW);
+
+        xTo = bounds.getRight();
+        yTo = bounds.getBottom();
+        rect.lineTo(xTo, yTo);
+
+        xTo = bounds.getX();
+        if (!hasPopup)
+        {
+            xTo += roundedCornerSize;
+            rect.lineTo(xTo, yTo);
+            rect.addArc(xTo - roundedCornerSize, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, -float_Pi, PATH_PI_2_CCW);
+        }
+        else
+        {
+            rect.lineTo(xTo, yTo);
+        }
+    }
+    else
+    {
+        rect.startNewSubPath(bounds.getTopRight());
+
+        xTo = bounds.getRight();
+        yTo = bounds.getBottom();
+
+        if (!hasPopup)
+        {
+            yTo -= roundedCornerSize;
+            rect.lineTo(xTo, yTo);
+            rect.addArc(xTo - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, float_Pi);
+        }
+        else
+        {
+            rect.lineTo(xTo, yTo);
+        }
+
+        xTo = bounds.getX();
+        yTo = bounds.getBottom();
+        rect.lineTo(xTo, yTo);
+
+        yTo = bounds.getY() + roundedCornerSize;
+        rect.lineTo(xTo, yTo);
+
+        rect.addArc(xTo, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, PATH_PI_2_CCW, 0);
+    }
+
+    rect.closeSubPath();
+    return rect;
+}
+
 /// <summary>
 /// Adds an arc to a Path using a juce::Rectangle object for bounds.
 /// </summary>
@@ -129,67 +203,67 @@ static void addArcToPath(Path& pathIn, Rectangle<float>& ellipseBounds, float fr
     );
 }
 
-/// <summary>
-/// Intended for use with components in FlexBoxes, this scales a component and sets the justifications within the FlexBox
-/// </summary>
-/// <param name="component"></param>
-/// <param name="scaleFactorX"></param>
-/// <param name="scaleFactorY"></param>
-/// <param name="justification"></param>
-static void scaleAndJustifyComponent(Component& component, float scaleFactorX, float scaleFactorY, Justification justification)
-{
-    int newWidth = round(component.getWidth() * scaleFactorX);
-    int newHeight = round(component.getHeight() * scaleFactorY);
-
-    int xOff, yOff;
-
-    if (justification.getFlags() & Justification::left)
-    {
-        xOff = 0;
-    }
-    else
-    {
-        if (justification.getFlags() & Justification::right | Justification::centred)
-        {
-            xOff = component.getWidth() - newWidth;
-        }
-
-        if (justification.getFlags() & Justification::horizontallyCentred)
-        {
-            xOff = round(xOff * 0.5f);
-        }
-    }
-
-    if (justification.getFlags() & Justification::top)
-    {
-        yOff = 0;
-    }
-    else
-    {
-        if (justification.getFlags() & Justification::bottom | Justification::centred)
-        {
-            yOff = component.getHeight() - newHeight;
-        }
-
-        if (justification.getFlags() & Justification::verticallyCentred)
-        {
-            yOff = round(yOff * 0.5f);
-        }
-    }
-
-    component.setBounds(component.getX() + xOff, component.getY() + yOff, newWidth, newHeight);
-}
-
-/// <summary>
-/// Intended for use with components in FlexBoxes, this scales a component and sets the justifications within the FlexBox
-/// </summary>
-/// <param name="component"></param>
-/// <param name="scaleFactor"></param>
-/// <param name="justification"></param>
-static void scaleAndJustifyComponent(Component& component, float scaleFactor, Justification justification = Justification::centred)
-{
-    scaleAndJustifyComponent(component, scaleFactor, scaleFactor, justification);
-}
+///// <summary>
+///// Intended for use with components in FlexBoxes, this scales a component and sets the justifications within the FlexBox
+///// </summary>
+///// <param name="component"></param>
+///// <param name="scaleFactorX"></param>
+///// <param name="scaleFactorY"></param>
+///// <param name="justification"></param>
+//static void scaleAndJustifyComponent(Component& component, float scaleFactorX, float scaleFactorY, Justification justification)
+//{
+//    int newWidth = round(component.getWidth() * scaleFactorX);
+//    int newHeight = round(component.getHeight() * scaleFactorY);
+//
+//    int xOff, yOff;
+//
+//    if (justification.getFlags() & Justification::left)
+//    {
+//        xOff = 0;
+//    }
+//    else
+//    {
+//        if (justification.getFlags() & Justification::right | Justification::centred)
+//        {
+//            xOff = component.getWidth() - newWidth;
+//        }
+//
+//        if (justification.getFlags() & Justification::horizontallyCentred)
+//        {
+//            xOff = round(xOff * 0.5f);
+//        }
+//    }
+//
+//    if (justification.getFlags() & Justification::top)
+//    {
+//        yOff = 0;
+//    }
+//    else
+//    {
+//        if (justification.getFlags() & Justification::bottom | Justification::centred)
+//        {
+//            yOff = component.getHeight() - newHeight;
+//        }
+//
+//        if (justification.getFlags() & Justification::verticallyCentred)
+//        {
+//            yOff = round(yOff * 0.5f);
+//        }
+//    }
+//
+//    component.setBounds(component.getX() + xOff, component.getY() + yOff, newWidth, newHeight);
+//}
+//
+///// <summary>
+///// Intended for use with components in FlexBoxes, this scales a component and sets the justifications within the FlexBox
+///// </summary>
+///// <param name="component"></param>
+///// <param name="scaleFactor"></param>
+///// <param name="justification"></param>
+//static void scaleAndJustifyComponent(Component& component, float scaleFactor, Justification justification = Justification::centred)
+//{
+//    scaleAndJustifyComponent(component, scaleFactor, scaleFactor, justification);
+//}
 
 /// <summary>
 /// Sets the width of a component while retaining the aspect ratio of a given image
@@ -219,10 +293,10 @@ static void setHeightRetainingAspectRatio(Component* component, const Image& ima
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setWidthRetainingAspectRatio(ImageComponent* component, int widthIn)
-{
-    setWidthRetainingAspectRatio(component, component->getImage(), widthIn);
-}
+//static void setWidthRetainingAspectRatio(ImageComponent* component, int widthIn)
+//{
+//    setWidthRetainingAspectRatio(component, component->getImage(), widthIn);
+//}
 
 /// <summary>
 /// Sets the height of an ImageComponent while retaining the aspect ratio of its image
@@ -257,38 +331,57 @@ static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
     setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
 }
 
-static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix="__")
+static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix = "_")
 {
-    label->setFont(label->getFont().withHeight(height * fontHeightScalar));
+    label->setFont(label->getFont().withHeight(height * fontHeightScalar * GLOBALFONTSCALAR));
     label->setSize(round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height);
 }
 
-static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f)
-{
-    label->setFont(label->getFont().withHeight(height * fontHeightScalar));
-    label->setBounds(
-        xPosition, yPosition,
-        round(label->getFont().getStringWidthFloat(label->getText() + "__")), height
-    );
-}
+//static void positionLabelWithHeight(Label* label, int xPosition, int yPosition, int height, float fontHeightScalar = 1.0f, String textSuffix = "_")
+//{
+//    label->setFont(label->getFont().withHeight(height * fontHeightScalar));
+//    label->setBounds(
+//        xPosition, yPosition,
+//        round(label->getFont().getStringWidthFloat(label->getText() + textSuffix)), height
+//    );
+//}
 
 static void resizeLabelWithWidth(Label* label, int width, float fontHeightScalar = 1.0f)
 {
     float heightOverWidth = label->getFont().getHeight() / label->getFont().getStringWidthFloat(label->getText());
     label->setSize(width, round(heightOverWidth * width));
-    label->setFont(label->getFont().withHeight(label->getHeight() * fontHeightScalar));
+    label->setFont(label->getFont().withHeight(label->getHeight() * fontHeightScalar * GLOBALFONTSCALAR));
 }
 
-static void positionLabelWithWidth(Label* label, int xPosition, int yPosition, int width, float fontHeightScalar = 1.0f)
+// For scaling Labels down so they're not clipped or skewed
+static float scalarToFitString(String lineOfText, Font font, float width)
 {
-    float heightOverWidth = label->getFont().getHeight() / label->getFont().getStringWidthFloat(label->getText());
-    label->setBounds(xPosition, yPosition, width, round(heightOverWidth * width));
-    label->setFont(label->getFont().withHeight(label->getHeight() * fontHeightScalar));
+    float scalar = 1.0f;
+    float fullWidth = font.getStringWidthFloat(lineOfText);
+    if (fullWidth > width)
+    {
+        scalar = width / fullWidth;
+    }
+    return scalar;
 }
 
-static void resizeToggleButtonWithHeight(ToggleButton* btn, Font font, int heightIn)
+// For scaling Labels down so they're not clipped or skewed
+static float scalarToFitString(Label& labelIn)
 {
-    btn->setSize(btn->getHeight() + round(font.getStringWidth(btn->getButtonText() + "_")), heightIn);
+    return scalarToFitString(labelIn.getText(), labelIn.getFont(), labelIn.getWidth());
+}
+
+//static void positionLabelWithWidth(Label* label, int xPosition, int yPosition, int width, float fontHeightScalar = 1.0f)
+//{
+//    float heightOverWidth = label->getFont().getHeight() / label->getFont().getStringWidthFloat(label->getText());
+//    label->setBounds(xPosition, yPosition, width, round(heightOverWidth * width));
+//    label->setFont(label->getFont().withHeight(label->getHeight() * fontHeightScalar * GLOBALFONTSCALAR));
+//}
+
+static void resizeToggleButtonWithHeight(ToggleButton* btn, Font font, int heightIn, String textSuffix = "_")
+{
+    font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
+    btn->setSize(btn->getHeight() + round(font.getStringWidth(btn->getButtonText() + textSuffix)), heightIn);
 }
 
 static void drawPathToFillBounds(Graphics& g, const Path& path, Rectangle<float> boundsToFill)
@@ -387,6 +480,8 @@ namespace LumatoneEditorStyleIDs
     // Override background colour for a Label's TextEditor when being edited
     static Identifier labelTextEditorBackgroundColour = Identifier("LabelTextEditorBackgroundColour");
 
+    static Identifier labelMaximumLineCount = Identifier("LabelMaximumLineCount");
+
     static Identifier tabbedButtonBarDepthScalar = Identifier("TabbedButtonBarDepthScalar");
 
     // The Image::Cache hash code for an icon that should be displayed on a TextButton
@@ -404,4 +499,10 @@ namespace LumatoneEditorStyleIDs
     static Identifier textButtonHyperlinkFlag = Identifier("TextButtonHyperlinkFlag");
 
     static Identifier popupMenuMaxColumns = Identifier("PopupMenuMaxColumns");
+
+    static Identifier connectedEdgeFlags = Identifier("ConnectedEdgesFlags");
+
+    // Odd values will have top right and bottom left rounded corners
+    // Even values will have top left and bottom right rounded corners
+    static Identifier roundedDiagonalCorners = Identifier("RoundedDiagonalCorners");
 }

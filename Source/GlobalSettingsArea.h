@@ -22,6 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 #include "ColourEditComponent.h"
+#include "SettingsContainer.h"
 //[/Headers]
 
 
@@ -53,6 +54,8 @@ public:
     void listenToColourEditButtons(Button::Listener* listenerIn);
 
     void lookAndFeelChanged() override;
+
+    void setDeveloperMode(bool devModeOn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -66,6 +69,10 @@ private:
 	std::unique_ptr<ColourEditComponent> inactiveMacroButtonColourEdit;
 	std::unique_ptr<ColourEditComponent> activeMacroButtonColourEdit;
 
+    std::unique_ptr<Label> lblDeveloperMode;
+
+    bool showDeveloperMode = false;
+
     //==============================================================================
     // Style helpers
     FlexBox flexBox;
@@ -73,10 +80,10 @@ private:
     //==============================================================================
     // Size and position constants
 
-    const float colourButtonAspect          = 21.0f / 17.0f;
-    const float inactiveButtonAspect        = 108.0f / 23.0f;
+    const float colourButtonAspect          = 1.235294f;
+    const float inactiveButtonAspect        = 4.695652f;
 
-    const float controlsHeight              = 1.0f / 3.0f;
+    const float controlsHeight              = 0.333333f;
 
     const float calibrateX                  = 0.25f;
     const float calibrateHeight             = 0.55f;

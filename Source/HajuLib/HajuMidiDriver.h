@@ -21,22 +21,30 @@
 Driver encapsulating MIDI functionality, extension of JUCE
 ==============================================================================
 */
-class HajuMidiDriver
+class HajuMidiDriver : public MidiInputCallback
 {
 public:
 	HajuMidiDriver();
 	~HajuMidiDriver();
 
+	virtual void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) = 0;
+
 	// List of MIDI input device names
-	StringArray getMidiInputList();
+	Array<MidiDeviceInfo> getMidiInputList();
 	// List of MIDI output device names
-	StringArray getMidiOutputList();
+	Array<MidiDeviceInfo> getMidiOutputList();
+    
+    MidiDeviceInfo getMidiOutputInfo() const;
+    MidiDeviceInfo getMidiInputInfo() const;
+    
+    int getLastMidiInputIndex() const { return lastInputIndex; }
+    int getLastMidiOutputIndex() const { return lastOutputIndex; }
 
 	// Re-initializes device list in case of changes
 	void refreshDeviceLists();
 
 	// Open the specified input device
-	void setMidiInput(int deviceIndex, MidiInputCallback* callback);
+	void setMidiInput(int deviceIndex);
 
 	// Open the specified output device
 	void setMidiOutput(int deviceIndex);
@@ -58,13 +66,15 @@ public:
 protected:
 	Array<MidiDeviceInfo> midiInputs;
 	Array<MidiDeviceInfo> midiOutputs;
-	AudioDeviceManager deviceManager;
 
+    int lastOutputIndex = -1;
 	int lastInputIndex = -1;
-	MidiInputCallback* lastInputCallback = nullptr;
 
 	// Currently open MIDI output
-  std::unique_ptr<MidiOutput> midiOutput = nullptr;
+	std::unique_ptr<MidiOutput> midiOutput;
+
+	// Last MIDI input opened
+	std::unique_ptr<MidiInput> midiInput;
 };
 
 #endif  // HAJUMIDIDRIVER_H_INCLUDED

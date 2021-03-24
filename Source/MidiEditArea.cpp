@@ -141,15 +141,25 @@ MidiEditArea::MidiEditArea ()
 
 	lblConnectionState->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnected]);
+    lblConnectionState->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 2);
 
 	lblEditMode->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 	lblEditMode->setColour(Label::ColourIds::textColourId, lookAndFeel.findColour(LumatoneEditorColourIDs::LabelPink));
 
-	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
-	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
+	offlineEditorBtn->setClickingTogglesState(true);
+	offlineEditorBtn->setRadioGroupId(10, dontSendNotification);
+	liveEditorBtn->setClickingTogglesState(true);
+	liveEditorBtn->setRadioGroupId(10, dontSendNotification);
+	liveEditorBtn->setToggleState(true, dontSendNotification);
+	lookAndFeel.setupTextButton(*offlineEditorBtn);
+	lookAndFeel.setupTextButton(*liveEditorBtn);
+    liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
+    offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
+
+	refreshInputDevicesAndSetSelected(0, dontSendNotification);
+	refreshOutputDevicesAndSetSelected(0, dontSendNotification);
 
 	btnAutoConnect->setClickingTogglesState(true);
-	btnAutoConnect->setToggleState(true, NotificationType::dontSendNotification);
 	lookAndFeel.setupTextButton(*btnAutoConnect.get());
 
 	ioAreaFlexBox.alignContent = FlexBox::AlignContent::center;
@@ -164,13 +174,15 @@ MidiEditArea::MidiEditArea ()
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 
 	setConnectivity(false);
-	errorVisualizer.setErrorLevel(
-		*lblConnectionState.get(),
-		HajuErrorVisualizer::ErrorLevel::error,
-		"Searching for Lumatone...");
 
     deviceMonitor.addChangeListener(this);
-	deviceMonitor.initializeDeviceDetection();
+    
+    btnAutoConnect->setToggleState(deviceMonitor.willDetectDeviceIfDisconnected(), sendNotificationSync);
+	if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
+	{
+		startTimer(deviceRefreshTimeoutMs);
+	}
+    
     //[/Constructor]
 }
 
@@ -192,8 +204,8 @@ MidiEditArea::~MidiEditArea()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+	deviceMonitor.stopThread(100);
 	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
-
     //[/Destructor]
 }
 
@@ -254,7 +266,7 @@ void MidiEditArea::resized()
 
 		liveEditorBtn->setSize(round(w * liveEditButtonWidth), round(h* editModeButtonHeight));
 		liveEditorBtn->setTopLeftPosition(
-			lumatoneLabelBounds.getRight() + round(w * editModeButtonX),
+			lblEditMode->getRight(),
 			round((h - liveEditorBtn->getHeight()) * 0.5f)
 		);
 
@@ -342,11 +354,11 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
-				"Select both a MIDI input and a MIDI output");
+				translate("Select both a MIDI input and output"));
 		}
 		else
 		{
-			onOpenConnectionToDevice();
+			attemptDeviceConnection();
 		}
         //[/UserComboBoxCode_cbMidiInput]
     }
@@ -362,11 +374,11 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::error,
-				"Select both a MIDI input and a MIDI output");
+				translate("Select both a MIDI input and output"));
 		}
 		else
 		{
-			onOpenConnectionToDevice();
+			attemptDeviceConnection();
 		}
         //[/UserComboBoxCode_cbMidiOutput]
     }
@@ -386,14 +398,22 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_btnAutoConnect] -- add your button handler code here..
 		cbMidiInput->setVisible(!btnAutoConnect->getToggleState());
 		cbMidiOutput->setVisible(!btnAutoConnect->getToggleState());
-
-		if (btnAutoConnect->getToggleState())
+        deviceMonitor.setDetectDeviceIfDisconnected(btnAutoConnect->getToggleState());
+		
+        if (btnAutoConnect->getToggleState())
 		{
-			deviceMonitor.initializeDeviceDetection();
+			deviceMonitor.startThread();
+			lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
+			errorVisualizer.setErrorLevel(
+				*lblConnectionState.get(),
+				HajuErrorVisualizer::ErrorLevel::error,
+				translate("Waiting for response from connected devices..."));
 		}
 		else
 		{
-			deviceMonitor.stopTimer();
+			deviceMonitor.signalThreadShouldExit();
+			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
+			startTimer(deviceRefreshTimeoutMs);
 		}
 
 		resized();
@@ -403,7 +423,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
     //[UserbuttonClicked_Post]
 	else if (buttonThatWasClicked == liveEditorBtn.get())
 	{
-		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)liveEditorBtn->getToggleState());
+		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)!liveEditorBtn->getToggleState());
 
 		TerpstraSysExApplication::getApp().getMidiDriver().setSysExSendingMode(sysExSendingMode);
 
@@ -414,11 +434,11 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 			break;
 
 		case TerpstraMidiDriver::sysExSendingMode::offlineEditor:
-			lblConnectionState->setText(translate("OfflineMode"), NotificationType::dontSendNotification);
+			lblConnectionState->setText(translate("Offline"), NotificationType::dontSendNotification);
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
 				HajuErrorVisualizer::ErrorLevel::noError,
-				"Offline mode");
+				"Offline");
 			break;
 
 		default:
@@ -450,81 +470,163 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 	pleaseConnectLabel->setVisible(isNotConnected);
 	offlineMsgLabel->setVisible(isNotConnected);
 
-	lblConnectionState->setText(connectedText[isConnectedIn], dontSendNotification);
-	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
-
 	lblEditMode->setVisible(isConnectedIn);
 	liveEditorBtn->setVisible(isConnectedIn);
 	offlineEditorBtn->setVisible(isConnectedIn);
 
 	isConnected = isConnectedIn;
+	btnAutoConnect->setEnabled(!isConnected);
+
+	if (isConnected)
+		lblConnectionState->setText(translate("Connected"), dontSendNotification);
+	else if (btnAutoConnect->getToggleState())
+		lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
+	else
+		lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
+
+	lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[isConnectedIn]);
 
 	resized();
 	repaint();
 }
 
+// Called when DeviceActivityMonitor detects a change in devices
 void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 {
 	if (source == static_cast<ChangeBroadcaster*>(&deviceMonitor))
 	{
-		int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
-		int currentInputIndex =  deviceMonitor.getConfirmedInputIndex();
+		if (deviceMonitor.isConnectionEstablished())
+		{
+            // Manual connection
+            if (isWaitingForConnectionTest)
+            {
+                setConnectivity(true);
+                onOpenConnectionToDevice();
 
-		if (currentOutputIndex >= 0 && currentInputIndex >= 0)
-		{
-			refreshOutputDevicesAndSetSelected(currentOutputIndex);
-			refreshInputDevicesAndSetSelected(currentInputIndex);
+				deviceMonitor.startThread();
+            }
+            
+            // Auto-connection
+            else
+            {
+                int currentOutputIndex = deviceMonitor.getConfirmedOutputIndex();
+                int currentInputIndex = deviceMonitor.getConfirmedInputIndex();
+
+                if (currentOutputIndex >= 0 && currentInputIndex >= 0)
+                {
+                    // TODO: more planned-out / unified connection between manual & automatic
+
+                    // + 1 for ComboBox indicies
+                    refreshOutputDevicesAndSetSelected(currentOutputIndex + 1, dontSendNotification);
+                    refreshInputDevicesAndSetSelected(currentInputIndex + 1, dontSendNotification);
+
+                    setConnectivity(true);
+                    onOpenConnectionToDevice();
+                }
+                else
+                {
+                    DBG("One or both device indicies returned are invalid");
+                    setConnectivity(false);
+                }
+            }
+
+			// Record firmware version of connected Lumatone
+			TerpstraSysExApplication::getApp().getMidiDriver().sendGetFirmwareRevisionRequest();
 		}
-		else
-		{
-			DBG("One or both device indicies returned are invalid");
-			setConnectivity(false);
+
+		// Disconnected for some reason
+        else
+        {
+            setConnectivity(false);
+
+			if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
+				startTimer(deviceRefreshTimeoutMs);
+
+            if (isWaitingForConnectionTest)
+            {
+                lblConnectionState->setText(translate("No answer"), NotificationType::dontSendNotification);
+                errorVisualizer.setErrorLevel(
+                    *lblConnectionState.get(),
+                    HajuErrorVisualizer::ErrorLevel::error,
+                    "No answer");
+            }
+            else
+            {
+                refreshInputDevicesAndSetSelected(0);
+                refreshOutputDevicesAndSetSelected(0);
+            }
 		}
 	}
 
 }
 
+void MidiEditArea::attemptDeviceConnection()
+{
+    jassert(!isConnected);
+    
+    lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
+    errorVisualizer.setErrorLevel(
+        *lblConnectionState.get(),
+        HajuErrorVisualizer::ErrorLevel::noError,
+        "Connecting...");
+    
+    if (deviceMonitor.isConnectionEstablished())
+    {
+        onOpenConnectionToDevice();
+    }
+    else
+    {
+		isWaitingForConnectionTest = true;
+		deviceMonitor.testCurrentDevices();
+        //jassert(isWaitingForConnectionTest); // Triggered if a test is requested before opening any devices
+    }
+}
+
 void MidiEditArea::onOpenConnectionToDevice()
 {
-	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
-
-	lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
-	errorVisualizer.setErrorLevel(
-		*lblConnectionState.get(),
-		HajuErrorVisualizer::ErrorLevel::noError,
-		"Connecting");
+	//jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0 && liveEditorBtn->getToggleState());
 
 	// Send current configuration to device, if desired
 	auto retc = AlertWindow::showOkCancelBox(
 		AlertWindow::AlertIconType::QuestionIcon,
-		"Establishing connection to controller",
-		"Do you want to send the current configuration to the controller?");
+		translate("Establishing connection"),
+		translate("Do you want to send the current setup to your Lumatone?")
+	);
 
 	if (retc)
+	{
 		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+		liveEditorBtn->setToggleState(true, dontSendNotification);
+		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+	}
+	else
+	{
+		offlineEditorBtn->setToggleState(true, sendNotification);
+		lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
+	}
 }
 
 void MidiEditArea::refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(inputDeviceIndex > 0);
-
 	cbMidiInput->clear(NotificationType::dontSendNotification);
-	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 0);
-	cbMidiInput->setSelectedItemIndex(inputDeviceIndex, notificationType);
+	int i = 1;
+	for (auto device : TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList())
+		cbMidiInput->addItem(device.name, i++);
+	cbMidiInput->setSelectedId(inputDeviceIndex, notificationType);
 }
 
 void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType)
 {
-	jassert(outputDeviceIndex > 0);
-
 	cbMidiOutput->clear(NotificationType::dontSendNotification);
-	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 0);
-	cbMidiOutput->setSelectedItemIndex(outputDeviceIndex, notificationType);
+	int i = 1;
+	for (auto device : TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList())
+		cbMidiOutput->addItem(device.name, i++);
+	cbMidiOutput->setSelectedId(outputDeviceIndex, notificationType);
 }
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
-	if (midiMessage.getSysExDataSize() < 6)
+	if (midiMessage.isSysEx() && midiMessage.getSysExDataSize() < 6)
 	{
 		errorVisualizer.setErrorLevel(
 			*lblConnectionState.get(),
@@ -541,6 +643,8 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 
 		switch (answerState)
 		{
+		//lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+
 		case TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
 			errorVisualizer.setErrorLevel(
 				*lblConnectionState.get(),
@@ -577,13 +681,34 @@ void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 			break;
 		}
 
-        // May need some logic to handle "Busy" if trying to auto-connect to device
-        if (!isConnected)
+        if (!isConnected && deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::lookingForDevice)
         {
 			setConnectivity(true);
             onOpenConnectionToDevice();
         }
 	}
+}
+
+void MidiEditArea::timerCallback()
+{
+    if (isConnected || deviceMonitor.getMode() == DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
+    {
+		stopTimer();
+    }
+    else
+    {
+        TerpstraSysExApplication::getApp().getMidiDriver().refreshDeviceLists();
+        
+        refreshInputDevicesAndSetSelected(
+            TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiInputIndex() + 1,
+            juce::NotificationType::dontSendNotification
+        );
+        
+        refreshOutputDevicesAndSetSelected(
+            TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiOutputIndex() + 1,
+            juce::NotificationType::dontSendNotification
+        );
+    }
 }
 
 void MidiEditArea::generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)

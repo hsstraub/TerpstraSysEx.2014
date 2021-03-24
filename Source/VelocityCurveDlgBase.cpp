@@ -41,9 +41,9 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraVelocityCurveConfig::Velocit
     addAndMakeVisible (cbEditMode.get());
     cbEditMode->setEditableText (false);
     cbEditMode->setJustificationType (juce::Justification::centredLeft);
-    cbEditMode->setTextWhenNothingSelected (translate("SelectDrawingMode"));
-    cbEditMode->setTextWhenNoChoicesAvailable (translate("NoChoices"));
-    cbEditMode->addItem (translate("FreeDrawing"), 1);
+    cbEditMode->setTextWhenNothingSelected (translate("Draw Mode"));
+    cbEditMode->setTextWhenNoChoicesAvailable (translate("(no choices)"));
+    cbEditMode->addItem (translate("Free"), 1);
     cbEditMode->addItem (translate("Linear"), 2);
     cbEditMode->addItem (translate("Quadratic"), 3);
     cbEditMode->addListener (this);
@@ -51,7 +51,9 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraVelocityCurveConfig::Velocit
     cbEditMode->setBounds (8, 8, 296, 24);
 
     //[UserPreSize]
-	drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
+	cbEditMode->getProperties().set(LumatoneEditorStyleIDs::roundedDiagonalCorners, 0);
+
+    drawingStrategies[TerpstraVelocityCurveConfig::freeDrawing] = &freeDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::linearSegments] = &linearDrawingStrategy;
 	drawingStrategies[TerpstraVelocityCurveConfig::quadraticCurves] = &quadraticDrawingStrategy;
 

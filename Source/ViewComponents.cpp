@@ -130,9 +130,14 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	if (isSelected)
 	{
+		// Shrink bounds slightly
+		Path hexOutline = Path(hexPath);
+		Rectangle<int> hexBounds = getLocalBounds().reduced(1);
+		hexOutline.scaleToFit(hexBounds.getX(), hexBounds.getY(), hexBounds.getWidth(), hexBounds.getHeight(), true);
+
 		// Draw line
 		g.setColour(lineColor);
-		g.strokePath(hexPath, PathStrokeType(lineWidth));
+		g.strokePath(hexOutline, PathStrokeType(lineWidth));
 	}
 
 	// Something parametrized or not?
@@ -156,9 +161,10 @@ void TerpstraKeyEdit::resized()
 	// Draw hexagon
 	hexPath.clear();
 	hexPath.addPolygon(centre.toFloat(), 6, radius, TERPSTRASINGLEKEYROTATIONANGLE);
+	Rectangle<float> hexBounds = hexPath.getBounds().reduced(1, 1);
 
 	float lblSize = radius * TERPSTRASINGLEKEYLABELSIZE;
-	float lblOffset = radius * 0.333333f;
+	float lblOffset = radius * 0.375f;
 
 	midiChannelLabel->setSize(radius, lblSize);
 	midiChannelLabel->setCentrePosition(centre.translated(-lblOffset, -(radius * channelLabelRadiusScalar)));

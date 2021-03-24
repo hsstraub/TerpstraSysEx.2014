@@ -37,7 +37,7 @@ public:
     /// Registers a listener to receive the colour the user's input resolves to
     /// </summary>
     /// <param name="listenerIn"></param>
-    void listenToColourSelection(ColourSelectionListener* listenerIn) { paletteGroup.addColourSelectionListener(listenerIn); }
+    void listenToColourSelection(ColourSelectionListener* listenerIn) { paletteGroup->addColourSelectionListener(listenerIn); }
 
 private:
 
@@ -72,7 +72,7 @@ private:
 
     std::unique_ptr<Viewport> palettePanelViewport;
 
-    ColourSelectionGroup paletteGroup;
+    std::unique_ptr<ColourSelectionGroup> paletteGroup;
 
     int paletteIndexEditing = -1;
     bool paletteEditingIsNew = false;

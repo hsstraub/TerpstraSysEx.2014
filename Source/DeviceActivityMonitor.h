@@ -5,8 +5,10 @@
     Created: 11 Feb 2021 9:15:43pm
     Author:  Vincenzo
 
-    Uses methods from TerpstraMidiDriver in parallel to detect the MIDI device the Lumatone is connected to
-    and monitors activity listening to TerpstraMidiDriver to detect if the connection to the device is lost.
+    Finds a pair of devices connected to Lumatone, and monitors activity 
+    to detect if the connection to the device is lost.
+
+    Sends a change message when a change in the connection status is detected;
 
   ==============================================================================
 */
@@ -15,59 +17,50 @@
 
 #include "TerpstraMidiDriver.h"
 
-class DeviceActivityMonitor : public juce::MidiInputCallback,
+class DeviceActivityMonitor : public juce::Thread,
+                              public juce::MidiInputCallback,
                               public TerpstraMidiDriver::Listener, 
-                              public juce::Timer,
                               public juce::ChangeBroadcaster
 {
+    
+public:
+    enum class DetectConnectionMode
+    {
+        noDeviceActivity = -1,
+        noDeviceMonitoring,
+        lookingForDevice,
+        testingConnection,
+        waitingForInactivity
+    };
+    
 public:
 
     DeviceActivityMonitor();
     ~DeviceActivityMonitor() override;
 
-    /// <summary>
-    /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
-    /// </summary>
-    void initializeDeviceDetection();
-
-    /// <summary>
-    /// Increments the output index and sends a Get Serial Identity message to this next output to listen for a response 
-    /// </summary>
-    void pingNextOutput();
-
-    ///// <summary>
-    ///// Send a ping to all available outputs and prepare to listen to responses
-    ///// </summary>
-    //void pingAvailableDevices();
-
-    // Determines whether or not to try to continue device detection, tries next pair if so
-    void checkDetectionStatus();
-
-    // TODO
-    void intializeConnectionLossDetection();
-
+    DetectConnectionMode getMode() const { return deviceConnectionMode; }
+    bool isConnectionEstablished() const { return expectedResponseReceived && confirmedInputIndex >= 0 && confirmedOutputIndex >= 0; }
+    
+    bool willDetectDeviceIfDisconnected() const { return detectDevicesIfDisconnected; }
+    void setDetectDeviceIfDisconnected(bool doDetection);
+    
+    bool willCheckForInactivity() const { return checkConnectionOnInactivity; }
+    void setCheckForInactivity(bool monitorActivity);
 
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
-
     int getConfirmedInputIndex() const { return confirmedInputIndex; }
 
+    void testCurrentDevices() { initializeConnectionTest(); }
 
-    void closeInputDevices();
+    //=========================================================================
+    // juce::Thread Implementation
 
-    void closeOutputDevices();
-
+    void run() override;
 
     //=========================================================================
     // juce::MidiInputCallback Implementation
-    
+  
     void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) override;
-
-
-    //=========================================================================
-    // juce::Timer Implementation
-    
-    void timerCallback() override;
-
 
 protected:
 
@@ -76,39 +69,83 @@ protected:
 
     void midiMessageReceived(const MidiMessage& midiMessage) override;
     void midiMessageSent(const MidiMessage& midiMessage) override {}
-    void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
-
+    void midiSendQueueSize(int queueSize) override { midiQueueSize = queueSize; }
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
 
 private:
 
-    enum DetectConnectionMode
-    {
-        noActivity = 0,
-        lookingForDevice,
-        waitingForConnectionLoss
-    };
+    /// <summary>
+    /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
+    /// </summary>
+    void initializeDeviceDetection();
 
-    DetectConnectionMode    deviceConnectionMode   = noActivity;
+    // Determines whether or not to try to continue device detection, tries next pair if so
+    void checkDetectionStatus();
+
+    /// <summary>
+    /// Increments the output index and sends a Get Serial Identity message to this next output to listen for a response 
+    /// </summary>
+    void pingNextOutput();
+
+    // TODO WITH ECHO FIRMWARE COMMAND
+    ///// <summary>
+    ///// Send a ping to all available outputs and prepare to listen to responses
+    ///// </summary>
+    //void pingAvailableDevices();
+
+    // Turn off device detection and idle
+    void stopDeviceDetection();
+
+    void onSuccessfulDetection();
+
+    void openAvailableOutputDevices();
+    void openAvailableInputDevices();
+
+    void closeInputDevices();
+    void closeOutputDevices();
+
+
+    // Begin monitoring for unresponsiveness from device
+    void intializeConnectionLossDetection();
+
+    /// <summary>
+    /// Test device connectivity after a connection has previously been made.
+    /// </summary>
+    /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
+    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::testingConnection);
+
+    void onDisconnection();
+
+private:
+    
+    CriticalSection         criticalSection;
+
+    TerpstraMidiDriver*     midiDriver;
+
+    DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
     bool                    deviceDetectInProgress = false;
+    MidiMessage             detectMessage;
 
-    const int               responseTimeoutMs    = 1000; // Will have to try to adjust when we can test with hardware
+    const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
+    const int               inactivityTimeoutMs   = 5000;
     
     int                     pingOutputIndex = -1;
 
     OwnedArray<MidiOutput>  outputsToPing;
     OwnedArray<MidiInput>   inputsListening;
 
-    int                     confirmedInputIndex;
-    int                     confirmedOutputIndex;
+    int                     confirmedInputIndex = -1;
+    int                     confirmedOutputIndex = -1;
+
+    int                     midiQueueSize = 0;
     
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
+    bool                    waitingForTestResponse = false;
 
-
-    MidiMessage                               monitorMessage;
-    std::function<bool(const MidiMessage&)>   messageIsExpectedResponse = [&](const MidiMessage&) { return false; };
-    bool                                      expectedResponseReceived = false;
-
+    bool                    expectedResponseReceived = false;
+    bool                    activitySinceLastTimeout = false;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

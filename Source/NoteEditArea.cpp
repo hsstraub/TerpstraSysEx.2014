@@ -53,7 +53,6 @@ NoteEditArea::NoteEditArea ()
 	editFunctionsTab->setCurrentTabIndex(0);
 	editFunctionsTab->setIndent(0);
 	editFunctionsTab->setOutline(0);
-	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
 
   labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
 	labelWindowTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
@@ -142,13 +141,13 @@ void NoteEditArea::resized()
 
 	roundedCornerLayout = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
-	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 2.0f / 29.0f));
+	octaveTabsArea.setBounds(0, 0, getWidth(), round(getHeight() * 0.069f));
 
 	editFunctionsTab->setBounds(assignControlsBounds.toNearestInt());
 	editFunctionsTab->setTabBarDepth(assignTabDepthInContent * contentBackground.getHeight());
 
 	resizeLabelWithHeight(labelWindowTitle.get(), roundToInt(octaveBoardSelectorTab->getHeight() * assignLabelTabDepthHeight));
-	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) / 2.0f));
+	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) * 0.5f));
 
 	keyEditBounds.setBounds(
 		getWidth() * keyEditMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),

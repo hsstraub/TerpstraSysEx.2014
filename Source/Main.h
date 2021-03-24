@@ -18,7 +18,9 @@
 #include "LumatoneEditorFonts.h"
 #include "ColourPaletteDataStructure.h"
 #include "LocalisationMap.h"
+#include "FirmwareTransfer.h"
 
+typedef TerpstraMidiDriver::FirmwareVersion FirmwareVersion;
 
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
@@ -44,13 +46,16 @@ public:
 	}
 
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
-	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
+	LumatoneEditorLookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
+
+	FirmwareVersion getFirmwareVersion() const { return midiDriver.getFirmwareVersion(); }
+	String getFirmwareVersionStr() const { return midiDriver.getFirmwareVersion().toString(); }
 
 	void reloadColourPalettes();
 	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
@@ -70,6 +75,8 @@ public:
 	bool deleteSubBoardData();
 	bool copySubBoardData();
 	bool pasteSubBoardData();
+
+	bool toggleDeveloperMode();
 
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();

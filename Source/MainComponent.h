@@ -60,6 +60,8 @@ public:
 	bool copyCurrentSubBoardData();
 	bool pasteCurrentSubBoardData();
 
+	bool setDeveloperMode(bool developerModeOn);
+
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}

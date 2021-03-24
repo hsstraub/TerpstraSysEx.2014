@@ -183,6 +183,12 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 		return false;
 }
 
+bool MainContentComponent::setDeveloperMode(bool developerModeOn)
+{
+	curvesArea->setDeveloperMode(developerModeOn);
+	return true;
+}
+
 void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 {
     if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
@@ -326,14 +332,11 @@ void MainContentComponent::buttonClicked(Button* btn)
 		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
 
-		if (btn == noteEditArea->getColourEditComponent())
-		{
-			colourEdit = noteEditArea->getColourEditComponent();
-			paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
-		}
-		// else, a preset button colour button was pressed
-
-		paletteWindow->listenToColourSelection(colourEdit);
+        if (btn == noteEditArea->getColourEditComponent())
+        {
+            colourEdit = noteEditArea->getColourEditComponent();
+            paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
+        }
 
 		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());
 
@@ -343,6 +346,8 @@ void MainContentComponent::buttonClicked(Button* btn)
 			this
 		);
 
+		// else, a preset button colour button was pressed
+		paletteWindow->listenToColourSelection(colourEdit);
 		popupBox.setLookAndFeel(&getLookAndFeel());
 		// TODO: Set swatch # or custom colour as current colour
 	}

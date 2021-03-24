@@ -31,6 +31,7 @@
 CurvesArea::CurvesTabComponent::CurvesTabComponent(TabbedButtonBar::Orientation orientation)
 	: TabbedComponent::TabbedComponent(orientation)
 {
+    getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 1.25f);
 }
 
 void CurvesArea::CurvesTabComponent::currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName)
@@ -83,7 +84,7 @@ CurvesArea::CurvesArea ()
 
 
     //[UserPreSize]
-	btnDeveloperMode->setVisible(showDeveloperMode);
+    setDeveloperMode(showDeveloperMode);
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..
@@ -120,20 +121,21 @@ void CurvesArea::paint (juce::Graphics& g)
 void CurvesArea::resized()
 {
     int tabBarDepth = roundToInt(getHeight() * tabDepth);
-    resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth * 0.9f);
-    labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * 0.01f), 0);
+    int tabY = proportionOfHeight(tabYScalar);
 
 	btnDeveloperMode->setBounds(
 		getWidth() - btnDeveloperMode->getWidth(), 
 		proportionOfHeight(0.0f), 
 		btnDeveloperMode->getWidth(), 
-		proportionOfHeight(0.06f));
+		tabY);
 
     curvesTab->setTabBarDepth(tabBarDepth);
-    curvesTab->setTabsIndent(roundToInt(getWidth() * tabX));
+    curvesTab->setTabsIndent(roundToInt(getWidth() * tabXScalar));
   
-	auto curvesTabTop = btnDeveloperMode->getBottom();
-    curvesTab->setBounds(0, curvesTabTop, getWidth(), getHeight() - curvesTabTop);
+    curvesTab->setBounds(0, tabY, getWidth(), getHeight() - tabY);
+
+    resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth * 0.9f);
+    labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * 0.01f), tabY);
 }
 
 void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
@@ -190,6 +192,13 @@ void CurvesArea::sendConfigToController()
 	{
 		dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getTabContentComponent(i))->sendVelocityTableToController();
 	}
+}
+
+void CurvesArea::setDeveloperMode(bool devModeOn)
+{
+    showDeveloperMode = devModeOn;
+    btnDeveloperMode->setVisible(showDeveloperMode);
+    repaint();
 }
 
 //[/MiscUserCode]

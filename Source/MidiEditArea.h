@@ -41,7 +41,8 @@ class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
                       public juce::ChangeListener,
                       public juce::ComboBox::Listener,
-                      public juce::Button::Listener
+                      public juce::Button::Listener,
+                      public juce::Timer
 {
 public:
     //==============================================================================
@@ -53,20 +54,25 @@ public:
     void lookAndFeelChanged() override;
 
     // Implementation of ChangeListener
+    // Called when DeviceActivityMonitor detects a change in devices
     void changeListenerCallback(ChangeBroadcaster* source) override;
 
+    void attemptDeviceConnection();
 	void onOpenConnectionToDevice();
 
     // For now, preserve connection functionality and make sure internal combo boxes are up to date
-    void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotificationAsync);
-    void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotificationAsync);
+    void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
+    void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
-	// Implementation of TerpstraNidiDriver::Listener
+	// Implementation of TerpstraMidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
 	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
 
+    // Implementation of juce::Timer
+    void timerCallback() override;
+    
 private:
 
     void setConnectivity(bool isConnected);
@@ -95,6 +101,7 @@ private:
     DeviceActivityMonitor       deviceMonitor;
 
     bool                        isConnected = false;
+    bool                        isWaitingForConnectionTest = false;
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
 
@@ -108,6 +115,8 @@ private:
 
     std::unique_ptr<Component>  logomark;
     Path                        logomarkPath;
+    
+    const int                   deviceRefreshTimeoutMs = 500;
 
     //==============================================================================
     // Helpers
@@ -119,7 +128,6 @@ private:
     Rectangle<float> logomarkBounds;
     Rectangle<float> ioBounds;
 
-    const StringArray connectedText = { translate("Disconnected"), translate("Connected") };
     Array<Colour> connectedColours = { Colour(0xffd7002a), Colour(0xff84aea3) };
 
     //==============================================================================
@@ -139,10 +147,15 @@ private:
 
     const float connectionDirectionsX           = 0.17f;
     const float connectionDirectionsY           = 0.47f;
-    const float connectionDirectionsHeight      = 0.18f;
+    const float connectionDirectionsHeight
+#if JUCE_MAC
+        = 0.19f;
+#else
+        = 0.18f;
+#endif
 
     const float editModeX                       = 0.0267f;
-    const float editModeHeight                  = 0.2394f;
+    const float editModeHeight                  = 0.24f;
 
     const float editModeButtonX                 = 0.10606f;
     const float editModeButtonHeight            = 0.4194f;
@@ -186,4 +199,3 @@ private:
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-

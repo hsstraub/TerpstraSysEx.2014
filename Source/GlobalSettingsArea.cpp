@@ -56,10 +56,14 @@ GlobalSettingsArea::GlobalSettingsArea ()
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
     buttonCalibrate->setTooltip (translate("CalibrateKeys") + " " + translate("Aftertouch"));
-    buttonCalibrate->setButtonText (translate("CalibrateKeys"));
+    buttonCalibrate->setButtonText (translate("Settings"));
     buttonCalibrate->addListener (this);
 
     //[UserPreSize]
+    lblDeveloperMode.reset(new Label("DeveloperModeLabel", "Developer Mode"));
+    addChildComponent(lblDeveloperMode.get());
+
+    setDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..
@@ -107,7 +111,7 @@ void GlobalSettingsArea::resized()
     int calibrateWidth = getLookAndFeel().getTextButtonWidthToFitText(*buttonCalibrate, calbrateBtnHeight);
     
     buttonCalibrate->setSize(calibrateWidth, calbrateBtnHeight);
-    buttonCalibrate->setTopRightPosition(getWidth(), roundToInt((getHeight() - buttonCalibrate->getHeight()) / 2.0f));
+    buttonCalibrate->setTopRightPosition(getWidth(), roundToInt((getHeight() - buttonCalibrate->getHeight()) * 0.5f));
     
     float margin = roundToInt(getHeight() * 0.1f);
     float colourEditHeight = proportionOfHeight(controlsHeight);
@@ -131,6 +135,10 @@ void GlobalSettingsArea::resized()
 
     resizeLabelWithHeight(lblPresetButtonColours.get(), colourEditHeight);
     lblPresetButtonColours->setTopRightPosition(activeMacroButtonColourEdit->getX() - margin, controlY);
+
+    resizeLabelWithHeight(lblDeveloperMode.get(), getHeight());
+    lblDeveloperMode->setCentrePosition(getLocalBounds().getCentre());
+
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
@@ -146,21 +154,23 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
-		CalibrationDlg* optionsWindow = new CalibrationDlg();
-		optionsWindow->setLookAndFeel(&getLookAndFeel());
+		auto settingsWindow = new SettingsContainer();
+        settingsWindow->setLookAndFeel(&getLookAndFeel());
 
 		DialogWindow::LaunchOptions launchOptions;
-		launchOptions.content.setOwned(optionsWindow);
+		launchOptions.content.setOwned(settingsWindow);
 		launchOptions.content->setSize(480, 240);
 
-		launchOptions.dialogTitle = "Calibration";
+		launchOptions.dialogTitle = "Settings";
 		launchOptions.escapeKeyTriggersCloseButton = true;
 		launchOptions.useNativeTitleBar = false;
 		launchOptions.resizable = false;
 
-		DialogWindow* dw = launchOptions.launchAsync();
-		dw->centreWithSize(548, 240);
+        launchOptions.dialogBackgroundColour = Colour();
 
+		auto dw = launchOptions.launchAsync();
+		dw->centreWithSize(548, 240);
+        dw->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
         //[/UserButtonCode_buttonCalibrate]
     }
 
@@ -220,6 +230,14 @@ void GlobalSettingsArea::listenToColourEditButtons(Button::Listener* listenerIn)
     inactiveMacroButtonColourEdit->addListener(listenerIn);
     activeMacroButtonColourEdit->addListener(listenerIn);
 }
+
+void GlobalSettingsArea::setDeveloperMode(bool devModeOn)
+{
+    showDeveloperMode = devModeOn;
+    lblDeveloperMode->setVisible(showDeveloperMode);
+    repaint();
+}
+
 //[/MiscUserCode]
 
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ColourPalette Name="Taylor" Author="Cam Taylor" DateCreated="19710101T000002.000-0000"
+               Notes="">
+  <Swatch Colour="ffe279d2"/>
+  <Swatch Colour="ffff0000"/>
+  <Swatch Colour="ffff9a47"/>
+  <Swatch Colour="ffbe00b4"/>
+  <Swatch Colour="ff00e3e5"/>
+  <Swatch Colour="fffefc8b"/>
+  <Swatch Colour="fff5ff00"/>
+  <Swatch Colour="ff1e00c7"/>
+  <Swatch Colour="ff0091d2"/>
+  <Swatch Colour="ff009800"/>
+</ColourPalette>

@@ -53,6 +53,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void lookAndFeelChanged() override;
 
 
 
@@ -72,7 +73,7 @@ private:
 	// Style Helpers
 	Rectangle<int> instructionsBounds;
     Font instructionsFont;
-	const float fontHeightInBounds = 0.1f;
+	const float fontHeightInBounds = 0.125f;
 	const int generalRim = 12;
 
     //[/UserVariables]

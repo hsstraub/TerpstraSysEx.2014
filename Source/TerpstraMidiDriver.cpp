@@ -20,12 +20,6 @@ TerpstraMidiDriver::~TerpstraMidiDriver()
 {
 }
 
-void TerpstraMidiDriver::setMidiInput(int deviceIndex)
-{
-    // For the reaction to answer messages, TerpstraMidiDriver itself must be a MIDI input callback
-    HajuMidiDriver::setMidiInput(deviceIndex, this);
-}
-
 void TerpstraMidiDriver::addListener(TerpstraMidiDriver::Listener* listener)
 {
 	listeners.add(listener);
@@ -339,7 +333,7 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
-void TerpstraMidiDriver::sendSerialIdentityRequest()
+void TerpstraMidiDriver::sendGetSerialIdentityRequest()
 {
     sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
 }
@@ -347,6 +341,17 @@ void TerpstraMidiDriver::sendSerialIdentityRequest()
 MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
 {
     MidiMessage msg = createTerpstraSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
+    return msg;
+}
+
+void TerpstraMidiDriver::sendGetFirmwareRevisionRequest()
+{
+    sendSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0');
+}
+
+MidiMessage TerpstraMidiDriver::getFirmwareRevisionRequestMessage() const
+{
+    MidiMessage msg = createTerpstraSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0');
     return msg;
 }
 
@@ -414,9 +419,9 @@ bool TerpstraMidiDriver::messageIsTerpstraSysExMessage(const MidiMessage& midiMe
     auto sysExData = midiMessage.getSysExData();
 
     return midiMessage.getSysExDataSize() >= 3 &&
-        (sysExData[0] == (manufacturerId >> 16) & 0xff) &&
-        (sysExData[1] == (manufacturerId >> 8) & 0xff) &&
-		(sysExData[2] == manufacturerId & 0xff);
+        (sysExData[0] == ((manufacturerId >> 16) & 0xff)) &&
+        (sysExData[1] == ((manufacturerId >> 8) & 0xff)) &&
+		(sysExData[2] == (manufacturerId & 0xff));
 }
 
 bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage)
@@ -462,7 +467,7 @@ bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const M
     return midiCmd == GET_VELOCITY_INTERVALS;
 }
 
-bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& midiMessage)
+bool TerpstraMidiDriver::messageIsGetSerialIdentityResponse(const MidiMessage& midiMessage)
 {
     if (!messageIsTerpstraSysExMessage(midiMessage))
         return false;
@@ -473,11 +478,22 @@ bool TerpstraMidiDriver::messageIsGetSerialIdentityMessage(const MidiMessage& mi
     return midiCmd == GET_SERIAL_IDENTITY;
 }
 
+bool TerpstraMidiDriver::messageIsGetFirmwareRevisionResponse(const MidiMessage& midiMessage)
+{
+    if (!messageIsTerpstraSysExMessage(midiMessage))
+        return false;
+
+    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
+    auto midiCmd = midiMessage.getSysExData()[4];
+
+    return midiCmd == GET_FIRMWARE_REVISION;
+}
+
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
     // If there is no MIDI input port active: just send, without expecting acknowledge
 	// ToDo Or do nothing?
-    if ( lastInputCallback == nullptr)
+    if (midiInput == nullptr)
     {
         sendMessageNow(message);
 
@@ -571,6 +587,17 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
 
             // If there are more messages waiting in the queue: send the next one
             sendOldestMessageInQueue();
+
+            if (messageIsGetFirmwareRevisionResponse(message))
+            {
+                firmwareVersion = FirmwareVersion::fromGetFirmwareRevisionMsg(message);
+#if JUCE_DEBUG
+                {
+                    const MessageManagerLock mml;
+                    DBG("Firmware version is: " + firmwareVersion.toString());
+                }
+#endif
+            }
         }
     }
 
@@ -600,4 +627,45 @@ void TerpstraMidiDriver::timerCallback()
     }
     else
         jassertfalse;
+}
+
+
+TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromString(String firmwareVersion)
+{
+    FirmwareVersion version(0, 0, 0);
+
+    String afterFirstDecimal = firmwareVersion.fromFirstOccurrenceOf(".", false, true);
+
+    // Just check if it contains at least two decimals
+    if (firmwareVersion.contains(".") && afterFirstDecimal.contains("."))
+    {
+        String majorNum = firmwareVersion.upToFirstOccurrenceOf(".", false, true);
+
+        String minorNum = afterFirstDecimal.upToFirstOccurrenceOf(".", false, true);
+
+        if (minorNum == afterFirstDecimal)
+        {
+            // This means there was only one decimal, don't try to parse
+            return version;
+        }
+
+        String revisionNum = firmwareVersion.fromLastOccurrenceOf(".", false, true);
+        if (revisionNum != revisionNum.upToFirstOccurrenceOf(".", false, true))
+        {
+            // This means there's an additional decimal, don't try to parse
+            return version;
+        }
+
+        version.major = majorNum.getIntValue();
+        version.minor = majorNum.getIntValue();
+        version.revision = majorNum.getIntValue();
+    }
+
+    return version;
+}
+
+TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromGetFirmwareRevisionMsg(const MidiMessage& msgIn)
+{
+    auto data = msgIn.getSysExData();
+    return TerpstraMidiDriver::FirmwareVersion(data[6], data[7], data[8]);
 }
