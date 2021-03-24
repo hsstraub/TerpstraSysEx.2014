@@ -54,6 +54,8 @@ public:
     void listenToColourEditButtons(Button::Listener* listenerIn);
 
     void lookAndFeelChanged() override;
+
+    void setDeveloperMode(bool devModeOn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -66,6 +68,10 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<ColourEditComponent> inactiveMacroButtonColourEdit;
 	std::unique_ptr<ColourEditComponent> activeMacroButtonColourEdit;
+
+    std::unique_ptr<Label> lblDeveloperMode;
+
+    bool showDeveloperMode = false;
 
     //==============================================================================
     // Style helpers

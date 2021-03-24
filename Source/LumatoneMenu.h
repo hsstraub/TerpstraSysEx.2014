@@ -18,4 +18,9 @@ namespace Lumatone {
 			pasteOctaveBoard = 0x200019
 		};
 	}
+	namespace Debug {
+		enum commandIDs {
+			toggleDeveloperMode = 0xA00001
+		};
+	}
 }

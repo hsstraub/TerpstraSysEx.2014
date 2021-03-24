@@ -60,6 +60,10 @@ GlobalSettingsArea::GlobalSettingsArea ()
     buttonCalibrate->addListener (this);
 
     //[UserPreSize]
+    lblDeveloperMode.reset(new Label("DeveloperModeLabel", "Developer Mode"));
+    addChildComponent(lblDeveloperMode.get());
+
+    setDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..
@@ -131,6 +135,9 @@ void GlobalSettingsArea::resized()
 
     resizeLabelWithHeight(lblPresetButtonColours.get(), colourEditHeight);
     lblPresetButtonColours->setTopRightPosition(activeMacroButtonColourEdit->getX() - margin, controlY);
+
+    resizeLabelWithHeight(lblDeveloperMode.get(), getHeight());
+    lblDeveloperMode->setCentrePosition(getLocalBounds().getCentre());
 
     //[/UserPreResize]
 
@@ -223,6 +230,14 @@ void GlobalSettingsArea::listenToColourEditButtons(Button::Listener* listenerIn)
     inactiveMacroButtonColourEdit->addListener(listenerIn);
     activeMacroButtonColourEdit->addListener(listenerIn);
 }
+
+void GlobalSettingsArea::setDeveloperMode(bool devModeOn)
+{
+    showDeveloperMode = devModeOn;
+    lblDeveloperMode->setVisible(showDeveloperMode);
+    repaint();
+}
+
 //[/MiscUserCode]
 
 

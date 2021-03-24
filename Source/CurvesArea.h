@@ -68,6 +68,8 @@ public:
 
 	// Send curves configs to controller
 	void sendConfigToController();
+
+    void setDeveloperMode(bool devModeOn);
   //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

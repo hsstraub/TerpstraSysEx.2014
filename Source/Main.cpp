@@ -296,7 +296,8 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 	const CommandID ids[] = {
 		Lumatone::Menu::commandIDs::deleteOctaveBoard,
 		Lumatone::Menu::commandIDs::copyOctaveBoard,
-		Lumatone::Menu::commandIDs::pasteOctaveBoard 
+		Lumatone::Menu::commandIDs::pasteOctaveBoard,
+		Lumatone::Debug::commandIDs::toggleDeveloperMode
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -321,6 +322,11 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
+	case Lumatone::Debug::commandIDs::toggleDeveloperMode:
+		result.setInfo("Toggle Developer Mode", "Show/hide controls for tweaking internal parameters", "Edit", 0);
+		result.addDefaultKeypress('m', juce::ModifierKeys::allKeyboardModifiers);
+		break;
+
 	default:
 		JUCEApplication::getCommandInfo(commandID, result);
 		break;
@@ -337,6 +343,8 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return copySubBoardData();
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+	case Lumatone::Debug::commandIDs::toggleDeveloperMode:
+		return toggleDeveloperMode();
 	default:
 		return JUCEApplication::perform(info);
 	}
@@ -408,6 +416,13 @@ bool TerpstraSysExApplication::copySubBoardData()
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
+}
+
+bool TerpstraSysExApplication::toggleDeveloperMode()
+{
+	bool newMode = !propertiesFile->getBoolValue("DeveloperMode");
+	propertiesFile->setValue("DeveloperMode", newMode);
+	return ((MainContentComponent*)(mainWindow->getContentComponent()))->setDeveloperMode(newMode);
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()

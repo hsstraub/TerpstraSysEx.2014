@@ -84,7 +84,7 @@ CurvesArea::CurvesArea ()
 
 
     //[UserPreSize]
-	btnDeveloperMode->setVisible(showDeveloperMode);
+    setDeveloperMode(showDeveloperMode);
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..
@@ -192,6 +192,13 @@ void CurvesArea::sendConfigToController()
 	{
 		dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getTabContentComponent(i))->sendVelocityTableToController();
 	}
+}
+
+void CurvesArea::setDeveloperMode(bool devModeOn)
+{
+    showDeveloperMode = devModeOn;
+    btnDeveloperMode->setVisible(showDeveloperMode);
+    repaint();
 }
 
 //[/MiscUserCode]
