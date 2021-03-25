@@ -29,13 +29,15 @@ public:
         noDeviceActivity = -1,
         noDeviceMonitoring,
         lookingForDevice,
+        waitingForFirmwareUpdate, // "silent" lookingForDevice
         testingConnection,
+        gettingFirmwareVersion, // connection tests with GetFirmwareRevision
         waitingForInactivity
     };
     
 public:
 
-    DeviceActivityMonitor();
+    DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn, int responseTimeoutMsIn=700);
     ~DeviceActivityMonitor() override;
 
     DetectConnectionMode getMode() const { return deviceConnectionMode; }
@@ -47,10 +49,21 @@ public:
     bool willCheckForInactivity() const { return checkConnectionOnInactivity; }
     void setCheckForInactivity(bool monitorActivity);
 
+    bool isPaused() const { return activityIsPaused; }
+    void setPaused(bool pauseActivity) { activityIsPaused = pauseActivity; }
+
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
     int getConfirmedInputIndex() const { return confirmedInputIndex; }
 
     void testCurrentDevices() { initializeConnectionTest(); }
+
+    void initializeDeviceDetection();
+
+    void initializeFirmwareUpdateMode();
+    void cancelFirmwareUpdateMode();
+
+    // Begin monitoring for unresponsiveness from device
+    void intializeConnectionLossDetection(bool inFirmwareMode = false);
 
     //=========================================================================
     // juce::Thread Implementation
@@ -77,7 +90,7 @@ private:
     /// <summary>
     /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
     /// </summary>
-    void initializeDeviceDetection();
+    void startDetectionRoutine();
 
     // Determines whether or not to try to continue device detection, tries next pair if so
     void checkDetectionStatus();
@@ -105,9 +118,6 @@ private:
     void closeOutputDevices();
 
 
-    // Begin monitoring for unresponsiveness from device
-    void intializeConnectionLossDetection();
-
     /// <summary>
     /// Test device connectivity after a connection has previously been made.
     /// </summary>
@@ -121,14 +131,17 @@ private:
     CriticalSection         criticalSection;
 
     TerpstraMidiDriver*     midiDriver;
+    
+    MidiMessage             detectMessage;
 
     DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
     bool                    deviceDetectInProgress = false;
-    MidiMessage             detectMessage;
+    bool                    waitingForTestResponse = false;
+    bool                    activityIsPaused       = false;
 
     const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
-    const int               inactivityTimeoutMs   = 5000;
+    const int               inactivityTimeoutMs  = 5000;
     
     int                     pingOutputIndex = -1;
 
@@ -142,7 +155,6 @@ private:
     
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
-    bool                    waitingForTestResponse = false;
 
     bool                    expectedResponseReceived = false;
     bool                    activitySinceLastTimeout = false;

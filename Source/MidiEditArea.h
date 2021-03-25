@@ -40,13 +40,13 @@
 class MidiEditArea  : public Component,
                       public TerpstraMidiDriver::Listener,
                       public juce::ChangeListener,
+                      public Timer,
                       public juce::ComboBox::Listener,
-                      public juce::Button::Listener,
-                      public juce::Timer
+                      public juce::Button::Listener
 {
 public:
     //==============================================================================
-    MidiEditArea ();
+    MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn, DeviceActivityMonitor& deviceMonitorIn);
     ~MidiEditArea() override;
 
     //==============================================================================
@@ -72,7 +72,7 @@ public:
 
     // Implementation of juce::Timer
     void timerCallback() override;
-    
+
 private:
 
     void setConnectivity(bool isConnected);
@@ -98,7 +98,7 @@ private:
 
 	HajuErrorVisualizer         errorVisualizer;
 
-    DeviceActivityMonitor       deviceMonitor;
+    DeviceActivityMonitor&       deviceMonitor;
 
     bool                        isConnected = false;
     bool                        isWaitingForConnectionTest = false;
@@ -115,7 +115,7 @@ private:
 
     std::unique_ptr<Component>  logomark;
     Path                        logomarkPath;
-    
+
     const int                   deviceRefreshTimeoutMs = 500;
 
     //==============================================================================
@@ -199,3 +199,4 @@ private:
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

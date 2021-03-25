@@ -18,6 +18,7 @@ class FirmwareDlg : public Component,
     protected PathBrowserComponent::Listener,
     protected FirmwareTransfer::ProcessListener,
     protected Thread::Listener,
+    protected TerpstraMidiDriver::Listener, // Probably could be done in FirmwareTransfer
     private Timer
 {
 public:
@@ -44,6 +45,15 @@ public:
     void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode) override;
 
     //=========================================================================
+    // TerpstraMidiDriver::Listener implementation
+
+    void midiMessageReceived(const MidiMessage& midiMessage) override;
+    void midiMessageSent(const MidiMessage& midiMessage) override {};
+    void midiSendQueueSize(int queueSize) override {};
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
+
+
+    //=========================================================================
     // juce::Thread::Listener Implementation
     void exitSignalSent() override;
     
@@ -54,6 +64,10 @@ public:
 private:
     
     void initializeFirmwareUpdate();
+
+    void initializeWaitForUpdate();
+
+    double numIncrementsToProgress(int numberOfIncrements);
     
 private:
 
@@ -74,4 +88,10 @@ private:
     String msgLog;
     bool infoNeedsUpdate = false;
     const int infoUpdateTimeoutMs = 100;
+
+    bool waitingForUpdateConfirmation = false;
+    int numberOfWaitIncrements = 0;
+    const int updateIncrementTimeoutMs = 5000;
+    // Estimation based on boot time of ~85 seconds, plus transfer time, and overhead
+    int maxUpdateIncrements = 220000 / updateIncrementTimeoutMs;
 };

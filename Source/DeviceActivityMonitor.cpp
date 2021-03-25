@@ -12,9 +12,8 @@
 #include "Main.h"
 
 
-DeviceActivityMonitor::DeviceActivityMonitor()
-    : midiDriver(&TerpstraSysExApplication::getApp().getMidiDriver()),
-      responseTimeoutMs(TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("DetectDeviceTimeout", 1000)),
+DeviceActivityMonitor::DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn, int responseTimeoutMsIn)
+    : midiDriver(&midiDriverIn), responseTimeoutMs(responseTimeoutMsIn),
       Thread("DeviceActivityMonitor")
 {
     detectMessage = midiDriver->getSerialIdentityRequestMessage();
@@ -41,15 +40,13 @@ void DeviceActivityMonitor::setCheckForInactivity(bool monitorActivity)
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("CheckConnectionIfInactive", checkConnectionOnInactivity);
 }
 
-void DeviceActivityMonitor::initializeDeviceDetection()
+void DeviceActivityMonitor::startDetectionRoutine()
 {
     jassert(!deviceDetectInProgress);
     if (threadShouldExit())
         return;
 
     midiDriver->removeListener(this);
-
-    deviceConnectionMode = DetectConnectionMode::lookingForDevice;
 
     pingOutputIndex = -1;
 
@@ -80,7 +77,6 @@ void DeviceActivityMonitor::pingNextOutput()
     if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
     {
         DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
-
         outputsToPing[pingOutputIndex]->sendMessageNow(detectMessage);
         wait(responseTimeoutMs);
     }
@@ -92,6 +88,14 @@ void DeviceActivityMonitor::pingNextOutput()
         deviceDetectInProgress = false;
         wait(pingRoutineTimeoutMs);
     }
+}
+
+void DeviceActivityMonitor::initializeDeviceDetection()
+{
+    deviceConnectionMode = DetectConnectionMode::lookingForDevice;
+    expectedResponseReceived = false;
+    deviceDetectInProgress = false;
+    startThread();
 }
 
 void DeviceActivityMonitor::stopDeviceDetection()
@@ -110,10 +114,33 @@ void DeviceActivityMonitor::stopDeviceDetection()
 //    }
 //}
 
-void DeviceActivityMonitor::intializeConnectionLossDetection()
+void DeviceActivityMonitor::intializeConnectionLossDetection(bool inFirmwareMode)
 {
-    deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
+    if (inFirmwareMode)
+        deviceConnectionMode = DetectConnectionMode::gettingFirmwareVersion;
+    else
+        deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
+
+    waitingForTestResponse = false;
     midiDriver->addListener(this);
+}
+
+void DeviceActivityMonitor::initializeFirmwareUpdateMode()
+{ 
+    deviceConnectionMode = DetectConnectionMode::waitingForFirmwareUpdate; 
+    midiDriver->closeMidiInput();
+    midiDriver->closeMidiOutput();
+    sendChangeMessage();
+    expectedResponseReceived = false;
+    waitingForTestResponse = false;
+    midiDriver->addListener(this);
+}
+
+void DeviceActivityMonitor::cancelFirmwareUpdateMode()
+{
+    deviceConnectionMode = DetectConnectionMode::lookingForDevice;
+    waitingForTestResponse = false;
+    midiDriver->removeListener(this);
 }
 
 void DeviceActivityMonitor::openAvailableOutputDevices()
@@ -164,7 +191,12 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
         {
             ScopedLock lock(criticalSection);
             deviceConnectionMode = modeToUse;
-            midiDriver->sendGetSerialIdentityRequest();
+
+            if (deviceConnectionMode == DetectConnectionMode::gettingFirmwareVersion)
+                midiDriver->sendGetFirmwareRevisionRequest(true);
+            else
+                midiDriver->sendGetSerialIdentityRequest(true);
+            
             waitingForTestResponse = true;
             expectedResponseReceived = false;
         }
@@ -201,7 +233,7 @@ void DeviceActivityMonitor::checkDetectionStatus()
 {
     // If turned off, stop detection immediately
     // For future use
-    if (!detectDevicesIfDisconnected)
+    if (!detectDevicesIfDisconnected && deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
         stopDeviceDetection();
     }
@@ -222,7 +254,7 @@ void DeviceActivityMonitor::checkDetectionStatus()
         // Restart detection
         else
         {
-            initializeDeviceDetection();
+            startDetectionRoutine();
         }
     }
 }
@@ -231,6 +263,8 @@ void DeviceActivityMonitor::run()
 {
     while (!threadShouldExit() && (detectDevicesIfDisconnected || checkConnectionOnInactivity))
     {
+        while (activityIsPaused) { if (threadShouldExit()) return; };
+
         if (deviceConnectionMode < DetectConnectionMode::testingConnection)
         {
             if (detectDevicesIfDisconnected)
@@ -239,10 +273,10 @@ void DeviceActivityMonitor::run()
                     checkDetectionStatus();
 
                 else if (!isConnectionEstablished())
-                    initializeDeviceDetection();
+                    startDetectionRoutine();
 
                 else
-                    intializeConnectionLossDetection();
+                    intializeConnectionLossDetection(deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate);
             }
         }
         else if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
@@ -253,7 +287,7 @@ void DeviceActivityMonitor::run()
                 {
                     activitySinceLastTimeout = false;
                     wait(inactivityTimeoutMs);
-                    if (!activitySinceLastTimeout)
+                    if (midiQueueSize == 0 && !activitySinceLastTimeout)
                         initializeConnectionTest(deviceConnectionMode);
                 }
             }
@@ -304,28 +338,38 @@ void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
 {
     ScopedLock lock(criticalSection);
 
+    activitySinceLastTimeout = true;
+
     // Ignore any non-SysEx related messages
     if (!midiMessage.isSysEx())
         return;
  
     auto sysExData = midiMessage.getSysExData();
-    if (sysExData[5] > TerpstraMidiDriver::NACK && midiDriver->messageIsGetSerialIdentityResponse(midiMessage))
+
+    if (sysExData[5] > TerpstraMidiDriver::NACK)
     {
-        waitingForTestResponse = false;
-        expectedResponseReceived = true;
-        activitySinceLastTimeout = true;
-
-        if (!isThreadRunning())
+        if (midiDriver->messageIsGetSerialIdentityResponse(midiMessage))
         {
-            int currentInput = midiDriver->getLastMidiInputIndex();
-            int currentOutput = midiDriver->getLastMidiOutputIndex();
-            if (confirmedInputIndex != currentInput || confirmedOutputIndex != currentOutput)
-            {
-                confirmedInputIndex = currentInput;
-                confirmedOutputIndex = currentOutput;
-            }
+            waitingForTestResponse = false;
+            expectedResponseReceived = true;
 
-            sendChangeMessage();
+            if (!isThreadRunning())
+            {
+                int currentInput = midiDriver->getLastMidiInputIndex();
+                int currentOutput = midiDriver->getLastMidiOutputIndex();
+                if (confirmedInputIndex != currentInput || confirmedOutputIndex != currentOutput)
+                {
+                    confirmedInputIndex = currentInput;
+                    confirmedOutputIndex = currentOutput;
+                }
+
+                sendChangeMessage();
+            }
+        }
+        else if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate && midiDriver->messageIsGetFirmwareRevisionResponse(midiMessage))
+        {
+            expectedResponseReceived = true;
+            deviceDetectInProgress = false;
         }
     }
 }
@@ -346,7 +390,7 @@ void DeviceActivityMonitor::onSuccessfulDetection()
 
     sendChangeMessage();
 
-    if (checkConnectionOnInactivity)
+    if (checkConnectionOnInactivity && deviceConnectionMode != DetectConnectionMode::waitingForFirmwareUpdate)
     {
         intializeConnectionLossDetection();
     }
@@ -374,7 +418,7 @@ void DeviceActivityMonitor::onDisconnection()
     if (detectDevicesIfDisconnected)
     {
         wait(pingRoutineTimeoutMs);
-        initializeDeviceDetection();
+        startDetectionRoutine();
         // Nullptrs are checked before opening devices but this could maybe be designed better
         // to prevent trying to open invalid (disconnected) devices altogether
     }

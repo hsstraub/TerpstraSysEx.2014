@@ -20,7 +20,7 @@ MainContentComponent::MainContentComponent()
 	setName("MainContentComponent");
 
 	// Midi input + output
-	midiEditArea.reset(new MidiEditArea());
+	midiEditArea.reset(new MidiEditArea(TerpstraSysExApplication::getApp().getLookAndFeel(), TerpstraSysExApplication::getApp().getDeviceMonitor()));
 	addAndMakeVisible(midiEditArea.get());
 
 	// All keys overview
