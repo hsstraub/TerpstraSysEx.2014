@@ -333,9 +333,9 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
-void TerpstraMidiDriver::sendGetSerialIdentityRequest()
+void TerpstraMidiDriver::sendGetSerialIdentityRequest(bool overrideEditMode)
 {
-    sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
+    sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0', overrideEditMode);
 }
 
 MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
@@ -344,9 +344,9 @@ MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
     return msg;
 }
 
-void TerpstraMidiDriver::sendGetFirmwareRevisionRequest()
+void TerpstraMidiDriver::sendGetFirmwareRevisionRequest(bool overrideEditMode)
 {
-    sendSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0');
+    sendSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0', overrideEditMode);
 }
 
 MidiMessage TerpstraMidiDriver::getFirmwareRevisionRequestMessage() const
@@ -377,10 +377,10 @@ MidiMessage TerpstraMidiDriver::createTerpstraSysEx(int boardIndex, unsigned cha
     return msg;
 }
 
-void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
+void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, bool overrideEditMode)
 {
 	// Send only if output device is there and SysEx sending is meant to be active
-	if (midiOutput != nullptr & currentSysExSendingMode == sysExSendingMode::liveEditor)
+	if ((midiOutput != nullptr && currentSysExSendingMode == sysExSendingMode::liveEditor) || overrideEditMode)
 	{
         MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
 		sendMessageWithAcknowledge(msg);

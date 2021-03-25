@@ -20,7 +20,7 @@ MainContentComponent::MainContentComponent()
 	setName("MainContentComponent");
 
 	// Midi input + output
-	midiEditArea.reset(new MidiEditArea());
+	midiEditArea.reset(new MidiEditArea(TerpstraSysExApplication::getApp().getLookAndFeel(), TerpstraSysExApplication::getApp().getDeviceMonitor()));
 	addAndMakeVisible(midiEditArea.get());
 
 	// All keys overview
@@ -186,6 +186,7 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 bool MainContentComponent::setDeveloperMode(bool developerModeOn)
 {
 	curvesArea->setDeveloperMode(developerModeOn);
+    globalSettingsArea->setDeveloperMode(true);
 	return true;
 }
 

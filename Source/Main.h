@@ -50,6 +50,7 @@ public:
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	DeviceActivityMonitor& getDeviceMonitor() { return *deviceMonitor.get(); }
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return octaveBoardSize; }
@@ -187,6 +188,9 @@ private:
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
+
+	// Device MIDI monitor
+	std::unique_ptr<DeviceActivityMonitor> deviceMonitor;
 
 	// Size of octaver board. Usually 56, but there are a few devices with55.
 	int octaveBoardSize = 56;
