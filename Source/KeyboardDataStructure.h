@@ -113,8 +113,6 @@ public:
 	// The colours that are used
 	//SortedSet<TerpstraKey::COLOURTYPE> getUsedColours();
 
-	// Ticks count of a position in the celocity interval table
-	static int ticksCountFromXPos(int xPos) { return xPos * 16; }
 
 public:
 	// Key configuration
