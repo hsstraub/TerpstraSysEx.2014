@@ -263,7 +263,7 @@ void VelocityCurveDlgBase::loadFromMapping()
 {
 	auto defaultConfig = TerpstraVelocityCurveConfig(velocityCurveType);
 	auto configInEdit = getConfigInEdit();
-	if (configInEdit != nullptr)
+	if (configInEdit == nullptr)
 		configInEdit = &defaultConfig;
 
 	if (configInEdit != nullptr)

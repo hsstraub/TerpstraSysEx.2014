@@ -144,10 +144,17 @@ class TenHexagonPalette : public HexagonPalette
 {
     Array<Point<int>> createCoordinates()
     {
-        Array<Point<int>> coords = { Point<int>
-                {1, 0}, {2, 0}, {3, 0},
-            {0, 1}, {1, 1}, {2, 1}, {3, 1},
-                {0, 2}, {1, 2}, {2, 2}
+        Array<Point<int>> coords = { 
+			Point<int>(1, 0), 
+			Point<int>(2, 0), 
+			Point<int>(3, 0),
+			Point<int>(0, 1), 
+			Point<int>(1, 1), 
+			Point<int>(2, 1), 
+			Point<int>(3, 1),
+			Point<int>(0, 2), 
+			Point<int>(1, 2), 
+			Point<int>(2, 2)
         };
 
         return coords;
