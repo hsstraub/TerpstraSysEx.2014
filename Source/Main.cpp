@@ -37,6 +37,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 
+	deviceMonitor.reset(new DeviceActivityMonitor(midiDriver, propertiesFile->getIntValue("DeviceDetectTimeout", 700)));
+
 	// Localisation
 	String localisation = getLocalisation(SystemStats::getDisplayLanguage());
 	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
