@@ -193,11 +193,10 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
         sysExData[4] = SET_VELOCITY_INTERVALS;
 
         // Interval table contains 127 values!
-		// Values are in reverse order (shortest ticks count is the highest velocity)
 		for ( int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
         {
-            sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
-            sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
+            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
+            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
         }
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);

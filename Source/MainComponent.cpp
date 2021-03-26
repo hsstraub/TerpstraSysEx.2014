@@ -211,11 +211,10 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
 			{
 				// After the answer state byte there must be 254 bytes of data
-				// Values are in reverse order (shortest ticks count is the highest velocity)
 				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
 				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-					this->mappingData.velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE - 1 - i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
+					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
 				curvesArea->resized();
 				curvesArea->repaint();
