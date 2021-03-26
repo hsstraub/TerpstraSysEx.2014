@@ -66,8 +66,10 @@ MainContentComponent::MainContentComponent()
 	noteEditArea->getOctaveBoardSelectorTab()->setCurrentTabIndex(0, true);
 	// The above call is supposed to update changeListener - but apparently doesn't... Call it manually then. XXX
 	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
+    noteEditArea->changeSingleKeySelection(0);
 
-	noteEditArea->changeSingleKeySelection(0);
+    // Initialize mapping structure
+    deleteAll();
 }
 
 MainContentComponent::~MainContentComponent()
