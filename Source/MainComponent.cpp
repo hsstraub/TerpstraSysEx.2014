@@ -66,8 +66,10 @@ MainContentComponent::MainContentComponent()
 	noteEditArea->getOctaveBoardSelectorTab()->setCurrentTabIndex(0, true);
 	// The above call is supposed to update changeListener - but apparently doesn't... Call it manually then. XXX
 	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
+    noteEditArea->changeSingleKeySelection(0);
 
-	noteEditArea->changeSingleKeySelection(0);
+    // Initialize mapping structure
+    deleteAll();
 }
 
 MainContentComponent::~MainContentComponent()
@@ -209,11 +211,10 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
 			{
 				// After the answer state byte there must be 254 bytes of data
-				// Values are in reverse order (shortest ticks count is the highest velocity)
 				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
 				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-					this->mappingData.velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE - 1 - i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
+					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
 				curvesArea->resized();
 				curvesArea->repaint();
@@ -273,19 +274,19 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					{
 					case GET_RED_LED_CONFIG:
 					{
-						keyData.colour = Colour(newValue, keyData.colour.getGreen(), keyData.colour.getBlue());	// This creates an opaque colour (alpha 0xff)
+						keyData.colour = Colour(newValue*5, keyData.colour.getGreen(), keyData.colour.getBlue());	// This creates an opaque colour (alpha 0xff)
 						break;
 					}
 
 					case GET_GREEN_LED_CONFIG:
 					{
-						keyData.colour = Colour(keyData.colour.getRed(), newValue, keyData.colour.getBlue());
+						keyData.colour = Colour(keyData.colour.getRed(), newValue*5, keyData.colour.getBlue());
 						break;
 					}
 
 					case GET_BLUE_LED_CONFIG:
 					{
-						keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue);
+						keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue*5);
 						break;
 					}
 
