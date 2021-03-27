@@ -31,8 +31,8 @@ bool TerpstraKeys::isEmpty() const
     TerpstraKey emptyKeyData = TerpstraKey();
 
     bool setIsEmpty = true;
-    for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize() && setIsEmpty; i++) 	{
-        if (theKeys[i] != emptyKeyData) 		{
+    for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize() && setIsEmpty; i++) {
+        if (theKeys[i] != emptyKeyData) {
             setIsEmpty = false;
             break;
         }
@@ -261,6 +261,16 @@ void TerpstraKeyMapping::clearAll()
     faderConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
     afterTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
     lumaTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch);
+}
+
+bool TerpstraKeyMapping::isEmpty() const
+{
+    bool isEmpty = true;
+    for (int i = 0; i < NUMBEROFBOARDS && isEmpty; i++) {
+        isEmpty &= sets[i].isEmpty();
+    }
+
+    return isEmpty;
 }
 
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)

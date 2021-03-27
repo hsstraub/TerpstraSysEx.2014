@@ -106,6 +106,7 @@ public:
 
 	void clearVelocityIntervalTable();
 	void clearAll();
+    bool isEmpty() const;
 
 	void fromStringArray(const StringArray& stringArray);
 	StringArray toStringArray();
