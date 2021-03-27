@@ -194,8 +194,7 @@ bool MainContentComponent::setDeveloperMode(bool developerModeOn)
 
 void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 {
-    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
-    {
+    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage)) {
         auto sysExData = midiMessage.getSysExData();
 
         int boardNo = sysExData[3];
@@ -203,114 +202,118 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
         auto midiCmd = sysExData[4];
         auto answerState = sysExData[5];
 
-        if (answerState == TerpstraMidiDriver::ACK)
-        {
-			// ToDo General options
+        if (answerState == TerpstraMidiDriver::ACK) {
+            // Velocity curves
+            if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage)) {
+                // After the answer state byte there must be 254 bytes of data
+                jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
-			// Velocity curves
-			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
-			{
-				// After the answer state byte there must be 254 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
+                for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+                    this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
-				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
+                curvesArea->resized();
+                curvesArea->repaint();
+            } else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)) {
+                // After the answer state byte there must be 128 bytes of data
+                // Values are in reverse order (shortest ticks count is the highest velocity)
+                jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+                this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+                for (int x = 0; x < 128; x++)
+                    this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[127 - x] = sysExData[6 + x];
+                curvesArea->loadFromMapping();
+            } else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::fader)) {
+                // After the answer state byte there must be 128 bytes of data
+                jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+                this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+                for (int x = 0; x < 128; x++)
+                    this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
+                curvesArea->loadFromMapping();
+            } else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch)) {
+                // After the answer state byte there must be 128 bytes of data
+                jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+                this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+                for (int x = 0; x < 128; x++)
+                    this->mappingData.afterTouchConfig.velocityValues[x] = sysExData[6 + x];
+                curvesArea->loadFromMapping();
+            } else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch)) {
+                // After the answer state byte there must be 128 bytes of data
+                jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+                this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+                for (int x = 0; x < 128; x++)
+                    this->mappingData.lumaTouchConfig.velocityValues[x] = sysExData[6 + x];
+                curvesArea->loadFromMapping();
+            }
 
-				curvesArea->resized();
-				curvesArea->repaint();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff))
-			{
-				// After the answer state byte there must be 128 bytes of data
-				// Values are in reverse order (shortest ticks count is the highest velocity)
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[127-x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::fader))
-			{
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch))
-			{
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.afterTouchConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch))
-			{
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.lumaTouchConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			}
+            // Key configurations
+            else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
+                midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG) {
+                // After the answer state byte there must be 56 (or 55) bytes of data (one for each key)
+                jassert(midiMessage.getSysExDataSize() >= TerpstraSysExApplication::getApp().getOctaveBoardSize() + 6); // ToDo display error otherwise
 
-			// Key configurations
-			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
-				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG)
-			{
-				// After the answer state byte there must be 56 (or 55) bytes of data (one for each key)
-				jassert(midiMessage.getSysExDataSize() >= TerpstraSysExApplication::getApp().getOctaveBoardSize() + 6); // ToDo display error otherwise
+                for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++) {
+                    auto newValue = sysExData[6 + keyIndex];
 
-				for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
-				{
-					auto newValue = sysExData[6 + keyIndex];
+                    TerpstraKey& keyData = this->mappingData.sets[boardNo - 1].theKeys[keyIndex];
 
-					TerpstraKey& keyData = this->mappingData.sets[boardNo - 1].theKeys[keyIndex];
+                    switch (midiCmd) {
+                        case GET_RED_LED_CONFIG:
+                            newValue *= 5;
+                            if (newValue > 255) {
+                                jassertfalse;
+                                newValue = 0;
+                            }
+                            keyData.colour = Colour(newValue, keyData.colour.getGreen(), keyData.colour.getBlue());	// This creates an opaque colour (alpha 0xff)
+                            break;
 
-					switch (midiCmd)
-					{
-					case GET_RED_LED_CONFIG:
-					{
-						keyData.colour = Colour(newValue*5, keyData.colour.getGreen(), keyData.colour.getBlue());	// This creates an opaque colour (alpha 0xff)
-						break;
-					}
+                        case GET_GREEN_LED_CONFIG:
+                            newValue *= 5;
+                            if (newValue > 255) {
+                                jassertfalse;
+                                newValue = 0;
+                            }
+                            keyData.colour = Colour(keyData.colour.getRed(), newValue, keyData.colour.getBlue());
+                            break;
 
-					case GET_GREEN_LED_CONFIG:
-					{
-						keyData.colour = Colour(keyData.colour.getRed(), newValue*5, keyData.colour.getBlue());
-						break;
-					}
+                        case GET_BLUE_LED_CONFIG:
+                            newValue *= 5;
+                            if (newValue > 255) {
+                                jassertfalse;
+                                newValue = 0;
+                            }
+                            keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue);
+                            break;
 
-					case GET_BLUE_LED_CONFIG:
-					{
-						keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue*5);
-						break;
-					}
+                        case GET_CHANNEL_CONFIG:
+                            if (newValue > 16) {
+                                jassertfalse;
+                                newValue = 0;
+                            }
+                            keyData.channelNumber = newValue;
+                            break;
 
-					case GET_CHANNEL_CONFIG:
-						keyData.channelNumber = newValue;
-						break;
+                        case GET_NOTE_CONFIG:
+                            if (newValue > 127) {
+                                jassertfalse;
+                                newValue = 0;
+                            }
+                            keyData.noteNumber = newValue;
+                            break;
 
-					case GET_NOTE_CONFIG:
-						keyData.noteNumber = newValue;
-						break;
+                        case GET_KEYTYPE_CONFIG:
+                            // ToDo value validation
+                            keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
+                            break;
 
-					case GET_KEYTYPE_CONFIG:
-						keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
-						break;
+                        default:
+                            jassertfalse;   // Should not happen
+                            break;
+                    }
+                }
 
-					default:
-						jassertfalse;   // Should not happen
-						break;
-					}
-				}
-
-				refreshAllKeysOverview();
-			}
-		}
+                refreshAllKeysOverview();
+                noteEditArea->refreshKeyFields();
+            }
+        }
     }
 }
 
