@@ -188,7 +188,7 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 bool MainContentComponent::setDeveloperMode(bool developerModeOn)
 {
 	curvesArea->setDeveloperMode(developerModeOn);
-    globalSettingsArea->setDeveloperMode(true);
+    globalSettingsArea->setDeveloperMode(developerModeOn);
 	return true;
 }
 

@@ -190,6 +190,7 @@ void TerpstraSysExApplication::shutdown()
 
     mainWindow = nullptr; // (deletes our window)
 	//commandManager = nullptr;
+    deviceMonitor = nullptr;
 }
 
 //==============================================================================
