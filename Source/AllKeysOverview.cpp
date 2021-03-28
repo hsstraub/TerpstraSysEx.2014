@@ -210,7 +210,10 @@ AllKeysOverview::AllKeysOverview()
 
     //[UserPreSize]
 
-	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
+    lblFirmwareVersion.reset(new Label("FirmwareVersionLabel"));
+    addChildComponent(lblFirmwareVersion.get());
+    
+    for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
 		OctaveBoard* board = octaveBoards.add(new OctaveBoard());
 
@@ -303,6 +306,9 @@ void AllKeysOverview::resized()
 	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
 	int importWidth = round(getWidth() * importW);
 	buttonReceive->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
+    
+    resizeLabelWithHeight(lblFirmwareVersion.get(), btnHeight * 0.6f);
+    lblFirmwareVersion->setTopLeftPosition(lumatoneBounds.getX(), lumatoneBounds.getY() - btnHeight * 0.6f);
 
 	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
@@ -394,6 +400,21 @@ void AllKeysOverview::lookAndFeelChanged()
 	}
 }
 
+void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
+{
+    if (versionIn.isValid())
+    {
+        lblFirmwareVersion->setText("Firmware version: " + versionIn.toString(), NotificationType::dontSendNotification);
+        lblFirmwareVersion->setVisible(true);
+        resized();
+    }
+    else
+    {
+        lblFirmwareVersion->setVisible(false);
+    }
+    
+    repaint();
+}
 
 void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 {

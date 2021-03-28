@@ -313,6 +313,10 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			}
 		}
     }
+    else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsGetFirmwareRevisionResponse(midiMessage))
+    {
+        allKeysOverview->setFirmwareVersion(FirmwareVersion::fromGetFirmwareRevisionMsg(midiMessage));
+    }
 }
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
