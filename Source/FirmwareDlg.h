@@ -93,5 +93,5 @@ private:
     int numberOfWaitIncrements = 0;
     const int updateIncrementTimeoutMs = 5000;
     // Estimation based on boot time of ~85 seconds, plus transfer time, and overhead
-    int maxUpdateIncrements = 220000 / updateIncrementTimeoutMs;
+    int maxUpdateIncrements = 300000 / updateIncrementTimeoutMs;
 };
