@@ -30,8 +30,6 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
-// Geometry settings
-static Random r;//DEBUG
 
 //==============================================================================
 KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex)
@@ -41,9 +39,6 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	// initialise any special settings that your component needs.
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
-
-	// DEBUG
-	keyColour = Colour(r.nextFloat(), r.nextFloat(), 1.0f, 1.0f);
 
 	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 }
@@ -59,6 +54,9 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
+    if (hexagonColour.getPerceivedBrightness() >= 0.6)
+        hexagonColour = hexagonColour.darker((1.0 - hexagonColour.getPerceivedBrightness()));
+    
     g.setColour(hexagonColour);
 
 	if (colourGraphic && shadowGraphic)
@@ -226,12 +224,14 @@ AllKeysOverview::AllKeysOverview()
 	}
 
 	jassert(octaveBoards.size() == NUMBEROFBOARDS);
-
+    
     //[/UserPreSize]
 
 
     //[Constructor] You can add your own custom stuff here..
 	currentSetSelection = -1;
+    
+    showDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
     //[/Constructor]
 }
 
@@ -392,6 +392,13 @@ void AllKeysOverview::lookAndFeelChanged()
 		newLookAndFeel->setupTextButton(*btnSaveFile);
 		newLookAndFeel->setupTextButton(*buttonReceive);
 	}
+}
+
+
+void AllKeysOverview::showDeveloperMode(bool developerModeOn)
+{
+    buttonReceive->setVisible(developerModeOn);
+    repaint();
 }
 
 //[/MiscUserCode]

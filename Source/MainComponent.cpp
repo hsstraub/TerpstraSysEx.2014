@@ -189,6 +189,7 @@ bool MainContentComponent::setDeveloperMode(bool developerModeOn)
 {
 	curvesArea->setDeveloperMode(developerModeOn);
     globalSettingsArea->setDeveloperMode(developerModeOn);
+    allKeysOverview->showDeveloperMode(developerModeOn);
 	return true;
 }
 
@@ -291,7 +292,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 					}
 
 					case GET_CHANNEL_CONFIG:
-						keyData.channelNumber = newValue;
+						keyData.channelNumber = newValue + 1;
 						break;
 
 					case GET_NOTE_CONFIG:

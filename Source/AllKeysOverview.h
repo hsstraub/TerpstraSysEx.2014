@@ -94,6 +94,7 @@ public:
 	int getCurrentSetSelection() const { return currentSetSelection ;}
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
 
+    void showDeveloperMode(bool developerModeOn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
