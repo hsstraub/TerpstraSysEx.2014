@@ -189,6 +189,7 @@ bool MainContentComponent::setDeveloperMode(bool developerModeOn)
 {
 	curvesArea->setDeveloperMode(developerModeOn);
     globalSettingsArea->setDeveloperMode(developerModeOn);
+    allKeysOverview->showDeveloperMode(developerModeOn);
 	return true;
 }
 
@@ -314,6 +315,10 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
                 noteEditArea->refreshKeyFields();
             }
         }
+    }
+    else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsGetFirmwareRevisionResponse(midiMessage))
+    {
+        allKeysOverview->setFirmwareVersion(FirmwareVersion::fromGetFirmwareRevisionMsg(midiMessage));
     }
 }
 

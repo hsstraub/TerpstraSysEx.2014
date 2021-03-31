@@ -94,6 +94,9 @@ public:
 	int getCurrentSetSelection() const { return currentSetSelection ;}
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
 
+    void showDeveloperMode(bool developerModeOn);
+    
+    void setFirmwareVersion(TerpstraMidiDriver::FirmwareVersion versionIn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -119,6 +122,8 @@ private:
 
 	Image keyColourLayer;
 	Image keyShadowLayer;
+    
+    std::unique_ptr<Label> lblFirmwareVersion;
 
 	//==============================================================================
 	// Style helpers
