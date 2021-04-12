@@ -17,9 +17,10 @@
 
 #include "LumatoneController.h"
 
-class DeviceActivityMonitor :   public juce::Thread,
-                                public LumatoneController::FirmwareListener,
-                                public LumatoneController::MidiListener
+class DeviceActivityMonitor : public juce::Timer,
+
+                              public LumatoneController::FirmwareListener,
+                              public LumatoneController::MidiListener
 {
     
 public:
@@ -65,9 +66,9 @@ public:
     void intializeConnectionLossDetection(bool inFirmwareMode = false);
 
     //=========================================================================
-    // juce::Thread Implementation
+    // juce::Timer Implementation
 
-    void run() override;
+    void timerCallback() override;
 
 protected:
     //=========================================================================
@@ -124,7 +125,7 @@ private:
 
     const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
-    const int               inactivityTimeoutMs  = 5000;
+    const int               inactivityTimeoutMs  = 500;
     
     int                     pingOutputIndex = -1;
 

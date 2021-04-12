@@ -178,10 +178,7 @@ MidiEditArea::MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn, DeviceActi
     deviceMonitor.addChangeListener(this);
 
     btnAutoConnect->setToggleState(deviceMonitor.willDetectDeviceIfDisconnected(), sendNotificationSync);
-	if (deviceMonitor.getMode() < DeviceActivityMonitor::DetectConnectionMode::waitingForInactivity)
-	{
-		startTimer(deviceRefreshTimeoutMs);
-	}
+	startTimer(deviceRefreshTimeoutMs);
 
     //[/Constructor]
 }
@@ -204,7 +201,7 @@ MidiEditArea::~MidiEditArea()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	deviceMonitor.stopThread(100);
+	//deviceMonitor.stopThread(100);
 	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
     //[/Destructor]
 }
@@ -411,7 +408,8 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		}
 		else
 		{
-			deviceMonitor.signalThreadShouldExit();
+			//deviceMonitor.signalThreadShouldExit();
+			deviceMonitor.stopTimer();
 			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
 			startTimer(deviceRefreshTimeoutMs);
 		}
@@ -508,7 +506,7 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
                 setConnectivity(true);
                 onOpenConnectionToDevice();
 
-				deviceMonitor.startThread();
+				//deviceMonitor.startThread();
             }
 
             // Auto-connection
@@ -538,7 +536,9 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
             }
 
 			// Record firmware version of connected Lumatone
-			TerpstraSysExApplication::getApp().getMidiDriver().sendGetFirmwareRevisionRequest();
+			TerpstraSysExApplication::getApp().getMidiDriver().sendGetFirmwareRevisionRequest(true);
+
+			deviceMonitor.intializeConnectionLossDetection();
 		}
 
 		// Disconnected for some reason
