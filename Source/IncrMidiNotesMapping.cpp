@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -47,7 +47,12 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     labelMidiNotesUntil.reset (new juce::Label ("labelMidiNotesUntil",
                                                 TRANS("MIDI notes from 0 to the scale size")));
     addAndMakeVisible (labelMidiNotesUntil.get());
-    labelMidiNotesUntil->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+    labelMidiNotesUntil->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelMidiNotesUntil->setJustificationType (juce::Justification::centredLeft);
+    labelMidiNotesUntil->setEditable (false, false, false);
+    labelMidiNotesUntil->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelMidiNotesUntil->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
     labelMidiNotesUntil->setBounds (8, 8, 432, 24);
 
     singleChannelButton.reset (new juce::ToggleButton ("singleChannelButton"));
@@ -66,7 +71,7 @@ IncrMidiNotesMapping::IncrMidiNotesMapping (int& periodSizeReference, ScaleStruc
     channelBox->setEditableText (false);
     channelBox->setJustificationType (juce::Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (juce::String());
-    channelBox->setTextWhenNoChoicesAvailable (translate("NoChoices"));
+    channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     channelBox->addListener (this);
 
     channelBox->setBounds (184, 40, 56, 24);
@@ -98,7 +103,7 @@ IncrMidiNotesMapping::~IncrMidiNotesMapping()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    channelAutoIncrButton = nullptr;
+    channelAutoIncrButton = nullptr;  
     labelMidiNotesUntil = nullptr;
     singleChannelButton = nullptr;
     channelBox = nullptr;
@@ -114,7 +119,7 @@ void IncrMidiNotesMapping::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    //g.fillAll (juce::Colour (0xffb8d0de));
+   // g.fillAll (juce::Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
 	//g.fillAll(findColour(ResizableWindow::backgroundColourId));
@@ -130,11 +135,11 @@ void IncrMidiNotesMapping::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    
+
     float itemWidth = width * 0.6f;
     float itemHeight = height * 0.2f;
     float bottomMargin = height * 0.1f;
-    
+
     flexBox.items.clear();
     flexBox.items.add(FlexItem(*channelAutoIncrButton).withFlex(1.0f).withWidth(width).withHeight(itemHeight).withMargin(FlexItem::Margin(bottomMargin, 0, 0, 0)));
     flexBox.items.add(FlexItem(*labelMidiNotesUntil).withFlex(1.0f).withWidth(width).withHeight(itemHeight));

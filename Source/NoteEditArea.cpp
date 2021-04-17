@@ -19,8 +19,6 @@
 
 //[Headers] You can add your own extra header files here...
 #include "ViewConstants.h"
-#include "SingleNoteAssign.h"
-#include "IsomorphicMassAssign.h"
 #include "Main.h"
 //[/Headers]
 

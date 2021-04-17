@@ -31,6 +31,9 @@
 
 #include "BoardGeometry.h"
 
+#include "SingleNoteAssign.h"
+#include "IsomorphicMassAssign.h"
+
 //[/Headers]
 
 
@@ -71,6 +74,8 @@ public:
     ColourEditComponent* getColourEditComponent();
 
     ColourTextEditor* getSingleNoteColourTextEditor();
+
+    IsomorphicMassAssign* getIsomorphicMassAssignPanel() { return dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(1)); }
 
 	void changeSingleKeySelection(int newSelection);
 

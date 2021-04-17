@@ -303,6 +303,7 @@ void MainContentComponent::buttonClicked(Button* btn)
         {
             colourEdit = noteEditArea->getColourEditComponent();
             paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
+			paletteWindow->listenToColourSelection(noteEditArea->getIsomorphicMassAssignPanel());
 			paletteWindow->addColourSelectorToGroup(noteEditArea.get());
 			paletteWindow->setCurrentColourSelector(noteEditArea->getSingleNoteColourTextEditor());
         }

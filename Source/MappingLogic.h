@@ -25,6 +25,8 @@ public:
 	void setPeriodSize(int newPeriodSize, bool forceRefresh = false);
     void setAssignColours(bool value) { assignColours = value; };
 
+    void setColourTable(Array<Colour>& colourTableIn) { colourTable = colourTableIn; }
+
 	// Global number of notes in the mapping
 	virtual int globalMappingSize() const = 0;
 

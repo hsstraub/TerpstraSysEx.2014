@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.5
 
   ------------------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelPeriodSize.reset(new juce::Label("labelPeriodSize", TRANS("Period")));
     addAndMakeVisible(labelPeriodSize.get());
     labelPeriodSize->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
-  
+
     labelPeriodSize->setBounds(16, 8, 168, 24);
 
     periodSizeBox.reset (new juce::ComboBox ("periodSizeBox"));
@@ -134,7 +134,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelHorizontalSteps.reset(new juce::Label("labelHorizontalSteps", translate("HorizontalSteps")));
     addAndMakeVisible(labelHorizontalSteps.get());
     labelHorizontalSteps->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
- 
+
     labelHorizontalSteps->setBounds(208, 344, 112, 24);
 
     editHorizontalSteps.reset(new juce::TextEditor("editHorizontalSteps"));
@@ -168,8 +168,156 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     //[/Constructor_pre]
 
-    //[UserPreSize]
+    startingPointBox.reset (new juce::ComboBox ("startingPointBox"));
+    addAndMakeVisible (startingPointBox.get());
+    startingPointBox->setEditableText (false);
+    startingPointBox->setJustificationType (juce::Justification::centredLeft);
+    startingPointBox->setTextWhenNothingSelected (juce::String());
+    startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    startingPointBox->addListener (this);
 
+    startingPointBox->setBounds (8, 368, 150, 24);
+
+    labelStartingPoint.reset (new juce::Label ("labelStartingPoint",
+                                               TRANS("Starting value")));
+    addAndMakeVisible (labelStartingPoint.get());
+    labelStartingPoint->setTooltip (TRANS("Value that will be assigned to the key at mouse pposition when clicking"));
+    labelStartingPoint->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelStartingPoint->setJustificationType (juce::Justification::centredLeft);
+    labelStartingPoint->setEditable (false, false, false);
+    labelStartingPoint->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelStartingPoint->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelStartingPoint->setBounds (8, 344, 150, 24);
+
+    labelHorizontalSteps.reset (new juce::Label ("labelHorizontalSteps",
+                                                 TRANS("Horizontal steps")));
+    addAndMakeVisible (labelHorizontalSteps.get());
+    labelHorizontalSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelHorizontalSteps->setJustificationType (juce::Justification::centredLeft);
+    labelHorizontalSteps->setEditable (false, false, false);
+    labelHorizontalSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelHorizontalSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelHorizontalSteps->setBounds (208, 344, 112, 24);
+
+    editHorizontalSteps.reset (new juce::TextEditor ("editHorizontalSteps"));
+    addAndMakeVisible (editHorizontalSteps.get());
+    editHorizontalSteps->setMultiLine (false);
+    editHorizontalSteps->setReturnKeyStartsNewLine (false);
+    editHorizontalSteps->setReadOnly (false);
+    editHorizontalSteps->setScrollbarsShown (true);
+    editHorizontalSteps->setCaretVisible (true);
+    editHorizontalSteps->setPopupMenuEnabled (true);
+    editHorizontalSteps->setText (juce::String());
+
+    editHorizontalSteps->setBounds (216, 368, 40, 24);
+
+    labelRightUpwardSteps.reset (new juce::Label ("labelRightUpwardSteps",
+                                                  TRANS("Right upward steps")));
+    addAndMakeVisible (labelRightUpwardSteps.get());
+    labelRightUpwardSteps->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelRightUpwardSteps->setJustificationType (juce::Justification::centredLeft);
+    labelRightUpwardSteps->setEditable (false, false, false);
+    labelRightUpwardSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelRightUpwardSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelRightUpwardSteps->setBounds (152, 296, 136, 24);
+
+    editRightUpwardSteps.reset (new juce::TextEditor ("editRightUpwardSteps"));
+    addAndMakeVisible (editRightUpwardSteps.get());
+    editRightUpwardSteps->setMultiLine (false);
+    editRightUpwardSteps->setReturnKeyStartsNewLine (false);
+    editRightUpwardSteps->setReadOnly (false);
+    editRightUpwardSteps->setScrollbarsShown (true);
+    editRightUpwardSteps->setCaretVisible (true);
+    editRightUpwardSteps->setPopupMenuEnabled (true);
+    editRightUpwardSteps->setText (juce::String());
+
+    editRightUpwardSteps->setBounds (160, 320, 39, 24);
+
+    editInstructionText.reset (new juce::Label ("editInstructionText",
+                                                TRANS("Fill a line or the whole field with constant step distances. \n"
+                                                "Click on desired key field to start.")));
+    addAndMakeVisible (editInstructionText.get());
+    editInstructionText->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    editInstructionText->setJustificationType (juce::Justification::topLeft);
+    editInstructionText->setEditable (false, false, false);
+    editInstructionText->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    editInstructionText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    editInstructionText->setBounds (8, 200, 296, 48);
+
+    groupMapping.reset (new juce::GroupComponent ("groupMapping",
+                                                  TRANS("Mapping")));
+    addAndMakeVisible (groupMapping.get());
+
+    groupMapping->setBounds (8, 40, 304, 152);
+
+    cbMappingType.reset (new juce::ComboBox ("cbMappingType"));
+    addAndMakeVisible (cbMappingType.get());
+    cbMappingType->setEditableText (false);
+    cbMappingType->setJustificationType (juce::Justification::centredLeft);
+    cbMappingType->setTextWhenNothingSelected (juce::String());
+    cbMappingType->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    cbMappingType->addItem (TRANS("MIDI notes, increasing order"), 1);
+    cbMappingType->addItem (TRANS("Scala KBM mappings"), 2);
+    cbMappingType->addListener (this);
+
+    cbMappingType->setBounds (64, 64, 240, 24);
+
+    labelMappingType.reset (new juce::Label ("labelMappingType",
+                                             TRANS("Type:")));
+    addAndMakeVisible (labelMappingType.get());
+    labelMappingType->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelMappingType->setJustificationType (juce::Justification::centredLeft);
+    labelMappingType->setEditable (false, false, false);
+    labelMappingType->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelMappingType->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelMappingType->setBounds (20, 64, 88, 24);
+
+    btnScaleStructureEditor.reset (new juce::TextButton ("btnScaleStructureEditor"));
+    addAndMakeVisible (btnScaleStructureEditor.get());
+    btnScaleStructureEditor->setTooltip (TRANS("Show/hide scale structure editor"));
+    btnScaleStructureEditor->setButtonText (TRANS("Scale structure editor"));
+    btnScaleStructureEditor->addListener (this);
+
+    btnScaleStructureEditor->setBounds (160, 264, 152, 24);
+
+    periodSizeBox.reset (new juce::ComboBox ("periodSizeBox"));
+    addAndMakeVisible (periodSizeBox.get());
+    periodSizeBox->setTooltip (TRANS("Number of tones per period interval (octave)"));
+    periodSizeBox->setEditableText (false);
+    periodSizeBox->setJustificationType (juce::Justification::centredLeft);
+    periodSizeBox->setTextWhenNothingSelected (juce::String());
+    periodSizeBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    periodSizeBox->addListener (this);
+
+    periodSizeBox->setBounds (200, 8, 56, 24);
+
+    labelPeriodSize.reset (new juce::Label ("labelPeriodSize",
+                                            TRANS("Period:")));
+    addAndMakeVisible (labelPeriodSize.get());
+    labelPeriodSize->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelPeriodSize->setJustificationType (juce::Justification::centredLeft);
+    labelPeriodSize->setEditable (false, false, false);
+    labelPeriodSize->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelPeriodSize->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelPeriodSize->setBounds (16, 8, 168, 24);
+
+    setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
+    addAndMakeVisible (setColourToggleButton.get());
+    setColourToggleButton->setButtonText (TRANS("Colour assignment"));
+    setColourToggleButton->addListener (this);
+
+    setColourToggleButton->setBounds (8, 264, 152, 24);
+
+
+    //[UserPreSize]
+    editInstructionText->setVisible(false);
+    
     flexBoxComponents.add(setColourToggleButton.get());
     flexBoxComponents.add(labelStartingPoint.get());
     flexBoxComponents.add(labelPeriodSize.get());
@@ -479,8 +627,30 @@ void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, i
 	editHorizontalSteps->setText(String(horizontalSize));
 }
 
-static int mod(int n, int d) {
-    return ((n % d) + d) % d; // contortion required for cross-platform consistent behaviour.
+void IsomorphicMassAssign::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
+{
+    auto palette = dynamic_cast<ColourPaletteComponent*>(source);
+    if (palette)
+    {
+        auto newColours = palette->getColourPalette();
+
+        int startIndex = newColours.indexOf(source->getSelectedColour());
+
+        if (startIndex >= 0)
+        {
+            colourTable.clear();
+            for (int i = 0; i < newColours.size(); i++)
+            {
+                colourTable.add(newColours[(i + startIndex) % newColours.size()]);
+            }
+        }
+        else
+        {
+            colourTable = newColours;
+        }
+
+        mappingLogic->setColourTable(colourTable);
+    }
 }
 
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
