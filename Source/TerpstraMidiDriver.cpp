@@ -456,7 +456,7 @@ void TerpstraMidiDriver::sendGetFirmwareRevisionRequest(int sendToTestDevice)
         sendTestMessageNow(sendToTestDevice, createTerpstraSysEx(0, GET_FIRMWARE_REVISION, TEST_ECHO, '\0', '\0', '\0'));
 }
 
-// CMD 32h: Set the thresold from key’s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
+// CMD 32h: Set the thresold from key's min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
 void TerpstraMidiDriver::setCCActiveThreshold(uint8 boardIndex, uint8 sensitivity)
 {
     if (sensitivity > 0xfe) sensitivity &= 0xfe;
@@ -1423,6 +1423,10 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
 {
     // Notify listeners
 	{
+        String msgStr = message.getDescription();
+        if (message.isMetaEvent())
+            msgStr += ": Type " + String(message.getMetaEventType()) + ", Length: " + String(message.getMetaEventLength());
+        DBG("RCVD: " + msgStr);
 		const MessageManagerLock mmLock;
         
         // DEBUG

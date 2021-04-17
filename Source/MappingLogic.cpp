@@ -127,7 +127,7 @@ void IncrMidiNotesMappingLogic::setValues(int newPeriodSize, int newChannelInCas
 int IncrMidiNotesMappingLogic::globalMappingSize() const
 {
 	if (isSingleChannel())
-		return this->periodSize;	// notes start at 0 and go until periodSize-1
+		return 128;	// notes start at 0 and go until periodSize-1
 	else
 		return this->periodSize * 16;
 }
