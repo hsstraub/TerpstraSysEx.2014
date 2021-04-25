@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LumatoneMenu.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -170,6 +171,7 @@ private:
 	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
 
 	std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	
