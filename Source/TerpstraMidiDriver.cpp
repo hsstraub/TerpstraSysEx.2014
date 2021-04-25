@@ -13,7 +13,6 @@
 
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
-	autoSave = false;
 }
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
@@ -30,328 +29,560 @@ void TerpstraMidiDriver::removeListener(TerpstraMidiDriver::Listener* listener)
 	listeners.remove(listener);
 }
 
-void TerpstraMidiDriver::setSysExSendingMode(sysExSendingMode newMode)
-{
-	if (newMode != currentSysExSendingMode)
-	{
-		currentSysExSendingMode = newMode;
-		if (currentSysExSendingMode == sysExSendingMode::offlineEditor)
-		{
-			clearMIDIMessageBuffer();	// ToDo remove only SysEx messages (leave NoteOn/NoteOff)?
-			stopTimer();
-			hasMsgWaitingForAck = false;
-		}
-	}
-}
-
 /*
 ==============================================================================
-Combined (hi-level) commands
+Single (mid-level) commands, firmware specific
 */
 
-void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData)
+// CMD 00h: Send a single key's functionctional configuration
+void TerpstraMidiDriver::sendKeyFunctionParameters(uint8 boardIndex, uint8 keyIndex, uint8 noteOrCCNum, uint8 midiChannel, uint8 keyType, bool faderUpIsNull)
 {
-	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
-		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
+    // boardIndex is expected 1-based
+    jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
+    jassert(midiChannel >= 0 && midiChannel < 16);
+
+    uint8 typeByte = faderUpIsNull << 4 + keyType;
+    sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, noteOrCCNum, midiChannel, typeByte);
 }
 
-void TerpstraMidiDriver::sendCompleteMapping(TerpstraKeyMapping mappingData)
+// CMD 01h: Send a single key's LED channel intensities
+void TerpstraMidiDriver::sendKeyLightParameters(uint8 boardIndex, uint8 keyIndex, uint8 red, uint8 green, uint8 blue)
 {
-	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		sendAllParamsOfBoard(boardIndex, mappingData.sets[boardIndex-1]);
+    MidiMessage msg = createExtendedKeyColourSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, red, green, blue);
+
+    sendMessageWithAcknowledge(msg);
 }
 
-void TerpstraMidiDriver::sendGetMappingOfBoardRequest(int boardIndex)
+// CMD 01h: Send a single key's LED channel intensities, three pairs of 4-bit values for each channel
+void TerpstraMidiDriver::sendKeyLightParameters(uint8 boardIndex, uint8 keyIndex, uint8 redUpper, uint8 redLower, uint8 greenUpper, uint8 greenLower, uint8 blueUpper, uint8 blueLower)
 {
-    sendRedLEDConfigurationRequest(boardIndex);
-    sendGreenLEDConfigurationRequest(boardIndex);
-    sendBlueLEDConfigurationRequest(boardIndex);
-    sendChannelConfigurationRequest(boardIndex);
-    sendNoteConfigurationRequest(boardIndex);
-    sendKeyTypeConfigurationRequest(boardIndex);
+    // boardIndex is expected 1-based
+    jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
+    if (redUpper   > 0xf) redUpper   &= 0xf;
+    if (redLower   > 0xf) redLower   &= 0xf;
+    if (greenUpper > 0xf) greenUpper &= 0xf;
+    if (greenLower > 0xf) greenLower &= 0xf;
+    if (blueUpper  > 0xf) blueUpper  &= 0xf;
+    if (blueLower  > 0xf) blueLower  &= 0xf;
+ 
+    MidiMessage msg = createExtendedKeyColourSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, redUpper, redLower, greenUpper, greenLower, blueUpper, blueLower);
 }
 
-void TerpstraMidiDriver::sendGetCompleteMappingRequest()
+// CMD 01h: Send a single key's LED channel intensities (pre-version 1.0.11)
+void TerpstraMidiDriver::sendKeyLightParameters_Version_1_0_0(uint8 boardIndex, uint8 keyIndex, uint8 red, uint8 green, uint8 blue)
 {
-	for (int boardIndex = 1; boardIndex <= NUMBEROFBOARDS; boardIndex++)
-		sendGetMappingOfBoardRequest(boardIndex);
+    // boardIndex is expected 1-based
+    jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
+
+    sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, red, green, blue);
 }
 
-/*
-==============================================================================
-Single (mid-level) commands
-*/
-
-void TerpstraMidiDriver::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
+// CMD 02h: Save current configuration to specified preset index
+void TerpstraMidiDriver::saveProgram(uint8 presetNumber)
 {
-	// boardIndex is expected 1-based
-	jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-
-	// Channel, note, key type (note on/note off or continuous controller)
-	if (keyData.channelNumber >= 0)
-		sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, keyData.noteNumber, keyData.channelNumber - 1, keyData.keyType);
-
-	// Colour. Values from 0x00 to 0x7f (127 decimal, as the maximal value for data bytes is according to the MIDI standard)
-	sendSysEx(boardIndex, SET_KEY_COLOUR, keyIndex, keyData.colour.getRed() / 2, keyData.colour.getGreen() / 2, keyData.colour.getBlue() / 2);
+    jassert(presetNumber >= 0 && presetNumber < 10);
+    sendSysEx(0, SAVE_PROGRAM, presetNumber, '\0', '\0', '\0');
 }
 
-// Send expression pedal sensivity
-void TerpstraMidiDriver::sendExpressionPedalSensivity(unsigned char value)
+// CMD 03h: Send expression pedal sensivity
+void TerpstraMidiDriver::sendExpressionPedalSensivity(uint8 value)
 {
 	jassert(value <= 0x7f);
 
 	sendSysEx(0, SET_FOOT_CONTROLLER_SENSITIVITY, value, '\0', '\0', '\0');
 }
 
-// Send parametrization of foot controller
+// CMD 04h: Send parametrization of foot controller
 void TerpstraMidiDriver::sendInvertFootController(bool value)
 {
-	sendSysEx(0, INVERT_FOOT_CONTROLLER, value ? '\1' : '\0', '\0', '\0', '\0');
+    sendSysExToggle(0, INVERT_FOOT_CONTROLLER, value);
 }
 
-// Colour for macro button in active state
-void TerpstraMidiDriver::sendMacroButtonActiveColour(String colourAsString)
+// CMD 05h: Colour for macro button in active state, each value should be in range of 0x0-0xF and represents the upper and lower four bytes of each channel intensity
+void TerpstraMidiDriver::sendMacroButtonActiveColour(uint8 red, uint8 green, uint8 blue)
 {
-	int colourAsNumber = colourAsString.getHexValue32();
-	Colour theColour = Colour(colourAsNumber);
-	sendSysEx(0, MACROBUTTON_COLOUR_ON, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
+    MidiMessage msg = createExtendedMacroColourSysEx(MACROBUTTON_COLOUR_ON, red, green, blue);
+    sendMessageWithAcknowledge(msg);
 }
 
-// Colour for macro button in inactive state
-void TerpstraMidiDriver::sendMacroButtonInactiveColour(String colourAsString)
+// CMD 05h: Colour for macro button in active state, 3 pairs for 4-bit values for each LED channel
+void TerpstraMidiDriver::sendMacroButtonActiveColour(uint8 redUpper, uint8 redLower, uint8 greenUpper, uint8 greenLower, uint8 blueUpper, uint8 blueLower)
 {
-	int colourAsNumber = colourAsString.getHexValue32();
-	Colour theColour = Colour(colourAsNumber);
-	sendSysEx(0, MACROBUTTON_COLOUR_OFF, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2, '\0');
+    MidiMessage msg = createExtendedMacroColourSysEx(MACROBUTTON_COLOUR_ON, redUpper, redLower, greenUpper, greenLower, blueUpper, blueLower);
+    sendMessageWithAcknowledge(msg);
 }
 
+// CMD 05h: Colour for macro button in active state, each value should be in range of 0x00-0x7F (pre-version 1.0.11)
+void TerpstraMidiDriver::sendMacroButtonActiveColour_Version_1_0_0(uint8 red, uint8 green, uint8 blue)
+{
+    if (red   > 0x7f) red   &= 0x7f;
+    if (green > 0x7f) green &= 0x7f;
+    if (blue  > 0x7f) blue  &= 0x7f;
+
+	sendSysEx(0, MACROBUTTON_COLOUR_ON, red, green, blue, '\0');
+}
+
+// CMD 06h: Colour for macro button in inactive state, each value should be in range of 0x0-0xF and represents the upper and lower four bytes of each channel intensity
+void TerpstraMidiDriver::sendMacroButtonInactiveColour(int red, int green, int blue)
+{
+    MidiMessage msg = createExtendedMacroColourSysEx(MACROBUTTON_COLOUR_OFF, red, green, blue);
+    sendMessageWithAcknowledge(msg);
+}
+
+// CMD 05h: Colour for macro button in active state, 3 pairs for 4-bit values for each LED channel
+void TerpstraMidiDriver::sendMacroButtonInactiveColour(uint8 redUpper, uint8 redLower, uint8 greenUpper, uint8 greenLower, uint8 blueUpper, uint8 blueLower)
+{
+    MidiMessage msg = createExtendedMacroColourSysEx(MACROBUTTON_COLOUR_OFF, redUpper, redLower, greenUpper, greenLower, blueUpper, blueLower);
+    sendMessageWithAcknowledge(msg);
+}
+
+// CMD 06h: Colour for macro button in inactive state, each value should be in range of 0x00-0x7F (pre-version 1.0.11)
+void TerpstraMidiDriver::sendMacroButtonInactiveColour_Version_1_0_0(uint8 red, uint8 green, uint8 blue)
+{
+    if (red   > 0x7f) red   &= 0x7f;
+    if (green > 0x7f) green &= 0x7f;
+    if (blue  > 0x7f) blue  &= 0x7f;
+
+	sendSysEx(0, MACROBUTTON_COLOUR_OFF, red, green, blue, '\0');
+}
+
+// CMD 07h: Send parametrization of light on keystrokes
 void TerpstraMidiDriver::sendLightOnKeyStrokes(bool value)
 {
-	sendSysEx(0, SET_LIGHT_ON_KEYSTROKES, value ? '\1' : '\0', '\0', '\0', '\0');
+    sendSysExToggle(0, SET_LIGHT_ON_KEYSTROKES, value);
 }
 
-
-// Send a value for a velocity lookup table
-void TerpstraMidiDriver::sendVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType, unsigned char velocityTable[])
+// CMD 08h: Send a value for a velocity lookup table
+void TerpstraMidiDriver::sendVelocityConfig(uint8 velocityTable[])
 {
-	if (midiOutput != nullptr)
-	{
-		unsigned char sysExData[133];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = '\0';
-
-		switch(velocityCurveType)
-		{
-		    case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-                sysExData[4] = SET_VELOCITY_CONFIG;
-                break;
-            case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-                sysExData[4] = SET_FADER_CONFIG;
-                break;
-            case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-                sysExData[4] = SET_AFTERTOUCH_CONFIG;
-                break;
-			case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
-				sysExData[4] = SET_LUMATOUCH_CONFIG;
-				break;
-			default:
-                jassert(false);
-                break;
-		}
-
-		if (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)
-		{
-			// Values are in reverse order (shortest ticks count is the highest velocity)
-			for (int x = 0; x < 128; x++)
-			{
-				sysExData[5 + x] = velocityTable[127 - x];
-
-			}
-
-		}
-		else
-		{
-			memmove(&sysExData[5], velocityTable, 128);
-		}
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
-		sendMessageNow(msg);
-	}
-}
-
-void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
-{
-	if (midiOutput != nullptr)
-	{
-		unsigned char sysExData[259];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = '\0';
-        sysExData[4] = SET_VELOCITY_INTERVALS;
-
-        // Interval table contains 127 values!
-		for ( int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-        {
-            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
-            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
-        }
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
-		sendMessageNow(msg);
-	}
-}
-
-// Save velocity config to EEPROM
-void TerpstraMidiDriver::saveVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
-{
-    switch(velocityCurveType)
+    // Values are in reverse order (shortest ticks count is the highest velocity)
+    uint8 reversedTable[128];
+    for (uint8 x = 0; x < 128; x++)
     {
-        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-            sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-		case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
-			sendSysEx(0, SAVE_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
-			break;
-		default:
-            jassert(false);
-            break;
+        reversedTable[x] = velocityTable[127 - x] & 0x7f;
     }
+
+    MidiMessage msg = createSendTableSysEx(0, SET_VELOCITY_CONFIG, 128, reversedTable);
+		
+	sendMessageNow(msg);
 }
 
-// reset velocity config to value from EEPROM
-void TerpstraMidiDriver::resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+// CMD 09h: Save velocity config to EEPROM
+void TerpstraMidiDriver::saveVelocityConfig()
+{            
+    sendSysExRequest(0, SAVE_VELOCITY_CONFIG);
+}
+
+// CMD 0Ah: Reset velocity config to value from EEPROM
+void TerpstraMidiDriver::resetVelocityConfig()
 {
-    switch(velocityCurveType)
-    {
-        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-            sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, RESET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-		case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
-			sendSysEx(0, RESET_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
-			break;
-		default:
-            jassert(false);
-            break;
-    }
+    sendSysExRequest(0, RESET_VELOCITY_CONFIG);
 }
 
-// Enable or disable aftertouch functionality
+// CMD 0Bh: Adjust the internal fader look-up table (128 7-bit values)
+void TerpstraMidiDriver::setFaderConfiguration(uint8 faderTable[])
+{
+    MidiMessage msg = createSendTableSysEx(0, SET_FADER_CONFIG, 128, faderTable);
+    sendMessageNow(msg);
+}
+
+// CMD 0Ch: **DEPRECATED** Save the changes made to the fader look-up table
+void TerpstraMidiDriver::saveFaderConfiguration()
+{
+    sendSysExRequest(0, SAVE_FADER_CONFIG);
+}
+
+// CMD 0Dh: Reset the fader lookup table back to its factory fader settings.
+void TerpstraMidiDriver::resetFaderConfiguration()
+{
+    sendSysExRequest(0, RESET_FADER_CONFIG);
+}
+
+// CMD 0Eh: Enable or disable aftertouch functionality
 void TerpstraMidiDriver::sendAfterTouchActivation(bool value)
 {
-	sendSysEx(0, SET_AFTERTOUCH_FLAG, value ? '\1' : '\0', '\0', '\0', '\0');
+    sendSysExToggle(0, SET_AFTERTOUCH_FLAG, value);
 }
 
-// Initiate aftertouch calibration routine
+// CMD 0Fh: Initiate aftertouch calibration routine
 void TerpstraMidiDriver::sendCalibrateAfterTouch()
 {
-	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0');
+    sendSysExRequest(0, CALIBRATE_AFTERTOUCH);
 }
 
-void TerpstraMidiDriver::sendCalibrateKeys()
+// CMD 10h: Adjust the internal aftertouch look-up table (size of 128)
+void TerpstraMidiDriver::setAftertouchConfiguration(uint8 aftertouchTable[])
 {
-	sendSysEx(0, CALIBRATE_KEYS, '\0', '\0', '\0', '\0');
+    MidiMessage msg = createSendTableSysEx(0, SET_AFTERTOUCH_CONFIG, 128, aftertouchTable);
+    sendMessageNow(msg);
 }
 
-void TerpstraMidiDriver::sendCalibratePitchModWheel(bool startCalibration)
+// CMD 11h: **DEPRECATED** Save the changes made to the aftertouch look-up table
+void TerpstraMidiDriver::saveAftertouchConfiguration()
 {
-	sendSysEx(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration ? '\1' : '\0', '\0', '\0', '\0');
-
+    sendSysExRequest(0, SAVE_AFTERTOUCH_CONFIG);
 }
 
-void TerpstraMidiDriver::sendRedLEDConfigurationRequest(int boardIndex)
+// CMD 12h: Reset the aftertouch lookup table back to its factory aftertouch settings.
+void TerpstraMidiDriver::resetAftertouchConfiguration()
 {
-    sendSysEx(boardIndex, GET_RED_LED_CONFIG, '\0', '\0', '\0', '\0');
+    sendSysExRequest(0, RESET_AFTERTOUCH_CONFIG);
 }
 
-void TerpstraMidiDriver::sendGreenLEDConfigurationRequest(int boardIndex)
+// CMD 13h: Read back the current red intensity of all the keys of the target board.
+void TerpstraMidiDriver::sendRedLEDConfigurationRequest(uint8 boardIndex)
 {
-    sendSysEx(boardIndex, GET_GREEN_LED_CONFIG, '\0', '\0', '\0', '\0');
+    sendSysExRequest(boardIndex, GET_RED_LED_CONFIG);
 }
 
-void TerpstraMidiDriver::sendBlueLEDConfigurationRequest(int boardIndex)
+// CMD 14h: Read back the current green intensity of all the keys of the target board.
+void TerpstraMidiDriver::sendGreenLEDConfigurationRequest(uint8 boardIndex)
 {
-    sendSysEx(boardIndex, GET_BLUE_LED_CONFIG, '\0', '\0', '\0', '\0');
+    sendSysExRequest(boardIndex, GET_GREEN_LED_CONFIG);
 }
 
-void TerpstraMidiDriver::sendChannelConfigurationRequest(int boardIndex)
+// CMD 15h: Read back the current blue intensity of all the keys of the target board.
+void TerpstraMidiDriver::sendBlueLEDConfigurationRequest(uint8 boardIndex)
 {
-    sendSysEx(boardIndex, GET_CHANNEL_CONFIG, '\0', '\0', '\0', '\0');
+    sendSysExRequest(boardIndex, GET_BLUE_LED_CONFIG);
 }
 
-void TerpstraMidiDriver::sendNoteConfigurationRequest(int boardIndex)
+// CMD 16h: Read back the current channel configuration of all the keys of the target board.
+void TerpstraMidiDriver::sendChannelConfigurationRequest(uint8 boardIndex)
 {
-    sendSysEx(boardIndex, GET_NOTE_CONFIG, '\0', '\0', '\0', '\0');
+    sendSysExRequest(boardIndex, GET_CHANNEL_CONFIG);
 }
 
-void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(int boardIndex)
+// CMD 17h: Read back the current note configuration of all the keys of the target board.
+void TerpstraMidiDriver::sendNoteConfigurationRequest(uint8 boardIndex)
 {
-    sendSysEx(boardIndex, GET_KEYTYPE_CONFIG, '\0', '\0', '\0', '\0');
-
+    sendSysExRequest(boardIndex, GET_NOTE_CONFIG);
 }
 
-void TerpstraMidiDriver::sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+// CMD 18h: Read back the current key type configuration of all the keys of the target board.
+void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(uint8 boardIndex)
 {
-    switch(velocityCurveType)
+    sendSysExRequest(boardIndex, GET_KEYTYPE_CONFIG);
+}
+
+// CMD 19h: Read back the maximum threshold of all the keys of the target board.
+void TerpstraMidiDriver::getMaxFaderThreshold(uint8 boardIndex)
+{
+    sendSysExRequest(0, GET_MAX_THRESHOLD);
+}
+
+// CMD 1Ah: Read back the maximum threshold of all the keys of the target board
+void TerpstraMidiDriver::getMinFaderThreshold(uint8 boardIndex)
+{
+    sendSysExRequest(0, GET_MIN_THRESHOLD);
+}
+
+// CMD 1Bh: Read back the aftertouch maximum threshold of all the keys of the target board
+void TerpstraMidiDriver::getMaxAftertouchThreshold(uint8 boardIndex)
+{
+    sendSysExRequest(0, GET_AFTERTOUCH_MAX);
+}
+
+// CMD 1Ch: Get back flag whether or not each key of target board meets minimum threshold
+void TerpstraMidiDriver::getKeyValidityParameters(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, GET_KEY_VALIDITY);
+}
+
+// CMD 1Dh: Read back the current velocity look up table of the keyboard.
+void TerpstraMidiDriver::getVelocityConfiguration()
+{
+    sendSysExRequest(0, GET_VELOCITY_CONFIG);
+}
+
+// CMD 1Eh: Read back the current fader look up table of the keyboard.
+void TerpstraMidiDriver::getFaderConfiguration()
+{
+    sendSysExRequest(0, GET_FADER_CONFIG);
+}
+
+// CMD 1Fh: Read back the current aftertouch look up table of the keyboard.
+void TerpstraMidiDriver::getAftertouchConfiguration()
+{
+    sendSysExRequest(0, GET_AFTERTOUCH_CONFIG);
+}
+
+// CMD 20h: Set the velocity interval table, 127 12-bit values
+void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
+{
+    uint8 formattedTable[254];
+
+    // Interval table contains 127 values!
+	for ( uint8 i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
     {
-        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, GET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-            sendSysEx(0, GET_FADER_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, GET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-		case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
-			sendSysEx(0, GET_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
-			break;
-		default:
-            jassert(false);
-            break;
+        formattedTable[2*i]     = velocityIntervalTable[i] >> 6;
+        formattedTable[1 + 2*i] = velocityIntervalTable[i] & 0x3f;
     }
+
+	MidiMessage msg = createSendTableSysEx(0, SET_VELOCITY_INTERVALS, 127, formattedTable);
+	sendMessageNow(msg);
 }
 
-
+// CMD 21h: Sead back the velocity interval table
 void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
 {
-    sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
+    sendSysExRequest(0, GET_VELOCITY_INTERVALS);
 }
 
+// CMD 22h: Read back the fader type of all keys on the targeted board.
+void TerpstraMidiDriver::getFaderTypeConfiguration(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, GET_FADER_TYPE_CONFIGURATION);
+}
+
+// CMD 23h: This command is used to read back the serial identification number of the keyboard.
 void TerpstraMidiDriver::sendGetSerialIdentityRequest(bool overrideEditMode)
 {
-    sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0', overrideEditMode);
+    sendSysExRequest(0, GET_SERIAL_IDENTITY);
 }
 
-MidiMessage TerpstraMidiDriver::getSerialIdentityRequestMessage() const
+// CMD 24h: Initiate the key calibration routine; each pair of macro buttons  
+// on each octave must be pressed to return to normal state
+void TerpstraMidiDriver::sendCalibrateKeys()
 {
-    MidiMessage msg = createTerpstraSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
-    return msg;
+    sendSysExRequest(0, CALIBRATE_KEYS);
 }
 
+// CMD 25h: Pass in true to enter Demo Mode, or false to exit
+void TerpstraMidiDriver::startDemoMode(bool turnOn)
+{
+    sendSysExToggle(0, DEMO_MODE, turnOn);
+}
+
+// CMD 26h: Initiate the pitch and mod wheel calibration routine, pass in false to stop
+void TerpstraMidiDriver::sendCalibratePitchModWheel(bool startCalibration)
+{
+    sendSysExToggle(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration);
+}
+
+// CMD 27h: Set the sensitivity value of the mod wheel, 0x01 to 0x07f
+void TerpstraMidiDriver::setModWheelSensitivity(uint8 sensitivity)
+{
+    if (sensitivity > 0x7f) sensitivity &= 0x7f;  // Restrict to upper bound
+    if (sensitivity < 0x01) sensitivity &= 0x01;  // Restrict to lower bound
+
+    sendSysEx(0, SET_MOD_WHEEL_SENSITIVITY, sensitivity, '\0', '\0', '\0');
+}
+
+// CMD 28h: Set the sensitivity value of the pitch bend wheel between 0x01 and 0x3FFF
+void TerpstraMidiDriver::setPitchBendSensitivity(int sensitivity)
+{
+    if (sensitivity < 0x3fff) sensitivity &= 0x3fff; // Restrict to upper bound
+    if (sensitivity < 0x0001) sensitivity &= 0x0001;  // Restrict to lower bound
+
+    sendSysEx(0, SET_PITCH_WHEEL_SENSITIVITY, sensitivity >> 7, sensitivity & 0x7f, '\0',  '\0');
+}
+
+// CMD 29h: Set abs. distance from max value to trigger CA-004 submodule key events, ranging from 0x00 to 0xFE
+void TerpstraMidiDriver::setKeyMaximumThreshold(uint8 boardIndex, uint8 maxThreshold, uint8 aftertouchMax)
+{
+    if (maxThreshold  > 0xfe) maxThreshold  &= 0xfe;
+    if (aftertouchMax > 0xfe) aftertouchMax &= 0xfe;
+    sendSysEx(boardIndex, SET_KEY_MAX_THRESHOLD, maxThreshold >> 4, maxThreshold & 0xf, aftertouchMax >> 4, aftertouchMax & 0xf);
+}
+
+// CMD 2Ah: Set abs. distance from min value to trigger CA-004 submodule key events, ranging from 0x00 to 0xFE
+void TerpstraMidiDriver::setKeyMinimumThreshold(uint8 boardIndex, uint8 minThresholdHigh, uint8 minThresholdLow)
+{
+    if (minThresholdHigh > 0xfe) minThresholdHigh &= 0xfe;
+    if (minThresholdLow  > 0xfe) minThresholdLow  &= 0xfe;
+    sendSysEx(boardIndex, SET_KEY_MIN_THRESHOLD, minThresholdHigh >> 4, minThresholdHigh & 0xf, minThresholdLow >> 4, minThresholdLow & 0xf);
+}
+
+// CMD 2Bh: Set the sensitivity for CC events, ranging from 0x00 to 0xFE
+void TerpstraMidiDriver::setFaderKeySensitivity(uint8 boardIndex, uint8 sensitivity)
+{
+    if (sensitivity > 0xfe) sensitivity &= 0xfe;
+    sendSysEx(boardIndex, SET_KEY_FADER_SENSITIVITY, sensitivity >> 4, sensitivity & 0xf, '\0', '\0');
+}
+
+// CMD 2Ch: Set the target board sensitivity for aftertouch events, ranging from 0x00 to 0xFE
+void TerpstraMidiDriver::setAftertouchKeySensitivity(uint8 boardIndex, uint8 sensitivity)
+{
+    if (sensitivity > 0xfe) sensitivity &= 0xfe;
+    sendSysEx(boardIndex, SET_KEY_AFTERTOUCH_SENSITIVITY, sensitivity >> 4, sensitivity & 0xf, '\0', '\0');
+}
+
+// CMD 2Dh: Adjust the Lumatouch table, a 128 byte array with value of 127 being a key fully pressed
+void TerpstraMidiDriver::setLumatouchConfiguration(uint8 lumatouchTable[])
+{
+    MidiMessage msg = createSendTableSysEx(0, SET_LUMATOUCH_CONFIG, 128, lumatouchTable);
+    sendMessageWithAcknowledge(msg);
+}
+
+// CMD 2Eh: **DEPRECATED** Save Lumatouch table changes
+void TerpstraMidiDriver::saveLumatoneConfiguration()
+{
+    sendSysExRequest(0, SAVE_LUMATOUCH_CONFIG);
+}
+
+// CMD 2Fh: Reset the Lumatouch table back to factory settings
+void TerpstraMidiDriver::resetLumatouchConfiguration()
+{
+    sendSysExRequest(0, RESET_LUMATOUCH_CONFIG);
+}
+
+// CMD 30h: Read back the Lumatouch table
+void TerpstraMidiDriver::getLumatouchConfiguration()
+{
+    sendSysExRequest(0, GET_LUMATOUCH_CONFIG);
+}
+
+// CMD 31h: This command is used to read back the current Lumatone firmware revision.
 void TerpstraMidiDriver::sendGetFirmwareRevisionRequest(bool overrideEditMode)
 {
-    sendSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0', overrideEditMode);
+    sendSysExRequest(0, GET_FIRMWARE_REVISION);
 }
 
-MidiMessage TerpstraMidiDriver::getFirmwareRevisionRequestMessage() const
+// CMD 32h: Set the thresold from key’s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
+void TerpstraMidiDriver::setCCActiveThreshold(uint8 boardIndex, uint8 sensitivity)
 {
-    MidiMessage msg = createTerpstraSysEx(0, GET_FIRMWARE_REVISION, '\0', '\0', '\0', '\0');
-    return msg;
+    if (sensitivity > 0xfe) sensitivity &= 0xfe;
+    sendSysEx(boardIndex, SET_CC_ACTIVE_THRESHOLD, sensitivity >> 4, sensitivity & 0xf, '\0', '\0');
+}
+
+// CMD 33h: Echo the payload, 0x00-0x7f, for use in connection monitoring
+uint8 TerpstraMidiDriver::ping(uint8 value)
+{
+    if (value > 0x7f) value &= 0x7f;
+    sendSysEx(0, LUMA_PING, value, '\0', '\0', '\0');
+    return value;
+}
+
+// CMD 34h: Reset the thresholds for events and sensitivity for CC & aftertouch on the target board
+void TerpstraMidiDriver::resetBoardThresholds(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, RESET_BOARD_THRESHOLDS);
+}
+
+// CMD 35h: Enable/disable key sampling over SSH for the target key and board
+void TerpstraMidiDriver::setKeySampling(uint8 boardIndex, uint8 keyIndex, bool turnSamplingOn)
+{
+    sendSysExToggle(boardIndex, SET_KEY_SAMPLING, turnSamplingOn);
+}
+
+// CMD 36h: Set thresholds for the pitch and modulation wheel to factory settings
+void TerpstraMidiDriver::resetWheelsThresholds()
+{
+    sendSysExRequest(0, RESET_WHEELS_THRESHOLD);
+}
+
+// CMD 37h: Set the bounds from the calibrated zero adc value of the pitch wheel, 0x00 to 0x7f
+void TerpstraMidiDriver::setPitchWheelZeroThreshold(uint8 threshold)
+{
+    if (threshold > 0x7f) threshold &= 0x7f;
+    sendSysEx(0, SET_PITCH_WHEEL_CENTER_THRESHOLD, threshold, '\0', '\0', '\0');
+}
+
+// CMD 38h: Pass in true to initiate the expression pedal calibration routine, or false to stop
+void TerpstraMidiDriver::calibrateExpressionPedal(bool startCalibration)
+{
+    sendSysExToggle(0, CALLIBRATE_EXPRESSION_PEDAL, startCalibration);
+}
+
+// CMD 39h: Reset expression pedal minimum and maximum bounds to factory settings
+void TerpstraMidiDriver::resetExpressionPedalBounds()
+{
+    sendSysExRequest(0, RESET_EXPRESSION_PEDAL_BOUNDS);
+}
+
+// CMD 3Ah: Retrieve the threshold values of target board
+void TerpstraMidiDriver::getBoardThresholdValues(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, GET_BOARD_THRESHOLD_VALUES);
+}
+
+// CMD 3Bh: Retrieve the sensitivity values of target board
+void TerpstraMidiDriver::getBoardSensitivityValues(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, GET_BOARD_SENSITIVITY_VALUES);
+}
+
+// CMD 3Ch: Set the MIDI channels for peripheral controllers
+void TerpstraMidiDriver::setPeripheralChannels(uint8 pitchWheelChannel, uint8 modWheelChannel, uint8 expressionChannel, uint8 sustainChannel)
+{
+    // For now set default channel to 1
+    if (pitchWheelChannel > 0xf) pitchWheelChannel &= 0x00;
+    if (modWheelChannel   > 0xf) modWheelChannel   &= 0x00;
+    if (expressionChannel > 0xf) expressionChannel &= 0x00;
+    if (sustainChannel    > 0xf) sustainChannel    &= 0x00;
+
+    sendSysEx(0, SET_PERIPHERAL_CHANNELS, pitchWheelChannel, modWheelChannel, expressionChannel, sustainChannel);
+}
+
+// CMD 3Dh: Retrieve the MIDI channels for peripheral controllers
+void TerpstraMidiDriver::getPeripheralChannels()
+{
+    sendSysExRequest(0, GET_PERIPHERAL_CHANNELS);
+}
+
+// CMD 3Fh: Set the 8-bit aftertouch trigger delay value, the time between a note on event and the initialization of aftertouch events
+void TerpstraMidiDriver::setAfterTouchTriggerDelay(uint8 boardIndex, uint8 aftertouchTriggerValue)
+{
+    setAfterTouchTriggerDelay(boardIndex, aftertouchTriggerValue >> 4, aftertouchTriggerValue & 0xf);
+}
+
+// CMD 3Fh: Set the 8-bit aftertouch trigger delay value, the time between a note on event and the initialization of aftertouch events
+void TerpstraMidiDriver::setAfterTouchTriggerDelay(uint8 boardIndex, uint8 triggerValueUpperNibble, uint8 triggerValueLowerNibble)
+{
+    sendSysEx(boardIndex, SET_AFTERTOUCH_TRIGGER_DELAY, triggerValueUpperNibble, triggerValueLowerNibble, '\0', '\0');
+}
+
+// CMD 40h: Retrieve the aftertouch trigger delay of the given board
+void TerpstraMidiDriver::sendGetAftertouchTriggerDelayRequest(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, GET_AFTERTOUCH_TRIGGER_DELAY);
+}
+
+// CMD 41h: Set the Lumatouch note-off delay value, an 11-bit integer representing the amount of 1.1ms ticks before
+// sending a note-off event after a Lumatone-configured key is released. 
+void TerpstraMidiDriver::setLumatouchNoteOffDelay(uint8 boardIndex, int delayValue)
+{
+    setLumatouchNoteOffDelay(boardIndex,
+        (delayValue >> 8) & 0xf,
+        (delayValue >> 4) & 0xf,
+        delayValue & 0xf
+    );
+}
+
+void TerpstraMidiDriver::setLumatouchNoteOffDelay(uint8 boardIndex, uint8 valueBits8_11, uint8 valueBits4_7, uint8 valueBits0_3)
+{
+    sendSysEx(boardIndex, SET_LUMATOUCH_NOTE_OFF_DELAY, valueBits8_11, valueBits4_7, valueBits0_3, '\0');
+}
+
+// CMD 42h: Retrieve the note-off delay value of the given board
+void TerpstraMidiDriver::sendGetLumatouchNoteOffDelayRequest(uint8 boardIndex)
+{
+    sendSysExRequest(boardIndex, GET_LUMATOUCH_NOTE_OFF_DELAY);
+}
+
+// CMD 43h: Set expression pedal ADC threshold value, a 12-bit integer
+void TerpstraMidiDriver::setExpressionPedalADCThreshold(int thresholdValue)
+{
+    setExpressionPedalADCThreshold(
+        (thresholdValue >> 8) & 0xf,
+        (thresholdValue >> 4) & 0xf,
+        thresholdValue & 0xf
+    );
+}
+
+// CMD 43h: Set expression pedal ADC threshold value with 3 4-bit integers representing a 12-bit integer
+void TerpstraMidiDriver::setExpressionPedalADCThreshold(uint8 valueBits8_12, uint8 valueBits4_7, uint8 valueBits0_3)
+{
+    sendSysEx(0, SET_EXPRESSION_PEDAL_THRESHOLD, valueBits8_12, valueBits4_7, valueBits0_3, '\0');
+}
+
+// CMD 44h: Get the current expression pedal ADC threshold value
+void TerpstraMidiDriver::sendGetExpressionPedalADCThresholdRequest()
+{
+    sendSysExRequest(0, GET_EXPRESSION_PEDAL_THRESHOLD);
 }
 
 /*
@@ -359,7 +590,7 @@ MidiMessage TerpstraMidiDriver::getFirmwareRevisionRequestMessage() const
 Low-level SysEx calls
 */
 
-MidiMessage TerpstraMidiDriver::createTerpstraSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4) const
+MidiMessage TerpstraMidiDriver::createTerpstraSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uint8 data2, uint8 data3, uint8 data4) const
 {
     unsigned char sysExData[9];
     sysExData[0] = (manufacturerId >> 16) & 0xff;
@@ -376,16 +607,206 @@ MidiMessage TerpstraMidiDriver::createTerpstraSysEx(int boardIndex, unsigned cha
     return msg;
 }
 
-void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, bool overrideEditMode)
+// Create a SysEx message to send 8-bit color precision
+MidiMessage TerpstraMidiDriver::createExtendedKeyColourSysEx(uint8 boardIndex, uint8 cmd, uint8 keyIndex, uint8 redUpper, uint8 redLower, uint8 greenUpper, uint8 greenLower, uint8 blueUpper, uint8 blueLower) const
 {
-	// Send only if output device is there and SysEx sending is meant to be active
-	if ((midiOutput != nullptr && currentSysExSendingMode == sysExSendingMode::liveEditor) || overrideEditMode)
-	{
-        MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
-		sendMessageWithAcknowledge(msg);
-	}
+    unsigned char sysExData[12];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = boardIndex;
+    sysExData[4] = cmd;
+    sysExData[5] = keyIndex;
+    sysExData[6] = redUpper;
+    sysExData[7] = redLower;
+    sysExData[8] = greenUpper;
+    sysExData[9] = greenLower;
+    sysExData[10] = blueUpper;
+    sysExData[11] = blueLower;
+
+    MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 12);
+    return msg;
+}
+MidiMessage TerpstraMidiDriver::createExtendedKeyColourSysEx(uint8 boardIndex, uint8 cmd, uint8 keyIndex, int red, int green, int blue) const
+{
+    return createExtendedKeyColourSysEx(boardIndex, cmd, keyIndex, red >> 8, red & 0xf, green >> 8, green & 0xf, blue >> 8, blue & 0xf);
 }
 
+MidiMessage TerpstraMidiDriver::createExtendedMacroColourSysEx(uint8 cmd, uint8 redUpper, uint8 redLower, uint8 greenUpper, uint8 greenLower, uint8 blueUpper, uint8 blueLower) const
+{
+    unsigned char sysExData[11];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = 0;
+    sysExData[4] = cmd;
+    sysExData[5] = redUpper;
+    sysExData[6] = redLower;
+    sysExData[7] = greenUpper;
+    sysExData[8] = greenLower;
+    sysExData[9] = blueUpper;
+    sysExData[10] = blueLower;
+
+    MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 11);
+    return msg;
+}
+
+MidiMessage TerpstraMidiDriver::createExtendedMacroColourSysEx(uint8 cmd, int red, int green, int blue) const
+{
+    return createExtendedMacroColourSysEx(cmd, red >> 8, red & 0xf, green >> 8, green & 0xf, blue >> 8, blue & 0xf);
+}
+
+MidiMessage TerpstraMidiDriver::createSendTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, uint8 table[])
+{
+    uint8 msgSize = tableSize + 5;
+    auto sysExData = new unsigned char[msgSize];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = '\0';
+    sysExData[4] = cmd;
+
+    memmove(&sysExData[5], table, 128);
+
+    auto msg = MidiMessage::createSysExMessage(sysExData, tableSize);
+    sendMessageNow(msg);
+
+    delete sysExData;
+}
+
+void TerpstraMidiDriver::sendSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uint8 data2, uint8 data3, uint8 data4, bool overrideEditMode)
+{
+    MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
+	sendMessageWithAcknowledge(msg);
+}
+
+// Send a SysEx message without parameters
+void TerpstraMidiDriver::sendSysExRequest(uint8 boardIndex, uint8 cmd)
+{
+    unsigned char sysExData[9];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = boardIndex;
+    sysExData[4] = cmd;
+    sysExData[5] = '\0';
+    sysExData[6] = '\0';
+    sysExData[7] = '\0';
+    sysExData[8] = '\0';
+    auto msg = MidiMessage::createSysExMessage(sysExData, 9);
+    sendMessageWithAcknowledge(msg);
+}
+
+void TerpstraMidiDriver::sendSysExToggle(uint8 boardIndex, uint8 cmd, bool turnStateOn)
+{
+    unsigned char sysExData[9];
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+    sysExData[3] = boardIndex;
+    sysExData[4] = cmd;
+    sysExData[5] = turnStateOn;
+    sysExData[6] = '\0';
+    sysExData[7] = '\0';
+    sysExData[8] = '\0';
+    auto msg = MidiMessage::createSysExMessage(sysExData, 9);
+    sendMessageWithAcknowledge(msg);
+}
+
+// Checks if message is a valid Lumatone firmware response and is expected length, then runs supplied unpacking function or returns an error code 
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackIfValid(const MidiMessage& response, size_t numBytes, std::function<TerpstraMidiDriver::Error(const uint8*)> unpackFunction)
+{
+    auto status = messageIsTerpstraSysExMessage(response);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    status = responseIsExpectedLength(response, numBytes);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    return unpackFunction(&response.getSysExData()[PAYLOAD_INIT]);
+}
+
+// Generic unpacking of octave data from a SysEx message
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackOctaveConfig(const MidiMessage& msg, int& boardId, size_t numBytes, int* keyData, std::function<TerpstraMidiDriver::Error(const MidiMessage&, size_t, int*)> nBitUnpackFunction)
+{
+    auto status = nBitUnpackFunction(msg, numBytes, keyData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    boardId = msg.getSysExData()[BOARD_IND];
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// Generic unpacking of 7-bit data from a SysEx message
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpack7BitData(const MidiMessage& msg, size_t numBytes, int* unpackedData)
+{
+    auto unpack = [&](const uint8* payload) {
+        for (int i = 0; i < numBytes; i++)
+            unpackedData[i] = payload[i];
+        return TerpstraMidiDriver::Error::noError;
+    };
+
+    return unpackIfValid(msg, numBytes, unpack);
+}
+
+// Unpacking of octave-based 7-bit key configuration data
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpack7BitOctaveData(const MidiMessage& msg, int& boardId, uint8 numKeys, int* keyData)
+{
+    return unpackOctaveConfig(msg, boardId, numKeys, keyData, [&](const MidiMessage&, uint8, int*) {
+        return unpack7BitData(msg, numKeys, keyData);
+    });
+}
+
+// Generic unpacking of 8-bit data from a SysEx message
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpack8BitData(const MidiMessage& msg, size_t numBytes, int* unpackedData)
+{
+    auto unpack = [&](const uint8* payload) {
+        auto numValues = numBytes / 2;
+        for (int i = 0; i < numValues; i++)
+            unpackedData[i] = (payload[i * 2] << 4) + (payload[(i + 1) * 2]);
+        return TerpstraMidiDriver::Error::noError;
+    };
+
+    return unpackIfValid(msg, numBytes, unpack);
+}
+
+// Unpacking of octave-based 8-bit data
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpack8BitOctaveData(const MidiMessage& msg, int& boardId, uint8 numKeys, int* keyData)
+{
+    return unpackOctaveConfig(msg, boardId, numKeys, keyData, [&](const MidiMessage&, size_t, int*) {
+        return unpack8BitData(msg, numKeys * 2, keyData);
+    });
+}
+
+// Generic unpacking of 12-bit data from a SysEx message, when packed with two 7-bit values
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpack12BitDataFrom7Bit(const MidiMessage& msg, size_t numBytes, int* unpackedData)
+{
+    auto unpack = [&](const uint8* payload) {
+        auto numValues = numBytes / 2;
+        for (int i = 0; i < numValues; i++)
+            unpackedData[i] = (payload[i * 2] << 6) + (payload[(i * 2) + 1]);
+        return TerpstraMidiDriver::Error::noError;
+    };
+
+    return unpackIfValid(msg, numBytes, unpack);
+}
+
+// Generic unpacking of 12-bit data from a SysEx message, when packed with three 4-bit values
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpack12BitDataFrom4Bit(const MidiMessage& msg, size_t numBytes, int* unpackedData)
+{
+    auto unpack = [&](const uint8* payload) {
+        auto numValues = numBytes / 3;
+        for (int i = 0; i < numValues; i++)
+        {
+            int start = i * 3;
+            unpackedData[i] = (payload[start] << 8) + (payload[start + 1] << 4) + (payload[start + 2]);
+        }
+        return TerpstraMidiDriver::Error::noError;
+    };
+
+    return unpackIfValid(msg, numBytes, unpack);
+}
 bool TerpstraMidiDriver::messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage)
 {
     // Only for SysEx messages
@@ -410,82 +831,317 @@ bool TerpstraMidiDriver::messageIsResponseToMessage(const MidiMessage& answer, c
     }
 }
 
-bool TerpstraMidiDriver::messageIsTerpstraSysExMessage(const MidiMessage& midiMessage)
+TerpstraMidiDriver::Error TerpstraMidiDriver::messageIsTerpstraSysExMessage(const MidiMessage& midiMessage)
 {
     if (!midiMessage.isSysEx())
-        return false;
+        return TerpstraMidiDriver::Error::messageIsNotSysEx;
 
     auto sysExData = midiMessage.getSysExData();
 
-    return midiMessage.getSysExDataSize() >= 3 &&
-        (sysExData[0] == ((manufacturerId >> 16) & 0xff)) &&
-        (sysExData[1] == ((manufacturerId >> 8) & 0xff)) &&
-		(sysExData[2] == (manufacturerId & 0xff));
+    if (midiMessage.getSysExDataSize() < PAYLOAD_INIT)
+        return TerpstraMidiDriver::Error::messageTooShort;
+
+    if (!(sysExData[MANU_0] == ((manufacturerId >> 16) & 0xff)) &&
+        !(sysExData[MANU_1] == ((manufacturerId >> 8) & 0xff)) &&
+        !(sysExData[MANU_2] == (manufacturerId & 0xff)))
+        return TerpstraMidiDriver::Error::messageHasIncorrectManufacturerId;
+
+    if (sysExData[BOARD_IND] > BOARD_OCT_5)
+        return TerpstraMidiDriver::Error::messageHasInvalidBoardIndex;
+
+    if (sysExData[MSG_STATUS] > TerpstraMIDIAnswerReturnCode::ERROR)
+        return TerpstraMidiDriver::Error::messageHasInvalidStatusByte;
+
+    return TerpstraMidiDriver::Error::noError;
 }
 
-bool TerpstraMidiDriver::messageIsTerpstraConfigurationDataReceptionMessage(const MidiMessage& midiMessage)
+TerpstraMidiDriver::Error TerpstraMidiDriver::responseIsExpectedLength(const MidiMessage& midiMessage, size_t numPayloadBytes)
 {
-    if (!messageIsTerpstraSysExMessage(midiMessage))
-        return false;
+    auto size = midiMessage.getSysExDataSize();
+    auto expected = numPayloadBytes + PAYLOAD_INIT;
 
-    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
-    auto midiCmd = midiMessage.getSysExData()[4];
+    if (size == expected)
+        return TerpstraMidiDriver::Error::noError;
 
-    return
-        midiCmd == GET_RED_LED_CONFIG ||
-        midiCmd == GET_GREEN_LED_CONFIG ||
-        midiCmd == GET_BLUE_LED_CONFIG ||
-        midiCmd == GET_CHANNEL_CONFIG ||
-        midiCmd == GET_NOTE_CONFIG ||
-        midiCmd == GET_KEYTYPE_CONFIG;
+    else if (size < expected)
+        return TerpstraMidiDriver::Error::messageTooShort;
+
+    else
+        return TerpstraMidiDriver::Error::messageTooLong;
 }
 
-bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const MidiMessage& midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+// For CMD 13h response: unpacks 8-bit key data for red LED intensity. 112 bytes, lower and upper nibbles for 56 values
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetLEDConfigResponse(const MidiMessage& response, int& boardId, int* keyData)
 {
-    if (!messageIsTerpstraSysExMessage(midiMessage))
-        return false;
-
-    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
-    auto midiCmd = midiMessage.getSysExData()[4];
-
-    return
-        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff && midiCmd == GET_VELOCITY_CONFIG) ||
-        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::fader && midiCmd == GET_FADER_CONFIG) ||
-        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG) ||
-		(velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch && midiCmd == GET_LUMATOUCH_CONFIG);
+    // TODO: Maybe should define keys per octave somewhere
+    return unpack8BitOctaveData(response, boardId, 56, keyData);
 }
 
-bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage)
+// For CMD 13h response: unpacks key data for red LED intensity. 55 or 56 bytes, each value must be multiplied by 5
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetLEDConfigResponse_Version_1_0_0(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
 {
-    if (!messageIsTerpstraSysExMessage(midiMessage))
-        return false;
+    // Custom unpacking function for intensity multiplication
+    auto unpackFunction = [&](const uint8* payload) {
+        for (int i = 0; i < numKeys; i++)
+            keyData[i] = ((int)payload[i] * 5) & 0xff;
+        return TerpstraMidiDriver::Error::noError;
+    };
 
-    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
-    auto midiCmd = midiMessage.getSysExData()[4];
-
-    return midiCmd == GET_VELOCITY_INTERVALS;
+    return unpackOctaveConfig(response, boardId, numKeys, keyData, [&](const MidiMessage&, uint8, int*) {
+        return unpackIfValid(response, numKeys, unpackFunction);
+    });
 }
 
-bool TerpstraMidiDriver::messageIsGetSerialIdentityResponse(const MidiMessage& midiMessage)
+// For CMD 16h response: unpacks channel data for note configuration. 55 or 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetChannelConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
 {
-    if (!messageIsTerpstraSysExMessage(midiMessage))
-        return false;
-
-    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
-    auto midiCmd = midiMessage.getSysExData()[4];
-
-    return midiCmd == GET_SERIAL_IDENTITY;
+    return unpack7BitOctaveData(response, boardId, numKeys, keyData);
 }
 
-bool TerpstraMidiDriver::messageIsGetFirmwareRevisionResponse(const MidiMessage& midiMessage)
+// For CMD 17h response: unpacks 7-bit key data for note configuration. 55 or 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetNoteConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
 {
-    if (!messageIsTerpstraSysExMessage(midiMessage))
-        return false;
+    return unpack7BitOctaveData(response, boardId, numKeys, keyData);
+}
 
-    // sysExData, positions 0-2: manufacturer Id. position 3: board index.
-    auto midiCmd = midiMessage.getSysExData()[4];
+// For CMD 18h response: unpacks 7-bit key type data for key configuration. 55 or 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetTypeConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
+{
+    return unpack7BitOctaveData(response, boardId, numKeys, keyData);
+}
 
-    return midiCmd == GET_FIRMWARE_REVISION;
+// For CMD 19h response: unpacks 8-bit key data for maximums of adc threshold. 55 or 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetKeyMaxThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
+{
+    return unpack8BitData(response, numKeys, keyData);
+}
+
+// For CMD 1Ah response: unpacks 8-bit key data for minimums of adc threshold. 55 or 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetKeyMinThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
+{
+    return unpack8BitOctaveData(response, boardId, numKeys, keyData);
+}
+
+// For CMD 1Bh response: unpacks 8-bit key data for maximums of adc threshold for aftertouch triggering. 55 or 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetAftertouchMaxThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData)
+{
+    return unpack8BitOctaveData(response, boardId, numKeys, keyData);
+}
+
+// For CMD 1Ch response: unpacks boolean key validity data for board, whether or not each key meets threshold specs
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetKeyValidityResponse(const MidiMessage& response, int& boardId, uint8 numKeys, bool* keyValidityData)
+{
+    // TODO: perhaps define boolean unpacking, or combine with 7-bit somehow
+
+    // Custom unpacking function for boolean array
+    auto unpackFunction = [&](const uint8* payload) {
+        for (int i = 0; i < numKeys; i++)
+            keyValidityData[i] = (bool)payload[i];
+        return TerpstraMidiDriver::Error::noError;
+    };
+
+    auto status = unpackIfValid(response, numKeys, unpackFunction);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    boardId = response.getSysExData()[BOARD_IND];
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 1Dh response: unpacks 7-bit velocity configuration of keyboard, 128 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetVelocityConfigResponse(const MidiMessage& response, int* velocityData)
+{
+    return unpack7BitData(response, 128, velocityData);
+}
+
+// For CMD 1Eh response: unpacks 7-bit fader configuration of keyboard, 128 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetFaderConfigResponse(const MidiMessage& response, int* faderData)
+{
+      return unpack7BitData(response, 128, faderData);
+}
+
+// For CMD 1Fh response: unpacks 7-bit aftertouch configuration of keyboard, 128 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetAftertouchConfigResponse(const MidiMessage& response, int* aftertouchData)
+{
+    return unpack7BitData(response, 128, aftertouchData);
+}
+
+// For CMD 21h response: unpacks 12-bit velocity interval configuration of keyboard, 254 bytes encoding 127 values
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetVelocityIntervalConfigResponse(const MidiMessage& response, int* intervalData)
+{
+    return unpack12BitDataFrom7Bit(response, 254, intervalData);
+}
+
+// For CMD 22h response: unpacks 7-bit fader type configuration of board, 56 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetFaderConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* faderData)
+{
+    return unpackOctaveConfig(response, boardId, numKeys, faderData, [&](const MidiMessage&, size_t, int*) {
+        return unpack7BitData(response, numKeys, faderData);
+    });
+}
+
+// For CMD 23h response: unpacks serial ID number of keyboard, 12 7-bit values encoding 6 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetSerialIdentityResponse(const MidiMessage& response, int* serialBytes)
+{
+    return unpack8BitData(response, 6, serialBytes);
+}
+
+// For CMD 30h response: unpacks 7-bit Lumatouch configuration of keyboard, 128 bytes
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetLumatouchConfigResponse(const MidiMessage& response, int* lumatouchData)
+{
+    return unpack7BitData(response, 128, lumatouchData);
+}
+
+// For CMD 30h response: unpacks firmware revision running on the keyboard
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetFirmwareRevisionResponse(const MidiMessage& response, int& majorVersion, int& minorVersion, int& revision)
+{
+    auto status = messageIsTerpstraSysExMessage(response);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    status = responseIsExpectedLength(response, 3);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    auto payload = &response.getSysExData()[PAYLOAD_INIT];
+    majorVersion = payload[0];
+    minorVersion = payload[1];
+    revision     = payload[2];
+
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 3Ah response: retrieve all 8-bit threshold values of a certain board
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetBoardThresholdValuesResponse(const MidiMessage& response, int& boardId, int& minHighThreshold, int& minLowThreshold, int& maxThreshold, int& aftertouchThreshold, int& ccThreshold)
+{
+    const short NUM_UNPACKED = 5;
+    int* unpackedData[NUM_UNPACKED];
+    auto status = unpack8BitOctaveData(response, boardId, NUM_UNPACKED, *unpackedData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    minHighThreshold     = *unpackedData[0];
+    minLowThreshold      = *unpackedData[1];
+    maxThreshold         = *unpackedData[2];
+    aftertouchThreshold  = *unpackedData[3];
+    ccThreshold          = *unpackedData[4];
+
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 3Bh response: retrieve all threshold values of a certain board
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetBoardSensitivityValuesResponse(const MidiMessage& response, int& boardId, int& ccSensitivity, int& aftertouchSensitivity)
+{
+    const short NUM_UNPACKED = 2;
+    int* unpackedData[NUM_UNPACKED];
+    auto status = unpack8BitOctaveData(response, boardId, NUM_UNPACKED, *unpackedData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    ccSensitivity           = *unpackedData[0];
+    aftertouchSensitivity   = *unpackedData[1];
+
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 3Dh response: retrieve all threshold values of a certain board
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetPeripheralChannelsResponse(const MidiMessage& response, int& pitchWheelChannel, int& modWheelChannel, int& expressionChannel, int& sustainPedalChannel)
+{
+    const short NUM_UNPACKED = 4;
+    int* unpackedData[NUM_UNPACKED];
+    auto status = unpack7BitData(response, NUM_UNPACKED, *unpackedData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    pitchWheelChannel   = *unpackedData[0];
+    modWheelChannel     = *unpackedData[1];
+    expressionChannel   = *unpackedData[2];
+    sustainPedalChannel = *unpackedData[3];
+
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 3Eh response: retrieve 12-bit expression pedal calibration status values in respective mode, automatically sent every 100ms
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackExpressionPedalCalibrationPayload(const MidiMessage& response, int& minBound, int& maxBound, bool& valid)
+{
+    const short NUM_UNPACKED = 5; // Actually two + boolean, but this message always returns 15-byte payload
+    int* unpackedData[NUM_UNPACKED];
+    auto status = unpack12BitDataFrom4Bit(response, 15, *unpackedData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    minBound = *unpackedData[0];
+    maxBound = *unpackedData[1];
+    valid = response.getSysExData()[PAYLOAD_INIT + 3];
+    
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 3Eh response: retrieve 12-bit pitch & mod wheel calibration status values in respective mode, automatically sent every 100ms
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackWheelsCalibrationPayload(const MidiMessage& response, int& centerPitch, int& minPitch, int& maxPitch, int& minMod, int& maxMod)
+{
+    const short NUM_UNPACKED = 5;
+    int* unpackedData[NUM_UNPACKED];
+    auto status = unpack12BitDataFrom4Bit(response, NUM_UNPACKED, *unpackedData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    centerPitch = *unpackedData[0];
+    minPitch    = *unpackedData[1];
+    maxPitch    = *unpackedData[2];
+    minMod      = *unpackedData[3];
+    maxMod      = *unpackedData[4];
+
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 40h response: retrieve aftertouch trigger delay of a certain board
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetAftertouchTriggerDelayResponse(const MidiMessage& response, int& boardId, int& triggerDelay)
+{
+    const short NUM_UNPACKED = 1;
+    int* unpackedData[NUM_UNPACKED];
+    auto status = unpack8BitData(response, NUM_UNPACKED, *unpackedData);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    triggerDelay = *unpackedData[0];
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 42h response: retrieve 12-bit Lumatouch note off delay of a certain board
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetLumatouchNoteOffDelayResponse(const MidiMessage& response, int& boardId, int& delay)
+{
+    auto status = messageIsTerpstraSysExMessage(response);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    status = responseIsExpectedLength(response, 3);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    auto payload = &response.getSysExData()[PAYLOAD_INIT];
+
+    delay = (payload[0] << 8) + (payload[1] << 4) + payload[2];
+
+    return TerpstraMidiDriver::Error::noError;
+}
+
+// For CMD 44h response: retrieve 12-bit expression pedal adc threshold, a 12-bit value
+TerpstraMidiDriver::Error TerpstraMidiDriver::unpackGetExpressionPedalThresholdResponse(const MidiMessage& response, int& thresholdValue)
+{
+    auto status = messageIsTerpstraSysExMessage(response);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    status = responseIsExpectedLength(response, 3);
+    if (status != TerpstraMidiDriver::Error::noError)
+        return status;
+
+    auto payload = &response.getSysExData()[PAYLOAD_INIT];
+
+    thresholdValue = (payload[0] << 8) + (payload[1] << 4) + payload[2];
+
+    return TerpstraMidiDriver::Error::noError;
 }
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
@@ -587,16 +1243,6 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
             // If there are more messages waiting in the queue: send the next one
             sendOldestMessageInQueue();
 
-            if (messageIsGetFirmwareRevisionResponse(message))
-            {
-                firmwareVersion = FirmwareVersion::fromGetFirmwareRevisionMsg(message);
-#if JUCE_DEBUG
-                {
-                    const MessageManagerLock mml;
-                    DBG("Firmware version is: " + firmwareVersion.toString());
-                }
-#endif
-            }
         }
     }
 
@@ -626,45 +1272,4 @@ void TerpstraMidiDriver::timerCallback()
     }
     else
         jassertfalse;
-}
-
-
-TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromString(String firmwareVersion)
-{
-    FirmwareVersion version(0, 0, 0);
-
-    String afterFirstDecimal = firmwareVersion.fromFirstOccurrenceOf(".", false, true);
-
-    // Just check if it contains at least two decimals
-    if (firmwareVersion.contains(".") && afterFirstDecimal.contains("."))
-    {
-        String majorNum = firmwareVersion.upToFirstOccurrenceOf(".", false, true);
-
-        String minorNum = afterFirstDecimal.upToFirstOccurrenceOf(".", false, true);
-
-        if (minorNum == afterFirstDecimal)
-        {
-            // This means there was only one decimal, don't try to parse
-            return version;
-        }
-
-        String revisionNum = firmwareVersion.fromLastOccurrenceOf(".", false, true);
-        if (revisionNum != revisionNum.upToFirstOccurrenceOf(".", false, true))
-        {
-            // This means there's an additional decimal, don't try to parse
-            return version;
-        }
-
-        version.major = majorNum.getIntValue();
-        version.minor = majorNum.getIntValue();
-        version.revision = majorNum.getIntValue();
-    }
-
-    return version;
-}
-
-TerpstraMidiDriver::FirmwareVersion TerpstraMidiDriver::FirmwareVersion::fromGetFirmwareRevisionMsg(const MidiMessage& msgIn)
-{
-    auto data = msgIn.getSysExData();
-    return TerpstraMidiDriver::FirmwareVersion(data[6], data[7], data[8]);
 }
