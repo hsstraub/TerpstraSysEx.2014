@@ -19,13 +19,6 @@ class TerpstraKey
 public:
 	typedef juce::Colour COLOURTYPE;
 
-	typedef enum
-	{
-		noteOnNoteOff = 1,
-		continuousController = 2,
-		lumaTouch = 3
-	} KEYTYPE;
-
 public:
 	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = noteOnNoteOff; };
 	bool isEmpty() const { return channelNumber == 0; }
@@ -36,7 +29,7 @@ public:
 	int			noteNumber;
 	int			channelNumber;
 	COLOURTYPE	colour;
-	KEYTYPE		keyType;
+	LumatoneKeyType		keyType;
 };
 
 // Subset of 56 (or 55) keys
@@ -54,14 +47,6 @@ struct TerpstraKeys {
 class TerpstraVelocityCurveConfig
 {
 public:
-	typedef enum
-	{
-		noteOnNoteOff = 1,
-		fader = 2,
-		afterTouch = 3,
-		lumaTouch = 4
-		// ToDo modulation wheel
-	} VelocityCurveType;
 
 	typedef enum
 	{
@@ -70,6 +55,15 @@ public:
 		linearSegments = 1,
 		quadraticCurves = 2
 	} EDITSTRATEGYINDEX;
+
+	typedef enum
+	{
+		noteOnNoteOff = 1,
+		fader = 2,
+		afterTouch = 3,
+		lumaTouch = 4
+		// ToDo modulation wheel
+	} VelocityCurveType;
 
 public:
 	TerpstraVelocityCurveConfig();

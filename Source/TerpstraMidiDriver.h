@@ -39,20 +39,6 @@ public:
         virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) = 0;
 	};
 
-	enum class Error
-	{
-		noError = 0,
-		noMidiOutputSet,
-		messageTooShort,
-		messageTooLong,
-		messageHasIncorrectManufacturerId,
-		messageHasInvalidBoardIndex,
-		messageHasInvalidStatusByte,
-		messageIsNotResponseToCommand,
-		messageIsNotSysEx,
-		externalError
-	};
-
 private:
     typedef enum
     {
@@ -63,8 +49,6 @@ private:
 public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
-
-	void setManufacturerId(int value) { manufacturerId = value; }
 
 	void addListener(Listener* listenerToAdd);
 	void removeListener(Listener* listenerToRemove);
@@ -109,7 +93,7 @@ public:
 	void sendLightOnKeyStrokes(bool value);
 
 	// CMD 08h: Send a value for a velocity lookup table (128 7-bit values)
-	void sendVelocityConfig(uint8 velocityTable[]);
+	void sendVelocityConfig(const uint8 velocityTable[]);
 
 	// CMD 09h: Save velocity config to EEPROM
 	void saveVelocityConfig();
@@ -118,13 +102,13 @@ public:
 	void resetVelocityConfig();
 
 	// CMD 0Bh: Adjust the internal fader look-up table (size of 128)
-	void setFaderConfiguration(uint8 faderTable[]);
+	void sendFaderConfig(const uint8 faderTable[]);
 
 	// CMD 0Ch: **DEPRECATED** Save the changes made to the fader look-up table
 	void saveFaderConfiguration();
 
 	// CMD 0Dh: Reset the fader lookup table back to its factory fader settings.
-	void resetFaderConfiguration();
+	void resetFaderConfig();
 
 	// CMD 0Eh: Enable or disable aftertouch functionality
 	void sendAfterTouchActivation(bool value);
@@ -133,64 +117,64 @@ public:
 	void sendCalibrateAfterTouch();
 
 	// CMD 10h: Adjust the internal aftertouch look-up table (size of 128)
-	void setAftertouchConfiguration(uint8 aftertouchTable[]);
+	void sendAftertouchConfig(const uint8 aftertouchTable[]);
 
 	// CMD 11h: **DEPRECATED** Save the changes made to the aftertouch look-up table
-	void saveAftertouchConfiguration();
+	void saveAftertouchConfig();
 
 	// CMD 12h: Reset the aftertouch lookup table back to its factory aftertouch settings.
-	void resetAftertouchConfiguration();
+	void resetAftertouchConfig();
 
 	// CMD 13h: Read back the current red intensity of all the keys of the target board.
-	void sendRedLEDConfigurationRequest(uint8 boardIndex);
+	void sendRedLEDConfigRequest(uint8 boardIndex);
 
 	// CMD 14h: Read back the current green intensity of all the keys of the target board.
-	void sendGreenLEDConfigurationRequest(uint8 boardIndex);
+	void sendGreenLEDConfigRequest(uint8 boardIndex);
 
 	// CMD 15h: Read back the current blue intensity of all the keys of the target board.
-	void sendBlueLEDConfigurationRequest(uint8 boardIndex);
+	void sendBlueLEDConfigRequest(uint8 boardIndex);
 
 	// CMD 16h: Read back the current channel configuration of all the keys of the target board.
-	void sendChannelConfigurationRequest(uint8 boardIndex);
+	void sendChannelConfigRequest(uint8 boardIndex);
 
 	// CMD 17h: Read back the current note configuration of all the keys of the target board.
-	void sendNoteConfigurationRequest(uint8 boardIndex);
+	void sendNoteConfigRequest(uint8 boardIndex);
 
 	// CMD 18h: Read back the current key type configuration of all the keys of the target board.
-	void sendKeyTypeConfigurationRequest(uint8 boardIndex);
+	void sendKeyTypeConfigRequest(uint8 boardIndex);
 
 	// CMD 19h: Read back the maximum fader (note on) threshold of all the keys of the target board.
-	void getMaxFaderThreshold(uint8 boardIndex);
+	void sendMaxFaderThresholdRequest(uint8 boardIndex);
 
 	// CMD 1Ah: Read back the maximum fader (note on) threshold of all the keys of the target board
-	void getMinFaderThreshold(uint8 boardIndex);
+	void sendMinFaderThresholdRequest(uint8 boardIndex);
 
 	// CMD 1Bh: Read back the aftertouch maximum threshold of all the keys of the target board
-	void getMaxAftertouchThreshold(uint8 boardIndex);
+	void sendMaxAftertouchThresholdRequest(uint8 boardIndex);
 
 	// CMD 1Ch: Get back flag whether or not each key of target board meets minimum threshold
-	void getKeyValidityParameters(uint8 boardIndex);
+	void sendKeyValidityParametersRequest(uint8 boardIndex);
 	
 	// CMD 1Dh: Read back the current velocity look up table of the keyboard.
-	void getVelocityConfiguration();
+	void sendVelocityConfigRequest();
 
 	// CMD 1Eh: Read back the current fader look up table of the keyboard.
-	void getFaderConfiguration();
+	void sendFaderConfigRequest();
 
 	// CMD 1Fh: Read back the current aftertouch look up table of the keyboard.
-	void getAftertouchConfiguration();
+	void sendAftertouchConfigRequest();
 
 	// CMD 20h: Set the velocity interval table, 127 12-bit values (up to 0x7fff
-    void sendVelocityIntervalConfig(int velocityIntervalTable[]);
+    void sendVelocityIntervalConfig(const int velocityIntervalTable[]);
 
 	// CMD 21h: Sead back the velocity interval table
 	void sendVelocityIntervalConfigRequest();
 
 	// CMD 22h: Read back the fader type of all keys on the targeted board.
-	void getFaderTypeConfiguration(uint8 boardIndex);
+	void sendFaderTypeConfigRequest(uint8 boardIndex);
 
 	// CMD 23h: This command is used to read back the serial identification number of the keyboard.
-	void sendGetSerialIdentityRequest(bool overrideEditMode = false);
+	void sendGetSerialIdentityRequest(int sendToTestDevice = -1);
 
 	// CMD 24h: Initiate the key calibration routine; each pair of macro buttons  
 	// on each octave must be pressed to return to normal state
@@ -221,27 +205,27 @@ public:
 	void setAftertouchKeySensitivity(uint8 boardIndex, uint8 sensitivity);
 
 	// CMD 2Dh: Adjust the Lumatouch table, 127 7-bit values, where 127 is a result of a fully pressed key
-	void setLumatouchConfiguration(uint8 lumatouchTable[]);
+	void setLumatouchConfig(const uint8 lumatouchTable[]);
 
 	// CMD 2Eh: **DEPRECATED** Save Lumatouch table changes
-	void saveLumatoneConfiguration();
+	void saveLumatoneConfig();
 
 	// CMD 2Fh: Reset the Lumatouch table back to factory settings
-	void resetLumatouchConfiguration();
+	void resetLumatouchConfig();
 
 	// CMD 30h: Read back the Lumatouch table
-	void getLumatouchConfiguration();
+	void sendLumatouchConfigRequest();
 
 	// CMD 31h: This command is used to read back the current Lumatone firmware revision.
 	// The firmware version format is in the form {Major}.{Minor}.{Revision}
 	// If the board has not been initialized, the Beaglebone will contain a firmware revision of 0.0.0 for the board
-	void sendGetFirmwareRevisionRequest(bool overrideEditMode = false);
+	void sendGetFirmwareRevisionRequest(int sendToTestDevice = -1);
 
 	// CMD 32h: Set the thresold from key’s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
 	void setCCActiveThreshold(uint8 boardIndex, uint8 sensitivity);
 
 	// CMD 33h: Echo the payload, 0x00-0x7f, for use in connection monitoring
-	uint8 ping(uint8 value);
+	uint8 ping(uint8 value, int sendToTestDevice = -1);
 
 	// CMD 34h: Reset the thresholds for events and sensitivity for CC & aftertouch on the target board
 	void resetBoardThresholds(uint8 boardIndex);
@@ -315,88 +299,88 @@ public:
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
 
 	// Message is SysEx message with Terpstra manufacturer ID yes/no
-	TerpstraMidiDriver::Error messageIsTerpstraSysExMessage(const MidiMessage& midiMessage);
+	FirmwareSupport::Error messageIsTerpstraSysExMessage(const MidiMessage& midiMessage);
 
 	// Determines if response is too short, too long, or expected
-	TerpstraMidiDriver::Error responseIsExpectedLength(const MidiMessage& midiMessage, size_t numPayloadBytes);
+	FirmwareSupport::Error responseIsExpectedLength(const MidiMessage& midiMessage, size_t numPayloadBytes);
 
 	//============================================================================
 	// Specific commands for unpacking responses, returns error code
 
 	// For CMD 13h response: unpacks 8-bit key data for red LED intensity. 112 bytes, lower and upper nibbles for 56 values
-	TerpstraMidiDriver::Error unpackGetLEDConfigResponse(const MidiMessage& response, int& boardId, int* keyData);
+	FirmwareSupport::Error unpackGetLEDConfigResponse(const MidiMessage& response, int& boardId, int* keyData);
 	
 	// For CMD 13h response: unpacks 7-bit key data for red LED intensity. 56 bytes, each value must be multiplied by 5
-	TerpstraMidiDriver::Error unpackGetLEDConfigResponse_Version_1_0_0(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetLEDConfigResponse_Version_1_0_0(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 16h response: unpacks 7-bit channel data for note configuration. 55 or 56 bytes
-	TerpstraMidiDriver::Error unpackGetChannelConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetChannelConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 17h response: unpacks 7-bit key data for note configuration. 55 or 56 bytes
-	TerpstraMidiDriver::Error unpackGetNoteConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetNoteConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 18h response: unpacks 7-bit key type data for key configuration. 55 or 56 bytes
-	TerpstraMidiDriver::Error unpackGetTypeConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetTypeConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 19h response: unpacks 8-bit key data for maximums of adc threshold. 55 or 56 bytes
-	TerpstraMidiDriver::Error unpackGetKeyMaxThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetKeyMaxThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 1Ah response: unpacks 8-bit key data for minimums of adc threshold. 55 or 56 bytes
-	TerpstraMidiDriver::Error unpackGetKeyMinThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetKeyMinThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 1Bh response: unpacks 8-bit key data for maximums of adc threshold for aftertouch triggering. 55 or 56 bytes
-	TerpstraMidiDriver::Error unpackGetAftertouchMaxThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpackGetAftertouchMaxThresholdsResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* keyData);
 
 	// For CMD 1Ch response: unpacks boolean key validity data for board, whether or not each key meets threshold specs
-	TerpstraMidiDriver::Error unpackGetKeyValidityResponse(const MidiMessage& response, int& boardId, uint8 numKeys, bool* keyValidityData);
+	FirmwareSupport::Error unpackGetKeyValidityResponse(const MidiMessage& response, int& boardId, uint8 numKeys, bool* keyValidityData);
 
 	// For CMD 1Dh response: unpacks 7-bit velocity configuration of keyboard, 128 bytes
-	TerpstraMidiDriver::Error unpackGetVelocityConfigResponse(const MidiMessage& response, int* velocityData);
+	FirmwareSupport::Error unpackGetVelocityConfigResponse(const MidiMessage& response, int* velocityData);
 
 	// For CMD 1Eh response: unpacks 7-bit fader configuration of keyboard, 128 bytes
-	TerpstraMidiDriver::Error unpackGetFaderConfigResponse(const MidiMessage& response, int* faderData);
+	FirmwareSupport::Error unpackGetFaderConfigResponse(const MidiMessage& response, int* faderData);
 
 	// For CMD 1Fh response: unpacks 7-bit aftertouch configuration of keyboard, 128 bytes
-	TerpstraMidiDriver::Error unpackGetAftertouchConfigResponse(const MidiMessage& response, int* aftertouchData);
+	FirmwareSupport::Error unpackGetAftertouchConfigResponse(const MidiMessage& response, int* aftertouchData);
 
 	// For CMD 21h response: unpacks 12-bit velocity interval configuration of keyboard, 254 bytes encoding 127 values
-	TerpstraMidiDriver::Error unpackGetVelocityIntervalConfigResponse(const MidiMessage& response, int* intervalData);
+	FirmwareSupport::Error unpackGetVelocityIntervalConfigResponse(const MidiMessage& response, int* intervalData);
 
 	// For CMD 22h response: unpacks 7-bit fader type configuration of board, 56 bytes
-	TerpstraMidiDriver::Error unpackGetFaderConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* faderData);
+	FirmwareSupport::Error unpackGetFaderConfigResponse(const MidiMessage& response, int& boardId, uint8 numKeys, int* faderData);
 
 	// For CMD 23h response: unpacks serial ID number of keyboard, 12 7-bit values encoding 6 bytes
-	TerpstraMidiDriver::Error unpackGetSerialIdentityResponse(const MidiMessage& response, int* serialBytes);
+	FirmwareSupport::Error unpackGetSerialIdentityResponse(const MidiMessage& response, int* serialBytes);
 
 	// For CMD 30h response: unpacks 7-bit Lumatouch configuration of keyboard, 128 bytes
-	TerpstraMidiDriver::Error unpackGetLumatouchConfigResponse(const MidiMessage& response, int* lumatouchData);
+	FirmwareSupport::Error unpackGetLumatouchConfigResponse(const MidiMessage& response, int* lumatouchData);
 
 	// For CMD 30h response: unpacks firmware revision running on the keyboard
-	TerpstraMidiDriver::Error unpackGetFirmwareRevisionResponse(const MidiMessage& response, int& majorVersion, int& minorVersion, int& revision);
+	FirmwareSupport::Error unpackGetFirmwareRevisionResponse(const MidiMessage& response, int& majorVersion, int& minorVersion, int& revision);
 
 	// For CMD 3Ah response: retrieve all 8-bit threshold values of a certain board
-	TerpstraMidiDriver::Error unpackGetBoardThresholdValuesResponse(const MidiMessage& response, int& boardId, int& minHighThreshold, int& minLowThreshold, int& maxThreshold, int& aftertouchThreshold, int& ccThreshold);
+	FirmwareSupport::Error unpackGetBoardThresholdValuesResponse(const MidiMessage& response, int& boardId, int& minHighThreshold, int& minLowThreshold, int& maxThreshold, int& aftertouchThreshold, int& ccThreshold);
 
 	// For CMD 3Bh response: retrieve all threshold values of a certain board
-	TerpstraMidiDriver::Error unpackGetBoardSensitivityValuesResponse(const MidiMessage& response, int& boardId, int& ccSensitivity, int& aftertouchSensitivity);
+	FirmwareSupport::Error unpackGetBoardSensitivityValuesResponse(const MidiMessage& response, int& boardId, int& ccSensitivity, int& aftertouchSensitivity);
 
 	// For CMD 3Dh response: retrieve MIDI channels of which peripherals are configured
-	TerpstraMidiDriver::Error unpackGetPeripheralChannelsResponse(const MidiMessage& response, int& pitchWheelChannel, int& modWheelChannel, int& expressionChannel, int& sustainPedalChannel);
+	FirmwareSupport::Error unpackGetPeripheralChannelsResponse(const MidiMessage& response, int& pitchWheelChannel, int& modWheelChannel, int& expressionChannel, int& sustainPedalChannel);
 
 	// For CMD 3Eh response: retrieve 12-bit expression pedal calibration status values in respective mode, automatically sent every 100ms
-	TerpstraMidiDriver::Error unpackExpressionPedalCalibrationPayload(const MidiMessage& response, int& minBound, int& maxBound, bool& valid);
+	FirmwareSupport::Error unpackExpressionPedalCalibrationPayload(const MidiMessage& response, int& minBound, int& maxBound, bool& valid);
 
 	// For CMD 3Eh response: retrieve 12-bit pitch & mod wheel calibration status values in respective mode, automatically sent every 100ms
-	TerpstraMidiDriver::Error unpackWheelsCalibrationPayload(const MidiMessage& response, int& centerPitch, int& minPitch, int& maxPitch, int& minMod, int& maxMod);
+	FirmwareSupport::Error unpackWheelsCalibrationPayload(const MidiMessage& response, int& centerPitch, int& minPitch, int& maxPitch, int& minMod, int& maxMod);
 
 	// For CMD 40h response: retrieve 8-bit aftertouch trigger delay of a certain board
-	TerpstraMidiDriver::Error unpackGetAftertouchTriggerDelayResponse(const MidiMessage& response, int& boardId, int& triggerDelay);
+	FirmwareSupport::Error unpackGetAftertouchTriggerDelayResponse(const MidiMessage& response, int& boardId, int& triggerDelay);
 
 	// For CMD 42h response: retrieve 12-bit Lumatouch note off delay of a certain board
-	TerpstraMidiDriver::Error unpackGetLumatouchNoteOffDelayResponse(const MidiMessage& response, int& boardId, int& delay);
+	FirmwareSupport::Error unpackGetLumatouchNoteOffDelayResponse(const MidiMessage& response, int& boardId, int& delay);
 
 	// For CMD 44h response: retrieve 12-bit expression pedal adc threshold
-	TerpstraMidiDriver::Error unpackGetExpressionPedalThresholdResponse(const MidiMessage& response, int& thresholdValue);
+	FirmwareSupport::Error unpackGetExpressionPedalThresholdResponse(const MidiMessage& response, int& thresholdValue);
 
 
 private:
@@ -408,6 +392,9 @@ private:
 
 	// Send the message marked as current and start waiting for answer
     void sendCurrentMessage();
+
+	// Fill a buffer with 3-bytes representing the manufacturer's ID
+	void fillManufacturerId(unsigned char* data) const;
 
 	// Create a SysEx message with standardized length
 	MidiMessage createTerpstraSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uint8 data2, uint8 data3, uint8 data4) const;
@@ -421,7 +408,7 @@ private:
 	MidiMessage createExtendedMacroColourSysEx(uint8 cmd, int red, int green, int blue) const;
 
 	// Create a SysEx message encoding a table with a defined size
-	MidiMessage createSendTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, uint8 table[]);
+	MidiMessage createSendTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, const uint8 table[]);
 
     // Send a SysEx message with standardized length
 	void sendSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uint8 data2, uint8 data3, uint8 data4, bool overrideEditMode = false);
@@ -433,35 +420,34 @@ private:
 	void sendSysExToggle(uint8 boardIndex, uint8 cmd, bool turnStateOn);
 
 	// Checks if message is a valid Lumatone firmware response and is expected length, then runs supplied unpacking function or returns an error code 
-	TerpstraMidiDriver::Error unpackIfValid(const MidiMessage& response, size_t numBytes, std::function<TerpstraMidiDriver::Error(const uint8*)> unpackFunction);
+	FirmwareSupport::Error unpackIfValid(const MidiMessage& response, size_t numBytes, std::function<FirmwareSupport::Error(const uint8*)> unpackFunction);
 
 	// Generic unpacking of octave data from a SysEx message
-	TerpstraMidiDriver::Error unpackOctaveConfig(const MidiMessage& msg, int& boardId, size_t numBytes, int* keyData, std::function<TerpstraMidiDriver::Error(const MidiMessage&, size_t, int*)> nBitUnpackFunction);
+	FirmwareSupport::Error unpackOctaveConfig(const MidiMessage& msg, int& boardId, size_t numBytes, int* keyData, std::function<FirmwareSupport::Error(const MidiMessage&, size_t, int*)> nBitUnpackFunction);
 
 	// Generic unpacking of 7-bit data from a SysEx message
-	TerpstraMidiDriver::Error unpack7BitData(const MidiMessage& msg, size_t numBytes, int* unpackedData);
+	FirmwareSupport::Error unpack7BitData(const MidiMessage& msg, size_t numBytes, int* unpackedData);
 
 	// Unpacking of octave-based 7-bit key configuration data
-	TerpstraMidiDriver::Error unpack7BitOctaveData(const MidiMessage& msg, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpack7BitOctaveData(const MidiMessage& msg, int& boardId, uint8 numKeys, int* keyData);
 
 	// Generic unpacking of 8-bit data from a SysEx message
-	TerpstraMidiDriver::Error unpack8BitData(const MidiMessage& msg, size_t numBytes, int* unpackedData);
+	FirmwareSupport::Error unpack8BitData(const MidiMessage& msg, size_t numBytes, int* unpackedData);
 
 	// Unpacking of octave-based 8-bit data
-	TerpstraMidiDriver::Error unpack8BitOctaveData(const MidiMessage& msg, int& boardId, uint8 numKeys, int* keyData);
+	FirmwareSupport::Error unpack8BitOctaveData(const MidiMessage& msg, int& boardId, uint8 numKeys, int* keyData);
 
 	// Generic unpacking of 12-bit data from a SysEx message, when packed with two 7-bit values
-	TerpstraMidiDriver::Error unpack12BitDataFrom7Bit(const MidiMessage& msg, size_t numBytes, int* unpackedData);
+	FirmwareSupport::Error unpack12BitDataFrom7Bit(const MidiMessage& msg, size_t numBytes, int* unpackedData);
 
 	// Generic unpacking of 12-bit data from a SysEx message, when packed with three 4-bit values
-	TerpstraMidiDriver::Error unpack12BitDataFrom4Bit(const MidiMessage& msg, size_t numBytes, int* unpackedData);
+	FirmwareSupport::Error unpack12BitDataFrom4Bit(const MidiMessage& msg, size_t numBytes, int* unpackedData);
 
 	// Attributes
 protected:
     ListenerList<Listener> listeners;
 
 private:
-	int manufacturerId = 0x002150;
 
     MidiMessage currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available

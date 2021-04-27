@@ -9,6 +9,7 @@
 */
 
 #pragma once
+#include "JuceHeader.h"
 
 /*
 ==============================================================================
@@ -29,6 +30,10 @@ System exclusive command structure
 ==============================================================================
 */
 
+#define MANUFACTURER_ID_0 0x00
+#define MANUFACTURER_ID_1 0x21
+#define MANUFACTURER_ID_2 0x50
+
 #define MANU_0       0x0
 #define MANU_1       0x1
 #define MANU_2       0x2
@@ -37,6 +42,9 @@ System exclusive command structure
 #define MSG_STATUS   0x5
 #define CALIB_MODE   0x5
 #define PAYLOAD_INIT 0x6
+#define PING_FLAG    0x7
+
+#define PING_ECHO    0x7F // Should not be returned by Lumatone firmware
 
 /*
 ==============================================================================
@@ -176,7 +184,6 @@ enum class LumatoneFirmwareVersion
 	NO_VERSION      = 0,  // Used for instantiation
 	VERSION_55_KEYS = 0,  // Used when version retrieved is 0.0.0
 	UNKNOWN_VERSION = 0,  // Used when no other version applies
-	FUTURE_VERSION,       // Used when version is nonnegative and below 9.9.999
 	VERSION_1_0_3 = 0x10,
 	VERSION_1_0_4,
 	VERSION_1_0_5,
@@ -190,7 +197,8 @@ enum class LumatoneFirmwareVersion
 	VERSION_1_0_13,
 	VERSION_1_0_14,
 	VERSION_1_0_15,
-	LAST_VERSION = VERSION_1_0_15
+	LAST_VERSION = VERSION_1_0_15,
+	FUTURE_VERSION = 0xFFFF  // Used when version is nonnegative and below 9.9.999
 } ;
 
 struct FirmwareVersion
@@ -245,6 +253,21 @@ struct FirmwareVersion
 
 struct FirmwareSupport
 {
+	enum class Error
+	{
+		noError = 0,
+		noMidiOutputSet,
+		messageTooShort,
+		messageTooLong,
+		messageHasIncorrectManufacturerId,
+		messageHasInvalidBoardIndex,
+		messageHasInvalidStatusByte,
+		messageIsNotResponseToCommand,
+		messageIsNotSysEx,
+		unknownCommand,
+		externalError
+	};
+
 	LumatoneFirmwareVersion getLumatoneFirmwareVersion(FirmwareVersion versionIn)
 	{
 		if (!(versionIn.major | versionIn.minor | versionIn.revision))
@@ -274,6 +297,7 @@ struct FirmwareSupport
 		return LumatoneFirmwareVersion::UNKNOWN_VERSION;
 	}
 
+	// TODO use map instead
 	// Returns the lowest version that will return ACK for a given command
 	LumatoneFirmwareVersion getLowestVersionAcknowledged(unsigned int CMD)
 	{
@@ -329,5 +353,19 @@ struct FirmwareSupport
 	{
 		auto VERSION = getLumatoneFirmwareVersion(versionIn);
 		return versionAcknowledgesCommand(VERSION, CMD);
+	}
+
+	// Should always be 56 in production
+	int getOctaveSize(LumatoneFirmwareVersion VERSION)
+	{
+		if (VERSION >= LumatoneFirmwareVersion::VERSION_1_0_3)
+			return 56;
+		else
+			return 55;
+	}
+
+	int getCommandNumber(const MidiMessage& msg)
+	{
+		return msg.getSysExData()[CMD_ID];
 	}
 };

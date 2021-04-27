@@ -338,7 +338,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
                 int keyValue = currentLine.substring(pos2 + 1).getIntValue();
                 if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
                     if (keyIndex >= 0 && keyIndex < 56)
-                        sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
+                        sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::LumatoneKeyType)keyValue;
                     else
                         jassert(false);
                 }

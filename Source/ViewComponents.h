@@ -51,7 +51,7 @@ private:
 	Label*  midiChannelLabel;
 
 	juce::Colour			keyColour;
-	TerpstraKey::KEYTYPE	keyType;
+	LumatoneKeyType			keyType;
 	
 	float					keySize;
 
