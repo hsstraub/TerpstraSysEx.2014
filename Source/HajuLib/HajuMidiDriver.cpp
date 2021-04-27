@@ -148,3 +148,64 @@ void HajuMidiDriver::closeMidiOutput()
     midiOutput = nullptr;
     lastOutputIndex = -1;
 }
+
+//============================================================================
+// Device detection support
+
+void HajuMidiDriver::openAvailableDevicesForTesting()
+{
+    closeTestingDevices();
+    refreshDeviceLists();
+
+    int i = 0;
+    for (auto device : midiOutputs)
+        testOutputs.set(i++, MidiOutput::openDevice(device.identifier), true);
+
+    i = 0;
+    for (auto device : midiInputs)
+        if (testInputs.getUnchecked(i) != nullptr && testInputs.getUnchecked(i)->getIdentifier() != device.identifier)
+            testInputs.set(i++, MidiInput::openDevice(device.identifier, this), true);
+        else i++;
+}
+
+void HajuMidiDriver::sendTestMessageNow(int outputDeviceIndex, const MidiMessage& message)
+{
+    // Return some error code?
+    if (testOutputs.size() > 0 && outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
+    {
+        testOutputs.getUnchecked(outputDeviceIndex)->sendMessageNow(message);
+    }
+}
+
+// Closes all open testing devices; either setMidiInput and setMidiOutput will call this if it's not empty
+void HajuMidiDriver::closeTestingDevices()
+{
+    if (testOutputs.size() > 0)
+        testOutputs.clear();
+
+    int errors = 0;
+    for (int i = 0; i < testInputs.size(); i++)
+    {
+        auto input = testInputs[i];
+        try
+        {
+            input->stop();
+            input = nullptr;
+        }
+        catch (int err)
+        {
+            errors++;
+            DBG("Err in closing MIDI Input: " + input->getName());
+        }
+    }
+
+    try
+    {
+        testInputs.clear();
+    }
+    catch (int err)
+    {
+        errors++;
+        DBG("Could not clear test inputs");
+    }
+}

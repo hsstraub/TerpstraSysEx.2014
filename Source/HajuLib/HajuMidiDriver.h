@@ -29,6 +29,9 @@ public:
 
 	virtual void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) = 0;
 
+	//============================================================================
+	// Primary functions with supported MIDI device
+
 	// List of MIDI input device names
 	Array<MidiDeviceInfo> getMidiInputList();
 	// List of MIDI output device names
@@ -62,6 +65,18 @@ public:
     // Close current output device
     void closeMidiOutput();
 
+	//============================================================================
+	// Device detection support
+
+	// Refreshes and opens all available MIDI devices
+	void openAvailableDevicesForTesting();
+
+	// Send a message to a specific device
+	void sendTestMessageNow(int outputDeviceIndex, const MidiMessage& message);
+
+	// Closes all open testing devices; either setMidiInput and setMidiOutput will call this if it's not empty
+	void closeTestingDevices();
+
 	// Attributes
 protected:
 	Array<MidiDeviceInfo> midiInputs;
@@ -75,6 +90,9 @@ protected:
 
 	// Last MIDI input opened
 	std::unique_ptr<MidiInput> midiInput;
+
+	OwnedArray<MidiOutput> testOutputs;
+	OwnedArray<MidiInput> testInputs;
 };
 
 #endif  // HAJUMIDIDRIVER_H_INCLUDED
