@@ -16,16 +16,14 @@ DeviceActivityMonitor::DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn, i
     : midiDriver(&midiDriverIn), responseTimeoutMs(responseTimeoutMsIn),
       Thread("DeviceActivityMonitor")
 {
-    detectMessage = midiDriver->getSerialIdentityRequestMessage();
     detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
     checkConnectionOnInactivity = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("CheckConnectionIfInactive", true);
-    midiDriver->addListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
 }
 
 DeviceActivityMonitor::~DeviceActivityMonitor()
 {
-    closeInputDevices();
-    closeOutputDevices();
+    TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
 }
 
 void DeviceActivityMonitor::setDetectDeviceIfDisconnected(bool doDetection)
@@ -46,15 +44,7 @@ void DeviceActivityMonitor::startDetectionRoutine()
     if (threadShouldExit())
         return;
 
-    midiDriver->removeListener(this);
-
     pingOutputIndex = -1;
-
-    closeInputDevices();
-    closeOutputDevices();
-
-    openAvailableInputDevices();
-    openAvailableOutputDevices();
 
     if (outputsToPing.size() > 0 && inputsListening.size() > 0)
     {
@@ -122,58 +112,20 @@ void DeviceActivityMonitor::intializeConnectionLossDetection(bool inFirmwareMode
         deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
 
     waitingForTestResponse = false;
-    midiDriver->addListener(this);
 }
 
 void DeviceActivityMonitor::initializeFirmwareUpdateMode()
 { 
     deviceConnectionMode = DetectConnectionMode::waitingForFirmwareUpdate; 
-    midiDriver->closeMidiInput();
-    midiDriver->closeMidiOutput();
-    sendChangeMessage();
+
     expectedResponseReceived = false;
     waitingForTestResponse = false;
-    midiDriver->addListener(this);
 }
 
 void DeviceActivityMonitor::cancelFirmwareUpdateMode()
 {
     deviceConnectionMode = DetectConnectionMode::lookingForDevice;
     waitingForTestResponse = false;
-    midiDriver->removeListener(this);
-}
-
-void DeviceActivityMonitor::openAvailableOutputDevices()
-{
-    for (auto outputDeviceInfo : midiDriver->getMidiOutputList())
-    {
-        outputsToPing.add(MidiOutput::openDevice(outputDeviceInfo.identifier));
-    }
-}
-
-void DeviceActivityMonitor::openAvailableInputDevices()
-{
-    for (auto inputDeviceInfo : midiDriver->getMidiInputList())
-    {
-        auto input = inputsListening.add(MidiInput::openDevice(inputDeviceInfo.identifier, this));
-        if (input) input->start();
-    }
-}
-
-void DeviceActivityMonitor::closeInputDevices()
-{
-    for (auto input : inputsListening)
-    {
-        if (input) input->stop();
-    }
-
-    inputsListening.clear();
-}
-
-void DeviceActivityMonitor::closeOutputDevices()
-{
-    // juce::MidiOutput stops background threads in its destructor
-    outputsToPing.clear();
 }
 
 bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::DetectConnectionMode modeToUse)
@@ -186,10 +138,10 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
     
     if (inputInfo.identifier != "" && outputInfo.identifier != "")
     {
-        //DBG("Testing connection of input " + inputInfo.name + " and output " + outputInfo.name);
+        DBG("Testing connection of input " + inputInfo.name + " and output " + outputInfo.name);
         midiDriver->addListener(this);
         {
-            ScopedLock lock(criticalSection);
+            //ScopedLock lock(criticalSection);
             deviceConnectionMode = modeToUse;
 
             if (deviceConnectionMode == DetectConnectionMode::gettingFirmwareVersion)
@@ -207,25 +159,37 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
     return false;
 }
 
-void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& response)
+void DeviceActivityMonitor::pingResponseReceived(int value)
 {
-    if (midiDriver->messageIsResponseToMessage(response, detectMessage))
+    onTestResponseReceived();
+
+    confirmedInputIndex = value;
+    confirmedOutputIndex = outputPingIds.indexOf(value);
+    jassert(confirmedOutputIndex >= 0);
+
+    // TODO from old function
+    if (!isThreadRunning())
     {
-        auto data = response.getSysExData();
-
-        // Is an echo of the request
-        if (data[5] == TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK)
+        int currentInput = midiDriver->getLastMidiInputIndex();
+        int currentOutput = midiDriver->getLastMidiOutputIndex();
+        if (confirmedInputIndex != currentInput || confirmedOutputIndex != currentOutput)
         {
-            return;
+            confirmedInputIndex = currentInput;
+            confirmedOutputIndex = currentOutput;
         }
 
-        // Is an acknowledged answer and successful connection
-        else
-        {
-            expectedResponseReceived = true;
-            confirmedInputIndex = inputsListening.indexOf(source);
-            confirmedOutputIndex = pingOutputIndex;
-        }
+        //sendChangeMessage();
+    }
+}
+
+void DeviceActivityMonitor::onTestResponseReceived()
+{
+    waitingForTestResponse = false;
+    expectedResponseReceived = true;
+
+    if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
+    {
+        deviceDetectInProgress = false;
     }
 }
 
@@ -334,46 +298,6 @@ void DeviceActivityMonitor::run()
 //=========================================================================
 // TerpstraMidiDriver::Listener Implementation
 
-void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
-{
-    ScopedLock lock(criticalSection);
-
-    activitySinceLastTimeout = true;
-
-    // Ignore any non-SysEx related messages
-    if (!midiMessage.isSysEx())
-        return;
- 
-    auto sysExData = midiMessage.getSysExData();
-
-    if (sysExData[5] > TerpstraMidiDriver::NACK)
-    {
-        if (midiDriver->messageIsGetSerialIdentityResponse(midiMessage))
-        {
-            waitingForTestResponse = false;
-            expectedResponseReceived = true;
-
-            if (!isThreadRunning())
-            {
-                int currentInput = midiDriver->getLastMidiInputIndex();
-                int currentOutput = midiDriver->getLastMidiOutputIndex();
-                if (confirmedInputIndex != currentInput || confirmedOutputIndex != currentOutput)
-                {
-                    confirmedInputIndex = currentInput;
-                    confirmedOutputIndex = currentOutput;
-                }
-
-                sendChangeMessage();
-            }
-        }
-        else if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate && midiDriver->messageIsGetFirmwareRevisionResponse(midiMessage))
-        {
-            expectedResponseReceived = true;
-            deviceDetectInProgress = false;
-        }
-    }
-}
-
 void DeviceActivityMonitor::onSuccessfulDetection()
 {
     {
@@ -381,14 +305,9 @@ void DeviceActivityMonitor::onSuccessfulDetection()
 
         deviceDetectInProgress = false;
 
-        closeOutputDevices();
-        closeInputDevices(); // Connection loss is handled in TerpstraMidiDriver::Listener callback
-
         midiDriver->setMidiInput(confirmedInputIndex);
         midiDriver->setMidiOutput(confirmedOutputIndex);
     }
-
-    sendChangeMessage();
 
     if (checkConnectionOnInactivity && deviceConnectionMode != DetectConnectionMode::waitingForFirmwareUpdate)
     {
@@ -402,9 +321,6 @@ void DeviceActivityMonitor::onDisconnection()
         ScopedLock lock(criticalSection);
         DBG("DISCONNECTION DETECTED");
 
-        midiDriver->closeMidiInput();
-        midiDriver->closeMidiOutput();
-
         confirmedInputIndex = -1;
         confirmedOutputIndex = -1;
 
@@ -412,8 +328,6 @@ void DeviceActivityMonitor::onDisconnection()
         expectedResponseReceived = false;
         deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
     }
-
-    sendChangeMessage();
 
     if (detectDevicesIfDisconnected)
     {

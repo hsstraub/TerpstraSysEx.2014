@@ -15,12 +15,11 @@
 
 #pragma once
 
-#include "TerpstraMidiDriver.h"
+#include "LumatoneController.h"
 
-class DeviceActivityMonitor : public juce::Thread,
-                              public juce::MidiInputCallback,
-                              public TerpstraMidiDriver::Listener, 
-                              public juce::ChangeBroadcaster
+class DeviceActivityMonitor :   public juce::Thread,
+                                public LumatoneController::FirmwareListener,
+                                public LumatoneController::MidiListener
 {
     
 public:
@@ -70,20 +69,11 @@ public:
 
     void run() override;
 
-    //=========================================================================
-    // juce::MidiInputCallback Implementation
-  
-    void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) override;
-
 protected:
-
     //=========================================================================
-    // TerpstraMidiDriver::Listener Implementation, only for connection loss detection
+    // LumatoneController::FirmwareListener Implementation
 
-    void midiMessageReceived(const MidiMessage& midiMessage) override;
-    void midiMessageSent(const MidiMessage& midiMessage) override {}
-    void midiSendQueueSize(int queueSize) override { midiQueueSize = queueSize; }
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
+    void pingResponseReceived(int value) override;
 
 private:
 
@@ -109,14 +99,9 @@ private:
     // Turn off device detection and idle
     void stopDeviceDetection();
 
+    void onTestResponseReceived();
+
     void onSuccessfulDetection();
-
-    void openAvailableOutputDevices();
-    void openAvailableInputDevices();
-
-    void closeInputDevices();
-    void closeOutputDevices();
-
 
     /// <summary>
     /// Test device connectivity after a connection has previously been made.
@@ -129,8 +114,6 @@ private:
 private:
     
     CriticalSection         criticalSection;
-
-    TerpstraMidiDriver*     midiDriver;
     
     MidiMessage             detectMessage;
 
@@ -147,6 +130,7 @@ private:
 
     OwnedArray<MidiOutput>  outputsToPing;
     OwnedArray<MidiInput>   inputsListening;
+    Array<uint8>            outputPingIds;
 
     int                     confirmedInputIndex = -1;
     int                     confirmedOutputIndex = -1;
