@@ -38,9 +38,7 @@
                                                                     //[/Comments]
 */
 class MidiEditArea  : public Component,
-                      public TerpstraMidiDriver::Listener,
-                      public juce::ChangeListener,
-                      public Timer,
+                      public LumatoneController::StatusListener,
                       public juce::ComboBox::Listener,
                       public juce::Button::Listener
 {
@@ -53,25 +51,17 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     void lookAndFeelChanged() override;
 
-    // Implementation of ChangeListener
-    // Called when DeviceActivityMonitor detects a change in devices
-    void changeListenerCallback(ChangeBroadcaster* source) override;
-
     void attemptDeviceConnection();
 	void onOpenConnectionToDevice();
 
     // For now, preserve connection functionality and make sure internal combo boxes are up to date
-    void refreshInputDevicesAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
-    void refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
+    void refreshInputMenuAndSetSelected(const Array<MidiDeviceInfo>& inputDevices, int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
+    void refreshOutputMenuAndSetSelected(const Array<MidiDeviceInfo>& outputDevices, int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
-	// Implementation of TerpstraMidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
-
-    // Implementation of juce::Timer
-    void timerCallback() override;
+	// Implementation of LumatoneController::StatusListener
+    void availableDevicesChanged(const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) override;
+    void connectionEstablished(int inputDevice, int outputDevice) override;
+    void connectionLost() override;
 
 private:
 
@@ -96,14 +86,12 @@ private:
 		offlineEditor = 1
 	};
 
-	HajuErrorVisualizer         errorVisualizer;
-
-    DeviceActivityMonitor&       deviceMonitor;
-
     bool                        isConnected = false;
     bool                        isWaitingForConnectionTest = false;
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
+
+    DeviceActivityMonitor&      deviceMonitor;
 
     std::unique_ptr<Label>      lumatoneLabel;
 
@@ -115,8 +103,6 @@ private:
 
     std::unique_ptr<Component>  logomark;
     Path                        logomarkPath;
-
-    const int                   deviceRefreshTimeoutMs = 500;
 
     //==============================================================================
     // Helpers

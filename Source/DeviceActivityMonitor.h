@@ -18,9 +18,8 @@
 #include "LumatoneController.h"
 
 class DeviceActivityMonitor : public juce::Timer,
-
-                              public LumatoneController::FirmwareListener,
-                              public LumatoneController::MidiListener
+                              public LumatoneController::FirmwareListener
+                              //public LumatoneController::MidiListener
 {
     
 public:
@@ -37,7 +36,7 @@ public:
     
 public:
 
-    DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn, int responseTimeoutMsIn=700);
+    DeviceActivityMonitor();
     ~DeviceActivityMonitor() override;
 
     DetectConnectionMode getMode() const { return deviceConnectionMode; }
@@ -49,9 +48,6 @@ public:
     bool willCheckForInactivity() const { return checkConnectionOnInactivity; }
     void setCheckForInactivity(bool monitorActivity);
 
-    bool isPaused() const { return activityIsPaused; }
-    void setPaused(bool pauseActivity) { activityIsPaused = pauseActivity; }
-
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
     int getConfirmedInputIndex() const { return confirmedInputIndex; }
 
@@ -61,6 +57,8 @@ public:
 
     void initializeFirmwareUpdateMode();
     void cancelFirmwareUpdateMode();
+
+    void setResponseTimeoutMs(int timeoutMs) { responseTimeoutMs = timeoutMs; }
 
     // Begin monitoring for unresponsiveness from device
     void intializeConnectionLossDetection(bool inFirmwareMode = false);
@@ -73,6 +71,10 @@ public:
 protected:
     //=========================================================================
     // LumatoneController::FirmwareListener Implementation
+
+    void serialIdentityReceived(const int* serialBytes) override;
+
+    void firmwareRevisionReceived(int major, int minor, int revision) override;
 
     void pingResponseReceived(int value) override;
 
@@ -113,24 +115,22 @@ private:
     void onDisconnection();
 
 private:
-    
-    CriticalSection         criticalSection;
-    
+
     MidiMessage             detectMessage;
 
     DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
     bool                    deviceDetectInProgress = false;
     bool                    waitingForTestResponse = false;
-    bool                    activityIsPaused       = false;
+    //bool                    activityIsPaused       = false;
 
-    const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
-    const int               pingRoutineTimeoutMs = 1000;
-    const int               inactivityTimeoutMs  = 500;
+    int                     responseTimeoutMs; // Pull from properties, currently 1000 by default
+    int                     pingRoutineTimeoutMs = 1000;
+    int                     inactivityTimeoutMs  = 500;
     
     int                     pingOutputIndex = -1;
 
-    OwnedArray<MidiOutput>  outputsToPing;
-    OwnedArray<MidiInput>   inputsListening;
+    Array<MidiDeviceInfo>   outputDevices;
+    Array<MidiDeviceInfo>   inputDevices;
     Array<uint8>            outputPingIds;
 
     int                     confirmedInputIndex = -1;
@@ -142,7 +142,7 @@ private:
     bool                    checkConnectionOnInactivity = true;
 
     bool                    expectedResponseReceived = false;
-    bool                    activitySinceLastTimeout = false;
+    //bool                    activitySinceLastTimeout = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

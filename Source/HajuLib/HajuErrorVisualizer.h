@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../TerpstraSysEx.2014/JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 
 class HajuErrorVisualizer
@@ -29,6 +29,8 @@ public:
 
     // Methods
 public:
+    void setErrorLevel(ErrorLevel errorLevel, String toolTipText);
+
     void setErrorLevel(
         SettableTooltipClient& tooltipClient,
         Component& component,
@@ -46,7 +48,8 @@ public:
 
     // Attributes
 private:
-    LookAndFeel& lookAndFeel;
-
+    LookAndFeel&  lookAndFeel;
+    ErrorLevel    lastErrorLevel;
+    String        currentText;
     Array<Colour> errorLevelColours = { Colour(0xff84aea3), Colour(0xffc9c238), Colour(0xffd7002a) };
 };

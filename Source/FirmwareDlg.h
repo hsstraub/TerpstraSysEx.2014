@@ -47,7 +47,7 @@ public:
     //=========================================================================
     // TerpstraMidiDriver::Listener implementation
 
-    void midiMessageReceived(const MidiMessage& midiMessage) override;
+    void midiMessageReceived(const MidiMessage& midiMessage) override {};
     void midiMessageSent(const MidiMessage& midiMessage) override {};
     void midiSendQueueSize(int queueSize) override {};
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};

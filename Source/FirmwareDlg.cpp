@@ -59,8 +59,8 @@ FirmwareDlg::FirmwareDlg()
 FirmwareDlg::~FirmwareDlg()
 {
     // Should check "who" paused it in the future
-    TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(false);
-    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+    //TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(false);
+    //TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 }
 
 void FirmwareDlg::paint(Graphics& g)
@@ -104,7 +104,7 @@ void FirmwareDlg::buttonClicked(Button* btn)
     //}
     if (btn == doUpdateBtn.get())
     {
-        if (TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiOutputIndex() < 0)
+        if (TerpstraSysExApplication::getApp().getLumatoneController().getLastMidiInput() < 0 || TerpstraSysExApplication::getApp().getLumatoneController().getLastMidiOutput() < 0)
         {
             AlertWindow::showMessageBox(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
             return;
@@ -139,20 +139,20 @@ void FirmwareDlg::updateFirmwareVersionLabel()
 
 void FirmwareDlg::initializeFirmwareUpdate()
 {
-    firmwareTransfer.reset(new FirmwareTransfer(TerpstraSysExApplication::getApp().getMidiDriver()));
-    firmwareUpdateInProgress = true;
-    numberOfWaitIncrements = 0;
-    firmwareTransfer->addListener(this);
-    firmwareTransfer->requestFirmwareUpdate(firmwareFileSelected.getFullPathName());
+    //firmwareTransfer.reset(new FirmwareTransfer(TerpstraSysExApplication::getApp().getMidiDriver()));
+    //firmwareUpdateInProgress = true;
+    //numberOfWaitIncrements = 0;
+    //firmwareTransfer->addListener(this);
+    //firmwareTransfer->requestFirmwareUpdate(firmwareFileSelected.getFullPathName());
     //startTimer(infoUpdateTimeoutMs);
 }
 
 void FirmwareDlg::initializeWaitForUpdate()
 {
     waitingForUpdateConfirmation = true;
-    TerpstraSysExApplication::getApp().getDeviceMonitor().initializeFirmwareUpdateMode();
-    TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(false);
-    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+    //TerpstraSysExApplication::getApp().getDeviceMonitor().initializeFirmwareUpdateMode();
+    //TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(false);
+    //TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
     startTimer(updateIncrementTimeoutMs);
 }
 
@@ -236,9 +236,9 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
 
     if (statusCode == FirmwareTransfer::StatusCode::InstallBegin)
     {
-        TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiInput();
-        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiOutput();
+        //TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(true);
+        //TerpstraSysExApplication::getApp().getMidiDriver().closeMidiInput();
+        //TerpstraSysExApplication::getApp().getMidiDriver().closeMidiOutput();
     }
     if (statusCode == FirmwareTransfer::StatusCode::VerificationBegin)
     {
@@ -287,8 +287,8 @@ void FirmwareDlg::timerCallback()
 
             stopTimer();
             firmwareTransfer->signalThreadShouldExit();
-            TerpstraSysExApplication::getApp().getDeviceMonitor().cancelFirmwareUpdateMode();
-            TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+            //TerpstraSysExApplication::getApp().getDeviceMonitor().cancelFirmwareUpdateMode();
+            //TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 
             AlertWindow::showMessageBox(
                 AlertWindow::AlertIconType::WarningIcon,
@@ -307,23 +307,23 @@ void FirmwareDlg::exitSignalSent()
     firmwareTransfer = nullptr;
     stopTimer();
 }
-
-void FirmwareDlg::midiMessageReceived(const MidiMessage& midiMessage)
-{
-    auto& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
-    if (midiDriver.messageIsGetFirmwareRevisionResponse(midiMessage))
-    {
-        auto version = TerpstraMidiDriver::FirmwareVersion::fromGetFirmwareRevisionMsg(midiMessage);
-        if (version.isValid())
-        {
-            DBG("Confirmed update to firmware version " + version.toString());
-            
-            midiDriver.removeListener(this);
-            stopTimer();
-            firmwareTransfer->setProgress(1.0);
-            firmwareTransfer->signalThreadShouldExit();
-            updateFirmwareVersionLabel();
-            TerpstraSysExApplication::getApp().getDeviceMonitor().intializeConnectionLossDetection();
-        }
-    }
-}
+//
+//void FirmwareDlg::midiMessageReceived(const MidiMessage& midiMessage)
+//{
+//    auto& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
+//    if (midiDriver.messageIsGetFirmwareRevisionResponse(midiMessage))
+//    {
+//        auto version = TerpstraMidiDriver::FirmwareVersion::fromGetFirmwareRevisionMsg(midiMessage);
+//        if (version.isValid())
+//        {
+//            DBG("Confirmed update to firmware version " + version.toString());
+//            
+//            midiDriver.removeListener(this);
+//            stopTimer();
+//            firmwareTransfer->setProgress(1.0);
+//            firmwareTransfer->signalThreadShouldExit();
+//            updateFirmwareVersionLabel();
+//            TerpstraSysExApplication::getApp().getDeviceMonitor().intializeConnectionLossDetection();
+//        }
+//    }
+//}
