@@ -257,6 +257,7 @@ struct FirmwareSupport
 	{
 		noError = 0,
 		noMidiOutputSet,
+		deviceIsBusy,
 		messageTooShort,
 		messageTooLong,
 		messageHasIncorrectManufacturerId,
