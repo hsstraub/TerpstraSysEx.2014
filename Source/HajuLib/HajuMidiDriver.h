@@ -33,18 +33,19 @@ public:
 	// Primary functions with supported MIDI device
 
 	// List of MIDI input device names
-	Array<MidiDeviceInfo> getMidiInputList();
+	const Array<MidiDeviceInfo>& getMidiInputList();
 	// List of MIDI output device names
-	Array<MidiDeviceInfo> getMidiOutputList();
+	const Array<MidiDeviceInfo>& getMidiOutputList();
     
     MidiDeviceInfo getMidiOutputInfo() const;
     MidiDeviceInfo getMidiInputInfo() const;
     
     int getLastMidiInputIndex() const { return lastInputIndex; }
     int getLastMidiOutputIndex() const { return lastOutputIndex; }
+	bool hasDevicesDefined() const { return lastInputIndex >= 0 && lastOutputIndex >= 0; }
 
-	// Re-initializes device list in case of changes
-	void refreshDeviceLists();
+	// Re-initializes device list in case of changes, returns true if a change was detected
+	bool refreshDeviceLists();
 
 	// Open the specified input device
 	void setMidiInput(int deviceIndex);
@@ -77,6 +78,8 @@ public:
 	// Closes all open testing devices; either setMidiInput and setMidiOutput will call this if it's not empty
 	void closeTestingDevices();
 
+	bool testIsIncomplete() const { return testInputs.size() > 0 || testOutputs.size() > 0; }
+
 	// Attributes
 protected:
 	Array<MidiDeviceInfo> midiInputs;
@@ -85,11 +88,14 @@ protected:
     int lastOutputIndex = -1;
 	int lastInputIndex = -1;
 
+	std::unique_ptr<MidiInput> selectedInput;
+	std::unique_ptr<MidiOutput> selectedOutput;
+
 	// Currently open MIDI output
-	std::unique_ptr<MidiOutput> midiOutput;
+	MidiOutput* midiOutput;
 
 	// Last MIDI input opened
-	std::unique_ptr<MidiInput> midiInput;
+	MidiInput* midiInput;
 
 	OwnedArray<MidiOutput> testOutputs;
 	OwnedArray<MidiInput> testInputs;

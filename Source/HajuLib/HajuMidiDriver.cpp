@@ -15,11 +15,13 @@ HajuMidiDriver::HajuMidiDriver()
 {
 	midiInputs = MidiInput::getAvailableDevices();
 	midiOutputs = MidiOutput::getAvailableDevices();
+    midiInput = nullptr;
+    midiOutput = nullptr;
 }
 
 HajuMidiDriver::~HajuMidiDriver()
 {
-    if (midiInput.get() != nullptr)
+    if (midiInput != nullptr)
     {
         midiInput->stop();
     }
@@ -28,12 +30,12 @@ HajuMidiDriver::~HajuMidiDriver()
 	midiOutput = nullptr;
 }
 
-Array<MidiDeviceInfo> HajuMidiDriver::getMidiInputList()
+const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiInputList()
 {
 	return midiInputs;
 }
 
-Array<MidiDeviceInfo> HajuMidiDriver::getMidiOutputList()
+const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiOutputList()
 { 
 	return midiOutputs;
 }
@@ -45,69 +47,180 @@ MidiDeviceInfo HajuMidiDriver::getMidiInputInfo() const
 
 MidiDeviceInfo HajuMidiDriver::getMidiOutputInfo() const
 {
-    if (midiOutput.get())
+    if (midiOutput != nullptr)
         return midiOutput->getDeviceInfo();
     return MidiDeviceInfo();
 }
 
-void HajuMidiDriver::refreshDeviceLists()
+bool HajuMidiDriver::refreshDeviceLists()
 {
+    bool inputsChanged = false;
+    auto newInputs = MidiInput::getAvailableDevices();
+    if (newInputs.size() == midiInputs.size())
+    {
+        for (int i = 0; i < newInputs.size(); i++)
+            if (newInputs[i] != midiInputs[i])
+                inputsChanged = true;
+    }
+    else
+        inputsChanged = true;
+
     // Reset last opened device to be the same index
     // so we close the correct one if that's requested
     // order change is probably rare but can't be guaranteed
-    
-    if (lastInputIndex >= 0)
-    {
-        String lastInputId = midiInputs[lastInputIndex].identifier;
-        midiInputs = MidiInput::getAvailableDevices();
 
-        for (int i = 0; i < midiInputs.size(); i++)
-            if (midiInputs[i].identifier == lastInputId)
-                lastInputIndex = i;
-    }
-    else
-        midiInputs = MidiInput::getAvailableDevices();
-    
-    if (lastOutputIndex >= 0)
+    if (inputsChanged)
     {
-        String lastOutputId = midiOutputs[lastOutputIndex].identifier;
-        midiOutputs = MidiOutput::getAvailableDevices();
+        if (lastInputIndex >= 0)
+        {
+            String lastInputId = midiInputs[lastInputIndex].identifier;
+
+            for (int i = 0; i < newInputs.size(); i++)
+                if (newInputs[i].identifier == lastInputId)
+                    lastInputIndex = i;
+        }
         
-        for (int i = 0; i < midiOutputs.size(); i++)
-            if (midiOutputs[i].identifier == lastOutputId)
-                lastOutputIndex = i;
+        midiInputs = newInputs;
+    }
+
+    bool outputsChanged = false;
+    auto newOutputs = MidiOutput::getAvailableDevices();
+    if (newOutputs.size() == midiOutputs.size())
+    {
+        for (int i = 0; i < newOutputs.size(); i++)
+            if (newOutputs[i] != midiOutputs[i])
+                outputsChanged = true;
     }
     else
-        midiOutputs = MidiOutput::getAvailableDevices();
+        outputsChanged = true;
+
+    if (outputsChanged)
+    {
+        if (lastOutputIndex >= 0)
+        {
+            String lastOutputId = midiOutputs[lastOutputIndex].identifier;
+
+            for (int i = 0; i < newOutputs.size(); i++)
+                if (newOutputs[i].identifier == lastOutputId)
+                    lastOutputIndex = i;
+        }
+        
+        midiOutputs = newOutputs;
+    }
+
+    return inputsChanged || outputsChanged;
 }
 
 void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
-    if (midiInput.get())
+    if (testInputs.size() > 0)
     {
-        midiInput->stop();
+        int swapWith = -1;
+        if (testInputs[deviceIndex] != nullptr)
+        {
+            if (midiInputs[deviceIndex].identifier == testInputs[deviceIndex]->getIdentifier())
+                swapWith = deviceIndex;
+        }
+        else 
+        {
+            for (int i = 0; i < testInputs.size(); i++)
+                if (testInputs[i]->getIdentifier() == midiInputs[deviceIndex].identifier)
+                {
+                    swapWith = i;
+                    break;
+                }
+        }
+
+        if (swapWith >= 0)
+        {
+            closeMidiInput();
+            midiInput = testInputs[deviceIndex];
+            lastInputIndex = swapWith;
+        }
+
+        // Clear all but confirmed input
+        while (testInputs.size() > 0)
+        {
+            if (testInputs[0] != midiInput)
+            {
+                testInputs.remove(0);
+            }
+            else if (testInputs.size() == 1)
+                break;
+            else
+                testInputs.swap(0, testInputs.size() - 1);
+        }
     }
 
-    auto newInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
-	midiInput.swap(newInput);
-    midiInput->start();
-    
-    lastInputIndex = deviceIndex;
+    // Bug if new input inserted; extra instantiation
+    else if (lastInputIndex != deviceIndex)
+    {
+        selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
+        midiInput = selectedInput.get();
+        midiInput->start();
+        lastInputIndex = deviceIndex;
+    }
 }
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
-	jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
-    
-    auto newOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
-    
-    if (newOutput == nullptr)
-        DBG("WARNING: Could not open up output device " + midiOutputs[deviceIndex].identifier);
-    
-    else if (newOutput != midiOutput)
+    jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
+    if (testOutputs.size() > 0)
     {
-        midiOutput.swap(newOutput);
-        lastOutputIndex = deviceIndex;
+        int swapWith = -1;
+
+        if (testOutputs[deviceIndex] != nullptr)
+        {
+            if (testOutputs[deviceIndex]->getIdentifier() == midiOutput->getIdentifier())
+                swapWith = deviceIndex;
+        }
+        else
+        {
+            for (int i = 0; i < testOutputs.size(); i++)
+            {
+                auto id = midiOutput->getIdentifier();
+                if (testOutputs[i]->getIdentifier() == id)
+                {
+                    swapWith = i;
+                    break;
+                }
+
+            }
+        }
+
+        if (swapWith > 0)
+        {
+            closeMidiOutput();
+            midiOutput = testOutputs[deviceIndex];
+            lastOutputIndex = deviceIndex;
+        }
+
+        while (testOutputs.size() > 0)
+        {
+            if (testOutputs[0] != midiOutput)
+            {
+                testOutputs.remove(0);
+            }
+            else if (testOutputs.size() == 1)
+                break;
+            else
+                testOutputs.swap(0, testOutputs.size() - 1);
+        }
+    }
+
+    // Bug if new input inserted; extra instantiation
+    else if (lastOutputIndex != deviceIndex)
+    {
+        selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
+
+        if (selectedOutput == nullptr)
+            DBG("WARNING: Could not open up output device " + midiOutputs[deviceIndex].identifier);
+
+        else if (selectedOutput.get() != midiOutput)
+        {
+            midiOutput = selectedOutput.get();
+            lastOutputIndex = deviceIndex;
+        }
     }
 }
 
@@ -134,19 +247,32 @@ void HajuMidiDriver::sendNoteOffMessage(int noteNumber, int channelNumber, uint8
 
 void HajuMidiDriver::closeMidiInput()
 {
-    if (midiInput.get())
+    if (midiInput != nullptr)
     {
         midiInput->stop();
         midiInput = nullptr;
 
         lastInputIndex = -1;
     }
+
+    if (selectedInput.get() != nullptr)
+    {
+        selectedInput = nullptr;
+    }
 }
 
 void HajuMidiDriver::closeMidiOutput()
 {
-    midiOutput = nullptr;
-    lastOutputIndex = -1;
+    if (midiOutput != nullptr)
+    {
+        midiOutput = nullptr;
+        lastOutputIndex = -1;
+    }
+
+    if (selectedOutput.get() != nullptr)
+    {
+        selectedOutput = nullptr;
+    }
 }
 
 //============================================================================
