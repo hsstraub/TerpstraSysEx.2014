@@ -13,6 +13,7 @@
 
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
+
 }
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
@@ -339,9 +340,6 @@ void TerpstraMidiDriver::sendFaderTypeConfigRequest(uint8 boardIndex)
 // CMD 23h: This command is used to read back the serial identification number of the keyboard.
 void TerpstraMidiDriver::sendGetSerialIdentityRequest(int sendToTestDevice)
 {
-    // device argument is 1-based
-    sendToTestDevice -= 1;
-
     if (sendToTestDevice < 0)
         sendSysExRequest(0, GET_SERIAL_IDENTITY);
     else if (sendToTestDevice < midiOutputs.size())
@@ -691,12 +689,16 @@ MidiMessage TerpstraMidiDriver::createSendTableSysEx(uint8 boardIndex, uint8 cmd
     sendMessageNow(msg);
 
     delete sysExData;
+    return msg;
 }
 
 void TerpstraMidiDriver::sendSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uint8 data2, uint8 data3, uint8 data4, bool overrideEditMode)
 {
-    MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
-	sendMessageWithAcknowledge(msg);
+    if (midiInput != nullptr)
+    {
+        MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
+        sendMessageWithAcknowledge(msg);
+    }
 }
 
 // Send a SysEx message without parameters
