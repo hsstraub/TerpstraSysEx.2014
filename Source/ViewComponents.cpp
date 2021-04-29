@@ -18,7 +18,7 @@ TerpstraKeyEdit class
 */
 
 TerpstraKeyEdit::TerpstraKeyEdit()
-	: isSelected(false), keyColour(juce::Colour()), keyType(TerpstraKey::noteOnNoteOff)
+	: isSelected(false), keyColour(juce::Colour()), keyType(LumatoneKeyType::noteOnNoteOff)
 {
 	midiNoteLabel = new Label("midiNoteLabel", "0");
 	addAndMakeVisible(midiNoteLabel);
@@ -57,13 +57,13 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	String newTooltip = translate("KeyType") + " ";
 	switch (keyType)
 	{
-	case TerpstraKey::noteOnNoteOff:
+	case LumatoneKeyType::noteOnNoteOff:
 		newTooltip += translate("NoteOnOff");
 		break;
-	case TerpstraKey::continuousController:
+	case LumatoneKeyType::continuousController:
 		newTooltip += translate("ContinuousController");
 		break;
-	case TerpstraKey::lumaTouch:
+	case LumatoneKeyType::lumaTouch:
 		newTooltip += translate("Lumatouch");
 		break;
 	default:
@@ -112,7 +112,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
     midiNoteLabel->setColour(juce::Label::textColourId, textColour);
 
 	// Look depending on Key type
-	if (currentValue.keyType == TerpstraKey::continuousController)
+	if (currentValue.keyType == LumatoneKeyType::continuousController)
 	{
 		// Key type is continuous controller. Set colour gradient.
         float w = this->getWidth();

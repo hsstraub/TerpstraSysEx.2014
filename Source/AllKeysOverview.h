@@ -22,7 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 
-#include "KeyboardDataStructure.h"
+#include "LumatoneController.h"
 #include "HexagonTilingGeometry.h"
 
 #include "ImageResampling/ImageResampler.h"
@@ -31,7 +31,7 @@
 
 
 // Representation of a key inside the overview
-class KeyMiniDisplayInsideAllKeysOverview : public Component, public TerpstraMidiDriver::Listener
+class KeyMiniDisplayInsideAllKeysOverview : public Component, public LumatoneController::MidiListener
 {
 public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
@@ -46,10 +46,11 @@ public:
 	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
 
 	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+	//void midiMessageReceived(const MidiMessage& midiMessage) override;
+	//void midiMessageSent(const MidiMessage& midiMessage) override {}
+	//void midiSendQueueSize(int queueSize) override {}
+	//void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+	void handleMidiMessage(const MidiMessage& msg) override;
 
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
@@ -96,7 +97,7 @@ public:
 
     void showDeveloperMode(bool developerModeOn);
     
-    void setFirmwareVersion(TerpstraMidiDriver::FirmwareVersion versionIn);
+    void setFirmwareVersion(FirmwareVersion versionIn);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

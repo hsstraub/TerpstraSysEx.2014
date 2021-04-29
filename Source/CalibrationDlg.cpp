@@ -144,15 +144,15 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibrateKeys();
+			TerpstraSysExApplication::getApp().getLumatoneController().startCalibrateKeys();
 			break;
 
 		case calibrateAftertouch:
-			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibrateAfterTouch();
+			TerpstraSysExApplication::getApp().getLumatoneController().startCalibrateAftertouch();
 			break;
 
 		case calibrateModulationWheel:
-			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibratePitchModWheel(true);
+			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(true);
 			break;
 
 		default:
@@ -176,7 +176,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 			jassertfalse;
 			break;
 		case calibrateModulationWheel:
-			TerpstraSysExApplication::getApp().getMidiDriver().sendCalibratePitchModWheel(false);
+			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(false);
 			break;
 		default:
 			jassertfalse;

@@ -32,13 +32,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
-	octaveBoardSize = propertiesFile->getBoolValue("55Keys", false) ? 55 : 56;
-
-	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
-	midiDriver.setManufacturerId(manufacturerId);
-
-	deviceMonitor.reset(new DeviceActivityMonitor(midiDriver, propertiesFile->getIntValue("DeviceDetectTimeout", 700)));
-
 	// Localisation
 	String localisation = getLocalisation(SystemStats::getDisplayLanguage());
 	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
@@ -118,23 +111,6 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 
 		for (auto commandLineParameter : commandLineParameters)
 		{
-			auto paramInLowerCase = commandLineParameter.toLowerCase();
-			if (paramInLowerCase == "-55keys" || paramInLowerCase == "/55keys")
-			{
-				octaveBoardSize = 55;
-				jassert(propertiesFile != nullptr);
-				propertiesFile->setValue("55Keys", true);
-				continue;
-			}
-
-			if (paramInLowerCase == "-56keys" || paramInLowerCase == "/56keys")
-			{
-				octaveBoardSize = 56;
-				jassert(propertiesFile != nullptr);
-				propertiesFile->setValue("55Keys", false);
-				continue;
-			}
-
 			// ToDo switch on/off isomorphic mass assign mode
 
 			// Try to open a config file
@@ -190,7 +166,6 @@ void TerpstraSysExApplication::shutdown()
 
     mainWindow = nullptr; // (deletes our window)
 	//commandManager = nullptr;
-    deviceMonitor = nullptr;
 }
 
 //==============================================================================
@@ -594,16 +569,16 @@ void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
 	
 	// MIDI channel, MIDI note, colour and key type config for all keys
-	getMidiDriver().sendCompleteMapping(theConfig);
+	getLumatoneController().sendCompleteMapping(theConfig);
 
 	// General options
-	getMidiDriver().sendAfterTouchActivation(theConfig.afterTouchActive);
-	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
-	getMidiDriver().sendInvertFootController(theConfig.invertFootController);
-	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+	getLumatoneController().setAftertouchEnabled(theConfig.afterTouchActive);
+	getLumatoneController().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
+	getLumatoneController().sendInvertFootController(theConfig.invertFootController);
+	getLumatoneController().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
 
 	// Velocity curve config
-	getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
+	getLumatoneController().setVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getCurvesArea()->sendConfigToController();
 }
@@ -634,7 +609,7 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	TerpstraSysExApplication::getApp().resetSysExMapping();
 
 	// Request MIDI channel, MIDI note, colour and key type config for all keys
-	getMidiDriver().sendGetCompleteMappingRequest();
+	getLumatoneController().sendGetCompleteMappingRequest();
 
 	// General options
 	// ToDo AfterTouchActive
@@ -643,10 +618,10 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	// ToDO expressionControllerSensivity
 
 	// Velocity curve config
-	getMidiDriver().sendVelocityIntervalConfigRequest();
-	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
-	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
-	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
+	getLumatoneController().sendVelocityIntervalConfigRequest();
+	getLumatoneController().sendVelocityConfigRequest();
+	getLumatoneController().sendFaderConfigRequest();
+	getLumatoneController().sendAftertouchConfigRequest();
 }
 
 void TerpstraSysExApplication::updateMainTitle()

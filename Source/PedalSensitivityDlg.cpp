@@ -133,7 +133,7 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().invertFootController = btnInvertFootCtrl->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertFootCtrl->getToggleState());
+		TerpstraSysExApplication::getApp().getLumatoneController().sendInvertFootController(btnInvertFootCtrl->getToggleState());
         //[/UserButtonCode_btnInvertFootCtrl]
     }
 
@@ -165,7 +165,7 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
         ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
         TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
+        TerpstraSysExApplication::getApp().getLumatoneController().sendExpressionPedalSensivity(newSensitvity);
         //[/UserSliderCode_sldExprCtrlSensivity]
     }
 

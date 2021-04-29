@@ -10,8 +10,8 @@ Author:  hsstraub
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-
+#include <JuceHeader.h>
+#include "LumatoneFirmwareDefinitions.h"
 
 // Mapping of one key
 class TerpstraKey

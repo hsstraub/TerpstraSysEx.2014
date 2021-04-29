@@ -186,7 +186,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
-	keyTypeCombo->setSelectedId(TerpstraKey::noteOnNoteOff);
+	keyTypeCombo->setSelectedId(LumatoneKeyType::noteOnNoteOff);
     //[/Constructor]
 }
 
@@ -404,7 +404,7 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
 
         // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
             setNoteToggleButton->setButtonText("CC Type:");
 
@@ -499,12 +499,12 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set key type if specified
 	if (keyTypeToggleButton->getToggleState())
 	{
-		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
+		keyData.keyType = (LumatoneKeyType)keyTypeCombo->getSelectedId();	// XXX if no selection?
 		mappingChanged = true;
 	}
 
 	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
+    TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection, keyData);
 
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())

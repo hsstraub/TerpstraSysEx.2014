@@ -40,12 +40,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
-	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController().addMidiListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
-	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController().removeMidiListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -98,20 +98,23 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 		
 		menu.show();
 	}
-	else
-	{
-		// NoteOn MIDI message
-		auto keyData = getKeyData();
-		if (keyData != nullptr && keyData->channelNumber > 0)
-		{
-			if (keyData->keyType == TerpstraKey::noteOnNoteOff)
-			{
-				// Send "note on" event
-				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
-			}
-			// ToDo if keyType is "continuous controller": send controller event?
-		}
-	}
+
+	// TODO integrate interaction through LumatoneController
+
+	//else
+	//{
+	//	// NoteOn MIDI message
+	//	auto keyData = getKeyData();
+	//	if (keyData != nullptr && keyData->channelNumber > 0)
+	//	{
+	//		if (keyData->keyType == LumatoneKeyType::noteOnNoteOff)
+	//		{
+	//			// Send "note on" event 
+	//			//TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+	//		}
+	//		// ToDo if keyType is "continuous controller": send controller event?
+	//	}
+	//}
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
@@ -121,29 +124,27 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 	isHighlighted = false;
 	repaint();
 
-	// NoteOff MIDI message
-	auto keyData = getKeyData();
-	if (keyData != nullptr && keyData->channelNumber > 0)
-	{
-		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
-		{
-			// Send "note off" event
-			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
-		}
-	}
+	// TODO integrate interaction through LumatoneController
+
+	//// NoteOff MIDI message
+	//auto keyData = getKeyData();
+	//if (keyData != nullptr && keyData->channelNumber > 0)
+	//{
+	//	if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+	//	{
+	//		// Send "note off" event
+	//		TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
+	//	}
+	//}
 }
 
-void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage& midiMessage)
+void KeyMiniDisplayInsideAllKeysOverview::handleMidiMessage(const MidiMessage& msg)
 {
-	// ToDo If key is parametrized as controller?
-	if (midiMessage.isNoteOnOrOff())
+	auto keyData = getKeyData();
+	if (keyData != nullptr && msg.getChannel() == keyData->channelNumber && msg.getNoteNumber() == keyData->noteNumber)
 	{
-		auto keyData = getKeyData();
-		if (keyData != nullptr && midiMessage.getChannel() == keyData->channelNumber && midiMessage.getNoteNumber() == keyData->noteNumber)
-		{
-			isHighlighted = midiMessage.isNoteOn();
-			repaint();
-		}
+		isHighlighted = msg.isNoteOn();
+		repaint();
 	}
 }
 
