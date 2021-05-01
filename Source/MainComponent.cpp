@@ -46,7 +46,7 @@ MainContentComponent::MainContentComponent()
 	addAndMakeVisible(globalSettingsArea.get());
 	globalSettingsArea->listenToColourEditButtons(this);
 
-	//TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
 
 	//lblAppName.reset(new Label("lblAppName", TerpstraSysExApplication::getApp().getApplicationName()));
 	lblAppName.reset(new Label("lblAppName", "lumatone editor"));
@@ -200,15 +200,15 @@ void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgb
 		TerpstraKey& keyData = this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex];
 		auto newValue = colourData[keyIndex];
 
-		if (rgbFlag & 0xff0000)
+		if (rgbFlag == 0)
 		{
 			keyData.colour = Colour(newValue, keyData.colour.getGreen(), keyData.colour.getBlue());
 		}
-		else if (rgbFlag & 0x00ff00)
+		else if (rgbFlag == 1)
 		{
 			keyData.colour = Colour(keyData.colour.getRed(), newValue, keyData.colour.getBlue());
 		}
-		else if (rgbFlag & 0x0000ff)
+		else if (rgbFlag == 2)
 		{
 			keyData.colour = Colour(keyData.colour.getRed(), keyData.colour.getGreen(), newValue);
 		}
@@ -291,6 +291,7 @@ void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
 void MainContentComponent::firmwareRevisionReceived(int majorVersion, int minorVersion, int revision)
 {
 	allKeysOverview->setFirmwareVersion(FirmwareVersion(majorVersion, minorVersion, revision));
+	allKeysOverview->repaint();
 }
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
