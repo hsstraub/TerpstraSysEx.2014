@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="1.0.0"
+<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="1.0.1"
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
               jucerFormatVersion="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
@@ -274,6 +274,12 @@
             file="Source/FirmwareTransfer.cpp"/>
       <FILE id="ik71Lw" name="FirmwareTransfer.h" compile="0" resource="0"
             file="Source/FirmwareTransfer.h"/>
+      <FILE id="VBB44g" name="LumatoneController.cpp" compile="1" resource="0"
+            file="Source/LumatoneController.cpp"/>
+      <FILE id="A92lud" name="LumatoneController.h" compile="0" resource="0"
+            file="Source/LumatoneController.h"/>
+      <FILE id="HzJKF6" name="LumatoneFirmwareDefinitions.h" compile="0"
+            resource="0" file="Source/LumatoneFirmwareDefinitions.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
