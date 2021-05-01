@@ -727,7 +727,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 		<< newLine
 		<< "Original design @ Dylan Horvath 2007" << newLine
-		<< "Reengineered @ Hans Straub, Vincenzo Sicurella 2014 - 2020" << newLine
+		<< "Reengineered @ Hans Straub, Vincenzo Sicurella 2014 - 2021" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to http://lumatone.io or http://terpstrakeyboard.com .";
 
