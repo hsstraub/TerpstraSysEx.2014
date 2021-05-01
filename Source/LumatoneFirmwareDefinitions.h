@@ -269,6 +269,39 @@ struct FirmwareSupport
 		externalError
 	};
 
+	String errorToString(Error err)
+	{
+		switch (err)
+		{
+		case Error::noError:
+			return "No error";
+		case Error::noMidiOutputSet:
+			return "No Midi output set";
+		case Error::deviceIsBusy:
+			return "Device is busy";
+		case Error::messageTooShort:
+				return "Message too short";
+		case Error::messageTooLong:
+				return "Message too long";
+		case Error::messageHasIncorrectManufacturerId:
+			return "Incorrect manufacturer ID";
+		case Error::messageHasInvalidBoardIndex:
+			return "Invalid board index";
+		case Error::messageHasInvalidStatusByte:
+			return "Message has invalid status byte";
+		case Error::messageIsNotResponseToCommand:
+			return "Message is not a response to the command";
+		case Error::messageIsNotSysEx:
+			return "Message is not a valid SysEx message.";
+		case Error::unknownCommand:
+			return "Unknown command / Not Acknowledged";
+		case Error::externalError:
+			return "Error from device";
+		default:
+			return "Unknown error...";
+		}
+	}
+
 	LumatoneFirmwareVersion getLumatoneFirmwareVersion(FirmwareVersion versionIn)
 	{
 		if (!(versionIn.major | versionIn.minor | versionIn.revision))
