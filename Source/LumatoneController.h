@@ -41,19 +41,21 @@ public:
     void setSysExSendingMode(sysExSendingMode newMode);
 
     FirmwareVersion getFirmwareVersion() const { return firmwareVersion; }
+
+    LumatoneFirmwareVersion getConfirmedVersion() const { return determinedVersion; }
     
     // Takes a generic firmware version and parses it into a recognized firmware version
-    void setFirmwareVersion(FirmwareVersion firmwareVersion);
+    void setFirmwareVersion(FirmwareVersion firmwareVersionIn);
 
     // Takes a recognized firmware version
-    void setFirmwareVersion(LumatoneFirmwareVersion lumatoneVersion);
+    void setFirmwareVersion(LumatoneFirmwareVersion lumatoneVersion, bool parseVersion = true);
 
     int getOctaveSize() const { return octaveSize; }
 
     void refreshAvailableMidiDevices() { midiDriver.refreshDeviceLists(); }
 
-    Array<MidiDeviceInfo> getRecognizedInputs() { return midiDriver.getMidiInputList(); }
-    Array<MidiDeviceInfo> getRecognizedOutputs() { return midiDriver.getMidiOutputList(); }
+    Array<MidiDeviceInfo> getMidiInputList() { return midiDriver.getMidiInputList(); }
+    Array<MidiDeviceInfo> getMidiOutputList() { return midiDriver.getMidiOutputList(); }
 
     int getMidiInputIndex() const { return midiDriver.getLastMidiInputIndex(); }
     int getMidiOutputIndex() const { return midiDriver.getLastMidiOutputIndex(); }
@@ -85,10 +87,14 @@ public:
     // Reset configuration of a certain look up table to factory settings
     void resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
-    // Ping a device cached in the device list
-    int pingMidiDevice(int deviceIndex, int pingId);
+    // Ping a device cached in the device list, will primarily use GetSerialIdentity, or Ping if determined version happens to be >= 1.0.9
+    int sendTestMessageToDevice(int deviceIndex, int pingId);
 
+    // Ping available devices to try to detect a Lumatone, returns ping IDs corresponding to output device index + 1
+    // Responses only expected from firmware versions 1.0.9 and up, so supporting older firmware will need other test messages
+    Array<int> pingAvailableDevices();
 
+    // Sends a generic test message to the current device pair to see if we get an expected response
     void testCurrentDeviceConnection();
 
     //============================================================================
@@ -216,7 +222,8 @@ public:
     void removeStatusListener(StatusListener* listenerIn) { statusListeners.remove(listenerIn); }
 
 private:
-
+    
+    void testResponseReceived();
     void emitConnectionEstablishedMessage();
 
 public:
@@ -332,12 +339,19 @@ private:
 
     void handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived = -1);
 
+public:
+    //============================================================================
+    // Public static helpers
+
+    static String serialIdentityToString(int* serialBytes);
+
 private:
 
     CriticalSection             criticalSection;
 
     FirmwareSupport             firmwareSupport;
 
+    String                      connectedSerialNumber;
     LumatoneFirmwareVersion     determinedVersion = LumatoneFirmwareVersion::NO_VERSION;
     FirmwareVersion             firmwareVersion = { 0, 0, 0 };
     int                         octaveSize = 56;
@@ -353,6 +367,7 @@ private:
 
     bool                        bufferReadRequested = false;
     bool                        waitingForTestResponse = false;
+    bool                        currentDevicePairEstablished = false;
     
     LumatoneController::sysExSendingMode editingMode = sysExSendingMode::offlineEditor;
 };

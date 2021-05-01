@@ -80,6 +80,8 @@ public:
     // Helper method for aligning the Octave Section TabbedButtonBar
     void setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY);
 
+    void resetOctaveSize(bool refreshAndResize=true);
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -95,6 +97,7 @@ private:
         IsomorphicMassAssignMode = 1
     };
 
+    int currentBoardSize = 0;
 	bool showIsomorphicMassAssign = false;
 
 	// Selector for octave boards

@@ -29,10 +29,6 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
-// DEBUG
-static Random r;
-
-
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -54,9 +50,9 @@ NoteEditArea::NoteEditArea ()
 	editFunctionsTab->setIndent(0);
 	editFunctionsTab->setOutline(0);
 
-  labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
+	labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
 	labelWindowTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
-  addAndMakeVisible (labelWindowTitle.get());
+	addAndMakeVisible (labelWindowTitle.get());
 
   //[UserPreSize]
 
@@ -75,12 +71,7 @@ NoteEditArea::NoteEditArea ()
 	octaveBoardSelectorTab->addChangeListener(this);
 
 	// Single Key fields
-	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
-	{
-		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
-		addAndMakeVisible(terpstraKeyFields[i].get());
-		terpstraKeyFields[i]->addMouseListener(this, true);
-	}
+	resetOctaveSize(false);
 
     //[/UserPreSize]
 
@@ -325,6 +316,36 @@ void NoteEditArea::refreshKeyFields()
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
 }
+
+void NoteEditArea::resetOctaveSize(bool refreshAndResize)
+{
+	int boardSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
+
+	jassert(boardSize == 55 || boardSize == 56);
+
+	if (currentBoardSize != boardSize)
+	{
+		boardGeometry = TerpstraBoardGeometry();
+
+		for (int i = 0; i < 56; i++)
+			terpstraKeyFields[i] = nullptr;
+
+		for (int i = 0; i < boardSize; i++)
+		{
+			terpstraKeyFields[i].reset(new TerpstraKeyEdit());
+			addAndMakeVisible(terpstraKeyFields[i].get());
+			terpstraKeyFields[i]->addMouseListener(this, true);
+		}
+
+		currentBoardSize = boardSize;
+
+		if (refreshAndResize)
+		{
+			refreshKeyFields();
+			resized();
+		}
+	}
+}
 //[/MiscUserCode]
 
 
@@ -338,7 +359,8 @@ void NoteEditArea::refreshKeyFields()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName=""
-                 parentClasses="public Component, public ChangeListener" constructorParams=""
+                 parentClasses="public Component, public ChangeListener, public 
+                 LumatoneController::FirmwareListener" constructorParams=""
                  variableInitialisers="currentSingleKeySelection(-1)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
                  initialWidth="760" initialHeight="470">

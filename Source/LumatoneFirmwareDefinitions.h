@@ -182,7 +182,7 @@ typedef enum
 enum class LumatoneFirmwareVersion
 {
 	NO_VERSION      = 0,  // Used for instantiation
-	VERSION_55_KEYS = 0,  // Used when version retrieved is 0.0.0
+	VERSION_55_KEYS = 0,  // Used when GetSerialIdentity returns 00000000
 	UNKNOWN_VERSION = 0,  // Used when no other version applies
 	VERSION_1_0_3 = 0x10,
 	VERSION_1_0_4,
@@ -248,6 +248,24 @@ struct FirmwareVersion
 		}
 
 		return version;
+	}
+
+	static FirmwareVersion fromDeterminedVersion(LumatoneFirmwareVersion versionIn)
+	{
+		int versionIndex = (int)versionIn;
+		if (versionIn >= LumatoneFirmwareVersion::VERSION_1_0_3)
+		{
+			// Return special definition for future version
+			if (versionIn > LumatoneFirmwareVersion::LAST_VERSION)
+				return FirmwareVersion(0, 0, (int)LumatoneFirmwareVersion::FUTURE_VERSION);
+			else
+				return FirmwareVersion(1, 0, versionIndex - (int)LumatoneFirmwareVersion::VERSION_1_0_3);
+		}
+		// Return special definition for 55-keys version
+		else if (versionIn == LumatoneFirmwareVersion::VERSION_55_KEYS)
+			return FirmwareVersion(0, 0, 55);
+		
+		return FirmwareVersion(0, 0, 0);
 	}
 };
 

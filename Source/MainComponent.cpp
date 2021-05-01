@@ -20,7 +20,7 @@ MainContentComponent::MainContentComponent()
 	setName("MainContentComponent");
 
 	// Midi input + output
-	midiEditArea.reset(new MidiEditArea(TerpstraSysExApplication::getApp().getLookAndFeel(), TerpstraSysExApplication::getApp().getDeviceMonitor()));
+	midiEditArea.reset(new MidiEditArea(TerpstraSysExApplication::getApp().getLookAndFeel()));
 	addAndMakeVisible(midiEditArea.get());
 
 	// All keys overview
@@ -288,10 +288,11 @@ void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
 	curvesArea->loadFromMapping();
 }
 
-void MainContentComponent::firmwareRevisionReceived(int majorVersion, int minorVersion, int revision)
+void MainContentComponent::firmwareRevisionReceived(int major, int minor, int revision)
 {
-	allKeysOverview->setFirmwareVersion(FirmwareVersion(majorVersion, minorVersion, revision));
-	allKeysOverview->repaint();
+	// Make sure changes happen in proper order
+	noteEditArea->resetOctaveSize();
+	allKeysOverview->resetOctaveSize();
 }
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
