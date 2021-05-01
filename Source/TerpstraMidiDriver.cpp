@@ -740,7 +740,7 @@ void TerpstraMidiDriver::sendSysExToggle(uint8 boardIndex, uint8 cmd, bool turnS
 // Checks if message is a valid Lumatone firmware response and is expected length, then runs supplied unpacking function or returns an error code 
 FirmwareSupport::Error TerpstraMidiDriver::unpackIfValid(const MidiMessage& response, size_t numBytes, std::function<FirmwareSupport::Error(const uint8*)> unpackFunction)
 {
-    auto status = messageIsTerpstraSysExMessage(response);
+    auto status = messageIsValidLumatoneResponse(response);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
@@ -855,7 +855,7 @@ bool TerpstraMidiDriver::messageIsResponseToMessage(const MidiMessage& answer, c
     }
 }
 
-FirmwareSupport::Error TerpstraMidiDriver::messageIsTerpstraSysExMessage(const MidiMessage& midiMessage)
+FirmwareSupport::Error TerpstraMidiDriver::messageIsValidLumatoneResponse(const MidiMessage& midiMessage)
 {
     if (!midiMessage.isSysEx())
         return FirmwareSupport::Error::messageIsNotSysEx;
@@ -1007,7 +1007,24 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetFaderConfigResponse(const Mi
 // For CMD 23h response: unpacks serial ID number of keyboard, 12 7-bit values encoding 6 bytes
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetSerialIdentityResponse(const MidiMessage& response, int* serialBytes)
 {
-    return unpack8BitData(response, 12, serialBytes);
+    auto errorCode = FirmwareSupport::Error::noError;
+
+    if (response.getSysExDataSize() == 18)
+        errorCode = unpack8BitData(response, 12, serialBytes);
+    else if (response.getSysExDataSize() < 18)
+    {
+        // Early firmware versions don't send serial payload
+        errorCode = messageIsValidLumatoneResponse(response);
+        if (errorCode == FirmwareSupport::Error::noError)
+        {
+            for (uint8 i = 0; i < 6; i++)
+                serialBytes[i] = 0;
+        }
+    }
+    else
+        errorCode = FirmwareSupport::Error::messageTooLong;
+
+    return errorCode;
 }
 
 // For CMD 30h response: unpacks 7-bit Lumatouch configuration of keyboard, 128 bytes
@@ -1019,7 +1036,7 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetLumatouchConfigResponse(cons
 // For CMD 30h response: unpacks firmware revision running on the keyboard
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetFirmwareRevisionResponse(const MidiMessage& response, int& majorVersion, int& minorVersion, int& revision)
 {
-    auto status = messageIsTerpstraSysExMessage(response);
+    auto status = messageIsValidLumatoneResponse(response);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
@@ -1039,16 +1056,16 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetFirmwareRevisionResponse(con
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetBoardThresholdValuesResponse(const MidiMessage& response, int& boardId, int& minHighThreshold, int& minLowThreshold, int& maxThreshold, int& aftertouchThreshold, int& ccThreshold)
 {
     const short NUM_UNPACKED = 5;
-    int* unpackedData[NUM_UNPACKED];
-    auto status = unpack8BitOctaveData(response, boardId, NUM_UNPACKED, *unpackedData);
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack8BitOctaveData(response, boardId, NUM_UNPACKED, unpackedData);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    minHighThreshold     = *unpackedData[0];
-    minLowThreshold      = *unpackedData[1];
-    maxThreshold         = *unpackedData[2];
-    aftertouchThreshold  = *unpackedData[3];
-    ccThreshold          = *unpackedData[4];
+    minHighThreshold     = unpackedData[0];
+    minLowThreshold      = unpackedData[1];
+    maxThreshold         = unpackedData[2];
+    aftertouchThreshold  = unpackedData[3];
+    ccThreshold          = unpackedData[4];
 
     return FirmwareSupport::Error::noError;
 }
@@ -1057,13 +1074,13 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetBoardThresholdValuesResponse
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetBoardSensitivityValuesResponse(const MidiMessage& response, int& boardId, int& ccSensitivity, int& aftertouchSensitivity)
 {
     const short NUM_UNPACKED = 2;
-    int* unpackedData[NUM_UNPACKED];
-    auto status = unpack8BitOctaveData(response, boardId, NUM_UNPACKED, *unpackedData);
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack8BitOctaveData(response, boardId, NUM_UNPACKED, unpackedData);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    ccSensitivity           = *unpackedData[0];
-    aftertouchSensitivity   = *unpackedData[1];
+    ccSensitivity           = unpackedData[0];
+    aftertouchSensitivity   = unpackedData[1];
 
     return FirmwareSupport::Error::noError;
 }
@@ -1072,15 +1089,15 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetBoardSensitivityValuesRespon
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetPeripheralChannelsResponse(const MidiMessage& response, int& pitchWheelChannel, int& modWheelChannel, int& expressionChannel, int& sustainPedalChannel)
 {
     const short NUM_UNPACKED = 4;
-    int* unpackedData[NUM_UNPACKED];
-    auto status = unpack7BitData(response, NUM_UNPACKED, *unpackedData);
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack7BitData(response, NUM_UNPACKED, unpackedData);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    pitchWheelChannel   = *unpackedData[0];
-    modWheelChannel     = *unpackedData[1];
-    expressionChannel   = *unpackedData[2];
-    sustainPedalChannel = *unpackedData[3];
+    pitchWheelChannel   = unpackedData[0];
+    modWheelChannel     = unpackedData[1];
+    expressionChannel   = unpackedData[2];
+    sustainPedalChannel = unpackedData[3];
 
     return FirmwareSupport::Error::noError;
 }
@@ -1089,13 +1106,13 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetPeripheralChannelsResponse(c
 FirmwareSupport::Error TerpstraMidiDriver::unpackExpressionPedalCalibrationPayload(const MidiMessage& response, int& minBound, int& maxBound, bool& valid)
 {
     const short NUM_UNPACKED = 5; // Actually two + boolean, but this message always returns 15-byte payload
-    int* unpackedData[NUM_UNPACKED];
-    auto status = unpack12BitDataFrom4Bit(response, 15, *unpackedData);
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack12BitDataFrom4Bit(response, 15, unpackedData);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    minBound = *unpackedData[0];
-    maxBound = *unpackedData[1];
+    minBound = unpackedData[0];
+    maxBound = unpackedData[1];
     valid = response.getSysExData()[PAYLOAD_INIT + 3];
     
     return FirmwareSupport::Error::noError;
@@ -1105,16 +1122,16 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackExpressionPedalCalibrationPaylo
 FirmwareSupport::Error TerpstraMidiDriver::unpackWheelsCalibrationPayload(const MidiMessage& response, int& centerPitch, int& minPitch, int& maxPitch, int& minMod, int& maxMod)
 {
     const short NUM_UNPACKED = 5;
-    int* unpackedData[NUM_UNPACKED];
-    auto status = unpack12BitDataFrom4Bit(response, NUM_UNPACKED, *unpackedData);
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack12BitDataFrom4Bit(response, NUM_UNPACKED, unpackedData);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    centerPitch = *unpackedData[0];
-    minPitch    = *unpackedData[1];
-    maxPitch    = *unpackedData[2];
-    minMod      = *unpackedData[3];
-    maxMod      = *unpackedData[4];
+    centerPitch = unpackedData[0];
+    minPitch    = unpackedData[1];
+    maxPitch    = unpackedData[2];
+    minMod      = unpackedData[3];
+    maxMod      = unpackedData[4];
 
     return FirmwareSupport::Error::noError;
 }
@@ -1123,19 +1140,19 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackWheelsCalibrationPayload(const 
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetAftertouchTriggerDelayResponse(const MidiMessage& response, int& boardId, int& triggerDelay)
 {
     const short NUM_UNPACKED = 1;
-    int* unpackedData[NUM_UNPACKED];
-    auto status = unpack8BitData(response, NUM_UNPACKED, *unpackedData);
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack8BitData(response, NUM_UNPACKED, unpackedData);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    triggerDelay = *unpackedData[0];
+    triggerDelay = unpackedData[0];
     return FirmwareSupport::Error::noError;
 }
 
 // For CMD 42h response: retrieve 12-bit Lumatouch note off delay of a certain board
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetLumatouchNoteOffDelayResponse(const MidiMessage& response, int& boardId, int& delay)
 {
-    auto status = messageIsTerpstraSysExMessage(response);
+    auto status = messageIsValidLumatoneResponse(response);
     if (status != FirmwareSupport::Error::noError)
         return status;
 
@@ -1153,7 +1170,7 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetLumatouchNoteOffDelayRespons
 // For CMD 44h response: retrieve 12-bit expression pedal adc threshold, a 12-bit value
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetExpressionPedalThresholdResponse(const MidiMessage& response, int& thresholdValue)
 {
-    auto status = messageIsTerpstraSysExMessage(response);
+    auto status = messageIsValidLumatoneResponse(response);
     if (status != FirmwareSupport::Error::noError)
         return status;
 

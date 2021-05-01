@@ -298,8 +298,8 @@ public:
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
 
-	// Message is SysEx message with Terpstra manufacturer ID yes/no
-	FirmwareSupport::Error messageIsTerpstraSysExMessage(const MidiMessage& midiMessage);
+	// Message is SysEx message with Lumatone Inc. manufacturer ID, valid board ID byte, and acknowledged status
+	FirmwareSupport::Error messageIsValidLumatoneResponse(const MidiMessage& midiMessage);
 
 	// Determines if response is too short, too long, or expected
 	FirmwareSupport::Error responseIsExpectedLength(const MidiMessage& midiMessage, size_t numPayloadBytes);
