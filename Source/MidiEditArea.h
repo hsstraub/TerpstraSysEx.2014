@@ -40,7 +40,8 @@
 class MidiEditArea  : public Component,
                       public LumatoneController::StatusListener,
                       public juce::ComboBox::Listener,
-                      public juce::Button::Listener
+                      public juce::Button::Listener,
+                      public juce::Timer
 {
 public:
     //==============================================================================
@@ -55,13 +56,17 @@ public:
 	void onOpenConnectionToDevice();
 
     // For now, preserve connection functionality and make sure internal combo boxes are up to date
-    void refreshInputMenuAndSetSelected(const Array<MidiDeviceInfo>& inputDevices, int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
-    void refreshOutputMenuAndSetSelected(const Array<MidiDeviceInfo>& outputDevices, int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
+    void refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
+    void refreshOutputMenuAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
 	// Implementation of LumatoneController::StatusListener
-    void availableDevicesChanged(const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) override;
+    //void availableDevicesChanged(const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) override;
+    void connectionChanged(bool hasConnection) override;
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
+
+
+    void timerCallback() override;
 
 private:
 
@@ -103,6 +108,8 @@ private:
 
     std::unique_ptr<Component>  logomark;
     Path                        logomarkPath;
+
+    const int                   deviceRefreshTimeoutMs = 500;
 
     //==============================================================================
     // Helpers
