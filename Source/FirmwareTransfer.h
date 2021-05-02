@@ -13,7 +13,7 @@
 
 #define SSHCONNECTIMEOUT 5000
 
-class FirmwareTransfer : public juce::ThreadWithProgressWindow, public TerpstraMidiDriver::Listener
+class FirmwareTransfer : public juce::ThreadWithProgressWindow
 {
 public:
 
@@ -109,12 +109,6 @@ private:
     // header only in .cpp
     //static int shutdownSSHSession(LIBSSH2_SESSION*, int, FILE*, int returnCode = 0);
     //static int waitForSSHSocket(int, LIBSSH2_SESSION*); 
-
-    void midiMessageReceived(const MidiMessage& midiMessage) override; // TODO
-    void midiMessageSent(const MidiMessage& midiMessage) override {};
-    void midiSendQueueSize(int queueSize) override {};
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
-
 
 private:
 

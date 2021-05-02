@@ -15,32 +15,29 @@
 
 #pragma once
 
-#include "LumatoneController.h"
+#include "TerpstraMidiDriver.h"
 
-class DeviceActivityMonitor : public juce::Timer,
-                              public LumatoneController::FirmwareListener
-                              //public LumatoneController::MidiListener
+class DeviceActivityMonitor : public juce::Timer, protected TerpstraMidiDriver::Listener
 {
     
 public:
     enum class DetectConnectionMode
     {
         noDeviceActivity = -1,
-        noDeviceMonitoring,
         lookingForDevice,
         waitingForFirmwareUpdate, // "silent" lookingForDevice
-        testingConnection,
+        noDeviceMonitoring,
         gettingFirmwareVersion, // connection tests with GetFirmwareRevision
         waitingForInactivity
     };
     
 public:
 
-    DeviceActivityMonitor();
+    DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn);
     ~DeviceActivityMonitor() override;
 
     DetectConnectionMode getMode() const { return deviceConnectionMode; }
-    bool isConnectionEstablished() const { return expectedResponseReceived && confirmedInputIndex >= 0 && confirmedOutputIndex >= 0; }
+    bool isConnectionEstablished() const { return confirmedInputIndex >= 0 && confirmedOutputIndex >= 0; }
     
     bool willDetectDeviceIfDisconnected() const { return detectDevicesIfDisconnected; }
     void setDetectDeviceIfDisconnected(bool doDetection);
@@ -51,8 +48,7 @@ public:
     int getConfirmedOutputIndex() const { return confirmedOutputIndex; }
     int getConfirmedInputIndex() const { return confirmedInputIndex; }
 
-    void testCurrentDevices() { initializeConnectionTest(); }
-
+    // First send a new ping to all available MidiOutput devices. If no connection established, send individual old pings to devices.
     void initializeDeviceDetection();
 
     void initializeFirmwareUpdateMode();
@@ -68,22 +64,17 @@ public:
 
     void timerCallback() override;
 
-protected:
-    //=========================================================================
-    // LumatoneController::FirmwareListener Implementation
-
-    void serialIdentityReceived(const int* serialBytes) override;
-
-    void firmwareRevisionReceived(int major, int minor, int revision) override;
-
-    void pingResponseReceived(int value) override;
-
 private:
+
+    /// <summary>
+    /// Sends a ping to all devices to see if we get a response
+    /// </summary>
+    void pingAllDevices();
 
     /// <summary>
     /// Prepares to ping devices by refreshing available devices, opening them, and starting pinging routine
     /// </summary>
-    void startDetectionRoutine();
+    void startIndividualDetection();
 
     // Determines whether or not to try to continue device detection, tries next pair if so
     void checkDetectionStatus();
@@ -91,7 +82,7 @@ private:
     /// <summary>
     /// Increments the output index and sends a Get Serial Identity message to this next output to listen for a response 
     /// </summary>
-    void pingNextOutput();
+    void testNextOutput();
 
     // TODO WITH ECHO FIRMWARE COMMAND
     ///// <summary>
@@ -102,36 +93,60 @@ private:
     // Turn off device detection and idle
     void stopDeviceDetection();
 
-    void onTestResponseReceived();
 
-    void onSuccessfulDetection();
 
     /// <summary>
     /// Test device connectivity after a connection has previously been made.
     /// </summary>
     /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
-    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::testingConnection);
+    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::waitingForInactivity);
 
-    void onDisconnection();
 
 private:
 
+    void onSerialIdentityResponse(const MidiMessage& msg, int deviceIndexResponded);
+
+    void onPingResponse(const MidiMessage& msg, int deviceIndexResponded);
+
+    void onTestResponseReceived();
+
+    void onSuccessfulDetection();
+
+    void onDisconnection();
+
+protected:
+
+    //=========================================================================
+    // TerpstraMidiDriver::Listener Implementation
+
+    void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) override;
+    void midiMessageSent(const MidiMessage& midiMessage) {};
+    void midiSendQueueSize(int queueSizeIn) { midiQueueSize = queueSizeIn; };
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) {};
+    void noAnswerToMessage(const MidiMessage& midiMessage) {};
+
+private:
+
+    TerpstraMidiDriver&     midiDriver;
+
     MidiMessage             detectMessage;
 
-    DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
+    DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceActivity;
     bool                    deviceDetectInProgress = false;
     bool                    waitingForTestResponse = false;
     //bool                    activityIsPaused       = false;
 
-    int                     responseTimeoutMs; // Pull from properties, currently 1000 by default
-    int                     pingRoutineTimeoutMs = 1000;
-    int                     inactivityTimeoutMs  = 500;
+    int                     responseTimeoutMs = 500; // Pull from properties, currently 1000 by default
+    int                     detectRoutineTimeoutMs = 500;
+    int                     inactivityTimeoutMs  = 1500;
     
-    int                     pingOutputIndex = -1;
+    int                     testOutputIndex = -1;
 
     Array<MidiDeviceInfo>   outputDevices;
     Array<MidiDeviceInfo>   inputDevices;
-    Array<uint8>            outputPingIds;
+    
+    Array<unsigned int>     outputPingIds;
+    int                     failedPings;
 
     int                     confirmedInputIndex = -1;
     int                     confirmedOutputIndex = -1;
@@ -142,7 +157,6 @@ private:
     bool                    checkConnectionOnInactivity = true;
 
     bool                    expectedResponseReceived = false;
-    //bool                    activitySinceLastTimeout = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

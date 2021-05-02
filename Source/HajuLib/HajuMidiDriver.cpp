@@ -24,8 +24,8 @@ HajuMidiDriver::~HajuMidiDriver()
     if (midiInput != nullptr)
     {
         midiInput->stop();
+        midiInput = nullptr;
     }
-
 
 	midiOutput = nullptr;
 }
@@ -113,114 +113,46 @@ bool HajuMidiDriver::refreshDeviceLists()
 
 void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
-    if (testInputs.size() > 0)
+    jassert(deviceIndex >= 0 && deviceIndex < midiInputs.size());
+
+    testInputs.clear();
+
+    if (midiInput != nullptr)
     {
-        int swapWith = -1;
-        if (testInputs[deviceIndex] != nullptr)
-        {
-            if (midiInputs[deviceIndex].identifier == testInputs[deviceIndex]->getIdentifier())
-                swapWith = deviceIndex;
-        }
-        else 
-        {
-            for (int i = 0; i < testInputs.size(); i++)
-                if (testInputs[i]->getIdentifier() == midiInputs[deviceIndex].identifier)
-                {
-                    swapWith = i;
-                    break;
-                }
-        }
-
-        if (swapWith >= 0)
-        {
-            closeMidiInput();
-            midiInput = testInputs[deviceIndex];
-            lastInputIndex = swapWith;
-        }
-
-        // Clear all but confirmed input
-        while (testInputs.size() > 0)
-        {
-            if (testInputs[0] != midiInput)
-            {
-                testInputs.remove(0);
-            }
-            else if (testInputs.size() == 1)
-                break;
-            else
-                testInputs.swap(0, testInputs.size() - 1);
-        }
+        midiInput->stop();
     }
 
-    // Bug if new input inserted; extra instantiation
-    else if (lastInputIndex != deviceIndex)
+    selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
+
+    if (selectedInput != nullptr)
     {
-        selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
         midiInput = selectedInput.get();
         midiInput->start();
+
         lastInputIndex = deviceIndex;
+    }
+    else
+    {
+        DBG("WARNING: Could not open up input device " + String(deviceIndex));
     }
 }
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
     jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
-    if (testOutputs.size() > 0)
+
+    testOutputs.clear();
+
+    selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
+
+    if (selectedOutput != nullptr)
     {
-        int swapWith = -1;
-
-        if (testOutputs[deviceIndex] != nullptr)
-        {
-            if (testOutputs[deviceIndex]->getIdentifier() == midiOutput->getIdentifier())
-                swapWith = deviceIndex;
-        }
-        else
-        {
-            for (int i = 0; i < testOutputs.size(); i++)
-            {
-                auto id = midiOutput->getIdentifier();
-                if (testOutputs[i]->getIdentifier() == id)
-                {
-                    swapWith = i;
-                    break;
-                }
-
-            }
-        }
-
-        if (swapWith > 0)
-        {
-            closeMidiOutput();
-            midiOutput = testOutputs[deviceIndex];
-            lastOutputIndex = deviceIndex;
-        }
-
-        while (testOutputs.size() > 0)
-        {
-            if (testOutputs[0] != midiOutput)
-            {
-                testOutputs.remove(0);
-            }
-            else if (testOutputs.size() == 1)
-                break;
-            else
-                testOutputs.swap(0, testOutputs.size() - 1);
-        }
+        midiOutput = selectedOutput.get();
+        lastOutputIndex = deviceIndex;
     }
-
-    // Bug if new input inserted; extra instantiation
-    else if (lastOutputIndex != deviceIndex)
+    else
     {
-        selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
-
-        if (selectedOutput == nullptr)
-            DBG("WARNING: Could not open up output device " + midiOutputs[deviceIndex].identifier);
-
-        else if (selectedOutput.get() != midiOutput)
-        {
-            midiOutput = selectedOutput.get();
-            lastOutputIndex = deviceIndex;
-        }
+        DBG("WARNING: Could not open up output device " + String(deviceIndex));
     }
 }
 
@@ -280,25 +212,32 @@ void HajuMidiDriver::closeMidiOutput()
 
 void HajuMidiDriver::openAvailableDevicesForTesting()
 {
+    // May be preferable to only close and open input devices when necessary
     closeTestingDevices();
-    refreshDeviceLists();
 
-    int i = 0;
     for (auto device : midiOutputs)
-        testOutputs.set(i++, MidiOutput::openDevice(device.identifier), true);
+    {
+        auto newOutput = testOutputs.add(MidiOutput::openDevice(device.identifier));
+        if (newOutput == nullptr)
+            testOutputs.removeObject(newOutput);
+    }
 
-    i = 0;
     for (auto device : midiInputs)
-        if (testInputs.getUnchecked(i) != nullptr && testInputs.getUnchecked(i)->getIdentifier() != device.identifier)
-            testInputs.set(i++, MidiInput::openDevice(device.identifier, this), true);
-        else i++;
+    {
+        auto newInput = testInputs.add(MidiInput::openDevice(device.identifier, this));
+        if (newInput != nullptr)
+            newInput->start();
+        else
+            testInputs.removeObject(newInput);
+    }
 }
 
 void HajuMidiDriver::sendTestMessageNow(int outputDeviceIndex, const MidiMessage& message)
 {
     // Return some error code?
-    if (testOutputs.size() > 0 && outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
+    if (outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
     {
+        DBG("Sending test message to " + testOutputs[outputDeviceIndex]->getName());
         testOutputs.getUnchecked(outputDeviceIndex)->sendMessageNow(message);
     }
 }
@@ -313,25 +252,12 @@ void HajuMidiDriver::closeTestingDevices()
     for (int i = 0; i < testInputs.size(); i++)
     {
         auto input = testInputs[i];
-        try
+        if (input != nullptr)
         {
             input->stop();
             input = nullptr;
         }
-        catch (int err)
-        {
-            errors++;
-            DBG("Err in closing MIDI Input: " + input->getName());
-        }
     }
 
-    try
-    {
-        testInputs.clear();
-    }
-    catch (int err)
-    {
-        errors++;
-        DBG("Could not clear test inputs");
-    }
+    testInputs.clear();
 }

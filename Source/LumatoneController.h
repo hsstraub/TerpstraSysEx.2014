@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "LumatoneFirmwareDefinitions.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
+#include "DeviceActivityMonitor.h"
 
 //==============================================================================
 // Helper class for parsing and comparing (todo) firmware versions
@@ -52,7 +52,7 @@ public:
 
     int getOctaveSize() const { return octaveSize; }
 
-    void refreshAvailableMidiDevices() { midiDriver.refreshDeviceLists(); }
+    void refreshAvailableMidiDevices();
 
     Array<MidiDeviceInfo> getMidiInputList() { return midiDriver.getMidiInputList(); }
     Array<MidiDeviceInfo> getMidiOutputList() { return midiDriver.getMidiOutputList(); }
@@ -62,6 +62,19 @@ public:
 
     void setMidiInput(int deviceIndex);
     void setMidiOutput(int deviceIndex);
+
+    bool isConnected() const { return midiDriver.hasDevicesDefined() && currentDevicePairConfirmed; }
+
+    // Auto-connection and monitoring 
+
+    void detectAndConnectToLumatone();
+    void stopAutoConnection();
+
+    bool isDetectingLumatone() const { return deviceMonitor.willDetectDeviceIfDisconnected() && !deviceMonitor.isConnectionEstablished(); }
+    void setDeviceDetectionTimeout(int responseTimeoutMs) { deviceMonitor.setResponseTimeoutMs(responseTimeoutMs); }
+
+    bool willCheckConnectionWhenInactvie() const { return deviceMonitor.willCheckForInactivity(); }
+    void checkConnectionWhenInactive(bool checkWhenInactive) { deviceMonitor.setCheckForInactivity(checkWhenInactive); }
 
     //============================================================================
     // Combined (hi-level) commands
@@ -88,11 +101,7 @@ public:
     void resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
     // Ping a device cached in the device list, will primarily use GetSerialIdentity, or Ping if determined version happens to be >= 1.0.9
-    int sendTestMessageToDevice(int deviceIndex, int pingId);
-
-    // Ping available devices to try to detect a Lumatone, returns ping IDs corresponding to output device index + 1
-    // Responses only expected from firmware versions 1.0.9 and up, so supporting older firmware will need other test messages
-    Array<int> pingAvailableDevices();
+    unsigned int sendTestMessageToDevice(int deviceIndex, unsigned int pingId);
 
     // Sends a generic test message to the current device pair to see if we get an expected response
     void testCurrentDeviceConnection();
@@ -192,13 +201,15 @@ protected:
     //============================================================================
     // Implementation of TerpstraMidiDriver::Listener
 
-    virtual void midiMessageReceived(const MidiMessage& midiMessage) override;
+    virtual void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) override;
 
     virtual void midiMessageSent(const MidiMessage& midiMessage) override;
 
     virtual void midiSendQueueSize(int queueSize) override;
 
     virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
+
+    virtual void noAnswerToMessage(const MidiMessage& midiMessage) override;
 
 public:
     //============================================================================
@@ -208,13 +219,8 @@ public:
     {
     public:
 
-        //virtual void availableDevicesChanged(
-        //    const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, 
-        //    const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) {};
         virtual void connectionEstablished(int inputMidiDevice, int outputMidiDevice) {};
         virtual void connectionLost() {};
-        virtual void connectionChanged(bool isConnected) {};
-        virtual void firmwareErrorOccurred() {};
     };
 
     ListenerList<StatusListener> statusListeners;
@@ -250,19 +256,21 @@ public:
 
         virtual void faderConfigReceived(const int* faderData) {};
 
-        virtual void serialIdentityReceived(const int* serialBytes) {};
+        virtual void serialIdentityReceived(int inputDeviceIndex, const int* serialBytes) {};
 
         virtual void lumatouchConfigReceived(const int* lumatouchData) {};
 
         virtual void firmwareRevisionReceived(int majorVersion, int minorVersion, int revision) {};
 
-        virtual void pingResponseReceived(int value) {};
+        virtual void pingResponseReceived(int inputDeviceIndex, unsigned int pingValue) {};
 
         virtual void peripheralMidiChannelsReceived(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainPedalChannel) {};
 
         virtual void pedalCalibrationDataReceived(int minBound, int maxBound, bool pedalIsActive) {};
 
         virtual void wheelsCalibrationDataReceived(int minPitch, int maxPitch, int minMod, int maxMod) {};
+
+        virtual void noAnswerToCommand(int cmd) {};
     };
 
     ListenerList<FirmwareListener> firmwareListeners;
@@ -358,16 +366,19 @@ private:
 
     HajuErrorVisualizer         errorVisualizer;
     TerpstraMidiDriver          midiDriver;
+    DeviceActivityMonitor       deviceMonitor;
 
     MidiBuffer                  responseQueue;
     int                         readSample = 0;
     int                         sampleNum = 0;
-    const int                   bufferReadTimeoutMs = 100;
+    const int                   bufferReadTimeoutMs = 50;
     const int                   bufferReadSize = 16;
-
     bool                        bufferReadRequested = false;
+
+    int                         lastTestDeviceSent = -1;
+    int                         lastTestDeviceResponded = -1;
     bool                        waitingForTestResponse = false;
-    bool                        currentDevicePairEstablished = false;
+    bool                        currentDevicePairConfirmed = false;
     
     LumatoneController::sysExSendingMode editingMode = sysExSendingMode::offlineEditor;
 };

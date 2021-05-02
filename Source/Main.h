@@ -48,7 +48,6 @@ public:
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	LumatoneController& getLumatoneController() { return lumatoneController; }
-	DeviceActivityMonitor& getDeviceMonitor() { return deviceMonitor; }
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return lumatoneController.getOctaveSize(); }
@@ -186,6 +185,5 @@ private:
 
 	// Communication with Lumatone
 	LumatoneController			lumatoneController;
-	DeviceActivityMonitor		deviceMonitor;
 };
 

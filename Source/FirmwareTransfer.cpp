@@ -516,8 +516,3 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 
 	return shutdownSSHSession(session, sock, nullptr, StatusCode::NoErr);
 }
-
-void FirmwareTransfer::midiMessageReceived(const MidiMessage& midiMessage)
-{
-	// TODO
-}

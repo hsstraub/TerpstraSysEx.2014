@@ -11,6 +11,7 @@
 #pragma once
 #include "FileBrowserComponent.h"
 #include "FirmwareTransfer.h"
+#include "LumatoneController.h"
 
 
 class FirmwareDlg : public Component, 
@@ -18,7 +19,7 @@ class FirmwareDlg : public Component,
     protected PathBrowserComponent::Listener,
     protected FirmwareTransfer::ProcessListener,
     protected Thread::Listener,
-    protected TerpstraMidiDriver::Listener, // Probably could be done in FirmwareTransfer
+    protected LumatoneController::FirmwareListener,
     private Timer
 {
 public:
@@ -45,13 +46,9 @@ public:
     void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode) override;
 
     //=========================================================================
-    // TerpstraMidiDriver::Listener implementation
+    // LumatoneController::FirmwareListener implementation
 
-    void midiMessageReceived(const MidiMessage& midiMessage) override {};
-    void midiMessageSent(const MidiMessage& midiMessage) override {};
-    void midiSendQueueSize(int queueSize) override {};
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
-
+    void firmwareRevisionReceived(int major, int minor, int revision) override;
 
     //=========================================================================
     // juce::Thread::Listener Implementation

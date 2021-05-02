@@ -42,9 +42,11 @@ System exclusive command structure
 #define MSG_STATUS   0x5
 #define CALIB_MODE   0x5
 #define PAYLOAD_INIT 0x6
-#define PING_FLAG    0x7
 
-#define PING_ECHO    0x7F // Should not be returned by Lumatone firmware
+#define ECHO_FLAG    0x5  // Used to differentiate test responses from MIDI feedback
+#define TEST_ECHO    0x7F // Should not be returned by Lumatone firmware
+
+#define SERIAL_55_KEYS "00 00 00 00 00 00"
 
 /*
 ==============================================================================

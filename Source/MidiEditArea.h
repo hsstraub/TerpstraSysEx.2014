@@ -45,7 +45,7 @@ class MidiEditArea  : public Component,
 {
 public:
     //==============================================================================
-    MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn, DeviceActivityMonitor& deviceMonitorIn);
+    MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn);
     ~MidiEditArea() override;
 
     //==============================================================================
@@ -61,7 +61,6 @@ public:
 
 	// Implementation of LumatoneController::StatusListener
     //void availableDevicesChanged(const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) override;
-    void connectionChanged(bool hasConnection) override;
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
 
@@ -95,8 +94,6 @@ private:
     bool                        isWaitingForConnectionTest = false;
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
-
-    DeviceActivityMonitor&      deviceMonitor;
 
     std::unique_ptr<Label>      lumatoneLabel;
 

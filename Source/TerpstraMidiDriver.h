@@ -33,10 +33,11 @@ public:
 		// Destructor
 		virtual ~Listener() {}
 
-		virtual void midiMessageReceived(const MidiMessage& midiMessage) = 0;
+		virtual void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) = 0;
 		virtual void midiMessageSent(const MidiMessage& midiMessage) = 0;
 		virtual void midiSendQueueSize(int queueSize) = 0;
         virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) = 0;
+		virtual void noAnswerToMessage(const MidiMessage& midiMessage) = 0;
 	};
 
 private:
@@ -224,8 +225,9 @@ public:
 	// CMD 32h: Set the thresold from key’s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
 	void setCCActiveThreshold(uint8 boardIndex, uint8 sensitivity);
 
-	// CMD 33h: Echo the payload, 0x00-0x7f, for use in connection monitoring
-	uint8 ping(uint8 value, int sendToTestDevice = -1);
+	// CMD 33h: Echo the payload, 4 7-bit values, for use in connection monitoring
+	void ping(uint8 value1, uint8 value2, uint8 value3, uint8 value4, int sendToTestDevice = -1);
+	unsigned int ping(unsigned int value, int sendToTestDevice = -1);
 
 	// CMD 34h: Reset the thresholds for events and sensitivity for CC & aftertouch on the target board
 	void resetBoardThresholds(uint8 boardIndex);
@@ -293,7 +295,7 @@ public:
 	void timerCallback() override;
 
 	// Clear MIDI message buffer
-	void clearMIDIMessageBuffer() { messageBuffer.clear(); this->listeners.call(&Listener::midiSendQueueSize, 0); }
+	void clearMIDIMessageBuffer();
 
 	// Message is an answer to a sent message yes/no
 	static bool messageIsResponseToMessage(const MidiMessage& answer, const MidiMessage& originalMessage);
@@ -355,8 +357,12 @@ public:
 	// For CMD 30h response: unpacks 7-bit Lumatouch configuration of keyboard, 128 bytes
 	FirmwareSupport::Error unpackGetLumatouchConfigResponse(const MidiMessage& response, int* lumatouchData);
 
-	// For CMD 30h response: unpacks firmware revision running on the keyboard
+	// For CMD 31h response: unpacks firmware revision running on the keyboard
 	FirmwareSupport::Error unpackGetFirmwareRevisionResponse(const MidiMessage& response, int& majorVersion, int& minorVersion, int& revision);
+
+	// For CMD 33h response: echo payload
+	FirmwareSupport::Error unpackPingResponse(const MidiMessage& response, int& value1, int& value2, int& value3, int& value4);
+	FirmwareSupport::Error unpackPingResponse(const MidiMessage& response, unsigned int& value);
 
 	// For CMD 3Ah response: retrieve all 8-bit threshold values of a certain board
 	FirmwareSupport::Error unpackGetBoardThresholdValuesResponse(const MidiMessage& response, int& boardId, int& minHighThreshold, int& minLowThreshold, int& maxThreshold, int& aftertouchThreshold, int& ccThreshold);

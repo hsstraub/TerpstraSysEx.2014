@@ -78,7 +78,7 @@ public:
 	// Closes all open testing devices; either setMidiInput and setMidiOutput will call this if it's not empty
 	void closeTestingDevices();
 
-	bool testIsIncomplete() const { return testInputs.size() > 0 || testOutputs.size() > 0; }
+	bool testIsIncomplete() const { return (testInputs.size() > 0 || testOutputs.size() > 0) && midiInput == nullptr && midiOutput == nullptr; }
 
 	// Attributes
 protected:
