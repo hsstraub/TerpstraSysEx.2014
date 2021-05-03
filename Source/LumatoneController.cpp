@@ -37,6 +37,8 @@ void LumatoneController::setSysExSendingMode(sysExSendingMode newMode)
             stopTimer();
         }
     }
+
+    midiDriver.restrictToTestMessages(editingMode == sysExSendingMode::offlineEditor);
 }
 
 // Takes a generic firmware version and parses it into a recognized firmware version
@@ -214,6 +216,7 @@ void LumatoneController::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey 
 {
     sendKeyConfig(boardIndex, keyIndex, keyData.noteNumber, keyData.channelNumber, keyData.keyType /*, TODO fader cc polarity */);
     sendKeyColourConfig(boardIndex, keyIndex, keyData.colour);
+    
 }
 
 // Send configuration of a certain look up table
@@ -444,25 +447,14 @@ int LumatoneController::pingLumatone(uint8 pingId)
 
 void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage)
 {
-    {
-        const MessageManagerLock mml;
-        midiListeners.call(&MidiListener::handleMidiMessage, midiMessage);
-    }
+    // Todo: no listener calling in this method
+    //{
+    //    const MessageManagerLock mml;
+    //    midiListeners.call(&MidiListener::handleMidiMessage, midiMessage);
+    //}
 
     // Handle SysEx responses off of high-precision thread
     responseQueue.addEvent(midiMessage, sampleNum++);
-
-    //// Check for test responses from unconfirmed devices
-    //if (midiMessage.isSysEx() && midiMessage.getSysExData()[ECHO_FLAG] != TEST_ECHO)
-    //{
-    //    if (  midiMessage.getSysExData()[CMD_ID] == GET_SERIAL_IDENTITY 
-    //       || midiMessage.getSysExData()[CMD_ID] == LUMA_PING
-    //       && !currentDevicePairConfirmed)
-    //    {
-
-    //        lastTestDeviceResponded = inputDeviceIndex;
-    //    }
-    //}
 
     if (!bufferReadRequested)
     {

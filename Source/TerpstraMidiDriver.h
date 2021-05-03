@@ -54,6 +54,8 @@ public:
 	void addListener(Listener* listenerToAdd);
 	void removeListener(Listener* listenerToRemove);
 
+	void restrictToTestMessages(bool testMessagesOnly) { sendTestMessagesOnly = testMessagesOnly; }
+
 	//============================================================================
 	// Single (mid-level) commands, firmware specific
 
@@ -459,6 +461,8 @@ private:
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available
 
 	Array<MidiMessage> messageBuffer;
+
+	bool      sendTestMessagesOnly = false; // Only send GetSerialIdentity, GetFirmwareRevision, and Ping commands
 
 	const int receiveTimeoutInMilliseconds = 2000;
 	const int busyTimeDelayInMilliseconds = 500;

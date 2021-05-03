@@ -281,7 +281,6 @@ void DeviceActivityMonitor::checkDetectionStatus()
 void DeviceActivityMonitor::timerCallback()
 {
     stopTimer();
-    DBG("DAM TIMER");
 
     if (deviceConnectionMode < DetectConnectionMode::noDeviceMonitoring)
     {

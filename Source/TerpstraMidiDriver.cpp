@@ -1233,6 +1233,17 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetExpressionPedalThresholdResp
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
+    if (sendTestMessagesOnly && message.isSysEx())
+    {
+        auto sysExData = message.getSysExData();
+        if (   sysExData[CMD_ID] != GET_SERIAL_IDENTITY
+            && sysExData[CMD_ID] != GET_FIRMWARE_REVISION
+            && sysExData[CMD_ID] != LUMA_PING)
+        {
+            return;
+        }
+    }
+
     // If there is no MIDI input port active: just send, without expecting acknowledge
 	// ToDo Or do nothing?
     if (midiInput == nullptr)
