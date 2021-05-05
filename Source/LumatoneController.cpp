@@ -854,7 +854,7 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
     if (source == &deviceMonitor)
     {
         int newInput = deviceMonitor.getConfirmedInputIndex();
-        int newOutput = deviceMonitor.getConfirmedInputIndex();
+        int newOutput = deviceMonitor.getConfirmedOutputIndex();
         
         if (newInput >= 0 && newOutput >=0)
         {
