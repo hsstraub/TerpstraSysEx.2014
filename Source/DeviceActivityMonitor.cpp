@@ -53,7 +53,7 @@ void DeviceActivityMonitor::pingAllDevices()
     jassert(!deviceDetectInProgress);
     deviceDetectInProgress = true;
 
-    auto outputDevices = midiDriver.getMidiOutputList();
+    outputDevices = midiDriver.getMidiOutputList();
 
     outputPingIds.clear();
 
@@ -68,7 +68,6 @@ void DeviceActivityMonitor::pingAllDevices()
         outputPingIds.add(id);
     }
 
-    failedPings = 0;
     startTimer(responseTimeoutMs);
 }
 
@@ -82,7 +81,6 @@ void DeviceActivityMonitor::startIndividualDetection()
 
     if (outputDevices.size() > 0 && inputDevices.size() > 0)
     {
-        expectedResponseReceived = false;
         deviceDetectInProgress = true;
         testNextOutput();
     }
@@ -105,13 +103,10 @@ void DeviceActivityMonitor::testNextOutput()
         waitingForTestResponse = true;
         startTimer(responseTimeoutMs);
     }
-
-    // Tried all devices, set timeout for next attempt
+    // failed
     else
     {
-        DBG("Detect device timeout.");
-        deviceDetectInProgress = false;
-        startTimer(detectRoutineTimeoutMs);
+        startTimer(10);
     }
 }
 
@@ -120,16 +115,9 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     if (detectDevicesIfDisconnected)
     {
         deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-        expectedResponseReceived = false;
-        deviceDetectInProgress = false;
-        startTimer(detectRoutineTimeoutMs);
+        deviceDetectInProgress = false; // Don't start until first test response is sent
+        startTimer(10);
     }
-}
-
-void DeviceActivityMonitor::stopDeviceDetection()
-{
-    deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
-    deviceDetectInProgress = false;
 }
 
 void DeviceActivityMonitor::intializeConnectionLossDetection(bool inFirmwareMode)
@@ -151,7 +139,6 @@ void DeviceActivityMonitor::initializeFirmwareUpdateMode()
 { 
     deviceConnectionMode = DetectConnectionMode::waitingForFirmwareUpdate; 
 
-    expectedResponseReceived = false;
     waitingForTestResponse = false;
 }
 
@@ -159,6 +146,18 @@ void DeviceActivityMonitor::cancelFirmwareUpdateMode()
 {
     deviceConnectionMode = DetectConnectionMode::lookingForDevice;
     waitingForTestResponse = false;
+}
+
+void DeviceActivityMonitor::stopDeviceDetection()
+{
+    deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
+    deviceDetectInProgress = false;
+}
+
+void DeviceActivityMonitor::stopMonitoringDevice()
+{
+    waitingForTestResponse = false;
+    deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
 }
 
 bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::DetectConnectionMode modeToUse)
@@ -171,8 +170,6 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
         TerpstraSysExApplication::getApp().getLumatoneController().testCurrentDeviceConnection();
 
     waitingForTestResponse = true;
-    expectedResponseReceived = false;
-    startTimer(responseTimeoutMs);
 
     return true;
 }
@@ -180,17 +177,32 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
 
 void DeviceActivityMonitor::onSerialIdentityResponse(const MidiMessage& msg, int deviceIndexResponded)
 {
+    waitingForTestResponse = false;
+
     if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
         confirmedOutputIndex = testOutputIndex;
         confirmedInputIndex = deviceIndexResponded;
+        startTimer(10);
     }
+    else if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
+    {
+        startTimer(inactivityTimeoutMs);
+    }
+}
 
-    onTestResponseReceived();
+void DeviceActivityMonitor::onFailedPing(const MidiMessage& msg)
+{
+    unsigned int pingId = -1;
+    midiDriver.unpackPingResponse(msg, pingId);
+    if (pingId >= 0 && pingId < outputDevices.size())
+        outputDevices.remove(outputPingIds.indexOf(pingId));
 }
 
 void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceIndexResponded)
 {
+    waitingForTestResponse = false;
+
     if (deviceConnectionMode == DetectConnectionMode::lookingForDevice && outputPingIds.size() > 0)
     {
         unsigned int pingId = 0;
@@ -198,6 +210,9 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
 
         if (errorCode != FirmwareSupport::Error::noError)
         {
+            if (errorCode == FirmwareSupport::Error::messageIsAnEcho)
+                return;
+            
             DBG("WARNING: Ping response error in auto connection routine detected");
             jassertfalse;
             return;
@@ -207,8 +222,7 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
         {
             confirmedOutputIndex = pingId - 1;
             confirmedInputIndex = deviceIndexResponded;
-
-            onTestResponseReceived();
+            startTimer(10);
         }
     }
 
@@ -216,7 +230,6 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
     {
         onTestResponseReceived();
     }
-
 }
 
 void DeviceActivityMonitor::onTestResponseReceived()
@@ -224,7 +237,6 @@ void DeviceActivityMonitor::onTestResponseReceived()
     stopTimer();
 
     waitingForTestResponse = false;
-    expectedResponseReceived = true;
 
     if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
     {
@@ -245,9 +257,9 @@ void DeviceActivityMonitor::onTestResponseReceived()
 void DeviceActivityMonitor::checkDetectionStatus()
 {
     // Successful
-    if (expectedResponseReceived && isConnectionEstablished())
+    if (isConnectionEstablished())
     {
-        onSuccessfulDetection();
+        onTestResponseReceived();
     }
     else
     {
@@ -256,14 +268,23 @@ void DeviceActivityMonitor::checkDetectionStatus()
             // Failed ping routine
             if (outputPingIds.size() > 0)
             {
+                waitingForTestResponse = false;
                 outputPingIds.clear();
                 startIndividualDetection();
             }
 
             // Ongoing GetSerial routine
-            else
+            else if (testOutputIndex >= 0 && testOutputIndex < outputDevices.size())
             {
                 testNextOutput();
+            }
+            
+            // Set timeout for next attempt
+            else
+            {
+                DBG("Detect device timeout.");
+                deviceDetectInProgress = false;
+                startTimer(detectRoutineTimeoutMs);
             }
         }
 
@@ -301,7 +322,7 @@ void DeviceActivityMonitor::timerCallback()
         {
             if (!waitingForTestResponse)
             {
-                if (midiQueueSize == 0) //TODO
+                if (midiQueueSize == 0)
                 {
                     if (deviceConnectionMode == DetectConnectionMode::noDeviceMonitoring)
                         deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
@@ -313,34 +334,14 @@ void DeviceActivityMonitor::timerCallback()
                     startTimer(inactivityTimeoutMs);
                 }
             }
-            else
-            {
-                // Disconnected!
-                if (isConnectionEstablished())
-                {
-                    onDisconnection();
-                }
-            }
         }
         else
         {
-            waitingForTestResponse = false;
+            stopMonitoringDevice();
         }
     }
     else
         jassertfalse;
-    //// Connection to selected devices failed
-    //if (waitingForTestResponse)
-    //{
-    //    jassert(confirmedInputIndex < 0 && confirmedOutputIndex < 0);
-    //    expectedResponseReceived = false;
-    //    waitingForTestResponse = false;
-    //    deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
-    //    DBG("No response from selected MIDI devices.");
-    //}
-    //else if (checkConnectionOnInactivity)
-    //    intializeConnectionLossDetection();
-    
 }
 
 //=========================================================================
@@ -348,6 +349,8 @@ void DeviceActivityMonitor::timerCallback()
 
 void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMessage& msg)
 {
+    stopTimer();
+    
     if (msg.isSysEx())
     {
         if (waitingForTestResponse)
@@ -355,41 +358,90 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
             auto sysExData = msg.getSysExData();
             auto cmd = sysExData[CMD_ID];
 
-            int deviceIndex = midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
-
-            switch (cmd)
+            // Skip echos, or mark as a failed ping
+            if (sysExData[MSG_STATUS] == TEST_ECHO)
             {
-            case GET_SERIAL_IDENTITY:
-                onSerialIdentityResponse(msg, deviceIndex);
-                break;
-
-            case GET_FIRMWARE_REVISION:
-                // TODO
-                break;
-
-            case LUMA_PING:
-                onPingResponse(msg, deviceIndex);
-                break;
-
-            default:
-                break;
+                switch (cmd)
+                {
+                case LUMA_PING:
+                {
+                    onFailedPing(msg);
+                    break;
+                }
+                case GET_SERIAL_IDENTITY:
+                    break;
+                    
+                default:
+                    return;
+                }
+                
+                waitingForTestResponse = false;
+                startTimer(10);
             }
+            else
+            {
+                int deviceIndex = midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
+
+                switch (cmd)
+                {
+                case GET_SERIAL_IDENTITY:
+                    onSerialIdentityResponse(msg, deviceIndex);
+                    break;
+
+                case GET_FIRMWARE_REVISION:
+                    // TODO
+                    break;
+
+                case LUMA_PING:
+                    onPingResponse(msg, deviceIndex);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+        
+        // Edge case if we're disconnected but get a response
+        else if (!isConnectionEstablished())
+        {
+            confirmedInputIndex = midiDriver.getLastMidiInputIndex();
+            confirmedOutputIndex = midiDriver.getLastMidiOutputIndex();
+            
+            // Maybe not best solution?
+            deviceConnectionMode = DetectConnectionMode::lookingForDevice;
+            startTimer(10);
         }
         else
         {
-            if (!isConnectionEstablished())
-            {
-                confirmedInputIndex = midiDriver.getLastMidiInputIndex();
-                confirmedOutputIndex = midiDriver.getLastMidiOutputIndex();
-            }
-
-            if (deviceConnectionMode <= DetectConnectionMode::lookingForDevice);
-            {
-                deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
-            }
-            
             startTimer(inactivityTimeoutMs);
         }
+    }
+}
+
+void DeviceActivityMonitor::noAnswerToMessage(const MidiMessage& midiMessage)
+{
+    stopTimer();
+    
+    if (waitingForTestResponse && deviceConnectionMode < DetectConnectionMode::noDeviceMonitoring)
+    {
+        waitingForTestResponse = false;
+        
+        auto sysExData = midiMessage.getSysExData();
+        if (sysExData[CMD_ID] == LUMA_PING && outputPingIds.size() > 0)
+        {
+            onFailedPing(midiMessage);
+        }
+        else
+        {
+            checkDetectionStatus();
+        }
+    }
+    
+    // Confirmation test?
+    else if (isConnectionEstablished())
+    {
+        onDisconnection();
     }
 }
 
@@ -400,18 +452,9 @@ void DeviceActivityMonitor::onSuccessfulDetection()
     deviceDetectInProgress = false;
     outputPingIds.clear();
 
-    midiDriver.setMidiInput(confirmedInputIndex);
-    midiDriver.setMidiOutput(confirmedOutputIndex);
-
-    if (checkConnectionOnInactivity)
-    {
-        deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
-        startTimer(inactivityTimeoutMs);
-    }
-    else
-    {
-        deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
-    }
+    deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
+    
+    sendChangeMessage();
 }
 
 void DeviceActivityMonitor::onDisconnection()
@@ -422,8 +465,7 @@ void DeviceActivityMonitor::onDisconnection()
     confirmedOutputIndex = -1;
 
     waitingForTestResponse = false;
-    expectedResponseReceived = false;
     deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
-
-    initializeDeviceDetection();
+    
+    sendChangeMessage();
 }

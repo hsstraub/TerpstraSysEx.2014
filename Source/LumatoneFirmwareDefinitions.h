@@ -280,6 +280,7 @@ struct FirmwareSupport
 		deviceIsBusy,
 		messageTooShort,
 		messageTooLong,
+        messageIsAnEcho,
 		messageHasIncorrectManufacturerId,
 		messageHasInvalidBoardIndex,
 		messageHasInvalidStatusByte,
@@ -300,9 +301,11 @@ struct FirmwareSupport
 		case Error::deviceIsBusy:
 			return "Device is busy";
 		case Error::messageTooShort:
-				return "Message too short";
+            return "Message too short";
 		case Error::messageTooLong:
-				return "Message too long";
+            return "Message too long";
+        case Error::messageIsAnEcho:
+            return "Message is an echo";
 		case Error::messageHasIncorrectManufacturerId:
 			return "Incorrect manufacturer ID";
 		case Error::messageHasInvalidBoardIndex:
@@ -318,7 +321,7 @@ struct FirmwareSupport
 		case Error::externalError:
 			return "Error from device";
 		default:
-			return "Unknown error...";
+			return "Undefined error..";
 		}
 	}
 
@@ -422,4 +425,10 @@ struct FirmwareSupport
 	{
 		return msg.getSysExData()[CMD_ID];
 	}
+    
+    String serialIdentityToString(int* serialBytes)
+    {
+        return String::toHexString(serialBytes, 6);
+    }
+
 };

@@ -16,6 +16,7 @@ LumatoneController::LumatoneController()
     : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), deviceMonitor(midiDriver)
 {
     midiDriver.addListener(this);
+    deviceMonitor.addChangeListener(this);
 }
 
 LumatoneController::~LumatoneController()
@@ -484,18 +485,6 @@ void LumatoneController::noAnswerToMessage(const MidiMessage& midiMessage)
     if (midiMessage.isSysEx())
     {
         firmwareListeners.call(&FirmwareListener::noAnswerToCommand, midiMessage.getSysExData()[CMD_ID]);
-        
-        if (midiDriver.hasDevicesDefined())
-        {
-            currentDevicePairConfirmed = false;
-            lastTestDeviceResponded = -1;
-            lastTestDeviceSent = -1;
-
-            midiDriver.closeMidiInput();
-            midiDriver.closeMidiOutput();
-
-            statusListeners.call(&StatusListener::connectionLost);
-        }
     }
 }
 
@@ -641,7 +630,7 @@ FirmwareSupport::Error LumatoneController::handleSerialIdentityResponse(const Mi
     if (errorCode != FirmwareSupport::Error::noError)
         return errorCode;
 
-    connectedSerialNumber = serialIdentityToString(serialBytes);
+    connectedSerialNumber = firmwareSupport.serialIdentityToString(serialBytes);
     DBG("Device serial is: " + connectedSerialNumber);
 
     testResponseReceived();
@@ -690,16 +679,7 @@ FirmwareSupport::Error LumatoneController::handlePingResponse(const MidiMessage&
 
 void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived)
 {
-    jassertfalse;
     DBG("ERROR: " + firmwareSupport.errorToString(errorToHandle));
-
-    if (errorToHandle == FirmwareSupport::Error::messageIsNotResponseToCommand)
-    {
-        if (commandReceived == LUMA_PING)
-        {
-            // Add to block list?
-        }
-    }
 
     // Generic handling
     if (commandReceived < CHANGE_KEY_NOTE)
@@ -710,8 +690,16 @@ void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHan
     // Command specific
     else
     {
-
+        switch (errorToHandle) {
+            case FirmwareSupport::Error::messageIsAnEcho:
+                return;
+                
+            default:
+                break;
+        }
     }
+    
+    jassertfalse;
 }
 
 void LumatoneController::timerCallback()
@@ -732,7 +720,7 @@ void LumatoneController::timerCallback()
         for (auto event : readBuffer)
         {
             auto midiMessage = event.getMessage();
-            //DBG("READING: " + midiMessage.getDescription());
+            DBG("READING: " + midiMessage.getDescription());
             if (midiMessage.isSysEx())
             {
                 auto errorCode = FirmwareSupport::Error::noError;
@@ -765,6 +753,10 @@ void LumatoneController::timerCallback()
                         HajuErrorVisualizer::ErrorLevel::error,
                         "Error from device");
                     errorCode = FirmwareSupport::Error::externalError;
+                    break;
+                        
+                case TEST_ECHO:
+                    errorCode = FirmwareSupport::Error::messageIsAnEcho;
                     break;
 
                 default:
@@ -857,12 +849,32 @@ void LumatoneController::timerCallback()
     bufferReadRequested = false;
 }
 
+void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
+{
+    if (source == &deviceMonitor)
+    {
+        int newInput = deviceMonitor.getConfirmedInputIndex();
+        int newOutput = deviceMonitor.getConfirmedInputIndex();
+        
+        if (newInput >= 0 && newOutput >=0)
+        {
+            midiDriver.setMidiInput(newInput);
+            midiDriver.setMidiOutput(newOutput);
+            currentDevicePairConfirmed = true;
+            emitConnectionEstablishedMessage();
+        }
+        else
+        {
+            onDisconnection();
+        }
+    }
+}
+
 void LumatoneController::testResponseReceived()
 {
-    waitingForTestResponse = false;
-
-    if (!currentDevicePairConfirmed)
+    if (waitingForTestResponse && !currentDevicePairConfirmed)
     {
+        waitingForTestResponse = false;
         currentDevicePairConfirmed = true;
         emitConnectionEstablishedMessage();
     }
@@ -877,10 +889,20 @@ void LumatoneController::emitConnectionEstablishedMessage()
         setFirmwareVersion(LumatoneFirmwareVersion::VERSION_55_KEYS);
     else
         midiDriver.sendGetFirmwareRevisionRequest();
+    
+    deviceMonitor.intializeConnectionLossDetection();
 }
 
-String LumatoneController::serialIdentityToString(int* serialBytes)
+void LumatoneController::onDisconnection()
 {
-    return String::toHexString(serialBytes, 6);
-}
+    midiDriver.closeMidiInput();
+    midiDriver.closeMidiOutput();
+    
+    currentDevicePairConfirmed = false;
+    lastTestDeviceResponded = -1;
+    lastTestDeviceSent = -1;
 
+    statusListeners.call(&StatusListener::connectionLost);
+    
+    deviceMonitor.initializeDeviceDetection();
+}

@@ -19,7 +19,7 @@
 
 
 
-class LumatoneController : protected TerpstraMidiDriver::Listener, private Timer
+class LumatoneController : protected TerpstraMidiDriver::Listener, private juce::Timer, private juce::ChangeListener
 {
 public:
 
@@ -191,11 +191,16 @@ public:
 
     // Send a value from 0-127 for the Lumatone to echo back, returns actual value sent (in case of 7-bit masking); used for auto device connection and monitoring
     int pingLumatone(uint8 pingId);
-
+    
     //============================================================================
     // juce::Timer implementation
 
     void timerCallback() override;
+    
+    //============================================================================
+    // juce::ChangeListener implementation
+
+    void changeListenerCallback(ChangeBroadcaster* source) override;
 
 protected:
     //============================================================================
@@ -231,6 +236,7 @@ private:
     
     void testResponseReceived();
     void emitConnectionEstablishedMessage();
+    void onDisconnection();
 
 public:
     //============================================================================
@@ -346,12 +352,6 @@ private:
     FirmwareSupport::Error handlePingResponse(const MidiMessage& midiMessage);
 
     void handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived = -1);
-
-public:
-    //============================================================================
-    // Public static helpers
-
-    static String serialIdentityToString(int* serialBytes);
 
 private:
 

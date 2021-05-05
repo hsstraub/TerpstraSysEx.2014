@@ -347,7 +347,7 @@ void TerpstraMidiDriver::sendFaderTypeConfigRequest(uint8 boardIndex)
 void TerpstraMidiDriver::sendGetSerialIdentityRequest(int sendToTestDevice)
 {
     if (sendToTestDevice < 0)
-        sendSysExRequest(0, GET_SERIAL_IDENTITY);
+        sendSysEx(0, GET_SERIAL_IDENTITY, TEST_ECHO, '\0', '\0', '\0');
     else if (sendToTestDevice < midiOutputs.size())
         sendTestMessageNow(sendToTestDevice, createTerpstraSysEx(0, GET_SERIAL_IDENTITY, TEST_ECHO, '\0', '\0', '\0'));
 }
@@ -453,7 +453,7 @@ void TerpstraMidiDriver::sendGetFirmwareRevisionRequest(int sendToTestDevice)
         sendTestMessageNow(sendToTestDevice, createTerpstraSysEx(0, GET_FIRMWARE_REVISION, TEST_ECHO, '\0', '\0', '\0'));
 }
 
-// CMD 32h: Set the thresold from key’s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
+// CMD 32h: Set the thresold from keyâ€™s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
 void TerpstraMidiDriver::setCCActiveThreshold(uint8 boardIndex, uint8 sensitivity)
 {
     if (sensitivity > 0xfe) sensitivity &= 0xfe;
@@ -461,24 +461,24 @@ void TerpstraMidiDriver::setCCActiveThreshold(uint8 boardIndex, uint8 sensitivit
 }
 
 // CMD 33h: Echo the payload, 0x00-0x7f, for use in connection monitoring
-void TerpstraMidiDriver::ping(uint8 value1, uint8 value2, uint8 value3, uint8 value4, int sendToTestDevice)
+// the first 7-bit value is reserved for echo differentiation
+void TerpstraMidiDriver::ping(uint8 value1, uint8 value2, uint8 value3, int sendToTestDevice)
 {
     if (value1 > 0x7f) value1 &= 0x7f;
     if (value2 > 0x7f) value2 &= 0x7f;
     if (value3 > 0x7f) value3 &= 0x7f;
-    if (value4 > 0x7f) value4 &= 0x7f;
 
     if (sendToTestDevice < 0)
-        sendSysEx(0, LUMA_PING, value1, value2, value3, value4);
+        sendSysEx(0, LUMA_PING, TEST_ECHO, value1, value2, value3);
     else if (sendToTestDevice < midiOutputs.size())
-        sendTestMessageNow(sendToTestDevice, createTerpstraSysEx(0, LUMA_PING, value1, value2, value3, value4));
+        sendTestMessageNow(sendToTestDevice, createTerpstraSysEx(0, LUMA_PING, TEST_ECHO, value1, value2, value3));
 }
 
 // CMD 33h: Echo the payload, 0x00-0x7f, for use in connection monitoring
 unsigned int TerpstraMidiDriver::ping(unsigned int value, int sendToTestDevice)
 {
     value &= 0xFFFFFFF; // Limit 28-bits
-    ping(value >> 21, (value >> 14) & 0x7f, (value >> 7) & 0x7f, value & 0x7f, sendToTestDevice);
+    ping((value >> 14) & 0x7f, (value >> 7) & 0x7f, value & 0x7f, sendToTestDevice);
     return value;
 }
 
@@ -1016,6 +1016,11 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetFaderConfigResponse(const Mi
 // For CMD 23h response: unpacks serial ID number of keyboard, 12 7-bit values encoding 6 bytes
 FirmwareSupport::Error TerpstraMidiDriver::unpackGetSerialIdentityResponse(const MidiMessage& response, int* serialBytes)
 {
+    // Check for echo first
+    auto sysExData = response.getSysExData();
+    if (sysExData[MSG_STATUS] == TEST_ECHO)
+        return FirmwareSupport::Error::messageIsAnEcho;
+    
     auto errorCode = FirmwareSupport::Error::noError;
 
     if (response.getSysExDataSize() == 18)
@@ -1084,6 +1089,11 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackPingResponse(const MidiMessage&
 // For CMD 33h response: echo payload
 FirmwareSupport::Error TerpstraMidiDriver::unpackPingResponse(const MidiMessage& response, unsigned int& value)
 {
+    // Check for echo first
+    auto sysExData = response.getSysExData();
+    if (sysExData[MSG_STATUS] == TEST_ECHO)
+        return FirmwareSupport::Error::messageIsAnEcho;
+    
     auto status = messageIsValidLumatoneResponse(response);
     if (status != FirmwareSupport::Error::noError)
         return status;
@@ -1092,8 +1102,8 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackPingResponse(const MidiMessage&
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    auto payload = &response.getSysExData()[PAYLOAD_INIT];
-    value = (payload[0] << 21) | (payload[1] << 14) | (payload[2] << 7) | (payload[3]);
+    auto payload = &sysExData[PAYLOAD_INIT];
+    value = (payload[1] << 14) | (payload[2] << 7) | (payload[3]);
 
     return status;
 }

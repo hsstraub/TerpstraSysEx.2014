@@ -227,8 +227,9 @@ public:
 	// CMD 32h: Set the thresold from key’s min value to trigger CA - 004 submodule CC events, ranging from 0x00 to 0xFE
 	void setCCActiveThreshold(uint8 boardIndex, uint8 sensitivity);
 
-	// CMD 33h: Echo the payload, 4 7-bit values, for use in connection monitoring
-	void ping(uint8 value1, uint8 value2, uint8 value3, uint8 value4, int sendToTestDevice = -1);
+	// CMD 33h: Echo the payload, 3 7-bit values, for use in connection monitoring
+    // the first 7-bit value is reserved for echo differentiation
+	void ping(uint8 value1, uint8 value2, uint8 value3, int sendToTestDevice = -1);
 	unsigned int ping(unsigned int value, int sendToTestDevice = -1);
 
 	// CMD 34h: Reset the thresholds for events and sensitivity for CC & aftertouch on the target board
