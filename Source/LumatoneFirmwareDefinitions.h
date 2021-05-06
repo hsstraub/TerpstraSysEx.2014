@@ -175,10 +175,10 @@ typedef enum
 
 typedef enum
 {
-	disabled             = 0,
 	noteOnNoteOff        = 1,
 	continuousController = 2,
-	lumaTouch            = 3
+	lumaTouch            = 3,
+	disabled             = 4
 } LumatoneKeyType;
 
 enum class LumatoneFirmwareVersion

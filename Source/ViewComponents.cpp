@@ -66,6 +66,9 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	case LumatoneKeyType::lumaTouch:
 		newTooltip += translate("Lumatouch");
 		break;
+	case LumatoneKeyType::disabled:
+		newTooltip += translate("Disabled");
+		break;
 	default:
 		jassertfalse;
 		newTooltip += translate("Unknown");
@@ -107,10 +110,19 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	{
 		textColour = textColour.brighter();
 	}
-
-    midiChannelLabel->setColour(juce::Label::textColourId, textColour);
-    midiNoteLabel->setColour(juce::Label::textColourId, textColour);
-
+	
+	if (currentValue.keyType == LumatoneKeyType::disabled)
+	{
+		midiChannelLabel->setVisible(false);
+		midiNoteLabel->setVisible(false);
+	}
+	else
+	{
+		midiChannelLabel->setVisible(true);
+		midiChannelLabel->setColour(juce::Label::textColourId, textColour);
+		midiNoteLabel->setVisible(true);
+		midiNoteLabel->setColour(juce::Label::textColourId, textColour);
+	}
 	// Look depending on Key type
 	if (currentValue.keyType == LumatoneKeyType::continuousController)
 	{
@@ -138,6 +150,17 @@ void TerpstraKeyEdit::paint(Graphics& g)
 		// Draw line
 		g.setColour(lineColor);
 		g.strokePath(hexOutline, PathStrokeType(lineWidth));
+	}
+
+	if (currentValue.keyType == LumatoneKeyType::disabled)
+	{
+		float w = this->getWidth();
+		float h = this->getHeight();
+		float xProportion = 0.25f;
+		// Draw X on key
+		g.setColour(bgColour.contrasting(0.5f));
+		g.drawLine(w * xProportion, h * xProportion, w * (1-xProportion), h * (1-xProportion), 2);
+		g.drawLine(w * (1 - xProportion), h * xProportion, w * xProportion, h * (1 - xProportion), 2);
 	}
 
 	// Something parametrized or not?

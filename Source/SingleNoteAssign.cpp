@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     channelAutoIncrButton.reset (new juce::ToggleButton ("channelAutoIncrButton"));
     addAndMakeVisible (channelAutoIncrButton.get());
-    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #: "));
+    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #:"));
     channelAutoIncrButton->addListener (this);
 
     channelAutoIncrButton->setBounds (8, 264, 160, 24);
@@ -85,6 +85,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
     keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
     keyTypeCombo->addItem (TRANS("Lumatouch"), 3);
+    keyTypeCombo->addItem (TRANS("Disabled"), 4);
     keyTypeCombo->addListener (this);
 
     keyTypeCombo->setBounds (120, 64, 192, 24);
@@ -166,7 +167,7 @@ SingleNoteAssign::SingleNoteAssign ()
     noteAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
     channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-    
+
     channelAutoIncrNoteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
@@ -585,7 +586,7 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="8 232 160 24" buttonText="Notes-Per-Click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="channelAutoIncrButton" id="1749290d10236ec3" memberName="channelAutoIncrButton"
-                virtualName="" explicitFocusOrder="0" pos="8 264 160 24" buttonText="Channels, after Note #"
+                virtualName="" explicitFocusOrder="0" pos="8 264 160 24" buttonText="Channels, after Note #:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note # (0-127):"
@@ -601,7 +602,7 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
             virtualName="" explicitFocusOrder="0" pos="120 64 192 24" editable="0"
-            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch"
+            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch&#10;Disabled"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <SLIDER name="noteInput" id="5858bc8c893dc11" memberName="noteInput"
           virtualName="" explicitFocusOrder="0" pos="120 128 112 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"
