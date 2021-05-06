@@ -9,7 +9,7 @@
 */
 
 #include "SettingsContainer.h"
-#include "Main.h"
+#include "../Main.h"
 
 void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
 {

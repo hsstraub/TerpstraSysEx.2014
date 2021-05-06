@@ -84,6 +84,18 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <GROUP id="{719050EA-2AD7-FDDF-7DF8-6459AA36D42E}" name="Settings">
+        <FILE id="DQiMtc" name="CalibrationDlg.cpp" compile="1" resource="0"
+              file="Source/Settings/CalibrationDlg.cpp"/>
+        <FILE id="qfDjlv" name="CalibrationDlg.h" compile="0" resource="0"
+              file="Source/Settings/CalibrationDlg.h"/>
+        <FILE id="QlIB8f" name="FirmwareDlg.cpp" compile="1" resource="0" file="Source/Settings/FirmwareDlg.cpp"/>
+        <FILE id="loeebJ" name="FirmwareDlg.h" compile="0" resource="0" file="Source/Settings/FirmwareDlg.h"/>
+        <FILE id="jxF9Op" name="SettingsContainer.cpp" compile="1" resource="0"
+              file="Source/Settings/SettingsContainer.cpp"/>
+        <FILE id="chrN2g" name="SettingsContainer.h" compile="0" resource="0"
+              file="Source/Settings/SettingsContainer.h"/>
+      </GROUP>
       <FILE id="O80YOu" name="LumatoneMenu.cpp" compile="1" resource="0"
             file="Source/LumatoneMenu.cpp"/>
       <FILE id="W7Jek7" name="FileBrowserComponent.h" compile="0" resource="0"
@@ -94,16 +106,6 @@
             file="Source/DeviceActivityMonitor.cpp"/>
       <FILE id="BD6Z4N" name="DeviceActivityMonitor.h" compile="0" resource="0"
             file="Source/DeviceActivityMonitor.h"/>
-      <FILE id="Lu0NhD" name="FirmwareDlg.cpp" compile="1" resource="0" file="Source/FirmwareDlg.cpp"/>
-      <FILE id="dJal0V" name="FirmwareDlg.h" compile="0" resource="0" file="Source/FirmwareDlg.h"/>
-      <FILE id="HO5Z3P" name="SettingsContainer.cpp" compile="1" resource="0"
-            file="Source/SettingsContainer.cpp"/>
-      <FILE id="xvu0bc" name="SettingsContainer.h" compile="0" resource="0"
-            file="Source/SettingsContainer.h"/>
-      <FILE id="l4C6a1" name="CalibrationDlg.cpp" compile="1" resource="0"
-            file="Source/CalibrationDlg.cpp"/>
-      <FILE id="cNe4Ty" name="CalibrationDlg.h" compile="0" resource="0"
-            file="Source/CalibrationDlg.h"/>
       <FILE id="qWvw0s" name="PedalSensitivityDlg.h" compile="0" resource="0"
             file="Source/PedalSensitivityDlg.h"/>
       <FILE id="HOM5JO" name="PedalSensitivityDlg.cpp" compile="1" resource="0"

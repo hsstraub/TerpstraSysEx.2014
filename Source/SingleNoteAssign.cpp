@@ -64,7 +64,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
-    setColourToggleButton->setButtonText (TRANS("Key Colour:"));
+    setColourToggleButton->setButtonText (TRANS("Key Colour: "));
     setColourToggleButton->addListener (this);
 
     setColourToggleButton->setBounds (8, 96, 112, 24);
@@ -595,7 +595,7 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="8 160 112 24" buttonText="Channel (1-16):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Key Colour:"
+                virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Key Colour: "
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="keyTypeToggleButton" id="3f2eba6027c4f2f5" memberName="keyTypeToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 64 112 24" buttonText="Key type:"

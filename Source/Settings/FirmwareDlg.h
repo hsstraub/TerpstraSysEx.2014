@@ -9,9 +9,9 @@
 */
 
 #pragma once
-#include "FileBrowserComponent.h"
-#include "FirmwareTransfer.h"
-#include "LumatoneController.h"
+#include "../FileBrowserComponent.h"
+#include "../FirmwareTransfer.h"
+#include "../LumatoneController.h"
 
 
 class FirmwareDlg : public Component, 

@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
-#include "CalibrationDlg.h"
+#include "Settings/CalibrationDlg.h"
 //[/Headers]
 
 #include "GlobalSettingsArea.h"

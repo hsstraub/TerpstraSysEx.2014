@@ -9,7 +9,7 @@
 */
 
 #include "FirmwareDlg.h"
-#include "Main.h"
+#include "../Main.h"
 
 FirmwareDlg::FirmwareDlg()
 {

@@ -9,7 +9,7 @@
 */
 
 #pragma once
-#include "LumatoneEditorLookAndFeel.h"
+#include "../LumatoneEditorLookAndFeel.h"
 #include "CalibrationDlg.h"
 #include "FirmwareDlg.h"
 
