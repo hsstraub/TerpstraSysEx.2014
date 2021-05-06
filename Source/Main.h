@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LumatoneMenu.h"
 #include "MainComponent.h"
 #include "LumatoneController.h"
 
@@ -60,7 +61,7 @@ public:
 	bool deletePaletteFile(File pathToPalette);
 
 	// Menu functionality
-	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
 	void getAllCommands(Array <CommandID>& commands) override;
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 	bool perform(const InvocationInfo& info) override;
@@ -167,6 +168,7 @@ private:
 	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
 
 	std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	

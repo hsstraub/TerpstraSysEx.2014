@@ -89,13 +89,9 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 
 	if (e.mods.isRightButtonDown())
 	{
-		// Right mosue click: popup menu
+		// Right mouse click: popup menu
 		PopupMenu menu;
-
-		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::deleteOctaveBoard);
-		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::copyOctaveBoard);
-		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::pasteOctaveBoard);
-
+		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
 		menu.show();
 	}
 
