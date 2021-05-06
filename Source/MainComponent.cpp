@@ -251,40 +251,34 @@ void MainContentComponent::velocityConfigReceived(const int* velocityData)
 {
 	this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 	for (int i = 0; i < 128; i++)
-		this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[i] = velocityData[i];
+		this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[i] = velocityData[127 - i]; // Reversed
 	curvesArea->loadFromMapping();
 }
 
 void MainContentComponent::aftertouchConfigReceived(const int* aftertouch)
 {
 	this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-	for (int i = 0; i < 128; i++)
-		this->mappingData.afterTouchConfig.velocityValues[i] = aftertouch[i];
+	memmove(this->mappingData.afterTouchConfig.velocityValues, aftertouch, sizeof(int) * 128);
 	curvesArea->loadFromMapping();
 }
 
 void MainContentComponent::velocityIntervalConfigReceived(const int* velocityData)
 {
-	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-		this->mappingData.velocityIntervalTableValues[i] = velocityData[i];
-	
-	curvesArea->resized();
-	curvesArea->repaint();
+	memmove(this->mappingData.velocityIntervalTableValues, velocityData, sizeof(int) * VELOCITYINTERVALTABLESIZE);
+	curvesArea->loadFromMapping();
 }
 
 void MainContentComponent::faderConfigReceived(const int* faderData)
 {
 	this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-	for (int i = 0; i < 128; i++)
-		this->mappingData.faderConfig.velocityValues[i] = faderData[i];
+	memmove(this->mappingData.faderConfig.velocityValues, faderData, sizeof(int) * 128);
 	curvesArea->loadFromMapping();
 }
 
 void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
 {
 	this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-	for (int i = 0; i < 128; i++)
-		this->mappingData.lumaTouchConfig.velocityValues[i] = lumatouchData[i];
+	memmove(this->mappingData.lumaTouchConfig.velocityValues, lumatouchData, sizeof(int) * 128);
 	curvesArea->loadFromMapping();
 }
 

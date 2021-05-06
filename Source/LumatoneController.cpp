@@ -597,18 +597,7 @@ FirmwareSupport::Error LumatoneController::handleAftertouchConfigResponse(const 
 FirmwareSupport::Error LumatoneController::handleVelocityIntervalConfigResponse(const MidiMessage& midiMessage)
 {
     auto unpack = [&](const MidiMessage& msg, int* data) {
-        auto errorCode = midiDriver.unpackGetVelocityConfigResponse(msg, data);
-        if (errorCode == FirmwareSupport::Error::noError)
-        {
-            // Reverse velocity table - maybe should move this to recepient end
-            int* dataCopy[VELOCITYINTERVALTABLESIZE];
-            memmove(dataCopy, data, sizeof(int) * VELOCITYINTERVALTABLESIZE);
-            for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-            {
-                data[i] = *dataCopy[VELOCITYINTERVALTABLESIZE - 1 - i];
-            }
-        }
-        return errorCode;
+        return midiDriver.unpackGetVelocityIntervalConfigResponse(msg, data);
     };
     auto callback = [&](void* data) { firmwareListeners.call(&FirmwareListener::velocityIntervalConfigReceived, (int*)data); };
     return handleTableConfigResponse(midiMessage, unpack, callback);

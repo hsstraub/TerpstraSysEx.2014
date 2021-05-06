@@ -287,6 +287,8 @@ void VelocityCurveDlgBase::loadFromMapping()
 		for (int x = 0; x < 128; x++)
 			velocityBeamTable[x]->setValue(x);
 	}
+
+	repaint();
 }
 
 void VelocityCurveDlgBase::sendVelocityTableToController()
