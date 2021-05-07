@@ -337,7 +337,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case Lumatone::Menu::commandIDs::resetSysExMapping:
 		result.setInfo("New", "Start new mapping. Clear all edit fields, do not save current edits.", "File", 0);
-		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('n', ModifierKeys::ctrlModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
@@ -356,7 +356,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		break;
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
-		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
+		result.setInfo("About Lumatone Editor", "Shows version and copyright", "Help", 0);
 		break;
 
 	case Lumatone::Debug::commandIDs::toggleDeveloperMode:
@@ -725,11 +725,17 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
 		<< String(JUCE_APP_VERSION_HEX & 0xff) << newLine
 
+		<< "@ Hans Straub, Vincenzo Sicurella 2014 - 2021" << newLine
 		<< newLine
-		<< "Original design @ Dylan Horvath 2007" << newLine
-		<< "Reengineered @ Hans Straub, Vincenzo Sicurella 2014 - 2021" << newLine
+		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
-		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to http://lumatone.io or http://terpstrakeyboard.com .";
+		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
+		<< newLine 
+		<< "http://lumatone.io" << newLine
+		<< newLine
+		<< "or" << newLine
+		<< newLine
+		<< "http://terpstrakeyboard.com";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
@@ -740,14 +746,15 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	juce::Rectangle<int> area(0, 0, 400, 200);
 	options.content->setSize(area.getWidth(), area.getHeight());
 
-	options.dialogTitle = "About LumatoneSetup";
+	resizeLabelWithHeight(label, roundToInt(area.getHeight() * 0.24f));
+
+	options.dialogTitle = "About Lumatone Editor";
 	options.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;
 	options.resizable = true;
 
-	//const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
 
 	DialogWindow* dw = options.launchAsync();
 	dw->centreWithSize(400, 260);
