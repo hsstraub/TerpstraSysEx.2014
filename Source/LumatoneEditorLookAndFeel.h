@@ -794,7 +794,7 @@ public:
 			g.fillPath(menuShape);
 		}
 		else
-			__super::drawPopupMenuBackgroundWithOptions(g, width, height, options);
+			getDefaultLookAndFeel().drawPopupMenuBackgroundWithOptions(g, width, height, options);
     }
 
     void drawPopupMenuItemWithOptions(
@@ -865,7 +865,7 @@ public:
 			}
 		}
 		else
-		  __super::getIdealPopupMenuItemSizeWithOptions(text, isSeparator, standardMenuItemHeight, idealWidth, idealHeight,
+		  getDefaultLookAndFeel().getIdealPopupMenuItemSizeWithOptions(text, isSeparator, standardMenuItemHeight, idealWidth, idealHeight,
 			  options);
     }
 
