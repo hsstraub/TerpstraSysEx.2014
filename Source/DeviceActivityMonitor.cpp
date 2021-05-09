@@ -151,6 +151,7 @@ void DeviceActivityMonitor::stopDeviceDetection()
 
 void DeviceActivityMonitor::stopMonitoringDevice()
 {
+    stopTimer();
     waitingForTestResponse = false;
     deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
 }

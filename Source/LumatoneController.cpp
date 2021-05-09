@@ -494,7 +494,10 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
             case GET_FIRMWARE_REVISION:
                 midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, incomingVersion.major, incomingVersion.minor, incomingVersion.revision);
                 if (incomingVersion.isValid()) // Keyboard will return 0.0.0 before fully booted
-                    waitingForTestResponse = false;
+                {
+                    currentDevicePairConfirmed = true;
+                    startTimer(UPDATETIMEOUT);
+                }
                 break;
 
             default:
@@ -742,13 +745,20 @@ void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode sta
 {
     switch (statusCode)
     {
-    case FirmwareTransfer::StatusCode::AuthBegin:
-        //midiDriver.startDemoMode(true);
+    case FirmwareTransfer::StatusCode::SessionBegin:
+        midiDriver.clearMIDIMessageBuffer();
+        deviceMonitor.stopMonitoringDevice();
+        waitingForTestResponse = false; // In case connection test was in progress
         break;
 
     case FirmwareTransfer::StatusCode::InstallBegin:
         editingMode = sysExSendingMode::firmwareUpdate;
         startTimer(UPDATETIMEOUT);
+        break;
+            
+    default:
+        if (statusCode < FirmwareTransfer::StatusCode::NoErr)
+            deviceMonitor.intializeConnectionLossDetection();
         break;
     }
 }
@@ -908,17 +918,22 @@ void LumatoneController::timerCallback()
                 firmwareTransfer->incrementProgress();
 
                 // Start routine by closing previous devices on next timer callback
-                if (currentDevicePairConfirmed)
+                if (!waitingForTestResponse && currentDevicePairConfirmed)
                 {
-                    deviceMonitor.stopMonitoringDevice();
+                    DBG("Firmware update: closing devices");
                     midiDriver.closeMidiOutput();
                     midiDriver.closeMidiInput();
                     currentDevicePairConfirmed = false;
                     waitingForTestResponse = true;
                 }
-                else
+                else if (waitingForTestResponse)
                 {
-                    if (waitingForTestResponse)
+                    if (currentDevicePairConfirmed)
+                    {
+                        testResponseReceived();
+                        return;
+                    }
+                    else
                     {
                         midiDriver.refreshDeviceLists();
                         auto outputs = midiDriver.getMidiOutputList();
@@ -932,7 +947,6 @@ void LumatoneController::timerCallback()
                                     {
                                         midiDriver.setMidiOutput(o);
                                         midiDriver.setMidiInput(i);
-                                        currentDevicePairConfirmed = true;
                                         deviceMonitor.initializeFirmwareUpdateMode();
                                         DBG("Lumatone back online");
                                         return;
@@ -940,11 +954,6 @@ void LumatoneController::timerCallback()
                             }
                         }
                         DBG("No Lumatone online yet");
-                    }
-                    else
-                    {
-                        testResponseReceived();
-                        return;
                     }
                 }
 
@@ -1018,7 +1027,7 @@ void LumatoneController::testResponseReceived()
 
             editingMode = sysExSendingMode::liveEditor;
             firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.revision, firmwareVersion.revision);
-            statusListeners.call(&StatusListener::connectionEstablished, midiDriver.getLastMidiInputIndex(), midiDriver.getLastMidiOutputIndex());
+            //statusListeners.call(&StatusListener::connectionEstablished, midiDriver.getLastMidiInputIndex(), midiDriver.getLastMidiOutputIndex());
             firmwareTransfer->signalThreadShouldExit();
         }
         else if (!currentDevicePairConfirmed)

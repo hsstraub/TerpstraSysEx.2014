@@ -18,8 +18,8 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "ViewConstants.h"
-#include "Main.h"
+#include "../ViewConstants.h"
+#include "../Main.h"
 //[/Headers]
 
 #include "CalibrationDlg.h"
