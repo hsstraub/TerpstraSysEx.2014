@@ -18,7 +18,7 @@ class PathBrowserComponent : public Component, public Button::Listener
 {
 public:
 
-    PathBrowserComponent(const String dialogBoxTitle, const File& fileIn = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory), String fileTypeFilter = "*.*")
+    PathBrowserComponent(const String dialogBoxTitle, const File& fileIn = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory), String fileTypeFilter = "")
         : chooser(dialogBoxTitle, File(), fileTypeFilter)
     {
         setName(dialogBoxTitle);
