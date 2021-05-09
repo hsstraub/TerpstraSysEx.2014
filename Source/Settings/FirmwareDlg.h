@@ -18,7 +18,6 @@ class FirmwareDlg : public Component,
     protected Button::Listener, 
     protected PathBrowserComponent::Listener,
     protected FirmwareTransfer::ProcessListener,
-    protected Thread::Listener,
     protected LumatoneController::FirmwareListener,
     private Timer
 {
@@ -43,37 +42,27 @@ public:
 
     //=========================================================================
     // FirmwareTransfer::Listener Implementation
-    void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode) override;
+    void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg) override;
 
     //=========================================================================
     // LumatoneController::FirmwareListener implementation
 
     void firmwareRevisionReceived(int major, int minor, int revision) override;
-
-    //=========================================================================
-    // juce::Thread::Listener Implementation
-    void exitSignalSent() override;
     
     //=========================================================================
     // juce::Timer Implementation
     void timerCallback() override;
 
 private:
-    
-    void initializeFirmwareUpdate();
-
-    void initializeWaitForUpdate();
 
     double numIncrementsToProgress(int numberOfIncrements);
-    
+
 private:
 
     bool updateIsAvailable = false;
     bool firmwareUpdateInProgress = false;
 
     File firmwareFileSelected;
-
-    std::unique_ptr<FirmwareTransfer> firmwareTransfer;
 
     //std::unique_ptr<TextButton> checkUpdateBtn;
     std::unique_ptr<PathBrowserComponent> fileBrowser;
@@ -85,10 +74,4 @@ private:
     String msgLog;
     bool infoNeedsUpdate = false;
     const int infoUpdateTimeoutMs = 100;
-
-    bool waitingForUpdateConfirmation = false;
-    int numberOfWaitIncrements = 0;
-    const int updateIncrementTimeoutMs = 5000;
-    // Estimation based on boot time of ~85 seconds, plus transfer time, and overhead
-    int maxUpdateIncrements = 300000 / updateIncrementTimeoutMs;
 };

@@ -171,6 +171,7 @@ typedef enum
 	ACK     = 0x01, // Acknowledged, OK
 	BUSY    = 0x02, // Controller busy
 	ERROR   = 0x03, // Error
+	STATE   = 0x04, // Not in MIDI state
 } TerpstraMIDIAnswerReturnCode;
 
 typedef enum

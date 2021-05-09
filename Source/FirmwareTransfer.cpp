@@ -60,6 +60,7 @@ FirmwareTransfer::~FirmwareTransfer()
 
 bool FirmwareTransfer::checkFirmwareFileIntegrity(String filePathIn)
 {
+	return true;
 	bool isValid = false;
 
 	if (File::isAbsolutePath(filePathIn))
@@ -80,7 +81,7 @@ bool FirmwareTransfer::requestFirmwareUpdate(String firmwareFilePath)
 {
 	if (!File::isAbsolutePath(firmwareFilePath))
 	{
-		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::IntegrityErr);
+		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::IntegrityErr, statusCodeToMessage(StatusCode::IntegrityErr));
 		return false;
 	}
 
@@ -101,6 +102,17 @@ bool FirmwareTransfer::requestFirmwareDownloadAndUpdate()
 	//bool fileDeleted = false;//.firmwareFile.deleteFile();
 
 	return false;
+}
+
+void FirmwareTransfer::incrementProgress()
+{
+	setProgress(numIncrementsToProgress(++numberOfWaitIncrements));
+
+	if (numberOfWaitIncrements >= maxUpdateIncrements)
+	{
+		DBG("TIMEOUT EXCEEDED BEFORE GETTING FIRMWARE CONFIRMATION");
+		signalThreadShouldExit();
+	}
 }
 
 void FirmwareTransfer::run()
@@ -179,24 +191,28 @@ static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session,
 
 bool FirmwareTransfer::prepareForUpdate()
 {
-	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::Initialize);
+	StatusCode returnStatus = StatusCode::Initialize;
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus, statusCodeToMessage(returnStatus));
 	if (!checkFirmwareFileIntegrity(selectedFileToTransfer))
 	{
 		// TODO: TRY TO HANDLE ERRORS
-		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::IntegrityErr);
+		returnStatus = StatusCode::IntegrityErr;
+		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus, statusCodeToMessage(returnStatus));
 	}
 	else
 	{
-		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::FileIntegrityCheck);
+		returnStatus = StatusCode::FileIntegrityCheck;
+		listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus, statusCodeToMessage(returnStatus));
 
-		StatusCode returnStatus = performFirmwareUpdate();
+		StatusCode startStatus = performFirmwareUpdate();
 
 		if (threadShouldExit())
 			return false;
 
-		if (returnStatus == StatusCode::NoErr)
+		if (startStatus == StatusCode::NoErr)
 		{
-			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::VerificationBegin);
+			returnStatus = StatusCode::VerificationBegin;
+			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus, statusCodeToMessage(returnStatus));
 			//setProgress(statusCodeToProgressPercent(StatusCode::VerificationBegin));
 
 			// Wait until we can connect, get the new firmware version, and then this will be signalled to exit
@@ -206,16 +222,16 @@ bool FirmwareTransfer::prepareForUpdate()
 		}
 
 		// Failure with some error
-		else if ((int)returnStatus < 0)
+		else if ((int)startStatus < 0)
 		{
-			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus);
+			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, startStatus, statusCodeToMessage(startStatus));
 			// TODO: need to do anything else before shutdown? Output a log file?
 		}
 
 		else
 		{
 			// This currently shouldn't happen
-			jassert((int)returnStatus <= 0);
+			jassert((int)startStatus <= 0);
 		}
 	}
 
@@ -224,9 +240,12 @@ bool FirmwareTransfer::prepareForUpdate()
 
 void FirmwareTransfer::postUpdate(StatusCode codeIn)
 {
-	DBG("Firmware Transfer update: " + String((int)codeIn));
-	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, codeIn);
-	//setProgress(statusCodeToProgressPercent(codeIn));
+	String msg = statusCodeToMessage(codeIn);
+	DBG("Firmware Transfer update: " + msg);
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, codeIn, msg);
+	setStatusMessage(msg);
+	numberOfWaitIncrements += (int)(maxUpdateIncrements * statusCodeToProgressPercent(1) * 0.4);
+	setProgress(numIncrementsToProgress(numberOfWaitIncrements));
 	progressMadeSinceUpdate = false;
 }
 

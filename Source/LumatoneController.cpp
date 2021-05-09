@@ -91,6 +91,24 @@ void LumatoneController::refreshAvailableMidiDevices()
         midiDriver.openAvailableDevicesForTesting();
 }
 
+bool LumatoneController::requestFirmwareUpdate(File firmwareFile, FirmwareTransfer::ProcessListener* listenerIn)
+{
+    if (firmwareTransfer == nullptr)
+    {
+        firmwareTransfer.reset(new FirmwareTransfer(midiDriver));
+        firmwareTransfer->addListener(this);
+
+        if (listenerIn != nullptr)
+        {
+            firmwareTransfer->addListener(listenerIn);
+        }
+
+        return firmwareTransfer->requestFirmwareUpdate(firmwareFile.getFullPathName());
+    }
+
+    return false;
+}
+
 /*
 ==============================================================================
 Combined (hi-level) commands
@@ -454,13 +472,39 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
     //    midiListeners.call(&MidiListener::handleMidiMessage, midiMessage);
     //}
 
-    // Handle SysEx responses off of high-precision thread
-    responseQueue.addEvent(midiMessage, sampleNum++);
-
-    if (!bufferReadRequested)
+    if (midiMessage.isSysEx())
     {
-        bufferReadRequested = true;
-        startTimer(bufferReadTimeoutMs);
+        if (editingMode != sysExSendingMode::firmwareUpdate)
+        {
+            // Handle SysEx responses off of high-precision thread
+            responseQueue.addEvent(midiMessage, sampleNum++);
+
+            if (!bufferReadRequested)
+            {
+                bufferReadRequested = true;
+                startTimer(bufferReadTimeoutMs);
+            }
+        }
+        else
+        {
+            {MessageManagerLock mml; DBG("Controller received this in firmware update mode: " + midiMessage.getDescription()); }
+            auto sysExData = midiMessage.getSysExData();
+            switch (sysExData[CMD_ID])
+            {
+            case GET_FIRMWARE_REVISION:
+                midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, incomingVersion.major, incomingVersion.minor, incomingVersion.revision);
+                if (incomingVersion.isValid()) // Keyboard will return 0.0.0 before fully booted
+                    waitingForTestResponse = false;
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+    else
+    {
+
     }
 }
 
@@ -483,7 +527,7 @@ void LumatoneController::noAnswerToMessage(const MidiMessage& midiMessage)
 {
     // Safeguard for getSysExData()
     if (midiMessage.isSysEx())
-    {
+    {        
         firmwareListeners.call(&FirmwareListener::noAnswerToCommand, midiMessage.getSysExData()[CMD_ID]);
     }
 }
@@ -683,6 +727,9 @@ void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHan
             case FirmwareSupport::Error::messageIsAnEcho:
                 return;
                 
+            case FirmwareSupport::Error::messageHasInvalidStatusByte:
+                return;
+
             default:
                 break;
         }
@@ -691,151 +738,240 @@ void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHan
     jassertfalse;
 }
 
+void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg)
+{
+    switch (statusCode)
+    {
+    case FirmwareTransfer::StatusCode::AuthBegin:
+        //midiDriver.startDemoMode(true);
+        break;
+
+    case FirmwareTransfer::StatusCode::InstallBegin:
+        editingMode = sysExSendingMode::firmwareUpdate;
+        startTimer(UPDATETIMEOUT);
+        break;
+    }
+}
+
 void LumatoneController::timerCallback()
 {
     stopTimer();
 
-    if (readSample >= sampleNum)
+    if (editingMode != firmwareUpdate)
     {
-        sampleNum = 0;
-        readSample = 0;
-        responseQueue.clear();
-    }
-    else
-    {
-        MidiBuffer readBuffer;
-        readBuffer.addEvents(responseQueue, readSample, bufferReadSize, 0);
-        int maxSample = readSample + bufferReadSize;
-        for (auto event : readBuffer)
+        if (readSample >= sampleNum)
         {
-            auto midiMessage = event.getMessage();
-            DBG("READING: " + midiMessage.getDescription());
-            if (midiMessage.isSysEx())
+            sampleNum = 0;
+            readSample = 0;
+            responseQueue.clear();
+        }
+        else
+        {
+            MidiBuffer readBuffer;
+            readBuffer.addEvents(responseQueue, readSample, bufferReadSize, 0);
+            int maxSample = readSample + bufferReadSize;
+            for (auto event : readBuffer)
             {
-                auto errorCode = FirmwareSupport::Error::noError;
-                auto sysExData = midiMessage.getSysExData();
-
-                switch (sysExData[MSG_STATUS])
+                auto midiMessage = event.getMessage();
+                DBG("READING: " + midiMessage.getDescription());
+                if (midiMessage.isSysEx())
                 {
-                case TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
-                    errorVisualizer.setErrorLevel(
-                        HajuErrorVisualizer::ErrorLevel::error,
-                        "Not Recognized");
-                    errorCode = FirmwareSupport::Error::unknownCommand;
-                    break;
+                    auto errorCode = FirmwareSupport::Error::noError;
+                    auto sysExData = midiMessage.getSysExData();
 
-                case TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
-                    errorVisualizer.setErrorLevel(
-                        HajuErrorVisualizer::ErrorLevel::noError,
-                        "Ack");
-                    break;
-
-                case TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
-                    errorVisualizer.setErrorLevel(
-                        HajuErrorVisualizer::ErrorLevel::warning,
-                        "Busy");
-                    errorCode = FirmwareSupport::Error::deviceIsBusy;
-                    break;
-
-                case TerpstraMIDIAnswerReturnCode::ERROR:    // Error
-                    errorVisualizer.setErrorLevel(
-                        HajuErrorVisualizer::ErrorLevel::error,
-                        "Error from device");
-                    errorCode = FirmwareSupport::Error::externalError;
-                    break;
-                        
-                case TEST_ECHO:
-                    errorCode = FirmwareSupport::Error::messageIsAnEcho;
-                    break;
-
-                default:
-                    errorVisualizer.setErrorLevel(
-                        HajuErrorVisualizer::ErrorLevel::noError,
-                        "");
-                    break;
-                }
-
-                unsigned int cmd = sysExData[CMD_ID];
-
-                if (errorCode == FirmwareSupport::Error::noError)
-                {
-                    switch (cmd)
+                    switch (sysExData[MSG_STATUS])
                     {
-                    case GET_RED_LED_CONFIG:
-                        errorCode = handleLEDConfigResponse(midiMessage);
+                    case TerpstraMIDIAnswerReturnCode::NACK:  // Not recognized
+                        errorVisualizer.setErrorLevel(
+                            HajuErrorVisualizer::ErrorLevel::error,
+                            "Not Recognized");
+                        errorCode = FirmwareSupport::Error::unknownCommand;
                         break;
 
-                    case GET_GREEN_LED_CONFIG:
-                        errorCode = handleLEDConfigResponse(midiMessage);
+                    case TerpstraMIDIAnswerReturnCode::ACK:  // Acknowledged, OK
+                        errorVisualizer.setErrorLevel(
+                            HajuErrorVisualizer::ErrorLevel::noError,
+                            "Ack");
                         break;
 
-                    case GET_BLUE_LED_CONFIG:
-                        errorCode = handleLEDConfigResponse(midiMessage);
+                    case TerpstraMIDIAnswerReturnCode::BUSY: // Controller busy
+                        errorVisualizer.setErrorLevel(
+                            HajuErrorVisualizer::ErrorLevel::warning,
+                            "Busy");
+                        errorCode = FirmwareSupport::Error::deviceIsBusy;
                         break;
 
-                    case GET_CHANNEL_CONFIG:
-                        errorCode = handleChannelConfigResponse(midiMessage);
+                    case TerpstraMIDIAnswerReturnCode::ERROR:    // Error
+                        errorVisualizer.setErrorLevel(
+                            HajuErrorVisualizer::ErrorLevel::error,
+                            "Error from device");
+                        errorCode = FirmwareSupport::Error::externalError;
                         break;
 
-                    case GET_NOTE_CONFIG:
-                        errorCode = handleNoteConfigResponse(midiMessage);
-                        break;
-
-                    case GET_KEYTYPE_CONFIG:
-                        errorCode = handleKeyTypeConfigResponse(midiMessage);
-                        break;
-
-                        // TODO
-
-                    case GET_VELOCITY_CONFIG:
-                        errorCode = handleVelocityConfigResponse(midiMessage);
-                        break;
-
-                    case GET_SERIAL_IDENTITY:
-                        errorCode = handleSerialIdentityResponse(midiMessage);
-                        break;
-
-                    case GET_LUMATOUCH_CONFIG:
-                        errorCode = handleLumatouchConfigResponse(midiMessage);
-                        break;
-
-                    case GET_FIRMWARE_REVISION:
-                        errorCode = handleFirmwareRevisionResponse(midiMessage);
-                        break;
-
-                    case LUMA_PING:
-                        errorCode = handlePingResponse(midiMessage);
+                    case TEST_ECHO:
+                        errorCode = FirmwareSupport::Error::messageIsAnEcho;
                         break;
 
                     default:
-                        if (sysExData[MSG_STATUS] == 1)
+                        errorVisualizer.setErrorLevel(
+                            HajuErrorVisualizer::ErrorLevel::noError,
+                            "");
+                        break;
+                    }
+
+                    unsigned int cmd = sysExData[CMD_ID];
+
+                    if (errorCode == FirmwareSupport::Error::noError)
+                    {
+                        switch (cmd)
                         {
-                            if (event.numBytes > 8)
-                                DBG("WARNING UNIMPLEMENTED RESPONSE HANDLING CMD " + String(cmd));
+                        case GET_RED_LED_CONFIG:
+                            errorCode = handleLEDConfigResponse(midiMessage);
+                            break;
+
+                        case GET_GREEN_LED_CONFIG:
+                            errorCode = handleLEDConfigResponse(midiMessage);
+                            break;
+
+                        case GET_BLUE_LED_CONFIG:
+                            errorCode = handleLEDConfigResponse(midiMessage);
+                            break;
+
+                        case GET_CHANNEL_CONFIG:
+                            errorCode = handleChannelConfigResponse(midiMessage);
+                            break;
+
+                        case GET_NOTE_CONFIG:
+                            errorCode = handleNoteConfigResponse(midiMessage);
+                            break;
+
+                        case GET_KEYTYPE_CONFIG:
+                            errorCode = handleKeyTypeConfigResponse(midiMessage);
+                            break;
+
+                            // TODO
+
+                        case GET_VELOCITY_CONFIG:
+                            errorCode = handleVelocityConfigResponse(midiMessage);
+                            break;
+
+                        case GET_SERIAL_IDENTITY:
+                            errorCode = handleSerialIdentityResponse(midiMessage);
+                            break;
+
+                        case GET_LUMATOUCH_CONFIG:
+                            errorCode = handleLumatouchConfigResponse(midiMessage);
+                            break;
+
+                        case GET_FIRMWARE_REVISION:
+                            errorCode = handleFirmwareRevisionResponse(midiMessage);
+                            break;
+
+                        case LUMA_PING:
+                            errorCode = handlePingResponse(midiMessage);
+                            break;
+
+                        default:
+                            if (sysExData[MSG_STATUS] == 1)
+                            {
+                                if (event.numBytes > 8)
+                                    DBG("WARNING UNIMPLEMENTED RESPONSE HANDLING CMD " + String(cmd));
+                            }
+                            else
+                            {
+                                DBG("UNHANDLED EXCEPTION");
+                            }
+                            ;
                         }
-                        else
+                    }
+
+                    if (errorCode != FirmwareSupport::Error::noError)
+                    {
+                        handleMidiDriverError(errorCode, cmd);
+                    }
+
+                }
+                readSample++;
+                jassert(readSample <= sampleNum);
+            }
+
+            if (maxSample < sampleNum)
+                startTimer(bufferReadTimeoutMs);
+        }
+    }
+    else
+    {
+        if (firmwareTransfer != nullptr)
+        {
+            if (editingMode == sysExSendingMode::firmwareUpdate)// && deviceMonitor.getMode() != DeviceActivityMonitor::DetectConnectionMode::waitingForFirmwareUpdate)
+            {
+                firmwareTransfer->incrementProgress();
+
+                // Start routine by closing previous devices on next timer callback
+                if (currentDevicePairConfirmed)
+                {
+                    deviceMonitor.stopMonitoringDevice();
+                    midiDriver.closeMidiOutput();
+                    midiDriver.closeMidiInput();
+                    currentDevicePairConfirmed = false;
+                    waitingForTestResponse = true;
+                }
+                else
+                {
+                    if (waitingForTestResponse)
+                    {
+                        midiDriver.refreshDeviceLists();
+                        auto outputs = midiDriver.getMidiOutputList();
+                        for (int o = 0; o < outputs.size(); o++)
                         {
-                            DBG("UNHANDLED EXCEPTION");
+                            if (outputs[o].identifier == midiDriver.getLastMidiOutputInfo().identifier)
+                            {
+                                auto inputs = midiDriver.getMidiInputList();
+                                for (int i = 0; i < inputs.size(); i++)
+                                    if (inputs[i].identifier == midiDriver.getLastMidiInputInfo().identifier)
+                                    {
+                                        midiDriver.setMidiOutput(o);
+                                        midiDriver.setMidiInput(i);
+                                        currentDevicePairConfirmed = true;
+                                        deviceMonitor.initializeFirmwareUpdateMode();
+                                        DBG("Lumatone back online");
+                                        return;
+                                    }
+                            }
                         }
-                        ;
+                        DBG("No Lumatone online yet");
+                    }
+                    else
+                    {
+                        testResponseReceived();
+                        return;
                     }
                 }
 
-                if (errorCode != FirmwareSupport::Error::noError)
-                {
-                    handleMidiDriverError(errorCode, cmd);
-                }
-
+                startTimer(UPDATETIMEOUT);
             }
-            readSample++;
-            jassert(readSample <= sampleNum);
         }
+        else
+        {
+            deviceMonitor.cancelFirmwareUpdateMode();
 
-        if (maxSample < sampleNum)
-            startTimer(bufferReadTimeoutMs);
+            AlertWindow::showMessageBox(
+                AlertWindow::AlertIconType::WarningIcon,
+                "Firmware update not confirmed",
+                "Your Lumatone appears to still be updating, or may have been disconnected. Make sure Lumatone is powered on and connected, and the when Lumatone is ready it will connect successfully.",
+                "Ok"); 
+
+            onDisconnection();
+        }
     }
 
     bufferReadRequested = false;
+}
+
+void LumatoneController::exitSignalSent()
+{
+    firmwareTransfer->waitForThreadToExit(20);
+    firmwareTransfer = nullptr;
 }
 
 void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
@@ -861,11 +997,36 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 
 void LumatoneController::testResponseReceived()
 {
-    if (waitingForTestResponse && !currentDevicePairConfirmed)
+    if (waitingForTestResponse)
     {
-        waitingForTestResponse = false;
-        currentDevicePairConfirmed = true;
-        emitConnectionEstablishedMessage();
+        if (editingMode == sysExSendingMode::firmwareUpdate)
+        {
+            firmwareTransfer->setProgress(1.0);
+            auto possibleUpdate = firmwareSupport.getLumatoneFirmwareVersion(incomingVersion);
+            DBG("Waiting for update, received: " + incomingVersion.toString());
+            if (possibleUpdate > determinedVersion)
+            {
+                firmwareVersion = incomingVersion;
+                DBG("Confirmed update to firmware version " + firmwareVersion.toString());
+                determinedVersion = possibleUpdate;
+            }
+            else
+            {
+                DBG("Error: Firmware update appears to have failed");
+                //jassertfalse;
+            }
+
+            editingMode = sysExSendingMode::liveEditor;
+            firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.revision, firmwareVersion.revision);
+            statusListeners.call(&StatusListener::connectionEstablished, midiDriver.getLastMidiInputIndex(), midiDriver.getLastMidiOutputIndex());
+            firmwareTransfer->signalThreadShouldExit();
+        }
+        else if (!currentDevicePairConfirmed)
+        {
+            waitingForTestResponse = false;
+            currentDevicePairConfirmed = true;
+            emitConnectionEstablishedMessage();
+        }
     }
 }
 

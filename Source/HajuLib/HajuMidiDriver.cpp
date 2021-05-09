@@ -40,18 +40,6 @@ const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiOutputList()
 	return midiOutputs;
 }
 
-MidiDeviceInfo HajuMidiDriver::getMidiInputInfo() const
-{
-    return midiInputs[lastInputIndex];
-}
-
-MidiDeviceInfo HajuMidiDriver::getMidiOutputInfo() const
-{
-    if (midiOutput != nullptr)
-        return midiOutput->getDeviceInfo();
-    return MidiDeviceInfo();
-}
-
 bool HajuMidiDriver::refreshDeviceLists()
 {
     bool inputsChanged = false;
@@ -119,7 +107,7 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
 
     closeMidiInput();
     
-    DBG("Trying to open " + midiInputs[deviceIndex].name);
+    DBG("Trying to open input device: " + midiInputs[deviceIndex].name);
     selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
 
     if (selectedInput != nullptr)
@@ -128,6 +116,7 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
         midiInput->start();
 
         lastInputIndex = deviceIndex;
+        lastInputDevice = midiInputs[deviceIndex];
     }
     else
     {
@@ -142,13 +131,14 @@ void HajuMidiDriver::setMidiOutput(int deviceIndex)
     testOutputs.clear();
     
     closeMidiOutput();
-
+    DBG("Trying to open output device: " + midiOutputs[deviceIndex].name);
     selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
 
     if (selectedOutput != nullptr)
     {
         midiOutput = selectedOutput.get();
         lastOutputIndex = deviceIndex;
+        lastOutputDevice = midiOutputs[deviceIndex];
     }
     else
     {

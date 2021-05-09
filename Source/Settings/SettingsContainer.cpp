@@ -39,7 +39,7 @@ SettingsContainer::SettingsContainer()
     addAndMakeVisible(categoryList.get());
     model.addChangeListener(this);
 
-    auto lastPanelIndex = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("LastSettingsTab", 0);
+    auto lastPanelIndex = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("LastSettingsPanel", 0);
     categoryList->selectRow(lastPanelIndex);
 }
 
@@ -95,7 +95,7 @@ void SettingsContainer::showPanel(int editorSettingCategory)
 
     if (newPanel)
     {
-        TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastSettingsTab", editorSettingCategory);
+        TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastSettingsPanel", editorSettingCategory);
 
         removeChildComponent(settingsPanel.get());
         settingsPanel = nullptr;

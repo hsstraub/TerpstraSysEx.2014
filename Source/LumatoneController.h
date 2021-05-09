@@ -13,20 +13,26 @@
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "DeviceActivityMonitor.h"
+#include "FirmwareTransfer.h"
 
 //==============================================================================
 // Helper class for parsing and comparing (todo) firmware versions
 
 
 
-class LumatoneController : protected TerpstraMidiDriver::Listener, private juce::Timer, private juce::ChangeListener
+class LumatoneController :  protected TerpstraMidiDriver::Listener, 
+                            protected FirmwareTransfer::ProcessListener,
+                            private juce::Thread::Listener,
+                            private juce::Timer, 
+                            private juce::ChangeListener
 {
 public:
 
     enum sysExSendingMode
     {
         liveEditor = 0,
-        offlineEditor = 1
+        offlineEditor = 1,
+        firmwareUpdate = 2
     };
 
 public:
@@ -64,6 +70,8 @@ public:
     void setMidiOutput(int deviceIndex);
 
     bool isConnected() const { return midiDriver.hasDevicesDefined() && currentDevicePairConfirmed; }
+
+    bool requestFirmwareUpdate(File firmwareFile, FirmwareTransfer::ProcessListener* listenerIn = nullptr);
 
     // Auto-connection and monitoring 
 
@@ -191,6 +199,13 @@ public:
 
     // Send a value from 0-127 for the Lumatone to echo back, returns actual value sent (in case of 7-bit masking); used for auto device connection and monitoring
     int pingLumatone(uint8 pingId);
+
+    //============================================================================
+    // FirmwareTransfer::Listener
+
+    void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg) override;
+
+    void exitSignalSent() override;
     
     //============================================================================
     // juce::Timer implementation
@@ -362,11 +377,14 @@ private:
     String                      connectedSerialNumber;
     LumatoneFirmwareVersion     determinedVersion = LumatoneFirmwareVersion::NO_VERSION;
     FirmwareVersion             firmwareVersion = { 0, 0, 0 };
+    FirmwareVersion             incomingVersion = { 0, 0, 0 };
     int                         octaveSize = 56;
 
     HajuErrorVisualizer         errorVisualizer;
     TerpstraMidiDriver          midiDriver;
     DeviceActivityMonitor       deviceMonitor;
+
+    std::unique_ptr<FirmwareTransfer> firmwareTransfer;
 
     MidiBuffer                  responseQueue;
     int                         readSample = 0;

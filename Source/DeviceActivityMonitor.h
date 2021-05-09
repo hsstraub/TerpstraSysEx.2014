@@ -27,9 +27,8 @@ public:
     {
         noDeviceActivity = -1,
         lookingForDevice,
-        waitingForFirmwareUpdate, // "silent" lookingForDevice
         noDeviceMonitoring,
-        gettingFirmwareVersion, // connection tests with GetFirmwareRevision
+        waitingForFirmwareUpdate, // connection tests with GetFirmwareRevision
         waitingForInactivity
     };
     
@@ -67,7 +66,10 @@ public:
 
     // Begin polling selected device until it stops responding. Other messages
     // will reset the inactivity timer.
-    void intializeConnectionLossDetection(bool inFirmwareMode = false);
+    void intializeConnectionLossDetection();
+
+    // Turn off device monitoring and idle
+    void stopMonitoringDevice();
 
     //=========================================================================
     // juce::Timer Implementation
@@ -105,9 +107,6 @@ private:
     /// </summary>
     /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
     bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::waitingForInactivity);
-    
-    // Turn off device monitoring and idle
-    void stopMonitoringDevice();
 
 
 private:
@@ -143,7 +142,6 @@ private:
     DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceActivity;
     bool                    deviceDetectInProgress = false;
     bool                    waitingForTestResponse = false;
-    //bool                    activityIsPaused       = false;
 
     int                     responseTimeoutMs = 500;
     int                     detectRoutineTimeoutMs = 500;

@@ -37,8 +37,8 @@ public:
 	// List of MIDI output device names
 	const Array<MidiDeviceInfo>& getMidiOutputList();
     
-    MidiDeviceInfo getMidiOutputInfo() const;
-    MidiDeviceInfo getMidiInputInfo() const;
+	MidiDeviceInfo getLastMidiOutputInfo() const { return lastOutputDevice; }
+	MidiDeviceInfo getLastMidiInputInfo() const { return lastInputDevice; }
     
     int getLastMidiInputIndex() const { return lastInputIndex; }
     int getLastMidiOutputIndex() const { return lastOutputIndex; }
@@ -87,6 +87,9 @@ protected:
 
     int lastOutputIndex = -1;
 	int lastInputIndex = -1;
+
+	MidiDeviceInfo lastOutputDevice;
+	MidiDeviceInfo lastInputDevice;
 
 	std::unique_ptr<MidiInput> selectedInput;
 	std::unique_ptr<MidiOutput> selectedOutput;

@@ -120,17 +120,12 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     }
 }
 
-void DeviceActivityMonitor::intializeConnectionLossDetection(bool inFirmwareMode)
+void DeviceActivityMonitor::intializeConnectionLossDetection()
 {
     if (checkConnectionOnInactivity)
     {
-        if (inFirmwareMode)
-            deviceConnectionMode = DetectConnectionMode::gettingFirmwareVersion;
-        else
-            deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
-
+        deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
         waitingForTestResponse = false;
-
         startTimer(inactivityTimeoutMs);
     }
 }
@@ -138,8 +133,8 @@ void DeviceActivityMonitor::intializeConnectionLossDetection(bool inFirmwareMode
 void DeviceActivityMonitor::initializeFirmwareUpdateMode()
 { 
     deviceConnectionMode = DetectConnectionMode::waitingForFirmwareUpdate; 
-
     waitingForTestResponse = false;
+    initializeConnectionTest(deviceConnectionMode);
 }
 
 void DeviceActivityMonitor::cancelFirmwareUpdateMode()
@@ -164,8 +159,11 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
 {    
     deviceConnectionMode = modeToUse;
 
-    if (deviceConnectionMode == DetectConnectionMode::gettingFirmwareVersion)
+    if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
+    {
+        DBG("DAM: pinging with get firmware");
         TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
+    }
     else
         TerpstraSysExApplication::getApp().getLumatoneController().testCurrentDeviceConnection();
 
@@ -316,9 +314,7 @@ void DeviceActivityMonitor::timerCallback()
     }
     else if (deviceConnectionMode >= DetectConnectionMode::noDeviceMonitoring)
     {
-        jassert(isConnectionEstablished());
-
-        if (checkConnectionOnInactivity)
+        if (checkConnectionOnInactivity || deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
         {
             if (!waitingForTestResponse)
             {
@@ -378,7 +374,7 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
                 waitingForTestResponse = false;
                 startTimer(10);
             }
-            else
+            else if (sysExData[MSG_STATUS] == TerpstraMIDIAnswerReturnCode::ACK)
             {
                 int deviceIndex = midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
 
@@ -438,6 +434,11 @@ void DeviceActivityMonitor::noAnswerToMessage(const MidiMessage& midiMessage)
         }
     }
     
+    else if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
+    {
+        initializeConnectionTest(deviceConnectionMode);
+    }
+
     // Confirmation test?
     else if (isConnectionEstablished())
     {
