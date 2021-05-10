@@ -112,6 +112,13 @@ void DeviceActivityMonitor::testNextOutput()
 
 void DeviceActivityMonitor::initializeDeviceDetection()
 {
+    // Belongs somewhere else?
+    if (!midiDriver.hasDevicesDefined())
+    {
+        confirmedInputIndex = -1;
+        confirmedOutputIndex = -1;
+    }
+
     if (detectDevicesIfDisconnected)
     {
         deviceConnectionMode = DetectConnectionMode::lookingForDevice;
@@ -130,19 +137,6 @@ void DeviceActivityMonitor::intializeConnectionLossDetection()
     }
 }
 
-void DeviceActivityMonitor::initializeFirmwareUpdateMode()
-{ 
-    deviceConnectionMode = DetectConnectionMode::waitingForFirmwareUpdate; 
-    waitingForTestResponse = false;
-    initializeConnectionTest(deviceConnectionMode);
-}
-
-void DeviceActivityMonitor::cancelFirmwareUpdateMode()
-{
-    deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-    waitingForTestResponse = false;
-}
-
 void DeviceActivityMonitor::stopDeviceDetection()
 {
     deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
@@ -156,17 +150,9 @@ void DeviceActivityMonitor::stopMonitoringDevice()
     deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
 }
 
-bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::DetectConnectionMode modeToUse)
+bool DeviceActivityMonitor::initializeConnectionTest()
 {    
-    deviceConnectionMode = modeToUse;
-
-    if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
-    {
-        DBG("DAM: pinging with get firmware");
-        TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
-    }
-    else
-        TerpstraSysExApplication::getApp().getLumatoneController().testCurrentDeviceConnection();
+    TerpstraSysExApplication::getApp().getLumatoneController().testCurrentDeviceConnection();
 
     waitingForTestResponse = true;
 
@@ -237,12 +223,7 @@ void DeviceActivityMonitor::onTestResponseReceived()
 
     waitingForTestResponse = false;
 
-    if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
-    {
-        deviceDetectInProgress = false;
-    }
-
-    else if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
+    if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
         onSuccessfulDetection();
     }
@@ -283,6 +264,7 @@ void DeviceActivityMonitor::checkDetectionStatus()
             {
                 DBG("Detect device timeout.");
                 deviceDetectInProgress = false;
+                waitingForTestResponse = false;
                 startTimer(detectRoutineTimeoutMs);
             }
         }
@@ -293,7 +275,7 @@ void DeviceActivityMonitor::checkDetectionStatus()
             midiDriver.refreshDeviceLists();
             midiDriver.openAvailableDevicesForTesting();
             deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-            pingAllDevices();
+            startIndividualDetection();
         }
     }
 }
@@ -315,7 +297,8 @@ void DeviceActivityMonitor::timerCallback()
     }
     else if (deviceConnectionMode >= DetectConnectionMode::noDeviceMonitoring)
     {
-        if (checkConnectionOnInactivity || deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
+        jassert(isConnectionEstablished() && midiDriver.hasDevicesDefined());
+        if (checkConnectionOnInactivity)
         {
             if (!waitingForTestResponse)
             {
@@ -324,7 +307,7 @@ void DeviceActivityMonitor::timerCallback()
                     if (deviceConnectionMode == DetectConnectionMode::noDeviceMonitoring)
                         deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
 
-                    initializeConnectionTest(deviceConnectionMode);
+                    initializeConnectionTest();
                 }
                 else
                 {
@@ -367,6 +350,10 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
                 }
                 case GET_SERIAL_IDENTITY:
                     break;
+
+                case GET_FIRMWARE_REVISION:
+                    onTestResponseReceived();
+                    break;
                     
                 default:
                     return;
@@ -402,8 +389,8 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
         // Edge case if we're disconnected but get a response
         else if (!isConnectionEstablished())
         {
-            confirmedInputIndex = midiDriver.getLastMidiInputIndex();
-            confirmedOutputIndex = midiDriver.getLastMidiOutputIndex();
+            confirmedInputIndex = midiDriver.getMidiInputIndex();
+            confirmedOutputIndex = midiDriver.getMidiOutputIndex();
             
             // Maybe not best solution?
             deviceConnectionMode = DetectConnectionMode::lookingForDevice;
@@ -435,12 +422,6 @@ void DeviceActivityMonitor::noAnswerToMessage(const MidiMessage& midiMessage)
         }
     }
     
-    else if (deviceConnectionMode == DetectConnectionMode::waitingForFirmwareUpdate)
-    {
-        initializeConnectionTest(deviceConnectionMode);
-    }
-
-    // Confirmation test?
     else if (isConnectionEstablished())
     {
         onDisconnection();
@@ -454,6 +435,7 @@ void DeviceActivityMonitor::onSuccessfulDetection()
     deviceDetectInProgress = false;
     outputPingIds.clear();
 
+    // LumatoneController will start this back up
     deviceConnectionMode = DetectConnectionMode::noDeviceMonitoring;
     
     sendChangeMessage();
@@ -467,6 +449,8 @@ void DeviceActivityMonitor::onDisconnection()
     confirmedOutputIndex = -1;
 
     waitingForTestResponse = false;
+
+    // LumatoneController will start this back up
     deviceConnectionMode = DetectConnectionMode::noDeviceActivity;
     
     sendChangeMessage();

@@ -82,9 +82,9 @@ public:
         virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg)=0;
     };
 
-    void addListener(ProcessListener* listenerIn) { listeners.add(listenerIn); }
+    void addTransferListener(ProcessListener* listenerIn) { listeners.add(listenerIn); }
 
-    void removeListener(ProcessListener* listenerIn) { listeners.remove(listenerIn); }
+    void removeTransferListener(ProcessListener* listenerIn) { listeners.remove(listenerIn); }
 
 protected:
 

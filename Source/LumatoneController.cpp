@@ -96,11 +96,12 @@ bool LumatoneController::requestFirmwareUpdate(File firmwareFile, FirmwareTransf
     if (firmwareTransfer == nullptr)
     {
         firmwareTransfer.reset(new FirmwareTransfer(midiDriver));
+        firmwareTransfer->addTransferListener(this);
         firmwareTransfer->addListener(this);
 
         if (listenerIn != nullptr)
         {
-            firmwareTransfer->addListener(listenerIn);
+            firmwareTransfer->addTransferListener(listenerIn);
         }
 
         return firmwareTransfer->requestFirmwareUpdate(firmwareFile.getFullPathName());
@@ -485,9 +486,8 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
                 startTimer(bufferReadTimeoutMs);
             }
         }
-        else
+        else if (midiMessage.isSysEx())
         {
-            {MessageManagerLock mml; DBG("Controller received this in firmware update mode: " + midiMessage.getDescription()); }
             auto sysExData = midiMessage.getSysExData();
             switch (sysExData[CMD_ID])
             {
@@ -495,7 +495,7 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
                 midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, incomingVersion.major, incomingVersion.minor, incomingVersion.revision);
                 if (incomingVersion.isValid()) // Keyboard will return 0.0.0 before fully booted
                 {
-                    currentDevicePairConfirmed = true;
+                    waitingForTestResponse = false;
                     startTimer(UPDATETIMEOUT);
                 }
                 break;
@@ -891,7 +891,6 @@ void LumatoneController::timerCallback()
                             {
                                 DBG("UNHANDLED EXCEPTION");
                             }
-                            ;
                         }
                     }
 
@@ -913,48 +912,26 @@ void LumatoneController::timerCallback()
     {
         if (firmwareTransfer != nullptr)
         {
-            if (editingMode == sysExSendingMode::firmwareUpdate)// && deviceMonitor.getMode() != DeviceActivityMonitor::DetectConnectionMode::waitingForFirmwareUpdate)
+            if (editingMode == sysExSendingMode::firmwareUpdate)
             {
                 firmwareTransfer->incrementProgress();
 
-                // Start routine by closing previous devices on next timer callback
-                if (!waitingForTestResponse && currentDevicePairConfirmed)
+                if (!waitingForTestResponse)
                 {
-                    DBG("Firmware update: closing devices");
-                    midiDriver.closeMidiOutput();
-                    midiDriver.closeMidiInput();
-                    currentDevicePairConfirmed = false;
                     waitingForTestResponse = true;
+                    midiDriver.closeMidiInput();
+                    midiDriver.closeMidiOutput();
+                    deviceMonitor.initializeDeviceDetection();
                 }
-                else if (waitingForTestResponse)
+                else if (midiDriver.hasDevicesDefined())
                 {
-                    if (currentDevicePairConfirmed)
-                    {
-                        testResponseReceived();
-                        return;
-                    }
-                    else
-                    {
-                        midiDriver.refreshDeviceLists();
-                        auto outputs = midiDriver.getMidiOutputList();
-                        for (int o = 0; o < outputs.size(); o++)
-                        {
-                            if (outputs[o].identifier == midiDriver.getLastMidiOutputInfo().identifier)
-                            {
-                                auto inputs = midiDriver.getMidiInputList();
-                                for (int i = 0; i < inputs.size(); i++)
-                                    if (inputs[i].identifier == midiDriver.getLastMidiInputInfo().identifier)
-                                    {
-                                        midiDriver.setMidiOutput(o);
-                                        midiDriver.setMidiInput(i);
-                                        deviceMonitor.initializeFirmwareUpdateMode();
-                                        DBG("Lumatone back online");
-                                        return;
-                                    }
-                            }
-                        }
-                        DBG("No Lumatone online yet");
-                    }
+                    onFirmwareUpdateReceived();
+                }
+                
+                // THIS IS A KLUDGE; Something kills DeviceActivityMonitor's timer after device comes back online and I'm not yet sure why - vsicurella
+                else if (!deviceMonitor.isTimerRunning())
+                {
+                    deviceMonitor.initializeDeviceDetection();
                 }
 
                 startTimer(UPDATETIMEOUT);
@@ -962,8 +939,6 @@ void LumatoneController::timerCallback()
         }
         else
         {
-            deviceMonitor.cancelFirmwareUpdateMode();
-
             AlertWindow::showMessageBox(
                 AlertWindow::AlertIconType::WarningIcon,
                 "Firmware update not confirmed",
@@ -989,59 +964,41 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
     {
         int newInput = deviceMonitor.getConfirmedInputIndex();
         int newOutput = deviceMonitor.getConfirmedOutputIndex();
-        
-        if (newInput >= 0 && newOutput >=0)
+
+        currentDevicePairConfirmed = false;
+
+        if (newInput >= 0 && newOutput >= 0)
         {
             midiDriver.setMidiInput(newInput);
             midiDriver.setMidiOutput(newOutput);
             currentDevicePairConfirmed = true;
-            emitConnectionEstablishedMessage();
         }
+
+        if (currentDevicePairConfirmed)
+            onConnectionConfirmed(editingMode != sysExSendingMode::firmwareUpdate);
         else
-        {
             onDisconnection();
-        }
+
     }
 }
 
 void LumatoneController::testResponseReceived()
 {
-    if (waitingForTestResponse)
-    {
-        if (editingMode == sysExSendingMode::firmwareUpdate)
-        {
-            firmwareTransfer->setProgress(1.0);
-            auto possibleUpdate = firmwareSupport.getLumatoneFirmwareVersion(incomingVersion);
-            DBG("Waiting for update, received: " + incomingVersion.toString());
-            if (possibleUpdate > determinedVersion)
-            {
-                firmwareVersion = incomingVersion;
-                DBG("Confirmed update to firmware version " + firmwareVersion.toString());
-                determinedVersion = possibleUpdate;
-            }
-            else
-            {
-                DBG("Error: Firmware update appears to have failed");
-                //jassertfalse;
-            }
+    jassert(midiDriver.hasDevicesDefined());
 
-            editingMode = sysExSendingMode::liveEditor;
-            firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.revision, firmwareVersion.revision);
-            //statusListeners.call(&StatusListener::connectionEstablished, midiDriver.getLastMidiInputIndex(), midiDriver.getLastMidiOutputIndex());
-            firmwareTransfer->signalThreadShouldExit();
-        }
-        else if (!currentDevicePairConfirmed)
-        {
-            waitingForTestResponse = false;
-            currentDevicePairConfirmed = true;
-            emitConnectionEstablishedMessage();
-        }
+    waitingForTestResponse = false;
+        
+    if (!currentDevicePairConfirmed)
+    {
+        currentDevicePairConfirmed = true;
+        onConnectionConfirmed(true);
     }
 }
 
-void LumatoneController::emitConnectionEstablishedMessage()
+void LumatoneController::onConnectionConfirmed(bool sendChangeSignal)
 {
-    statusListeners.call(&StatusListener::connectionEstablished, midiDriver.getLastMidiInputIndex(), midiDriver.getLastMidiOutputIndex());
+    if (sendChangeSignal)
+        statusListeners.call(&StatusListener::connectionEstablished, midiDriver.getMidiInputIndex(), midiDriver.getMidiOutputIndex());
 
     // Identity returned on 55-keys version
     if (connectedSerialNumber == SERIAL_55_KEYS)
@@ -1050,6 +1007,9 @@ void LumatoneController::emitConnectionEstablishedMessage()
         midiDriver.sendGetFirmwareRevisionRequest();
     
     deviceMonitor.intializeConnectionLossDetection();
+
+    TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastInputDeviceId", midiDriver.getLastMidiInputInfo().identifier);
+    TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastOutputDeviceId", midiDriver.getLastMidiOutputInfo().identifier);
 }
 
 void LumatoneController::onDisconnection()
@@ -1057,6 +1017,7 @@ void LumatoneController::onDisconnection()
     midiDriver.closeMidiInput();
     midiDriver.closeMidiOutput();
     
+    waitingForTestResponse = false;
     currentDevicePairConfirmed = false;
     lastTestDeviceResponded = -1;
     lastTestDeviceSent = -1;
@@ -1065,3 +1026,33 @@ void LumatoneController::onDisconnection()
     
     deviceMonitor.initializeDeviceDetection();
 }
+
+void LumatoneController::onFirmwareUpdateReceived()
+{
+    jassert(firmwareTransfer != nullptr && editingMode == sysExSendingMode::firmwareUpdate);
+
+    if (firmwareTransfer != nullptr)
+    {
+        firmwareTransfer->setProgress(1.0);
+        auto possibleUpdate = firmwareSupport.getLumatoneFirmwareVersion(incomingVersion);
+        DBG("Waiting for update, received: " + incomingVersion.toString());
+        if (possibleUpdate > determinedVersion)
+        {
+            firmwareVersion = incomingVersion;
+            DBG("Confirmed update to firmware version " + firmwareVersion.toString());
+            determinedVersion = possibleUpdate;
+        }
+        else
+        {
+            DBG("Error: Firmware update appears to have failed");
+            //jassertfalse;
+        }
+
+        editingMode = sysExSendingMode::liveEditor;
+        firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.revision, firmwareVersion.revision);
+        firmwareTransfer->signalThreadShouldExit();
+
+        deviceMonitor.intializeConnectionLossDetection();
+    }
+}
+

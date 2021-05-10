@@ -28,7 +28,6 @@ public:
         noDeviceActivity = -1,
         lookingForDevice,
         noDeviceMonitoring,
-        waitingForFirmwareUpdate, // connection tests with GetFirmwareRevision
         waitingForInactivity
     };
     
@@ -53,13 +52,6 @@ public:
     // First uses the "Ping" command to send to all available devices,
     // then goes through a legacy-supported routine with individual output devices.
     void initializeDeviceDetection();
-
-    // Used after a firmware update has been made to poll the last-selected device for
-    // The firmware version until it receives a response
-    void initializeFirmwareUpdateMode();
-    
-    // Cancel firmware update mode, used for update timer timeout
-    void cancelFirmwareUpdateMode();
 
     // Set the timeout for message responses
     void setResponseTimeoutMs(int timeoutMs) { responseTimeoutMs = timeoutMs; }
@@ -106,7 +98,7 @@ private:
     /// Test device connectivity after a connection has previously been made.
     /// </summary>
     /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
-    bool initializeConnectionTest(DetectConnectionMode modeToUse = DetectConnectionMode::waitingForInactivity);
+    bool initializeConnectionTest();
 
 
 private:

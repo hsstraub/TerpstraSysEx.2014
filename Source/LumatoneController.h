@@ -63,8 +63,8 @@ public:
     Array<MidiDeviceInfo> getMidiInputList() { return midiDriver.getMidiInputList(); }
     Array<MidiDeviceInfo> getMidiOutputList() { return midiDriver.getMidiOutputList(); }
 
-    int getMidiInputIndex() const { return midiDriver.getLastMidiInputIndex(); }
-    int getMidiOutputIndex() const { return midiDriver.getLastMidiOutputIndex(); }
+    int getMidiInputIndex() const { return midiDriver.getMidiInputIndex(); }
+    int getMidiOutputIndex() const { return midiDriver.getMidiOutputIndex(); }
 
     void setMidiInput(int deviceIndex);
     void setMidiOutput(int deviceIndex);
@@ -250,8 +250,10 @@ public:
 private:
     
     void testResponseReceived();
-    void emitConnectionEstablishedMessage();
+
+    void onConnectionConfirmed(bool sendChangeSignal);
     void onDisconnection();
+    void onFirmwareUpdateReceived();
 
 public:
     //============================================================================

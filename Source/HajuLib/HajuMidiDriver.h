@@ -40,9 +40,20 @@ public:
 	MidiDeviceInfo getLastMidiOutputInfo() const { return lastOutputDevice; }
 	MidiDeviceInfo getLastMidiInputInfo() const { return lastInputDevice; }
     
-    int getLastMidiInputIndex() const { return lastInputIndex; }
-    int getLastMidiOutputIndex() const { return lastOutputIndex; }
+	// Return the current input device index
+    int getMidiInputIndex() const { return lastInputIndex; }
+
+	// Return the current output device index
+    int getMidiOutputIndex() const { return lastOutputIndex; }
+
+	// Returns whether or not the current device indicies are valid
 	bool hasDevicesDefined() const { return lastInputIndex >= 0 && lastOutputIndex >= 0; }
+
+	// Returns the index of the given MidiDevice if found, or -1 if not present
+	int getIndexOfInputDevice(MidiDeviceInfo inputDeviceInfo) const { return midiInputs.indexOf(inputDeviceInfo); }
+
+	// Returns the index of the given MidiDevice if found, or -1 if not present
+	int getIndexOfOutputDevice(MidiDeviceInfo outputDeviceInfo) const { return midiOutputs.indexOf(outputDeviceInfo); }
 
 	// Re-initializes device list in case of changes, returns true if a change was detected
 	bool refreshDeviceLists();

@@ -103,8 +103,7 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
     jassert(deviceIndex >= 0 && deviceIndex < midiInputs.size());
 
-    //testInputs.clear();
-
+    testInputs.clear();
     closeMidiInput();
     
     DBG("Trying to open input device: " + midiInputs[deviceIndex].name);
@@ -129,8 +128,8 @@ void HajuMidiDriver::setMidiOutput(int deviceIndex)
     jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
 
     testOutputs.clear();
-    
     closeMidiOutput();
+
     DBG("Trying to open output device: " + midiOutputs[deviceIndex].name);
     selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
 
@@ -224,8 +223,8 @@ void HajuMidiDriver::sendTestMessageNow(int outputDeviceIndex, const MidiMessage
     // Return some error code?
     if (outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
     {
-        DBG("Sending this message to " + testOutputs[outputDeviceIndex]->getName() + ":");
-        DBG("          " + message.getDescription());
+        //DBG("Sending this message to " + testOutputs[outputDeviceIndex]->getName() + ":");
+        //DBG("          " + message.getDescription());
         testOutputs.getUnchecked(outputDeviceIndex)->sendMessageNow(message);
     }
 }
