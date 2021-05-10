@@ -962,18 +962,29 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 {
     if (source == &deviceMonitor)
     {
-        int newInput = deviceMonitor.getConfirmedInputIndex();
-        int newOutput = deviceMonitor.getConfirmedOutputIndex();
-
-        currentDevicePairConfirmed = false;
-
-        if (newInput >= 0 && newOutput >= 0)
+        if (!midiDriver.hasDevicesDefined())
         {
-            midiDriver.setMidiInput(newInput);
-            midiDriver.setMidiOutput(newOutput);
+            int newInput = deviceMonitor.getConfirmedInputIndex();
+            int newOutput = deviceMonitor.getConfirmedOutputIndex();
+
+            currentDevicePairConfirmed = false;
+
+            if (newInput >= 0 && newOutput >= 0)
+            {
+                midiDriver.setMidiInput(newInput);
+                midiDriver.setMidiOutput(newOutput);
+                currentDevicePairConfirmed = true;
+            }
+        }
+        else if (deviceMonitor.isConnectionEstablished())
+        {
             currentDevicePairConfirmed = true;
         }
-
+        else
+        {
+            currentDevicePairConfirmed = false;
+        }
+        
         if (currentDevicePairConfirmed)
             onConnectionConfirmed(editingMode != sysExSendingMode::firmwareUpdate);
         else
@@ -984,14 +995,15 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 
 void LumatoneController::testResponseReceived()
 {
-    jassert(midiDriver.hasDevicesDefined());
-
-    waitingForTestResponse = false;
-        
-    if (!currentDevicePairConfirmed)
+    if (waitingForTestResponse)
     {
-        currentDevicePairConfirmed = true;
-        onConnectionConfirmed(true);
+        waitingForTestResponse = false;
+
+        if (!currentDevicePairConfirmed)
+        {
+            currentDevicePairConfirmed = true;
+            onConnectionConfirmed(true);
+        }
     }
 }
 

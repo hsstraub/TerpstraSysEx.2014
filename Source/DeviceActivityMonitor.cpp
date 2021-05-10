@@ -50,7 +50,6 @@ void DeviceActivityMonitor::setCheckForInactivity(bool monitorActivity)
 
 void DeviceActivityMonitor::pingAllDevices()
 {
-    jassert(!deviceDetectInProgress);
     deviceDetectInProgress = true;
 
     outputDevices = midiDriver.getMidiOutputList();
@@ -69,6 +68,36 @@ void DeviceActivityMonitor::pingAllDevices()
     }
 
     startTimer(responseTimeoutMs);
+}
+
+bool DeviceActivityMonitor::testLastConnectedDevice()
+{
+    String inputId = TerpstraSysExApplication::getApp().getPropertiesFile()->getValue("LastInputDeviceId");
+    if (inputId.length() <= 0)
+        return false;
+
+    int inputIndex = midiDriver.getIndexOfInputDevice(inputId);
+    if (inputIndex >= 0)
+    {
+        String outputId = TerpstraSysExApplication::getApp().getPropertiesFile()->getValue("LastOutputDeviceId");
+        if (outputId.length() <= 0)
+            return false;
+        
+        int outputIndex = midiDriver.getIndexOfOutputDevice(outputId);
+        if (outputIndex >= 0)
+        {
+            deviceDetectInProgress = true;
+            waitingForTestResponse = true;
+
+            DBG("Testing last connected device");
+            midiDriver.setMidiInput(inputIndex);
+            midiDriver.setMidiOutput(outputIndex);
+            midiDriver.sendGetSerialIdentityRequest();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void DeviceActivityMonitor::startIndividualDetection()
@@ -166,8 +195,17 @@ void DeviceActivityMonitor::onSerialIdentityResponse(const MidiMessage& msg, int
 
     if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
-        confirmedOutputIndex = testOutputIndex;
-        confirmedInputIndex = deviceIndexResponded;
+        if (midiDriver.hasDevicesDefined())
+        {
+            confirmedOutputIndex = midiDriver.getMidiOutputIndex();
+            confirmedInputIndex = midiDriver.getMidiInputIndex();
+        }
+        else
+        {
+            confirmedOutputIndex = testOutputIndex;
+            confirmedInputIndex = deviceIndexResponded;
+        }
+
         startTimer(10);
     }
     else if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
@@ -245,8 +283,18 @@ void DeviceActivityMonitor::checkDetectionStatus()
     {
         if (deviceDetectInProgress)
         {
+            // Failed last-device test
+            if (midiDriver.hasDevicesDefined())
+            {
+                DBG("Unable to connect to last device.");
+                waitingForTestResponse = false;
+                midiDriver.closeMidiInput();
+                midiDriver.closeMidiOutput();
+                pingAllDevices();
+            }
+
             // Failed ping routine
-            if (outputPingIds.size() > 0)
+            else if (outputPingIds.size() > 0)
             {
                 waitingForTestResponse = false;
                 outputPingIds.clear();
@@ -275,7 +323,12 @@ void DeviceActivityMonitor::checkDetectionStatus()
             midiDriver.refreshDeviceLists();
             midiDriver.openAvailableDevicesForTesting();
             deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-            startIndividualDetection();
+
+            // If there's no last-connected-device, skip to pinging
+            if (!testLastConnectedDevice())
+            {
+                pingAllDevices();
+            }
         }
     }
 }

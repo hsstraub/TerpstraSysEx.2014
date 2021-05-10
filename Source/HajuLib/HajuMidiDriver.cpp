@@ -40,6 +40,25 @@ const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiOutputList()
 	return midiOutputs;
 }
 
+int HajuMidiDriver::getIndexOfInputDevice(String inputDeviceId) const
+{
+    for (int i = 0; i < midiInputs.size(); i++)
+        if (midiInputs[i].identifier == inputDeviceId)
+            return i;
+
+    return -1;
+}
+
+
+int HajuMidiDriver::getIndexOfOutputDevice(String outputDeviceId) const
+{
+    for (int i = 0; i < midiOutputs.size(); i++)
+        if (midiOutputs[i].identifier == outputDeviceId)
+            return i;
+
+    return -1;
+}
+
 bool HajuMidiDriver::refreshDeviceLists()
 {
     bool inputsChanged = false;
@@ -172,8 +191,7 @@ void HajuMidiDriver::closeMidiInput()
     {
         midiInput->stop();
         midiInput = nullptr;
-
-        lastInputIndex = -1;
+       lastInputIndex = -1;
     }
     
     selectedInput = nullptr;

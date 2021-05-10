@@ -51,9 +51,10 @@ public:
 
 	// Returns the index of the given MidiDevice if found, or -1 if not present
 	int getIndexOfInputDevice(MidiDeviceInfo inputDeviceInfo) const { return midiInputs.indexOf(inputDeviceInfo); }
-
+	int getIndexOfInputDevice(String inputDeviceId) const;
 	// Returns the index of the given MidiDevice if found, or -1 if not present
 	int getIndexOfOutputDevice(MidiDeviceInfo outputDeviceInfo) const { return midiOutputs.indexOf(outputDeviceInfo); }
+	int getIndexOfOutputDevice(String outputDeviceId) const;
 
 	// Re-initializes device list in case of changes, returns true if a change was detected
 	bool refreshDeviceLists();

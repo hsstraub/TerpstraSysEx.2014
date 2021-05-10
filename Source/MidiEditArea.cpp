@@ -512,8 +512,8 @@ void MidiEditArea::connectionEstablished(int inputDevice, int outputDevice)
 {
     if (inputDevice >= 0 && outputDevice >= 0)
     {
-		cbMidiInput->setSelectedId(inputDevice + 1, NotificationType::dontSendNotification);
-		cbMidiOutput->setSelectedId(outputDevice + 1, NotificationType::dontSendNotification);
+		refreshInputMenuAndSetSelected(inputDevice + 1, dontSendNotification);
+		refreshOutputMenuAndSetSelected(outputDevice + 1, dontSendNotification);
         setConnectivity(true);
 
 		onOpenConnectionToDevice();
