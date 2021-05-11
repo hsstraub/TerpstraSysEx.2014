@@ -28,6 +28,10 @@ public:
 
 public:
 	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = noteOnNoteOff; };
+	TerpstraKey(TerpstraKey::KEYTYPE newKeyType, int newChannelNumber, int newNoteNumber, COLOURTYPE newColour)
+	{
+		keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour;
+	}
 	bool isEmpty() const { return channelNumber == 0; }
 
 	bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType; }
