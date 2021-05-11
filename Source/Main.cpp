@@ -17,6 +17,12 @@
 
 //==============================================================================
 
+MainContentComponent* TerpstraSysExApplication::getMainContentComponent()
+{
+	jassert(mainWindow != nullptr);
+	return (MainContentComponent*)(mainWindow->getContentComponent());
+}
+
 TerpstraSysExApplication::TerpstraSysExApplication()
 	: lookAndFeel(appFonts.fonts, true), tooltipWindow(), hasChangesToSave(false)
 {
@@ -308,6 +314,9 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		Lumatone::Menu::commandIDs::deleteOctaveBoard,
 		Lumatone::Menu::commandIDs::copyOctaveBoard,
 		Lumatone::Menu::commandIDs::pasteOctaveBoard,
+		Lumatone::Menu::commandIDs::undo,
+		Lumatone::Menu::commandIDs::redo,
+
 		Lumatone::Debug::commandIDs::toggleDeveloperMode,
 
 		Lumatone::Menu::commandIDs::aboutSysEx
@@ -355,6 +364,18 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
+	case Lumatone::Menu::commandIDs::undo:
+		result.setInfo("Undo", "Undo latest edit", "Edit", 0);
+		result.addDefaultKeypress('z', ModifierKeys::ctrlModifier);
+		result.setActive(undoManager.canUndo());
+		break;
+
+	case Lumatone::Menu::commandIDs::redo:
+		result.setInfo("Redo", "Redo latest edit", "Edit", 0);
+		result.addDefaultKeypress('y', ModifierKeys::ctrlModifier);
+		result.setActive(undoManager.canRedo());
+		break;
+
 	case Lumatone::Menu::commandIDs::aboutSysEx:
 		result.setInfo("About Lumatone Editor", "Shows version and copyright", "Help", 0);
 		break;
@@ -389,6 +410,8 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return copySubBoardData();
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+
+		// ToDO undo, redo
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();

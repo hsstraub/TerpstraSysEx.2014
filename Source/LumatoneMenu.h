@@ -24,6 +24,8 @@ namespace Lumatone {
 			deleteOctaveBoard = 0x200017,
 			copyOctaveBoard = 0x200018,
 			pasteOctaveBoard = 0x200019,
+			undo = 0x200020,
+			redo = 0x200021,
 
 			recentFilesBaseID = 0x200100,
 

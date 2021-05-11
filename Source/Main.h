@@ -165,6 +165,8 @@ public:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 	};
 
+	MainContentComponent* getMainContentComponent();
+
 private:
 	std::unique_ptr<MainWindow> mainWindow;
 
@@ -174,6 +176,8 @@ private:
 	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+
+	juce::UndoManager undoManager;
 	
 	LumatoneEditorFonts			appFonts;
 	LumatoneEditorLookAndFeel	lookAndFeel;

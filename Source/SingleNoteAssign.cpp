@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
 #include "MainComponent.h"
+#include "EditActions.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -474,6 +475,14 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+
+	Lumatone::SingleNoteAssignAction editAction(
+		setSelection, keySelection,
+		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
+		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
+		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), channelInput->getValue(),
+		noteInput->getValue(), colourSubwindow->getColourAsObject());
+	// ToDo UndoManager
 
 	// Set note if specified
 	if (setNoteToggleButton->getToggleState())
