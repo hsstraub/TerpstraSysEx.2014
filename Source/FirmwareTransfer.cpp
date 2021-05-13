@@ -347,19 +347,18 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
     {
         STOPBEFOREINIT
 
-        if (deviceHostName == "")
-        {
-            deviceHostName = SERVERHOST2;
-            hostaddr = inet_addr(deviceHostName.getCharPointer());
-        }
+        DBG("attempting to connect to host " + deviceHostName);
         
         sin.sin_addr.s_addr = hostaddr;
         if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0)
         {
-            DBG("failed to connect to " + deviceHostName);
+            DBG("connection failed");
             
-            if (deviceHostName != SERVERHOST2)
-                continue;
+            if (deviceHostName == SERVERHOST1)
+            {
+                deviceHostName = SERVERHOST2;
+                hostaddr = inet_addr(deviceHostName.getCharPointer());
+            }
         }
         else
         {

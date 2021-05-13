@@ -325,10 +325,10 @@ void DeviceActivityMonitor::checkDetectionStatus()
             deviceConnectionMode = DetectConnectionMode::lookingForDevice;
 
             // If there's no last-connected-device, skip to pinging
-            if (!testLastConnectedDevice())
-            {
+            //if (!testLastConnectedDevice())
+            //{
                 pingAllDevices();
-            }
+            //}
         }
     }
 }
