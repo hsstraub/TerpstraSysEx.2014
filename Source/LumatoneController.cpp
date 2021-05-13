@@ -86,8 +86,7 @@ void LumatoneController::stopAutoConnection()
 
 void LumatoneController::refreshAvailableMidiDevices() 
 { 
-    midiDriver.refreshDeviceLists();
-    if (midiDriver.testIsIncomplete())
+    if (midiDriver.refreshDeviceLists() && midiDriver.testIsIncomplete())
         midiDriver.openAvailableDevicesForTesting();
 }
 
