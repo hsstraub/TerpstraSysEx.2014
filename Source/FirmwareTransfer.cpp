@@ -255,8 +255,6 @@ void FirmwareTransfer::postUpdate(StatusCode codeIn)
 FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 {
 	// Shared SSH session data
-	const char* deviceHostName = SERVERHOST;
-	unsigned long hostaddr = inet_addr(deviceHostName);
 	const char* username = SERVERKEY;
 	const char* password = SERVERPWD;
 
@@ -326,17 +324,55 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 		DBG("failed to create socket!");
 		return StatusCode::StartupErr;
 	}
-
-    STOPBEFOREINIT
     
-	sin.sin_family = AF_INET;
-	sin.sin_port = htons(22);
-	sin.sin_addr.s_addr = hostaddr;
-	if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0)
-	{
-		DBG("failed to connect!");
-		return StatusCode::HostConnectErr;
-	}
+    // Set timeout to just 5 seconds
+    timeval defaultTimeout;
+    defaultTimeout.tv_sec = 5;
+    
+    auto setSendCode = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &defaultTimeout, sizeof(timeval));
+    DBG("set SNDTIMEO returned : " + String(setSendCode));
+    
+    auto setRcvCode = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &defaultTimeout, sizeof(timeval));
+    DBG("set RCVTIMEO returned : " + String(setRcvCode));
+    
+    
+    // Find correct hostname for OS
+    String deviceHostName = SERVERHOST1;
+    unsigned int hostaddr = inet_addr(deviceHostName.getCharPointer());
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(22);
+    
+    int tries = 0;
+    while (tries++ < 2)
+    {
+        STOPBEFOREINIT
+
+        if (deviceHostName == "")
+        {
+            deviceHostName = SERVERHOST2;
+            hostaddr = inet_addr(deviceHostName.getCharPointer());
+        }
+        
+        sin.sin_addr.s_addr = hostaddr;
+        if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0)
+        {
+            DBG("failed to connect to " + deviceHostName);
+            
+            if (deviceHostName != SERVERHOST2)
+                continue;
+        }
+        else
+        {
+            DBG("connected to " + deviceHostName);
+            break;
+        }
+    }
+    
+    if (tries == 2)
+    {
+        DBG("failed to connect to " + deviceHostName);
+        return StatusCode::HostConnectErr;
+    }
     
     STOPBEFOREINIT
 
