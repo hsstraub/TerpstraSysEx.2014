@@ -212,10 +212,14 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 			switch (editMode)
 			{
 			case noteEditMode::SingleNoteAssignMode:
-				mappingChanged = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+			{
+				auto editAction = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+				if (editAction.isValid())
+					mappingChanged = TerpstraSysExApplication::getApp().performUndoableAction(editAction);
 				break;
+			}
 			case noteEditMode::IsomorphicMassAssignMode:
-				mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+				 mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
 				break;
 			default:
 				break;

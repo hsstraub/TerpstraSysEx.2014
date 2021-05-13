@@ -411,7 +411,11 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
 
-		// ToDO undo, redo
+	case Lumatone::Menu::commandIDs::undo:
+		return undoManager.undo();
+
+	case Lumatone::Menu::commandIDs::redo:
+		return undoManager.redo();
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
@@ -470,6 +474,11 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 	setHasChangesToSave(false);
 
+	// Clear undoable actions
+	// ToDo (?)
+	undoManager.clearUndoHistory();
+
+
 	// Window title
 	updateMainTitle();
 
@@ -479,6 +488,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 bool TerpstraSysExApplication::deleteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->deleteCurrentSubBoardData();
+	// ToDo Add to undo history
 }
 
 bool TerpstraSysExApplication::copySubBoardData()
@@ -489,6 +499,7 @@ bool TerpstraSysExApplication::copySubBoardData()
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
+	// ToDo Add to undo history
 }
 
 bool TerpstraSysExApplication::toggleDeveloperMode()
@@ -621,6 +632,9 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		// Mark file as unchanged
 		setHasChangesToSave(false);
 
+		// Clear undo history
+		undoManager.clearUndoHistory();
+
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
 
@@ -652,6 +666,8 @@ bool TerpstraSysExApplication::saveCurrentFile()
 		currentFile.appendText(stringArray[i] + "\n");
 
 	setHasChangesToSave(false);
+
+	// ToDo undo history?
 
 	// Add file to recent files list - or put it on top of the list
 	recentFiles.addFile(currentFile);
@@ -717,6 +733,12 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
 	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
 	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
+}
+
+bool TerpstraSysExApplication::performUndoableAction(UndoableAction& editAction)
+{
+	return undoManager.perform(&editAction);
+	// ToDo setHasChangesToSave, refreshKeyFields (currently in calling function)
 }
 
 void TerpstraSysExApplication::updateMainTitle()

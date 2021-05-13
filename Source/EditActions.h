@@ -30,8 +30,23 @@ namespace Lumatone {
 			int newNoteNumber = 0,
 			TerpstraKey::COLOURTYPE newColour = juce::Colour());
 
+		SingleNoteAssignAction(SingleNoteAssignAction& second)
+			: setSelection(second.setSelection)
+			, keySelection(second.keySelection)
+			, setKeyType(second.setKeyType)
+			, setChannel(second.setChannel)
+			, setNote(second.setNote)
+			, setColour(second.setColour)
+			, previousData(second.previousData)
+			, newData(second.newData)
+		{}
+
+		bool isValid() const;
+
 		virtual bool perform() override;
 		virtual bool undo() override;
+		int getSizeInUnits() override;
+
 	private:
 		int setSelection = - 1;
 		int keySelection = -1;

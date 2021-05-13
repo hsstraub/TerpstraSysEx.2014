@@ -24,6 +24,7 @@
 #include "KeyboardDataStructure.h"
 #include "ColourEditComponent.h"
 #include "LumatoneEditorLookAndFeel.h"
+#include "EditActions.h"
 //[/Headers]
 
 
@@ -50,7 +51,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	bool performMouseDown(int setSelection, int keySelection);
+	Lumatone::SingleNoteAssignAction performMouseDown(int setSelection, int keySelection);
 	void onSetData(TerpstraKeyMapping& newData);
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);

@@ -34,6 +34,11 @@ namespace Lumatone {
 		previousData = mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection];
 	}
 
+	bool SingleNoteAssignAction::isValid() const
+	{
+		return setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize();
+	}
+
 	bool SingleNoteAssignAction::perform()
 	{
 		if (setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
@@ -42,23 +47,32 @@ namespace Lumatone {
 			{
 				auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
 				jassert(mainComponent != nullptr);
+				TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
 
 				if (setKeyType)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].keyType = newData.keyType;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].keyType = newData.keyType;
 				}
 				if (setChannel)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].channelNumber = newData.channelNumber;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].channelNumber = newData.channelNumber;
 				}
 				if (setNote)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].noteNumber = newData.noteNumber;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].noteNumber = newData.noteNumber;
 				}
 				if (setColour)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].colour = newData.colour;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].colour = newData.colour;
 				}
+
+				// Send to device
+				TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(
+					setSelection + 1, 
+					keySelection, 
+					mappingInEdit.sets[setSelection].theKeys[keySelection]);
+				
+				// Notfy that there are changes: in calling function
 			}
 			else
 			{
@@ -73,7 +87,6 @@ namespace Lumatone {
 			jassertfalse;
 			return false;
 		}
-
 	}
 
 	bool SingleNoteAssignAction::undo()
@@ -84,23 +97,32 @@ namespace Lumatone {
 			{
 				auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
 				jassert(mainComponent != nullptr);
+				TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
 
 				if (setKeyType)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].keyType = previousData.keyType;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].keyType = previousData.keyType;
 				}
 				if (setChannel)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].channelNumber = previousData.channelNumber;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].channelNumber = previousData.channelNumber;
 				}
 				if (setNote)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].noteNumber = previousData.noteNumber;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].noteNumber = previousData.noteNumber;
 				}
 				if (setColour)
 				{
-					mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection].colour = previousData.colour;
+					mappingInEdit.sets[setSelection].theKeys[keySelection].colour = previousData.colour;
 				}
+
+				// Send to device
+				TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(
+					setSelection + 1,
+					keySelection,
+					mappingInEdit.sets[setSelection].theKeys[keySelection]);
+
+				// Notfy that there are changes: in calling function
 			}
 			else
 			{
@@ -115,6 +137,11 @@ namespace Lumatone {
 			jassertfalse;
 			return false;
 		}
+	}
+
+	int SingleNoteAssignAction::getSizeInUnits()
+	{
+		return 2 * sizeof(int) + 6 * sizeof(bool) + 2 * sizeof(TerpstraKey);
 	}
 
 }

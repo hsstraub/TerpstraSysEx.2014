@@ -19,8 +19,6 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
-#include "MainComponent.h"
-#include "EditActions.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -468,52 +466,20 @@ void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source,
 }
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
+/// <returns>Undaoble action to be passed to the undo manager. The latter has to be done in calling function.</returns>
+Lumatone::SingleNoteAssignAction SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 {
-	bool mappingChanged = false;
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
-
-	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
-
-	Lumatone::SingleNoteAssignAction editAction(
+	auto editAction = Lumatone::SingleNoteAssignAction(
 		setSelection, keySelection,
 		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
 		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
 		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), channelInput->getValue(),
 		noteInput->getValue(), colourSubwindow->getColourAsObject());
-	// ToDo UndoManager
 
-	// Set note if specified
-	if (setNoteToggleButton->getToggleState())
-	{
-		keyData.noteNumber = noteInput->getValue();
-		mappingChanged = true;
-	}
+	jassert(editAction.isValid());
+	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
 
-	// Set channel if specified
-	if (setChannelToggleButton->getToggleState())
-	{
-		keyData.channelNumber = channelInput->getValue();	// 1-16
-		mappingChanged = true;
-	}
-
-	// Set colour if specified
-	if (setColourToggleButton->getToggleState())
-	{
-		keyData.colour = colourSubwindow->getColourAsObject();
-		mappingChanged = true;
-	}
-
-	// Set key type if specified
-	if (keyTypeToggleButton->getToggleState())
-	{
-		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
-		mappingChanged = true;
-	}
-
-	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
+	// ToDO auto-increment logic also inside the undoable action?
 
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())
@@ -537,7 +503,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		noteInput->setValue(newNote);
 	}
 
-	return mappingChanged;
+	return editAction;
 }
 
 void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
