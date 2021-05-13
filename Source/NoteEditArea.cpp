@@ -214,8 +214,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 			case noteEditMode::SingleNoteAssignMode:
 			{
 				auto editAction = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
-				if (editAction.isValid())
-					mappingChanged = TerpstraSysExApplication::getApp().performUndoableAction(editAction);
+				mappingChanged = TerpstraSysExApplication::getApp().performUndoableAction(editAction);
 				break;
 			}
 			case noteEditMode::IsomorphicMassAssignMode:
@@ -235,10 +234,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
 		// Refresh key fields (all may be affected)
-		// repaint();	That should be enough - but is not. apparently...XXX
-		refreshKeyFields();
-
-		((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
+		((MainContentComponent*)getParentComponent())->refreshKeyDataFields();
 	}
 
     //[/UserCode_mouseDown]

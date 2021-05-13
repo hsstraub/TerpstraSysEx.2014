@@ -78,7 +78,7 @@ public:
     void paint (Graphics&);
     void resized();
 
-	void refreshAllKeysOverview();
+	void refreshKeyDataFields();
 
 private:
     //==============================================================================

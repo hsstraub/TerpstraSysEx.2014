@@ -78,6 +78,10 @@ public:
 	bool copySubBoardData();
 	bool pasteSubBoardData();
 
+	bool performUndoableAction(UndoableAction* editAction);
+	bool undo();
+	bool redo();
+
 	bool toggleDeveloperMode();
 
 	bool generalOptionsDialog();
@@ -92,7 +96,6 @@ public:
 	void sendCurrentConfigurationToDevice();
 	void requestConfigurationFromDevice();
 
-	bool performUndoableAction(UndoableAction& editAction);
 	
 	void updateMainTitle();
 

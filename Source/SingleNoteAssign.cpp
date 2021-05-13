@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
+#include "EditActions.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -466,21 +467,22 @@ void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source,
 }
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
-/// <returns>Undaoble action to be passed to the undo manager. The latter has to be done in calling function.</returns>
-Lumatone::SingleNoteAssignAction SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
+/// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
+UndoableAction* SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 {
-	auto editAction = Lumatone::SingleNoteAssignAction(
+	auto editAction = new Lumatone::SingleNoteAssignAction(
 		setSelection, keySelection,
 		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
 		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
 		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), channelInput->getValue(),
 		noteInput->getValue(), colourSubwindow->getColourAsObject());
 
-	jassert(editAction.isValid());
+	jassert(editAction != nullptr && editAction->isValid());
+	
+
+	// ToDo auto-increment logic also inside the undoable action?
 	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
-
-	// ToDO auto-increment logic also inside the undoable action?
-
+	
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())
 	{

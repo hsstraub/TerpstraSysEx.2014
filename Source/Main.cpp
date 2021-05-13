@@ -412,10 +412,10 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return pasteSubBoardData();
 
 	case Lumatone::Menu::commandIDs::undo:
-		return undoManager.undo();
+		return undo();
 
 	case Lumatone::Menu::commandIDs::redo:
-		return undoManager.redo();
+		return redo();
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
@@ -500,6 +500,34 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
 	// ToDo Add to undo history
+}
+
+bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
+{
+	return undoManager.perform(editAction);	// UndoManager will check for nullptr and also for disposing of the object
+	// ToDo setHasChangesToSave, refreshKeyDataFields (currently in calling function)
+}
+
+bool TerpstraSysExApplication::undo()
+{
+	if (undoManager.undo())
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+	}
+	else
+		return false;
+}
+
+bool TerpstraSysExApplication::redo()
+{
+	if (undoManager.redo())
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+	}
+	else
+		return false;
 }
 
 bool TerpstraSysExApplication::toggleDeveloperMode()
@@ -733,12 +761,6 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
 	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
 	getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
-}
-
-bool TerpstraSysExApplication::performUndoableAction(UndoableAction& editAction)
-{
-	return undoManager.perform(&editAction);
-	// ToDo setHasChangesToSave, refreshKeyFields (currently in calling function)
 }
 
 void TerpstraSysExApplication::updateMainTitle()
