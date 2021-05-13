@@ -504,8 +504,13 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 
 bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
 {
-	return undoManager.perform(editAction);	// UndoManager will check for nullptr and also for disposing of the object
-	// ToDo setHasChangesToSave, refreshKeyDataFields (currently in calling function)
+	if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+	}
+	else
+		return false;
 }
 
 bool TerpstraSysExApplication::undo()

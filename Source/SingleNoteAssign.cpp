@@ -468,7 +468,7 @@ void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source,
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
 /// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
-UndoableAction* SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
+UndoableAction* SingleNoteAssign::createEditAction(int setSelection, int keySelection)
 {
 	auto editAction = new Lumatone::SingleNoteAssignAction(
 		setSelection, keySelection,
