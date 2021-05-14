@@ -470,30 +470,31 @@ void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source,
 /// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
 UndoableAction* SingleNoteAssign::createEditAction(int setSelection, int keySelection)
 {
+	int newNote = noteInput->getValue();
+	int newChannel = channelInput->getValue();
+	
 	auto editAction = new Lumatone::SingleNoteAssignAction(
 		setSelection, keySelection,
 		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
 		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
-		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), channelInput->getValue(),
-		noteInput->getValue(), colourSubwindow->getColourAsObject());
+		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), newChannel,
+		newNote, colourSubwindow->getColourAsObject());
 
 	jassert(editAction != nullptr && editAction->isValid());
 	
-
-	// ToDo auto-increment logic also inside the undoable action?
-	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+	// ToDo auto-increment logic also inside the undoable action?	
 	
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())
 	{
-		int newNote = keyData.noteNumber + 1;
+		newNote++;
 
 		// Auto increment channel
 		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteInput->getValue() > 0 &&
 			newNote > channelAutoIncrNoteInput->getValue())
 		{
 			newNote = 0;
-			int newChannel = keyData.channelNumber + 1;
+			newChannel++;
 			if (newChannel > 16)
 				newChannel = 1;
 			channelInput->setValue(newChannel);
