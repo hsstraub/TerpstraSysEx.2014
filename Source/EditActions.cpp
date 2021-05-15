@@ -20,7 +20,7 @@ namespace Lumatone {
 		bool setChannel, 
 		bool setNote,
 		bool setColour,
-		TerpstraKey::KEYTYPE newKeyType,
+		LumatoneKeyType newKeyType,
 		int newChannelNumber,
 		int newNoteNumber, 
 		TerpstraKey::COLOURTYPE newColour)
@@ -67,7 +67,7 @@ namespace Lumatone {
 				}
 
 				// Send to device
-				TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(
+				TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(
 					setSelection + 1, 
 					keySelection, 
 					mappingInEdit.sets[setSelection].theKeys[keySelection]);
@@ -117,7 +117,7 @@ namespace Lumatone {
 				}
 
 				// Send to device
-				TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(
+				TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(
 					setSelection + 1,
 					keySelection,
 					mappingInEdit.sets[setSelection].theKeys[keySelection]);
