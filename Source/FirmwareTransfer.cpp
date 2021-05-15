@@ -38,8 +38,11 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <poll.h>
 #include <time.h>
+
+#ifdef HAVE_POLL_H
+#include <poll.h>
+#endif
 
 #include "libssh2.h"
 
@@ -310,6 +313,10 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
         DBG("libssh2 initialization failed! error: " + String(returnCode));
         return StatusCode::StartupErr;
     }
+
+
+
+#ifdef HAS_POLL_H
     
     int sockFlagsBefore = 0;
 
@@ -443,11 +450,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
         }
         
         DBG("connection attempt failed");
-#ifdef WIN32 // we're not distributing 32-bit, but just in case we ever need it
-        closesocket(sock);
-#else
+
         close(sock);
-#endif
         failedTries++;
     }
     
@@ -461,6 +465,41 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
         DBG("could not reset sock flags");
         return StatusCode::StartupErr;
     }
+
+
+#else
+
+	// Create socket and connect to port 22
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock < 0)
+	{
+		DBG("failed to create socket!");
+		return StatusCode::StartupErr;
+	}
+
+	STOPBEFOREINIT
+
+	String deviceHostName = SERVERHOST;
+	unsigned int hostaddr = inet_addr(deviceHostName.getCharPointer());
+	struct sockaddr_in sin;
+	sin.sin_family = AF_INET;
+	sin.sin_port = htons(22);
+	sin.sin_addr.s_addr = hostaddr;
+	
+	if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0)
+	{
+		DBG("failed to connect!");
+
+#if WIN32
+		closesocket(sock);
+#else
+		close(sock);
+#endif
+
+		return StatusCode::HostConnectErr;
+	}
+
+#endif
 
     // Prepare data for file transfer
     localFile = fopen(filePath, "rb");

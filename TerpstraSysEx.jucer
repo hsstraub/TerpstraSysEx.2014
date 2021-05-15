@@ -288,7 +288,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="fwSyLL" bigIcon="yjLw0u"
-                linuxExtraPkgConfig="libssh2" extraDefs="SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot; HAVE_ARPA_INET_H=1 HAVE_UNISTD_H=1">
+                linuxExtraPkgConfig="libssh2" extraDefs="HAVE_ARPA_INET_H=1 HAVE_UNISTD_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="LumatoneSetup"/>
@@ -307,7 +307,7 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="yjLw0u" hardenedRuntime="1"
-               extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;"
+               extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;"
                xcodeValidArchs="x86_64" extraCompilerFlags="-I../../Libraries/mac/include"
                embeddedFrameworks="../../Libraries/mac/lib/libgpg-error.0.dylib&#10;../../Libraries/mac/lib/libgcrypt.20.dylib&#10;../../Libraries/mac/lib/libssh2.1.dylib"
                smallIcon="fwSyLL">
@@ -329,8 +329,7 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" smallIcon="fwSyLL" bigIcon="yjLw0u"
-            extraDefs="SERVERHOST1=&quot;192.168.7.2&quot; SERVERHOST2=&quot;192.168.6.2&quot;"
-            externalLibraries="libssh2.dll.a">
+            extraDefs="SERVERHOST=&quot;192.168.7.2&quot;" externalLibraries="libssh2.dll.a">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
                        libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
@@ -349,7 +348,7 @@
       </MODULEPATHS>
     </VS2017>
     <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="libssh2.dll.a"
-            smallIcon="fwSyLL" bigIcon="yjLw0u" extraDefs="SERVERHOST1=&quot;192.168.7.2&quot; SERVERHOST2=&quot;192.168.6.2&quot;">
+            smallIcon="fwSyLL" bigIcon="yjLw0u" extraDefs="SERVERHOST=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
                        libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
