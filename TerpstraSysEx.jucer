@@ -308,7 +308,7 @@
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="yjLw0u" hardenedRuntime="1"
                extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;"
-               xcodeValidArchs="arm64,x86_64" extraCompilerFlags="-I../../Libraries/mac/include"
+               xcodeValidArchs="x86_64" extraCompilerFlags="-I../../Libraries/mac/include"
                embeddedFrameworks="../../Libraries/mac/lib/libgpg-error.0.dylib&#10;../../Libraries/mac/lib/libgcrypt.20.dylib&#10;../../Libraries/mac/lib/libssh2.1.dylib"
                smallIcon="fwSyLL">
       <CONFIGURATIONS>
