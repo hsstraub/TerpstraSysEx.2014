@@ -51,6 +51,8 @@ namespace Lumatone {
 			menu.addCommandItem(theManager, deleteOctaveBoard);
 			menu.addCommandItem(theManager, copyOctaveBoard);
 			menu.addCommandItem(theManager, pasteOctaveBoard);
+			menu.addCommandItem(theManager, undo);
+			menu.addCommandItem(theManager, redo);
 		}
 
 		void MainMenuModel::createHelpMenu(PopupMenu& menu)

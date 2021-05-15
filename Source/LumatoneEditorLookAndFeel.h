@@ -777,7 +777,8 @@ public:
     //
     //==================================================================
 
-    void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
+	/*
+	void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
     {
         auto target = options.getTargetComponent();
 		if (target)
@@ -883,6 +884,7 @@ public:
     {
         window.setOpaque(false);
     }
+	*/
 
     //==================================================================
     //

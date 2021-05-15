@@ -109,8 +109,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	if (withRefresh)
 	{
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
+		refreshKeyDataFields();
 		generalOptionsArea->loadFromMapping();
 		pedalSensitivityDlg->loadFromMapping();
 		curvesArea->loadFromMapping();
@@ -139,8 +138,7 @@ bool MainContentComponent::deleteCurrentSubBoardData()
 		mappingData.sets[currentSetSelection] = TerpstraKeys();
 
 		// Refresh display
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
+		refreshKeyDataFields();
 
 		// Mark that there are changes
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -173,8 +171,7 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 			mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
 			// Refresh display
-			refreshAllKeysOverview();
-			noteEditArea->refreshKeyFields();
+			refreshKeyDataFields();
 
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -216,8 +213,7 @@ void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgb
 			jassertfalse;
 	}
 
-	refreshAllKeysOverview();
-	noteEditArea->refreshKeyFields();
+	refreshKeyDataFields();
 }
 
 void MainContentComponent::octaveChannelConfigReceived(int octaveIndex, const int* channelData)
@@ -227,6 +223,8 @@ void MainContentComponent::octaveChannelConfigReceived(int octaveIndex, const in
 		// Check channel values?
 		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].channelNumber = channelData[keyIndex];
 	}
+
+	refreshKeyDataFields();
 }
 
 void MainContentComponent::octaveNoteConfigReceived(int octaveIndex, const int* noteData)
@@ -236,6 +234,8 @@ void MainContentComponent::octaveNoteConfigReceived(int octaveIndex, const int* 
 		// Check note values?
 		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].noteNumber = noteData[keyIndex];
 	}
+
+	refreshKeyDataFields();
 }
 
 void MainContentComponent::keyTypeConfigReceived(int octaveIndex, const int* keyTypeData)
@@ -245,6 +245,8 @@ void MainContentComponent::keyTypeConfigReceived(int octaveIndex, const int* key
 		// Check type values?
 		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].keyType = LumatoneKeyType(keyTypeData[keyIndex]);
 	}
+
+	refreshKeyDataFields();
 }
 
 void MainContentComponent::velocityConfigReceived(const int* velocityData)
@@ -384,8 +386,9 @@ void MainContentComponent::resized()
 	lblAppVersion->setTopLeftPosition(lblAppName->getRight(), lblAppName->getBottom() - lblAppVersion->getHeight());
 }
 
-void MainContentComponent::refreshAllKeysOverview()
+void MainContentComponent::refreshKeyDataFields()
 {
 	allKeysOverview->repaint();
+	noteEditArea->refreshKeyFields();
 }
 

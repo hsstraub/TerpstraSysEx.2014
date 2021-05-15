@@ -17,6 +17,12 @@
 
 //==============================================================================
 
+MainContentComponent* TerpstraSysExApplication::getMainContentComponent()
+{
+	jassert(mainWindow != nullptr);
+	return (MainContentComponent*)(mainWindow->getContentComponent());
+}
+
 TerpstraSysExApplication::TerpstraSysExApplication()
 	: lookAndFeel(appFonts.fonts, true), tooltipWindow(), hasChangesToSave(false)
 {
@@ -286,6 +292,9 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		Lumatone::Menu::commandIDs::deleteOctaveBoard,
 		Lumatone::Menu::commandIDs::copyOctaveBoard,
 		Lumatone::Menu::commandIDs::pasteOctaveBoard,
+		Lumatone::Menu::commandIDs::undo,
+		Lumatone::Menu::commandIDs::redo,
+
 		Lumatone::Debug::commandIDs::toggleDeveloperMode,
 
 		Lumatone::Menu::commandIDs::aboutSysEx
@@ -315,7 +324,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case Lumatone::Menu::commandIDs::resetSysExMapping:
 		result.setInfo("New", "Start new mapping. Clear all edit fields, do not save current edits.", "File", 0);
-		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('n', ModifierKeys::ctrlModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
@@ -333,8 +342,20 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
+	case Lumatone::Menu::commandIDs::undo:
+		result.setInfo("Undo", "Undo latest edit", "Edit", 0);
+		result.addDefaultKeypress('z', ModifierKeys::ctrlModifier);
+		result.setActive(undoManager.canUndo());
+		break;
+
+	case Lumatone::Menu::commandIDs::redo:
+		result.setInfo("Redo", "Redo latest edit", "Edit", 0);
+		result.addDefaultKeypress('y', ModifierKeys::ctrlModifier);
+		result.setActive(undoManager.canRedo());
+		break;
+
 	case Lumatone::Menu::commandIDs::aboutSysEx:
-		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
+		result.setInfo("About Lumatone Editor", "Shows version and copyright", "Help", 0);
 		break;
 
 	case Lumatone::Debug::commandIDs::toggleDeveloperMode:
@@ -367,6 +388,12 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return copySubBoardData();
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+
+	case Lumatone::Menu::commandIDs::undo:
+		return undo();
+
+	case Lumatone::Menu::commandIDs::redo:
+		return redo();
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
@@ -425,6 +452,11 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 	setHasChangesToSave(false);
 
+	// Clear undoable actions
+	// ToDo (?)
+	undoManager.clearUndoHistory();
+
+
 	// Window title
 	updateMainTitle();
 
@@ -434,6 +466,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 bool TerpstraSysExApplication::deleteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->deleteCurrentSubBoardData();
+	// ToDo Add to undo history
 }
 
 bool TerpstraSysExApplication::copySubBoardData()
@@ -444,6 +477,40 @@ bool TerpstraSysExApplication::copySubBoardData()
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
+	// ToDo Add to undo history
+}
+
+bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
+{
+	if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+	}
+	else
+		return false;
+}
+
+bool TerpstraSysExApplication::undo()
+{
+	if (undoManager.undo())
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+	}
+	else
+		return false;
+}
+
+bool TerpstraSysExApplication::redo()
+{
+	if (undoManager.redo())
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+	}
+	else
+		return false;
 }
 
 bool TerpstraSysExApplication::toggleDeveloperMode()
@@ -576,6 +643,9 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		// Mark file as unchanged
 		setHasChangesToSave(false);
 
+		// Clear undo history
+		undoManager.clearUndoHistory();
+
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
 
@@ -607,6 +677,8 @@ bool TerpstraSysExApplication::saveCurrentFile()
 		currentFile.appendText(stringArray[i] + "\n");
 
 	setHasChangesToSave(false);
+
+	// ToDo undo history?
 
 	// Add file to recent files list - or put it on top of the list
 	recentFiles.addFile(currentFile);
@@ -703,11 +775,17 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
 		<< String(JUCE_APP_VERSION_HEX & 0xff) << newLine
 
+		<< "@ Hans Straub, Vincenzo Sicurella 2014 - 2021" << newLine
 		<< newLine
-		<< "Original design @ Dylan Horvath 2007" << newLine
-		<< "Reengineered @ Hans Straub, Vincenzo Sicurella 2014 - 2021" << newLine
+		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
-		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to http://lumatone.io or http://terpstrakeyboard.com .";
+		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
+		<< newLine 
+		<< "http://lumatone.io" << newLine
+		<< newLine
+		<< "or" << newLine
+		<< newLine
+		<< "http://terpstrakeyboard.com";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
@@ -718,14 +796,15 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	juce::Rectangle<int> area(0, 0, 400, 200);
 	options.content->setSize(area.getWidth(), area.getHeight());
 
-	options.dialogTitle = "About LumatoneSetup";
+	resizeLabelWithHeight(label, roundToInt(area.getHeight() * 0.24f));
+
+	options.dialogTitle = "About Lumatone Editor";
 	options.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
 
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;
 	options.resizable = true;
 
-	//const RectanglePlacement placement(RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
 
 	DialogWindow* dw = options.launchAsync();
 	dw->centreWithSize(400, 260);
