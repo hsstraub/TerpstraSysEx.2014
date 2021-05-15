@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LumatoneMenu.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -63,7 +64,7 @@ public:
 	bool deletePaletteFile(File pathToPalette);
 
 	// Menu functionality
-	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
 	void getAllCommands(Array <CommandID>& commands) override;
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 	bool perform(const InvocationInfo& info) override;
@@ -76,6 +77,10 @@ public:
 	bool deleteSubBoardData();
 	bool copySubBoardData();
 	bool pasteSubBoardData();
+
+	bool performUndoableAction(UndoableAction* editAction);
+	bool undo();
+	bool redo();
 
 	bool toggleDeveloperMode();
 
@@ -91,6 +96,7 @@ public:
 	void sendCurrentConfigurationToDevice();
 	void requestConfigurationFromDevice();
 
+	
 	void updateMainTitle();
 
 	bool getHasChangesToSave() const { return hasChangesToSave; }
@@ -164,14 +170,19 @@ public:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 	};
 
+	MainContentComponent* getMainContentComponent();
+
 private:
 	std::unique_ptr<MainWindow> mainWindow;
 
 	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
 
 	std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+
+	juce::UndoManager undoManager;
 	
 	LumatoneEditorFonts			appFonts;
 	LumatoneEditorLookAndFeel	lookAndFeel;

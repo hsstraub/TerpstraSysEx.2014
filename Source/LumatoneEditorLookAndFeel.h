@@ -777,20 +777,25 @@ public:
     //
     //==================================================================
 
-    void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
+	/*
+	void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
     {
         auto target = options.getTargetComponent();
+		if (target)
+		{
+			float margin = target->getHeight() * comboBoxRoundedCornerScalar;
 
-        float margin = target->getHeight() * comboBoxRoundedCornerScalar;
+			auto box = dynamic_cast<ComboBox*>(target);
+			if (box)
+				g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
+			else
+				g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
 
-        auto box = dynamic_cast<ComboBox*>(target);
-        if (box)
-            g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
-        else
-            g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxHighlighted)); 
-
-        Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, target->getWidth(), height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
-        g.fillPath(menuShape);
+			Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, target->getWidth(), height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
+			g.fillPath(menuShape);
+		}
+		else
+			__super::drawPopupMenuBackgroundWithOptions(g, width, height, options);
     }
 
     void drawPopupMenuItemWithOptions(
@@ -824,7 +829,7 @@ public:
         font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
 
         // If it's the last item, reduce size so highlight doesn't pass rounded corners
-        if (item.itemID == target->getItemId(target->getNumItems() - 1))
+        if (target != nullptr && item.itemID == target->getItemId(target->getNumItems() - 1))
         {
             areaToUse = areaToUse.withTrimmedBottom(roundToInt(margin * 0.5f) + 1);
         }
@@ -846,17 +851,23 @@ public:
     {
         auto target = dynamic_cast<ComboBox*>(options.getTargetComponent());
 
-        idealWidth = target->getWidth();
+		if (target != nullptr)
+		{
+			idealWidth = target->getWidth();
 
-        // If the option is the last available option, add a margin
-        if (target->getItemText(target->getNumItems() - 1) == text)
-        {
-            idealHeight = roundToInt(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
-        }
-        else
-        {
-            idealHeight = target->getHeight();
-        }
+			// If the option is the last available option, add a margin
+			if (target->getItemText(target->getNumItems() - 1) == text)
+			{
+				idealHeight = roundToInt(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
+			}
+			else
+			{
+				idealHeight = target->getHeight();
+			}
+		}
+		else
+		  __super::getIdealPopupMenuItemSizeWithOptions(text, isSeparator, standardMenuItemHeight, idealWidth, idealHeight,
+			  options);
     }
 
     Font getPopupMenuFont() override
@@ -873,6 +884,7 @@ public:
     {
         window.setOpaque(false);
     }
+	*/
 
     //==================================================================
     //

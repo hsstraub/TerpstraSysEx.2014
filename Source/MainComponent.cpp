@@ -109,8 +109,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	if (withRefresh)
 	{
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
+		refreshKeyDataFields();
 		generalOptionsArea->loadFromMapping();
 		pedalSensitivityDlg->loadFromMapping();
 		curvesArea->loadFromMapping();
@@ -139,8 +138,7 @@ bool MainContentComponent::deleteCurrentSubBoardData()
 		mappingData.sets[currentSetSelection] = TerpstraKeys();
 
 		// Refresh display
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
+		refreshKeyDataFields();
 
 		// Mark that there are changes
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -173,8 +171,7 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 			mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
 			// Refresh display
-			refreshAllKeysOverview();
-			noteEditArea->refreshKeyFields();
+			refreshKeyDataFields();
 
 			// Mark that there are changes
 			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -311,8 +308,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
                     }
                 }
 
-                refreshAllKeysOverview();
-                noteEditArea->refreshKeyFields();
+				refreshKeyDataFields();
             }
         }
     }
@@ -417,7 +413,8 @@ void MainContentComponent::resized()
 	lblAppVersion->setTopLeftPosition(lblAppName->getRight(), lblAppName->getBottom() - lblAppVersion->getHeight());
 }
 
-void MainContentComponent::refreshAllKeysOverview()
+void MainContentComponent::refreshKeyDataFields()
 {
 	allKeysOverview->repaint();
+	noteEditArea->refreshKeyFields();
 }
