@@ -420,7 +420,6 @@ void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 
 void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 {
-    buttonReceive->setVisible(developerModeOn);
     repaint();
 }
 
