@@ -696,7 +696,7 @@ void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 	// General options
 	getLumatoneController().setAftertouchEnabled(theConfig.afterTouchActive);
 	getLumatoneController().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
-	getLumatoneController().sendInvertFootController(theConfig.invertFootController);
+	getLumatoneController().sendInvertFootController(theConfig.invertExpression);
 	getLumatoneController().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
 
 	// Velocity curve config
