@@ -797,7 +797,7 @@ FirmwareSupport::Error TerpstraMidiDriver::unpack8BitData(const MidiMessage& msg
     auto unpack = [&](const uint8* payload) {
         auto numValues = numBytes / 2;
         for (int i = 0; i < numValues; i++)
-            unpackedData[i] = (payload[(i * 2) + 1] << 4) | (payload[(i * 2)]);
+            unpackedData[i] = (payload[(i * 2)] << 4) | (payload[(i * 2) + 1]);
         return FirmwareSupport::Error::noError;
     };
 
