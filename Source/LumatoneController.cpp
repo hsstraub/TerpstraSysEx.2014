@@ -1058,7 +1058,7 @@ void LumatoneController::onFirmwareUpdateReceived()
         }
 
         editingMode = sysExSendingMode::liveEditor;
-        firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.revision, firmwareVersion.revision);
+        firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.minor, firmwareVersion.revision);
         firmwareTransfer->signalThreadShouldExit();
 
         deviceMonitor.intializeConnectionLossDetection();
