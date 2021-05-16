@@ -40,8 +40,8 @@ void TerpstraMidiDriver::sendKeyFunctionParameters(uint8 boardIndex, uint8 keyIn
 {
     // boardIndex is expected 1-based
     jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-    //jassert(midiChannel >= 0 && midiChannel < 16);
-    midiChannel &= 0x1000;
+    jassert(midiChannel > 0 && midiChannel <= 16);
+    midiChannel = (midiChannel - 1) & 0xF;
     uint8 typeByte = (faderUpIsNull << 4) | keyType;
     sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, noteOrCCNum, midiChannel, typeByte);
 }
