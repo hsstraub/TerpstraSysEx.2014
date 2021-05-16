@@ -571,30 +571,37 @@ void MidiEditArea::onOpenConnectionToDevice()
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0);
 
-	std::unique_ptr<AlertWindow> alert;
-	alert.reset(new AlertWindow("Establishing connection", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
-	alert->addButton("Send Editor layout", 1);
-	alert->addButton("Keep Editing Offline", 0);
-	alert->addButton("Import From Lumatone", 2);
+	jassert(alert == nullptr);
+	// This can get spammed, and needs a real solution, but for now this will prevent it in releases - Vito
+	if (alert == nullptr)
+	{
 
-	auto retc = alert->runModalLoop();
+		alert.reset(new AlertWindow("Establishing connection", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
+		alert->addButton("Send Editor layout", 1);
+		alert->addButton("Keep Editing Offline", 0);
+		alert->addButton("Import From Lumatone", 2);
 
-	if (retc == 1)
-	{
-		TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-		liveEditorBtn->setToggleState(true, dontSendNotification);
-		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
-	}
-	else if (retc == 2)
-	{
-		TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
-		liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
-		lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
-	}
-	else
-	{
-		offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
-		lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
+		auto retc = alert->runModalLoop();
+
+		if (retc == 1)
+		{
+			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+			liveEditorBtn->setToggleState(true, dontSendNotification);
+			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+		}
+		else if (retc == 2)
+		{
+			TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+			liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+		}
+		else
+		{
+			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
+			lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
+		}
+
+		alert = nullptr;
 	}
 }
 
