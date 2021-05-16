@@ -504,6 +504,7 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 
 bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
 {
+	undoManager.beginNewTransaction();
 	if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
 	{
 		setHasChangesToSave(true);
