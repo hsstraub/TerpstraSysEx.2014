@@ -729,13 +729,9 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< newLine
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
-		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
+		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to:" << newLine
 		<< newLine 
-		<< "http://lumatone.io" << newLine
-		<< newLine
-		<< "or" << newLine
-		<< newLine
-		<< "http://terpstrakeyboard.com";
+		<< "http://lumatone.io";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
