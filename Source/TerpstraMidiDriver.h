@@ -162,7 +162,7 @@ public:
 	//////////////////////////////////
 	// Combined (hi-level) commands
 
-	// Send all parametrizations of one sub board
+	// Send all parametrizations of one section. Attention: section index is 1-based!
 	void sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData);
 
 	// Send and save a complete key mapping
@@ -177,7 +177,7 @@ public:
 	//////////////////////////////////
 	// Single (mid-level) commands
 
-	// Send parametrization of one key to the device
+	// Send parametrization of one key to the device. Attention: section index is 1-based!
 	void sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData);
 
 	// Send expression pedal sensivity

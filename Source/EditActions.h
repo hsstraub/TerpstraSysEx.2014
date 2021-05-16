@@ -30,7 +30,7 @@ namespace Lumatone {
 			int newNoteNumber = 0,
 			TerpstraKey::COLOURTYPE newColour = juce::Colour());
 
-		SingleNoteAssignAction(SingleNoteAssignAction& second)
+		SingleNoteAssignAction(const SingleNoteAssignAction& second)
 			: setSelection(second.setSelection)
 			, keySelection(second.keySelection)
 			, setKeyType(second.setKeyType)
@@ -45,7 +45,7 @@ namespace Lumatone {
 
 		virtual bool perform() override;
 		virtual bool undo() override;
-		int getSizeInUnits() override;
+		int getSizeInUnits() override { return sizeof(SingleNoteAssignAction); }
 
 	private:
 		int setSelection = - 1;
@@ -58,6 +58,30 @@ namespace Lumatone {
 
 		TerpstraKey previousData;
 		TerpstraKey newData;
+	};
+
+	class SectionEditAction : public UndoableAction
+	{
+	public:
+		SectionEditAction(int setSelection, TerpstraKeys& newSectionValue);
+
+		SectionEditAction(const SectionEditAction& second)
+			: setSelection(second.setSelection)
+			, previousData(second.previousData)
+			, newData(second.newData)
+		{}
+
+		bool isValid() const;
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(SectionEditAction); }
+
+	private:
+		int setSelection = -1;
+
+		TerpstraKeys previousData;
+		TerpstraKeys newData;
 	};
 
 }

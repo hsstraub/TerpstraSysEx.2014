@@ -13,6 +13,8 @@
 
 namespace Lumatone {
 
+	// ==============================================================================
+	// Implementation of SingleNoteAssignAction
 	SingleNoteAssignAction::SingleNoteAssignAction(
 		int setSelection,
 		int keySelection,
@@ -122,7 +124,7 @@ namespace Lumatone {
 					keySelection,
 					mappingInEdit.sets[setSelection].theKeys[keySelection]);
 
-				// Notfy that there are changes: in calling function
+				// Notify that there are changes: in calling function
 			}
 			else
 			{
@@ -139,9 +141,70 @@ namespace Lumatone {
 		}
 	}
 
-	int SingleNoteAssignAction::getSizeInUnits()
+
+	// ==============================================================================
+	// Implementation of SectionEditAction
+
+	SectionEditAction::SectionEditAction(int setSelection, TerpstraKeys& newSectionValue)
+		: setSelection(setSelection)
+		, newData(newSectionValue)
 	{
-		return 2 * sizeof(int) + 6 * sizeof(bool) + 2 * sizeof(TerpstraKey);
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+
+		previousData = mainComponent->getMappingInEdit().sets[setSelection];
+	}
+
+	bool SectionEditAction::isValid() const
+	{
+		return setSelection >= 0 && setSelection < NUMBEROFBOARDS;
+	}
+
+	bool SectionEditAction::perform()
+	{
+		if (setSelection >= 0 && setSelection < NUMBEROFBOARDS)
+		{
+			auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+			jassert(mainComponent != nullptr);
+			TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+			mappingInEdit.sets[setSelection] = newData;
+
+			// Send to device
+			TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(setSelection + 1, mappingInEdit.sets[setSelection]);
+
+			// Notify that there are changes: in calling function
+			return true;
+		}
+		else
+		{
+			jassertfalse;
+			return false;
+		}
+	}
+
+	bool SectionEditAction::undo()
+	{
+		if (setSelection >= 0 && setSelection < NUMBEROFBOARDS)
+		{
+			auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+			jassert(mainComponent != nullptr);
+			TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+			mappingInEdit.sets[setSelection] = previousData;
+
+			// Send to device
+			TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(setSelection + 1, mappingInEdit.sets[setSelection]);
+
+			// Notify that there are changes: in calling function
+			return true;
+		}
+		else
+		{
+			jassertfalse;
+			return false;
+		}
+
 	}
 
 }

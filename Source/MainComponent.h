@@ -56,9 +56,9 @@ public:
 	CurvesArea* getCurvesArea() { return curvesArea.get(); }
 
 	// Board edit operations
-	bool deleteCurrentSubBoardData();
+	UndoableAction* createDeleteCurrentSectionAction();
 	bool copyCurrentSubBoardData();
-	bool pasteCurrentSubBoardData();
+	UndoableAction* createPasteCurrentSectionAction();
 
 	bool setDeveloperMode(bool developerModeOn);
 
