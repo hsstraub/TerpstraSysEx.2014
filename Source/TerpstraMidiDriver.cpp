@@ -40,7 +40,7 @@ void TerpstraMidiDriver::sendKeyFunctionParameters(uint8 boardIndex, uint8 keyIn
 {
     // boardIndex is expected 1-based
     jassert(boardIndex > 0 && boardIndex <= NUMBEROFBOARDS);
-    jassert(midiChannel > 0 && midiChannel <= 16);
+    //jassert(midiChannel > 0 && midiChannel <= 16);
     midiChannel = (midiChannel - 1) & 0xF;
     uint8 typeByte = (faderUpIsNull << 4) | keyType;
     sendSysEx(boardIndex, CHANGE_KEY_NOTE, keyIndex, noteOrCCNum, midiChannel, typeByte);
@@ -658,7 +658,7 @@ MidiMessage TerpstraMidiDriver::createExtendedKeyColourSysEx(uint8 boardIndex, u
 }
 MidiMessage TerpstraMidiDriver::createExtendedKeyColourSysEx(uint8 boardIndex, uint8 cmd, uint8 keyIndex, int red, int green, int blue) const
 {
-    return createExtendedKeyColourSysEx(boardIndex, cmd, keyIndex, red >> 8, red & 0xf, green >> 8, green & 0xf, blue >> 8, blue & 0xf);
+    return createExtendedKeyColourSysEx(boardIndex, cmd, keyIndex, red >> 4, red & 0xf, green >> 4, green & 0xf, blue >> 4, blue & 0xf);
 }
 
 MidiMessage TerpstraMidiDriver::createExtendedMacroColourSysEx(uint8 cmd, uint8 redUpper, uint8 redLower, uint8 greenUpper, uint8 greenLower, uint8 blueUpper, uint8 blueLower) const
@@ -680,7 +680,7 @@ MidiMessage TerpstraMidiDriver::createExtendedMacroColourSysEx(uint8 cmd, uint8 
 
 MidiMessage TerpstraMidiDriver::createExtendedMacroColourSysEx(uint8 cmd, int red, int green, int blue) const
 {
-    return createExtendedMacroColourSysEx(cmd, red >> 8, red & 0xf, green >> 8, green & 0xf, blue >> 8, blue & 0xf);
+    return createExtendedMacroColourSysEx(cmd, red >> 4, red & 0xf, green >> 4, green & 0xf, blue >> 4, blue & 0xf);
 }
 
 MidiMessage TerpstraMidiDriver::sendTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, const uint8 table[])
