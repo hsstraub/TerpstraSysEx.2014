@@ -55,9 +55,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	boundsConstrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
 	boundsConstrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
 
-	// Colour scheme
-	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
-
 	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
 	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
 
@@ -522,6 +519,7 @@ bool TerpstraSysExApplication::undo()
 	{
 		setHasChangesToSave(true);
 		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		return true;
 	}
 	else
 		return false;
@@ -533,6 +531,7 @@ bool TerpstraSysExApplication::redo()
 	{
 		setHasChangesToSave(true);
 		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		return true;
 	}
 	else
 		return false;
@@ -804,13 +803,9 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< newLine
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
-		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
+		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to:" << newLine
 		<< newLine
-		<< "http://lumatone.io" << newLine
-		<< newLine
-		<< "or" << newLine
-		<< newLine
-		<< "http://terpstrakeyboard.com";
+		<< "http://lumatone.io";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
