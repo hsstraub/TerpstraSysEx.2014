@@ -1014,8 +1014,6 @@ void LumatoneController::onConnectionConfirmed(bool sendChangeSignal)
     // Identity returned on 55-keys version
     if (connectedSerialNumber == SERIAL_55_KEYS)
         setFirmwareVersion(LumatoneFirmwareVersion::VERSION_55_KEYS);
-    else
-        midiDriver.sendGetFirmwareRevisionRequest();
     
     deviceMonitor.intializeConnectionLossDetection();
 

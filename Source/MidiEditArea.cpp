@@ -575,6 +575,8 @@ void MidiEditArea::onOpenConnectionToDevice()
 	// This can get spammed, and needs a real solution, but for now this will prevent it in releases - Vito
 	if (alert == nullptr)
 	{
+		// Get firmware version so we can use the correct commands
+		TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
 
 		alert.reset(new AlertWindow("Establishing connection", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
 		alert->addButton("Send Editor layout", 1);
