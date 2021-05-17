@@ -100,8 +100,6 @@ public:
 
     void setFirmwareVersion(FirmwareVersion versionIn);
 
-	void lookAndFeelChanged() override;
-
 	void resetOctaveSize();
 	void firmwareRevisionReceived(int major, int minor, int revision) override;
     //[/UserMethods]

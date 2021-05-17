@@ -210,7 +210,6 @@ void PedalSensitivityDlg::lookAndFeelChanged()
     auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (newLookAndFeel)
     {
-		newLookAndFeel->setupToggleButton(*btnInvertFootCtrl);
         labelEXpressionPedalTitle->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
           labelExprContrSensivity->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::DescriptionText));
     }

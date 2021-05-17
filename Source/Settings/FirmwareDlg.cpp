@@ -84,16 +84,6 @@ void FirmwareDlg::resized()
     infoBox->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic));
 }
 
-void FirmwareDlg::lookAndFeelChanged()
-{
-    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-    if (lookAndFeel)
-    {
-        lookAndFeel->setupTextButton(*doUpdateBtn);
-        lookAndFeel->setupTextButton(*fileBrowser->getButton());
-    }
-}
-
 void FirmwareDlg::buttonClicked(Button* btn)
 {
     //if (btn == checkUpdateBtn.get())

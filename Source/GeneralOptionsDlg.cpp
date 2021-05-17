@@ -144,8 +144,6 @@ void GeneralOptionsDlg::lookAndFeelChanged()
     if (lookAndFeel)
     {
         labelGeneralSettingslTitle->setColour(Label::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
-        lookAndFeel->setupToggleButton(*buttonAfterTouchActive);
-        lookAndFeel->setupToggleButton(*buttonLightOnKeyStrokes);
     }
 }
 

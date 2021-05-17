@@ -456,7 +456,6 @@ void SingleNoteAssign::lookAndFeelChanged()
     auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (lookAndFeel)
     {
-        lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
 }

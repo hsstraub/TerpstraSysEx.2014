@@ -93,7 +93,7 @@ public:
 	void sendCurrentConfigurationToDevice();
 	void requestConfigurationFromDevice();
 
-	
+
 	void updateMainTitle();
 
 	bool getHasChangesToSave() const { return hasChangesToSave; }

@@ -198,8 +198,6 @@ void CalibrationDlg::lookAndFeelChanged()
 	{
 		setColour(ResizableWindow::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LightBackground));
 		setColour(DocumentWindow::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::InactiveText));
-		lookAndFeel->setupTextButton(*btnStart);
-		lookAndFeel->setupTextButton(*btnStop);
 	}
     //[/UserCode_lookAndFeelChanged]
 }

@@ -133,9 +133,6 @@ MidiEditArea::MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn)
 
 
     //[UserPreSize]
-	lookAndFeel.setupComboBox(*cbMidiInput.get());
-	lookAndFeel.setupComboBox(*cbMidiOutput.get());
-
 	cbMidiInput->setVisible(false);
 	cbMidiOutput->setVisible(false);
 
@@ -151,13 +148,10 @@ MidiEditArea::MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn)
 	liveEditorBtn->setClickingTogglesState(true);
 	liveEditorBtn->setRadioGroupId(10, dontSendNotification);
 	liveEditorBtn->setToggleState(true, dontSendNotification);
-	lookAndFeel.setupTextButton(*offlineEditorBtn);
-	lookAndFeel.setupTextButton(*liveEditorBtn);
     liveEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
     offlineEditorBtn->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.6f);
 
 	btnAutoConnect->setClickingTogglesState(true);
-	lookAndFeel.setupTextButton(*btnAutoConnect.get());
 
 	ioAreaFlexBox.alignContent = FlexBox::AlignContent::center;
 	ioAreaFlexBox.alignItems = FlexBox::AlignItems::center;
@@ -578,10 +572,11 @@ void MidiEditArea::onOpenConnectionToDevice()
 		// Get firmware version so we can use the correct commands
 		TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
 
-		alert.reset(new AlertWindow("Establishing connection", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
+		alert.reset(new AlertWindow("Connection established!", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
 		alert->addButton("Send Editor layout", 1);
 		alert->addButton("Keep Editing Offline", 0);
 		alert->addButton("Import From Lumatone", 2);
+		alert->setLookAndFeel(&lookAndFeel);
 
 		auto retc = alert->runModalLoop();
 

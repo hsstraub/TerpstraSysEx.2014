@@ -380,17 +380,6 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void AllKeysOverview::lookAndFeelChanged()
-{
-	auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-	if (newLookAndFeel)
-	{
-		newLookAndFeel->setupTextButton(*btnLoadFile);
-		newLookAndFeel->setupTextButton(*btnSaveFile);
-		newLookAndFeel->setupTextButton(*buttonReceive);
-	}
-}
-
 void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 {
 	if (versionIn.isValid())

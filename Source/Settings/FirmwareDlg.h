@@ -30,8 +30,6 @@ public:
 
     void resized() override;
 
-    void lookAndFeelChanged() override;
-
     void buttonClicked(Button* btn) override;
 
     void updateFirmwareVersionLabel();

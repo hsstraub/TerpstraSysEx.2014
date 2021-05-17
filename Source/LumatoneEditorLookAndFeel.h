@@ -983,6 +983,63 @@ public:
         return box.getHeight() * 0.0303f;
     }
 
+    //==================================================================
+    //
+    // ALERTWINDOW METHODS
+    //
+    //==================================================================
+
+
+    //virtual AlertWindow* createAlertWindow(const String& title, const String& msg, const String& btn1, const String& btn2, const String& btn3, AlertWindow::AlertIconType type, int numButtons, Component* associatedComponent) override
+    //{
+    //    auto window = getDefaultLookAndFeel().createAlertWindow(title, msg, btn1, btn2, btn3, type, numButtons, associatedComponent);
+    //    for (auto child : window->getChildren())
+    //    {
+    //        /*auto btn = dynamic_cast<TextButton*>(child);
+    //        if (btn != nullptr)
+    //        {
+    //            btn-
+    //        }*/
+    //    }
+
+    //    window->setOpaque(true);
+    //    window->setColour(AlertWindow::ColourIds::backgroundColourId, Colour());
+    //    window->setColour(AlertWindow::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+
+    //    return window;
+    //}
+
+    //virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
+    //{
+    //    g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
+    //    layout.draw(g, textArea.toFloat());
+    //}
+
+    //virtual Array<int> getWidthsForTextButtons(AlertWindow& window, const Array<TextButton*>& btns) override
+    //{
+    //    return getDefaultLookAndFeel().getWidthsForTextButtons(window, btns);
+    //}
+
+    //virtual int getAlertWindowButtonHeight() override
+    //{
+    //    return 16;
+    //}
+
+    //virtual Font getAlertWindowTitleFont() override
+    //{
+    //    return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
+    //}
+
+    //virtual Font getAlertWindowMessageFont()  override
+    //{
+    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
+    //}
+
+    //virtual Font getAlertWindowFont()  override
+    //{
+    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
+    //}
+
 public:
     //==============================================================================================
     // Component Setup functions
@@ -999,41 +1056,19 @@ public:
         btn.setToggleState(initalToggledState, dontSendNotification);
     }
 
-    void setupTextButton(Button& btn)
-    {
-        btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
-
-        if (btn.getClickingTogglesState())
-        {
-            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
-            btn.setColour(TextButton::ColourIds::textColourOffId, Colour(0xff808080));
-            btn.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
-        }
-        else
-        {
-            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
-        }
-    }
-
     // Set colours of Image button based on Live and Offline Editor Buttons
     // Use the same image for Normal, Highlighted, and Down, but apply alpha layer on Highlighted
-    void setupImageButton(ImageButton& btn, Image btnImage)
-    {
-        btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
-        btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
+    //void setupImageButton(ImageButton& btn, Image btnImage)
+    //{
+    //    btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
+    //    btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
 
-        btn.setImages(false, true, true,
-            btnImage, 1.0f, Colour(),
-            btnImage, 1.0f, Colours::white.withAlpha(0.1f),
-            btnImage, 1.0f, Colour()
-        );
-    }
-
-    // Set text colour to be light gray
-    void setupToggleButton(ToggleButton& btn)
-    {
-        btn.setColour(ToggleButton::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
-    }
+    //    btn.setImages(false, true, true,
+    //        btnImage, 1.0f, Colour(),
+    //        btnImage, 1.0f, Colours::white.withAlpha(0.1f),
+    //        btnImage, 1.0f, Colour()
+    //    );
+    //}
 
     // Set Slider style to Rotary
     void setupRotarySlider(Slider& sld)
@@ -1041,21 +1076,9 @@ public:
         sld.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     }
 
-    // Set generic ComboBox colours
-    void setupComboBox(ComboBox& box)
-    {
-        box.setColour(ComboBox::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
-        box.setColour(ComboBox::ColourIds::textColourId,       findColour(LumatoneEditorColourIDs::DescriptionText));
-    }
-
     // Set generic TextEditor colours
     void setupTextEditor(TextEditor& editor)
     {
-        editor.setColour(TextEditor::ColourIds::backgroundColourId,      findColour(LumatoneEditorColourIDs::ControlBoxBackground));
-        editor.setColour(TextEditor::ColourIds::textColourId,            findColour(LumatoneEditorColourIDs::DescriptionText));
-        editor.setColour(TextEditor::ColourIds::highlightColourId,       findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
-        editor.setColour(TextEditor::ColourIds::highlightedTextColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
-        editor.setColour(TextEditor::ColourIds::shadowColourId,          Colour());
         editor.setIndents(4, 0);
     }
 
@@ -1092,6 +1115,7 @@ private:
     /// </summary>
     void setupDefaultColours()
     {
+        // Colour references
         setColour(LumatoneEditorColourIDs::LabelPink,                       Colour(0xffdfceca));
         setColour(LumatoneEditorColourIDs::LabelBlue,                       Colour(0xff60aac5));
         setColour(LumatoneEditorColourIDs::DisconnectedRed,                 Colour(0xffd7002a));
@@ -1114,6 +1138,23 @@ private:
         setColour(LumatoneEditorColourIDs::RotaryGradientMin,               Colour(0xff5497b6));
         setColour(LumatoneEditorColourIDs::RotaryGradientMax,               Colour(0xff77a8b3));
         setColour(LumatoneEditorColourIDs::DisabledOverlay,                 Colour(0x601b1b1b));
+
+        // Component defaults
+        setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
+        setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
+        setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+        setColour(TextButton::ColourIds::textColourOffId, Colours::white);
+        
+        setColour(ToggleButton::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+
+        setColour(ComboBox::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
+        setColour(ComboBox::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+
+        setColour(TextEditor::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
+        setColour(TextEditor::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        setColour(TextEditor::ColourIds::highlightColourId, findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
+        setColour(TextEditor::ColourIds::highlightedTextColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        setColour(TextEditor::ColourIds::shadowColourId, Colour());
     }
 
 public:
