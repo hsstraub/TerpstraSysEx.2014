@@ -84,4 +84,21 @@ namespace Lumatone {
 		TerpstraKeys newData;
 	};
 
+	class InvertFootControllerEditAction : public UndoableAction
+	{
+	public:
+		InvertFootControllerEditAction(bool newValue);
+
+		InvertFootControllerEditAction(const InvertFootControllerEditAction& second)
+			: previousData(second.previousData), newData(second.newData)
+		{}
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(InvertFootControllerEditAction); }
+
+	private:
+		bool previousData;
+		bool newData;;
+	};
 }

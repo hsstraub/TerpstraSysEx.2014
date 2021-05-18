@@ -110,11 +110,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	if (withRefresh)
 	{
-		refreshKeyDataFields();
-		generalOptionsArea->loadFromMapping();
-		pedalSensitivityDlg->loadFromMapping();
-		curvesArea->loadFromMapping();
-		curvesArea->repaint();
+		refreshAllFields();
 	}
 }
 
@@ -401,3 +397,13 @@ void MainContentComponent::refreshKeyDataFields()
 	allKeysOverview->repaint();
 	noteEditArea->refreshKeyFields();
 }
+
+void MainContentComponent::refreshAllFields()
+{
+	refreshKeyDataFields();
+	generalOptionsArea->loadFromMapping();
+	pedalSensitivityDlg->loadFromMapping();
+	curvesArea->loadFromMapping();
+	curvesArea->repaint();
+}
+

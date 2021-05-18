@@ -79,6 +79,7 @@ public:
     void resized();
 
 	void refreshKeyDataFields();
+	void refreshAllFields();
 
 private:
     //==============================================================================

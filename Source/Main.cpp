@@ -505,7 +505,11 @@ bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
 		if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
 		{
 			setHasChangesToSave(true);
-			((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+			((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+			generalOptionsArea->loadFromMapping();
+			pedalSensitivityDlg->loadFromMapping();
+			curvesArea->loadFromMapping();
+			curvesArea->repaint();
 			return true;
 		}
 	}
@@ -518,7 +522,7 @@ bool TerpstraSysExApplication::undo()
 	if (undoManager.undo())
 	{
 		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
 		return true;
 	}
 	else
@@ -530,7 +534,7 @@ bool TerpstraSysExApplication::redo()
 	if (undoManager.redo())
 	{
 		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
 		return true;
 	}
 	else

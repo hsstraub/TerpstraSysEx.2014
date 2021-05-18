@@ -207,4 +207,46 @@ namespace Lumatone {
 
 	}
 
+	// ==============================================================================
+	// Implementation of SectionEditAction
+
+	InvertFootControllerEditAction::InvertFootControllerEditAction(bool newValue)
+		: newData(newValue)
+	{
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+
+		previousData = mainComponent->getMappingInEdit().invertFootController;
+	}
+
+	bool InvertFootControllerEditAction::perform()
+	{
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+		TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+		mappingInEdit.invertFootController = newData;
+
+		// Send to device
+		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(newData);
+
+		// Notify that there are changes: in calling function
+		return true;
+	}
+
+	bool InvertFootControllerEditAction::undo()
+	{
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+		TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+		mappingInEdit.invertFootController = previousData;
+
+		// Send to device
+		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(newData);
+
+		// Notify that there are changes: in calling function
+		return true;
+	}
+
 }
