@@ -414,12 +414,120 @@ static Path createLogomark()
     return logo;
 }
 
+static Path getArrowPath(Point<float> start, Point<float> headPoint, float headWidth, float headHeight)
+{
+    headWidth *= 0.5f;
+    auto left = Point<float>(0.5f - headWidth, headHeight);
+    auto right = Point<float>(0.5f + headWidth, headHeight);
+
+    Path path;
+
+    path.startNewSubPath(start);
+    path.lineTo(headPoint);
+    path.closeSubPath();
+    path.startNewSubPath(headPoint);
+    path.lineTo(left);
+    path.closeSubPath();
+    path.startNewSubPath(headPoint);
+    path.lineTo(right);
+    path.closeSubPath();
+
+    return path;
+}
+
+static juce::Path getFolderIcon(float folderHeight, float tabBaseX, float tabBaseY)
+{
+    juce::Path path;
+
+    float tabBaseSlopeX = tabBaseX - 0.1f;
+    float folderTop = 1.0f - folderHeight;
+
+    auto v0 = Point<float>(0.0f, folderTop);
+    auto v1 = Point<float>(0.0f, folderHeight);
+    auto v2 = Point<float>(1.0f, folderHeight);
+    auto v3 = Point<float>(1.0f, tabBaseY);
+    auto v4 = Point<float>(tabBaseX, tabBaseY);
+    auto v5 = Point<float>(tabBaseSlopeX, folderTop);
+
+    path.startNewSubPath(v0);
+    path.lineTo(v1);
+    path.lineTo(v2);
+    path.lineTo(v3);
+    path.lineTo(v4);
+    path.lineTo(v5);
+    path.closeSubPath();
+
+    return path;
+}
+
+
+static void drawFolderIconAt(Graphics& g, int x, int y, int width, int height, Colour folderColour, Colour arrowColour)
+{
+    float folderHeight = 1.0f;
+    float tabBaseY = 0.2f;
+    Path folder = getFolderIcon(0.91f, 0.5f, 0.22f).createPathWithRoundedCorners(0.05f);
+
+    auto transform = AffineTransform::scale(width, height).followedBy(AffineTransform::translation(x, y));
+    folder.applyTransform(transform);
+
+    g.setColour(folderColour);
+    g.fillPath(folder);
+
+    float arrowYMargin = 0.2f;
+    Path arrowPath = getArrowPath(Point<float>(0.5f, folderHeight - arrowYMargin), Point<float>(0.5f, tabBaseY + arrowYMargin), 0.2f, 0.5f);
+    arrowPath.applyTransform(transform);
+
+    PathStrokeType stroke(1.125f);
+    stroke.setEndStyle(PathStrokeType::EndCapStyle::rounded);
+    stroke.setJointStyle(PathStrokeType::JointStyle::curved);
+    
+    g.setColour(arrowColour);
+    g.strokePath(arrowPath, stroke);
+}
+
+static Path getSaveIconPath()
+{
+    float boxHeight = 0.6f;
+    float boxWidth = 1.0f;
+    boxWidth *= 0.5f;
+
+    float boxLeft = 0.5f - boxWidth;
+    float boxRight = 0.5f + boxWidth;
+
+    // Box
+    auto v0 = juce::Point<float>(boxLeft, boxHeight);
+    auto v1 = juce::Point<float>(boxLeft, 1.0f);
+    auto v2 = juce::Point<float>(boxRight, 1.0f);
+    auto v3 = juce::Point<float>(boxRight, boxHeight);
+
+    juce::Path path;
+    path.startNewSubPath(v0);
+    path.lineTo(v1);
+    path.closeSubPath();
+    path.startNewSubPath(v1);
+    path.lineTo(v2);
+    path.closeSubPath();
+    path.startNewSubPath(v2);
+    path.lineTo(v3);
+    path.closeSubPath();
+
+    Path rounded = path.createPathWithRoundedCorners(0.01f);
+
+    Path arrow = getArrowPath(Point<float>(0.5f, 0.0f), Point<float>(0.5f, 0.667f), 0.4f, 0.5f);
+    rounded.addPath(arrow);
+
+    return rounded;
+}
+
+//static void drawSaveIconAt(Graphics& g, int x, int y)
+
+
 // Hash codes for use with ImageCache::getFromHashCode()
 enum LumatoneEditorAssets
 {
-    LoadIcon            = 0x0002000,
-    SaveIcon            = 0x0002001,
-    ImportIcon          = 0x0002002,
+    //LoadIcon            = 0x0002000,
+    //SaveIcon            = 0x0002001,
+    //ImportIcon          = 0x0002002,
     LumatoneGraphic     = 0x0002100,
     KeybedShadows       = 0x0002101,
     KeyShape            = 0x0002200,
@@ -428,6 +536,14 @@ enum LumatoneEditorAssets
     SavePalette         = 0x0005000,
     CancelPalette       = 0x0005001,
     TrashCanIcon        = 0x0005002
+};
+
+enum LumatoneEditorIcon
+{
+    Checkmark   = 0x01,
+    ImportIcon,
+    SaveIcon,
+    LoadIcon
 };
 
 enum LumatoneEditorColourIDs
@@ -456,17 +572,6 @@ enum LumatoneEditorColourIDs
     DisabledOverlay
 };
 
-// Static functions for getting default Lumatone Editor fonts
-//struct LumatoneEditorFonts
-//{
-//    static Font UniviaPro                (float height = 12.0f)  { return Font("Univia Pro",       height, Font::plain);                                          }  
-//    static Font UniviaProBold            (float height = 12.0f)  { return Font("Univia Pro",       height, Font::bold );                                          }
-//    static Font FranklinGothic           (float height = 12.0f)  { return Font("Franklin Gothic",  height, Font::plain).withTypefaceStyle("Medium");              }
-//    static Font GothamNarrowMedium       (float height = 12.0f)  { return Font("Gotham",           height, Font::plain).withTypefaceStyle("Narrow Medium");       }
-//    static Font GothamNarrowMediumBold   (float height = 12.0f)  { return       GothamNarrowMedium, height)             .withTypefaceStyle("Narrow Bold");         }
-//    static Font GothamNarrowMediumItalic (float height = 12.0f)  { return       GothamNarrowMedium, height)             .withTypefaceStyle("Narrow Light Italic"); }
-//};
-
 namespace LumatoneEditorStyleIDs
 {    
     // Index of LumatoneEditorFontCollection
@@ -484,7 +589,7 @@ namespace LumatoneEditorStyleIDs
 
     static Identifier tabbedButtonBarDepthScalar = Identifier("TabbedButtonBarDepthScalar");
 
-    // The Image::Cache hash code for an icon that should be displayed on a TextButton
+    // The LumatoneEditorIcon hash code for an icon that should be displayed on a TextButton
     static Identifier textButtonIconHashCode = Identifier("TextButtonIconHashCode");
 
     // Choose where to put the icon on a TextButton

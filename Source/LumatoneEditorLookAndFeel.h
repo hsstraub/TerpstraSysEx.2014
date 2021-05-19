@@ -32,7 +32,10 @@ public:
         if (doImageCache)
         {
             cacheImages();
+            saveIconPath = getSaveIconPath();
+            importIconPath = getArrowPath(Point<float>(0.5f, 0.96f), Point<float>(0.5f, 0.08f), 0.55, 0.333f);
         }
+
     }
 
     Font getAppFont(LumatoneEditorFont fontIdIn)
@@ -286,48 +289,93 @@ public:
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
-            Font font = getTextButtonFont(btn, btn.getHeight() * GLOBALFONTSCALAR);
-
-            Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
-            int iconH = font.getHeight();
-            int iconW = roundToInt(iconH * ((double)icon.getWidth() / icon.getHeight()));
-            int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
-
-            {
-                ImageProcessor ip;
-                icon = ip.resizeImage(icon, iconW, iconH);
-            }
-
-            int margin = font.getStringWidth("  ");
-            int textWidth = font.getStringWidth(btn.getButtonText());
-            int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
-            int secondHalf = lineStart + margin;
-
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             Colour textColour = btn.findColour(colourId);
-            
+
             if (!btn.isEnabled())
                 textColour = findColour(LumatoneEditorColourIDs::InactiveText);
 
             else if (shouldDrawButtonAsHighlighted)
                 textColour = textColour.brighter();
+            
+            Font font = getTextButtonFont(btn, btn.getHeight() * GLOBALFONTSCALAR);
+            int margin = font.getStringWidth("  ");
+            int textWidth = font.getStringWidth(btn.getButtonText());
+            
+            auto iconCode = (int)btn.getProperties()[LumatoneEditorStyleIDs::textButtonIconHashCode];
 
-            g.setColour(textColour);
-            g.setFont(font);
+            int iconH = font.getHeight();// *0.9f;
+            int iconW = iconH;
+            int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
+
+            if (iconCode == LumatoneEditorIcon::LoadIcon)
+            {
+                iconW *= 1.125f;
+                iconH *= 1.125f;
+            }
+
+            if (iconW < 1) iconW = 1;
+            if (iconH < 1) iconH = 1;
+
+            // Set up positions of icon and text
+            int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
+
+            int iconX = 0;
+            Rectangle<int> textBounds;
 
             bool iconOnRight = (bool)properties[LumatoneEditorStyleIDs::textButtonIconPlacement];
             if (iconOnRight)
             {
-                secondHalf += textWidth;
-                g.drawImageAt(icon, secondHalf, iconY);
-                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withLeft(lineStart).withRight(secondHalf), Justification::left, 1);
+                iconX = lineStart + textWidth + margin;
+                textBounds = btn.getLocalBounds().withLeft(lineStart).withRight(iconX - margin);
             }
             else
             {
-                secondHalf += iconW;
-                g.drawImageAt(icon, lineStart, iconY);
-                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(secondHalf), Justification::left, 1);
+                iconX = lineStart;
+                textBounds = btn.getLocalBounds().withLeft(iconX + iconW + margin);
             }
+
+            // Needs special case for "transparent" arrow
+            if (iconCode == LumatoneEditorIcon::LoadIcon)
+            {
+                drawFolderIconAt(g, iconX, iconY, iconW, iconH, textColour, btn.findColour(bkgdColourId));
+            }
+            else
+            {
+                Path iconPath;
+                PathStrokeType stroke(1.5f);
+                stroke.setEndStyle(PathStrokeType::EndCapStyle::rounded);
+                stroke.setJointStyle(PathStrokeType::JointStyle::curved);
+
+                switch (LumatoneEditorIcon(iconCode))
+                {
+                // Using X for now
+                //case LumatoneEditorIcon::Checkmark:
+                //    iconPath = Path(tickBoxPath);
+                //    break;
+                case LumatoneEditorIcon::ImportIcon:
+                {
+                    iconPath = importIconPath;
+                    break;
+                }
+                case LumatoneEditorIcon::SaveIcon:
+                {
+                    iconPath = saveIconPath;
+                    break;
+                }
+                default:
+                    break;
+                }
+
+                auto transform = AffineTransform::scale(iconW, iconH).followedBy(AffineTransform::translation(iconX, iconY));
+                iconPath.applyTransform(transform);
+                g.setColour(textColour);
+                g.strokePath(iconPath, stroke);
+            }
+
+            g.setColour(textColour);
+            g.setFont(font);
+            g.drawFittedText(btn.getButtonText(), textBounds, Justification::left, 1);
         }
         else
         {
@@ -335,8 +383,6 @@ public:
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
             Font font = getTextButtonFont(btn, btn.getHeight());
-//            int margin = font.getStringWidth("  ");
-//            int textWidth = font.getStringWidth(btn.getButtonText());
             int colourId = (btn.getToggleState()) ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             
             Colour textColour = btn.findColour(colourId);
@@ -1100,9 +1146,9 @@ private:
     /// </summary>
     void cacheImages()
     {
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize),   LumatoneEditorAssets::ImportIcon);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
+        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize),   LumatoneEditorAssets::ImportIcon);
+        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
+        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyboardBase_png,   BinaryData::KeyboardBase_pngSize),   LumatoneEditorAssets::LumatoneGraphic);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,  BinaryData::KeybedShadows_pngSize),  LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,     BinaryData::KeyShape2x_pngSize),     LumatoneEditorAssets::KeyShape);
@@ -1164,6 +1210,8 @@ private:
 
     LumatoneEditorFonts::Library appFonts;
     
+    Path saveIconPath;
+    Path importIconPath;
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;

@@ -185,20 +185,20 @@ AllKeysOverview::AllKeysOverview()
 	addAndMakeVisible(btnLoadFile.get());
 
 	btnLoadFile->setButtonText(translate("LoadFile"));
-	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::LoadIcon);
+	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::LoadIcon);
 	btnLoadFile->addListener(this);
 
 	btnSaveFile.reset(new juce::TextButton("btnSaveFile"));
 	addAndMakeVisible(btnSaveFile.get());
 	btnSaveFile->setButtonText(translate("SaveFile"));
-	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::SaveIcon);
+	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::SaveIcon);
 	btnSaveFile->addListener(this);
 
 	buttonReceive.reset(new juce::TextButton("buttonReceive"));
 	addAndMakeVisible(buttonReceive.get());
 	buttonReceive->setTooltip(translate("ImportTooltip"));
 	buttonReceive->setButtonText(translate("Import from Lumatone"));
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::ImportIcon);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ImportIcon);
 	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
 	buttonReceive->addListener(this);
 
