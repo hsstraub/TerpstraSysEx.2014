@@ -162,9 +162,7 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
             sldExprCtrlSensivity->setValue(newSensitvity);
         }
 
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
+		TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::ExprPedalSensivityEditAction(newSensitvity));
         //[/UserSliderCode_sldExprCtrlSensivity]
     }
 

@@ -506,10 +506,6 @@ bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
 		{
 			setHasChangesToSave(true);
 			((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
-			generalOptionsArea->loadFromMapping();
-			pedalSensitivityDlg->loadFromMapping();
-			curvesArea->loadFromMapping();
-			curvesArea->repaint();
 			return true;
 		}
 	}

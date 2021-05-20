@@ -208,7 +208,7 @@ namespace Lumatone {
 	}
 
 	// ==============================================================================
-	// Implementation of SectionEditAction
+	// Implementation of InvertFootControllerEditAction
 
 	InvertFootControllerEditAction::InvertFootControllerEditAction(bool newValue)
 		: newData(newValue)
@@ -243,7 +243,49 @@ namespace Lumatone {
 		mappingInEdit.invertFootController = previousData;
 
 		// Send to device
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(newData);
+		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(previousData);
+
+		// Notify that there are changes: in calling function
+		return true;
+	}
+
+	// ==============================================================================
+	// Implementation of ExprPedalSensivityEditAction
+
+	ExprPedalSensivityEditAction::ExprPedalSensivityEditAction(int newValue)
+		: newData(newValue)
+	{
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+
+		previousData = mainComponent->getMappingInEdit().expressionControllerSensivity;
+	}
+
+	bool ExprPedalSensivityEditAction::perform()
+	{
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+		TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+		mappingInEdit.expressionControllerSensivity = newData;
+
+		// Send to device
+		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newData);
+
+		// Notify that there are changes: in calling function
+		return true;
+	}
+
+	bool ExprPedalSensivityEditAction::undo()
+	{
+		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+		TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+		mappingInEdit.expressionControllerSensivity = previousData;
+
+		// Send to device
+		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(previousData);
 
 		// Notify that there are changes: in calling function
 		return true;

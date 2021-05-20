@@ -99,6 +99,25 @@ namespace Lumatone {
 
 	private:
 		bool previousData;
-		bool newData;;
+		bool newData;
 	};
+
+	class ExprPedalSensivityEditAction : public UndoableAction
+	{
+	public:
+		ExprPedalSensivityEditAction(int newValue);
+
+		ExprPedalSensivityEditAction(const ExprPedalSensivityEditAction& second)
+			: previousData(second.previousData), newData(second.newData)
+		{}
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(ExprPedalSensivityEditAction); }
+
+	private:
+		int previousData;
+		int newData;;
+	};
+
 }
