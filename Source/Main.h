@@ -75,6 +75,9 @@ public:
 	bool copySubBoardData();
 	bool pasteSubBoardData();
 
+	void setCalibrationMode(bool calibrationStarted) { inCalibrationMode = calibrationStarted; }
+	bool getInCalibrationMode() const { return inCalibrationMode; }
+
 	bool performUndoableAction(UndoableAction* editAction);
 	bool undo();
 	bool redo();
@@ -178,6 +181,8 @@ private:
 	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+
+	bool						inCalibrationMode = false;
 
 	juce::UndoManager undoManager;
 	

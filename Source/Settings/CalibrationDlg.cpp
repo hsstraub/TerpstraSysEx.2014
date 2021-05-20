@@ -52,6 +52,8 @@ CalibrationDlg::CalibrationDlg ()
 
     //[UserPreSize]
 
+	updateCalibrationStatus();
+
 	// Calibration type selector
 	calibrationSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
 	addAndMakeVisible(calibrationSelectorTab.get());
@@ -153,6 +155,10 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 
 		case calibrateModulationWheel:
 			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(true);
+			
+			// Todo - wait for ack
+			TerpstraSysExApplication::getApp().setCalibrationMode(true);
+			updateCalibrationStatus();
 			break;
 
 		default:
@@ -177,6 +183,9 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 			break;
 		case calibrateModulationWheel:
 			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(false);
+			// Todo - wait for ack
+			TerpstraSysExApplication::getApp().setCalibrationMode(false);
+			updateCalibrationStatus();
 			break;
 		default:
 			jassertfalse;
@@ -210,6 +219,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 {
 	if (source == calibrationSelectorTab.get())
 	{
+		btnStart->setEnabled(true);
 		// Instructions depending on tab selection
 		auto tabSelection = calibrationSelectorTab->getCurrentTabIndex();
 		switch (tabSelection)
@@ -238,6 +248,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< newLine
 				<< translate("Click \'End calibration\' to stop.");
 			btnStop->setVisible(true);
+			updateCalibrationStatus();
 			repaint();
 			break;
 		default:
@@ -245,6 +256,13 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 			break;
 		}
 	}
+}
+
+void CalibrationDlg::updateCalibrationStatus()
+{
+	bool inCalibration = TerpstraSysExApplication::getApp().getInCalibrationMode();
+	btnStart->setEnabled(!inCalibration);
+	btnStop->setEnabled(inCalibration);
 }
 
 //[/MiscUserCode]

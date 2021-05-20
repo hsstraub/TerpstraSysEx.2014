@@ -48,6 +48,7 @@ public:
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
+    void updateCalibrationStatus();
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
