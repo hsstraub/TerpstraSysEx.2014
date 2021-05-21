@@ -458,3 +458,22 @@ StringArray TerpstraKeyMapping::toStringArray()
 //
 //	return result;
 //}
+
+TerpstraVelocityCurveConfig* TerpstraKeyMapping::getVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+{
+	switch (velocityCurveType)
+	{
+	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
+		return &noteOnOffVelocityCurveConfig;
+
+	case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
+		return &faderConfig;
+	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
+		return &afterTouchConfig;
+	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+		return &lumaTouchConfig;
+	default:
+		jassertfalse;
+		return nullptr;
+	}
+}
