@@ -142,12 +142,16 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	commandManager.reset(new ApplicationCommandManager());
 	commandManager->registerAllCommandsForTarget(this);
 
-	menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));
-
+	menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));	
 	mainWindow.reset(new MainWindow());
-	mainWindow->setMenuBar(menuModel.get());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	mainWindow->restoreStateFromPropertiesFile(propertiesFile);
+
+#if JUCE_MAC
+	MenuBarModel::setMacMainMenu(menuModel.get());
+#else
+	mainWindow->setMenuBar(menuModel.get());
+#endif
 
 	if (currentFile.existsAsFile())
 		openFromCurrentFile();
