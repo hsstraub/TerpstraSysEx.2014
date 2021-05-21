@@ -155,7 +155,15 @@ void FirmwareDlg::timerCallback()
     }
 }
 
-void FirmwareDlg::firmwareRevisionReceived(int major, int minor, int revision)
+void FirmwareDlg::firmwareRevisionReceived(FirmwareVersion version)
 {
      updateFirmwareVersionLabel();
+     postMessage("Firmware update complete! Lumatone is now running firmware version " + version.toString());
+}
+
+void FirmwareDlg::postMessage(String msg) 
+{
+    msgLog += msg + '\n';
+    infoNeedsUpdate = true;
+    startTimer(infoUpdateTimeoutMs);
 }

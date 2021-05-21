@@ -283,7 +283,7 @@ public:
 
         virtual void lumatouchConfigReceived(const int* lumatouchData) {};
 
-        virtual void firmwareRevisionReceived(int majorVersion, int minorVersion, int revision) {};
+        virtual void firmwareRevisionReceived(FirmwareVersion version) {};
 
         virtual void pingResponseReceived(int inputDeviceIndex, unsigned int pingValue) {};
 

@@ -412,9 +412,9 @@ void AllKeysOverview::showDeveloperMode(bool developerModeOn)
     repaint();
 }
 
-void AllKeysOverview::firmwareRevisionReceived(int majorVersion, int minorVersion, int revision)
+void AllKeysOverview::firmwareRevisionReceived(FirmwareVersion version)
 {
-	setFirmwareVersion(FirmwareVersion(majorVersion, minorVersion, revision));
+	setFirmwareVersion(version);
 }
 
 void AllKeysOverview::resetOctaveSize()

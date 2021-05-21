@@ -33,6 +33,8 @@ public:
     void buttonClicked(Button* btn) override;
 
     void updateFirmwareVersionLabel();
+
+    void postMessage(String msgForLog);
     
     //=========================================================================
     // PathBrowserComponent::Listener Implementation
@@ -45,15 +47,11 @@ public:
     //=========================================================================
     // LumatoneController::FirmwareListener implementation
 
-    void firmwareRevisionReceived(int major, int minor, int revision) override;
+    void firmwareRevisionReceived(FirmwareVersion version) override;
     
     //=========================================================================
     // juce::Timer Implementation
     void timerCallback() override;
-
-private:
-
-    double numIncrementsToProgress(int numberOfIncrements);
 
 private:
 

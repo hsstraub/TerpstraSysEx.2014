@@ -101,7 +101,7 @@ public:
     void setFirmwareVersion(FirmwareVersion versionIn);
 
 	void resetOctaveSize();
-	void firmwareRevisionReceived(int major, int minor, int revision) override;
+	void firmwareRevisionReceived(FirmwareVersion version) override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

@@ -284,7 +284,7 @@ void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
 	curvesArea->loadFromMapping();
 }
 
-void MainContentComponent::firmwareRevisionReceived(int major, int minor, int revision)
+void MainContentComponent::firmwareRevisionReceived(FirmwareVersion version)
 {
 	// Make sure changes happen in proper order
 	noteEditArea->resetOctaveSize();

@@ -58,7 +58,7 @@ void LumatoneController::setFirmwareVersion(LumatoneFirmwareVersion lumatoneVers
     if (parseVersion)
         firmwareVersion = FirmwareVersion::fromDeterminedVersion(determinedVersion);
 
-    firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.minor, firmwareVersion.revision);
+    firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion);
 }
 
 
@@ -1058,7 +1058,7 @@ void LumatoneController::onFirmwareUpdateReceived()
         }
 
         editingMode = sysExSendingMode::liveEditor;
-        firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion.major, firmwareVersion.minor, firmwareVersion.revision);
+        firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion);
         firmwareTransfer->signalThreadShouldExit();
 
         deviceMonitor.intializeConnectionLossDetection();

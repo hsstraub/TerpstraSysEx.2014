@@ -94,7 +94,7 @@ public:
 
 	void lumatouchConfigReceived(const int* lumatouchData) override;
 
-	void firmwareRevisionReceived(int major, int minor, int revision) override;
+	void firmwareRevisionReceived(FirmwareVersion version) override;
 
 private:
     //==============================================================================
