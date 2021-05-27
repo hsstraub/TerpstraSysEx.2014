@@ -133,7 +133,12 @@ MidiEditArea::MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn)
 
 
     //[UserPreSize]
+	cbMidiInput->getProperties().set(LumatoneEditorStyleIDs::popupMenuTargetWidth, 1);
+	cbMidiInput->getProperties().set(LumatoneEditorStyleIDs::popupMenuBackgroundColour, lookAndFeel.findColour(ComboBox::ColourIds::backgroundColourId).toString());
 	cbMidiInput->setVisible(false);
+
+	cbMidiOutput->getProperties().set(LumatoneEditorStyleIDs::popupMenuTargetWidth, 1);
+	cbMidiOutput->getProperties().set(LumatoneEditorStyleIDs::popupMenuBackgroundColour, lookAndFeel.findColour(ComboBox::ColourIds::backgroundColourId).toString());
 	cbMidiOutput->setVisible(false);
 
 	lblConnectionState->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
@@ -578,18 +583,25 @@ void MidiEditArea::onOpenConnectionToDevice()
 		alert->addButton("Import From Lumatone", 2);
 		alert->setLookAndFeel(&lookAndFeel);
 
+/*		alert = lookAndFeel.createAlertWindow("Connection established!", translate("Do you want to send the current setup to your Lumatone?"),
+			"Import from Lumatone",
+			"Send layout",
+			"Edit Offline",
+			AlertWindow::AlertIconType::WarningIcon,
+			3, getParentComponent())*/;
+
 		auto retc = alert->runModalLoop();
 
 		if (retc == 1)
 		{
-			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-			liveEditorBtn->setToggleState(true, dontSendNotification);
+			TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+			liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
 			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 		}
 		else if (retc == 2)
 		{
-			TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
-			liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+			liveEditorBtn->setToggleState(true, dontSendNotification);
 			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 		}
 		else
@@ -598,6 +610,7 @@ void MidiEditArea::onOpenConnectionToDevice()
 			lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
 		}
 
+		//alert->setLookAndFeel(nullptr);
 		alert = nullptr;
 	}
 }

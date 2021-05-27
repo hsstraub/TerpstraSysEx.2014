@@ -569,7 +569,8 @@ enum LumatoneEditorColourIDs
     CurveGridColour,
     RotaryGradientMin,
     RotaryGradientMax,
-    DisabledOverlay
+    DisabledOverlay,
+    MenuBarBackground
 };
 
 namespace LumatoneEditorStyleIDs
@@ -604,10 +605,15 @@ namespace LumatoneEditorStyleIDs
     static Identifier textButtonHyperlinkFlag = Identifier("TextButtonHyperlinkFlag");
 
     static Identifier popupMenuMaxColumns = Identifier("PopupMenuMaxColumns");
+    // Uses the width of the target component of a menu instead of parameters
+    static Identifier popupMenuTargetWidth = Identifier("PopupMenuTargetWidth");
+
+    static Identifier popupMenuBackgroundColour = Identifier("PopupMenuBackgroundColour");
 
     static Identifier connectedEdgeFlags = Identifier("ConnectedEdgesFlags");
 
     // Odd values will have top right and bottom left rounded corners
     // Even values will have top left and bottom right rounded corners
     static Identifier roundedDiagonalCorners = Identifier("RoundedDiagonalCorners");
+
 }

@@ -148,6 +148,8 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeToggleButton->setButtonText(translate("KeyType"));
     keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
+    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::popupMenuTargetWidth, 1);
+
     setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
     colourSubwindow->setColour("ff60aac5");
