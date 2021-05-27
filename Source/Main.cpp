@@ -51,8 +51,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	// Colour scheme
 	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
-	lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
-	lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
+	//lookAndFeel.setColour(juce::ComboBox::arrowColourId, Colour(0xfff7990d));
+	//lookAndFeel.setColour(juce::ToggleButton::tickColourId, Colour(0xfff7990d));
 
 	lookAndFeel.setColour(TerpstraKeyEdit::backgroundColourId, lookAndFeel.findColour(juce::ResizableWindow::backgroundColourId));
 	lookAndFeel.setColour(TerpstraKeyEdit::outlineColourId, Colour(0xffd7d9da));
@@ -151,6 +151,10 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	MenuBarModel::setMacMainMenu(menuModel.get());
 #else
 	mainWindow->setMenuBar(menuModel.get());
+	mainWindow->getMenuBarComponent()->getProperties().set(LumatoneEditorStyleIDs::popupMenuBackgroundColour, 
+		lookAndFeel.findColour(LumatoneEditorColourIDs::MenuBarBackground).toString()
+	);
+
 #endif
 
 	if (currentFile.existsAsFile())
@@ -784,17 +788,16 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
-		<< newLine 
-		<< "http://lumatone.io" << newLine
-		<< newLine
-		<< "or" << newLine
-		<< newLine
-		<< "http://terpstrakeyboard.com";
+		<< "http://lumatone.io";
+		//<< "or";
+		//<< newLine
+		//<< "http://terpstrakeyboard.com";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
 	label->setLookAndFeel(&lookAndFeel);
 	label->setText(m, dontSendNotification);
+	label->setFont(lookAndFeel.getAppFont(LumatoneEditorFont::FranklinGothic));
 	options.content.setOwned(label);
 
 	juce::Rectangle<int> area(0, 0, 400, 200);
@@ -803,14 +806,15 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	resizeLabelWithHeight(label, roundToInt(area.getHeight() * 0.24f));
 
 	options.dialogTitle = "About Lumatone Editor";
-	options.dialogBackgroundColour = lookAndFeel.findColour(ResizableWindow::backgroundColourId);
+	options.dialogBackgroundColour = lookAndFeel.findColour(LumatoneEditorColourIDs::DarkBackground);
 
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;
-	options.resizable = true;
+	options.resizable = false;
 
 
 	DialogWindow* dw = options.launchAsync();
+	dw->setLookAndFeel(&lookAndFeel);
 	dw->centreWithSize(400, 260);
 
 	return true;
