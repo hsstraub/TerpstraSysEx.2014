@@ -396,7 +396,7 @@ struct FirmwareSupport
 		else if (CMD <= SET_AFTERTOUCH_TRIGGER_DELAY) // 0x3F
 			return LumatoneFirmwareVersion::VERSION_1_0_14;
 
-		else if (CMD <= GET_EXPRESSION_PEDAL_THRESHOLD) //0x44
+		else if (CMD <= INVERT_SUSTAIN_PEDAL) //0x45
 			return LumatoneFirmwareVersion::VERSION_1_0_15;
 
 		else
