@@ -34,7 +34,7 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
     //[/Constructor_pre]
 
     labelExprContrSensitivity.reset (new juce::Label ("new label",
-                                                    TRANS("Sensitivity:")));
+                                                      TRANS("Sensitivity:")));
     addAndMakeVisible (labelExprContrSensitivity.get());
     labelExprContrSensitivity->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelExprContrSensitivity->setJustificationType (juce::Justification::centredLeft);
@@ -83,6 +83,8 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
     //[UserPreSize]
     labelPedalTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
     labelExprContrSensitivity->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+
+    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
     //[/UserPreSize]
 
     setSize (134, 96);
@@ -181,25 +183,8 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
     if (sliderThatWasMoved == sldExprCtrlSensitivity.get())
     {
-        //[UserSliderCode_sldExprCtrlSensivity] -- add your slider handling code here..
-        int newSensitvity = sldExprCtrlSensitivity->getValue();
-        // ToDo value checking: encapsulate in keyboard data structure?
-        if (newSensitvity < 0)
-        {
-            newSensitvity = 0;
-            sldExprCtrlSensitivity->setValue(newSensitvity);
-        }
-
-        if (newSensitvity > 0x7f)
-        {
-            newSensitvity = 0x7f;
-            sldExprCtrlSensitivity->setValue(newSensitvity);
-        }
-
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getLumatoneController().sendExpressionPedalSensivity(newSensitvity);
-        //[/UserSliderCode_sldExprCtrlSensivity]
+        //[UserSliderCode_sldExprCtrlSensitivity] -- add your slider handling code here..
+        //[/UserSliderCode_sldExprCtrlSensitivity]
     }
 
     //[UsersliderValueChanged_Post]
@@ -257,6 +242,20 @@ void PedalSensitivityDlg::loadFromMapping()
 	sldExprCtrlSensitivity->setValue(mappingInEdit.expressionControllerSensivity, juce::NotificationType::dontSendNotification);
 }
 
+void PedalSensitivityDlg::firmwareRevisionReceived(FirmwareVersion version)
+{
+    FirmwareSupport firmwareSupport;
+
+    if (firmwareSupport.versionAcknowledgesCommand(version, INVERT_SUSTAIN_PEDAL))
+    {
+        btnInvertSustain->setVisible(true);
+    }
+    else
+    {
+        btnInvertSustain->setVisible(false);
+    }
+}
+
 //[/MiscUserCode]
 
 
@@ -270,9 +269,10 @@ void PedalSensitivityDlg::loadFromMapping()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="PedalSensitivityDlg" componentName=""
-                 parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="134" initialHeight="96">
+                 parentClasses="public juce::Component, public LumatoneController::FirmwareListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="134"
+                 initialHeight="96">
   <BACKGROUND backgroundColour="0"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensitivity"
          virtualName="" explicitFocusOrder="0" pos="6 35 64 24" edTextCol="ff000000"
