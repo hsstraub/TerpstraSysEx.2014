@@ -611,6 +611,11 @@ void TerpstraMidiDriver::sendGetExpressionPedalADCThresholdRequest()
     sendSysExRequest(0, GET_EXPRESSION_PEDAL_THRESHOLD);
 }
 
+void TerpstraMidiDriver::sendInvertSustainPedal(bool setInverted)
+{
+    sendSysExToggle(0, INVERT_SUSTAIN_PEDAL, setInverted);
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls

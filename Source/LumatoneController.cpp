@@ -461,6 +461,11 @@ int LumatoneController::pingLumatone(uint8 pingId)
     return midiDriver.ping(pingId);
 }
 
+void LumatoneController::invertSustainPedal(bool setInverted)
+{
+    midiDriver.sendInvertSustainPedal(setInverted);
+}
+
 //=============================================================================
 // Communication and broadcasting
 

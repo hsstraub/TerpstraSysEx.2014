@@ -164,6 +164,7 @@ System exclusive command bytes
 #define GET_LUMATOUCH_NOTE_OFF_DELAY 0x42
 #define SET_EXPRESSION_PEDAL_THRESHOLD 0x43
 #define GET_EXPRESSION_PEDAL_THRESHOLD 0x44
+#define INVERT_SUSTAIN_PEDAL 0x45
 
 typedef enum
 {
