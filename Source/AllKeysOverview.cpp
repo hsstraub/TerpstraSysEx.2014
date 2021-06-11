@@ -198,7 +198,7 @@ AllKeysOverview::AllKeysOverview()
 	addAndMakeVisible(buttonReceive.get());
 	buttonReceive->setTooltip(translate("ImportTooltip"));
 	buttonReceive->setButtonText(translate("Import from Lumatone"));
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ImportIcon);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ArrowUp);
 	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
 	buttonReceive->addListener(this);
 

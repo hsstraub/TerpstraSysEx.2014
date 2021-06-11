@@ -32,8 +32,7 @@ public:
         if (doImageCache)
         {
             cacheImages();
-            saveIconPath = getSaveIconPath();
-            importIconPath = getArrowPath(Point<float>(0.5f, 0.96f), Point<float>(0.5f, 0.08f), 0.55, 0.333f);
+            cacheIcons();
         }
 
     }
@@ -353,9 +352,14 @@ public:
                 //case LumatoneEditorIcon::Checkmark:
                 //    iconPath = Path(tickBoxPath);
                 //    break;
-                case LumatoneEditorIcon::ImportIcon:
+                case LumatoneEditorIcon::ArrowUp:
                 {
-                    iconPath = importIconPath;
+                    iconPath = arrowUpIconPath;
+                    break;
+                }
+                case LumatoneEditorIcon::ArrowDown:
+                {
+                    iconPath = arrowDownIconPath;
                     break;
                 }
                 case LumatoneEditorIcon::SaveIcon:
@@ -1155,6 +1159,13 @@ private:
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShadow2x_png,    BinaryData::KeyShadow2x_pngSize),    LumatoneEditorAssets::KeyShadow);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::TrashCanIcon2x_png, BinaryData::TrashCanIcon2x_pngSize), LumatoneEditorAssets::TrashCanIcon);
     }
+    
+    void cacheIcons()
+    {
+        saveIconPath = getSaveIconPath();
+        arrowUpIconPath = getArrowPath(Point<float>(0.5f, 0.96f), Point<float>(0.5f, 0.08f), 0.55, 0.333f);
+        arrowDownIconPath = getArrowPath(Point<float>(0.5f, 0.08f), Point<float>(0.5f, 0.96f), 0.55, 0.667f);
+    }
 
     /// <summary>
     /// Sets the LookAndFeel colour palette to default colours
@@ -1211,7 +1222,8 @@ private:
     LumatoneEditorFonts::Library appFonts;
     
     Path saveIconPath;
-    Path importIconPath;
+    Path arrowUpIconPath;
+    Path arrowDownIconPath;
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;

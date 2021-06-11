@@ -541,7 +541,8 @@ enum LumatoneEditorAssets
 enum LumatoneEditorIcon
 {
     Checkmark   = 0x01,
-    ImportIcon,
+    ArrowUp,
+    ArrowDown,
     SaveIcon,
     LoadIcon
 };
