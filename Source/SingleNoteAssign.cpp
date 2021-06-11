@@ -147,6 +147,17 @@ SingleNoteAssign::SingleNoteAssign ()
 
     keyTypeToggleButton->setButtonText(translate("KeyType"));
     keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    
+    ccFaderFlipBtn.reset(new juce::TextButton());
+    ccFaderFlipBtn->setClickingTogglesState(true);
+    ccFaderFlipBtn->addListener(this);
+    ccFaderFlipBtn->setTooltip(translate("CC value polarity flip: down means value increases as key is pressed, up means value is increased as key is released."));
+    addAndMakeVisible(ccFaderFlipBtn.get());
+    ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonColourId, Colours::white.withAlpha(0.05f));
+    ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonOnColourId, Colours::grey.withAlpha(0.1f));
+    
+    faderUpArrow = getArrowPath(Point<float>(0.5f, 1.0f), Point<float>(0.5f, 0.0f), 0.5f, 0.25f);
+    faderDownArrow = getArrowPath(Point<float>(0.5f, 0.0f), Point<float>(0.5f, 1.0f), 0.5f, 0.75f);
 
     setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
@@ -304,7 +315,14 @@ void SingleNoteAssign::resized()
         setNoteToggleButton->getBounds().getCentreY()
     );
     noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
-
+    
+    ccFaderFlipBtn->setSize(noteInput->getHeight(), noteInput->getHeight());
+    ccFaderFlipBtn->setTopRightPosition(
+       noteInput->getX() - noteInput->getHeight() * 0.75,
+       noteInput->getY());
+          
+    redrawCCFlipBtn();
+    
     setChannelToggleButton->setTopLeftPosition(controlsX, setNoteToggleButton->getBottom() + marginY);
     setChannelToggleButton->setSize(noteInput->getX() - controlsX, toggleHeight);
     channelInput->setCentrePosition(
@@ -392,6 +410,10 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     }
 
     //[UserbuttonClicked_Post]
+    else if (buttonThatWasClicked == ccFaderFlipBtn.get())
+    {
+        redrawCCFlipBtn();
+    }
     //[/UserbuttonClicked_Post]
 }
 
@@ -407,7 +429,8 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         // Label the "note box" accordingly (controller no. for key type "Fader")
         if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
-            setNoteToggleButton->setButtonText("CC Type:");
+            setNoteToggleButton->setButtonText("CC #:          ");
+            redrawCCFlipBtn();
 
             // ToDo Auto increment does not make sense in this case?
         }
@@ -529,6 +552,9 @@ void SingleNoteAssign::restoreStateFromPropertiesFile(PropertiesFile* properties
 	keyTypeToggleButton->setToggleState(
 		propertiesFile->getBoolValue("SingleNoteKeyTypeSetActive", true),
 		juce::NotificationType::sendNotification);
+    ccFaderFlipBtn->setToggleState(
+       propertiesFile->getBoolValue("SingleNoteKeyCCFlipped", false),
+       juce::NotificationType::sendNotification);
 }
 
 void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -538,6 +564,26 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("SingleNoteColourSetActive", setColourToggleButton->getToggleState());
 	propertiesFile->setValue("SingleNoteKeyTypeSetActive", keyTypeToggleButton->getToggleState());
 
+}
+
+void SingleNoteAssign::redrawCCFlipBtn()
+{
+    if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
+    {
+        ccFaderFlipBtn->setVisible(true);
+        
+        LumatoneEditorIcon btnIcon;
+        if (ccFaderFlipBtn->getToggleState())
+            btnIcon = LumatoneEditorIcon::ArrowUp;
+        else
+            btnIcon = LumatoneEditorIcon::ArrowDown;
+        
+        ccFaderFlipBtn->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, btnIcon);
+    }
+    else
+    {
+        ccFaderFlipBtn->setVisible(false);
+    }
 }
 //[/MiscUserCode]
 
