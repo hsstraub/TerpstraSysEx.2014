@@ -9,52 +9,6 @@
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
-        <GROUP id="{E772CF3F-D921-A5BF-F889-2F5D427FC0F4}" name="Fonts">
-          <FILE id="ymNTo2" name="framd.ttf" compile="0" resource="1" file="BinaryData/Assets/Fonts/framd.ttf"/>
-          <FILE id="OM4xfv" name="framdit.ttf" compile="0" resource="1" file="BinaryData/Assets/Fonts/framdit.ttf"/>
-          <FILE id="biiNzR" name="GothamNarrow-Black.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Black.otf"/>
-          <FILE id="y07jJz" name="GothamNarrow-BlackItalic.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-BlackItalic.otf"/>
-          <FILE id="VAQHy0" name="GothamNarrow-Bold.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Bold.otf"/>
-          <FILE id="xopNQK" name="GothamNarrow-BoldItalic.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-BoldItalic.otf"/>
-          <FILE id="aOlGir" name="GothamNarrow-Book.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Book.otf"/>
-          <FILE id="sYCHxB" name="GothamNarrow-BookItalic.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-BookItalic.otf"/>
-          <FILE id="L3gz40" name="GothamNarrow-Light.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Light.otf"/>
-          <FILE id="pXGA3e" name="GothamNarrow-LightItalic.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-LightItalic.otf"/>
-          <FILE id="hr5I5t" name="GothamNarrow-Medium.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Medium.otf"/>
-          <FILE id="eUOuR7" name="GothamNarrow-MediumItalic.otf" compile="0"
-                resource="1" file="BinaryData/Assets/Fonts/GothamNarrow-MediumItalic.otf"/>
-          <FILE id="U3KaWx" name="GothamNarrow-Thin.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Thin.otf"/>
-          <FILE id="s4fdPC" name="GothamNarrow-ThinItalic.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-ThinItalic.otf"/>
-          <FILE id="WeFvbv" name="GothamNarrow-Ultra.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-Ultra.otf"/>
-          <FILE id="qcxFQ0" name="GothamNarrow-UltraItalic.otf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/GothamNarrow-UltraItalic.otf"/>
-          <FILE id="JzRL8u" name="UniviaPro-Black.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-Black.ttf"/>
-          <FILE id="qrqC2r" name="UniviaPro-Bold.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-Bold.ttf"/>
-          <FILE id="E3zvE6" name="UniviaPro-Light.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-Light.ttf"/>
-          <FILE id="MS7OZ0" name="UniviaPro-LightItalic.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-LightItalic.ttf"/>
-          <FILE id="fGCIxJ" name="UniviaPro-Medium.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-Medium.ttf"/>
-          <FILE id="YlGQcH" name="UniviaPro-MediumItalic.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-MediumItalic.ttf"/>
-          <FILE id="YWfTnA" name="UniviaPro-Regular.ttf" compile="0" resource="1"
-                file="BinaryData/Assets/Fonts/UniviaPro-Regular.ttf"/>
-        </GROUP>
         <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
           <FILE id="fwSyLL" name="AppIcon@1x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/AppIcon@1x.png"/>
           <FILE id="yjLw0u" name="AppIcon@3x.png" compile="0" resource="1" file="BinaryData/Assets/PNG/AppIcon@3x.png"/>

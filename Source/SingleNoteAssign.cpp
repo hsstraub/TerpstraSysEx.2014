@@ -159,6 +159,8 @@ SingleNoteAssign::SingleNoteAssign ()
     faderUpArrow = getArrowPath(Point<float>(0.5f, 1.0f), Point<float>(0.5f, 0.0f), 0.5f, 0.25f);
     faderDownArrow = getArrowPath(Point<float>(0.5f, 0.0f), Point<float>(0.5f, 1.0f), 0.5f, 0.75f);
 
+    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::popupMenuTargetWidth, 1);
+
     setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
     colourSubwindow->setColour("ff60aac5");

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -36,6 +36,7 @@
                                                                     //[/Comments]
 */
 class PedalSensitivityDlg  : public juce::Component,
+                             public LumatoneController::FirmwareListener,
                              public juce::Button::Listener,
                              public juce::Slider::Listener
 {
@@ -50,6 +51,10 @@ public:
 	void loadFromMapping();
 
 	void lookAndFeelChanged() override;
+
+    // LumatoneController::FirmwareListener implementation
+    void firmwareRevisionReceived(FirmwareVersion version) override;
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -70,10 +75,11 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> labelExprContrSensivity;
-    std::unique_ptr<juce::ToggleButton> btnInvertFootCtrl;
-    std::unique_ptr<juce::Label> labelEXpressionPedalTitle;
-    std::unique_ptr<juce::Slider> sldExprCtrlSensivity;
+    std::unique_ptr<juce::Label> labelExprContrSensitivity;
+    std::unique_ptr<juce::ToggleButton> btnInvertExpression;
+    std::unique_ptr<juce::Label> labelPedalTitle;
+    std::unique_ptr<juce::Slider> sldExprCtrlSensitivity;
+    std::unique_ptr<juce::ToggleButton> btnInvertSustain;
 
 
     //==============================================================================

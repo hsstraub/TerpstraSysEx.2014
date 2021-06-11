@@ -288,6 +288,9 @@ public:
 	// CMD 44h: Get the current expression pedal ADC threshold value
 	void sendGetExpressionPedalADCThresholdRequest();
 
+	// CMD 45h: Configure the on/off settings of the sustain pedal
+	void sendInvertSustainPedal(bool setInverted);
+
 	//============================================================================
 	// Implementation of bidirectional communication with acknowledge messages
 

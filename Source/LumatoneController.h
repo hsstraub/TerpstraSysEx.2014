@@ -200,6 +200,9 @@ public:
     // Send a value from 0-127 for the Lumatone to echo back, returns actual value sent (in case of 7-bit masking); used for auto device connection and monitoring
     int pingLumatone(uint8 pingId);
 
+    // Invert the polarity of the sustain pedal
+    void invertSustainPedal(bool setInverted);
+
     //============================================================================
     // FirmwareTransfer::Listener
 

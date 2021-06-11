@@ -111,7 +111,7 @@ private:
     //==============================================================================
     // Helpers
 
-    std::unique_ptr<AlertWindow> alert;
+    std::unique_ptr<AlertWindow>     alert;
 
     FlexBox          ioAreaFlexBox;
 

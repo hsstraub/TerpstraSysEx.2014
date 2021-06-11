@@ -827,21 +827,23 @@ public:
     //
     //==================================================================
 
-	/*
+
 	void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
     {
         auto target = options.getTargetComponent();
 		if (target)
 		{
 			float margin = target->getHeight() * comboBoxRoundedCornerScalar;
+            
+            if (target->getProperties().contains(LumatoneEditorStyleIDs::popupMenuBackgroundColour))
+                g.setColour(Colour::fromString(target->getProperties()[LumatoneEditorStyleIDs::popupMenuBackgroundColour].toString()).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
+            else
+                g.setColour(findColour(LumatoneEditorColourIDs::MenuBarBackground));
+			
+            if (target->getProperties()[LumatoneEditorStyleIDs::popupMenuTargetWidth])
+                width = target->getWidth();
 
-			auto box = dynamic_cast<ComboBox*>(target);
-			if (box)
-				g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
-			else
-				g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
-
-			Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, target->getWidth(), height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
+			Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
 			g.fillPath(menuShape);
 		}
 		else
@@ -934,7 +936,34 @@ public:
     {
         window.setOpaque(false);
     }
-	*/
+	
+    //==================================================================
+    //
+    // MENUBAR METHODS
+    //
+    //==================================================================
+
+    void drawMenuBarBackground(Graphics& g, int w, int h, bool isMouseOverBar, MenuBarComponent& menuBar) override
+    {
+        g.setColour(findColour(LumatoneEditorColourIDs::MenuBarBackground));
+        g.fillRect(0, 0, w, h);
+    }
+
+    void drawMenuBarItem(Graphics& g, int w, int h, int index, const String& itemText, 
+        bool isMouseOver, bool isMenuOpen, bool isMouseOverBar, MenuBarComponent& menuBar) override
+    {
+        if (isMouseOver)
+        {
+            Colour bkgdColour = findColour(LumatoneEditorColourIDs::MenuBarBackground).brighter(0.2f);
+            g.setColour(bkgdColour);
+            g.fillRect(0, 0, w, h);
+        }
+
+        g.setColour(findColour(LumatoneEditorColourIDs::ActiveText));
+        g.setFont(getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+        g.drawFittedText(itemText, 0, 0, w, h, Justification::centred, 1);
+
+    }
 
     //==================================================================
     //
@@ -1039,31 +1068,51 @@ public:
     //
     //==================================================================
 
-
     //virtual AlertWindow* createAlertWindow(const String& title, const String& msg, const String& btn1, const String& btn2, const String& btn3, AlertWindow::AlertIconType type, int numButtons, Component* associatedComponent) override
     //{
-    //    auto window = getDefaultLookAndFeel().createAlertWindow(title, msg, btn1, btn2, btn3, type, numButtons, associatedComponent);
-    //    for (auto child : window->getChildren())
-    //    {
-    //        /*auto btn = dynamic_cast<TextButton*>(child);
-    //        if (btn != nullptr)
-    //        {
-    //            btn-
-    //        }*/
-    //    }
+    //    auto window = new AlertWindow(title, msg, type, associatedComponent);
+    //    window->setSize(480, 240);
 
+    //    if (numButtons > 0)
+    //    {
+    //        int w = window->getWidth();
+    //        int h = window->getHeight();
+
+    //        float btnW = w / 7.0f;
+    //        float allMargin = w - btnW * numButtons;
+    //        float eachmargin = allMargin / (numButtons + 1);
+    //        
+    //        float btnH = h / 6.0f;
+    //        
+    //        auto firstButton = new TextButton(title + btn1);
+    //        firstButton->setButtonText(btn1);
+    //        firstButton->setBounds(roundToInt(eachmargin), h - 32, window->getWidth() / window->getWidth() / 7.0, 24);
+    //        window->addAndMakeVisible(*firstButton);
+    //    }
+    //    
     //    window->setOpaque(true);
-    //    window->setColour(AlertWindow::ColourIds::backgroundColourId, Colour());
-    //    window->setColour(AlertWindow::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
 
     //    return window;
     //}
 
-    //virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
-    //{
-    //    g.setColour(findColour(LumatoneEditorColourIDs::DescriptionText));
-    //    layout.draw(g, textArea.toFloat());
-    //}
+    virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
+    {
+        g.setColour(findColour(AlertWindow::ColourIds::backgroundColourId));
+        //g.fillRoundedRectangle(window.getLocalBounds().toFloat(), 15);
+        g.fillAll();
+
+        g.setColour(findColour(AlertWindow::ColourIds::outlineColourId));
+        g.drawRect(window.getLocalBounds(), 2);
+
+        g.setColour(findColour(AlertWindow::ColourIds::textColourId));
+        float widthRatio = 0.05f;
+        float heightRatio = 0.15f;
+        
+        layout.draw(g, 
+            textArea.constrainedWithin(
+                window.getLocalBounds().reduced(window.getWidth() * widthRatio, window.getHeight() * heightRatio)
+            ).toFloat());
+    }
 
     //virtual Array<int> getWidthsForTextButtons(AlertWindow& window, const Array<TextButton*>& btns) override
     //{
@@ -1075,20 +1124,20 @@ public:
     //    return 16;
     //}
 
-    //virtual Font getAlertWindowTitleFont() override
-    //{
-    //    return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
-    //}
+    virtual Font getAlertWindowTitleFont() override
+    {
+        return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
+    }
 
-    //virtual Font getAlertWindowMessageFont()  override
-    //{
-    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
-    //}
+    virtual Font getAlertWindowMessageFont()  override
+    {
+        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
+    }
 
-    //virtual Font getAlertWindowFont()  override
-    //{
-    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
-    //}
+    virtual Font getAlertWindowFont()  override
+    {
+        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
+    }
 
 public:
     //==============================================================================================
@@ -1195,6 +1244,7 @@ private:
         setColour(LumatoneEditorColourIDs::RotaryGradientMin,               Colour(0xff5497b6));
         setColour(LumatoneEditorColourIDs::RotaryGradientMax,               Colour(0xff77a8b3));
         setColour(LumatoneEditorColourIDs::DisabledOverlay,                 Colour(0x601b1b1b));
+        setColour(LumatoneEditorColourIDs::MenuBarBackground,               Colour(0xff1a1b1c));
 
         // Component defaults
         setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
@@ -1212,6 +1262,10 @@ private:
         setColour(TextEditor::ColourIds::highlightColourId, findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
         setColour(TextEditor::ColourIds::highlightedTextColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
         setColour(TextEditor::ColourIds::shadowColourId, Colour());
+
+        setColour(AlertWindow::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::DarkBackground));
+        setColour(AlertWindow::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        setColour(AlertWindow::ColourIds::outlineColourId, findColour(LumatoneEditorColourIDs::MediumBackground));
     }
 
 public:
