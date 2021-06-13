@@ -141,8 +141,8 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 
 	commandManager.reset(new ApplicationCommandManager());
 	commandManager->registerAllCommandsForTarget(this);
-
-	menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));	
+    menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));
+    
 	mainWindow.reset(new MainWindow());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	mainWindow->restoreStateFromPropertiesFile(propertiesFile);
@@ -164,7 +164,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 void TerpstraSysExApplication::shutdown()
 {
     // Add your application's shutdown code here..
-
+    
 	// Save documents directories (Future: provide option to change them and save after changed by user)
 	propertiesFile->setValue("UserDocumentsDirectory", userDocumentsDirectory.getFullPathName());
 	propertiesFile->setValue("UserMappingsDirectory",   userMappingsDirectory.getFullPathName());
@@ -184,8 +184,13 @@ void TerpstraSysExApplication::shutdown()
 
 	LocalisedStrings::setCurrentMappings(nullptr);
 
+#if JUCE_MAC
+    MenuBarModel::setMacMainMenu(nullptr);
+#endif
+    menuModel = nullptr;
+
     mainWindow = nullptr; // (deletes our window)
-	//commandManager = nullptr;
+//	commandManager = nullptr;
 }
 
 //==============================================================================
