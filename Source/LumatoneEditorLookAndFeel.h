@@ -337,7 +337,10 @@ public:
             // Needs special case for "transparent" arrow
             if (iconCode == LumatoneEditorIcon::LoadIcon)
             {
-                drawFolderIconAt(g, iconX, iconY, iconW, iconH, textColour, btn.findColour(bkgdColourId));
+                // Make a tad bit bigger 
+                auto boundsAdj = Rectangle<float>(iconX, iconY, iconW, iconH);
+                boundsAdj.expand(iconW * 0.1f, iconH * 0.1f);
+                drawFolderIconAt(g, boundsAdj.getX(), boundsAdj.getY(), boundsAdj.getWidth(), boundsAdj.getHeight(), textColour, btn.findColour(bkgdColourId));
             }
             else
             {

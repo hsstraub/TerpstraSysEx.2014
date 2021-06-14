@@ -464,7 +464,6 @@ static juce::Path getFolderIcon(float folderHeight, float tabBaseX, float tabBas
 static void drawFolderIconAt(Graphics& g, int x, int y, int width, int height, Colour folderColour, Colour arrowColour)
 {
     float folderHeight = 1.0f;
-    float tabBaseY = 0.2f;
     Path folder = getFolderIcon(0.91f, 0.5f, 0.22f).createPathWithRoundedCorners(0.05f);
 
     auto transform = AffineTransform::scale(width, height).followedBy(AffineTransform::translation(x, y));
@@ -473,11 +472,10 @@ static void drawFolderIconAt(Graphics& g, int x, int y, int width, int height, C
     g.setColour(folderColour);
     g.fillPath(folder);
 
-    float arrowYMargin = 0.2f;
-    Path arrowPath = getArrowPath(Point<float>(0.5f, folderHeight - arrowYMargin), Point<float>(0.5f, tabBaseY + arrowYMargin), 0.2f, 0.5f);
+    Path arrowPath = getArrowPath(Point<float>(0.5f, folderHeight - 0.267f), Point<float>(0.5f, 0.35f), 0.2f, 0.46f);
     arrowPath.applyTransform(transform);
 
-    PathStrokeType stroke(1.125f);
+    PathStrokeType stroke(1.25f);
     stroke.setEndStyle(PathStrokeType::EndCapStyle::rounded);
     stroke.setJointStyle(PathStrokeType::JointStyle::curved);
     
