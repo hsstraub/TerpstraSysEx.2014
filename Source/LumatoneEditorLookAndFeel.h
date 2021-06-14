@@ -1278,6 +1278,8 @@ private:
     Path saveIconPath;
     Path arrowUpIconPath;
     Path arrowDownIconPath;
+//    Path ccPolarityDefaultIconPath;
+//    Path ccPolarityInvertedIconPath;
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;

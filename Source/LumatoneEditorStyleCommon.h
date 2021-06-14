@@ -417,8 +417,8 @@ static Path createLogomark()
 static Path getArrowPath(Point<float> start, Point<float> headPoint, float headWidth, float headHeight)
 {
     headWidth *= 0.5f;
-    auto left = Point<float>(0.5f - headWidth, headHeight);
-    auto right = Point<float>(0.5f + headWidth, headHeight);
+    auto left = Point<float>(start.x - headWidth, headHeight);
+    auto right = Point<float>(start.x + headWidth, headHeight);
 
     Path path;
 
@@ -519,6 +519,39 @@ static Path getSaveIconPath()
     return rounded;
 }
 
+static void getCCPolarityIconPath(bool inverted, Path& arrowPath, Path& faderPath)
+{
+    float glyphWidth = 0.25f;
+    
+    float y1 = 0.8f;
+    float y2 = 1.0f - y1;
+    
+    float arrowX = 0.3f;
+    float arrowHeadDif = abs(y1 - y2) * 0.333;
+    
+    float faderMax = 0.81f;
+    float faderEdge = faderMax - glyphWidth;
+    
+    if (inverted)
+    {
+        arrowPath = getArrowPath(Point<float>(arrowX, y1), Point<float>(arrowX, y2), glyphWidth, y2 + arrowHeadDif);
+        
+        faderPath.startNewSubPath(faderEdge, y1);
+        faderPath.lineTo(faderEdge, y2);
+        faderPath.lineTo(faderMax, y2);
+        faderPath.closeSubPath();
+    }
+    else
+    {
+        arrowPath = getArrowPath(Point<float>(arrowX, y2), Point<float>(arrowX, y1), glyphWidth, y1 - arrowHeadDif);
+        
+        faderPath.startNewSubPath(faderEdge, y1);
+        faderPath.lineTo(faderMax, y1);
+        faderPath.lineTo(faderEdge, y2);
+        faderPath.closeSubPath();
+    }
+}
+
 //static void drawSaveIconAt(Graphics& g, int x, int y)
 
 
@@ -544,7 +577,8 @@ enum LumatoneEditorIcon
     ArrowUp,
     ArrowDown,
     SaveIcon,
-    LoadIcon
+    LoadIcon,
+    CCPolarityIcon
 };
 
 enum LumatoneEditorColourIDs

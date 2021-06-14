@@ -148,10 +148,10 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeToggleButton->setButtonText(translate("KeyType"));
     keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
     
-    ccFaderFlipBtn.reset(new juce::TextButton());
+    ccFaderFlipBtn.reset(new juce::ImageButton());
     ccFaderFlipBtn->setClickingTogglesState(true);
     ccFaderFlipBtn->addListener(this);
-    ccFaderFlipBtn->setTooltip(translate("CC value polarity flip: down means value increases as key is pressed, up means value is increased as key is released."));
+    ccFaderFlipBtn->setTooltip(translate("Toggle CC polarity inversion. Default, arrow down: values increase with key press. Inverted, arrow up: values decrease with key press."));
     addAndMakeVisible(ccFaderFlipBtn.get());
     ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonColourId, Colours::white.withAlpha(0.05f));
     ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonOnColourId, Colours::grey.withAlpha(0.1f));
@@ -162,15 +162,12 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::popupMenuTargetWidth, 1);
 
     setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     colourSubwindow->setColour("ff60aac5");
 
     setNoteToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     noteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     setChannelToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     channelInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     autoIncrementLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
@@ -180,7 +177,6 @@ SingleNoteAssign::SingleNoteAssign ()
     noteAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
     channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     channelAutoIncrNoteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
@@ -211,6 +207,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeCombo->setSelectedId(LumatoneKeyType::noteOnNoteOff);
+    juce::Timer::callAfterDelay(500, [&]{keyTypeCombo->setSelectedId(2, sendNotification);});
     //[/Constructor]
 }
 
@@ -433,7 +430,8 @@ void SingleNoteAssign::resized()
 
     noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
     
-    redrawCCFlipBtn();
+    if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
+        redrawCCFlipBtn();
     
     channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
     //[/UserResized]
@@ -492,7 +490,6 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     //[UserbuttonClicked_Post]
     else if (buttonThatWasClicked == ccFaderFlipBtn.get())
     {
-        redrawCCFlipBtn();
     }
     //[/UserbuttonClicked_Post]
 }
@@ -510,14 +507,15 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
             setNoteToggleButton->setButtonText("CC #:");
-            resized();
-
-            // ToDo Auto increment does not make sense in this case?
+            ccFaderFlipBtn->setVisible(true);
         }
         else
         {
             setNoteToggleButton->setButtonText("Note # (0-127):");
+            ccFaderFlipBtn->setVisible(false);
         }
+
+        resized();
 
         //[/UserComboBoxCode_keyTypeCombo]
     }
@@ -648,22 +646,45 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 
 void SingleNoteAssign::redrawCCFlipBtn()
 {
-    if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
-    {
-        ccFaderFlipBtn->setVisible(true);
-        
-        LumatoneEditorIcon btnIcon;
-        if (ccFaderFlipBtn->getToggleState())
-            btnIcon = LumatoneEditorIcon::ArrowUp;
-        else
-            btnIcon = LumatoneEditorIcon::ArrowDown;
-        
-        ccFaderFlipBtn->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, btnIcon);
-    }
-    else
-    {
-        ccFaderFlipBtn->setVisible(false);
-    }
+    Path arrowPath, faderPath, arrowInvertedPath, faderInvertedPath;
+    getCCPolarityIconPath(false, arrowPath, faderPath);
+    getCCPolarityIconPath(true, arrowInvertedPath, faderInvertedPath);
+    auto defaultImg = Image(Image::PixelFormat::ARGB, ccFaderFlipBtn->getWidth(), ccFaderFlipBtn->getHeight(), true);
+    auto invertedImg = defaultImg.createCopy();
+    
+    Graphics g(defaultImg);
+    Graphics gi(invertedImg);
+    
+    auto transform = AffineTransform::scale(defaultImg.getWidth(), defaultImg.getHeight());
+    arrowPath.applyTransform(transform);
+    faderPath.applyTransform(transform);
+    arrowInvertedPath.applyTransform(transform);
+    faderInvertedPath.applyTransform(transform);
+    
+    auto lookAndFeel = &TerpstraSysExApplication::getApp().getLookAndFeel();
+    auto background = lookAndFeel->findColour(TextButton::ColourIds::buttonColourId);
+    g.setColour(background);
+    g.fillRoundedRectangle(ccFaderFlipBtn->getLocalBounds().toFloat(), 5.0f);
+    gi.setColour(background);
+    gi.fillRoundedRectangle(ccFaderFlipBtn->getLocalBounds().toFloat(), 5.0f);
+    
+    auto arrowStroke = PathStrokeType(PHI, PathStrokeType::JointStyle::curved);
+    auto colour = lookAndFeel->findColour(LumatoneEditorColourIDs::ActiveText).brighter(0.1);
+    g.setColour(colour);
+    g.strokePath(arrowPath, arrowStroke);
+    g.fillPath(faderPath);
+    
+    gi.setColour(colour);
+    gi.strokePath(arrowInvertedPath, arrowStroke);
+    gi.fillPath(faderInvertedPath);
+    
+//    auto mouseOverImg = ccFaderFlipBtn->getToggleState() ? &invertedImg : &defaultImg;
+    auto highlight = Colours::white.withAlpha(0.0333f);
+    
+    ccFaderFlipBtn->setImages(false, false, true,
+      defaultImg, 1.0f, Colour(),
+      defaultImg, 1.0f, highlight,
+      invertedImg, 1.0f, Colour());
 }
 //[/MiscUserCode]
 
