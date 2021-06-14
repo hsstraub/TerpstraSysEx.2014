@@ -186,10 +186,20 @@ SingleNoteAssign::SingleNoteAssign ()
     instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
     parametersFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium);
 
-    //noteInputBox->setVisible(false);
-
     // TODO: load last active colour?
     colourTextEditor->addColourSelectionListener(this);
+    
+    // Set up FlexBox rows
+    for (int i = 0; i <= SingleNoteFlexRows::channelIncrement; i++)
+    {
+        flexRows.add(FlexBox(
+                             FlexBox::Direction::row,
+                             FlexBox::Wrap::noWrap,
+                             FlexBox::AlignContent::center,
+                             FlexBox::AlignItems::center,
+                             FlexBox::JustifyContent::flexStart));
+    }
+    
     //[/UserPreSize]
 
     setSize (320, 400);
@@ -257,13 +267,25 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 
     g.setColour(Colours::darkgrey);
     g.drawLine(controlsX, separatorY, getWidth() - controlsX, separatorY);
+
+//    // Debug FlexBox positioning
+//    Random r;
+//    for (auto child : getChildren())
+//    {
+//        g.setColour(Colour(r.nextFloat(), r.nextFloat() * 0.5f + 0.5f, r.nextFloat() * 0.5f + 0.5f, 1.0f));
+//        g.drawRect(child->getBounds());
+//    }
+//    for (int i = 0; i < flexBounds.size(); i++)
+//    {
+//        g.setColour(Colours::red);
+//        g.drawRect(flexBounds[i]);
+//    }
     //[/UserPaint]
 }
 
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-
     float w = getWidth();
     float h = getHeight();
 
@@ -271,93 +293,149 @@ void SingleNoteAssign::resized()
         roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     int controlAreaTop = round(h * controlAreaYScalar);
-
-    instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
-    instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
-
-    controlsX = round(w * controlsXScalar);
-    int marginY = round(h * yMarginScalar);
-    int controlH = round(h * controlHeightScalar);
-    int marginX = round(controlH * 0.6f);
-    int halfWidth = round(w * 0.5f);
-    int toggleHeight = round(h * toggleHeightScalar);
-    int halfMarginX = round(marginX * 0.5f);
-    int halfMarginY = round(marginY * 0.5f);
-
-    instructionsBounds.setBounds(marginX, 0, w - marginX - marginX, controlAreaTop);
-
-    parametersFont.setHeight(toggleHeight * 1.25f);
-    //int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
-
-    keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsAreaBounds.getBottom() + halfMarginY);
-    resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
-    keyTypeCombo->setSize(w - marginX - keyTypeToggleButton->getRight(), controlH);
-    keyTypeCombo->setCentrePosition(
-        round(keyTypeCombo->getWidth() * 0.5f) + keyTypeToggleButton->getRight(),
-        keyTypeToggleButton->getBounds().getCentreY()
-    );
-
-    setColourToggleButton->setTopLeftPosition(controlsX, keyTypeToggleButton->getBottom() + marginY);
-    resizeToggleButtonWithHeight(setColourToggleButton.get(), parametersFont, toggleHeight);
-    colourSubwindow->setSize(controlH * 1.5f, controlH);
-    colourSubwindow->setCentrePosition(
-        round(colourSubwindow->getWidth() * 0.5f) + setColourToggleButton->getRight(),
-        setColourToggleButton->getBounds().getCentreY()
-    );
-
-    colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
-    colourTextEditor->setSize(w - colourTextEditor->getX() - marginX, controlH);
-    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * GLOBALFONTSCALAR), true);
-
-    setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
-    resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteInput->setSize(w - noteInput->getX() - marginX, controlH);
-	noteInput->setCentrePosition(
-        round(noteInput->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
-        setNoteToggleButton->getBounds().getCentreY()
-    );
-    noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
     
-    ccFaderFlipBtn->setSize(noteInput->getHeight(), noteInput->getHeight());
-    ccFaderFlipBtn->setTopRightPosition(
-       noteInput->getX() - noteInput->getHeight() * 0.75,
-       noteInput->getY());
-          
-    redrawCCFlipBtn();
+    int toggleHeight = roundToInt(h * toggleHeightScalar);
+    int toggleHeightScaled = roundToInt(toggleHeight * GLOBALFONTSCALAR);
     
-    setChannelToggleButton->setTopLeftPosition(controlsX, setNoteToggleButton->getBottom() + marginY);
-    setChannelToggleButton->setSize(noteInput->getX() - controlsX, toggleHeight);
-    channelInput->setCentrePosition(
-        round(channelInput->getWidth() * 0.5f) + setChannelToggleButton->getRight(),
-        setChannelToggleButton->getBounds().getCentreY()
-    );
-    channelInput->setTopLeftPosition(noteInput->getX(), channelInput->getY());
-    channelInput->setSize(noteInput->getWidth(), controlH);
-    channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
-
-    separatorY = setChannelToggleButton->getBottom() + halfMarginY;
-
-    autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, w - controlsX, controlH);
-
-    noteAutoIncrButton->setTopLeftPosition(controlsX, autoIncrementLabel->getBottom() + halfMarginY);
-    resizeToggleButtonWithHeight(noteAutoIncrButton.get(), parametersFont, toggleHeight);
-
-    channelAutoIncrButton->setTopLeftPosition(controlsX, noteAutoIncrButton->getBottom() + halfMarginY);
-    resizeToggleButtonWithHeight(channelAutoIncrButton.get(), parametersFont, toggleHeight);
-
-    int chAutoIncBtnRightAdj = channelAutoIncrButton->getRight() - halfMarginX;
-
-    channelAutoIncrNoteInput->setSize(w - marginX - chAutoIncBtnRightAdj, controlH);
-    channelAutoIncrNoteInput->setCentrePosition(
-        chAutoIncBtnRightAdj + roundToInt(channelAutoIncrNoteInput->getWidth() * 0.5f),
-        channelAutoIncrButton->getBounds().getCentreY()
-    );
-
-    // Logically, setting the width would make the buttons' width 0, but that's not happening...so use max width available
-    channelAutoIncrNoteInput->setTextBoxStyle(Slider::TextBoxLeft, false, channelAutoIncrNoteInput->getWidth(), channelAutoIncrNoteInput->getHeight());
+    int controlH = roundToInt(h * controlHeightScalar);
+    int controlHScaled = roundToInt(controlH * GLOBALFONTSCALAR);
+    
+    int marginX = roundToInt(controlH * 0.6f);
+    int marginY = roundToInt(h * yMarginScalar);
+    int halfMarginX = roundToInt(marginX * 0.5f);
+    int halfMarginY = roundToInt(marginY * 0.5f);
+        
+    int rowWidth = roundToInt(w - marginX * 2);
+    int toggleWidthMargin = toggleHeight + marginX * 1.25f; // Toggle icon + combined margins
+    
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
+    instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
+    controlsX = roundToInt(w * controlsXScalar);
+    
+    instructionsBounds.setBounds(marginX, 0, w - marginX * 2, controlAreaTop);
+
+    parametersFont.setHeight(toggleHeightScaled);
+    
+    flexBounds.clear();
+    auto tglTemplateItem = FlexItem().withHeight(toggleHeightScaled).withAlignSelf(FlexItem::AlignSelf::center);
+    auto ctrlTemplateItem = FlexItem(FlexItem::autoValue, controlH).withFlex(1.0f);
+    
+    auto getTglWidth = [=](ToggleButton* btn) {
+        return roundToInt(parametersFont.getStringWidthFloat(btn->getButtonText()) + toggleWidthMargin);
+    };
+    
+    for (int i = 0; i <= SingleNoteFlexRows::channelIncrement; i++)
+    {
+        auto row = flexRows.getReference(i);
+        row.items.clear();
+        
+        // Generalize row properties
+        auto toggleItem = FlexItem(tglTemplateItem);
+        auto setupToggleItem = [&] (ToggleButton* btn) {
+            toggleItem.width = getTglWidth(btn);
+            toggleItem.associatedComponent = btn;
+        };
+        
+        auto controlItem = FlexItem(ctrlTemplateItem);
+        
+        auto getAndPerformBounds = [&] () {
+            auto bounds = Rectangle<int>(controlsX, flexBounds[i - 1].getBottom() + halfMarginY, rowWidth, controlH);
+            flexBounds.add(bounds);
+            row.performLayout(bounds);
+        };
+        
+        switch (i)
+        {
+            case SingleNoteFlexRows::keyType:
+            {
+                setupToggleItem(keyTypeToggleButton.get());
+                row.items.add(toggleItem);
+                
+                controlItem.associatedComponent = keyTypeCombo.get();
+                row.items.add(controlItem);
+                
+                flexBounds.add(Rectangle<int>(controlsX, controlAreaTop + halfMarginY, rowWidth, controlH));
+                row.performLayout(flexBounds[i]);
+                break;
+            }
+            case SingleNoteFlexRows::keyColour:
+            {
+                setupToggleItem(setColourToggleButton.get());
+                row.items.add(toggleItem);
+                
+                auto colourItem = FlexItem(controlH * 1.5f, controlH, *colourSubwindow.get());
+                colourItem.margin = FlexItem::Margin(0, halfMarginX, 0, 0);
+                row.items.add(colourItem);
+                
+                controlItem.associatedComponent = colourTextEditor.get();
+                row.items.add(controlItem);
+                
+                getAndPerformBounds();
+                break;
+            }
+            case SingleNoteFlexRows::keyNum:
+            {
+                setupToggleItem(setNoteToggleButton.get());
+                row.items.add(toggleItem);
+                
+                if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
+                {
+                    auto ccInvertItem = FlexItem(controlH, controlH, *ccFaderFlipBtn.get());
+                    ccInvertItem.margin = FlexItem::Margin(0, halfMarginX, 0, 0);
+                    row.items.add(ccInvertItem);
+                }
+                
+                controlItem.associatedComponent = noteInput.get();
+                row.items.add(controlItem);
+                
+                getAndPerformBounds();
+                break;
+            }
+            case SingleNoteFlexRows::keyChannel:
+            {
+                setupToggleItem(setChannelToggleButton.get());
+                row.items.add(toggleItem);
+                
+                controlItem.associatedComponent = channelInput.get();
+                row.items.add(controlItem);
+                
+                getAndPerformBounds();
+                
+                // Position Auto-Increment section since channelIncrement is relative to it
+                separatorY = channelInput->getBottom() + halfMarginY;
+                autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, w - controlsX, controlHScaled);
+                noteAutoIncrButton->setTopLeftPosition(controlsX, autoIncrementLabel->getBottom() + halfMarginY);
+                resizeToggleButtonWithHeight(noteAutoIncrButton.get(), parametersFont, toggleHeightScaled);
+                break;
+            }
+            case SingleNoteFlexRows::channelIncrement:
+            {
+                setupToggleItem(channelAutoIncrButton.get());
+                row.items.add(toggleItem);
+                
+                controlItem.associatedComponent = channelAutoIncrNoteInput.get();
+                row.items.add(controlItem);
+                
+                flexBounds.add(Rectangle<int>(controlsX, noteAutoIncrButton->getBottom() + halfMarginY, rowWidth, controlH));
+                row.performLayout(flexBounds[i]);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    // Style adjustments
+    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlHScaled * CONTROLBOXFONTHEIGHTSCALAR), true);
+
+    noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
+    
+    redrawCCFlipBtn();
+    
+    channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
     //[/UserResized]
 }
 
@@ -431,8 +509,8 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         // Label the "note box" accordingly (controller no. for key type "Fader")
         if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
-            setNoteToggleButton->setButtonText("CC #:          ");
-            redrawCCFlipBtn();
+            setNoteToggleButton->setButtonText("CC #:");
+            resized();
 
             // ToDo Auto increment does not make sense in this case?
         }
