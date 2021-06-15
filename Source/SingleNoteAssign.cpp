@@ -153,8 +153,7 @@ SingleNoteAssign::SingleNoteAssign ()
     ccFaderFlipBtn->addListener(this);
     ccFaderFlipBtn->setTooltip(translate("Toggle CC polarity inversion. Default, arrow down: values increase with key press. Inverted, arrow up: values decrease with key press."));
     addAndMakeVisible(ccFaderFlipBtn.get());
-    ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonColourId, Colours::white.withAlpha(0.05f));
-    ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonOnColourId, Colours::grey.withAlpha(0.1f));
+    ccFaderFlipBtn->setToggleState(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("InvertSustainGlobal", false), dontSendNotification);
     
     faderUpArrow = getArrowPath(Point<float>(0.5f, 1.0f), Point<float>(0.5f, 0.0f), 0.5f, 0.25f);
     faderDownArrow = getArrowPath(Point<float>(0.5f, 0.0f), Point<float>(0.5f, 1.0f), 0.5f, 0.75f);
@@ -324,9 +323,9 @@ void SingleNoteAssign::resized()
         return roundToInt(parametersFont.getStringWidthFloat(btn->getButtonText()) + toggleWidthMargin);
     };
     
-    for (int i = 0; i <= SingleNoteFlexRows::channelIncrement; i++)
+    for (int r = 0; r <= SingleNoteFlexRows::channelIncrement; r++)
     {
-        auto row = flexRows.getReference(i);
+        auto row = flexRows.getReference(r);
         row.items.clear();
         
         // Generalize row properties
@@ -339,12 +338,12 @@ void SingleNoteAssign::resized()
         auto controlItem = FlexItem(ctrlTemplateItem);
         
         auto getAndPerformBounds = [&] () {
-            auto bounds = Rectangle<int>(controlsX, flexBounds[i - 1].getBottom() + halfMarginY, rowWidth, controlH);
+            auto bounds = Rectangle<int>(controlsX, flexBounds[r - 1].getBottom() + halfMarginY, rowWidth, controlH);
             flexBounds.add(bounds);
             row.performLayout(bounds);
         };
         
-        switch (i)
+        switch (r)
         {
             case SingleNoteFlexRows::keyType:
             {
@@ -355,7 +354,7 @@ void SingleNoteAssign::resized()
                 row.items.add(controlItem);
                 
                 flexBounds.add(Rectangle<int>(controlsX, controlAreaTop + halfMarginY, rowWidth, controlH));
-                row.performLayout(flexBounds[i]);
+                row.performLayout(flexBounds[r]);
                 break;
             }
             case SingleNoteFlexRows::keyColour:
@@ -404,8 +403,8 @@ void SingleNoteAssign::resized()
                 // Position Auto-Increment section since channelIncrement is relative to it
                 separatorY = channelInput->getBottom() + halfMarginY;
                 autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, w - controlsX, controlHScaled);
-                noteAutoIncrButton->setTopLeftPosition(controlsX, autoIncrementLabel->getBottom() + halfMarginY);
-                resizeToggleButtonWithHeight(noteAutoIncrButton.get(), parametersFont, toggleHeightScaled);
+                noteAutoIncrButton->setBounds(controlsX, autoIncrementLabel->getBottom() + halfMarginY,
+                                              rowWidth, toggleHeightScaled);
                 break;
             }
             case SingleNoteFlexRows::channelIncrement:
@@ -417,7 +416,7 @@ void SingleNoteAssign::resized()
                 row.items.add(controlItem);
                 
                 flexBounds.add(Rectangle<int>(controlsX, noteAutoIncrButton->getBottom() + halfMarginY, rowWidth, controlH));
-                row.performLayout(flexBounds[i]);
+                row.performLayout(flexBounds[r]);
                 break;
             }
             default:
@@ -630,9 +629,6 @@ void SingleNoteAssign::restoreStateFromPropertiesFile(PropertiesFile* properties
 	keyTypeToggleButton->setToggleState(
 		propertiesFile->getBoolValue("SingleNoteKeyTypeSetActive", true),
 		juce::NotificationType::sendNotification);
-    ccFaderFlipBtn->setToggleState(
-       propertiesFile->getBoolValue("SingleNoteKeyCCFlipped", false),
-       juce::NotificationType::sendNotification);
 }
 
 void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -641,7 +637,6 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("SingleNoteChannelSetActive", setChannelToggleButton->getToggleState());
 	propertiesFile->setValue("SingleNoteColourSetActive", setColourToggleButton->getToggleState());
 	propertiesFile->setValue("SingleNoteKeyTypeSetActive", keyTypeToggleButton->getToggleState());
-
 }
 
 void SingleNoteAssign::redrawCCFlipBtn()
