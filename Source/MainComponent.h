@@ -56,9 +56,9 @@ public:
 	CurvesArea* getCurvesArea() { return curvesArea.get(); }
 
 	// Board edit operations
-	bool deleteCurrentSubBoardData();
+	UndoableAction* createDeleteCurrentSectionAction();
 	bool copyCurrentSubBoardData();
-	bool pasteCurrentSubBoardData();
+	UndoableAction* createPasteCurrentSectionAction();
 
 	bool setDeveloperMode(bool developerModeOn);
 
@@ -78,7 +78,8 @@ public:
     void paint (Graphics&);
     void resized();
 
-	void refreshAllKeysOverview();
+	void refreshKeyDataFields();
+	void refreshAllFields();
 
 private:
     //==============================================================================

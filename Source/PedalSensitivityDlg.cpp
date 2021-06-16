@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
+#include "EditActions.h"
 //[/Headers]
 
 #include "PedalSensitivityDlg.h"
@@ -131,9 +132,7 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertFootCtrl.get())
     {
         //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
-		((MainContentComponent*)getParentComponent())->getMappingInEdit().invertFootController = btnInvertFootCtrl->getToggleState();
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertFootCtrl->getToggleState());
+		TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::InvertFootControllerEditAction(btnInvertFootCtrl->getToggleState()));
         //[/UserButtonCode_btnInvertFootCtrl]
     }
 
@@ -163,9 +162,7 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
             sldExprCtrlSensivity->setValue(newSensitvity);
         }
 
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
+		TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::ExprPedalSensivityEditAction(newSensitvity));
         //[/UserSliderCode_sldExprCtrlSensivity]
     }
 
@@ -176,34 +173,6 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-
-//void PedalSensitivityDlg::textEditorTextChanged(TextEditor& textEdit)
-//{
-//}
-//
-//void PedalSensitivityDlg::textEditorFocusLost(TextEditor& textEdit)
-//{
-//	if (&textEdit == txtExprCtrlSensivity.get())
-//	{
-//		int newSensitvity = textEdit.getText().getIntValue();
-//		if (newSensitvity < 0)
-//		{
-//			newSensitvity = 0;
-//			textEdit.setText(String(newSensitvity));
-//		}
-//
-//		if (newSensitvity > 0x7f)
-//		{
-//			newSensitvity = 0x7f;
-//			textEdit.setText(String(newSensitvity));
-//		}
-//
-//		((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-//		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-//		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
-//	}
-//}
 
 void PedalSensitivityDlg::lookAndFeelChanged()
 {

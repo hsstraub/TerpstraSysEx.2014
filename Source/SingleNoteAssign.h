@@ -50,7 +50,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	bool performMouseDown(int setSelection, int keySelection);
+	UndoableAction* createEditAction(int setSelection, int keySelection);
 	void onSetData(TerpstraKeyMapping& newData);
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);

@@ -17,9 +17,9 @@ VelocityCurveEditStrategyBase class
 */
 
 VelocityCurveEditStrategyBase::VelocityCurveEditStrategyBase(
-    Path& beamTableFrameRef,
+    //Path& beamTableFrameRef,
     std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: beamTableFrame(beamTableFrameRef), velocityBeamTable(velocityBeamTablePtr)
+	: /*beamTableFrame(beamTableFrameRef), */velocityBeamTable(velocityBeamTablePtr)
 {
 }
 
@@ -30,9 +30,9 @@ VelocityCurveFreeDrawingStrategy class
 */
 
 VelocityCurveFreeDrawingStrategy::VelocityCurveFreeDrawingStrategy(
-    Path& beamTableFrameRef,
+    //Path& beamTableFrameRef,
     std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+	: VelocityCurveEditStrategyBase(/*beamTableFrameRef, */velocityBeamTablePtr)
 {
 }
 
@@ -132,9 +132,9 @@ VelocityCurveSegmentEditStrategyBase class
 */
 
 VelocityCurveSegmentEditStrategyBase::VelocityCurveSegmentEditStrategyBase(
-    Path& beamTableFrameRef,
+    //Path& beamTableFrameRef,
     std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+	: VelocityCurveEditStrategyBase(/*beamTableFrameRef, */velocityBeamTablePtr)
 	, mouseXPosition(-1), draggedOriginalXPosition(-1)
 {
 	fixPointBeamHeights[0] = 0;
@@ -346,9 +346,9 @@ VelocityCurveLinearDrawingStrategy class
 */
 
 VelocityCurveLinearDrawingStrategy::VelocityCurveLinearDrawingStrategy(
-    Path& beamTableFrameRef,
+    //Path& beamTableFrameRef,
     std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveSegmentEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+	: VelocityCurveSegmentEditStrategyBase(/*beamTableFrameRef, */velocityBeamTablePtr)
 {
 }
 
@@ -470,9 +470,9 @@ VelocityCurveQuadraticDrawingStrategy class
 */
 
 VelocityCurveQuadraticDrawingStrategy::VelocityCurveQuadraticDrawingStrategy(
-    Path& beamTableFrameRef,
+    //Path& beamTableFrameRef,
     std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr)
-	: VelocityCurveSegmentEditStrategyBase(beamTableFrameRef, velocityBeamTablePtr)
+	: VelocityCurveSegmentEditStrategyBase(/*beamTableFrameRef, */velocityBeamTablePtr)
 {
 }
 

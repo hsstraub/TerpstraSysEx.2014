@@ -11,6 +11,7 @@
 #include "MainComponent.h"
 #include "ViewConstants.h"
 #include "Main.h"
+#include "EditActions.h"
 
 
 //==============================================================================
@@ -109,12 +110,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 
 	if (withRefresh)
 	{
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
-		generalOptionsArea->loadFromMapping();
-		pedalSensitivityDlg->loadFromMapping();
-		curvesArea->loadFromMapping();
-		curvesArea->repaint();
+		refreshAllFields();
 	}
 }
 
@@ -130,25 +126,15 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 	newData = mappingData;
 }
 
-bool MainContentComponent::deleteCurrentSubBoardData()
+UndoableAction* MainContentComponent::createDeleteCurrentSectionAction()
 {
 	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
 	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
-		{
-		// Delete subboard data
-		mappingData.sets[currentSetSelection] = TerpstraKeys();
-
-		// Refresh display
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
-
-		// Mark that there are changes
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-		return true;
+	{
+		return new Lumatone::SectionEditAction(currentSetSelection, TerpstraKeys());
 	}
 	else
-		return false;
+		return nullptr;
 }
 
 bool MainContentComponent::copyCurrentSubBoardData()
@@ -163,26 +149,16 @@ bool MainContentComponent::copyCurrentSubBoardData()
 		return false;
 }
 
-bool MainContentComponent::pasteCurrentSubBoardData()
+UndoableAction* MainContentComponent::createPasteCurrentSectionAction()
 {
 	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
-	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
-		{
-		if (!copiedSubBoardData.isEmpty())
-		{
-			mappingData.sets[currentSetSelection] = copiedSubBoardData;
-
-			// Refresh display
-			refreshAllKeysOverview();
-			noteEditArea->refreshKeyFields();
-
-			// Mark that there are changes
-			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		}
-		return true;
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize()
+		&& !copiedSubBoardData.isEmpty())
+	{
+		return new Lumatone::SectionEditAction(currentSetSelection, copiedSubBoardData);
 	}
 	else
-		return false;
+		return nullptr;
 }
 
 bool MainContentComponent::setDeveloperMode(bool developerModeOn)
@@ -311,8 +287,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
                     }
                 }
 
-                refreshAllKeysOverview();
-                noteEditArea->refreshKeyFields();
+				refreshKeyDataFields();
             }
         }
     }
@@ -417,7 +392,18 @@ void MainContentComponent::resized()
 	lblAppVersion->setTopLeftPosition(lblAppName->getRight(), lblAppName->getBottom() - lblAppVersion->getHeight());
 }
 
-void MainContentComponent::refreshAllKeysOverview()
+void MainContentComponent::refreshKeyDataFields()
 {
 	allKeysOverview->repaint();
+	noteEditArea->refreshKeyFields();
 }
+
+void MainContentComponent::refreshAllFields()
+{
+	refreshKeyDataFields();
+	generalOptionsArea->loadFromMapping();
+	pedalSensitivityDlg->loadFromMapping();
+	curvesArea->loadFromMapping();
+	curvesArea->repaint();
+}
+
