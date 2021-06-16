@@ -592,19 +592,20 @@ void MidiEditArea::onOpenConnectionToDevice()
 
 		auto retc = alert->runModalLoop();
 
-		if (retc == 1)
+        DBG("Connection window returned: " + String(retc));
+		if (retc == 1) // Send
 		{
-			TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
-			liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
-			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+            TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+            liveEditorBtn->setToggleState(true, dontSendNotification);
+            lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 		}
-		else if (retc == 2)
+		else if (retc == 2) // Import
 		{
-			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-			liveEditorBtn->setToggleState(true, dontSendNotification);
-			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+            TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+            liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+            lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 		}
-		else
+		else // Offline
 		{
 			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
 			lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
