@@ -322,22 +322,22 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 	{
 	case Lumatone::Menu::commandIDs::openSysExMapping:
 		result.setInfo("Load file mapping", "Open a Lumatone key mapping", "File", 0);
-		result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('o', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::saveSysExMapping:
 		result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
-		result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('s', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::saveSysExMappingAs:
 		result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
-		result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('a', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::resetSysExMapping:
 		result.setInfo("New", "Start new mapping. Clear all edit fields, do not save current edits.", "File", 0);
-		result.addDefaultKeypress('n', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('n', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
@@ -347,23 +347,23 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case Lumatone::Menu::commandIDs::copyOctaveBoard:
 		result.setInfo("Copy", "Copy section data", "Edit", 0);
-		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('c', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		result.setInfo("Paste", "Paste section data", "Edit", 0);
-		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('v', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::undo:
 		result.setInfo("Undo", "Undo latest edit", "Edit", 0);
-		result.addDefaultKeypress('z', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('z', ModifierKeys::commandModifier);
 		result.setActive(undoManager.canUndo());
 		break;
 
 	case Lumatone::Menu::commandIDs::redo:
 		result.setInfo("Redo", "Redo latest edit", "Edit", 0);
-		result.addDefaultKeypress('y', ModifierKeys::ctrlModifier);
+		result.addDefaultKeypress('y', ModifierKeys::commandModifier);
 		result.setActive(undoManager.canRedo());
 		break;
 
@@ -373,7 +373,8 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 
 	case Lumatone::Debug::commandIDs::toggleDeveloperMode:
 		result.setInfo("Toggle Developer Mode", "Show/hide controls for tweaking internal parameters", "Edit", 0);
-		result.addDefaultKeypress('m', juce::ModifierKeys::allKeyboardModifiers);
+		result.addDefaultKeypress('m',
+                   juce::ModifierKeys::ctrlModifier + juce::ModifierKeys::altModifier + juce::ModifierKeys::shiftModifier);
 		break;
 
 	default:
@@ -716,6 +717,7 @@ void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 	getLumatoneController().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
 	getLumatoneController().sendInvertFootController(theConfig.invertExpression);
 	getLumatoneController().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+    getLumatoneController().invertSustainPedal(theConfig.invertSustain);
 
 	// Velocity curve config
 	getLumatoneController().setVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
