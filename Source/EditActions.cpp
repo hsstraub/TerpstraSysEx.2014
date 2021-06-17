@@ -22,13 +22,15 @@ namespace Lumatone {
 		bool setChannel, 
 		bool setNote,
 		bool setColour,
+        bool setCCPolarity,
 		LumatoneKeyType newKeyType,
 		int newChannelNumber,
 		int newNoteNumber, 
-		TerpstraKey::COLOURTYPE newColour)
+		TerpstraKey::COLOURTYPE newColour,
+        bool newCCFaderIsDefault)
 		: setSelection(setSelection), keySelection(keySelection)
-		, setKeyType(setKeyType), setChannel(setChannel), setNote(setNote), setColour(setColour)
-		, newData(newKeyType, newChannelNumber, newNoteNumber, newColour)
+		, setKeyType(setKeyType), setChannel(setChannel), setNote(setNote), setColour(setColour), setCCFaderPolarity(setCCPolarity)
+		, newData(newKeyType, newChannelNumber, newNoteNumber, newColour, newCCFaderIsDefault)
 	{
 		auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
 		jassert(mainComponent != nullptr);
@@ -45,7 +47,7 @@ namespace Lumatone {
 	{
 		if (setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		{
-			if (setKeyType || setChannel || setNote || setColour)
+			if (setKeyType || setChannel || setNote || setColour || setCCFaderPolarity)
 			{
 				auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
 				jassert(mainComponent != nullptr);
@@ -67,6 +69,10 @@ namespace Lumatone {
 				{
 					mappingInEdit.sets[setSelection].theKeys[keySelection].colour = newData.colour;
 				}
+                if (setCCFaderPolarity)
+                {
+                    mappingInEdit.sets[setSelection].theKeys[keySelection].ccFaderDefault = newData.ccFaderDefault;
+                }
 
 				// Send to device
 				TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(
@@ -95,7 +101,7 @@ namespace Lumatone {
 	{
 		if (setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		{
-			if (setKeyType || setChannel || setNote || setColour)
+			if (setKeyType || setChannel || setNote || setColour || setCCFaderPolarity)
 			{
 				auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
 				jassert(mainComponent != nullptr);
@@ -117,6 +123,11 @@ namespace Lumatone {
 				{
 					mappingInEdit.sets[setSelection].theKeys[keySelection].colour = previousData.colour;
 				}
+                if (setCCFaderPolarity)
+                {
+                    mappingInEdit.sets[setSelection].theKeys[keySelection].ccFaderDefault = previousData.ccFaderDefault;
+                }
+
 
 				// Send to device
 				TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(

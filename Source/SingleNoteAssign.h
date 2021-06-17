@@ -115,7 +115,7 @@ private:
 
     const Colour toggleTextColour = Colour(0xffcbcbcb);
     
-    std::unique_ptr<juce::ImageButton> ccFaderFlipBtn;
+    std::unique_ptr<juce::ImageButton> ccFaderIsDefault;
     Path faderDownArrow;
     Path faderUpArrow;
     //[/UserVariables]

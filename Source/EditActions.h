@@ -25,10 +25,12 @@ namespace Lumatone {
 			bool setChannel, 
 			bool setNote,
 			bool setColour,
+            bool ccFaderDefault,
 			LumatoneKeyType newKeyType = LumatoneKeyType::noteOnNoteOff,
 			int newChannelNumber = 0, 
 			int newNoteNumber = 0,
-			TerpstraKey::COLOURTYPE newColour = juce::Colour());
+			TerpstraKey::COLOURTYPE newColour = juce::Colour(),
+            bool newCCFaderDefault = true);
 
 		SingleNoteAssignAction(const SingleNoteAssignAction& second)
 			: setSelection(second.setSelection)
@@ -37,6 +39,7 @@ namespace Lumatone {
 			, setChannel(second.setChannel)
 			, setNote(second.setNote)
 			, setColour(second.setColour)
+            , setCCFaderPolarity(second.setCCFaderPolarity)
 			, previousData(second.previousData)
 			, newData(second.newData)
 		{}
@@ -55,6 +58,7 @@ namespace Lumatone {
 		bool setChannel = false;
 		bool setNote = false;
 		bool setColour = false;
+        bool setCCFaderPolarity = false;
 
 		TerpstraKey previousData;
 		TerpstraKey newData;

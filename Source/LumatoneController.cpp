@@ -233,9 +233,14 @@ void LumatoneController::testCurrentDeviceConnection()
 // Send parametrization of one key to the device
 void LumatoneController::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
 {
-    sendKeyConfig(boardIndex, keyIndex, keyData.noteNumber, keyData.channelNumber, keyData.keyType /*, TODO fader cc polarity */);
-    sendKeyColourConfig(boardIndex, keyIndex, keyData.colour);
+    // Enum is 1-based making LumatoneKeyType::disabled = 4, but should send value 0
+    int keyType = keyData.keyType;
+    if (keyType >= LumatoneKeyType::disabled)
+        keyType = 0;
     
+    // Default CC polarity = 1, Inverted CC polarity = 0
+    sendKeyConfig(boardIndex, keyIndex, keyData.noteNumber, keyData.channelNumber, keyType, keyData.ccFaderDefault);
+    sendKeyColourConfig(boardIndex, keyIndex, keyData.colour);
 }
 
 // Send configuration of a certain look up table
@@ -264,7 +269,7 @@ void LumatoneController::sendTableConfig(TerpstraVelocityCurveConfig::VelocityCu
 // Mid-level firmware functions
 
 // Send note, channel, cc, and fader polarity data
-void LumatoneController::sendKeyConfig(int boardIndex, int keyIndex, int noteOrCCNum, int channel, LumatoneKeyType keyType, bool faderUpIsNull)
+void LumatoneController::sendKeyConfig(int boardIndex, int keyIndex, int noteOrCCNum, int channel, int keyType, bool faderUpIsNull)
 {
     midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, noteOrCCNum, channel, keyType, faderUpIsNull);
 }
@@ -463,7 +468,8 @@ int LumatoneController::pingLumatone(uint8 pingId)
 
 void LumatoneController::invertSustainPedal(bool setInverted)
 {
-    midiDriver.sendInvertSustainPedal(setInverted);
+    if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, INVERT_SUSTAIN_PEDAL))
+        midiDriver.sendInvertSustainPedal(setInverted);
 }
 
 //=============================================================================
@@ -541,8 +547,8 @@ void LumatoneController::noAnswerToMessage(const MidiMessage& midiMessage)
 
 FirmwareSupport::Error LumatoneController::handleOctaveConfigResponse(
     const MidiMessage& midiMessage, 
-    std::function < FirmwareSupport::Error(const MidiMessage&, int&, uint8, int*)> unpackFunction,
-    std::function <void(int,void*)> callbackFunctionIfNoError)
+    std::function<FirmwareSupport::Error(const MidiMessage&, int&, uint8, int*)> unpackFunction,
+    std::function<void(int,void*)> callbackFunctionIfNoError)
 {
     int boardId = -1;
     int channelData[56];
@@ -559,7 +565,7 @@ FirmwareSupport::Error LumatoneController::handleOctaveConfigResponse(
 FirmwareSupport::Error LumatoneController::handleTableConfigResponse(
     const MidiMessage& midiMessage,
     std::function<FirmwareSupport::Error(const MidiMessage&, int*)> unpackFunction,
-    std::function <void(void*)> callbackFunctionIfNoError)
+    std::function<void(void*)> callbackFunctionIfNoError)
 {
     int veloctiyData[128];
     auto errorCode = unpackFunction(midiMessage, veloctiyData);

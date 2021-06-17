@@ -118,7 +118,7 @@ public:
     // Single (mid-level) commands
 
     // Send note, channel, cc, and fader polarity data
-    void sendKeyConfig(int boardIndex, int keyIndex, int noteOrCCNum, int channel, LumatoneKeyType keyType, bool faderUpIsNull = true);
+    void sendKeyConfig(int boardIndex, int keyIndex, int noteOrCCNum, int channel, int keyType, bool faderUpIsNull = true);
 
     void sendKeyColourConfig(int boardIndex, int keyIndex, Colour colour);
 
