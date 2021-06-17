@@ -77,7 +77,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 		userDocumentsDirectory = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("Lumatone Editor");
 		userDocumentsDirectory.createDirectory();
 	}
-	
+
 	possibleDirectory = propertiesFile->getValue("UserMappingsDirectory");
 	if (File::isAbsolutePath(possibleDirectory))
 	{
@@ -88,7 +88,7 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 		userMappingsDirectory = userDocumentsDirectory.getChildFile("Mappings");
 		userMappingsDirectory.createDirectory();
 	}
-	
+
 	possibleDirectory = propertiesFile->getValue("UserPalettesDirectory");
 	if (File::isAbsolutePath(possibleDirectory))
 	{
@@ -123,10 +123,10 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 			// ToDo switch on/off isomorphic mass assign mode
 
 			// Try to open a config file
-            if (File::isAbsolutePath(commandLineParameter))
-            {
-                currentFile = File(commandLineParameter);
-            }
+			if (File::isAbsolutePath(commandLineParameter))
+			{
+				currentFile = File(commandLineParameter);
+			}
 			else
 			{
 				// If file name is with quotes, try removing the quotes
@@ -163,12 +163,12 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 
 void TerpstraSysExApplication::shutdown()
 {
-    // Add your application's shutdown code here..
-    
+	// Add your application's shutdown code here..
+
 	// Save documents directories (Future: provide option to change them and save after changed by user)
 	propertiesFile->setValue("UserDocumentsDirectory", userDocumentsDirectory.getFullPathName());
-	propertiesFile->setValue("UserMappingsDirectory",   userMappingsDirectory.getFullPathName());
-	propertiesFile->setValue("UserPalettesDirectory",   userPalettesDirectory.getFullPathName());
+	propertiesFile->setValue("UserMappingsDirectory", userMappingsDirectory.getFullPathName());
+	propertiesFile->setValue("UserPalettesDirectory", userPalettesDirectory.getFullPathName());
 
 	// Save recent files list
 	recentFiles.removeNonExistentFiles();
@@ -196,8 +196,8 @@ void TerpstraSysExApplication::shutdown()
 //==============================================================================
 void TerpstraSysExApplication::systemRequestedQuit()
 {
-    // This is called when the app is being asked to quit: you can ignore this
-    // request and let the app carry on running, or call quit() to allow the app to close.
+	// This is called when the app is being asked to quit: you can ignore this
+	// request and let the app carry on running, or call quit() to allow the app to close.
 
 	// If there are changes: ask for save
 	if (hasChangesToSave)
@@ -222,9 +222,9 @@ void TerpstraSysExApplication::systemRequestedQuit()
 
 void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
 {
-    // When another instance of the app is launched while this one is running,
-    // this method is invoked, and the commandLine parameter tells you what
-    // the other instance's command-line arguments were.
+	// When another instance of the app is launched while this one is running,
+	// this method is invoked, and the commandLine parameter tells you what
+	// the other instance's command-line arguments were.
 }
 
 void TerpstraSysExApplication::reloadColourPalettes()
@@ -269,8 +269,8 @@ bool TerpstraSysExApplication::saveColourPalette(LumatoneEditorColourPalette& pa
 			}
 		}
 
-		 success = palette.saveToFile(pathToFile);
-			
+		success = palette.saveToFile(pathToFile);
+
 		// TODO error handling?
 	}
 
@@ -444,7 +444,7 @@ bool TerpstraSysExApplication::saveSysExMappingAs()
 	if (chooser.browseForFileToSave(true))
 	{
 		currentFile = chooser.getResult();
-		if (saveCurrentFile() )
+		if (saveCurrentFile())
 		{
 			// Window title
 			updateMainTitle();
@@ -478,8 +478,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 bool TerpstraSysExApplication::deleteSubBoardData()
 {
-	return ((MainContentComponent*)(mainWindow->getContentComponent()))->deleteCurrentSubBoardData();
-	// ToDo Add to undo history
+	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createDeleteCurrentSectionAction());
 }
 
 bool TerpstraSysExApplication::copySubBoardData()
@@ -489,19 +488,23 @@ bool TerpstraSysExApplication::copySubBoardData()
 
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
-	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
-	// ToDo Add to undo history
+	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createPasteCurrentSectionAction());;
 }
 
 bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
 {
-	if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
+	if (editAction != nullptr)
 	{
-		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		undoManager.beginNewTransaction();
+		if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
+		{
+			setHasChangesToSave(true);
+			((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+			return true;
+		}
 	}
-	else
-		return false;
+
+	return false;
 }
 
 bool TerpstraSysExApplication::undo()
@@ -509,7 +512,8 @@ bool TerpstraSysExApplication::undo()
 	if (undoManager.undo())
 	{
 		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+		return true;
 	}
 	else
 		return false;
@@ -520,7 +524,8 @@ bool TerpstraSysExApplication::redo()
 	if (undoManager.redo())
 	{
 		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshKeyDataFields();
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+		return true;
 	}
 	else
 		return false;
@@ -702,7 +707,7 @@ bool TerpstraSysExApplication::saveCurrentFile()
 void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 {
 	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
-	
+
 	// MIDI channel, MIDI note, colour and key type config for all keys
 	getLumatoneController().sendCompleteMapping(theConfig);
 
@@ -762,7 +767,7 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 void TerpstraSysExApplication::updateMainTitle()
 {
 	String windowTitle("Lumatone Editor");
-	if (!currentFile.getFileName().isEmpty() )
+	if (!currentFile.getFileName().isEmpty())
 		windowTitle << " - " << currentFile.getFileName();
 	if (hasChangesToSave)
 		windowTitle << "*";
@@ -792,11 +797,9 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< newLine
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
-		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
+		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to:" << newLine
+		<< newLine
 		<< "http://lumatone.io";
-		//<< "or";
-		//<< newLine
-		//<< "http://terpstrakeyboard.com";
 
 	DialogWindow::LaunchOptions options;
 	Label* label = new Label();
@@ -827,4 +830,4 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (TerpstraSysExApplication)
+START_JUCE_APPLICATION(TerpstraSysExApplication)

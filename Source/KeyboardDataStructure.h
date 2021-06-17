@@ -112,6 +112,7 @@ public:
 	// The colours that are used
 	//SortedSet<TerpstraKey::COLOURTYPE> getUsedColours();
 
+	TerpstraVelocityCurveConfig* getVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
 public:
 	// Key configuration

@@ -30,7 +30,7 @@ namespace Lumatone {
 			int newNoteNumber = 0,
 			TerpstraKey::COLOURTYPE newColour = juce::Colour());
 
-		SingleNoteAssignAction(SingleNoteAssignAction& second)
+		SingleNoteAssignAction(const SingleNoteAssignAction& second)
 			: setSelection(second.setSelection)
 			, keySelection(second.keySelection)
 			, setKeyType(second.setKeyType)
@@ -45,7 +45,7 @@ namespace Lumatone {
 
 		virtual bool perform() override;
 		virtual bool undo() override;
-		int getSizeInUnits() override;
+		int getSizeInUnits() override { return sizeof(SingleNoteAssignAction); }
 
 	private:
 		int setSelection = - 1;
@@ -58,6 +58,66 @@ namespace Lumatone {
 
 		TerpstraKey previousData;
 		TerpstraKey newData;
+	};
+
+	class SectionEditAction : public UndoableAction
+	{
+	public:
+		SectionEditAction(int setSelection, TerpstraKeys& newSectionValue);
+
+		SectionEditAction(const SectionEditAction& second)
+			: setSelection(second.setSelection)
+			, previousData(second.previousData)
+			, newData(second.newData)
+		{}
+
+		bool isValid() const;
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(SectionEditAction); }
+
+	private:
+		int setSelection = -1;
+
+		TerpstraKeys previousData;
+		TerpstraKeys newData;
+	};
+
+	class InvertFootControllerEditAction : public UndoableAction
+	{
+	public:
+		InvertFootControllerEditAction(bool newValue);
+
+		InvertFootControllerEditAction(const InvertFootControllerEditAction& second)
+			: previousData(second.previousData), newData(second.newData)
+		{}
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(InvertFootControllerEditAction); }
+
+	private:
+		bool previousData;
+		bool newData;
+	};
+
+	class ExprPedalSensivityEditAction : public UndoableAction
+	{
+	public:
+		ExprPedalSensivityEditAction(int newValue);
+
+		ExprPedalSensivityEditAction(const ExprPedalSensivityEditAction& second)
+			: previousData(second.previousData), newData(second.newData)
+		{}
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(ExprPedalSensivityEditAction); }
+
+	private:
+		int previousData;
+		int newData;;
 	};
 
 }

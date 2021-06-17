@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
+#include "EditActions.h"
 //[/Headers]
 
 #include "PedalSensitivityDlg.h"
@@ -156,15 +157,13 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertExpression.get())
     {
         //[UserButtonCode_btnInvertExpression] -- add your button handler code here..
-        bool invert = btnInvertExpression->getToggleState();
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertExpression = invert;
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getLumatoneController().sendInvertFootController(invert);
+		TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::InvertFootControllerEditAction(btnInvertExpression->getToggleState()));
         //[/UserButtonCode_btnInvertExpression]
     }
     else if (buttonThatWasClicked == btnInvertSustain.get())
     {
         //[UserButtonCode_btnInvertSustain] -- add your button handler code here..
+        // TODO: make undoable action
         bool invert = btnInvertSustain->getToggleState();
         ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertSustain = invert;
         TerpstraSysExApplication::getApp().setHasChangesToSave(true);
@@ -183,8 +182,23 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
     if (sliderThatWasMoved == sldExprCtrlSensitivity.get())
     {
-        //[UserSliderCode_sldExprCtrlSensitivity] -- add your slider handling code here..
-        //[/UserSliderCode_sldExprCtrlSensitivity]
+        //[UserSliderCode_sldExprCtrlSensivity] -- add your slider handling code here..
+        int newSensitvity = sldExprCtrlSensitivity->getValue();
+        // ToDo value checking: encapsulate in keyboard data structure?
+        if (newSensitvity < 0)
+        {
+            newSensitvity = 0;
+            sldExprCtrlSensitivity->setValue(newSensitvity);
+        }
+
+        if (newSensitvity > 0x7f)
+        {
+            newSensitvity = 0x7f;
+            sldExprCtrlSensitivity->setValue(newSensitvity);
+        }
+
+		TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::ExprPedalSensivityEditAction(newSensitvity));
+        //[/UserSliderCode_sldExprCtrlSensivity]
     }
 
     //[UsersliderValueChanged_Post]
@@ -194,34 +208,6 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-
-//void PedalSensitivityDlg::textEditorTextChanged(TextEditor& textEdit)
-//{
-//}
-//
-//void PedalSensitivityDlg::textEditorFocusLost(TextEditor& textEdit)
-//{
-//	if (&textEdit == txtExprCtrlSensivity.get())
-//	{
-//		int newSensitvity = textEdit.getText().getIntValue();
-//		if (newSensitvity < 0)
-//		{
-//			newSensitvity = 0;
-//			textEdit.setText(String(newSensitvity));
-//		}
-//
-//		if (newSensitvity > 0x7f)
-//		{
-//			newSensitvity = 0x7f;
-//			textEdit.setText(String(newSensitvity));
-//		}
-//
-//		((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-//		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-//		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
-//	}
-//}
 
 void PedalSensitivityDlg::lookAndFeelChanged()
 {

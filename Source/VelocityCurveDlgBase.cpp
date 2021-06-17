@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.7
 
   ------------------------------------------------------------------------------
 
@@ -29,9 +29,9 @@
 
 //==============================================================================
 VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraVelocityCurveConfig::VelocityCurveType typeValue)
-    : freeDrawingStrategy(beamTableFrame, velocityBeamTable),
-      linearDrawingStrategy(beamTableFrame, velocityBeamTable),
-      quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)
+    : freeDrawingStrategy(velocityBeamTable),
+      linearDrawingStrategy(velocityBeamTable),
+      quadraticDrawingStrategy(velocityBeamTable)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	velocityCurveType = typeValue;
@@ -49,6 +49,7 @@ VelocityCurveDlgBase::VelocityCurveDlgBase (TerpstraVelocityCurveConfig::Velocit
     cbEditMode->addListener (this);
 
     cbEditMode->setBounds (8, 8, 296, 24);
+
 
     //[UserPreSize]
 	cbEditMode->getProperties().set(LumatoneEditorStyleIDs::roundedDiagonalCorners, 0);
@@ -100,6 +101,8 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
+    g.fillAll (juce::Colour (0xffbad0de));
+
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(backgroundColour);
 
@@ -108,19 +111,16 @@ void VelocityCurveDlgBase::paint (juce::Graphics& g)
 	// Build contour path
 	beamTableContour.clear();
 	beamTableContour.startNewSubPath(0, h);
-	
+
 	for (int x = 0; x < 128; x++)
 		beamTableContour.lineTo(velocityBeamTable[x]->getX(), h - velocityBeamTable[x]->getBeamHeightFromValue());
-	
+
 	beamTableContour.lineTo(getWidth(), h);
 	beamTableContour.closeSubPath();
 
 	// Fill velocity contour
 	g.setGradientFill(beamColourGradient);
 	g.fillPath(beamTableContour);
-
-	//g.setColour(findColour(VelocityCurveBeam::outlineColourId));
-	//g.strokePath(beamTableFrame, PathStrokeType(1.000f));
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
@@ -152,24 +152,12 @@ void VelocityCurveDlgBase::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-	//float graphicsXPadding = cbEditMode->getX();
-	//float graphicsYPos = cbEditMode->getBottom() + BEAMTABLERIMABOVE;
-	//float graphicsBottom = h - BEAMTABLERIMABOVE;
-
-	//beamTableFrame.clear();
-	//beamTableFrame.startNewSubPath(graphicsXPadding, graphicsYPos);
-	//beamTableFrame.lineTo(graphicsXPadding, graphicsBottom);
-	//beamTableFrame.lineTo(w - graphicsXPadding, graphicsBottom);
-	//beamTableFrame.lineTo(w - graphicsXPadding, graphicsYPos);
-	//beamTableFrame.closeSubPath();
-
 	cbEditMode->setBounds(0, 0, xUnit * 11, xUnit * 3);
 
 	auto currentDrawingStrategy = getCurrentDrawingStrategy();
 	if (currentDrawingStrategy != nullptr)
 		currentDrawingStrategy->resized();
 
-	//float velocityGraphicsHeight = graphicsBottom - graphicsYPos;
 	float velocityBeamXPos = 0;
 	for (int x = 0; x < 128; x++)
 	{
@@ -230,27 +218,16 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
     //[/UsercomboBoxChanged_Post]
 }
 
-
-
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
-{
-	//int roundedCornerSize = getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT;
-	//Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
-	//g.setColour(Colour(0xff272b2f));
-	//g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
-}
-
 void VelocityCurveDlgBase::lookAndFeelChanged()
 {
+    //[UserCode_lookAndFeelChanged] -- Add your code here...
 	auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
 	if (lookAndFeel)
 	{
 		beamColourGradient.clearColours();
 		beamColourGradient.addColour(0.0, lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGradientMin));
 		beamColourGradient.addColour(1.0, lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGradientMax));
-		
+
 		backgroundColour = lookAndFeel->findColour(LumatoneEditorColourIDs::ControlBoxBackground);
 		gridColour = lookAndFeel->findColour(LumatoneEditorColourIDs::CurveGridColour);
 
@@ -289,6 +266,19 @@ void VelocityCurveDlgBase::loadFromMapping()
 	}
 
 	repaint();
+	//[/UserCode_lookAndFeelChanged]
+}
+
+
+
+//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void VelocityCurveDlgBase::paintOverChildren(juce::Graphics& g)
+{
+	//int roundedCornerSize = getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT;
+	//Rectangle<float> controlsBounds = getLocalBounds().toFloat().reduced(roundedCornerSize);
+	//g.setColour(Colour(0xff272b2f));
+	//g.drawRoundedRectangle(controlsBounds, roundedCornerSize, 4.0f);
 }
 
 void VelocityCurveDlgBase::sendVelocityTableToController()
@@ -380,21 +370,7 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 	if(mappingInEdit == nullptr)
 		return nullptr;
 
-	switch(velocityCurveType)
-	{
-	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-		return &mappingInEdit->noteOnOffVelocityCurveConfig;
-
-	case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-		return &mappingInEdit->faderConfig;
-	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-		return &mappingInEdit->afterTouchConfig;
-	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
-		return &mappingInEdit->lumaTouchConfig;
-	default:
-		jassertfalse;
-		return nullptr;
-	}
+	return mappingInEdit->getVelocityCurveConfig(velocityCurveType);
 }
 
 VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()
@@ -423,10 +399,13 @@ VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="VelocityCurveDlgBase" componentName=""
-                 parentClasses="public Component" constructorParams="TerpstraMidiDriver::VelocityCurveType typeValue"
-                 variableInitialisers="freeDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;linearDrawingStrategy(beamTableFrame, velocityBeamTable)&#10;quadraticDrawingStrategy(beamTableFrame, velocityBeamTable)"
+                 parentClasses="public Component" constructorParams="TerpstraVelocityCurveConfig::VelocityCurveType typeValue"
+                 variableInitialisers="freeDrawingStrategy(velocityBeamTable)&#10;linearDrawingStrategy(velocityBeamTable)&#10;quadraticDrawingStrategy(velocityBeamTable)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="320" initialHeight="160">
+  <METHODS>
+    <METHOD name="lookAndFeelChanged()"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="cbEditMode" id="1f22301dd42b968e" memberName="cbEditMode"
             virtualName="" explicitFocusOrder="0" pos="8 8 296 24" editable="0"
