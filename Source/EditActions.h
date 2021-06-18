@@ -124,4 +124,22 @@ namespace Lumatone {
 		int newData;;
 	};
 
+    class InvertSustainEditAction : public UndoableAction
+    {
+    public:
+        InvertSustainEditAction(bool newValue);
+        
+        InvertSustainEditAction(const InvertSustainEditAction& second)
+            : previousData(second.previousData), newData(second.newData)
+        {}
+        
+        virtual bool perform() override;
+        virtual bool undo() override;
+        int getSizeInUnits() override { return sizeof(InvertSustainEditAction); }
+
+    private:
+        int previousData;
+        int newData;;
+    };
+
 }

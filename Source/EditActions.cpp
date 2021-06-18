@@ -302,4 +302,45 @@ namespace Lumatone {
 		return true;
 	}
 
+    // ==============================================================================
+    // Implementation of InvertSustainEditAction
+
+    InvertSustainEditAction::InvertSustainEditAction(bool newValue)
+        : newData(newValue)
+    {
+        auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+        jassert(mainComponent != nullptr);
+
+        previousData = mainComponent->getMappingInEdit().invertSustain;
+    }
+
+    bool InvertSustainEditAction::perform()
+    {
+        auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+        jassert(mainComponent != nullptr);
+        TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+        mappingInEdit.invertSustain = newData;
+
+        // Send to device
+        TerpstraSysExApplication::getApp().getLumatoneController().invertSustainPedal(newData);
+
+        // Notify that there are changes: in calling function
+        return true;
+    }
+
+    bool InvertSustainEditAction::undo()
+    {
+        auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+        jassert(mainComponent != nullptr);
+        TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+        mappingInEdit.invertSustain = previousData;
+
+        // Send to device
+        TerpstraSysExApplication::getApp().getLumatoneController().invertSustainPedal(previousData);
+
+        // Notify that there are changes: in calling function
+        return true;
+    }
 }

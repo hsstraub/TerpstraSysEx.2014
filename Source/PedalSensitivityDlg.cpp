@@ -163,11 +163,7 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == btnInvertSustain.get())
     {
         //[UserButtonCode_btnInvertSustain] -- add your button handler code here..
-        // TODO: make undoable action
-        bool invert = btnInvertSustain->getToggleState();
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertSustain = invert;
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getLumatoneController().invertSustainPedal(invert);
+        TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::InvertSustainEditAction(btnInvertSustain->getToggleState()));
         //[/UserButtonCode_btnInvertSustain]
     }
 
