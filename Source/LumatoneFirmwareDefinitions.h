@@ -177,6 +177,7 @@ typedef enum
 
 typedef enum
 {
+    disabledDefault      = 0,
 	noteOnNoteOff        = 1,
 	continuousController = 2,
 	lumaTouch            = 3,

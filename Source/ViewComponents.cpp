@@ -50,8 +50,9 @@ TerpstraKey TerpstraKeyEdit::getValue() const
 
 void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 {
-    if (keyType >= LumatoneKeyType::disabled)
+    if (newValue.keyType == LumatoneKeyType::disabled || newValue.keyType == LumatoneKeyType::disabledDefault)
     {
+        newValue.keyType = LumatoneKeyType::disabled;
         midiNoteLabel->setText("x", juce::NotificationType::sendNotification);
         midiChannelLabel->setText("x", juce::NotificationType::sendNotification);
     }
