@@ -437,6 +437,11 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
                     break;
                 }
             }
+            // Consider a response from a different firmware state as successful
+            else if (sysExData[MSG_STATUS] == TerpstraMIDIAnswerReturnCode::STATE)
+            {
+                onTestResponseReceived();
+            }
         }
         
         // Edge case if we're disconnected but get a response

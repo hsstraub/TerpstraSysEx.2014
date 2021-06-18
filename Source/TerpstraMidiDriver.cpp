@@ -1356,11 +1356,11 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
         // Check answer state (error yes/no)
         auto answerState = message.getSysExData()[5];
         // if answer state is "busy": resend message after a little delay
-        if (answerState == TerpstraMIDIAnswerReturnCode::STATE)
-        {
-            // turn demo mode off
-            startDemoMode(false);
-        }
+//        if (answerState == TerpstraMIDIAnswerReturnCode::STATE)
+//        {
+//            // turn demo mode off
+//            startDemoMode(false);
+//        }
 
         if ( answerState == TerpstraMIDIAnswerReturnCode::BUSY)
         {
