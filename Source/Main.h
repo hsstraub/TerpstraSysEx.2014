@@ -157,12 +157,21 @@ public:
 
 		void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 		{
-			if (!restoreWindowStateFromString(propertiesFile->getValue("MainWindowState")))
-			{
-				// Default window state
-				setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
-			}
+            int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight(); 
+            String windowState = propertiesFile->getValue("MainWindowState");
+            auto windowProperties = StringArray::fromTokens(windowState, false);
+            bool useSavedState = windowProperties[windowProperties.size() - 1].getIntValue() <= maxWindowHeight;
+            if (useSavedState)
+            {
+                useSavedState = restoreWindowStateFromString(propertiesFile->getValue("MainWindowState"));
+            }
 
+            if (!useSavedState)
+            {
+                // Default window state
+                setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
+            }
+            
 			((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 		}
 
