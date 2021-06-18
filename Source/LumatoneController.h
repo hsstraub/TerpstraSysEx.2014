@@ -183,6 +183,9 @@ public:
 
     void sendVelocityIntervalConfigRequest();
 
+    // CMD 22h: Read back the fader type of all keys on the targeted board.
+	void getFaderTypeConfig(int boardIndex);
+
     // This command is used to read back the serial identification number of the keyboard.
     void sendGetSerialIdentityRequest();
 
@@ -282,6 +285,8 @@ public:
 
         virtual void faderConfigReceived(const int* faderData) {};
 
+        virtual void faderTypeConfigReceived(int octaveIndex, const int* faderTypeData) {};
+
         virtual void serialIdentityReceived(int inputDeviceIndex, const int* serialBytes) {};
 
         virtual void lumatouchConfigReceived(const int* lumatouchData) {};
@@ -362,6 +367,8 @@ private:
     FirmwareSupport::Error handleVelocityIntervalConfigResponse(const MidiMessage& midiMessage);
 
     FirmwareSupport::Error handleFaderConfigResponse(const MidiMessage& midiMessage);
+
+    FirmwareSupport::Error handleFaderTypeConfigResponse(const MidiMessage& midiMessage);
     
     FirmwareSupport::Error handleSerialIdentityResponse(const MidiMessage& midiMessage);
 

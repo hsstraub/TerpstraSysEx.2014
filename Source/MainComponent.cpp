@@ -257,6 +257,14 @@ void MainContentComponent::faderConfigReceived(const int* faderData)
 	curvesArea->loadFromMapping();
 }
 
+void MainContentComponent::faderTypeConfigReceived(int octaveIndex, const int* faderTypeData)
+{
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
+	{
+		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].ccFaderDefault = faderTypeData[keyIndex];
+	}
+}
+
 void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
 {
 	this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;

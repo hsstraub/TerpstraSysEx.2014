@@ -93,6 +93,8 @@ public:
 
 	void faderConfigReceived(const int* faderData) override;
 
+	void faderTypeConfigReceived(int octaveIndex, const int* faderTypeData) override;
+
 	void lumatouchConfigReceived(const int* lumatouchData) override;
 
 	void firmwareRevisionReceived(FirmwareVersion version) override;

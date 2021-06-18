@@ -151,6 +151,7 @@ void LumatoneController::sendGetMappingOfBoardRequest(int boardIndex)
     getChannelConfig(boardIndex);
     getNoteConfig(boardIndex);
     getKeyTypeConfig(boardIndex);
+    getFaderTypeConfig(boardIndex);
 }
 
 void LumatoneController::sendGetCompleteMappingRequest()
@@ -423,6 +424,11 @@ void LumatoneController::sendVelocityIntervalConfigRequest()
     midiDriver.sendVelocityIntervalConfigRequest();
 }
 
+void LumatoneController::getFaderTypeConfig(int boardIndex)
+{
+    midiDriver.sendFaderTypeConfigRequest(boardIndex);
+}
+
 // This command is used to read back the serial identification number of the keyboard.
 void LumatoneController::sendGetSerialIdentityRequest()
 {
@@ -669,6 +675,15 @@ FirmwareSupport::Error LumatoneController::handleFaderConfigResponse(const MidiM
     return handleTableConfigResponse(midiMessage, unpack, callback);
 }
 
+FirmwareSupport::Error LumatoneController::handleFaderTypeConfigResponse(const MidiMessage& midiMessage)
+{
+    auto unpack = [&](const MidiMessage& msg, int& boardId, uint8 numKeys, int* data) {
+        return midiDriver.unpackGetTypeConfigResponse(msg, boardId, numKeys, data);
+    };
+    auto callback = [&](int boardId, void* data) { firmwareListeners.call(&FirmwareListener::faderTypeConfigReceived, boardId, (int*)data); };
+    return handleOctaveConfigResponse(midiMessage, unpack, callback);
+}
+
 FirmwareSupport::Error LumatoneController::handleSerialIdentityResponse(const MidiMessage& midiMessage)
 {
     int serialBytes[6];
@@ -873,6 +888,10 @@ void LumatoneController::timerCallback()
 
                         case GET_VELOCITY_CONFIG:
                             errorCode = handleVelocityConfigResponse(midiMessage);
+                            break;
+                                
+                        case GET_FADER_TYPE_CONFIGURATION:
+                            errorCode = handleFaderTypeConfigResponse(midiMessage);
                             break;
 
                         case GET_SERIAL_IDENTITY:
