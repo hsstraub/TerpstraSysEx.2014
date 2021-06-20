@@ -734,15 +734,11 @@ public:
         }
         g.fillPath(boxShape);
 
-        g.setFont(getComboBoxFont(box));
-        g.setColour(textColour);
-
         int realButtonX = jmax(margin, box.getWidth() - box.getHeight());
 
         if (buttonW > 0)
         {
             g.setColour(textColour);
-
             g.setFont(appFonts[LumatoneEditorFont::GothamNarrowLight].withHeight(buttonH * 0.5f).withHorizontalScale(2.0f));
             g.drawFittedText("v", realButtonX, 0, box.getHeight(), box.getHeight(), Justification::centred, 1);
         }
@@ -869,7 +865,6 @@ public:
         if (target)
         {
             font = getComboBoxFont(*target);
-            font.setHeight(font.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
             textColour = target->findColour(ComboBox::ColourIds::textColourId);
             margin = target->proportionOfHeight(comboBoxRoundedCornerScalar);
         }
@@ -898,7 +893,7 @@ public:
         g.setColour(textColour);
         g.setFont(font);
         
-        g.drawFittedText(item.text, areaToUse.withTrimmedLeft(margin), Justification::centredLeft, 1);
+        g.drawFittedText(item.text, areaToUse.withTrimmedLeft(margin).withTrimmedRight(margin), Justification::centredLeft, 1);
     }
 
     void getIdealPopupMenuItemSizeWithOptions(const String& text, bool isSeparator, int standardMenuItemHeight, int& idealWidth, int& idealHeight, 
