@@ -222,7 +222,7 @@ AllKeysOverview::AllKeysOverview()
 
     //[Constructor] You can add your own custom stuff here..
 	currentSetSelection = -1;
-
+    buttonReceive->setVisible(false);
     showDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
     //[/Constructor]
 }
@@ -415,6 +415,7 @@ void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 void AllKeysOverview::firmwareRevisionReceived(FirmwareVersion version)
 {
 	setFirmwareVersion(version);
+    buttonReceive->setVisible(true);
 }
 
 void AllKeysOverview::resetOctaveSize()
