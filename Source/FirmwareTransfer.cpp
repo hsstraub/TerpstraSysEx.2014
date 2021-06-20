@@ -316,7 +316,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 
 
 
-#ifdef JUCE_WIN
+#if JUCE_WINDOWS
 
 	// Create socket and connect to port 22
 	sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -339,11 +339,11 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	{
 		DBG("failed to connect!");
 
-#if WIN32
+	#if WIN32
 		closesocket(sock);
-#else
+	#else
 		close(sock);
-#endif
+	#endif
 
 		return StatusCode::HostConnectErr;
 	}

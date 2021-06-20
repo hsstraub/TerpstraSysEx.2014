@@ -186,6 +186,8 @@ void TerpstraSysExApplication::shutdown()
 
 #if JUCE_MAC
     MenuBarModel::setMacMainMenu(nullptr);
+#else
+	mainWindow->setMenuBarComponent(nullptr);
 #endif
     menuModel = nullptr;
 
