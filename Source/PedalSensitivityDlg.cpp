@@ -136,13 +136,14 @@ void PedalSensitivityDlg::resized()
 
     resizeLabelWithHeight(labelPedalTitle.get(), roundToInt(getHeight() * SETTINGSLABELHEIGHT));
     labelPedalTitle->setTopLeftPosition(roundToInt(getWidth() * SETTINGSLABELMARGINWIDTH), 0);
-
+    
+    sldExprCtrlSensitivity->setBounds(getLocalBounds().toFloat().getProportion(sliderBoundsProps).toNearestInt());
+    
     int marginX = roundToInt(getParentWidth() * SETTINGSCONTROLMARGINTOAPPWIDTH);
     int buttonHeight = roundToInt(h * SETTINGSTOGGLEHEIGHTSCALAR);
-    btnInvertExpression->setBounds(marginX, proportionOfHeight(0.3f), w, buttonHeight);
-    btnInvertSustain->setBounds(marginX, proportionOfHeight(0.5), w, buttonHeight);
-
-    sldExprCtrlSensitivity->setBounds(getLocalBounds().toFloat().getProportion(sliderBoundsProps).toNearestInt());
+    int buttonWidth = roundToInt(sldExprCtrlSensitivity->getX() - marginX);
+    btnInvertExpression->setBounds(marginX, proportionOfHeight(0.3f), buttonWidth, buttonHeight);
+    btnInvertSustain->setBounds(marginX, proportionOfHeight(0.5), buttonWidth, buttonHeight);
 
     resizeLabelWithHeight(labelExprContrSensitivity.get(), buttonHeight * 1.2f, 1.0f, "");
     labelExprContrSensitivity->setCentrePosition(sldExprCtrlSensitivity->getBounds().getCentreX(), btnInvertExpression->getBounds().getCentreY());
