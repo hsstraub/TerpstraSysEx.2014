@@ -1093,24 +1093,24 @@ public:
     //    return window;
     //}
 
-    virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
-    {
-        g.setColour(findColour(AlertWindow::ColourIds::backgroundColourId));
-        //g.fillRoundedRectangle(window.getLocalBounds().toFloat(), 15);
-        g.fillAll();
+    //virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
+    //{
+    //    g.setColour(findColour(AlertWindow::ColourIds::backgroundColourId));
+    //    //g.fillRoundedRectangle(window.getLocalBounds().toFloat(), 15);
+    //    g.fillAll();
 
-        g.setColour(findColour(AlertWindow::ColourIds::outlineColourId));
-        g.drawRect(window.getLocalBounds(), 2);
+    //    g.setColour(findColour(AlertWindow::ColourIds::outlineColourId));
+    //    g.drawRect(window.getLocalBounds(), 2);
 
-        g.setColour(findColour(AlertWindow::ColourIds::textColourId));
-        float widthRatio = 0.05f;
-        float heightRatio = 0.15f;
-        
-        layout.draw(g, 
-            textArea.constrainedWithin(
-                window.getLocalBounds().reduced(window.getWidth() * widthRatio, window.getHeight() * heightRatio)
-            ).toFloat());
-    }
+    //    g.setColour(findColour(AlertWindow::ColourIds::textColourId));
+    //    float widthRatio = 0.05f;
+    //    float heightRatio = 0.15f;
+    //    
+    //    layout.draw(g, 
+    //        textArea.constrainedWithin(
+    //            window.getLocalBounds().reduced(window.getWidth() * widthRatio, window.getHeight() * heightRatio)
+    //        ).toFloat());
+    //}
 
     //virtual Array<int> getWidthsForTextButtons(AlertWindow& window, const Array<TextButton*>& btns) override
     //{
@@ -1122,20 +1122,20 @@ public:
     //    return 16;
     //}
 
-    virtual Font getAlertWindowTitleFont() override
-    {
-        return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
-    }
+    //virtual Font getAlertWindowTitleFont() override
+    //{
+    //    return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
+    //}
 
-    virtual Font getAlertWindowMessageFont()  override
-    {
-        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
-    }
+    //virtual Font getAlertWindowMessageFont()  override
+    //{
+    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
+    //}
 
-    virtual Font getAlertWindowFont()  override
-    {
-        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
-    }
+    //virtual Font getAlertWindowFont()  override
+    //{
+    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
+    //}
 
 public:
     //==============================================================================================

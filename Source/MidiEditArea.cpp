@@ -584,7 +584,7 @@ void MidiEditArea::onOpenConnectionToDevice()
 		alert->addButton("Send Editor layout", 1);
 		alert->addButton("Keep Editing Offline", 0);
 		alert->addButton("Import From Lumatone", 2);
-		alert->setLookAndFeel(&lookAndFeel);
+		//alert->setLookAndFeel(&lookAndFeel);
 
 /*		alert = lookAndFeel.createAlertWindow("Connection established!", translate("Do you want to send the current setup to your Lumatone?"),
 			"Import from Lumatone",
