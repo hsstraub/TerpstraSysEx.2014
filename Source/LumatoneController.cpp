@@ -122,7 +122,7 @@ void LumatoneController::sendAllParamsOfBoard(int boardIndex, TerpstraKeys board
         for (int keyIndex = 0; keyIndex < octaveSize; keyIndex++)
         {
             auto key = &boardData.theKeys[keyIndex];
-            midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, key->noteNumber, key->channelNumber, key->keyType);
+            midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, key->noteNumber, key->channelNumber, key->keyType & 0x3);
             midiDriver.sendKeyLightParameters(boardIndex, keyIndex, key->colour.getRed(), key->colour.getGreen(), key->colour.getBlue());
         }
     }
@@ -131,7 +131,7 @@ void LumatoneController::sendAllParamsOfBoard(int boardIndex, TerpstraKeys board
         for (int keyIndex = 0; keyIndex < octaveSize; keyIndex++)
         {
             auto key = &boardData.theKeys[keyIndex];
-            midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, key->noteNumber, key->channelNumber, key->keyType);
+            midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, key->noteNumber, key->channelNumber, key->keyType & 0x3);
             midiDriver.sendKeyLightParameters_Version_1_0_0(boardIndex, keyIndex, key->colour.getRed() / 2, key->colour.getGreen() / 2, key->colour.getBlue() / 2);
         }
     }
@@ -233,14 +233,9 @@ void LumatoneController::testCurrentDeviceConnection()
 
 // Send parametrization of one key to the device
 void LumatoneController::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
-{
-    // Enum is 1-based making LumatoneKeyType::disabled = 4, but should send value 0
-    int keyType = keyData.keyType;
-    if (keyType >= LumatoneKeyType::disabled)
-        keyType = 0;
-    
+{    
     // Default CC polarity = 1, Inverted CC polarity = 0
-    sendKeyConfig(boardIndex, keyIndex, keyData.noteNumber, keyData.channelNumber, keyType, keyData.ccFaderDefault);
+    sendKeyConfig(boardIndex, keyIndex, keyData.noteNumber, keyData.channelNumber, keyData.keyType, keyData.ccFaderDefault);
     sendKeyColourConfig(boardIndex, keyIndex, keyData.colour);
 }
 
@@ -272,7 +267,7 @@ void LumatoneController::sendTableConfig(TerpstraVelocityCurveConfig::VelocityCu
 // Send note, channel, cc, and fader polarity data
 void LumatoneController::sendKeyConfig(int boardIndex, int keyIndex, int noteOrCCNum, int channel, int keyType, bool faderUpIsNull)
 {
-    midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, noteOrCCNum, channel, keyType, faderUpIsNull);
+    midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, noteOrCCNum, channel, keyType & 0x3, faderUpIsNull);
 }
 
 void LumatoneController::sendKeyColourConfig(int boardIndex, int keyIndex, Colour colour)
@@ -740,7 +735,7 @@ FirmwareSupport::Error LumatoneController::handlePingResponse(const MidiMessage&
 
 void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived)
 {
-    DBG("ERROR: " + firmwareSupport.errorToString(errorToHandle));
+    DBG("ERROR from command " + String(commandReceived) + ": " + firmwareSupport.errorToString(errorToHandle));
 
     // Generic handling
     if (commandReceived < CHANGE_KEY_NOTE)
