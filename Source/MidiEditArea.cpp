@@ -225,7 +225,7 @@ void MidiEditArea::paint (juce::Graphics& g)
 		g.fillRoundedRectangle(ioBounds, round(getHeight() * controlBoundsCornerRadius));
 	}
 
-	g.setColour(connectedColours[isConnected]);
+	g.setColour(connectedColours[(int)(isConnected && liveEditorBtn->getToggleState())]);
 	drawPathToFillBounds(g, logomarkPath, logomarkBounds);
     //[/UserPaint]
 }
@@ -437,6 +437,9 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 			jassertfalse;
 			break;
 		}
+
+		lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[(int)liveEditorBtn->getToggleState()]);
+		repaint();
 	}
     //[/UserbuttonClicked_Post]
 }
