@@ -271,10 +271,10 @@ static void addArcToPath(Path& pathIn, Rectangle<float>& ellipseBounds, float fr
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setWidthRetainingAspectRatio(Component* component, const Image& image, int widthIn)
-{
-    component->setSize(widthIn, round(image.getHeight() / (float) image.getWidth() * widthIn));
-}
+//static void setWidthRetainingAspectRatio(Component* component, const Image& image, int widthIn)
+//{
+//    component->setSize(widthIn, round(image.getHeight() / (float) image.getWidth() * widthIn));
+//}
 
 /// <summary>
 /// Sets the height of a component while retaining the aspect ratio of a given image
@@ -282,10 +282,10 @@ static void setWidthRetainingAspectRatio(Component* component, const Image& imag
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setHeightRetainingAspectRatio(Component* component, const Image& image, int heightIn)
-{
-    component->setSize(round(image.getWidth() / (float) image.getHeight() * heightIn), heightIn);
-}
+//static void setHeightRetainingAspectRatio(Component* component, const Image& image, int heightIn)
+//{
+//    component->setSize(round(image.getWidth() / (float) image.getHeight() * heightIn), heightIn);
+//}
 
 /// <summary>
 /// Sets the width of an ImageComponent while retaining the aspect ratio of its image
@@ -304,10 +304,10 @@ static void setHeightRetainingAspectRatio(Component* component, const Image& ima
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setHeightRetainingAspectRatio(ImageComponent* component, int heightIn)
-{
-    setHeightRetainingAspectRatio(component, component->getImage(), heightIn);
-}
+//static void setHeightRetainingAspectRatio(ImageComponent* component, int heightIn)
+//{
+//    setHeightRetainingAspectRatio(component, component->getImage(), heightIn);
+//}
 
 /// <summary>
 /// Sets the width of an ImageButton while retaining the aspect ratio of its normal image
@@ -315,10 +315,10 @@ static void setHeightRetainingAspectRatio(ImageComponent* component, int heightI
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setWidthRetainingAspectRatio(ImageButton* component, int widthIn)
-{
-    setWidthRetainingAspectRatio(component, component->getNormalImage(), widthIn);
-}
+//static void setWidthRetainingAspectRatio(ImageButton* component, int widthIn)
+//{
+//    setWidthRetainingAspectRatio(component, component->getNormalImage(), widthIn);
+//}
 
 /// <summary>
 /// Sets the height of an ImageButton while retaining the aspect ratio of its normal image
@@ -326,10 +326,10 @@ static void setWidthRetainingAspectRatio(ImageButton* component, int widthIn)
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
-{
-    setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
-}
+//static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
+//{
+//    setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
+//}
 
 static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix = "_")
 {
@@ -381,7 +381,7 @@ static float scalarToFitString(Label& labelIn)
 static void resizeToggleButtonWithHeight(ToggleButton* btn, Font font, int heightIn, String textSuffix = "_")
 {
     font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
-    btn->setSize(btn->getHeight() + round(font.getStringWidth(btn->getButtonText() + textSuffix)), heightIn);
+    btn->setSize(btn->getHeight() + roundToInt(font.getStringWidth(btn->getButtonText() + textSuffix)), heightIn);
 }
 
 static void drawPathToFillBounds(Graphics& g, const Path& path, Rectangle<float> boundsToFill)

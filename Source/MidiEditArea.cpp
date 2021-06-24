@@ -222,7 +222,7 @@ void MidiEditArea::paint (juce::Graphics& g)
 	if (!isConnected)
 	{
 		g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
-		g.fillRoundedRectangle(ioBounds, round(getHeight() * controlBoundsCornerRadius));
+		g.fillRoundedRectangle(ioBounds, roundToInt(getHeight() * controlBoundsCornerRadius));
 	}
 
 	g.setColour(connectedColours[(int)(isConnected && liveEditorBtn->getToggleState())]);
@@ -239,43 +239,43 @@ void MidiEditArea::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-	lumatoneLabelBounds = getBounds().withRight(round(w * lumatoneLabelAreaWidth));
+	lumatoneLabelBounds = getBounds().withRight(roundToInt(w * lumatoneLabelAreaWidth));
 	resizeLabelWithWidth(lumatoneLabel.get(), lumatoneLabelBounds.proportionOfWidth(lumatoneLabelWidthInArea));
 	lumatoneLabel->setCentrePosition(lumatoneLabelBounds.getCentre());
 
 	// Also used to position logomark
 	ioBounds.setBounds(
-		round(w * controlBoundsX), round(h * controlBoundsY),
-		round(w * controlBoundsWidth), round(h * controlBoundsHeight)
+		roundToInt(w * controlBoundsX), roundToInt(h * controlBoundsY),
+		roundToInt(w * controlBoundsWidth), roundToInt(h * controlBoundsHeight)
 	);
 
-	int logomarkSize = round(h * logomarkHeight);
+	int logomarkSize = roundToInt(h * logomarkHeight);
 	logomarkBounds.setSize(logomarkSize, logomarkSize);
-	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) * 0.5f), round(h * 0.5f));
+	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) * 0.5f), roundToInt(h * 0.5f));
 
 	if (isConnected)
 	{
 		int lblHeight = roundToInt(h * editModeHeight);
 		resizeLabelWithHeight(lblEditMode.get(), lblHeight);
 		lblEditMode->setTopLeftPosition(
-			lumatoneLabelBounds.getRight() + round(w * editModeX),
-			round((h - lblEditMode->getHeight()) * 0.5f)
+			lumatoneLabelBounds.getRight() + roundToInt(w * editModeX),
+			roundToInt((h - lblEditMode->getHeight()) * 0.5f)
 		);
 
-		liveEditorBtn->setSize(round(w * liveEditButtonWidth), round(h* editModeButtonHeight));
+		liveEditorBtn->setSize(roundToInt(w * liveEditButtonWidth), roundToInt(h* editModeButtonHeight));
 		liveEditorBtn->setTopLeftPosition(
 			lblEditMode->getRight(),
-			round((h - liveEditorBtn->getHeight()) * 0.5f)
+			roundToInt((h - liveEditorBtn->getHeight()) * 0.5f)
 		);
 
 		offlineEditorBtn->setBounds(
-			liveEditorBtn->getRight(), liveEditorBtn->getY(), round(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
+			liveEditorBtn->getRight(), liveEditorBtn->getY(), roundToInt(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
 		);
 
-		connectivityArea = getBounds().toFloat().withLeft(round(w * connectedAreaX));
+		connectivityArea = getBounds().toFloat().withLeft(roundToInt(w * connectedAreaX));
 
 		int logoMargin = w - logomarkBounds.getRight();
-		lblConnectionState->setTopLeftPosition(connectivityArea.getX(), round((h - lblHeight) * 0.5f));
+		lblConnectionState->setTopLeftPosition(connectivityArea.getX(), roundToInt((h - lblHeight) * 0.5f));
 		lblConnectionState->setSize(logomarkBounds.getX() - connectivityArea.getX() - logoMargin, lblHeight);
         lblConnectionState->setJustificationType (juce::Justification::centredRight);
 	}
@@ -283,10 +283,10 @@ void MidiEditArea::resized()
 	{
 		int controlHeight = roundToInt(ioBounds.getHeight() * midiDeviceControlBoundsHeight);
 
-		connectivityArea = getBounds().toFloat().withLeft(round(w * disconnectedAreaX));
+		connectivityArea = getBounds().toFloat().withLeft(roundToInt(w * disconnectedAreaX));
 
-		int lblMarginX = round(ioBounds.getWidth() * controlBoundsMarginScalar);
-		int lblMarginY = round((ioBounds.getHeight() - h * connectivityHeight) * 0.5f);
+		int lblMarginX = roundToInt(ioBounds.getWidth() * controlBoundsMarginScalar);
+		int lblMarginY = roundToInt((ioBounds.getHeight() - h * connectivityHeight) * 0.5f);
 
 		ioAreaFlexBox.items.clear();
 		ioAreaFlexBox.items.add(FlexItem(*btnAutoConnect).withFlex(0).withWidth(controlHeight * 1.6f).withHeight(controlHeight));
@@ -317,11 +317,11 @@ void MidiEditArea::resized()
 			ioBounds.reduced(lblMarginX, lblMarginY)
 		);
 
-		pleaseConnectLabel->setTopLeftPosition(round(w * pleaseConnectX), round(h * pleaseConnectY));
-		resizeLabelWithHeight(pleaseConnectLabel.get(), round(h * pleaseConnectHeight));
+		pleaseConnectLabel->setTopLeftPosition(roundToInt(w * pleaseConnectX), roundToInt(h * pleaseConnectY));
+		resizeLabelWithHeight(pleaseConnectLabel.get(), roundToInt(h * pleaseConnectHeight));
 
-		offlineMsgLabel->setTopLeftPosition(round(w * connectionDirectionsX), round(h * connectionDirectionsY));
-		offlineMsgLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * connectionDirectionsHeight));
+		offlineMsgLabel->setTopLeftPosition(roundToInt(w * connectionDirectionsX), roundToInt(h * connectionDirectionsY));
+		offlineMsgLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), roundToInt(h * connectionDirectionsHeight));
 		offlineMsgLabel->setFont(offlineMsgLabel->getFont().withHeight(offlineMsgLabel->getHeight()));
 	}
     //[/UserResized]

@@ -132,7 +132,7 @@ void PedalSensitivityDlg::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    roundedCornerSize = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
+    roundedCornerSize = roundToInt(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     resizeLabelWithHeight(labelPedalTitle.get(), roundToInt(getHeight() * SETTINGSLABELHEIGHT));
     labelPedalTitle->setTopLeftPosition(roundToInt(getWidth() * SETTINGSLABELMARGINWIDTH), 0);

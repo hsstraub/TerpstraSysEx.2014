@@ -91,7 +91,7 @@ void GeneralOptionsDlg::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    roundedCornerSize = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
+    roundedCornerSize = roundToInt(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     resizeLabelWithHeight(labelGeneralSettingslTitle.get(), roundToInt(getHeight() * SETTINGSLABELHEIGHT));
     labelGeneralSettingslTitle->setTopLeftPosition(roundToInt(getWidth() * SETTINGSLABELMARGINWIDTH), 0);

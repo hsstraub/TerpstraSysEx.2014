@@ -252,11 +252,11 @@ void IsomorphicMassAssign::resized()
 	int width = getWidth();
     int height = getHeight();
 
-    int controlWidth = round(width * 0.4f);
-    int controlHeight = round(height * controlHeightScalar);
+    int controlWidth = roundToInt(width * 0.4f);
+    int controlHeight = roundToInt(height * controlHeightScalar);
 
-    int xMargin = round(width * xMarginScalar);
-    int yMargin = round(height * yMarginScalar);
+    int xMargin = roundToInt(width * xMarginScalar);
+    int yMargin = roundToInt(height * yMarginScalar);
     int xEnd = width - xMargin;
 
     flexBox.items.clear();

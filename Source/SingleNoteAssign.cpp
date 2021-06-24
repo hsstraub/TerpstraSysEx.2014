@@ -284,9 +284,9 @@ void SingleNoteAssign::resized()
     float h = getHeight();
 
     if (getParentComponent()) // This changes when the tab changes
-        roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
+        roundedCornerSize = roundToInt(getParentComponent()->getParentComponent()->getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
-    int controlAreaTop = round(h * controlAreaYScalar);
+    int controlAreaTop = roundToInt(h * controlAreaYScalar);
     
     int toggleHeight = roundToInt(h * toggleHeightScalar);
     int toggleHeightScaled = roundToInt(toggleHeight * GLOBALFONTSCALAR);

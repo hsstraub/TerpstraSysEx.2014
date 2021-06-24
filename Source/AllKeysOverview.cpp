@@ -61,8 +61,8 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 
 	if (colourGraphic && shadowGraphic)
 	{
-		int x = round((getWidth()  - colourGraphic->getWidth()) * 0.5f);
-		int y = round((getHeight() - colourGraphic->getHeight()) * 0.5f);
+		int x = roundToInt((getWidth()  - colourGraphic->getWidth()) * 0.5f);
+		int y = roundToInt((getHeight() - colourGraphic->getHeight()) * 0.5f);
 
 		g.drawImageAt(*colourGraphic, x, y, true);
 		g.drawImageAt(*shadowGraphic, x, y);
@@ -283,27 +283,27 @@ void AllKeysOverview::resized()
 		graphicWidth, graphicHeight
 	);
 
-	int btnHeight = round(getHeight() * saveLoadH);
-	int btnMargin = round(getWidth() * saveloadMarginW);
-	int saveLoadWidth = round(getWidth() * saveLoadW);
-	int btnY = lumatoneBounds.getY() - round(getHeight() * btnYFromImageTop);
+	int btnHeight = roundToInt(getHeight() * saveLoadH);
+	int btnMargin = roundToInt(getWidth() * saveloadMarginW);
+	int saveLoadWidth = roundToInt(getWidth() * saveLoadW);
+	int btnY = lumatoneBounds.getY() - roundToInt(getHeight() * btnYFromImageTop);
 
-	int halfWidthX = round(getWidth() * 0.5f);
+	int halfWidthX = roundToInt(getWidth() * 0.5f);
 
 	btnLoadFile->setBounds(halfWidthX - btnMargin - saveLoadWidth, btnY, saveLoadWidth, btnHeight);
 	btnSaveFile->setBounds(halfWidthX + btnMargin, btnY, saveLoadWidth, btnHeight);
 
-	octaveLineY = lumatoneBounds.getBottom() + round(getHeight() * octaveLineYRatio);
+	octaveLineY = lumatoneBounds.getBottom() + roundToInt(getHeight() * octaveLineYRatio);
 
-	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
-	int importWidth = round(getWidth() * importW);
+	int importY = lumatoneBounds.getY() - roundToInt(getHeight() * importYFromImageTop);
+	int importWidth = roundToInt(getWidth() * importW);
 	buttonReceive->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
 
 	resizeLabelWithHeight(lblFirmwareVersion.get(), btnHeight * 0.6f);
 	lblFirmwareVersion->setTopLeftPosition(lumatoneBounds.getX(), lumatoneBounds.getY() - btnHeight * 0.6f);
 
-	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
-	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
+	int keyWidth = roundToInt(lumatoneBounds.getWidth() * keyW);
+	int keyHeight = roundToInt(lumatoneBounds.getHeight() * keyH);
 
 	// Scale key graphics once
 	lumatoneGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight());
