@@ -613,7 +613,10 @@ public:
             label->setColour(Label::ColourIds::textColourId, textColour);
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
-            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, roundToInt(sliderSize * 0.5f), roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.5f));
+            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false,
+                roundToInt(sliderSize * 0.5f),
+                roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.75f)
+            );
 
             return label;
         }

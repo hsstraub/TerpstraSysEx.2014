@@ -35,7 +35,7 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
     //[/Constructor_pre]
 
     labelExprContrSensitivity.reset (new juce::Label ("new label",
-                                                      TRANS("Sensitivity:")));
+                                                      TRANS("Sensitivity")));
     addAndMakeVisible (labelExprContrSensitivity.get());
     labelExprContrSensitivity->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelExprContrSensitivity->setJustificationType (juce::Justification::centredLeft);
@@ -43,48 +43,61 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
     labelExprContrSensitivity->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     labelExprContrSensitivity->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelExprContrSensitivity->setBounds (6, 35, 64, 24);
+    labelExprContrSensitivity->setBounds (13, 152, 74, 24);
 
     btnInvertExpression.reset (new juce::ToggleButton ("btnInvertExpression"));
     addAndMakeVisible (btnInvertExpression.get());
-    btnInvertExpression->setButtonText (TRANS("Invert Expression"));
+    btnInvertExpression->setButtonText (TRANS("Invert"));
     btnInvertExpression->addListener (this);
 
-    btnInvertExpression->setBounds (8, 96, 162, 24);
+    btnInvertExpression->setBounds (10, 32, 99, 24);
 
-    labelPedalTitle.reset (new juce::Label ("labelPedalTitle",
-                                            TRANS("Pedal Settings")));
-    addAndMakeVisible (labelPedalTitle.get());
-    labelPedalTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelPedalTitle->setJustificationType (juce::Justification::centredLeft);
-    labelPedalTitle->setEditable (false, false, false);
-    labelPedalTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
-    labelPedalTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelPedalTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    lblExpression.reset (new juce::Label ("lblExpression",
+                                          TRANS("Expression")));
+    addAndMakeVisible (lblExpression.get());
+    lblExpression->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblExpression->setJustificationType (juce::Justification::centredLeft);
+    lblExpression->setEditable (false, false, false);
+    lblExpression->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
+    lblExpression->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblExpression->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelPedalTitle->setBounds (6, 3, 104, 24);
+    lblExpression->setBounds (6, 3, 104, 24);
 
     sldExprCtrlSensitivity.reset (new juce::Slider ("sldExprCtrlSensitivity"));
     addAndMakeVisible (sldExprCtrlSensitivity.get());
     sldExprCtrlSensitivity->setRange (0, 127, 1);
     sldExprCtrlSensitivity->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
-    sldExprCtrlSensitivity->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 60, 20);
+    sldExprCtrlSensitivity->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 60, 20);
     sldExprCtrlSensitivity->addListener (this);
 
-    sldExprCtrlSensitivity->setBounds (77, 12, 160, 72);
+    sldExprCtrlSensitivity->setBounds (-32, 49, 160, 97);
 
     btnInvertSustain.reset (new juce::ToggleButton ("btnInvertSustain"));
     addAndMakeVisible (btnInvertSustain.get());
-    btnInvertSustain->setButtonText (TRANS("Invert Sustain"));
+    btnInvertSustain->setButtonText (TRANS("Invert"));
     btnInvertSustain->addListener (this);
 
-    btnInvertSustain->setBounds (8, 72, 150, 24);
+    btnInvertSustain->setBounds (125, 32, 86, 24);
+
+    lblSustain.reset (new juce::Label ("lblSustain",
+                                       TRANS("Sustain")));
+    addAndMakeVisible (lblSustain.get());
+    lblSustain->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblSustain->setJustificationType (juce::Justification::centredLeft);
+    lblSustain->setEditable (false, false, false);
+    lblSustain->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
+    lblSustain->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblSustain->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblSustain->setBounds (121, 3, 99, 24);
 
 
     //[UserPreSize]
-    labelPedalTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+    lblExpression->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+    lblSustain->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
     labelExprContrSensitivity->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
-
+    labelExprContrSensitivity->setJustificationType(Justification::centred);
     TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
     //[/UserPreSize]
 
@@ -102,9 +115,10 @@ PedalSensitivityDlg::~PedalSensitivityDlg()
 
     labelExprContrSensitivity = nullptr;
     btnInvertExpression = nullptr;
-    labelPedalTitle = nullptr;
+    lblExpression = nullptr;
     sldExprCtrlSensitivity = nullptr;
     btnInvertSustain = nullptr;
+    lblSustain = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -119,7 +133,8 @@ void PedalSensitivityDlg::paint (juce::Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 	g.setColour(Colour(0xff212626));
-	g.fillRoundedRectangle(getLocalBounds().toFloat().withTop(proportionOfHeight(SETTINGSAREAMARGINHEIGHT)), roundedCornerSize);
+	g.fillRoundedRectangle(expressionBounds, roundedCornerSize);
+    g.fillRoundedRectangle(sustainBounds, roundedCornerSize);
     //[/UserPaint]
 }
 
@@ -132,21 +147,38 @@ void PedalSensitivityDlg::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    roundedCornerSize = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
+    roundedCornerSize = roundToInt(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
-    resizeLabelWithHeight(labelPedalTitle.get(), roundToInt(getHeight() * SETTINGSLABELHEIGHT));
-    labelPedalTitle->setTopLeftPosition(roundToInt(getWidth() * SETTINGSLABELMARGINWIDTH), 0);
+    int areaMarginWidth = roundToInt(w * sectionMarginWidth) * 0.5f;
+    int areaMarginHeight = roundToInt(h * SETTINGSAREAMARGINHEIGHT);
     
-    sldExprCtrlSensitivity->setBounds(getLocalBounds().toFloat().getProportion(sliderBoundsProps).toNearestInt());
+    expressionBounds = getLocalBounds().toFloat().withTop(areaMarginHeight).withRight(roundToInt(w * 0.5f - areaMarginWidth));
+    sustainBounds = getLocalBounds().toFloat().withTop(areaMarginHeight).withLeft(roundToInt(w * 0.5f + areaMarginWidth));
     
-    int marginX = roundToInt(getParentWidth() * SETTINGSCONTROLMARGINTOAPPWIDTH);
+    int lblMarginX = roundToInt(w * SETTINGSLABELMARGINWIDTH);
+    int lblWidth = roundToInt(w * 0.5f);
+    int lblHeight = roundToInt(h * SETTINGSLABELHEIGHT);
+    lblExpression->setBounds(expressionBounds.getX() + lblMarginX, 0, lblWidth, lblHeight);
+    lblSustain->setBounds(sustainBounds.getX() + lblMarginX, 0, lblWidth, lblHeight);
+
+    int controlMargin = roundToInt(getParentWidth() * SETTINGSCONTROLMARGINTOAPPWIDTH);
     int buttonHeight = roundToInt(h * SETTINGSTOGGLEHEIGHTSCALAR);
-    int buttonWidth = roundToInt(sldExprCtrlSensitivity->getX() - marginX);
-    btnInvertExpression->setBounds(marginX, proportionOfHeight(0.3f), buttonWidth, buttonHeight);
-    btnInvertSustain->setBounds(marginX, proportionOfHeight(0.5), buttonWidth, buttonHeight);
-
-    resizeLabelWithHeight(labelExprContrSensitivity.get(), buttonHeight * 1.2f, 1.0f, "");
-    labelExprContrSensitivity->setCentrePosition(sldExprCtrlSensitivity->getBounds().getCentreX(), btnInvertExpression->getBounds().getCentreY());
+    int buttonY = roundToInt(h * 0.3f);
+    btnInvertExpression->setBounds(expressionBounds.withTrimmedLeft(controlMargin).withTop(buttonY).withHeight(buttonHeight).toNearestInt());
+    btnInvertSustain->setBounds(sustainBounds.withTrimmedLeft(controlMargin).withTop(buttonY).withHeight(buttonHeight).toNearestInt());
+    
+    sldExprCtrlSensitivity->setBounds(
+          expressionBounds.reduced(expressionBounds.getWidth() * 0.2f, 0)
+                          .withTop(btnInvertExpression->getBottom() + buttonHeight)
+                          .withTrimmedBottom(buttonHeight * 1.5f)
+                          .toNearestInt()
+    );
+    
+    labelExprContrSensitivity->setBounds(
+         expressionBounds.withTop(sldExprCtrlSensitivity->getBottom() + buttonHeight * 0.1f)
+                         .withTrimmedBottom(buttonHeight * 0.5f)
+                         .toNearestInt()
+    );
     //[/UserResized]
 }
 
@@ -196,7 +228,8 @@ void PedalSensitivityDlg::lookAndFeelChanged()
     auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (newLookAndFeel)
     {
-        labelPedalTitle->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
+        lblExpression->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
+        lblSustain->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
         labelExprContrSensitivity->setColour(Label::ColourIds::textColourId, newLookAndFeel->findColour(LumatoneEditorColourIDs::DescriptionText));
     }
 }
@@ -243,27 +276,31 @@ BEGIN_JUCER_METADATA
                  initialHeight="96">
   <BACKGROUND backgroundColour="0"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensitivity"
-         virtualName="" explicitFocusOrder="0" pos="6 35 64 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Sensitivity:" editableSingleClick="0"
+         virtualName="" explicitFocusOrder="0" pos="13 152 74 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Sensitivity" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="btnInvertExpression" id="ef6e332d2b99beda" memberName="btnInvertExpression"
-                virtualName="" explicitFocusOrder="0" pos="8 96 162 24" buttonText="Invert Expression"
+                virtualName="" explicitFocusOrder="0" pos="10 32 99 24" buttonText="Invert"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <LABEL name="labelPedalTitle" id="afc0b85c8e03b3d6" memberName="labelPedalTitle"
+  <LABEL name="lblExpression" id="afc0b85c8e03b3d6" memberName="lblExpression"
          virtualName="" explicitFocusOrder="0" pos="6 3 104 24" textCol="ff61acc8"
-         edTextCol="ff000000" edBkgCol="0" labelText="Pedal Settings"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="18.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
+         edTextCol="ff000000" edBkgCol="0" labelText="Expression" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="18.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <SLIDER name="sldExprCtrlSensitivity" id="7f6911c9ec82fd65" memberName="sldExprCtrlSensitivity"
-          virtualName="" explicitFocusOrder="0" pos="77 12 160 72" min="0.0"
-          max="127.0" int="1.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxLeft"
+          virtualName="" explicitFocusOrder="0" pos="-32 49 160 97" min="0.0"
+          max="127.0" int="1.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="60" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <TOGGLEBUTTON name="btnInvertSustain" id="59dfe985e5dfbdca" memberName="btnInvertSustain"
-                virtualName="" explicitFocusOrder="0" pos="8 72 150 24" buttonText="Invert Sustain"
+                virtualName="" explicitFocusOrder="0" pos="125 32 86 24" buttonText="Invert"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <LABEL name="lblSustain" id="7582808b917095d4" memberName="lblSustain"
+         virtualName="" explicitFocusOrder="0" pos="121 3 99 24" textCol="ff61acc8"
+         edTextCol="ff000000" edBkgCol="0" labelText="Sustain" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="18.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
