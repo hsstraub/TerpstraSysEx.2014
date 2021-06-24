@@ -169,11 +169,8 @@ private:
     const float connectedAreaX                  = 0.8387f;
 
     const float controlBoundsMarginScalar       = 0.0325f;
-    const float connectedX                      = 0.871f;
     const float connectivityHeight              = 0.1957f;
 
-    const float logomarkX                       = 0.9559f;
-    const float logomarkY                       = 0.2222f;
     const float logomarkHeight                  = 0.5f;
     //[/UserVariables]
 

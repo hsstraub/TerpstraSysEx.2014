@@ -213,7 +213,7 @@ void MidiEditArea::paint (juce::Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 	g.fillAll(lookAndFeel.findColour(LumatoneEditorColourIDs::LightBackground));
 
-	// Dark backrgound for title and logomark
+	// Dark background for title and logomark
 	g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::DarkBackground));
 	g.fillRect(lumatoneLabelBounds);
 	g.fillRect(connectivityArea);
@@ -249,9 +249,14 @@ void MidiEditArea::resized()
 		round(w * controlBoundsWidth), round(h * controlBoundsHeight)
 	);
 
+	int logomarkSize = round(h * logomarkHeight);
+	logomarkBounds.setSize(logomarkSize, logomarkSize);
+	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) * 0.5f), round(h * 0.5f));
+
 	if (isConnected)
 	{
-		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight));
+		int lblHeight = roundToInt(h * editModeHeight);
+		resizeLabelWithHeight(lblEditMode.get(), lblHeight);
 		lblEditMode->setTopLeftPosition(
 			lumatoneLabelBounds.getRight() + round(w * editModeX),
 			round((h - lblEditMode->getHeight()) * 0.5f)
@@ -267,15 +272,12 @@ void MidiEditArea::resized()
 			liveEditorBtn->getRight(), liveEditorBtn->getY(), round(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
 		);
 
-
 		connectivityArea = getBounds().toFloat().withLeft(round(w * connectedAreaX));
 
-        lblConnectionState->setJustificationType (juce::Justification::centredLeft);
-		resizeLabelWithHeight(lblConnectionState.get(), round(h * connectivityHeight));
-		lblConnectionState->setTopLeftPosition(
-			round(w * connectedX),
-			round((h - lblConnectionState->getHeight()) * 0.5f)
-		);
+		int logoMargin = w - logomarkBounds.getRight();
+		lblConnectionState->setTopLeftPosition(connectivityArea.getX(), round((h - lblHeight) * 0.5f));
+		lblConnectionState->setSize(logomarkBounds.getX() - connectivityArea.getX() - logoMargin, lblHeight);
+        lblConnectionState->setJustificationType (juce::Justification::centredRight);
 	}
 	else
 	{
@@ -322,11 +324,6 @@ void MidiEditArea::resized()
 		offlineMsgLabel->setSize(connectivityArea.getX() - pleaseConnectLabel->getX(), round(h * connectionDirectionsHeight));
 		offlineMsgLabel->setFont(offlineMsgLabel->getFont().withHeight(offlineMsgLabel->getHeight()));
 	}
-
-
-	int logomarkSize = round(h * logomarkHeight);
-	logomarkBounds.setSize(logomarkSize, logomarkSize);
-	logomarkBounds.setCentre(ioBounds.getRight() + roundToInt((getWidth() - ioBounds.getRight()) * 0.5f), round(h* 0.5f));
     //[/UserResized]
 }
 
