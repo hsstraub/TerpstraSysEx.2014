@@ -50,11 +50,11 @@ public:
 
             g.setColour(getSwatchColour(i));
             g.fillPath(swatch);
-
-#if JUCE_DEBUG
-            g.setColour(getSwatchColour(i).contrasting());
-            g.drawFittedText(String(i), swatch.getBounds().toNearestInt(), Justification::centred, 1);
-#endif
+//
+//#if JUCE_DEBUG
+//            g.setColour(getSwatchColour(i).contrasting());
+//            g.drawFittedText(String(i), swatch.getBounds().toNearestInt(), Justification::centred, 1);
+//#endif
         }
 
         if (selectedSwatch >= 0)

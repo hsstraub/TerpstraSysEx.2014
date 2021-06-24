@@ -48,27 +48,27 @@ public:
 
     int getHeightFromNumRows(int numRowsIn)
     {
-        return round(viewableHeight * 0.5f * numRowsIn);
+        return roundToInt(viewableHeight * 0.48f * numRowsIn);
     }
 
     void paint(Graphics& g) override 
     {
         ////Draws rectangles around items and margins 
-//        for (auto item : flexBox.items)
-//        {
-//            g.setColour(Colours::red);
-//            g.drawRect(item.currentBounds);
-//
-//            g.setColour(Colours::green);
-//            g.drawRect(item.currentBounds.getX(), item.currentBounds.getBottom(), item.width, item.margin.bottom, 1.0f);
-//
-//            g.setColour(Colours::yellow);
-//            g.drawRect(item.currentBounds.getX() - item.margin.left - 1, item.currentBounds.getY(), item.margin.left - 1, item.currentBounds.getHeight(), 1.0f);
-//            g.drawRect(item.currentBounds.getRight() + 1, item.currentBounds.getY(), item.margin.right - 1, item.currentBounds.getHeight(), 1.0f);
-//
-//            g.setColour(Colours::violet);
-//            g.drawRect(item.currentBounds.getX(), item.currentBounds.getY() - item.margin.top, item.width, item.margin.top);
-//        }
+        //for (auto item : flexBox.items)
+        //{
+        //    g.setColour(Colours::red);
+        //    g.drawRect(item.currentBounds);
+
+        //    g.setColour(Colours::green);
+        //    g.drawRect(item.currentBounds.getX(), item.currentBounds.getBottom(), item.width, item.margin.bottom, 1.0f);
+
+        //    g.setColour(Colours::yellow);
+        //    g.drawRect(item.currentBounds.getX() - item.margin.left - 1, item.currentBounds.getY(), item.margin.left - 1, item.currentBounds.getHeight(), 1.0f);
+        //    g.drawRect(item.currentBounds.getRight() + 1, item.currentBounds.getY(), item.margin.right - 1, item.currentBounds.getHeight(), 1.0f);
+
+        //    g.setColour(Colours::violet);
+        //    g.drawRect(item.currentBounds.getX(), item.currentBounds.getY() - item.margin.top, item.width, item.margin.top);
+        //}
     };
 
     void resized() override
@@ -238,12 +238,12 @@ private:
     Array<Rectangle<int>> controlGroupHitBoxes;
     int lastPaletteMouseOver = -1;
 
-    const float itemWidthScalar         = 0.28f;
-    const float itemHeightScalar        = 0.25f;
+    const float itemWidthScalar         = 0.265f;
+    const float itemHeightScalar        = 0.24f;
 
-    const float topMarginScalar         = 0.042f;
-    const float horizontalMarginScalar  = 0.025f;
-    const float bottomMarginScalar      = 0.075f;
+    const float topMarginScalar         = 0.06f;
+    const float horizontalMarginScalar  = 0.0367f;
+    const float bottomMarginScalar      = 0.08f;
     const float btmMarginCtrlScalar     = 0.06f;
 
     const float buttonWidthScalar       = 0.333333f;
@@ -401,19 +401,19 @@ public:
         float leftCenter = leftWidth * 0.5f;
 
         resizeLabelWithHeight(editPaletteLabel.get(), proportionOfHeight(editPaletteHeight));
-        editPaletteLabel->setCentrePosition(leftCenter, round(editPaletteLabel->getHeight() * 0.5f + proportionOfHeight(editPaletteLabelY)));
+        editPaletteLabel->setCentrePosition(leftCenter, roundToInt(editPaletteLabel->getHeight() * 0.5f + proportionOfHeight(editPaletteLabelY)));
 
         float paletteWidth = proportionOfWidth(paletteWidthScalar);
         float paletteHeight = proportionOfHeight(paletteHeightScalar);
         paletteControl->setSize(paletteWidth, paletteHeight);
-        paletteControl->setCentrePosition(leftCenter, round(paletteHeight * 0.5f + proportionOfHeight(paletteY)));
+        paletteControl->setCentrePosition(leftCenter, roundToInt(paletteHeight * 0.5f + proportionOfHeight(paletteY)));
 
         saveButton->setSize(proportionOfWidth(buttonWidth), proportionOfHeight(buttonHeight));
-        saveButton->setCentrePosition(leftCenter, round(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
+        saveButton->setCentrePosition(leftCenter, roundToInt(saveButton->getHeight() * 0.5f + proportionOfHeight(buttonY)));
         cancelButton->setBounds(saveButton->getBounds().translated(0, saveButton->getHeight() * 1.125f));
 
         colourPicker->setSize(proportionOfWidth(pickerWidth), proportionOfHeight(pickerHeight));
-        colourPicker->setTopLeftPosition(leftWidth, round((getHeight() - colourPicker->getHeight()) * 0.5f));
+        colourPicker->setTopLeftPosition(leftWidth, roundToInt((getHeight() - colourPicker->getHeight()) * 0.5f));
 
         float leftMargin = colourPicker->getRight() * 0.03f * 0.5f;
         paletteNameEditor->setBounds(Rectangle<int>(

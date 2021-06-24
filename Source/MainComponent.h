@@ -151,8 +151,8 @@ private:
 
     const float footerAreaY                 = 0.96f;
 
-    const float popupWidth                  = 0.2879f;
-    const float popupHeight                 = 0.2615f;
+    const float popupWidth                  = 0.3f;
+    const float popupHeight                 = 0.273f;
 
     const float lumatoneVersionMarginX      = 0.02f;
 	const float lumatoneVersionWidth        = 0.2f;
