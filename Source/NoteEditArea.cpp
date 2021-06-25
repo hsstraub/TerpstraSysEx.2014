@@ -252,6 +252,8 @@ void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile
 	
 	if (showIsomorphicMassAssign)
 		dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
+    
+    resized();
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
