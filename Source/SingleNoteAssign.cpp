@@ -260,7 +260,8 @@ void SingleNoteAssign::paint (juce::Graphics& g)
     g.drawFittedText(translate("ManualAssignDirections"), instructionsBounds, Justification::centred, 2, 1.0f);
 
     g.setColour(Colours::darkgrey);
-    g.drawLine(controlsX, separatorY, getWidth() - controlsX, separatorY);
+    float thickness = getHeight() * separatorThicknessScalar;
+    g.drawLine(controlsX, separatorY, getWidth() - controlsX, separatorY, jmax(1.0f, thickness));
 
 //    // Debug FlexBox positioning
 //    Random r;
@@ -431,6 +432,8 @@ void SingleNoteAssign::resized()
         redrawCCFlipBtn();
     
     channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
+    
+    channelAutoIncrNoteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelAutoIncrNoteInput->getWidth() * incDecButtonTextBoxWidthScalar), channelAutoIncrNoteInput->getHeight());
     //[/UserResized]
 }
 

@@ -81,8 +81,8 @@ private:
     int roundedCornerSize;
     Rectangle<int> instructionsAreaBounds;
     Rectangle<int> instructionsBounds;
-    int controlsX;
-    int separatorY;
+    float controlsX;
+    float separatorY;
 
     Font instructionsFont;
     Font parametersFont;
@@ -107,11 +107,13 @@ private:
     const float controlAreaYScalar  = 0.183333f;
     const float controlsXScalar     = 0.06f;
     const float separatorYScalar    = 0.666667f;
-    const float toggleHeightScalar  = 0.042f;
+    const float toggleHeightScalar  = 0.041f;
     const float controlHeightScalar = 0.0647f;
 
     const float controlBoxFontHeightScalar     = 0.75f;
     const float incDecButtonTextBoxWidthScalar = 0.4f;
+    
+    const float separatorThicknessScalar = 0.005f;
 
     const Colour toggleTextColour = Colour(0xffcbcbcb);
     
