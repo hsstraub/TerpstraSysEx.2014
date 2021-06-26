@@ -307,12 +307,18 @@ public:
             int iconW = iconH;
             int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
 
-            if (iconCode == LumatoneEditorIcon::LoadIcon)
+            // Icon specific adjustments
+            switch (iconCode)
             {
+            case LumatoneEditorIcon::LoadIcon:
                 iconW *= 1.125f;
                 iconH *= 1.125f;
+                break;
+            case LumatoneEditorIcon::ArrowUp:
+                margin = font.getStringWidth(" ");
+                break;
             }
-
+            
             if (iconW < 1) iconW = 1;
             if (iconH < 1) iconH = 1;
 
@@ -464,7 +470,7 @@ public:
         }
     }   
 
-    void drawToggleButton(Graphics& g, ToggleButton& btn, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+    void drawToggleButton(Graphics& g, ToggleButton& btn, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
         drawTickBox(g, btn, 0, 0, btn.getHeight(), btn.getHeight(), btn.getToggleState(), btn.isEnabled(),
             shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
@@ -613,7 +619,10 @@ public:
             label->setColour(Label::ColourIds::textColourId, textColour);
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
-            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, roundToInt(sliderSize * 0.5f), roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.5f));
+            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false,
+                roundToInt(sliderSize * 0.5f),
+                roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.75f)
+            );
 
             return label;
         }
@@ -1197,9 +1206,6 @@ private:
     /// </summary>
     void cacheImages()
     {
-        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize),   LumatoneEditorAssets::ImportIcon);
-        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
-        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyboardBase_png,   BinaryData::KeyboardBase_pngSize),   LumatoneEditorAssets::LumatoneGraphic);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,  BinaryData::KeybedShadows_pngSize),  LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,     BinaryData::KeyShape2x_pngSize),     LumatoneEditorAssets::KeyShape);

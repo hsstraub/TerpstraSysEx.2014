@@ -139,7 +139,7 @@ void NoteEditArea::resized()
 
 	resizeLabelWithHeight(labelWindowTitle.get(), roundToInt(octaveBoardSelectorTab->getHeight() * assignLabelTabDepthHeight));
 	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) * 0.5f));
-
+    
 	keyEditBounds.setBounds(
 		getWidth() * keyEditMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
 		getWidth() * keyEditWidth, contentBackground.getHeight() * assignControlsHeightInContent
@@ -153,7 +153,7 @@ void NoteEditArea::resized()
 
 	// Single Key fields
 
-	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
+	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() * 0.5f);
 
 	tilingGeometry.fitTilingTo(
 		keyEditBounds,
@@ -252,6 +252,8 @@ void NoteEditArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile
 	
 	if (showIsomorphicMassAssign)
 		dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::IsomorphicMassAssignMode))->restoreStateFromPropertiesFile(propertiesFile);
+    
+    resized();
 }
 
 void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)

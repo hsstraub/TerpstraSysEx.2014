@@ -346,10 +346,6 @@ void MainContentComponent::resized()
 	controlsArea = getBounds().withTop(proportionOfHeight(controlsAreaY)).withBottom(footerY);
 
 	// All keys overview/virtual keyboard playing
-	// New height of subset field area, with minimal value
-	int noteEditAreaWidth = noteEditArea->getWidth();
-	int noteEditAreaHeight = noteEditArea->getHeight();
-
 	int newKeysOverviewAreaHeight = jmax(controlsArea.getY() - midiAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
