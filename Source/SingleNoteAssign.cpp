@@ -309,6 +309,7 @@ void SingleNoteAssign::resized()
     instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
     instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
     controlsX = roundToInt(w * controlsXScalar);
+
     
     instructionsBounds.setBounds(marginX, 0, w - marginX * 2, controlAreaTop);
 
@@ -334,7 +335,7 @@ void SingleNoteAssign::resized()
             toggleItem.associatedComponent = btn;
         };
         
-        auto controlItem = FlexItem(ctrlTemplateItem);
+        auto controlItem = FlexItem(ctrlTemplateItem).withMargin(FlexItem::Margin(0, 0, 0, halfMarginX));
         
         auto getAndPerformBounds = [&] () {
             auto bounds = Rectangle<int>(controlsX, flexBounds[r - 1].getBottom() + halfMarginY, rowWidth, controlH);
@@ -362,7 +363,7 @@ void SingleNoteAssign::resized()
                 row.items.add(toggleItem);
                 
                 auto colourItem = FlexItem(controlH * 1.5f, controlH, *colourSubwindow.get());
-                colourItem.margin = FlexItem::Margin(0, halfMarginX, 0, 0);
+                colourItem.margin = FlexItem::Margin(0, halfMarginX, 0, halfMarginX);
                 row.items.add(colourItem);
                 
                 controlItem.associatedComponent = colourTextEditor.get();
@@ -381,6 +382,7 @@ void SingleNoteAssign::resized()
                     auto ccInvertItem = FlexItem(controlH, controlH, *ccFaderIsDefault.get());
                     ccInvertItem.margin = FlexItem::Margin(0, halfMarginX, 0, 0);
                     row.items.add(ccInvertItem);
+                    controlItem.margin = FlexItem::Margin();
                 }
                 
                 controlItem.associatedComponent = noteInput.get();
