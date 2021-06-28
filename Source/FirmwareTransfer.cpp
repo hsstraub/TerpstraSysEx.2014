@@ -142,7 +142,7 @@ void FirmwareTransfer::run()
 
 	else if (transferRequested)
 	{
-		prepareForUpdate();
+		prepareAndRunUpdate();
 		transferRequested = false;
 	}
 }
@@ -198,7 +198,7 @@ static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session,
 	return returnCode;
 }
 
-bool FirmwareTransfer::prepareForUpdate()
+bool FirmwareTransfer::prepareAndRunUpdate()
 {
 	StatusCode returnStatus = StatusCode::Initialize;
 	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus, statusCodeToMessage(returnStatus));

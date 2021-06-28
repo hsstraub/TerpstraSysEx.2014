@@ -105,6 +105,8 @@ bool LumatoneController::requestFirmwareUpdate(File firmwareFile, FirmwareTransf
 
         return firmwareTransfer->requestFirmwareUpdate(firmwareFile.getFullPathName());
     }
+    else
+        jassertfalse;
 
     return false;
 }
@@ -506,6 +508,9 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
                 midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, incomingVersion.major, incomingVersion.minor, incomingVersion.revision);
                 if (incomingVersion.isValid()) // Keyboard will return 0.0.0 before fully booted
                 {
+                    incomingVersion.major = 420;
+                    incomingVersion.minor = 69;
+                    incomingVersion.revision = 666;
                     waitingForTestResponse = false;
                     startTimer(UPDATETIMEOUT);
                 }
@@ -778,7 +783,12 @@ void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode sta
             
     default:
         if (statusCode < FirmwareTransfer::StatusCode::NoErr)
+        {
+            // Update failed
             deviceMonitor.intializeConnectionLossDetection();
+            
+            juce::Timer::callAfterDelay(20, [&] { firmwareTransfer->signalThreadShouldExit(); });
+        }
         break;
     }
 }
@@ -940,6 +950,7 @@ void LumatoneController::timerCallback()
             {
                 firmwareTransfer->incrementProgress();
 
+                // Reset connection and start polling with GetFirmwareRevision
                 if (!waitingForTestResponse)
                 {
                     waitingForTestResponse = true;
@@ -947,6 +958,7 @@ void LumatoneController::timerCallback()
                     midiDriver.closeMidiOutput();
                     deviceMonitor.initializeDeviceDetection();
                 }
+                
                 else if (midiDriver.hasDevicesDefined())
                 {
                     onFirmwareUpdateReceived();
@@ -978,7 +990,7 @@ void LumatoneController::timerCallback()
 
 void LumatoneController::exitSignalSent()
 {
-    firmwareTransfer->waitForThreadToExit(20);
+    firmwareTransfer->stopThread(20);
     firmwareTransfer = nullptr;
 }
 

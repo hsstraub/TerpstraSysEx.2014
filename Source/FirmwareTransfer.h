@@ -94,7 +94,7 @@ protected:
 private:
 
     // Return true if update was successful
-    bool       prepareForUpdate();
+    bool       prepareAndRunUpdate();
     StatusCode performFirmwareUpdate();
 
     // header only in .cpp
