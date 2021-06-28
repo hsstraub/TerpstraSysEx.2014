@@ -419,7 +419,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		switch (sysExSendingMode)
 		{
 		case LumatoneController::sysExSendingMode::liveEditor:
-			onOpenConnectionToDevice();
+			openOfflineConnection();
 			break;
 
 		case LumatoneController::sysExSendingMode::offlineEditor:
@@ -578,7 +578,7 @@ void MidiEditArea::onOpenConnectionToDevice()
 		TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
 
 		alert.reset(new AlertWindow("Connection established!", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
-		alert->addButton("Send Editor layout", 1);
+		alert->addButton("Send Editor Layout", 1);
 		alert->addButton("Keep Editing Offline", 0);
 		alert->addButton("Import From Lumatone", 2);
 		//alert->setLookAndFeel(&lookAndFeel);
@@ -590,20 +590,18 @@ void MidiEditArea::onOpenConnectionToDevice()
 			AlertWindow::AlertIconType::WarningIcon,
 			3, getParentComponent())*/;
 
-		auto retc = alert->runModalLoop();
-
-        DBG("Connection window returned: " + String(retc));
+		auto retc = alert->runModalLoop(); 
 		if (retc == 1) // Send
 		{
-            TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-            liveEditorBtn->setToggleState(true, dontSendNotification);
-            lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+			liveEditorBtn->setToggleState(true, dontSendNotification);
+			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 		}
 		else if (retc == 2) // Import
 		{
-            TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
-            liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
-            lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+			TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+			liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 		}
 		else // Offline
 		{
@@ -612,6 +610,32 @@ void MidiEditArea::onOpenConnectionToDevice()
 		}
 
 		//alert->setLookAndFeel(nullptr);
+		alert = nullptr;
+	}
+}
+
+void MidiEditArea::openOfflineConnection()
+{
+	jassert(alert == nullptr);
+
+	if (alert == nullptr)
+	{
+		alert.reset(new AlertWindow("Live Mode", "Do you want to send the current setup to your Lumatone?", AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
+		alert->addButton("Send Editor Layout", 1);
+		alert->addButton("Keep Editing Offline", 0);
+
+		auto retc = alert->runModalLoop();
+		if (retc == 1)
+		{
+			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+			liveEditorBtn->setToggleState(true, dontSendNotification);
+			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+		}
+		else
+		{
+			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
+		}
+
 		alert = nullptr;
 	}
 }
