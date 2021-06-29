@@ -22,6 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 #include "ColourEditComponent.h"
+#include "LumatoneController.h"
 #include "Settings/SettingsContainer.h"
 //[/Headers]
 
@@ -37,7 +38,8 @@
 */
 class GlobalSettingsArea  : public juce::Component,
                             public ChangeListener,
-                            public juce::Button::Listener
+                            public juce::Button::Listener,
+                            public LumatoneController::StatusListener
 {
 public:
     //==============================================================================
@@ -56,6 +58,11 @@ public:
     void lookAndFeelChanged() override;
 
     void setDeveloperMode(bool devModeOn);
+    
+    // LumatoneController::StatusListener implementation
+    void connectionEstablished(int inputDevice, int outputDevice) override;
+    void connectionLost() override;
+    
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

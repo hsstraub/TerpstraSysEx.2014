@@ -62,8 +62,11 @@ GlobalSettingsArea::GlobalSettingsArea ()
     //[UserPreSize]
     lblDeveloperMode.reset(new Label("DeveloperModeLabel", "Developer Mode"));
     addChildComponent(lblDeveloperMode.get());
-
     setDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
+    
+    TerpstraSysExApplication::getApp().getLumatoneController().addStatusListener(this);
+    
+    buttonCalibrate->setEnabled(false);
     //[/UserPreSize]
 
     //[Constructor] You can add your own custom stuff here..
@@ -236,6 +239,16 @@ void GlobalSettingsArea::setDeveloperMode(bool devModeOn)
     showDeveloperMode = devModeOn;
     lblDeveloperMode->setVisible(showDeveloperMode);
     repaint();
+}
+
+void GlobalSettingsArea::connectionEstablished(int inputDevice, int outputDevice)
+{
+    buttonCalibrate->setEnabled(true);
+}
+
+void GlobalSettingsArea::connectionLost()
+{
+    buttonCalibrate->setEnabled(false);
 }
 
 //[/MiscUserCode]

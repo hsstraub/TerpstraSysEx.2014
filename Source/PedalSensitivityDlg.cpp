@@ -151,10 +151,10 @@ void PedalSensitivityDlg::resized()
 
     int areaMarginWidth = roundToInt(w * sectionMarginWidth) * 0.5f;
     int areaMarginHeight = roundToInt(h * SETTINGSAREAMARGINHEIGHT);
-    
+
     expressionBounds = getLocalBounds().toFloat().withTop(areaMarginHeight).withRight(roundToInt(w * 0.5f - areaMarginWidth));
     sustainBounds = getLocalBounds().toFloat().withTop(areaMarginHeight).withLeft(roundToInt(w * 0.5f + areaMarginWidth));
-    
+
     int lblMarginX = roundToInt(w * SETTINGSLABELMARGINWIDTH);
     int lblWidth = roundToInt(w * 0.5f);
     int lblHeight = roundToInt(h * SETTINGSLABELHEIGHT);
@@ -166,7 +166,7 @@ void PedalSensitivityDlg::resized()
     int buttonY = roundToInt(h * 0.3f);
     btnInvertExpression->setBounds(expressionBounds.withTrimmedLeft(controlMargin).withTop(buttonY).withHeight(buttonHeight).toNearestInt());
     btnInvertSustain->setBounds(sustainBounds.withTrimmedLeft(controlMargin).withTop(buttonY).withHeight(buttonHeight).toNearestInt());
-    
+
     sldExprCtrlSensitivity->setBounds(
           expressionBounds.reduced(expressionBounds.getWidth() * 0.2f, 0)
                           .withTop(btnInvertExpression->getBottom() + buttonHeight)
@@ -249,11 +249,13 @@ void PedalSensitivityDlg::firmwareRevisionReceived(FirmwareVersion version)
 
     if (firmwareSupport.versionAcknowledgesCommand(version, INVERT_SUSTAIN_PEDAL))
     {
-        btnInvertSustain->setVisible(true);
+        btnInvertSustain->setEnabled(true);
+        btnInvertSustain->setTooltip("");
     }
     else
     {
-        btnInvertSustain->setVisible(false);
+        btnInvertSustain->setEnabled(false);
+        btnInvertSustain->setTooltip("This feature is not supported by the firmware version of your Lumatone.");
     }
 }
 
