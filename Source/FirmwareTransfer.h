@@ -158,7 +158,8 @@ public:
             return translate("Error: Could not prepare device communication protool");
 
         case FirmwareTransfer::StatusCode::HostConnectErr:
-            return translate("Error: Could not communicate with Lumatone");
+            return translate("Error: Could not communicate with Lumatone"
+                             "\nPlease make sure you are connected over USB.");
 
         case FirmwareTransfer::StatusCode::SessionEstErr:
             return translate("Error: Could not verify connection with Lumatone");
