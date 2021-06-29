@@ -94,6 +94,7 @@ bool LumatoneController::requestFirmwareUpdate(File firmwareFile, FirmwareTransf
 {
     if (firmwareTransfer == nullptr)
     {
+        incomingVersion = FirmwareVersion(0, 0, 0);
         firmwareTransfer.reset(new FirmwareTransfer(midiDriver));
         firmwareTransfer->addTransferListener(this);
         firmwareTransfer->addListener(this);
@@ -499,22 +500,20 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
                 startTimer(bufferReadTimeoutMs);
             }
         }
-        else if (midiMessage.isSysEx())
+        
+        // Handle firmware update confirmation responses
+        else
         {
             auto sysExData = midiMessage.getSysExData();
             switch (sysExData[CMD_ID])
             {
             case GET_FIRMWARE_REVISION:
                 midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, incomingVersion.major, incomingVersion.minor, incomingVersion.revision);
-                if (incomingVersion.isValid()) // Keyboard will return 0.0.0 before fully booted
+                if (incomingVersion.isValid())
                 {
-                    incomingVersion.major = 420;
-                    incomingVersion.minor = 69;
-                    incomingVersion.revision = 666;
-                    waitingForTestResponse = false;
                     startTimer(UPDATETIMEOUT);
+                    break;
                 }
-                break;
 
             default:
                 break;
@@ -786,7 +785,6 @@ void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode sta
         {
             // Update failed
             deviceMonitor.intializeConnectionLossDetection();
-            
             juce::Timer::callAfterDelay(20, [&] { firmwareTransfer->signalThreadShouldExit(); });
         }
         break;
@@ -950,8 +948,27 @@ void LumatoneController::timerCallback()
             {
                 firmwareTransfer->incrementProgress();
 
+                if (waitingForTestResponse)
+                {
+                    if (midiDriver.hasDevicesDefined() && incomingVersion.isValid())
+                    {
+                        waitingForTestResponse = true;
+                        onFirmwareUpdateReceived();
+                    }
+                    
+                    // THIS IS A KLUDGE! Something kills DeviceActivityMonitor's timer after device comes back online and I'm not yet sure why - vsicurella
+                    else if (!deviceMonitor.isTimerRunning())
+                    {
+                         deviceMonitor.initializeDeviceDetection();
+                    }
+                    else
+                    {
+                        sendGetFirmwareRevisionRequest();
+                    }
+                }
+
                 // Reset connection and start polling with GetFirmwareRevision
-                if (!waitingForTestResponse)
+                else if (!incomingVersion.isValid())
                 {
                     waitingForTestResponse = true;
                     midiDriver.closeMidiInput();
@@ -959,17 +976,6 @@ void LumatoneController::timerCallback()
                     deviceMonitor.initializeDeviceDetection();
                 }
                 
-                else if (midiDriver.hasDevicesDefined())
-                {
-                    onFirmwareUpdateReceived();
-                }
-                
-                // THIS IS A KLUDGE; Something kills DeviceActivityMonitor's timer after device comes back online and I'm not yet sure why - vsicurella
-                else if (!deviceMonitor.isTimerRunning())
-                {
-                    deviceMonitor.initializeDeviceDetection();
-                }
-
                 startTimer(UPDATETIMEOUT);
             }
         }
@@ -990,7 +996,6 @@ void LumatoneController::timerCallback()
 
 void LumatoneController::exitSignalSent()
 {
-    firmwareTransfer->stopThread(20);
     firmwareTransfer = nullptr;
 }
 
