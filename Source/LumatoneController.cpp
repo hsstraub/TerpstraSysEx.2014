@@ -476,6 +476,12 @@ void LumatoneController::invertSustainPedal(bool setInverted)
         midiDriver.sendInvertSustainPedal(setInverted);
 }
 
+void LumatoneController::resetPresetsToFactoryDefault()
+{
+    if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, RESET_DEFAULT_PRESETS))
+        midiDriver.sendResetDefaultPresetsRequest();
+}
+
 //=============================================================================
 // Communication and broadcasting
 
@@ -917,7 +923,7 @@ void LumatoneController::timerCallback()
                             if (sysExData[MSG_STATUS] == 1)
                             {
                                 if (event.numBytes > 8)
-                                    DBG("WARNING UNIMPLEMENTED RESPONSE HANDLING CMD " + String(cmd));
+                                    DBG("WARNING: UNIMPLEMENTED RESPONSE HANDLING CMD " + String(cmd));
                             }
                             else
                             {

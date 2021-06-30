@@ -611,9 +611,16 @@ void TerpstraMidiDriver::sendGetExpressionPedalADCThresholdRequest()
     sendSysExRequest(0, GET_EXPRESSION_PEDAL_THRESHOLD);
 }
 
+// CMD 45h: Configure the on/off settings of the sustain pedal
 void TerpstraMidiDriver::sendInvertSustainPedal(bool setInverted)
 {
     sendSysExToggle(0, INVERT_SUSTAIN_PEDAL, setInverted);
+}
+
+// CMD 46h: Replace current presets with factory presets
+void TerpstraMidiDriver::sendResetDefaultPresetsRequest()
+{
+    sendSysExRequest(0, RESET_DEFAULT_PRESETS);
 }
 
 /*

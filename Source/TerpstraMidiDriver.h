@@ -291,6 +291,9 @@ public:
 	// CMD 45h: Configure the on/off settings of the sustain pedal
 	void sendInvertSustainPedal(bool setInverted);
 
+	// CMD 46h: Replace current presets with factory presets
+	void sendResetDefaultPresetsRequest();
+
 	//============================================================================
 	// Implementation of bidirectional communication with acknowledge messages
 

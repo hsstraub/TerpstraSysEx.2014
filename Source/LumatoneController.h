@@ -206,6 +206,9 @@ public:
     // Invert the polarity of the sustain pedal
     void invertSustainPedal(bool setInverted);
 
+    // Reset preset mappings to factory mappings
+    void resetPresetsToFactoryDefault();
+
     //============================================================================
     // FirmwareTransfer::Listener
 
