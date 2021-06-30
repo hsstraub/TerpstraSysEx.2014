@@ -70,4 +70,10 @@ private:
     String msgLog;
     bool infoNeedsUpdate = false;
     const int infoUpdateTimeoutMs = 100;
+
+    // Style helpers
+    int margin = 12;
+    int doubleMargin = margin * 2;
+    float buttonWidthScalar = 0.3f;
+    int buttonHeight = 30;
 };

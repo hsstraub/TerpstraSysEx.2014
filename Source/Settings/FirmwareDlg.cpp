@@ -68,10 +68,7 @@ void FirmwareDlg::paint(Graphics& g)
 
 void FirmwareDlg::resized()
 {
-    int margin = 12;
-    int doubleMargin = margin * 2;
-    int buttonWidth = proportionOfWidth(0.3f);
-    int buttonHeight = 30;
+    int buttonWidth = proportionOfWidth(buttonWidthScalar);
 
     //checkUpdateBtn->setBounds(margin, margin, buttonWidth, buttonHeight);
 

@@ -12,10 +12,12 @@
 #include "../LumatoneEditorLookAndFeel.h"
 #include "CalibrationDlg.h"
 #include "FirmwareDlg.h"
+#include "PresetSettingsDlg.h"
 
 typedef enum {
     Calibration = 0,
-    Firmware = 1
+    Firmware = 1,
+    Presets = 2
 } LumatoneEditorSettingCategories;
 
 class SettingsCategoryModel : public ListBoxModel, public ChangeBroadcaster

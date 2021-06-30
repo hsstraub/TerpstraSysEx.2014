@@ -95,6 +95,10 @@
               file="Source/Settings/SettingsContainer.cpp"/>
         <FILE id="chrN2g" name="SettingsContainer.h" compile="0" resource="0"
               file="Source/Settings/SettingsContainer.h"/>
+        <FILE id="bxATOX" name="PresetSettingsDlg.cpp" compile="1" resource="0"
+              file="Source/Settings/PresetSettingsDlg.cpp"/>
+        <FILE id="suUqru" name="PresetSettingsDlg.h" compile="0" resource="0"
+              file="Source/Settings/PresetSettingsDlg.h"/>
       </GROUP>
       <FILE id="WG01Cj" name="EditActions.cpp" compile="1" resource="0" file="Source/EditActions.cpp"/>
       <FILE id="cMcg6t" name="EditActions.h" compile="0" resource="0" file="Source/EditActions.h"/>
