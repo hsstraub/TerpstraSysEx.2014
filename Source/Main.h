@@ -54,7 +54,7 @@ public:
 	int getOctaveBoardSize() const { return lumatoneController.getOctaveSize(); }
 
 	FirmwareVersion getFirmwareVersion() const { return lumatoneController.getFirmwareVersion(); }
-	String getFirmwareVersionStr() const { return lumatoneController.getFirmwareVersion().toString(); }
+	String getFirmwareVersionStr() const { return lumatoneController.getFirmwareVersion().toDisplayString(); }
 
 	void reloadColourPalettes();
 	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);

@@ -388,12 +388,16 @@ void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 		{
 			if (versionIn.revision == 55)
 			{
-				lblFirmwareVersion->setText("Prototype 55-keys", NotificationType::dontSendNotification);
+				lblFirmwareVersion->setText("55-keys Prototype", NotificationType::dontSendNotification);
 			}
 		}
 		else
 		{
+#if JUCE_DEBUG
 			lblFirmwareVersion->setText("Firmware version: " + versionIn.toString(), NotificationType::dontSendNotification);
+#else
+			lblFirmwareVersion->setText("Firmware version: " + versionIn.toDisplayString(), NotificationType::dontSendNotification);
+#endif
 		}
 
 		lblFirmwareVersion->setVisible(true);

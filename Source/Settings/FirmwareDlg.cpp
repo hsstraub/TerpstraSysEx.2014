@@ -138,7 +138,7 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         firmwareUpdateInProgress = false;
     }
 
-    if (msg!= "")
+    if (msg != "")
     {
         msgLog += (msg + "\n");
         infoNeedsUpdate = true;
@@ -158,7 +158,7 @@ void FirmwareDlg::timerCallback()
 void FirmwareDlg::firmwareRevisionReceived(FirmwareVersion version)
 {
      updateFirmwareVersionLabel();
-     postMessage("Firmware update complete! Lumatone is now running firmware version " + version.toString());
+     postMessage("Firmware update complete! Lumatone is now running firmware version " + version.toDisplayString());
 }
 
 void FirmwareDlg::postMessage(String msg) 

@@ -219,6 +219,15 @@ struct FirmwareVersion
 
 	String toString() const { return String(major) + "." + String(minor) + "." + String(revision); }
 
+	String toDisplayString() const 
+	{ 
+		String str = String(major) + "." + String(minor);
+		if (revision > 0)
+			str += ("." + String(revision));
+
+		return str;
+	}
+
 	//============================================================================
 
 	static FirmwareVersion fromString(String firmwareVersion)
