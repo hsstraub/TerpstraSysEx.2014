@@ -13,11 +13,13 @@
 #include "CalibrationDlg.h"
 #include "FirmwareDlg.h"
 #include "PresetSettingsDlg.h"
+#include "MidiSettingsDlg.h"
 
 typedef enum {
     Calibration = 0,
-    Firmware = 1,
-    Presets = 2
+    Firmware    = 1,
+    Midi        = 2,
+    Presets     = 3
 } LumatoneEditorSettingCategories;
 
 class SettingsCategoryModel : public ListBoxModel, public ChangeBroadcaster

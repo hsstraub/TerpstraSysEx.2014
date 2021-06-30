@@ -42,6 +42,5 @@ private:
 
     // Style helpers
     int margin = 12;
-    int doubleMargin = margin * 2;
     int buttonHeight = 30;
 };

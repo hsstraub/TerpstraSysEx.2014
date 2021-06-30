@@ -470,6 +470,20 @@ int LumatoneController::pingLumatone(uint8 pingId)
     return midiDriver.ping(pingId);
 }
 
+// Set MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
+void LumatoneController::setPeripheralChannels(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainChannel)
+{
+    if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, SET_PERIPHERAL_CHANNELS))
+        midiDriver.setPeripheralChannels(pitchWheelChannel, modWheelChannel, expressionChannel, sustainChannel);
+}
+
+// Get MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
+void LumatoneController::getPeripheralChannels()
+{
+    if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, GET_PERIPHERAL_CHANNELS))
+        midiDriver.getPeripheralChannels();
+}
+
 void LumatoneController::invertSustainPedal(bool setInverted)
 {
     if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, INVERT_SUSTAIN_PEDAL))
