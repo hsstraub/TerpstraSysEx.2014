@@ -20,7 +20,7 @@ public:
 	typedef juce::Colour COLOURTYPE;
 
 public:
-    TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = noteOnNoteOff; ccFaderDefault = true; };
+    TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = disabled; ccFaderDefault = true; };
 	TerpstraKey(LumatoneKeyType newKeyType, int newChannelNumber, int newNoteNumber, COLOURTYPE newColour, bool invertCCFader = false)
 	{
         keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour; ccFaderDefault = invertCCFader;
