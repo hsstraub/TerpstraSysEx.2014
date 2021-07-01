@@ -366,6 +366,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 	case Lumatone::Menu::commandIDs::redo:
 		result.setInfo("Redo", "Redo latest edit", "Edit", 0);
 		result.addDefaultKeypress('y', ModifierKeys::commandModifier);
+		result.addDefaultKeypress('z', ModifierKeys::commandModifier + ModifierKeys::shiftModifier);
 		result.setActive(undoManager.canRedo());
 		break;
 
@@ -377,6 +378,7 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		result.setInfo("Toggle Developer Mode", "Show/hide controls for tweaking internal parameters", "Edit", 0);
 		result.addDefaultKeypress('m',
                    juce::ModifierKeys::ctrlModifier + juce::ModifierKeys::altModifier + juce::ModifierKeys::shiftModifier);
+		result.setActive(true);
 		break;
 
 	default:

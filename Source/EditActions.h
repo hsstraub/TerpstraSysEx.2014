@@ -48,6 +48,7 @@ namespace Lumatone {
 
 		virtual bool perform() override;
 		virtual bool undo() override;
+		
 		int getSizeInUnits() override { return sizeof(SingleNoteAssignAction); }
 
 	private:
