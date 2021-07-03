@@ -238,6 +238,8 @@ void GlobalSettingsArea::setDeveloperMode(bool devModeOn)
 {
     showDeveloperMode = devModeOn;
     lblDeveloperMode->setVisible(showDeveloperMode);
+    if (devModeOn)
+        buttonCalibrate->setEnabled(true);
     repaint();
 }
 
