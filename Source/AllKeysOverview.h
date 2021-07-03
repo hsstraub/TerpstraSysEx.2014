@@ -82,6 +82,7 @@ private:
                                                                     //[/Comments]
 */
 class AllKeysOverview  : public juce::Component,
+                         public LumatoneController::StatusListener,
                          public LumatoneController::FirmwareListener,
                          public juce::Button::Listener
 {
@@ -101,6 +102,12 @@ public:
     void setFirmwareVersion(FirmwareVersion versionIn);
 
 	void resetOctaveSize();
+
+	// LumatoneController::StatusListener
+	void connectionEstablished(int, int) override;
+	void connectionLost() override;
+
+	// LumatoneController::FirmwareListener implementation
 	void firmwareRevisionReceived(FirmwareVersion version) override;
     //[/UserMethods]
 

@@ -175,42 +175,48 @@ void KeyMiniDisplayInsideAllKeysOverview::setKeyGraphics(Image& colourGraphicIn,
 //[/MiscUserDefs]
 
 //==============================================================================
-AllKeysOverview::AllKeysOverview()
-	: Component("AllKeysOverview")
+AllKeysOverview::AllKeysOverview ()
 {
-	//[Constructor_pre] You can add your own custom stuff here..
-	//[/Constructor_pre]
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
-	btnLoadFile.reset(new juce::TextButton("btnLoadFile"));
-	addAndMakeVisible(btnLoadFile.get());
+    setName ("AllKeysOverview");
+    btnLoadFile.reset (new juce::TextButton ("btnLoadFile"));
+    addAndMakeVisible (btnLoadFile.get());
+    btnLoadFile->setButtonText (TRANS("Load File"));
+    btnLoadFile->addListener (this);
 
-	btnLoadFile->setButtonText(translate("LoadFile"));
-	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::LoadIcon);
-	btnLoadFile->addListener(this);
+    btnLoadFile->setBounds (368, 8, 96, 24);
 
-	btnSaveFile.reset(new juce::TextButton("btnSaveFile"));
-	addAndMakeVisible(btnSaveFile.get());
-	btnSaveFile->setButtonText(translate("SaveFile"));
-	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::SaveIcon);
-	btnSaveFile->addListener(this);
+    btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
+    addAndMakeVisible (btnSaveFile.get());
+    btnSaveFile->setButtonText (TRANS("Save File"));
+    btnSaveFile->addListener (this);
 
-	buttonReceive.reset(new juce::TextButton("buttonReceive"));
-	addAndMakeVisible(buttonReceive.get());
-	buttonReceive->setTooltip(translate("ImportTooltip"));
-	buttonReceive->setButtonText(translate("Import from Lumatone"));
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ArrowUp);
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
-	buttonReceive->addListener(this);
+    btnSaveFile->setBounds (472, 8, 96, 24);
 
-	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
-	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
+    buttonReceive.reset (new juce::TextButton ("buttonReceive"));
+    addAndMakeVisible (buttonReceive.get());
+    buttonReceive->setTooltip (TRANS("Receive current layout from connected Lumatone"));
+    buttonReceive->setButtonText (TRANS("Import from Lumatone"));
+    buttonReceive->addListener (this);
+
+    buttonReceive->setBounds (584, 8, 176, 24);
 
 
     //[UserPreSize]
+	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::LoadIcon);
+	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::SaveIcon);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ArrowUp);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
 
 	lblFirmwareVersion.reset(new Label("FirmwareVersionLabel"));
 	addChildComponent(lblFirmwareVersion.get());
 
+	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
+	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
+
+	TerpstraSysExApplication::getApp().getLumatoneController().addStatusListener(this);
 	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
 
 	resetOctaveSize();
@@ -413,13 +419,25 @@ void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 
 void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 {
+	if (developerModeOn)
+		buttonReceive->setVisible(true);
+
     repaint();
+}
+
+void AllKeysOverview::connectionEstablished(int, int)
+{
+	buttonReceive->setVisible(true);
+}
+
+void AllKeysOverview::connectionLost()
+{
+	buttonReceive->setVisible(false);
 }
 
 void AllKeysOverview::firmwareRevisionReceived(FirmwareVersion version)
 {
 	setFirmwareVersion(version);
-    buttonReceive->setVisible(true);
 }
 
 void AllKeysOverview::resetOctaveSize()
@@ -461,8 +479,8 @@ void AllKeysOverview::resetOctaveSize()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="AllKeysOverview" componentName=""
-                 parentClasses="public juce::Component, public LumatoneController::FirmwareListener"
+<JUCER_COMPONENT documentType="Component" className="AllKeysOverview" componentName="AllKeysOverview"
+                 parentClasses="public juce::Component, public LumatoneController::StatusListener, public LumatoneController::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="928"
                  initialHeight="214">
@@ -474,7 +492,7 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="472 8 96 24" buttonText="Save File"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="buttonReceive" id="6a7ed19ee86a3b97" memberName="buttonReceive"
-              virtualName="" explicitFocusOrder="0" pos="584 8 176 24" tooltip="Receive the current configuration from controller"
+              virtualName="" explicitFocusOrder="0" pos="584 8 176 24" tooltip="Receive current layout from connected Lumatone"
               buttonText="Import from Lumatone" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
 </JUCER_COMPONENT>
