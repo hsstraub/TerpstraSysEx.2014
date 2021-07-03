@@ -1255,12 +1255,17 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetExpressionPedalThresholdResp
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
-    if (sendTestMessagesOnly && message.isSysEx())
+    // Prevent certain messages from being sent
+    if (onlySendRequestMessages && message.isSysEx())
     {
         auto sysExData = message.getSysExData();
-        if (   sysExData[CMD_ID] != GET_SERIAL_IDENTITY
-            && sysExData[CMD_ID] != GET_FIRMWARE_REVISION
-            && sysExData[CMD_ID] != LUMA_PING)
+        if (   sysExData[CMD_ID] == CHANGE_KEY_NOTE
+            || sysExData[CMD_ID] == SET_KEY_COLOUR
+            || sysExData[CMD_ID] == SET_VELOCITY_CONFIG
+            || sysExData[CMD_ID] == SET_FADER_CONFIG
+            || sysExData[CMD_ID] == SET_AFTERTOUCH_CONFIG
+            || sysExData[CMD_ID] == SET_VELOCITY_INTERVALS
+            || sysExData[CMD_ID] == SET_LUMATOUCH_CONFIG)
         {
             return;
         }

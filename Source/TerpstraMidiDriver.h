@@ -54,7 +54,7 @@ public:
 	void addListener(Listener* listenerToAdd);
 	void removeListener(Listener* listenerToRemove);
 
-	void restrictToTestMessages(bool testMessagesOnly) { sendTestMessagesOnly = testMessagesOnly; }
+	void restrictToRequestMessages(bool testMessagesOnly) { onlySendRequestMessages = testMessagesOnly; }
 
 	//============================================================================
 	// Single (mid-level) commands, firmware specific
@@ -469,7 +469,8 @@ private:
 
 	Array<MidiMessage> messageBuffer;
 
-	bool      sendTestMessagesOnly = false; // Only send GetSerialIdentity, GetFirmwareRevision, and Ping commands
+	// Used for device detection and "Offline" mode (no messages that mutate board data)
+	bool      onlySendRequestMessages = false;
 
 	const int receiveTimeoutInMilliseconds = 2000;
 	const int busyTimeDelayInMilliseconds = 500;

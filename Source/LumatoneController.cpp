@@ -39,7 +39,7 @@ void LumatoneController::setSysExSendingMode(sysExSendingMode newMode)
         }
     }
 
-    midiDriver.restrictToTestMessages(editingMode == sysExSendingMode::offlineEditor);
+    midiDriver.restrictToRequestMessages(editingMode == sysExSendingMode::offlineEditor);
 }
 
 // Takes a generic firmware version and parses it into a recognized firmware version
