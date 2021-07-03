@@ -20,7 +20,7 @@ public:
 	typedef juce::Colour COLOURTYPE;
 
 public:
-    TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = disabled; ccFaderDefault = true; };
+    TerpstraKey(LumatoneKeyType newKeyType = LumatoneKeyType::disabled) { noteNumber = 0; channelNumber = 1; colour = juce::Colour(); keyType = newKeyType; ccFaderDefault = true; };
 	TerpstraKey(LumatoneKeyType newKeyType, int newChannelNumber, int newNoteNumber, COLOURTYPE newColour, bool invertCCFader = false)
 	{
         keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour; ccFaderDefault = invertCCFader;
@@ -43,7 +43,7 @@ struct TerpstraKeys {
 	int				board_idx;
 	int				key_idx;
 
-	TerpstraKeys();
+	TerpstraKeys(LumatoneKeyType newKeyType = LumatoneKeyType::disabled);
 
 	bool isEmpty() const;
 };
@@ -104,7 +104,7 @@ public:
 	TerpstraKeyMapping();
 
 	void clearVelocityIntervalTable();
-	void clearAll();
+	void clearAll(bool initializeWithNoteKeyType=false);
     bool isEmpty() const;
 
 	void fromStringArray(const StringArray& stringArray);
