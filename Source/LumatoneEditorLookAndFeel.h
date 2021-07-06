@@ -781,7 +781,6 @@ public:
     Label* createComboBoxTextBox(ComboBox& box) override
     {
         Label* l = new Label(box.getName(), box.getText());
-        l->setFont(getComboBoxFont(box));
 
         Colour textColour = box.findColour(ComboBox::ColourIds::textColourId);
 
@@ -794,7 +793,8 @@ public:
             l->getProperties().set(prop.name, prop.value);
         
         l->setBounds(box.getLocalBounds());
-
+        l->setFont(getComboBoxFont(box).withHeight(box.getHeight())); // Any style overrides should have been passed to Label
+        
         return l;
     }
 
@@ -813,7 +813,6 @@ public:
     {
         String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
         l.setText(text, NotificationType::dontSendNotification);
-        l.setFont(getComboBoxFont(box));
     }
 
     PopupMenu::Options getOptionsForComboBoxPopupMenu(ComboBox& box, Label& label) override
