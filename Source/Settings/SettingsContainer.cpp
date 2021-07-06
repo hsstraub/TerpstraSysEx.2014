@@ -32,9 +32,10 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
 SettingsContainer::SettingsContainer()
     : Component("SettingsContainer"),
       model({
-        "Calibrate", 
-        "Firmware",
-        "Presets"
+        translate("Calibrate"), 
+        translate("Firmware"),
+        translate("MIDI"),
+        translate("Presets")
       })
 {
     categoryList.reset(new ListBox("CategoryList"));
@@ -95,6 +96,10 @@ void SettingsContainer::showPanel(int editorSettingCategory)
 
     case LumatoneEditorSettingCategories::Firmware:
         newPanel = new FirmwareDlg();
+        break;
+
+    case LumatoneEditorSettingCategories::Midi:
+        newPanel = new MidiSettingsDlg();
         break;
 
     case LumatoneEditorSettingCategories::Presets:

@@ -203,6 +203,12 @@ public:
     // Send a value from 0-127 for the Lumatone to echo back, returns actual value sent (in case of 7-bit masking); used for auto device connection and monitoring
     int pingLumatone(uint8 pingId);
 
+    // Set MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
+    void setPeripheralChannels(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainChannel);
+
+    // Get MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
+    void getPeripheralChannels();
+
     // Invert the polarity of the sustain pedal
     void invertSustainPedal(bool setInverted);
 
