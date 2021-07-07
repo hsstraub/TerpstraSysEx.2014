@@ -53,8 +53,7 @@ public:
     void lookAndFeelChanged() override;
 
     void attemptDeviceConnection();
-	void onOpenConnectionToDevice();
-    void openOfflineConnection();
+	void onOpenConnectionToDevice(String dialogTitle = "");
 
     // For now, preserve connection functionality and make sure internal combo boxes are up to date
     void refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);

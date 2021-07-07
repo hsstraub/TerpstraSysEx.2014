@@ -419,7 +419,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		switch (sysExSendingMode)
 		{
 		case LumatoneController::sysExSendingMode::liveEditor:
-			openOfflineConnection();
+			onOpenConnectionToDevice(translate("Switch to Live Mode"));
 			break;
 
 		case LumatoneController::sysExSendingMode::offlineEditor:
@@ -566,7 +566,7 @@ void MidiEditArea::attemptDeviceConnection()
 	}
 }
 
-void MidiEditArea::onOpenConnectionToDevice()
+void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0);
 
@@ -574,10 +574,13 @@ void MidiEditArea::onOpenConnectionToDevice()
 	// This can get spammed, and needs a real solution, but for now this will prevent it in releases - Vito
 	if (alert == nullptr)
 	{
+		if (dialogTitle.length() == 0)
+			dialogTitle = translate("Connection Established!");
+
 		// Get firmware version so we can use the correct commands
 		TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
 
-		alert.reset(new AlertWindow("Connection established!", translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
+		alert.reset(new AlertWindow(dialogTitle, translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
 		alert->addButton("Send Editor Layout", 1);
 		alert->addButton("Keep Editing Offline", 0);
 		alert->addButton("Import From Lumatone", 2);
@@ -610,32 +613,6 @@ void MidiEditArea::onOpenConnectionToDevice()
 		}
 
 		//alert->setLookAndFeel(nullptr);
-		alert = nullptr;
-	}
-}
-
-void MidiEditArea::openOfflineConnection()
-{
-	jassert(alert == nullptr);
-
-	if (alert == nullptr)
-	{
-		alert.reset(new AlertWindow("Live Mode", "Do you want to send the current setup to your Lumatone?", AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
-		alert->addButton("Send Editor Layout", 1);
-		alert->addButton("Keep Editing Offline", 0);
-
-		auto retc = alert->runModalLoop();
-		if (retc == 1)
-		{
-			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-			liveEditorBtn->setToggleState(true, dontSendNotification);
-			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
-		}
-		else
-		{
-			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
-		}
-
 		alert = nullptr;
 	}
 }
