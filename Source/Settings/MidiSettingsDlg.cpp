@@ -57,7 +57,9 @@ MidiSettingsDlg::MidiSettingsDlg()
 
 MidiSettingsDlg::~MidiSettingsDlg()
 {
+    // Not good when app closes with this window open...
     TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
+    
     setMidiChannelHeader = nullptr;
     setMidiChannelLabels.clear();
     setMidiChannelSliders.clear();
@@ -73,11 +75,13 @@ void MidiSettingsDlg::resized()
 {
     int rowHeight = proportionOfHeight(fontHeightInBounds);
 
-    auto setMidiChannelControlBounds = getLocalBounds().reduced(margin).withTrimmedTop(rowHeight + margin);
+    auto setMidiChannelControlBounds = getLocalBounds().reduced(margin)
+                                                        .withTrimmedTop(rowHeight + margin)
+                                                        .withTrimmedLeft(margin * 1.5f); // This one is a hack
 
     controlLabelFont.setHeight(rowHeight);
     int labelWidth = controlLabelFont.getStringWidth(longestControlName);
-    int sldWidth = labelWidth *(PHI - 1);
+    int sldWidth = labelWidth * 0.667f;
     int btnWidth = controlLabelFont.getStringWidth("All Channels");
     int btnHeight = rowHeight * 0.6f;
 
@@ -85,6 +89,7 @@ void MidiSettingsDlg::resized()
     flexBox.items.clear();
 
     auto controlMargin = FlexItem::Margin(0, margin * 0.5f, 0, 0);
+    int toggleMargins = margin * 0.2f;
 
     for (int i = 0; i < ControlNames.size(); i++)
     {
@@ -103,13 +108,14 @@ void MidiSettingsDlg::resized()
         flexRow.items.add(lblItem);
 
         auto sld = setMidiChannelSliders[i];
-        //sld->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, sldWidth * 0.5f, rowHeight);
+        sld->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, sldWidth * 0.5f, rowHeight);
         auto sldItem = FlexItem(sldWidth, rowHeight, *sld).withMargin(controlMargin);
-        flexRow.items.add(sldItem.withFlex(1.0f));
+        flexRow.items.add(sldItem);
 
         auto btn = setOmniChannelButtons[i];
-        auto btnItem = FlexItem(btnWidth, btnHeight, *btn);
-        flexRow.items.add(btnItem.withFlex(1.0f));
+        auto btnItem = FlexItem(btnWidth, btnHeight, *btn).withMargin(FlexItem::Margin(toggleMargins, 0, toggleMargins, 0));
+        
+        flexRow.items.add(btnItem.withFlex(0.0f, 1.0f));
 
         auto rowItem = FlexItem(getWidth(), rowHeight);
         rowItem.associatedFlexBox = &flexRow; 
