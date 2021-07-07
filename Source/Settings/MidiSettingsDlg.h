@@ -14,7 +14,6 @@
 
 class MidiSettingsDlg : public Component,
     protected Slider::Listener,
-    protected ToggleButton::Listener,
     protected LumatoneController::FirmwareListener
 {
 public:
@@ -27,8 +26,6 @@ public:
     void resized() override;
 
     void sliderValueChanged(Slider* sld) override;
-
-    void buttonClicked(Button* btn) override;
 
     void setSupportedControls(FirmwareVersion version);
 
@@ -62,7 +59,6 @@ private:
 
     OwnedArray<Slider>          setMidiChannelSliders;
     OwnedArray<Label>           setMidiChannelLabels;
-    OwnedArray<Button>          setOmniChannelButtons;
     
     PeripheralChannelSettings   channelSettings;
         

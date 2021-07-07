@@ -34,12 +34,6 @@ MidiSettingsDlg::MidiSettingsDlg()
         sld->addListener(this);
         addAndMakeVisible(*sld);
 
-        auto btn = setOmniChannelButtons.add(new ToggleButton("All Channels"));
-        btn->setName(controlName);
-        btn->setTooltip("Send " + controlName + " messages on all MIDI channels.");
-        btn->addListener(this);
-        addAndMakeVisible(*btn);
-
         // Help with resizing
         if (controlName.length() > longestControlName.length())
             longestControlName = controlName;
@@ -63,7 +57,6 @@ MidiSettingsDlg::~MidiSettingsDlg()
     setMidiChannelHeader = nullptr;
     setMidiChannelLabels.clear();
     setMidiChannelSliders.clear();
-    setOmniChannelButtons.clear();
 }
 
 void MidiSettingsDlg::paint(Graphics& g)
@@ -75,15 +68,11 @@ void MidiSettingsDlg::resized()
 {
     int rowHeight = proportionOfHeight(fontHeightInBounds);
 
-    auto setMidiChannelControlBounds = getLocalBounds().reduced(margin)
-                                                        .withTrimmedTop(rowHeight + margin)
-                                                        .withTrimmedLeft(margin * 1.5f); // This one is a hack
+    auto setMidiChannelControlBounds = getLocalBounds().withTrimmedTop(rowHeight + margin * 2);
 
     controlLabelFont.setHeight(rowHeight);
     int labelWidth = controlLabelFont.getStringWidth(longestControlName);
     int sldWidth = labelWidth * 0.667f;
-    int btnWidth = controlLabelFont.getStringWidth("All Channels");
-    int btnHeight = rowHeight * 0.6f;
 
     flexRows.clear();
     flexBox.items.clear();
@@ -98,7 +87,7 @@ void MidiSettingsDlg::resized()
             FlexBox::Wrap::noWrap,
             FlexBox::AlignContent::center,
             FlexBox::AlignItems::center,
-            FlexBox::JustifyContent::flexStart
+            FlexBox::JustifyContent::center
         ));
 
         FlexBox& flexRow = flexRows.getReference(i);
@@ -109,13 +98,8 @@ void MidiSettingsDlg::resized()
 
         auto sld = setMidiChannelSliders[i];
         sld->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, sldWidth * 0.5f, rowHeight);
-        auto sldItem = FlexItem(sldWidth, rowHeight, *sld).withMargin(controlMargin);
+        auto sldItem = FlexItem(labelWidth, rowHeight, *sld).withMargin(controlMargin);
         flexRow.items.add(sldItem);
-
-        auto btn = setOmniChannelButtons[i];
-        auto btnItem = FlexItem(btnWidth, btnHeight, *btn).withMargin(FlexItem::Margin(toggleMargins, 0, toggleMargins, 0));
-        
-        flexRow.items.add(btnItem.withFlex(0.0f, 1.0f));
 
         auto rowItem = FlexItem(getWidth(), rowHeight);
         rowItem.associatedFlexBox = &flexRow; 
@@ -140,21 +124,6 @@ void MidiSettingsDlg::sliderValueChanged(Slider* sld)
     }
 }
 
-void MidiSettingsDlg::buttonClicked(Button* btn)
-{
-    int controlIndex = setOmniChannelButtons.indexOf(static_cast<ToggleButton*>(btn));
-
-    if (controlIndex >= 0 && controlIndex < ControlNames.size())
-    {
-        // TODO: make omni channel explicit
-        channelSettings.setChannel((PeripheralChannel)controlIndex, 17);
-        sendChannelSettings();
-
-        // Disable slider if all channels is enabled
-        setMidiChannelSliders[controlIndex]->setEnabled(!btn->getToggleState());
-    }
-}
-
 void MidiSettingsDlg::setSupportedControls(FirmwareVersion version)
 {
     bool setChannelsEnabled = false;
@@ -169,12 +138,10 @@ void MidiSettingsDlg::setSupportedControls(FirmwareVersion version)
     for (int i = 0; i < ControlNames.size(); i++)
     {
         setMidiChannelSliders[i]->setEnabled(setChannelsEnabled);
-        setOmniChannelButtons[i]->setEnabled(setChannelsEnabled);
 
         if (!setChannelsEnabled)
         {
             setMidiChannelSliders[i]->setTooltip(translate("This feature is not supported by your Lumatone's firmware version."));
-            setOmniChannelButtons[i]->setTooltip(translate("This feature is not supported by your Lumatone's firmware version."));
         }
     }
 }
@@ -186,17 +153,7 @@ void MidiSettingsDlg::updateChannelSettings(PeripheralChannelSettings channelSet
     for (int i = 0; i < ControlNames.size(); i++)
     {
         auto channel = channelSettings.getChannel((PeripheralChannel)i);
-        if (channel > 16)
-        {
-            setMidiChannelSliders[i]->setEnabled(false);
-            setOmniChannelButtons[i]->setToggleState(true, dontSendNotification);
-        }
-        else
-        {
-            setMidiChannelSliders[i]->setEnabled(true);
-            setMidiChannelSliders[i]->setValue(channel, dontSendNotification);
-            setOmniChannelButtons[i]->setToggleState(false, dontSendNotification);
-        }
+        setMidiChannelSliders[i]->setValue(channel, dontSendNotification);
     }
 }
 
