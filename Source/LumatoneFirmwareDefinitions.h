@@ -442,3 +442,67 @@ struct FirmwareSupport
     }
 
 };
+
+typedef enum
+{
+	PitchWheel = 0,
+	ModWheel,
+	Expression,
+	Sustain
+} PeripheralChannel;
+
+struct PeripheralChannelSettings
+{
+	int pitchWheel = 1;
+	int modWheel = 1;
+	int expressionPedal = 1;
+	int sustainPedal = 1;
+
+	void setChannel(PeripheralChannel controlId, int channelIn)
+	{
+		if (channelIn < 1)
+			channelIn = 1;
+
+		if (channelIn > 16)
+			channelIn = 16;
+
+		switch (controlId)
+		{
+		case PeripheralChannel::PitchWheel:
+			pitchWheel = channelIn;
+			break;
+
+		case PeripheralChannel::ModWheel:
+			modWheel = channelIn;
+			break;
+
+		case PeripheralChannel::Expression:
+			expressionPedal = channelIn;
+			break;
+
+		case PeripheralChannel::Sustain:
+			sustainPedal = channelIn;
+			break;
+		}
+	}
+
+	int getChannel(PeripheralChannel controlId)
+	{
+		switch (controlId)
+		{
+		case PeripheralChannel::PitchWheel:
+			return pitchWheel;
+
+		case PeripheralChannel::ModWheel:
+			return modWheel;
+
+		case PeripheralChannel::Expression:
+			return expressionPedal;
+
+		case PeripheralChannel::Sustain:
+			return sustainPedal;
+		}
+
+		return 0;
+	}
+};

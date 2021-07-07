@@ -51,7 +51,7 @@ MidiSettingsDlg::MidiSettingsDlg()
     flexBox.alignContent = FlexBox::AlignContent::flexStart;
 
     TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
-    
+
     setSupportedControls(TerpstraSysExApplication::getApp().getFirmwareVersion());
 }
 
@@ -179,16 +179,14 @@ void MidiSettingsDlg::setSupportedControls(FirmwareVersion version)
     }
 }
 
-void MidiSettingsDlg::updateChannelSettings(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainPedalChannel)
+void MidiSettingsDlg::updateChannelSettings(PeripheralChannelSettings channelSettingsIn)
 {
-    channelSettings.setChannel(PeripheralChannel::PitchWheel, pitchWheelChannel);
-    channelSettings.setChannel(PeripheralChannel::ModWheel, modWheelChannel);
-    channelSettings.setChannel(PeripheralChannel::Expression, expressionChannel);
-    channelSettings.setChannel(PeripheralChannel::Sustain, sustainPedalChannel);
+    channelSettings = channelSettingsIn;
 
     for (int i = 0; i < ControlNames.size(); i++)
     {
-        if (channelSettings.getChannel((PeripheralChannel)i) > 16)
+        auto channel = channelSettings.getChannel((PeripheralChannel)i);
+        if (channel > 16)
         {
             setMidiChannelSliders[i]->setEnabled(false);
             setOmniChannelButtons[i]->setToggleState(true, dontSendNotification);
@@ -196,6 +194,7 @@ void MidiSettingsDlg::updateChannelSettings(int pitchWheelChannel, int modWheelC
         else
         {
             setMidiChannelSliders[i]->setEnabled(true);
+            setMidiChannelSliders[i]->setValue(channel, dontSendNotification);
             setOmniChannelButtons[i]->setToggleState(false, dontSendNotification);
         }
     }
@@ -203,12 +202,7 @@ void MidiSettingsDlg::updateChannelSettings(int pitchWheelChannel, int modWheelC
 
 void MidiSettingsDlg::sendChannelSettings()
 {
-    TerpstraSysExApplication::getApp().getLumatoneController().setPeripheralChannels(
-        channelSettings.pitchWheel,
-        channelSettings.modWheel,
-        channelSettings.expressionPedal,
-        channelSettings.sustainPedal
-    );
+    TerpstraSysExApplication::getApp().getLumatoneController().setPeripheralChannels(channelSettings);
 }
 
 //=========================================================================
@@ -219,7 +213,7 @@ void MidiSettingsDlg::firmwareRevisionReceived(FirmwareVersion version)
     setSupportedControls(version);
 }
 
-void MidiSettingsDlg::peripheralMidiChannelsReceived(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainPedalChannel)
+void MidiSettingsDlg::peripheralMidiChannelsReceived(PeripheralChannelSettings channelSettings)
 {
-    updateChannelSettings(pitchWheelChannel, modWheelChannel, expressionChannel, sustainPedalChannel);
+    updateChannelSettings(channelSettings);
 }

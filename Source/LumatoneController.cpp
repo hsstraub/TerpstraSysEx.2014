@@ -477,6 +477,11 @@ void LumatoneController::setPeripheralChannels(int pitchWheelChannel, int modWhe
         midiDriver.setPeripheralChannels(pitchWheelChannel, modWheelChannel, expressionChannel, sustainChannel);
 }
 
+void LumatoneController::setPeripheralChannels(PeripheralChannelSettings channelSettings)
+{
+    setPeripheralChannels(channelSettings.pitchWheel, channelSettings.modWheel, channelSettings.expressionPedal, channelSettings.sustainPedal);
+}
+
 // Get MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
 void LumatoneController::getPeripheralChannels()
 {
@@ -757,6 +762,21 @@ FirmwareSupport::Error LumatoneController::handlePingResponse(const MidiMessage&
     return errorCode;
 }
 
+FirmwareSupport::Error LumatoneController::handleGetPeripheralChannelResponse(const MidiMessage& midiMessage)
+{
+    auto channelSettings = PeripheralChannelSettings();
+    auto errorCode = midiDriver.unpackGetPeripheralChannelsResponse(midiMessage,
+        channelSettings.pitchWheel,
+        channelSettings.modWheel,
+        channelSettings.expressionPedal,
+        channelSettings.sustainPedal
+    );
+
+    firmwareListeners.call(&FirmwareListener::peripheralMidiChannelsReceived, channelSettings);
+
+    return errorCode;
+}
+
 void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived)
 {
     DBG("ERROR from command " + String(commandReceived) + ": " + firmwareSupport.errorToString(errorToHandle));
@@ -931,6 +951,10 @@ void LumatoneController::timerCallback()
 
                         case LUMA_PING:
                             errorCode = handlePingResponse(midiMessage);
+                            break;
+
+                        case GET_PERIPHERAL_CHANNELS:
+                            errorCode = handleGetPeripheralChannelResponse(midiMessage);
                             break;
 
                         default:

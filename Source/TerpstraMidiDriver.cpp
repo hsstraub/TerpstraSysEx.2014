@@ -534,6 +534,11 @@ void TerpstraMidiDriver::getBoardSensitivityValues(uint8 boardIndex)
 // CMD 3Ch: Set the MIDI channels for peripheral controllers
 void TerpstraMidiDriver::setPeripheralChannels(uint8 pitchWheelChannel, uint8 modWheelChannel, uint8 expressionChannel, uint8 sustainChannel)
 {
+    pitchWheelChannel -= 1;
+    modWheelChannel -= 1;
+    expressionChannel -= 1;
+    sustainChannel -= 1;
+
     // For now set default channel to 1
     if (pitchWheelChannel > 0xf) pitchWheelChannel &= 0x00;
     if (modWheelChannel   > 0xf) modWheelChannel   &= 0x00;
@@ -1162,10 +1167,10 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetPeripheralChannelsResponse(c
     if (status != FirmwareSupport::Error::noError)
         return status;
 
-    pitchWheelChannel   = unpackedData[0];
-    modWheelChannel     = unpackedData[1];
-    expressionChannel   = unpackedData[2];
-    sustainPedalChannel = unpackedData[3];
+    pitchWheelChannel   = unpackedData[0] + 1;
+    modWheelChannel     = unpackedData[1] + 1;
+    expressionChannel   = unpackedData[2] + 1;
+    sustainPedalChannel = unpackedData[3] + 1;
 
     return status;
 }

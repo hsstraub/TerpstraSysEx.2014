@@ -205,6 +205,7 @@ public:
 
     // Set MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
     void setPeripheralChannels(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainChannel);
+    void setPeripheralChannels(PeripheralChannelSettings channelSettings);
 
     // Get MIDI Channels of peripheral controllers, pitch & mod wheels, expression & sustain pedals
     void getPeripheralChannels();
@@ -304,7 +305,7 @@ public:
 
         virtual void pingResponseReceived(int inputDeviceIndex, unsigned int pingValue) {};
 
-        virtual void peripheralMidiChannelsReceived(int pitchWheelChannel, int modWheelChannel, int expressionChannel, int sustainPedalChannel) {};
+        virtual void peripheralMidiChannelsReceived(PeripheralChannelSettings channelSettings) {};
 
         virtual void pedalCalibrationDataReceived(int minBound, int maxBound, bool pedalIsActive) {};
 
@@ -386,6 +387,8 @@ private:
     FirmwareSupport::Error handleLumatouchConfigResponse(const MidiMessage& midiMessage);
 
     FirmwareSupport::Error handlePingResponse(const MidiMessage& midiMessage);
+
+    FirmwareSupport::Error handleGetPeripheralChannelResponse(const MidiMessage& midiMessage);
 
     void handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived = -1);
 
