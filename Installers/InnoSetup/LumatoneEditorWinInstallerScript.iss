@@ -2,10 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Lumatone Editor"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Lumatone"
 #define MyAppURL "https://www.lumatone.io/"
-#define MyAppExeName "Lumatone Editor.exe"
+#define MyAppExeName "LumatoneSetup.exe"
+#define MyAppExeNameDest "Lumatone Editor.exe"
 #define MappingAssocName MyAppName + " Mapping"
 #define MappingAssocExt ".ltn"
 #define MappingAssocKey StringChange(MappingAssocName, " ", "") + MappingAssocExt
@@ -42,8 +43,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[Files]
-Source: "..\..\Builds\VisualStudio2019\x64\Release\App\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+[Files]                                                         
+Source: "..\..\Builds\VisualStudio2019\x64\Release\App\{#MyAppExeName}"; DestDir: "{app}"; DestName: "{#MyAppExeNameDest}"; Flags: ignoreversion
 Source: "..\..\Presets\Mappings\*"; DestDir: "{userdocs}\{#MyAppName}\Mappings"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\..\Presets\Palettes\*"; DestDir: "{userdocs}\{#MyAppName}\Palettes"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\..\Libraries\win64\bin\libssh2-x64.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -94,5 +95,5 @@ end;
 [Run]
 Filename: "{tmp}\vc_redist.x64.exe"; Description: "Install VC Redistributable package if necessary"; Parameters: "/q /norestart /c:""msiexec /q /i vcredist.msi"""; \
    Check: VCRedistNeedsInstall; StatusMsg: "Installing Microsoft Visual C++ 2015, may take a few minutes..."
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeNameDest}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
