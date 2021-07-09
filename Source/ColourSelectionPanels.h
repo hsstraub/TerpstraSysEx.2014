@@ -75,12 +75,12 @@ public:
     {
         Rectangle<int> viewportBounds(viewableWidth, viewableHeight);
 
-        float horizontalMargin  = viewportBounds.proportionOfWidth(horizontalMarginScalar);
         float itemWidth         = viewportBounds.proportionOfWidth(itemWidthScalar);
         float itemHeight        = viewportBounds.proportionOfWidth(itemHeightScalar);
         float topMargin         = viewportBounds.proportionOfHeight(topMarginScalar);
         float bottomMargin      = viewportBounds.proportionOfHeight(bottomMarginScalar);
-
+        float horizontalMargin  = (viewableWidth - (3 * itemWidth)) * 0.143f;
+        
         for (int i = 0; i < flexBox.items.size(); i++)
         {
             FlexItem& item = flexBox.items.getReference(i);
