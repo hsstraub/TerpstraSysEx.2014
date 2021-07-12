@@ -375,7 +375,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
         } else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0) {
             invertExpression = currentLine.substring(pos1 + 21).getIntValue() > 0;
         } else if ((pos1 = currentLine.indexOf("InvertSustain=")) >= 0) {
-            invertSustain = currentLine.substring(pos1 + 21).getIntValue() > 0;
+            invertSustain = currentLine.substring(pos1 + 14).getIntValue() > 0;
         } else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0) {
             expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
         }
