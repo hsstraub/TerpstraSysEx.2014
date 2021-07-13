@@ -1175,10 +1175,29 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetPeripheralChannelsResponse(c
     return status;
 }
 
+// For CMD 3Eh response: read back the calibration mode of the message
+FirmwareSupport::Error TerpstraMidiDriver::unpackPeripheralCalibrationMode(const MidiMessage& response, int& calibrationMode)
+{
+    // Other errors will be caught in corresponding mode unpacking
+    int msgSize = response.getSysExDataSize();
+    int expectedSize = PAYLOAD_INIT + 15;
+    
+    if (msgSize < expectedSize)
+        return FirmwareSupport::Error::messageTooShort;
+    
+    else if (msgSize > expectedSize)
+        return FirmwareSupport::Error::messageTooLong;
+
+    auto sysExData = response.getSysExData();
+    calibrationMode = sysExData[CALIB_MODE];
+
+    return FirmwareSupport::Error::noError;
+}
+
 // For CMD 3Eh response: retrieve 12-bit expression pedal calibration status values in respective mode, automatically sent every 100ms
 FirmwareSupport::Error TerpstraMidiDriver::unpackExpressionPedalCalibrationPayload(const MidiMessage& response, int& minBound, int& maxBound, bool& valid)
 {
-    const short NUM_UNPACKED = 5; // Actually two + boolean, but this message always returns 15-byte payload
+    const short NUM_UNPACKED = 15; // Actually two + boolean, but this message always returns 15-byte payload
     int unpackedData[NUM_UNPACKED];
     auto status = unpack12BitDataFrom4Bit(response, 15, unpackedData);
     if (status != FirmwareSupport::Error::noError)
@@ -1194,7 +1213,7 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackExpressionPedalCalibrationPaylo
 // For CMD 3Eh response: retrieve 12-bit pitch & mod wheel calibration status values in respective mode, automatically sent every 100ms
 FirmwareSupport::Error TerpstraMidiDriver::unpackWheelsCalibrationPayload(const MidiMessage& response, int& centerPitch, int& minPitch, int& maxPitch, int& minMod, int& maxMod)
 {
-    const short NUM_UNPACKED = 5;
+    const short NUM_UNPACKED = 15;
     int unpackedData[NUM_UNPACKED];
     auto status = unpack12BitDataFrom4Bit(response, NUM_UNPACKED, unpackedData);
     if (status != FirmwareSupport::Error::noError)

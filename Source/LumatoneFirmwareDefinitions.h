@@ -182,6 +182,12 @@ typedef enum
 	disabled             = 4
 } LumatoneKeyType;
 
+typedef enum
+{
+	ExpressionPedal = 0,
+	PitchAndModWheels
+} PeripheralCalibrationDataMode;
+
 enum class LumatoneFirmwareVersion
 {
 	NO_VERSION      = 0,  // Used for instantiation
@@ -504,5 +510,26 @@ struct PeripheralChannelSettings
 		}
 
 		return 0;
+	}
+};
+
+struct WheelsCalibrationData
+{
+	int centerPitch = 0;
+	int minPitch = 0;
+	int maxPitch = 0;
+
+	int minMod = 0;
+	int maxMod = 0;
+
+	String toString() const
+	{
+		String str;
+		str += ("Center Pitch: " + String(centerPitch) + newLine);
+		str += ("   Min Pitch: " + String(minPitch) + newLine);
+		str += ("   Max Pitch: " + String(maxPitch) + newLine);
+		str += ("     Min Mod: " + String(minMod) + newLine);
+		str += ("     Max Mod: " + String(maxMod) + newLine);
+		return str;
 	}
 };

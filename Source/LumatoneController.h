@@ -309,7 +309,7 @@ public:
 
         virtual void pedalCalibrationDataReceived(int minBound, int maxBound, bool pedalIsActive) {};
 
-        virtual void wheelsCalibrationDataReceived(int minPitch, int maxPitch, int minMod, int maxMod) {};
+        virtual void wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData) {};
 
         virtual void noAnswerToCommand(int cmd) {};
     };
@@ -387,6 +387,10 @@ private:
     FirmwareSupport::Error handleLumatouchConfigResponse(const MidiMessage& midiMessage);
 
     FirmwareSupport::Error handlePingResponse(const MidiMessage& midiMessage);
+
+    FirmwareSupport::Error handlePeripheralCalibrationData(const MidiMessage& midiMessage);
+    FirmwareSupport::Error handleExpressionPedalCalibrationData(const MidiMessage& midiMessage);
+    FirmwareSupport::Error handleWheelsCalibrationData(const MidiMessage& midiMessage);
 
     FirmwareSupport::Error handleGetPeripheralChannelResponse(const MidiMessage& midiMessage);
 

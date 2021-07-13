@@ -777,9 +777,63 @@ FirmwareSupport::Error LumatoneController::handleGetPeripheralChannelResponse(co
     return errorCode;
 }
 
+FirmwareSupport::Error LumatoneController::handlePeripheralCalibrationData(const MidiMessage& midiMessage)
+{
+    int mode = -1;
+    auto errorCode = midiDriver.unpackPeripheralCalibrationMode(midiMessage, mode);
+    
+    if (errorCode != FirmwareSupport::Error::noError)
+        return errorCode;
+
+    switch (mode)
+    {
+    case PeripheralCalibrationDataMode::ExpressionPedal:
+        errorCode = handleExpressionPedalCalibrationData(midiMessage);
+        break;
+    case PeripheralCalibrationDataMode::PitchAndModWheels:
+        errorCode = handleWheelsCalibrationData(midiMessage);
+        break;
+    default:
+        errorCode = FirmwareSupport::Error::messageIsNotResponseToCommand;
+    }
+
+    if (errorCode != FirmwareSupport::Error::noError)
+        return errorCode;
+
+    return errorCode;
+}
+
+FirmwareSupport::Error LumatoneController::handleExpressionPedalCalibrationData(const MidiMessage& midiMessage)
+{
+    int minBound = 0;
+    int maxBound = 0;
+    bool isValid = false;
+
+    auto errorCode = midiDriver.unpackExpressionPedalCalibrationPayload(midiMessage, minBound, maxBound, isValid);
+
+    firmwareListeners.call(&FirmwareListener::pedalCalibrationDataReceived, minBound, maxBound, isValid);
+
+    return errorCode;
+}
+
+FirmwareSupport::Error LumatoneController::handleWheelsCalibrationData(const MidiMessage& midiMessage)
+{
+    WheelsCalibrationData calibrationData;
+    auto errorCode = midiDriver.unpackWheelsCalibrationPayload(midiMessage,
+        calibrationData.centerPitch,
+        calibrationData.minPitch,
+        calibrationData.maxPitch,
+        calibrationData.minMod,
+        calibrationData.maxMod
+    );
+
+    firmwareListeners.call(&FirmwareListener::wheelsCalibrationDataReceived, calibrationData);
+    return errorCode;
+}
+
 void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived)
 {
-    DBG("ERROR from command " + String(commandReceived) + ": " + firmwareSupport.errorToString(errorToHandle));
+    DBG("ERROR from command " + String::toHexString(commandReceived) + ": " + firmwareSupport.errorToString(errorToHandle));
 
     // Generic handling
     if (commandReceived < CHANGE_KEY_NOTE)
@@ -955,6 +1009,10 @@ void LumatoneController::timerCallback()
 
                         case GET_PERIPHERAL_CHANNELS:
                             errorCode = handleGetPeripheralChannelResponse(midiMessage);
+                            break;
+
+                        case PERIPHERAL_CALBRATION_DATA:
+                            errorCode = handlePeripheralCalibrationData(midiMessage);
                             break;
 
                         default:

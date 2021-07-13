@@ -382,6 +382,9 @@ public:
 	// For CMD 3Dh response: retrieve MIDI channels of which peripherals are configured
 	FirmwareSupport::Error unpackGetPeripheralChannelsResponse(const MidiMessage& response, int& pitchWheelChannel, int& modWheelChannel, int& expressionChannel, int& sustainPedalChannel);
 
+	// For CMD 3Eh response: read back the calibration mode of the message
+	FirmwareSupport::Error unpackPeripheralCalibrationMode(const MidiMessage& response, int& calibrationMode);
+
 	// For CMD 3Eh response: retrieve 12-bit expression pedal calibration status values in respective mode, automatically sent every 100ms
 	FirmwareSupport::Error unpackExpressionPedalCalibrationPayload(const MidiMessage& response, int& minBound, int& maxBound, bool& valid);
 
