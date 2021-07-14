@@ -253,7 +253,8 @@ void TerpstraKeyMapping::clearAll()
     // Default values for options
     afterTouchActive = false;
     lightOnKeyStrokes = false;
-    invertFootController = false;
+    invertExpression = false;
+    invertSustain = false;
     expressionControllerSensivity = 0;
 
     clearVelocityIntervalTable();
@@ -338,7 +339,10 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
                 int keyValue = currentLine.substring(pos2 + 1).getIntValue();
                 if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
                     if (keyIndex >= 0 && keyIndex < 56)
-                        sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
+                        if (keyValue >= 1 && keyValue < 5)
+                            sets[boardIndex].theKeys[keyIndex].keyType = (LumatoneKeyType)keyValue;
+                        else
+                            sets[boardIndex].theKeys[keyIndex].keyType = LumatoneKeyType::disabled;
                     else
                         jassert(false);
                 }
@@ -351,7 +355,9 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
         } else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0) {
             lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
         } else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0) {
-            invertFootController = currentLine.substring(pos1 + 21).getIntValue() > 0;
+            invertExpression = currentLine.substring(pos1 + 21).getIntValue() > 0;
+        } else if ((pos1 = currentLine.indexOf("InvertSustain=")) >= 0) {
+            invertSustain = currentLine.substring(pos1 + 21).getIntValue() > 0;
         } else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0) {
             expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
         }
@@ -415,7 +421,7 @@ StringArray TerpstraKeyMapping::toStringArray()
             result.add("Chan_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].channelNumber));
             //if (sets[boardIndex].theKeys[keyIndex].colour != juce::Colour())
             result.add("Col_" + String(keyIndex) + "=" + sets[boardIndex].theKeys[keyIndex].colour.toDisplayString(false));
-            if (sets[boardIndex].theKeys[keyIndex].keyType != TerpstraKey::noteOnNoteOff)
+            if (sets[boardIndex].theKeys[keyIndex].keyType != LumatoneKeyType::noteOnNoteOff)
                 result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
         }
     }
@@ -423,7 +429,8 @@ StringArray TerpstraKeyMapping::toStringArray()
     // General options
     result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
     result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
-    result.add("InvertFootController=" + String(invertFootController ? 1 : 0));
+    result.add("InvertFootController=" + String(invertExpression ? 1 : 0));
+    result.add("InvertSustain=" + String(invertSustain ? 1 : 0));
     result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
 
     // Velocity curve interval table

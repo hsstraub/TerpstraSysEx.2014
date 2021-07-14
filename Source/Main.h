@@ -11,16 +11,15 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LumatoneMenu.h"
 #include "MainComponent.h"
-#include "KeyboardDataStructure.h"
+#include "LumatoneController.h"
+
 #include "ViewConstants.h"
-#include "TerpstraMidiDriver.h"
 #include "LumatoneEditorFonts.h"
 #include "ColourPaletteDataStructure.h"
 #include "LocalisationMap.h"
 #include "FirmwareTransfer.h"
-
-typedef TerpstraMidiDriver::FirmwareVersion FirmwareVersion;
 
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
@@ -49,21 +48,20 @@ public:
 	LumatoneEditorLookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
-	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	DeviceActivityMonitor& getDeviceMonitor() { return *deviceMonitor.get(); }
+	LumatoneController& getLumatoneController() { return lumatoneController; }
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
-	int getOctaveBoardSize() const { return octaveBoardSize; }
+	int getOctaveBoardSize() const { return lumatoneController.getOctaveSize(); }
 
-	FirmwareVersion getFirmwareVersion() const { return midiDriver.getFirmwareVersion(); }
-	String getFirmwareVersionStr() const { return midiDriver.getFirmwareVersion().toString(); }
+	FirmwareVersion getFirmwareVersion() const { return lumatoneController.getFirmwareVersion(); }
+	String getFirmwareVersionStr() const { return lumatoneController.getFirmwareVersion().toString(); }
 
 	void reloadColourPalettes();
 	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
 	bool deletePaletteFile(File pathToPalette);
 
 	// Menu functionality
-	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
 	void getAllCommands(Array <CommandID>& commands) override;
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 	bool perform(const InvocationInfo& info) override;
@@ -76,6 +74,13 @@ public:
 	bool deleteSubBoardData();
 	bool copySubBoardData();
 	bool pasteSubBoardData();
+
+	void setCalibrationMode(bool calibrationStarted) { inCalibrationMode = calibrationStarted; }
+	bool getInCalibrationMode() const { return inCalibrationMode; }
+
+	bool performUndoableAction(UndoableAction* editAction);
+	bool undo();
+	bool redo();
 
 	bool toggleDeveloperMode();
 
@@ -90,6 +95,7 @@ public:
 
 	void sendCurrentConfigurationToDevice();
 	void requestConfigurationFromDevice();
+
 
 	void updateMainTitle();
 
@@ -164,14 +170,21 @@ public:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 	};
 
+	MainContentComponent* getMainContentComponent();
+
 private:
 	std::unique_ptr<MainWindow> mainWindow;
 
 	std::unique_ptr<ComponentBoundsConstrainer> boundsConstrainer;
 
 	std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+
+	bool						inCalibrationMode = false;
+
+	juce::UndoManager undoManager;
 	
 	LumatoneEditorFonts			appFonts;
 	LumatoneEditorLookAndFeel	lookAndFeel;
@@ -186,13 +199,7 @@ private:
 
 	Array<LumatoneEditorColourPalette> colourPalettes;
 
-	// MIDI connection
-	TerpstraMidiDriver			midiDriver;
-
-	// Device MIDI monitor
-	std::unique_ptr<DeviceActivityMonitor> deviceMonitor;
-
-	// Size of octaver board. Usually 56, but there are a few devices with55.
-	int octaveBoardSize = 56;
+	// Communication with Lumatone
+	LumatoneController			lumatoneController;
 };
 

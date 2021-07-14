@@ -15,6 +15,12 @@ HajuErrorVisualizer::HajuErrorVisualizer(LookAndFeel& lookAndFeelValue)
 {
 }
 
+void HajuErrorVisualizer::setErrorLevel(ErrorLevel errorLevel, String toolTipText)
+{
+    lastErrorLevel = errorLevel;
+    currentText = toolTipText;
+}
+
 void HajuErrorVisualizer::setErrorLevel(
     SettableTooltipClient& tooltipClient,
     Component& component,
@@ -22,21 +28,7 @@ void HajuErrorVisualizer::setErrorLevel(
     String toolTipText,
     int bgColourId)
 {
-    //Colour bgColour = lookAndFeel.findColour(bgColourId);
-
-
-    //switch(errorLevel)
-    //{
-    //case ErrorLevel::warning:
-    //    bgColour = bgColour.overlaidWith(Colours::yellow).withAlpha(0.5f);
-    //    break;
-    //case ErrorLevel::error:
-    //    bgColour = bgColour.overlaidWith(Colours::red).withAlpha(0.5f);
-    //    break;
-    //default:
-    //    break;
-    //}
-
+    setErrorLevel(errorLevel, toolTipText);
     tooltipClient.setTooltip(toolTipText);
     component.setColour(bgColourId, errorLevelColours[errorLevel]);
     component.repaint();

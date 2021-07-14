@@ -15,99 +15,152 @@ HajuMidiDriver::HajuMidiDriver()
 {
 	midiInputs = MidiInput::getAvailableDevices();
 	midiOutputs = MidiOutput::getAvailableDevices();
+    midiInput = nullptr;
+    midiOutput = nullptr;
 }
 
 HajuMidiDriver::~HajuMidiDriver()
 {
-    if (midiInput.get() != nullptr)
+    if (midiInput != nullptr)
     {
         midiInput->stop();
+        midiInput = nullptr;
     }
-
 
 	midiOutput = nullptr;
 }
 
-Array<MidiDeviceInfo> HajuMidiDriver::getMidiInputList()
+const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiInputList()
 {
 	return midiInputs;
 }
 
-Array<MidiDeviceInfo> HajuMidiDriver::getMidiOutputList()
+const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiOutputList()
 { 
 	return midiOutputs;
 }
 
-MidiDeviceInfo HajuMidiDriver::getMidiInputInfo() const
+int HajuMidiDriver::getIndexOfInputDevice(String inputDeviceId) const
 {
-    return midiInputs[lastInputIndex];
+    for (int i = 0; i < midiInputs.size(); i++)
+        if (midiInputs[i].identifier == inputDeviceId)
+            return i;
+
+    return -1;
 }
 
-MidiDeviceInfo HajuMidiDriver::getMidiOutputInfo() const
+
+int HajuMidiDriver::getIndexOfOutputDevice(String outputDeviceId) const
 {
-    if (midiOutput.get())
-        return midiOutput->getDeviceInfo();
-    return MidiDeviceInfo();
+    for (int i = 0; i < midiOutputs.size(); i++)
+        if (midiOutputs[i].identifier == outputDeviceId)
+            return i;
+
+    return -1;
 }
 
-void HajuMidiDriver::refreshDeviceLists()
+bool HajuMidiDriver::refreshDeviceLists()
 {
+    bool inputsChanged = false;
+    auto newInputs = MidiInput::getAvailableDevices();
+    if (newInputs.size() == midiInputs.size())
+    {
+        for (int i = 0; i < newInputs.size(); i++)
+            if (newInputs[i] != midiInputs[i])
+                inputsChanged = true;
+    }
+    else
+        inputsChanged = true;
+
     // Reset last opened device to be the same index
     // so we close the correct one if that's requested
     // order change is probably rare but can't be guaranteed
-    
-    if (lastInputIndex >= 0)
-    {
-        String lastInputId = midiInputs[lastInputIndex].identifier;
-        midiInputs = MidiInput::getAvailableDevices();
 
-        for (int i = 0; i < midiInputs.size(); i++)
-            if (midiInputs[i].identifier == lastInputId)
-                lastInputIndex = i;
-    }
-    else
-        midiInputs = MidiInput::getAvailableDevices();
-    
-    if (lastOutputIndex >= 0)
+    if (inputsChanged)
     {
-        String lastOutputId = midiOutputs[lastOutputIndex].identifier;
-        midiOutputs = MidiOutput::getAvailableDevices();
+        if (lastInputIndex >= 0)
+        {
+            String lastInputId = midiInputs[lastInputIndex].identifier;
+
+            for (int i = 0; i < newInputs.size(); i++)
+                if (newInputs[i].identifier == lastInputId)
+                    lastInputIndex = i;
+        }
         
-        for (int i = 0; i < midiOutputs.size(); i++)
-            if (midiOutputs[i].identifier == lastOutputId)
-                lastOutputIndex = i;
+        midiInputs = newInputs;
+    }
+
+    bool outputsChanged = false;
+    auto newOutputs = MidiOutput::getAvailableDevices();
+    if (newOutputs.size() == midiOutputs.size())
+    {
+        for (int i = 0; i < newOutputs.size(); i++)
+            if (newOutputs[i] != midiOutputs[i])
+                outputsChanged = true;
     }
     else
-        midiOutputs = MidiOutput::getAvailableDevices();
+        outputsChanged = true;
+
+    if (outputsChanged)
+    {
+        if (lastOutputIndex >= 0)
+        {
+            String lastOutputId = midiOutputs[lastOutputIndex].identifier;
+
+            for (int i = 0; i < newOutputs.size(); i++)
+                if (newOutputs[i].identifier == lastOutputId)
+                    lastOutputIndex = i;
+        }
+        
+        midiOutputs = newOutputs;
+    }
+
+    return inputsChanged || outputsChanged;
 }
 
 void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
-    if (midiInput.get())
-    {
-        midiInput->stop();
-    }
+    jassert(deviceIndex >= 0 && deviceIndex < midiInputs.size());
 
-    auto newInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
-	midiInput.swap(newInput);
-    midiInput->start();
+    testInputs.clear();
+    closeMidiInput();
     
-    lastInputIndex = deviceIndex;
+    DBG("Trying to open input device: " + midiInputs[deviceIndex].name);
+    selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
+
+    if (selectedInput != nullptr)
+    {
+        midiInput = selectedInput.get();
+        midiInput->start();
+
+        lastInputIndex = deviceIndex;
+        lastInputDevice = midiInputs[deviceIndex];
+    }
+    else
+    {
+        DBG("WARNING: Could not open up input device " + String(deviceIndex));
+    }
 }
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
-	jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
-    
-    auto newOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
-    
-    if (newOutput == nullptr)
-        DBG("WARNING: Could not open up output device " + midiOutputs[deviceIndex].identifier);
-    
-    else if (newOutput != midiOutput)
+    jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
+
+    testOutputs.clear();
+    closeMidiOutput();
+
+    DBG("Trying to open output device: " + midiOutputs[deviceIndex].name);
+    selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
+
+    if (selectedOutput != nullptr)
     {
-        midiOutput.swap(newOutput);
+        midiOutput = selectedOutput.get();
         lastOutputIndex = deviceIndex;
+        lastOutputDevice = midiOutputs[deviceIndex];
+    }
+    else
+    {
+        DBG("WARNING: Could not open up output device " + String(deviceIndex));
     }
 }
 
@@ -134,17 +187,82 @@ void HajuMidiDriver::sendNoteOffMessage(int noteNumber, int channelNumber, uint8
 
 void HajuMidiDriver::closeMidiInput()
 {
-    if (midiInput.get())
+    if (midiInput != nullptr)
     {
         midiInput->stop();
         midiInput = nullptr;
-
-        lastInputIndex = -1;
+       lastInputIndex = -1;
     }
+    
+    selectedInput = nullptr;
 }
 
 void HajuMidiDriver::closeMidiOutput()
 {
-    midiOutput = nullptr;
-    lastOutputIndex = -1;
+    if (midiOutput != nullptr)
+    {
+        midiOutput = nullptr;
+        lastOutputIndex = -1;
+    }
+
+    if (selectedOutput != nullptr)
+    {
+        selectedOutput = nullptr;
+    }
+}
+
+//============================================================================
+// Device detection support
+
+void HajuMidiDriver::openAvailableDevicesForTesting()
+{
+    // May be preferable to only close and open input devices when necessary
+    closeTestingDevices();
+
+    for (auto device : midiOutputs)
+    {
+        auto newOutput = testOutputs.add(MidiOutput::openDevice(device.identifier));
+        if (newOutput == nullptr)
+            testOutputs.removeObject(newOutput);
+    }
+
+    for (auto device : midiInputs)
+    {
+        auto newInput = testInputs.add(MidiInput::openDevice(device.identifier, this));
+        if (newInput != nullptr)
+            newInput->start();
+        else
+            testInputs.removeObject(newInput);
+    }
+}
+
+void HajuMidiDriver::sendTestMessageNow(int outputDeviceIndex, const MidiMessage& message)
+{
+    // Return some error code?
+    if (outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
+    {
+        //DBG("Sending this message to " + testOutputs[outputDeviceIndex]->getName() + ":");
+        //DBG("          " + message.getDescription());
+        testOutputs.getUnchecked(outputDeviceIndex)->sendMessageNow(message);
+    }
+}
+
+// Closes all open testing devices; either setMidiInput and setMidiOutput will call this if it's not empty
+void HajuMidiDriver::closeTestingDevices()
+{
+    if (testOutputs.size() > 0)
+        testOutputs.clear();
+
+    int errors = 0;
+    for (int i = 0; i < testInputs.size(); i++)
+    {
+        auto input = testInputs[i];
+        if (input != nullptr)
+        {
+            input->stop();
+            input = nullptr;
+        }
+    }
+
+    testInputs.clear();
 }

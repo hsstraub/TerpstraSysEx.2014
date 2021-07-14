@@ -11,9 +11,9 @@
 #pragma once
 #include "TerpstraMidiDriver.h"
 
-#define SSHCONNECTIMEOUT 5000
+#define UPDATETIMEOUT 5000
 
-class FirmwareTransfer : public juce::ThreadWithProgressWindow, public TerpstraMidiDriver::Listener
+class FirmwareTransfer : public juce::ThreadWithProgressWindow
 {
 public:
 
@@ -46,8 +46,7 @@ public:
     ~FirmwareTransfer();
 
     bool   requestFirmwareUpdate(String firmwareFilePath);
-    bool   requestFirmwareDownloadAndUpdate(); // TODO
-
+    bool   requestFirmwareDownloadAndUpdate(); // TODO - probably better moved elsewhere
 
     bool   isFirmwareUpdateAvailable() { return true; /*TODO*/ }
 
@@ -56,9 +55,10 @@ public:
 
     static String getLatestFirmwareVersion() { return ""; /*TODO*/ }
 
-
     bool isDownloadInProgress() const { return downloadRequested; }
     bool isTransferInProgress() const { return transferRequested; }
+
+    void incrementProgress();
 
     //=========================================================================
     //juce::Thread implementation
@@ -74,26 +74,17 @@ public:
     // TODO use error codes
     static bool checkFirmwareFileIntegrity(String filePathIn);
 
-
 public:
 
     class ProcessListener
     {
     public:
-        virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode)=0;
+        virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg)=0;
     };
 
-    void addListener(ProcessListener* listenerIn) { listeners.add(listenerIn); }
+    void addTransferListener(ProcessListener* listenerIn) { listeners.add(listenerIn); }
 
-    void removeListener(ProcessListener* listenerIn) { listeners.remove(listenerIn); }
-
-
-public:
-
-    static double statusCodeToProgressPercent(int codeIn)
-    {
-        return (double)codeIn / (int)StatusCode::VerificationBegin;
-    }
+    void removeTransferListener(ProcessListener* listenerIn) { listeners.remove(listenerIn); }
 
 protected:
 
@@ -110,15 +101,11 @@ private:
     //static int shutdownSSHSession(LIBSSH2_SESSION*, int, FILE*, int returnCode = 0);
     //static int waitForSSHSocket(int, LIBSSH2_SESSION*); 
 
-    void midiMessageReceived(const MidiMessage& midiMessage) override; // TODO
-    void midiMessageSent(const MidiMessage& midiMessage) override {};
-    void midiSendQueueSize(int queueSize) override {};
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
-
-
 private:
 
     void postUpdate(StatusCode codeIn);
+
+    double numIncrementsToProgress(int numberOfIncrements) { return numberOfIncrements / (double)maxUpdateIncrements; }
 
 private:
 
@@ -132,4 +119,69 @@ private:
 
     // For shortening the built-in libssh2 timeout period
     bool progressMadeSinceUpdate = false;
+
+    int numberOfWaitIncrements = 0;
+    // Estimation based on boot time of ~85 seconds, plus transfer time, and overhead
+    const int maxUpdateIncrements = 300000 / UPDATETIMEOUT;
+
+public:
+
+    static String statusCodeToMessage(FirmwareTransfer::StatusCode statusCode)
+    {
+        switch (statusCode)
+        {
+        case FirmwareTransfer::StatusCode::Initialize:
+            return translate("Firmware update process initiated!");
+
+        case FirmwareTransfer::StatusCode::FileIntegrityCheck:
+            return translate("Checking integrity of firmware file...");
+
+        case FirmwareTransfer::StatusCode::SessionBegin:
+            return translate("Establishing connection to Lumatone...");
+
+        case FirmwareTransfer::StatusCode::AuthBegin:
+            return translate("Providing credentials...");
+
+        case FirmwareTransfer::StatusCode::TransferBegin:
+            return translate("Transferring firmware file...");
+
+        case FirmwareTransfer::StatusCode::InstallBegin:
+            return translate("Rebooting device for installation");
+
+        case FirmwareTransfer::StatusCode::VerificationBegin:
+            return translate("Installing update...");
+
+        case FirmwareTransfer::StatusCode::IntegrityErr:
+            return translate("Error: Not a valid Lumatone firmware file");
+
+        case FirmwareTransfer::StatusCode::StartupErr:
+            return translate("Error: Could not prepare device communication protool");
+
+        case FirmwareTransfer::StatusCode::HostConnectErr:
+            return translate("Error: Could not communicate with Lumatone");
+
+        case FirmwareTransfer::StatusCode::SessionEstErr:
+            return translate("Error: Could not verify connection with Lumatone");
+
+        case FirmwareTransfer::StatusCode::AuthErr:
+            return translate("Error: Authentication for Lumatone failed");
+
+        case FirmwareTransfer::StatusCode::ChannelErr:
+            return translate("Error: Communication channel failure");
+
+        case FirmwareTransfer::StatusCode::ExecChnlErr:
+            return translate("Error: Could not request device reboot. Try rebooting your Lumatone.");
+
+        case FirmwareTransfer::StatusCode::NoErr:
+            return translate("Please wait for your Lumatone to install the firmware.");
+
+        default:
+            return translate("Unspecified error.");
+        }
+    }
+
+    static double statusCodeToProgressPercent(int codeIn)
+    {
+        return (double)codeIn / (int)FirmwareTransfer::StatusCode::VerificationBegin;
+    }
 };

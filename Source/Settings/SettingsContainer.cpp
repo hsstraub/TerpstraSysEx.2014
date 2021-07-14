@@ -9,7 +9,7 @@
 */
 
 #include "SettingsContainer.h"
-#include "Main.h"
+#include "../Main.h"
 
 void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
 {
@@ -35,8 +35,12 @@ SettingsContainer::SettingsContainer()
 {
     categoryList.reset(new ListBox("CategoryList"));
     categoryList->setModel(&model);
+
     addAndMakeVisible(categoryList.get());
     model.addChangeListener(this);
+
+    auto lastPanelIndex = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("LastSettingsPanel", 0);
+    categoryList->selectRow(lastPanelIndex);
 }
 
 SettingsContainer::~SettingsContainer()
@@ -71,7 +75,8 @@ void SettingsContainer::lookAndFeelChanged()
 
 void SettingsContainer::changeListenerCallback(ChangeBroadcaster* source)
 {
-    showPanel(categoryList->getSelectedRow());
+    auto panelIndex = categoryList->getSelectedRow();
+    showPanel(panelIndex);
 }
 
 void SettingsContainer::showPanel(int editorSettingCategory)
@@ -90,6 +95,8 @@ void SettingsContainer::showPanel(int editorSettingCategory)
 
     if (newPanel)
     {
+        TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastSettingsPanel", editorSettingCategory);
+
         removeChildComponent(settingsPanel.get());
         settingsPanel = nullptr;
         settingsPanel.reset(std::move(newPanel));

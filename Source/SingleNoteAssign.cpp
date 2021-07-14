@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
-#include "MainComponent.h"
+#include "EditActions.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -43,7 +43,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     channelAutoIncrButton.reset (new juce::ToggleButton ("channelAutoIncrButton"));
     addAndMakeVisible (channelAutoIncrButton.get());
-    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #: "));
+    channelAutoIncrButton->setButtonText (TRANS("Channels, after Note #:"));
     channelAutoIncrButton->addListener (this);
 
     channelAutoIncrButton->setBounds (8, 264, 160, 24);
@@ -64,7 +64,7 @@ SingleNoteAssign::SingleNoteAssign ()
 
     setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
-    setColourToggleButton->setButtonText (TRANS("Key Colour:"));
+    setColourToggleButton->setButtonText (TRANS("Key Colour: "));
     setColourToggleButton->addListener (this);
 
     setColourToggleButton->setBounds (8, 96, 112, 24);
@@ -85,6 +85,7 @@ SingleNoteAssign::SingleNoteAssign ()
     keyTypeCombo->addItem (TRANS("Note on/Note off"), 1);
     keyTypeCombo->addItem (TRANS("Continuous controller"), 2);
     keyTypeCombo->addItem (TRANS("Lumatouch"), 3);
+    keyTypeCombo->addItem (TRANS("Disabled"), 4);
     keyTypeCombo->addListener (this);
 
     keyTypeCombo->setBounds (120, 64, 192, 24);
@@ -146,17 +147,27 @@ SingleNoteAssign::SingleNoteAssign ()
 
     keyTypeToggleButton->setButtonText(translate("KeyType"));
     keyTypeToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
+    
+    ccFaderFlipBtn.reset(new juce::ImageButton());
+    ccFaderFlipBtn->setClickingTogglesState(true);
+    ccFaderFlipBtn->addListener(this);
+    ccFaderFlipBtn->setTooltip(translate("Toggle CC polarity inversion. Default, arrow down: values increase with key press. Inverted, arrow up: values decrease with key press."));
+    addAndMakeVisible(ccFaderFlipBtn.get());
+    ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonColourId, Colours::white.withAlpha(0.05f));
+    ccFaderFlipBtn->setColour(TextButton::ColourIds::buttonOnColourId, Colours::grey.withAlpha(0.1f));
+    
+    faderUpArrow = getArrowPath(Point<float>(0.5f, 1.0f), Point<float>(0.5f, 0.0f), 0.5f, 0.25f);
+    faderDownArrow = getArrowPath(Point<float>(0.5f, 0.0f), Point<float>(0.5f, 1.0f), 0.5f, 0.75f);
+
+    keyTypeCombo->getProperties().set(LumatoneEditorStyleIDs::popupMenuTargetWidth, 1);
 
     setColourToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     colourSubwindow->setColour("ff60aac5");
 
     setNoteToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     noteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     setChannelToggleButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-
     channelInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     autoIncrementLabel->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
@@ -166,16 +177,25 @@ SingleNoteAssign::SingleNoteAssign ()
     noteAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
 
     channelAutoIncrButton->setColour(ToggleButton::ColourIds::textColourId, toggleTextColour);
-    
     channelAutoIncrNoteInput->getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, controlBoxFontHeightScalar);
 
     instructionsFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::FranklinGothic);
     parametersFont = TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium);
 
-    //noteInputBox->setVisible(false);
-
     // TODO: load last active colour?
     colourTextEditor->addColourSelectionListener(this);
+    
+    // Set up FlexBox rows
+    for (int i = 0; i <= SingleNoteFlexRows::channelIncrement; i++)
+    {
+        flexRows.add(FlexBox(
+                             FlexBox::Direction::row,
+                             FlexBox::Wrap::noWrap,
+                             FlexBox::AlignContent::center,
+                             FlexBox::AlignItems::center,
+                             FlexBox::JustifyContent::flexStart));
+    }
+    
     //[/UserPreSize]
 
     setSize (320, 400);
@@ -186,7 +206,8 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
-	keyTypeCombo->setSelectedId(TerpstraKey::noteOnNoteOff);
+	keyTypeCombo->setSelectedId(LumatoneKeyType::noteOnNoteOff);
+    juce::Timer::callAfterDelay(500, [&]{keyTypeCombo->setSelectedId(2, sendNotification);});
     //[/Constructor]
 }
 
@@ -243,13 +264,25 @@ void SingleNoteAssign::paint (juce::Graphics& g)
 
     g.setColour(Colours::darkgrey);
     g.drawLine(controlsX, separatorY, getWidth() - controlsX, separatorY);
+
+//    // Debug FlexBox positioning
+//    Random r;
+//    for (auto child : getChildren())
+//    {
+//        g.setColour(Colour(r.nextFloat(), r.nextFloat() * 0.5f + 0.5f, r.nextFloat() * 0.5f + 0.5f, 1.0f));
+//        g.drawRect(child->getBounds());
+//    }
+//    for (int i = 0; i < flexBounds.size(); i++)
+//    {
+//        g.setColour(Colours::red);
+//        g.drawRect(flexBounds[i]);
+//    }
     //[/UserPaint]
 }
 
 void SingleNoteAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-
     float w = getWidth();
     float h = getHeight();
 
@@ -257,86 +290,150 @@ void SingleNoteAssign::resized()
         roundedCornerSize = round(getParentComponent()->getParentComponent()->getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     int controlAreaTop = round(h * controlAreaYScalar);
-
-    instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
-    instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
-
-    controlsX = round(w * controlsXScalar);
-    int marginY = round(h * yMarginScalar);
-    int controlH = round(h * controlHeightScalar);
-    int marginX = round(controlH * 0.6f);
-    int halfWidth = round(w * 0.5f);
-    int toggleHeight = round(h * toggleHeightScalar);
-    int halfMarginX = round(marginX * 0.5f);
-    int halfMarginY = round(marginY * 0.5f);
-
-    instructionsBounds.setBounds(marginX, 0, w - marginX - marginX, controlAreaTop);
-
-    parametersFont.setHeight(toggleHeight * 1.25f);
-    //int comboBoxWidth = round(parametersFont.getStringWidth("127_") * 2);
-
-    keyTypeToggleButton->setTopLeftPosition(controlsX, instructionsAreaBounds.getBottom() + halfMarginY);
-    resizeToggleButtonWithHeight(keyTypeToggleButton.get(), parametersFont, toggleHeight);
-    keyTypeCombo->setSize(w - marginX - keyTypeToggleButton->getRight(), controlH);
-    keyTypeCombo->setCentrePosition(
-        round(keyTypeCombo->getWidth() * 0.5f) + keyTypeToggleButton->getRight(),
-        keyTypeToggleButton->getBounds().getCentreY()
-    );
-
-    setColourToggleButton->setTopLeftPosition(controlsX, keyTypeToggleButton->getBottom() + marginY);
-    resizeToggleButtonWithHeight(setColourToggleButton.get(), parametersFont, toggleHeight);
-    colourSubwindow->setSize(controlH * 1.5f, controlH);
-    colourSubwindow->setCentrePosition(
-        round(colourSubwindow->getWidth() * 0.5f) + setColourToggleButton->getRight(),
-        setColourToggleButton->getBounds().getCentreY()
-    );
-
-    colourTextEditor->setTopLeftPosition(colourSubwindow->getRight() + halfMarginX, colourSubwindow->getY());
-    colourTextEditor->setSize(w - colourTextEditor->getX() - marginX, controlH);
-    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlH * CONTROLBOXFONTHEIGHTSCALAR * GLOBALFONTSCALAR), true);
-
-    setNoteToggleButton->setTopLeftPosition(controlsX, setColourToggleButton->getBottom() + marginY);
-    resizeToggleButtonWithHeight(setNoteToggleButton.get(), parametersFont, toggleHeight);
-    noteInput->setSize(w - noteInput->getX() - marginX, controlH);
-	noteInput->setCentrePosition(
-        round(noteInput->getWidth() * 0.5f) + setNoteToggleButton->getRight(),
-        setNoteToggleButton->getBounds().getCentreY()
-    );
-    noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
-
-    setChannelToggleButton->setTopLeftPosition(controlsX, setNoteToggleButton->getBottom() + marginY);
-    setChannelToggleButton->setSize(noteInput->getX() - controlsX, toggleHeight);
-    channelInput->setCentrePosition(
-        round(channelInput->getWidth() * 0.5f) + setChannelToggleButton->getRight(),
-        setChannelToggleButton->getBounds().getCentreY()
-    );
-    channelInput->setTopLeftPosition(noteInput->getX(), channelInput->getY());
-    channelInput->setSize(noteInput->getWidth(), controlH);
-    channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
-
-    separatorY = setChannelToggleButton->getBottom() + halfMarginY;
-
-    autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, w - controlsX, controlH);
-
-    noteAutoIncrButton->setTopLeftPosition(controlsX, autoIncrementLabel->getBottom() + halfMarginY);
-    resizeToggleButtonWithHeight(noteAutoIncrButton.get(), parametersFont, toggleHeight);
-
-    channelAutoIncrButton->setTopLeftPosition(controlsX, noteAutoIncrButton->getBottom() + halfMarginY);
-    resizeToggleButtonWithHeight(channelAutoIncrButton.get(), parametersFont, toggleHeight);
-
-    int chAutoIncBtnRightAdj = channelAutoIncrButton->getRight() - halfMarginX;
-
-    channelAutoIncrNoteInput->setSize(w - marginX - chAutoIncBtnRightAdj, controlH);
-    channelAutoIncrNoteInput->setCentrePosition(
-        chAutoIncBtnRightAdj + roundToInt(channelAutoIncrNoteInput->getWidth() * 0.5f),
-        channelAutoIncrButton->getBounds().getCentreY()
-    );
-
-    // Logically, setting the width would make the buttons' width 0, but that's not happening...so use max width available
-    channelAutoIncrNoteInput->setTextBoxStyle(Slider::TextBoxLeft, false, channelAutoIncrNoteInput->getWidth(), channelAutoIncrNoteInput->getHeight());
+    
+    int toggleHeight = roundToInt(h * toggleHeightScalar);
+    int toggleHeightScaled = roundToInt(toggleHeight * GLOBALFONTSCALAR);
+    
+    int controlH = roundToInt(h * controlHeightScalar);
+    int controlHScaled = roundToInt(controlH * GLOBALFONTSCALAR);
+    
+    int marginX = roundToInt(controlH * 0.6f);
+    int marginY = roundToInt(h * yMarginScalar);
+    int halfMarginX = roundToInt(marginX * 0.5f);
+    int halfMarginY = roundToInt(marginY * 0.5f);
+        
+    int rowWidth = roundToInt(w - marginX * 2);
+    int toggleWidthMargin = toggleHeight + marginX * 1.25f; // Toggle icon + combined margins
+    
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    instructionsAreaBounds.setBounds(0, 0, w, controlAreaTop);
+    instructionsFont.setHeight(instructionsAreaBounds.getHeight() * fontHeightInBounds);
+    controlsX = roundToInt(w * controlsXScalar);
+    
+    instructionsBounds.setBounds(marginX, 0, w - marginX * 2, controlAreaTop);
+
+    parametersFont.setHeight(toggleHeightScaled);
+    
+    flexBounds.clear();
+    auto tglTemplateItem = FlexItem().withHeight(toggleHeightScaled).withAlignSelf(FlexItem::AlignSelf::center);
+    auto ctrlTemplateItem = FlexItem(FlexItem::autoValue, controlH).withFlex(1.0f);
+    
+    auto getTglWidth = [=](ToggleButton* btn) {
+        return roundToInt(parametersFont.getStringWidthFloat(btn->getButtonText()) + toggleWidthMargin);
+    };
+    
+    for (int i = 0; i <= SingleNoteFlexRows::channelIncrement; i++)
+    {
+        auto row = flexRows.getReference(i);
+        row.items.clear();
+        
+        // Generalize row properties
+        auto toggleItem = FlexItem(tglTemplateItem);
+        auto setupToggleItem = [&] (ToggleButton* btn) {
+            toggleItem.width = getTglWidth(btn);
+            toggleItem.associatedComponent = btn;
+        };
+        
+        auto controlItem = FlexItem(ctrlTemplateItem);
+        
+        auto getAndPerformBounds = [&] () {
+            auto bounds = Rectangle<int>(controlsX, flexBounds[i - 1].getBottom() + halfMarginY, rowWidth, controlH);
+            flexBounds.add(bounds);
+            row.performLayout(bounds);
+        };
+        
+        switch (i)
+        {
+            case SingleNoteFlexRows::keyType:
+            {
+                setupToggleItem(keyTypeToggleButton.get());
+                row.items.add(toggleItem);
+                
+                controlItem.associatedComponent = keyTypeCombo.get();
+                row.items.add(controlItem);
+                
+                flexBounds.add(Rectangle<int>(controlsX, controlAreaTop + halfMarginY, rowWidth, controlH));
+                row.performLayout(flexBounds[i]);
+                break;
+            }
+            case SingleNoteFlexRows::keyColour:
+            {
+                setupToggleItem(setColourToggleButton.get());
+                row.items.add(toggleItem);
+                
+                auto colourItem = FlexItem(controlH * 1.5f, controlH, *colourSubwindow.get());
+                colourItem.margin = FlexItem::Margin(0, halfMarginX, 0, 0);
+                row.items.add(colourItem);
+                
+                controlItem.associatedComponent = colourTextEditor.get();
+                row.items.add(controlItem);
+                
+                getAndPerformBounds();
+                break;
+            }
+            case SingleNoteFlexRows::keyNum:
+            {
+                setupToggleItem(setNoteToggleButton.get());
+                row.items.add(toggleItem);
+                
+                if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
+                {
+                    auto ccInvertItem = FlexItem(controlH, controlH, *ccFaderFlipBtn.get());
+                    ccInvertItem.margin = FlexItem::Margin(0, halfMarginX, 0, 0);
+                    row.items.add(ccInvertItem);
+                }
+                
+                controlItem.associatedComponent = noteInput.get();
+                row.items.add(controlItem);
+                
+                getAndPerformBounds();
+                break;
+            }
+            case SingleNoteFlexRows::keyChannel:
+            {
+                setupToggleItem(setChannelToggleButton.get());
+                row.items.add(toggleItem);
+                
+                controlItem.associatedComponent = channelInput.get();
+                row.items.add(controlItem);
+                
+                getAndPerformBounds();
+                
+                // Position Auto-Increment section since channelIncrement is relative to it
+                separatorY = channelInput->getBottom() + halfMarginY;
+                autoIncrementLabel->setBounds(controlsX, separatorY + halfMarginY, w - controlsX, controlHScaled);
+                noteAutoIncrButton->setTopLeftPosition(controlsX, autoIncrementLabel->getBottom() + halfMarginY);
+                resizeToggleButtonWithHeight(noteAutoIncrButton.get(), parametersFont, toggleHeightScaled);
+                break;
+            }
+            case SingleNoteFlexRows::channelIncrement:
+            {
+                setupToggleItem(channelAutoIncrButton.get());
+                row.items.add(toggleItem);
+                
+                controlItem.associatedComponent = channelAutoIncrNoteInput.get();
+                row.items.add(controlItem);
+                
+                flexBounds.add(Rectangle<int>(controlsX, noteAutoIncrButton->getBottom() + halfMarginY, rowWidth, controlH));
+                row.performLayout(flexBounds[i]);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    // Style adjustments
+    colourTextEditor->applyFontToAllText(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium, controlHScaled * CONTROLBOXFONTHEIGHTSCALAR), true);
+
+    noteInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(noteInput->getWidth() * incDecButtonTextBoxWidthScalar), noteInput->getHeight());
+    
+    if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
+        redrawCCFlipBtn();
+    
+    channelInput->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, roundToInt(channelInput->getWidth() * incDecButtonTextBoxWidthScalar), channelInput->getHeight());
     //[/UserResized]
 }
 
@@ -391,6 +488,9 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
     }
 
     //[UserbuttonClicked_Post]
+    else if (buttonThatWasClicked == ccFaderFlipBtn.get())
+    {
+    }
     //[/UserbuttonClicked_Post]
 }
 
@@ -404,16 +504,18 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
 
         // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
-            setNoteToggleButton->setButtonText("CC Type:");
-
-            // ToDo Auto increment does not make sense in this case?
+            setNoteToggleButton->setButtonText("CC #:");
+            ccFaderFlipBtn->setVisible(true);
         }
         else
         {
             setNoteToggleButton->setButtonText("Note # (0-127):");
+            ccFaderFlipBtn->setVisible(false);
         }
+
+        resized();
 
         //[/UserComboBoxCode_keyTypeCombo]
     }
@@ -455,7 +557,6 @@ void SingleNoteAssign::lookAndFeelChanged()
     auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
     if (lookAndFeel)
     {
-        lookAndFeel->setupComboBox(*keyTypeCombo);
         lookAndFeel->setupTextEditor(*colourTextEditor);
     }
 }
@@ -467,56 +568,32 @@ void SingleNoteAssign::colourChangedCallback(ColourSelectionBroadcaster* source,
 }
 
 /// <summary>Called from parent when one of the keys is clicked</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
+/// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
+UndoableAction* SingleNoteAssign::createEditAction(int setSelection, int keySelection)
 {
-	bool mappingChanged = false;
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
+	int newNote = noteInput->getValue();
+	int newChannel = channelInput->getValue();
+	
+	auto editAction = new Lumatone::SingleNoteAssignAction(
+		setSelection, keySelection,
+		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
+		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
+		(LumatoneKeyType)keyTypeCombo->getSelectedId(), newChannel,
+		newNote, colourSubwindow->getColourAsObject());
 
-	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
-
-	// Set note if specified
-	if (setNoteToggleButton->getToggleState())
-	{
-		keyData.noteNumber = noteInput->getValue();
-		mappingChanged = true;
-	}
-
-	// Set channel if specified
-	if (setChannelToggleButton->getToggleState())
-	{
-		keyData.channelNumber = channelInput->getValue();	// 1-16
-		mappingChanged = true;
-	}
-
-	// Set colour if specified
-	if (setColourToggleButton->getToggleState())
-	{
-		keyData.colour = colourSubwindow->getColourAsObject();
-		mappingChanged = true;
-	}
-
-	// Set key type if specified
-	if (keyTypeToggleButton->getToggleState())
-	{
-		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
-		mappingChanged = true;
-	}
-
-	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
-
+	jassert(editAction != nullptr && editAction->isValid());
+	
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())
 	{
-		int newNote = keyData.noteNumber + 1;
+		newNote++;
 
 		// Auto increment channel
 		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteInput->getValue() > 0 &&
 			newNote > channelAutoIncrNoteInput->getValue())
 		{
 			newNote = 0;
-			int newChannel = keyData.channelNumber + 1;
+			newChannel++;
 			if (newChannel > 16)
 				newChannel = 1;
 			channelInput->setValue(newChannel);
@@ -528,7 +605,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		noteInput->setValue(newNote);
 	}
 
-	return mappingChanged;
+	return editAction;
 }
 
 void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
@@ -553,6 +630,9 @@ void SingleNoteAssign::restoreStateFromPropertiesFile(PropertiesFile* properties
 	keyTypeToggleButton->setToggleState(
 		propertiesFile->getBoolValue("SingleNoteKeyTypeSetActive", true),
 		juce::NotificationType::sendNotification);
+    ccFaderFlipBtn->setToggleState(
+       propertiesFile->getBoolValue("SingleNoteKeyCCFlipped", false),
+       juce::NotificationType::sendNotification);
 }
 
 void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
@@ -562,6 +642,49 @@ void SingleNoteAssign::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 	propertiesFile->setValue("SingleNoteColourSetActive", setColourToggleButton->getToggleState());
 	propertiesFile->setValue("SingleNoteKeyTypeSetActive", keyTypeToggleButton->getToggleState());
 
+}
+
+void SingleNoteAssign::redrawCCFlipBtn()
+{
+    Path arrowPath, faderPath, arrowInvertedPath, faderInvertedPath;
+    getCCPolarityIconPath(false, arrowPath, faderPath);
+    getCCPolarityIconPath(true, arrowInvertedPath, faderInvertedPath);
+    auto defaultImg = Image(Image::PixelFormat::ARGB, ccFaderFlipBtn->getWidth(), ccFaderFlipBtn->getHeight(), true);
+    auto invertedImg = defaultImg.createCopy();
+    
+    Graphics g(defaultImg);
+    Graphics gi(invertedImg);
+    
+    auto transform = AffineTransform::scale(defaultImg.getWidth(), defaultImg.getHeight());
+    arrowPath.applyTransform(transform);
+    faderPath.applyTransform(transform);
+    arrowInvertedPath.applyTransform(transform);
+    faderInvertedPath.applyTransform(transform);
+    
+    auto lookAndFeel = &TerpstraSysExApplication::getApp().getLookAndFeel();
+    auto background = lookAndFeel->findColour(TextButton::ColourIds::buttonColourId);
+    g.setColour(background);
+    g.fillRoundedRectangle(ccFaderFlipBtn->getLocalBounds().toFloat(), 5.0f);
+    gi.setColour(background);
+    gi.fillRoundedRectangle(ccFaderFlipBtn->getLocalBounds().toFloat(), 5.0f);
+    
+    auto arrowStroke = PathStrokeType(PHI, PathStrokeType::JointStyle::curved);
+    auto colour = lookAndFeel->findColour(LumatoneEditorColourIDs::ActiveText).brighter(0.1);
+    g.setColour(colour);
+    g.strokePath(arrowPath, arrowStroke);
+    g.fillPath(faderPath);
+    
+    gi.setColour(colour);
+    gi.strokePath(arrowInvertedPath, arrowStroke);
+    gi.fillPath(faderInvertedPath);
+    
+//    auto mouseOverImg = ccFaderFlipBtn->getToggleState() ? &invertedImg : &defaultImg;
+    auto highlight = Colours::white.withAlpha(0.0333f);
+    
+    ccFaderFlipBtn->setImages(false, false, true,
+      defaultImg, 1.0f, Colour(),
+      defaultImg, 1.0f, highlight,
+      invertedImg, 1.0f, Colour());
 }
 //[/MiscUserCode]
 
@@ -585,7 +708,7 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="8 232 160 24" buttonText="Notes-Per-Click"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="channelAutoIncrButton" id="1749290d10236ec3" memberName="channelAutoIncrButton"
-                virtualName="" explicitFocusOrder="0" pos="8 264 160 24" buttonText="Channels, after Note #"
+                virtualName="" explicitFocusOrder="0" pos="8 264 160 24" buttonText="Channels, after Note #:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setNoteToggleButton" id="79f2522d584925d1" memberName="setNoteToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 128 112 24" buttonText="Note # (0-127):"
@@ -594,14 +717,14 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="8 160 112 24" buttonText="Channel (1-16):"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Key Colour:"
+                virtualName="" explicitFocusOrder="0" pos="8 96 112 24" buttonText="Key Colour: "
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="keyTypeToggleButton" id="3f2eba6027c4f2f5" memberName="keyTypeToggleButton"
                 virtualName="" explicitFocusOrder="0" pos="8 64 112 24" buttonText="Key type:"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <COMBOBOX name="keyTypeCombo" id="6a64d9cabf0d810f" memberName="keyTypeCombo"
             virtualName="" explicitFocusOrder="0" pos="120 64 192 24" editable="0"
-            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch"
+            layout="33" items="Note on/Note off&#10;Continuous controller&#10;Lumatouch&#10;Disabled"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <SLIDER name="noteInput" id="5858bc8c893dc11" memberName="noteInput"
           virtualName="" explicitFocusOrder="0" pos="120 128 112 24" tooltip="MIDI note or MIDI controller no. (for key type 'continuous controller')"

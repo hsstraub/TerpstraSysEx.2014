@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	bool performMouseDown(int setSelection, int keySelection);
+	UndoableAction* createEditAction(int setSelection, int keySelection);
 	void onSetData(TerpstraKeyMapping& newData);
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
@@ -62,6 +62,8 @@ public:
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
+    
+    void redrawCCFlipBtn();
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -84,23 +86,38 @@ private:
 
     Font instructionsFont;
     Font parametersFont;
+    
+    Array<FlexBox> flexRows;
+    Array<Rectangle<int>> flexBounds; // Primarily for debugging
+    enum SingleNoteFlexRows
+    {
+        keyType = 0,
+        keyColour,
+        keyNum,
+        keyChannel,
+        channelIncrement
+    };
 
     //==============================================================================
     // Size and position constants
     const float fontHeightInBounds  = 0.21f;
 
     const float xMarginScalar       = 0.0917f;
-    const float yMarginScalar       = 0.0813f;
+    const float yMarginScalar       = 0.075f;
     const float controlAreaYScalar  = 0.183333f;
-    const float controlsXScalar     = 0.06;
+    const float controlsXScalar     = 0.06f;
     const float separatorYScalar    = 0.666667f;
-    const float toggleHeightScalar  = 0.034f;
+    const float toggleHeightScalar  = 0.042f;
     const float controlHeightScalar = 0.0647f;
 
     const float controlBoxFontHeightScalar     = 0.75f;
     const float incDecButtonTextBoxWidthScalar = 0.4f;
 
     const Colour toggleTextColour = Colour(0xffcbcbcb);
+    
+    std::unique_ptr<juce::ImageButton> ccFaderFlipBtn;
+    Path faderDownArrow;
+    Path faderUpArrow;
     //[/UserVariables]
 
     //==============================================================================
@@ -117,7 +134,7 @@ private:
     std::unique_ptr<ColourTextEditor> colourTextEditor;
     std::unique_ptr<juce::Slider> channelInput;
     std::unique_ptr<juce::Slider> channelAutoIncrNoteInput;
-
+    
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SingleNoteAssign)

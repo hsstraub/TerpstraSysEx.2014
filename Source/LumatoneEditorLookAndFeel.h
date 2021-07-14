@@ -32,7 +32,9 @@ public:
         if (doImageCache)
         {
             cacheImages();
+            cacheIcons();
         }
+
     }
 
     Font getAppFont(LumatoneEditorFont fontIdIn)
@@ -286,48 +288,101 @@ public:
             int bkgdColourId = (shouldDrawButtonAsDown) ? TextButton::ColourIds::buttonOnColourId : TextButton::ColourIds::buttonColourId;
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
-            Font font = getTextButtonFont(btn, btn.getHeight() * GLOBALFONTSCALAR);
-
-            Image icon = ImageCache::getFromHashCode(properties[LumatoneEditorStyleIDs::textButtonIconHashCode]);
-            int iconH = font.getHeight();
-            int iconW = roundToInt(iconH * ((double)icon.getWidth() / icon.getHeight()));
-            int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
-
-            {
-                ImageProcessor ip;
-                icon = ip.resizeImage(icon, iconW, iconH);
-            }
-
-            int margin = font.getStringWidth("  ");
-            int textWidth = font.getStringWidth(btn.getButtonText());
-            int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
-            int secondHalf = lineStart + margin;
-
             int colourId = shouldDrawButtonAsDown ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             Colour textColour = btn.findColour(colourId);
-            
+
             if (!btn.isEnabled())
                 textColour = findColour(LumatoneEditorColourIDs::InactiveText);
 
             else if (shouldDrawButtonAsHighlighted)
                 textColour = textColour.brighter();
+            
+            Font font = getTextButtonFont(btn, btn.getHeight() * GLOBALFONTSCALAR);
+            int margin = font.getStringWidth("  ");
+            int textWidth = font.getStringWidth(btn.getButtonText());
+            
+            auto iconCode = (int)btn.getProperties()[LumatoneEditorStyleIDs::textButtonIconHashCode];
 
-            g.setColour(textColour);
-            g.setFont(font);
+            int iconH = font.getHeight();// *0.9f;
+            int iconW = iconH;
+            int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
+
+            if (iconCode == LumatoneEditorIcon::LoadIcon)
+            {
+                iconW *= 1.125f;
+                iconH *= 1.125f;
+            }
+
+            if (iconW < 1) iconW = 1;
+            if (iconH < 1) iconH = 1;
+
+            // Set up positions of icon and text
+            int lineStart = roundToInt((btn.getWidth() - textWidth - margin - iconW) * 0.5f);
+
+            int iconX = 0;
+            Rectangle<int> textBounds;
 
             bool iconOnRight = (bool)properties[LumatoneEditorStyleIDs::textButtonIconPlacement];
             if (iconOnRight)
             {
-                secondHalf += textWidth;
-                g.drawImageAt(icon, secondHalf, iconY);
-                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withLeft(lineStart).withRight(secondHalf), Justification::left, 1);
+                iconX = lineStart + textWidth + margin;
+                textBounds = btn.getLocalBounds().withLeft(lineStart).withRight(iconX - margin);
             }
             else
             {
-                secondHalf += iconW;
-                g.drawImageAt(icon, lineStart, iconY);
-                g.drawFittedText(btn.getButtonText(), btn.getLocalBounds().withTrimmedLeft(secondHalf), Justification::left, 1);
+                iconX = lineStart;
+                textBounds = btn.getLocalBounds().withLeft(iconX + iconW + margin);
             }
+
+            // Needs special case for "transparent" arrow
+            if (iconCode == LumatoneEditorIcon::LoadIcon)
+            {
+                // Make a tad bit bigger 
+                auto boundsAdj = Rectangle<float>(iconX, iconY, iconW, iconH);
+                boundsAdj.expand(iconW * 0.1f, iconH * 0.1f);
+                drawFolderIconAt(g, boundsAdj.getX(), boundsAdj.getY(), boundsAdj.getWidth(), boundsAdj.getHeight(), textColour, btn.findColour(bkgdColourId));
+            }
+            else
+            {
+                Path iconPath;
+                PathStrokeType stroke(1.5f);
+                stroke.setEndStyle(PathStrokeType::EndCapStyle::rounded);
+                stroke.setJointStyle(PathStrokeType::JointStyle::curved);
+
+                switch (LumatoneEditorIcon(iconCode))
+                {
+                // Using X for now
+                //case LumatoneEditorIcon::Checkmark:
+                //    iconPath = Path(tickBoxPath);
+                //    break;
+                case LumatoneEditorIcon::ArrowUp:
+                {
+                    iconPath = arrowUpIconPath;
+                    break;
+                }
+                case LumatoneEditorIcon::ArrowDown:
+                {
+                    iconPath = arrowDownIconPath;
+                    break;
+                }
+                case LumatoneEditorIcon::SaveIcon:
+                {
+                    iconPath = saveIconPath;
+                    break;
+                }
+                default:
+                    break;
+                }
+
+                auto transform = AffineTransform::scale(iconW, iconH).followedBy(AffineTransform::translation(iconX, iconY));
+                iconPath.applyTransform(transform);
+                g.setColour(textColour);
+                g.strokePath(iconPath, stroke);
+            }
+
+            g.setColour(textColour);
+            g.setFont(font);
+            g.drawFittedText(btn.getButtonText(), textBounds, Justification::left, 1);
         }
         else
         {
@@ -335,8 +390,6 @@ public:
             drawButtonBackground(g, btn, btn.findColour(bkgdColourId), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
             Font font = getTextButtonFont(btn, btn.getHeight());
-//            int margin = font.getStringWidth("  ");
-//            int textWidth = font.getStringWidth(btn.getButtonText());
             int colourId = (btn.getToggleState()) ? TextButton::ColourIds::textColourOnId : TextButton::ColourIds::textColourOffId;
             
             Colour textColour = btn.findColour(colourId);
@@ -777,20 +830,27 @@ public:
     //
     //==================================================================
 
-    void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
+
+	void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
     {
         auto target = options.getTargetComponent();
+		if (target)
+		{
+			float margin = target->getHeight() * comboBoxRoundedCornerScalar;
+            
+            if (target->getProperties().contains(LumatoneEditorStyleIDs::popupMenuBackgroundColour))
+                g.setColour(Colour::fromString(target->getProperties()[LumatoneEditorStyleIDs::popupMenuBackgroundColour].toString()).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
+            else
+                g.setColour(findColour(LumatoneEditorColourIDs::MenuBarBackground));
+			
+            if (target->getProperties()[LumatoneEditorStyleIDs::popupMenuTargetWidth])
+                width = target->getWidth();
 
-        float margin = target->getHeight() * comboBoxRoundedCornerScalar;
-
-        auto box = dynamic_cast<ComboBox*>(target);
-        if (box)
-            g.setColour(box->findColour(ComboBox::ColourIds::backgroundColourId).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
-        else
-            g.setColour(findColour(LumatoneEditorColourIDs::ControlBoxHighlighted)); 
-
-        Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, target->getWidth(), height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
-        g.fillPath(menuShape);
+			Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
+			g.fillPath(menuShape);
+		}
+		else
+			getDefaultLookAndFeel().drawPopupMenuBackgroundWithOptions(g, width, height, options);
     }
 
     void drawPopupMenuItemWithOptions(
@@ -824,7 +884,7 @@ public:
         font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
 
         // If it's the last item, reduce size so highlight doesn't pass rounded corners
-        if (item.itemID == target->getItemId(target->getNumItems() - 1))
+        if (target != nullptr && item.itemID == target->getItemId(target->getNumItems() - 1))
         {
             areaToUse = areaToUse.withTrimmedBottom(roundToInt(margin * 0.5f) + 1);
         }
@@ -846,17 +906,23 @@ public:
     {
         auto target = dynamic_cast<ComboBox*>(options.getTargetComponent());
 
-        idealWidth = target->getWidth();
+		if (target != nullptr)
+		{
+			idealWidth = target->getWidth();
 
-        // If the option is the last available option, add a margin
-        if (target->getItemText(target->getNumItems() - 1) == text)
-        {
-            idealHeight = roundToInt(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
-        }
-        else
-        {
-            idealHeight = target->getHeight();
-        }
+			// If the option is the last available option, add a margin
+			if (target->getItemText(target->getNumItems() - 1) == text)
+			{
+				idealHeight = roundToInt(target->getHeight() * (1 + comboBoxRoundedCornerScalar * 0.5f));
+			}
+			else
+			{
+				idealHeight = target->getHeight();
+			}
+		}
+		else
+		  getDefaultLookAndFeel().getIdealPopupMenuItemSizeWithOptions(text, isSeparator, standardMenuItemHeight, idealWidth, idealHeight,
+			  options);
     }
 
     Font getPopupMenuFont() override
@@ -872,6 +938,34 @@ public:
     void preparePopupMenuWindow(Component& window) override
     {
         window.setOpaque(false);
+    }
+	
+    //==================================================================
+    //
+    // MENUBAR METHODS
+    //
+    //==================================================================
+
+    void drawMenuBarBackground(Graphics& g, int w, int h, bool isMouseOverBar, MenuBarComponent& menuBar) override
+    {
+        g.setColour(findColour(LumatoneEditorColourIDs::MenuBarBackground));
+        g.fillRect(0, 0, w, h);
+    }
+
+    void drawMenuBarItem(Graphics& g, int w, int h, int index, const String& itemText, 
+        bool isMouseOver, bool isMenuOpen, bool isMouseOverBar, MenuBarComponent& menuBar) override
+    {
+        if (isMouseOver)
+        {
+            Colour bkgdColour = findColour(LumatoneEditorColourIDs::MenuBarBackground).brighter(0.2f);
+            g.setColour(bkgdColour);
+            g.fillRect(0, 0, w, h);
+        }
+
+        g.setColour(findColour(LumatoneEditorColourIDs::ActiveText));
+        g.setFont(getAppFont(LumatoneEditorFont::GothamNarrowMedium));
+        g.drawFittedText(itemText, 0, 0, w, h, Justification::centred, 1);
+
     }
 
     //==================================================================
@@ -971,6 +1065,83 @@ public:
         return box.getHeight() * 0.0303f;
     }
 
+    //==================================================================
+    //
+    // ALERTWINDOW METHODS
+    //
+    //==================================================================
+
+    //virtual AlertWindow* createAlertWindow(const String& title, const String& msg, const String& btn1, const String& btn2, const String& btn3, AlertWindow::AlertIconType type, int numButtons, Component* associatedComponent) override
+    //{
+    //    auto window = new AlertWindow(title, msg, type, associatedComponent);
+    //    window->setSize(480, 240);
+
+    //    if (numButtons > 0)
+    //    {
+    //        int w = window->getWidth();
+    //        int h = window->getHeight();
+
+    //        float btnW = w / 7.0f;
+    //        float allMargin = w - btnW * numButtons;
+    //        float eachmargin = allMargin / (numButtons + 1);
+    //        
+    //        float btnH = h / 6.0f;
+    //        
+    //        auto firstButton = new TextButton(title + btn1);
+    //        firstButton->setButtonText(btn1);
+    //        firstButton->setBounds(roundToInt(eachmargin), h - 32, window->getWidth() / window->getWidth() / 7.0, 24);
+    //        window->addAndMakeVisible(*firstButton);
+    //    }
+    //    
+    //    window->setOpaque(true);
+
+    //    return window;
+    //}
+
+    virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
+    {
+        g.setColour(findColour(AlertWindow::ColourIds::backgroundColourId));
+        //g.fillRoundedRectangle(window.getLocalBounds().toFloat(), 15);
+        g.fillAll();
+
+        g.setColour(findColour(AlertWindow::ColourIds::outlineColourId));
+        g.drawRect(window.getLocalBounds(), 2);
+
+        g.setColour(findColour(AlertWindow::ColourIds::textColourId));
+        float widthRatio = 0.05f;
+        float heightRatio = 0.15f;
+        
+        layout.draw(g, 
+            textArea.constrainedWithin(
+                window.getLocalBounds().reduced(window.getWidth() * widthRatio, window.getHeight() * heightRatio)
+            ).toFloat());
+    }
+
+    //virtual Array<int> getWidthsForTextButtons(AlertWindow& window, const Array<TextButton*>& btns) override
+    //{
+    //    return getDefaultLookAndFeel().getWidthsForTextButtons(window, btns);
+    //}
+
+    //virtual int getAlertWindowButtonHeight() override
+    //{
+    //    return 16;
+    //}
+
+    virtual Font getAlertWindowTitleFont() override
+    {
+        return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
+    }
+
+    virtual Font getAlertWindowMessageFont()  override
+    {
+        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
+    }
+
+    virtual Font getAlertWindowFont()  override
+    {
+        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
+    }
+
 public:
     //==============================================================================================
     // Component Setup functions
@@ -987,41 +1158,19 @@ public:
         btn.setToggleState(initalToggledState, dontSendNotification);
     }
 
-    void setupTextButton(Button& btn)
-    {
-        btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
-
-        if (btn.getClickingTogglesState())
-        {
-            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
-            btn.setColour(TextButton::ColourIds::textColourOffId, Colour(0xff808080));
-            btn.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
-        }
-        else
-        {
-            btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
-        }
-    }
-
     // Set colours of Image button based on Live and Offline Editor Buttons
     // Use the same image for Normal, Highlighted, and Down, but apply alpha layer on Highlighted
-    void setupImageButton(ImageButton& btn, Image btnImage)
-    {
-        btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
-        btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
+    //void setupImageButton(ImageButton& btn, Image btnImage)
+    //{
+    //    btn.setColour(TextButton::ColourIds::buttonColourId, Colour(0xff1c1c1c));
+    //    btn.setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
 
-        btn.setImages(false, true, true,
-            btnImage, 1.0f, Colour(),
-            btnImage, 1.0f, Colours::white.withAlpha(0.1f),
-            btnImage, 1.0f, Colour()
-        );
-    }
-
-    // Set text colour to be light gray
-    void setupToggleButton(ToggleButton& btn)
-    {
-        btn.setColour(ToggleButton::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
-    }
+    //    btn.setImages(false, true, true,
+    //        btnImage, 1.0f, Colour(),
+    //        btnImage, 1.0f, Colours::white.withAlpha(0.1f),
+    //        btnImage, 1.0f, Colour()
+    //    );
+    //}
 
     // Set Slider style to Rotary
     void setupRotarySlider(Slider& sld)
@@ -1029,21 +1178,9 @@ public:
         sld.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     }
 
-    // Set generic ComboBox colours
-    void setupComboBox(ComboBox& box)
-    {
-        box.setColour(ComboBox::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
-        box.setColour(ComboBox::ColourIds::textColourId,       findColour(LumatoneEditorColourIDs::DescriptionText));
-    }
-
     // Set generic TextEditor colours
     void setupTextEditor(TextEditor& editor)
     {
-        editor.setColour(TextEditor::ColourIds::backgroundColourId,      findColour(LumatoneEditorColourIDs::ControlBoxBackground));
-        editor.setColour(TextEditor::ColourIds::textColourId,            findColour(LumatoneEditorColourIDs::DescriptionText));
-        editor.setColour(TextEditor::ColourIds::highlightColourId,       findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
-        editor.setColour(TextEditor::ColourIds::highlightedTextColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
-        editor.setColour(TextEditor::ColourIds::shadowColourId,          Colour());
         editor.setIndents(4, 0);
     }
 
@@ -1065,14 +1202,21 @@ private:
     /// </summary>
     void cacheImages()
     {
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize),   LumatoneEditorAssets::ImportIcon);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
-        ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
+        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize),   LumatoneEditorAssets::ImportIcon);
+        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
+        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyboardBase_png,   BinaryData::KeyboardBase_pngSize),   LumatoneEditorAssets::LumatoneGraphic);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,  BinaryData::KeybedShadows_pngSize),  LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,     BinaryData::KeyShape2x_pngSize),     LumatoneEditorAssets::KeyShape);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShadow2x_png,    BinaryData::KeyShadow2x_pngSize),    LumatoneEditorAssets::KeyShadow);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::TrashCanIcon2x_png, BinaryData::TrashCanIcon2x_pngSize), LumatoneEditorAssets::TrashCanIcon);
+    }
+    
+    void cacheIcons()
+    {
+        saveIconPath = getSaveIconPath();
+        arrowUpIconPath = getArrowPath(Point<float>(0.5f, 0.96f), Point<float>(0.5f, 0.08f), 0.55, 0.333f);
+        arrowDownIconPath = getArrowPath(Point<float>(0.5f, 0.08f), Point<float>(0.5f, 0.96f), 0.55, 0.667f);
     }
 
     /// <summary>
@@ -1080,6 +1224,7 @@ private:
     /// </summary>
     void setupDefaultColours()
     {
+        // Colour references
         setColour(LumatoneEditorColourIDs::LabelPink,                       Colour(0xffdfceca));
         setColour(LumatoneEditorColourIDs::LabelBlue,                       Colour(0xff60aac5));
         setColour(LumatoneEditorColourIDs::DisconnectedRed,                 Colour(0xffd7002a));
@@ -1102,6 +1247,28 @@ private:
         setColour(LumatoneEditorColourIDs::RotaryGradientMin,               Colour(0xff5497b6));
         setColour(LumatoneEditorColourIDs::RotaryGradientMax,               Colour(0xff77a8b3));
         setColour(LumatoneEditorColourIDs::DisabledOverlay,                 Colour(0x601b1b1b));
+        setColour(LumatoneEditorColourIDs::MenuBarBackground,               Colour(0xff1a1b1c));
+
+        // Component defaults
+        setColour(TextButton::ColourIds::buttonOnColourId, Colour(0xff383b3d));
+        setColour(TextButton::ColourIds::buttonColourId, Colour(0xff383b3d));
+        setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+        setColour(TextButton::ColourIds::textColourOffId, Colours::white);
+        
+        setColour(ToggleButton::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+
+        setColour(ComboBox::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
+        setColour(ComboBox::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+
+        setColour(TextEditor::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::ControlBoxBackground));
+        setColour(TextEditor::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        setColour(TextEditor::ColourIds::highlightColourId, findColour(LumatoneEditorColourIDs::ControlBoxHighlighted));
+        setColour(TextEditor::ColourIds::highlightedTextColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        setColour(TextEditor::ColourIds::shadowColourId, Colour());
+
+        setColour(AlertWindow::ColourIds::backgroundColourId, findColour(LumatoneEditorColourIDs::DarkBackground));
+        setColour(AlertWindow::ColourIds::textColourId, findColour(LumatoneEditorColourIDs::DescriptionText));
+        setColour(AlertWindow::ColourIds::outlineColourId, findColour(LumatoneEditorColourIDs::MediumBackground));
     }
 
 public:
@@ -1111,6 +1278,11 @@ private:
 
     LumatoneEditorFonts::Library appFonts;
     
+    Path saveIconPath;
+    Path arrowUpIconPath;
+    Path arrowDownIconPath;
+//    Path ccPolarityDefaultIconPath;
+//    Path ccPolarityInvertedIconPath;
 
     // Default graphics constants
     const float buttonRoundedCornerScalar = 0.2f;

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -22,16 +22,16 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 
-#include "KeyboardDataStructure.h"
+#include "LumatoneController.h"
 #include "HexagonTilingGeometry.h"
 
 #include "ImageResampling/ImageResampler.h"
 #include "BoardGeometry.h"
-#include "TerpstraMidiDriver.h"
+#include "LumatoneController.h"
 
 
 // Representation of a key inside the overview
-class KeyMiniDisplayInsideAllKeysOverview : public Component, public TerpstraMidiDriver::Listener
+class KeyMiniDisplayInsideAllKeysOverview : public Component, public LumatoneController::MidiListener
 {
 public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
@@ -46,10 +46,11 @@ public:
 	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
 
 	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+	//void midiMessageReceived(const MidiMessage& midiMessage) override;
+	//void midiMessageSent(const MidiMessage& midiMessage) override {}
+	//void midiSendQueueSize(int queueSize) override {}
+	//void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+	void handleMidiMessage(const MidiMessage& msg) override;
 
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
@@ -81,6 +82,7 @@ private:
                                                                     //[/Comments]
 */
 class AllKeysOverview  : public juce::Component,
+                         public LumatoneController::FirmwareListener,
                          public juce::Button::Listener
 {
 public:
@@ -95,18 +97,25 @@ public:
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
 
     void showDeveloperMode(bool developerModeOn);
-    
-    void setFirmwareVersion(TerpstraMidiDriver::FirmwareVersion versionIn);
+
+    void setFirmwareVersion(FirmwareVersion versionIn);
+
+	void resetOctaveSize();
+	void firmwareRevisionReceived(FirmwareVersion version) override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
-	void lookAndFeelChanged() override;
+
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+
+private:
+
 	struct OctaveBoard
 	{
 		OwnedArray<KeyMiniDisplayInsideAllKeysOverview>	keyMiniDisplay;
@@ -116,13 +125,14 @@ private:
 
 	OwnedArray<OctaveBoard> octaveBoards;
 
+	int			currentOctaveSize = 0;
 	int			currentSetSelection;
 
 	HexagonTilingGeometry tilingGeometry;
 
 	Image keyColourLayer;
 	Image keyShadowLayer;
-    
+
     std::unique_ptr<Label> lblFirmwareVersion;
 
 	//==============================================================================
@@ -132,7 +142,7 @@ private:
 
 	Rectangle<int> lumatoneBounds;
 	int octaveLineY = 0;
-	
+
 	Image lumatoneGraphic;
 	Image keyShapeGraphic;
 	Image keyShadowGraphic;
@@ -159,7 +169,7 @@ private:
 
 	// In reference to lumatoneBounds
 	const float keybedX = 0.06908748f;
-	
+
 	const float keyW = 0.027352f;
 	const float keyH = 0.07307f;
 

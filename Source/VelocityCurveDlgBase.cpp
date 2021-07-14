@@ -287,6 +287,8 @@ void VelocityCurveDlgBase::loadFromMapping()
 		for (int x = 0; x < 128; x++)
 			velocityBeamTable[x]->setValue(x);
 	}
+
+	repaint();
 }
 
 void VelocityCurveDlgBase::sendVelocityTableToController()
@@ -298,7 +300,7 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
 		velocityValues[x] = velocityBeamTable[x]->getValue();
 	}
 
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
+	TerpstraSysExApplication::getApp().getLumatoneController().sendTableConfig(velocityCurveType, velocityValues);
 }
 
 void VelocityCurveDlgBase::mouseMove(const MouseEvent &event)

@@ -175,15 +175,6 @@ void CurvesArea::loadFromMapping()
 	dynamic_cast<VelocityCurveDlgBase*>(curvesTab->getCurrentContentComponent())->loadFromMapping();
 }
 
-void CurvesArea::lookAndFeelChanged()
-{
-	auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-	if (newLookAndFeel)
-	{
-		newLookAndFeel->setupToggleButton(*btnDeveloperMode);
-	}
-}
-
 void CurvesArea::sendConfigToController()
 {
 	// Send all curves configurations to controller

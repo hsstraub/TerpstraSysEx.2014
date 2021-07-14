@@ -85,7 +85,6 @@ public:
 
 	bool performMouseDown(int setSelection, int keySelection);
 
-	void lookAndFeelChanged() override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

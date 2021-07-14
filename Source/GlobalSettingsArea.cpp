@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
-#include "CalibrationDlg.h"
+#include "Settings/CalibrationDlg.h"
 //[/Headers]
 
 #include "GlobalSettingsArea.h"
@@ -198,12 +198,12 @@ void GlobalSettingsArea::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == inactiveMacroButtonColourEdit.get())
 	{
 		String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
 	}
 	else if (source == activeMacroButtonColourEdit.get())
 	{
 		String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonActiveColour(activeMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonActiveColour(activeMacroButtonColour);
 	}
 }
 

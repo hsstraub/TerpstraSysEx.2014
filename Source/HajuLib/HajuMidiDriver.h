@@ -29,19 +29,35 @@ public:
 
 	virtual void handleIncomingMidiMessage(MidiInput*, const MidiMessage&) = 0;
 
-	// List of MIDI input device names
-	Array<MidiDeviceInfo> getMidiInputList();
-	// List of MIDI output device names
-	Array<MidiDeviceInfo> getMidiOutputList();
-    
-    MidiDeviceInfo getMidiOutputInfo() const;
-    MidiDeviceInfo getMidiInputInfo() const;
-    
-    int getLastMidiInputIndex() const { return lastInputIndex; }
-    int getLastMidiOutputIndex() const { return lastOutputIndex; }
+	//============================================================================
+	// Primary functions with supported MIDI device
 
-	// Re-initializes device list in case of changes
-	void refreshDeviceLists();
+	// List of MIDI input device names
+	const Array<MidiDeviceInfo>& getMidiInputList();
+	// List of MIDI output device names
+	const Array<MidiDeviceInfo>& getMidiOutputList();
+    
+	MidiDeviceInfo getLastMidiOutputInfo() const { return lastOutputDevice; }
+	MidiDeviceInfo getLastMidiInputInfo() const { return lastInputDevice; }
+    
+	// Return the current input device index
+    int getMidiInputIndex() const { return lastInputIndex; }
+
+	// Return the current output device index
+    int getMidiOutputIndex() const { return lastOutputIndex; }
+
+	// Returns whether or not the current device indicies are valid
+	bool hasDevicesDefined() const { return lastInputIndex >= 0 && lastOutputIndex >= 0; }
+
+	// Returns the index of the given MidiDevice if found, or -1 if not present
+	int getIndexOfInputDevice(MidiDeviceInfo inputDeviceInfo) const { return midiInputs.indexOf(inputDeviceInfo); }
+	int getIndexOfInputDevice(String inputDeviceId) const;
+	// Returns the index of the given MidiDevice if found, or -1 if not present
+	int getIndexOfOutputDevice(MidiDeviceInfo outputDeviceInfo) const { return midiOutputs.indexOf(outputDeviceInfo); }
+	int getIndexOfOutputDevice(String outputDeviceId) const;
+
+	// Re-initializes device list in case of changes, returns true if a change was detected
+	bool refreshDeviceLists();
 
 	// Open the specified input device
 	void setMidiInput(int deviceIndex);
@@ -62,6 +78,20 @@ public:
     // Close current output device
     void closeMidiOutput();
 
+	//============================================================================
+	// Device detection support
+
+	// Refreshes and opens all available MIDI devices
+	void openAvailableDevicesForTesting();
+
+	// Send a message to a specific device
+	void sendTestMessageNow(int outputDeviceIndex, const MidiMessage& message);
+
+	// Closes all open testing devices; either setMidiInput and setMidiOutput will call this if it's not empty
+	void closeTestingDevices();
+
+	bool testIsIncomplete() const { return (testInputs.size() > 0 || testOutputs.size() > 0) && midiInput == nullptr && midiOutput == nullptr; }
+
 	// Attributes
 protected:
 	Array<MidiDeviceInfo> midiInputs;
@@ -70,11 +100,20 @@ protected:
     int lastOutputIndex = -1;
 	int lastInputIndex = -1;
 
+	MidiDeviceInfo lastOutputDevice;
+	MidiDeviceInfo lastInputDevice;
+
+	std::unique_ptr<MidiInput> selectedInput;
+	std::unique_ptr<MidiOutput> selectedOutput;
+
 	// Currently open MIDI output
-	std::unique_ptr<MidiOutput> midiOutput;
+	MidiOutput* midiOutput;
 
 	// Last MIDI input opened
-	std::unique_ptr<MidiInput> midiInput;
+	MidiInput* midiInput;
+
+	OwnedArray<MidiOutput> testOutputs;
+	OwnedArray<MidiInput> testInputs;
 };
 
 #endif  // HAJUMIDIDRIVER_H_INCLUDED

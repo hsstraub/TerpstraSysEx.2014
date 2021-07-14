@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -40,12 +40,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
-	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController().addMidiListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
-	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController().removeMidiListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -56,7 +56,7 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
     if (hexagonColour.getPerceivedBrightness() >= 0.6)
         hexagonColour = hexagonColour.darker((1.0 - hexagonColour.getPerceivedBrightness()));
-    
+
     g.setColour(hexagonColour);
 
 	if (colourGraphic && shadowGraphic)
@@ -89,29 +89,28 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 
 	if (e.mods.isRightButtonDown())
 	{
-		// Right mosue click: popup menu
+		// Right mouse click: popup menu
 		PopupMenu menu;
-
-		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::deleteOctaveBoard);
-		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::copyOctaveBoard);
-		menu.addCommandItem(TerpstraSysExApplication::getApp().getCommandManager(), Lumatone::Menu::commandIDs::pasteOctaveBoard);
-		
+		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
 		menu.show();
 	}
-	else
-	{
-		// NoteOn MIDI message
-		auto keyData = getKeyData();
-		if (keyData != nullptr && keyData->channelNumber > 0)
-		{
-			if (keyData->keyType == TerpstraKey::noteOnNoteOff)
-			{
-				// Send "note on" event
-				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
-			}
-			// ToDo if keyType is "continuous controller": send controller event?
-		}
-	}
+
+	// TODO integrate interaction through LumatoneController
+
+	//else
+	//{
+	//	// NoteOn MIDI message
+	//	auto keyData = getKeyData();
+	//	if (keyData != nullptr && keyData->channelNumber > 0)
+	//	{
+	//		if (keyData->keyType == LumatoneKeyType::noteOnNoteOff)
+	//		{
+	//			// Send "note on" event
+	//			//TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+	//		}
+	//		// ToDo if keyType is "continuous controller": send controller event?
+	//	}
+	//}
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
@@ -121,29 +120,27 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 	isHighlighted = false;
 	repaint();
 
-	// NoteOff MIDI message
-	auto keyData = getKeyData();
-	if (keyData != nullptr && keyData->channelNumber > 0)
-	{
-		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
-		{
-			// Send "note off" event
-			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
-		}
-	}
+	// TODO integrate interaction through LumatoneController
+
+	//// NoteOff MIDI message
+	//auto keyData = getKeyData();
+	//if (keyData != nullptr && keyData->channelNumber > 0)
+	//{
+	//	if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+	//	{
+	//		// Send "note off" event
+	//		TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
+	//	}
+	//}
 }
 
-void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage& midiMessage)
+void KeyMiniDisplayInsideAllKeysOverview::handleMidiMessage(const MidiMessage& msg)
 {
-	// ToDo If key is parametrized as controller?
-	if (midiMessage.isNoteOnOrOff())
+	auto keyData = getKeyData();
+	if (keyData != nullptr && msg.getChannel() == keyData->channelNumber && msg.getNoteNumber() == keyData->noteNumber)
 	{
-		auto keyData = getKeyData();
-		if (keyData != nullptr && midiMessage.getChannel() == keyData->channelNumber && midiMessage.getNoteNumber() == keyData->noteNumber)
-		{
-			isHighlighted = midiMessage.isNoteOn();
-			repaint();
-		}
+		isHighlighted = msg.isNoteOn();
+		repaint();
 	}
 }
 
@@ -181,59 +178,51 @@ void KeyMiniDisplayInsideAllKeysOverview::setKeyGraphics(Image& colourGraphicIn,
 AllKeysOverview::AllKeysOverview()
 	: Component("AllKeysOverview")
 {
-    //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	//[Constructor_pre] You can add your own custom stuff here..
+	//[/Constructor_pre]
 
-    btnLoadFile.reset (new juce::TextButton ("btnLoadFile"));
-    addAndMakeVisible (btnLoadFile.get());
+	btnLoadFile.reset(new juce::TextButton("btnLoadFile"));
+	addAndMakeVisible(btnLoadFile.get());
 
-    btnLoadFile->setButtonText (translate("LoadFile"));
-	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::LoadIcon);
-    btnLoadFile->addListener (this);
+	btnLoadFile->setButtonText(translate("LoadFile"));
+	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::LoadIcon);
+	btnLoadFile->addListener(this);
 
-    btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
-    addAndMakeVisible (btnSaveFile.get());
-    btnSaveFile->setButtonText (translate("SaveFile"));
-	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::SaveIcon);
-    btnSaveFile->addListener (this);
+	btnSaveFile.reset(new juce::TextButton("btnSaveFile"));
+	addAndMakeVisible(btnSaveFile.get());
+	btnSaveFile->setButtonText(translate("SaveFile"));
+	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::SaveIcon);
+	btnSaveFile->addListener(this);
 
-    buttonReceive.reset (new juce::TextButton ("buttonReceive"));
-    addAndMakeVisible (buttonReceive.get());
-    buttonReceive->setTooltip (translate("ImportTooltip"));
-    buttonReceive->setButtonText (translate("Import from Lumatone"));
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorAssets::ImportIcon);
+	buttonReceive.reset(new juce::TextButton("buttonReceive"));
+	addAndMakeVisible(buttonReceive.get());
+	buttonReceive->setTooltip(translate("ImportTooltip"));
+	buttonReceive->setButtonText(translate("Import from Lumatone"));
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ArrowUp);
 	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
-    buttonReceive->addListener (this);
+	buttonReceive->addListener(this);
 
 	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
 	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
 
+
     //[UserPreSize]
 
-    lblFirmwareVersion.reset(new Label("FirmwareVersionLabel"));
-    addChildComponent(lblFirmwareVersion.get());
-    
-    for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-	{
-		OctaveBoard* board = octaveBoards.add(new OctaveBoard());
+	lblFirmwareVersion.reset(new Label("FirmwareVersionLabel"));
+	addChildComponent(lblFirmwareVersion.get());
 
-		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
-		{
-			auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
-			addAndMakeVisible(key);
-		}
+	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
 
-		jassert(board->keyMiniDisplay.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize());
-	}
+	resetOctaveSize();
 
-	jassert(octaveBoards.size() == NUMBEROFBOARDS);
-    
     //[/UserPreSize]
+
+    setSize (928, 214);
 
 
     //[Constructor] You can add your own custom stuff here..
 	currentSetSelection = -1;
-    
+
     showDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
     //[/Constructor]
 }
@@ -281,6 +270,9 @@ void AllKeysOverview::paint (juce::Graphics& g)
 void AllKeysOverview::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
+    //[UserResized] Add your own custom resize handling here..
 
 	// Prepare position helpers for graphics
 	int graphicHeight = roundToInt(getHeight() * imageHeight);
@@ -295,7 +287,7 @@ void AllKeysOverview::resized()
 	int btnMargin = round(getWidth() * saveloadMarginW);
 	int saveLoadWidth = round(getWidth() * saveLoadW);
 	int btnY = lumatoneBounds.getY() - round(getHeight() * btnYFromImageTop);
-	
+
 	int halfWidthX = round(getWidth() * 0.5f);
 
 	btnLoadFile->setBounds(halfWidthX - btnMargin - saveLoadWidth, btnY, saveLoadWidth, btnHeight);
@@ -306,9 +298,9 @@ void AllKeysOverview::resized()
 	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
 	int importWidth = round(getWidth() * importW);
 	buttonReceive->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
-    
-    resizeLabelWithHeight(lblFirmwareVersion.get(), btnHeight * 0.6f);
-    lblFirmwareVersion->setTopLeftPosition(lumatoneBounds.getX(), lumatoneBounds.getY() - btnHeight * 0.6f);
+
+	resizeLabelWithHeight(lblFirmwareVersion.get(), btnHeight * 0.6f);
+	lblFirmwareVersion->setTopLeftPosition(lumatoneBounds.getX(), lumatoneBounds.getY() - btnHeight * 0.6f);
 
 	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
 	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
@@ -317,16 +309,15 @@ void AllKeysOverview::resized()
 	lumatoneGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight());
 	keyShapeGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShape), keyWidth, keyHeight);
 	keyShadowGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::KeyShadow), keyWidth, keyHeight);
-	
-	oct1Key1  = Point<float>(oct1Key1X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key1Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
+
+	oct1Key1 = Point<float>(oct1Key1X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key1Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 	oct1Key56 = Point<float>(oct1Key56X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct1Key56Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());
-	oct5Key7  = Point<float>(oct5Key7X  * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct5Key7Y  * lumatoneBounds.getHeight() + lumatoneBounds.getY());
+	oct5Key7 = Point<float>(oct5Key7X * lumatoneBounds.getWidth() + lumatoneBounds.getX(), oct5Key7Y * lumatoneBounds.getHeight() + lumatoneBounds.getY());
 
 	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24, false);
 
 	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
 	jassert(keyCentres.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize() * NUMBEROFBOARDS);
-	
 
 	int octaveIndex = 0;
 	octaveBoards[octaveIndex]->leftPos = keyCentres[0].getX() - keyWidth * 0.5;
@@ -337,7 +328,7 @@ void AllKeysOverview::resized()
 
 		// Apply rotational transform
 		Point<int> centre = keyCentres[keyIndex].roundToInt();
-			
+
 		auto key = octaveBoards[octaveIndex]->keyMiniDisplay[keyOctaveIndex];
 		key->setSize(keyWidth, keyHeight);
 		key->setCentrePosition(centre);
@@ -389,37 +380,68 @@ void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void AllKeysOverview::lookAndFeelChanged()
-{
-	auto newLookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-	if (newLookAndFeel)
-	{
-		newLookAndFeel->setupTextButton(*btnLoadFile);
-		newLookAndFeel->setupTextButton(*btnSaveFile);
-		newLookAndFeel->setupTextButton(*buttonReceive);
-	}
-}
-
 void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 {
-    if (versionIn.isValid())
-    {
-        lblFirmwareVersion->setText("Firmware version: " + versionIn.toString(), NotificationType::dontSendNotification);
-        lblFirmwareVersion->setVisible(true);
-        resized();
-    }
+	if (versionIn.isValid())
+	{
+		if (versionIn.major == 0 && versionIn.minor == 0)
+		{
+			if (versionIn.revision == 55)
+			{
+				lblFirmwareVersion->setText("Prototype 55-keys", NotificationType::dontSendNotification);
+			}
+		}
+		else
+		{
+			lblFirmwareVersion->setText("Firmware version: " + versionIn.toString(), NotificationType::dontSendNotification);
+		}
+
+		lblFirmwareVersion->setVisible(true);
+		resized();
+	}
     else
     {
         lblFirmwareVersion->setVisible(false);
     }
-    
+
     repaint();
 }
 
 void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 {
-    buttonReceive->setVisible(developerModeOn);
     repaint();
+}
+
+void AllKeysOverview::firmwareRevisionReceived(FirmwareVersion version)
+{
+	setFirmwareVersion(version);
+}
+
+void AllKeysOverview::resetOctaveSize()
+{
+	int octaveSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
+	if (currentOctaveSize != octaveSize)
+	{
+		boardGeometry = TerpstraBoardGeometry();
+		octaveBoards.clear();
+
+		for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
+		{
+			OctaveBoard* board = octaveBoards.add(new OctaveBoard());
+
+			for (int keyIndex = 0; keyIndex < octaveSize; keyIndex++)
+			{
+				auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
+				addAndMakeVisible(key);
+			}
+
+			jassert(board->keyMiniDisplay.size() == octaveSize);
+		}
+
+		currentOctaveSize = octaveSize;
+	}
+
+	jassert(octaveBoards.size() == NUMBEROFBOARDS);
 }
 
 //[/MiscUserCode]
@@ -435,10 +457,11 @@ void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="AllKeysOverview" componentName=""
-                 parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="928" initialHeight="214">
-  <BACKGROUND backgroundColour="ff323e44"/>
+                 parentClasses="public juce::Component, public LumatoneController::FirmwareListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="928"
+                 initialHeight="214">
+  <BACKGROUND backgroundColour="0"/>
   <TEXTBUTTON name="btnLoadFile" id="6c0c074c9f137f23" memberName="btnLoadFile"
               virtualName="" explicitFocusOrder="0" pos="368 8 96 24" buttonText="Load File"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>

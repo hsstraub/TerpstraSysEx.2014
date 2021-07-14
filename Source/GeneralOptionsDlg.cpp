@@ -119,7 +119,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_buttonAfterTouchActive] -- add your button handler code here..
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().afterTouchActive = buttonAfterTouchActive->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendAfterTouchActivation(buttonAfterTouchActive->getToggleState());
+		TerpstraSysExApplication::getApp().getLumatoneController().setAftertouchEnabled(buttonAfterTouchActive->getToggleState());
         //[/UserButtonCode_buttonAfterTouchActive]
     }
     else if (buttonThatWasClicked == buttonLightOnKeyStrokes.get())
@@ -127,7 +127,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_buttonLightOnKeyStrokes] -- add your button handler code here..
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().lightOnKeyStrokes = buttonLightOnKeyStrokes->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendLightOnKeyStrokes(buttonLightOnKeyStrokes->getToggleState());
+		TerpstraSysExApplication::getApp().getLumatoneController().sendLightOnKeyStrokes(buttonLightOnKeyStrokes->getToggleState());
         //[/UserButtonCode_buttonLightOnKeyStrokes]
     }
 
@@ -144,8 +144,6 @@ void GeneralOptionsDlg::lookAndFeelChanged()
     if (lookAndFeel)
     {
         labelGeneralSettingslTitle->setColour(Label::ColourIds::textColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LabelBlue));
-        lookAndFeel->setupToggleButton(*buttonAfterTouchActive);
-        lookAndFeel->setupToggleButton(*buttonLightOnKeyStrokes);
     }
 }
 

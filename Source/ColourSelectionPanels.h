@@ -438,8 +438,6 @@ public:
         lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
         if (lookAndFeel)
         {
-            lookAndFeel->setupTextButton(*saveButton);
-            lookAndFeel->setupTextButton(*cancelButton);
         }
     }
 

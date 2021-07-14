@@ -15,7 +15,7 @@
 #include "AllKeysOverview.h"
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
-#include "TerpstraMidiDriver.h"
+#include "LumatoneController.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
 #include "GeneralOptionsDlg.h"
@@ -33,7 +33,7 @@
     your controls and content.
 */
 class MainContentComponent : public Component, 
-							 public TerpstraMidiDriver::Listener, 
+							 public LumatoneController::FirmwareListener,
 							 public ChangeListener,
 							 public Button::Listener
 {
@@ -62,12 +62,6 @@ public:
 
 	bool setDeveloperMode(bool developerModeOn);
 
-	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
-
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
@@ -78,7 +72,29 @@ public:
     void paint (Graphics&);
     void resized();
 
-	void refreshAllKeysOverview();
+	void refreshKeyDataFields();
+
+	// Implementation of LumatoneController::FirmwareListener
+
+	void octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData) override;
+
+	void octaveChannelConfigReceived(int octaveIndex, const int* channelData) override;
+
+	void octaveNoteConfigReceived(int octaveIndex, const int* noteData) override;
+
+	void keyTypeConfigReceived(int octaveIndex, const int* keyTypeData) override;
+
+	void velocityConfigReceived(const int* velocityData) override;
+
+	void aftertouchConfigReceived(const int* aftertouchData) override;
+
+	void velocityIntervalConfigReceived(const int* velocityData) override;
+
+	void faderConfigReceived(const int* faderData) override;
+
+	void lumatouchConfigReceived(const int* lumatouchData) override;
+
+	void firmwareRevisionReceived(FirmwareVersion version) override;
 
 private:
     //==============================================================================

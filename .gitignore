@@ -4,4 +4,5 @@
 *.DS_Store
 /Installers/InnoSetup/vc_redist.x64.exe
 /Installers/InnoSetup/Install*
+/Installers/InnoSetup/archive*
 /Installers/Packages/build*

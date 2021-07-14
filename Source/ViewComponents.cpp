@@ -18,7 +18,7 @@ TerpstraKeyEdit class
 */
 
 TerpstraKeyEdit::TerpstraKeyEdit()
-	: isSelected(false), keyColour(juce::Colour()), keyType(TerpstraKey::noteOnNoteOff)
+	: isSelected(false), keyColour(juce::Colour()), keyType(LumatoneKeyType::noteOnNoteOff)
 {
 	midiNoteLabel = new Label("midiNoteLabel", "0");
 	addAndMakeVisible(midiNoteLabel);
@@ -57,14 +57,17 @@ void TerpstraKeyEdit::setValue(TerpstraKey newValue)
 	String newTooltip = translate("KeyType") + " ";
 	switch (keyType)
 	{
-	case TerpstraKey::noteOnNoteOff:
+	case LumatoneKeyType::noteOnNoteOff:
 		newTooltip += translate("NoteOnOff");
 		break;
-	case TerpstraKey::continuousController:
+	case LumatoneKeyType::continuousController:
 		newTooltip += translate("ContinuousController");
 		break;
-	case TerpstraKey::lumaTouch:
+	case LumatoneKeyType::lumaTouch:
 		newTooltip += translate("Lumatouch");
+		break;
+	case LumatoneKeyType::disabled:
+		newTooltip += translate("Disabled");
 		break;
 	default:
 		jassertfalse;
@@ -107,12 +110,21 @@ void TerpstraKeyEdit::paint(Graphics& g)
 	{
 		textColour = textColour.brighter();
 	}
-
-    midiChannelLabel->setColour(juce::Label::textColourId, textColour);
-    midiNoteLabel->setColour(juce::Label::textColourId, textColour);
-
+	
+	if (currentValue.keyType == LumatoneKeyType::disabled)
+	{
+		midiChannelLabel->setVisible(false);
+		midiNoteLabel->setVisible(false);
+	}
+	else
+	{
+		midiChannelLabel->setVisible(true);
+		midiChannelLabel->setColour(juce::Label::textColourId, textColour);
+		midiNoteLabel->setVisible(true);
+		midiNoteLabel->setColour(juce::Label::textColourId, textColour);
+	}
 	// Look depending on Key type
-	if (currentValue.keyType == TerpstraKey::continuousController)
+	if (currentValue.keyType == LumatoneKeyType::continuousController)
 	{
 		// Key type is continuous controller. Set colour gradient.
         float w = this->getWidth();
@@ -138,6 +150,17 @@ void TerpstraKeyEdit::paint(Graphics& g)
 		// Draw line
 		g.setColour(lineColor);
 		g.strokePath(hexOutline, PathStrokeType(lineWidth));
+	}
+
+	if (currentValue.keyType == LumatoneKeyType::disabled)
+	{
+		float w = this->getWidth();
+		float h = this->getHeight();
+		float xProportion = 0.25f;
+		// Draw X on key
+		g.setColour(bgColour.contrasting(0.5f));
+		g.drawLine(w * xProportion, h * xProportion, w * (1-xProportion), h * (1-xProportion), 2);
+		g.drawLine(w * (1 - xProportion), h * xProportion, w * xProportion, h * (1 - xProportion), 2);
 	}
 
 	// Something parametrized or not?

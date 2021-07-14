@@ -387,19 +387,6 @@ void IsomorphicMassAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void IsomorphicMassAssign::lookAndFeelChanged()
-{
-    auto lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-
-    if (lookAndFeel)
-    {
-        lookAndFeel->setupTextButton(*btnScaleStructureEditor);
-        lookAndFeel->setupComboBox(*cbMappingType);
-        lookAndFeel->setupComboBox(*startingPointBox);
-        lookAndFeel->setupComboBox(*periodSizeBox);
-    }
-}
-
 void IsomorphicMassAssign::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
     periodSizeBox->setSelectedId(
@@ -443,7 +430,7 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 
 	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection,
+	TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection,
 		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 }
 
