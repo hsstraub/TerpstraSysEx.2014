@@ -133,8 +133,8 @@ void CalibrationDlg::resized()
 		int panelHeight = btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim;
 
 		wheelsCalibrationComponent->setBounds(
-			generalRim, 
-			calibrationSelectorTab->getBottom() + generalRim, 
+			generalRim,
+			calibrationSelectorTab->getBottom() + generalRim,
 			proportionOfWidth(wheelsGraphicWidthScalar),
 			panelHeight);
 

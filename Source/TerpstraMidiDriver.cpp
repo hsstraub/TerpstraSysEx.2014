@@ -728,9 +728,10 @@ MidiMessage TerpstraMidiDriver::sendTableSysEx(uint8 boardIndex, uint8 cmd, uint
 
     memmove(&sysExData[5], table, sizeof(uint8) * tableSize);
 
-    //DEBUG
+#if JUCE_DEBUG
     for (int i = 0; i < tableSize; i++)
         jassert(table[i] <= 0x7f);
+#endif
 
     auto msg = MidiMessage::createSysExMessage(sysExData, msgSize);
     sendMessageWithAcknowledge(msg);

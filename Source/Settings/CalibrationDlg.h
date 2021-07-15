@@ -88,7 +88,7 @@ private:
     Font instructionsFont;
 	const float fontHeightInBounds = 0.125f;
 	const int generalRim = 12;
-    
+
     const float wheelsGraphicWidthScalar = 0.15f;
 
     //[/UserVariables]
