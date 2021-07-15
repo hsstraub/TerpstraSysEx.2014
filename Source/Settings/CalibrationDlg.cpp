@@ -60,7 +60,7 @@ CalibrationDlg::CalibrationDlg ()
 
 	calibrationSelectorTab->addTab(translate("Keys"), juce::Colours::lightgrey, 1);
 	calibrationSelectorTab->addTab(translate("Aftertouch"), juce::Colours::lightgrey, 2);
-	calibrationSelectorTab->addTab(translate("Modulation Wheel"), juce::Colours::lightgrey, 3);
+	calibrationSelectorTab->addTab(translate("Pitch & Mod Wheels"), juce::Colours::lightgrey, 3);
 
 	calibrationSelectorTab->addChangeListener(this);
 
@@ -130,7 +130,7 @@ void CalibrationDlg::resized()
 
 	if (currentTab == calibrateModulationWheel && wheelsCalibrationComponent != nullptr)
 	{
-		int panelHeight = btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim;
+ 		int panelHeight = btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim;
 
 		wheelsCalibrationComponent->setBounds(
 			generalRim,
@@ -258,7 +258,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
 			wheelsCalibrationComponent = nullptr;
-			repaint();
+			resized();
 			break;
 
 		case calibrateAftertouch:
@@ -268,7 +268,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
 			wheelsCalibrationComponent = nullptr;
-			repaint();
+			resized();
 			break;
 
 		case calibrateModulationWheel:
@@ -279,7 +279,6 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 			btnStop->setVisible(true);
 			setupWheelCalibrationLayout();
 			updateWheelCalibrationStatus();
-			repaint();
 			break;
 		default:
 			jassertfalse;
