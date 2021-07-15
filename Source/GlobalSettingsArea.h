@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -38,8 +38,8 @@
 */
 class GlobalSettingsArea  : public juce::Component,
                             public ChangeListener,
-                            public juce::Button::Listener,
-                            public LumatoneController::StatusListener
+                            public LumatoneController::StatusListener,
+                            public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -58,11 +58,11 @@ public:
     void lookAndFeelChanged() override;
 
     void setDeveloperMode(bool devModeOn);
-    
+
     // LumatoneController::StatusListener implementation
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
-    
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -77,6 +77,9 @@ private:
 	std::unique_ptr<ColourEditComponent> activeMacroButtonColourEdit;
 
     std::unique_ptr<Label> lblDeveloperMode;
+
+    DialogWindow* settingsDialog;
+    bool settingsAreOpen = false;
 
     bool showDeveloperMode = false;
 

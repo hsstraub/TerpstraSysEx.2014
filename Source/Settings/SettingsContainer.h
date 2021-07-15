@@ -48,11 +48,13 @@ private:
     
 };
 
-class SettingsContainer : public Component, protected ChangeListener
+class SettingsContainer : public Component, public ChangeBroadcaster, protected ChangeListener
 {
 public:
 
     SettingsContainer();
+
+    // Send change signal when destructed
     ~SettingsContainer();
 
     void paint(Graphics& g) override;

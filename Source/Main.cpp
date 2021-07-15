@@ -102,8 +102,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	reloadColourPalettes();
 
-	lumatoneController.setDeviceDetectionTimeout(propertiesFile->getIntValue("DetectDevicesTimeout", 500));
-	lumatoneController.checkConnectionWhenInactive(propertiesFile->getBoolValue("CheckConnectionIfInactive", true));
+	getLumatoneController().setDeviceDetectionTimeout(propertiesFile->getIntValue("DetectDevicesTimeout", 500));
+	getLumatoneController().checkConnectionWhenInactive(propertiesFile->getBoolValue("CheckConnectionIfInactive", true));
 
 	// State of main window will be read from properties file when main window is created
 }

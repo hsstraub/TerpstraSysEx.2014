@@ -92,11 +92,11 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
 void GeneralOptionsDlg::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
-    
+
     //[/UserPrePaint]
 
     //[UserPaint] Add your own custom painting code here..
-    
+
     g.setColour(Colour(0xff212626));
     g.fillRoundedRectangle(getLocalBounds().toFloat().withTop(proportionOfHeight(SETTINGSAREAMARGINHEIGHT)), roundedCornerSize);
     //[/UserPaint]

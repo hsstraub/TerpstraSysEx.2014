@@ -52,6 +52,7 @@ SettingsContainer::~SettingsContainer()
 {
     settingsPanel = nullptr;
     categoryList = nullptr;
+    sendChangeMessage();
 }
 
 void SettingsContainer::paint(Graphics& g)
