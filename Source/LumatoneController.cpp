@@ -501,6 +501,20 @@ void LumatoneController::resetPresetsToFactoryDefault()
         midiDriver.sendResetDefaultPresetsRequest();
 }
 
+// Get interaction flags of current preset
+void LumatoneController::getPresetFlags()
+{
+    if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, GET_PRESET_FLAGS))
+        midiDriver.sendGetPresetFlagsReset();
+}
+
+// Get sensitivity setting of expression pedal
+void LumatoneController::getExpressionPedalSensitivity()
+{
+    if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, GET_EXPRESSION_PEDAL_SENSITIVIY))
+        midiDriver.sendGetExpressionPedalSensitivity();
+}
+
 //=============================================================================
 // Communication and broadcasting
 
@@ -777,6 +791,31 @@ FirmwareSupport::Error LumatoneController::handleGetPeripheralChannelResponse(co
     return errorCode;
 }
 
+FirmwareSupport::Error LumatoneController::handleGetPresetFlagsResponse(const MidiMessage& midiMessage)
+{
+    auto presetFlags = PresetFlags();
+    auto errorCode = midiDriver.unpackGetPresetFlagsResponse(midiMessage,
+        presetFlags.expressionPedalInverted,
+        presetFlags.lightsOnKeystroke,
+        presetFlags.polyphonicAftertouch,
+        presetFlags.sustainPedalInverted
+    );
+
+    firmwareListeners.call(&FirmwareListener::presetFlagsReceived, presetFlags);
+
+    return errorCode;
+}
+
+FirmwareSupport::Error LumatoneController::handleGetExpressionPedalSensitivityResponse(const MidiMessage& midiMessage)
+{
+    int sensitivity = 127;
+    auto errorCode = midiDriver.unpackGetExpressionPedalSensitivityResponse(midiMessage, sensitivity);
+
+    firmwareListeners.call(&FirmwareListener::expressionPedalSensitivityReceived, sensitivity);
+
+    return errorCode;
+}
+
 FirmwareSupport::Error LumatoneController::handlePeripheralCalibrationData(const MidiMessage& midiMessage)
 {
     int mode = -1;
@@ -1013,6 +1052,14 @@ void LumatoneController::timerCallback()
 
                         case PERIPHERAL_CALBRATION_DATA:
                             errorCode = handlePeripheralCalibrationData(midiMessage);
+                            break;
+
+                        case GET_PRESET_FLAGS:
+                            errorCode = handleGetPresetFlagsResponse(midiMessage);
+                            break;
+
+                        case GET_EXPRESSION_PEDAL_SENSITIVIY:
+                            errorCode = handleGetExpressionPedalSensitivityResponse(midiMessage);
                             break;
 
                         default:

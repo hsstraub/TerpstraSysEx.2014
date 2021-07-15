@@ -218,6 +218,12 @@ public:
     // Reset preset mappings to factory mappings
     void resetPresetsToFactoryDefault();
 
+    // Get interaction flags of current preset
+    void getPresetFlags();
+
+    // Get sensitivity setting of expression pedal
+    void getExpressionPedalSensitivity();
+
     //============================================================================
     // FirmwareTransfer::Listener
 
@@ -313,6 +319,10 @@ public:
 
         virtual void wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData) {};
 
+        virtual void presetFlagsReceived(PresetFlags presetFlags) {};
+
+        virtual void expressionPedalSensitivityReceived(int sensitivity) {};
+
         virtual void noAnswerToCommand(int cmd) {};
     };
 
@@ -395,6 +405,10 @@ private:
     FirmwareSupport::Error handleWheelsCalibrationData(const MidiMessage& midiMessage);
 
     FirmwareSupport::Error handleGetPeripheralChannelResponse(const MidiMessage& midiMessage);
+
+    FirmwareSupport::Error handleGetPresetFlagsResponse(const MidiMessage& midiMessage);
+
+    FirmwareSupport::Error handleGetExpressionPedalSensitivityResponse(const MidiMessage& midiMessage);
 
     void handleMidiDriverError(FirmwareSupport::Error errorToHandle, int commandReceived = -1);
 

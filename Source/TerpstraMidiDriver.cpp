@@ -628,6 +628,19 @@ void TerpstraMidiDriver::sendResetDefaultPresetsRequest()
     sendSysExRequest(0, RESET_DEFAULT_PRESETS);
 }
 
+// CMD 47h: Read back the currently configured preset flags of expression & sustain inversion,
+// plus light-on-keystroke and polyphonic aftertouch
+void TerpstraMidiDriver::sendGetPresetFlagsReset()
+{
+    sendSysExRequest(0, GET_PRESET_FLAGS);
+}
+
+// For CMD 48h response: get expression pedal sensitivity
+void TerpstraMidiDriver::sendGetExpressionPedalSensitivity()
+{
+    sendSysExRequest(0, GET_EXPRESSION_PEDAL_SENSITIVIY);
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
@@ -1276,6 +1289,39 @@ FirmwareSupport::Error TerpstraMidiDriver::unpackGetExpressionPedalThresholdResp
 
     return status;
 }
+
+// For CMD 47h response: retrieve preset flags
+FirmwareSupport::Error TerpstraMidiDriver::unpackGetPresetFlagsResponse(const MidiMessage& response, bool& expressionInverted, bool& lightsOnKeystroke, bool& aftertouchOn, bool& sustainInverted)
+{
+    const short NUM_UNPACKED = 4;
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack7BitData(response, NUM_UNPACKED, unpackedData);
+    if (status != FirmwareSupport::Error::noError)
+        return status;
+
+    expressionInverted  = unpackedData[0];
+    lightsOnKeystroke   = unpackedData[1];
+    aftertouchOn        = unpackedData[2];
+    sustainInverted     = unpackedData[3];
+
+    return status;
+}
+
+// For CMD 48h response: get expression pedal sensitivity
+FirmwareSupport::Error TerpstraMidiDriver::unpackGetExpressionPedalSensitivityResponse(const MidiMessage& response, int& sensitivity)
+{
+    const short NUM_UNPACKED = 1;
+    int unpackedData[NUM_UNPACKED];
+    auto status = unpack7BitData(response, NUM_UNPACKED, unpackedData);
+    if (status != FirmwareSupport::Error::noError)
+        return status;
+
+    sensitivity = unpackedData[0];
+
+    return status;
+}
+
+
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {

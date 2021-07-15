@@ -163,6 +163,18 @@ System exclusive command bytes
 #define GET_EXPRESSION_PEDAL_THRESHOLD 0x44
 #define INVERT_SUSTAIN_PEDAL 0x45
 #define RESET_DEFAULT_PRESETS 0x46
+#define GET_PRESET_FLAGS 0x47
+#define GET_EXPRESSION_PEDAL_SENSITIVIY 0x48
+
+#define GET_MACRO_LIGHT_INTENSITY 0x49
+#define RESET_MACRO_LIGHT_INTENSITY 0x4A
+
+#define RESET_BOARD_KEYS 0x4B
+#define RESET_AFTERTOUCH_TRIGGER_DELAY 0x4C
+
+#define RESET_LUMATOUCH_NOTE_OFF_DELAY 0x4D
+#define GET_PITCH_AND_MOD_BOUNDS 0x4E
+#define GET_EXPRESSION_PEDAL_BOUNDS 0x4F
 
 typedef enum
 {
@@ -410,7 +422,7 @@ struct FirmwareSupport
 		else if (CMD <= RESET_EXPRESSION_PEDAL_BOUNDS) // 0x39
 			return LumatoneFirmwareVersion::VERSION_1_0_11;
 
-		else if (CMD <= RESET_DEFAULT_PRESETS) // 0x3B
+		else if (CMD <= GET_EXPRESSION_PEDAL_BOUNDS) // 0x4F
 			return LumatoneFirmwareVersion::VERSION_1_1_0;
 
 		else
@@ -540,4 +552,12 @@ struct WheelsCalibrationData
 		str += ("     Max Mod: " + String(maxMod) + newLine);
 		return str;
 	}
+};
+
+struct PresetFlags
+{
+	bool expressionPedalInverted = false;
+	bool lightsOnKeystroke = false;
+	bool polyphonicAftertouch = false;
+	bool sustainPedalInverted = false;
 };

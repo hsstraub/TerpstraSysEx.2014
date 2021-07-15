@@ -758,10 +758,8 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	getLumatoneController().sendGetCompleteMappingRequest();
 
 	// General options
-	// ToDo AfterTouchActive
-	// ToDo LightOnKeyStrokes
-	// ToDo invertFootController
-	// ToDO expressionControllerSensivity
+	getLumatoneController().getPresetFlags();
+	getLumatoneController().getExpressionPedalSensitivity();
 
 	// Velocity curve config
 	getLumatoneController().sendVelocityIntervalConfigRequest();

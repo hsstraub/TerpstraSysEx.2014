@@ -294,6 +294,15 @@ public:
 	// CMD 46h: Replace current presets with factory presets
 	void sendResetDefaultPresetsRequest();
 
+	// CMD 47h: Read back the currently configured preset flags of expression & sustain inversion,
+	// plus light-on-keystroke and polyphonic aftertouch
+	void sendGetPresetFlagsReset();
+
+	// For CMD 48h response: get expression pedal sensitivity
+	void sendGetExpressionPedalSensitivity();
+	
+	// TODO CMD 49h-4Eh
+
 	//============================================================================
 	// Implementation of bidirectional communication with acknowledge messages
 
@@ -400,6 +409,11 @@ public:
 	// For CMD 44h response: retrieve 12-bit expression pedal adc threshold
 	FirmwareSupport::Error unpackGetExpressionPedalThresholdResponse(const MidiMessage& response, int& thresholdValue);
 
+	// For CMD 47h response: retrieve preset flags
+	FirmwareSupport::Error unpackGetPresetFlagsResponse(const MidiMessage& response, bool& expressionInverted, bool& lightsOnKeystroke, bool& aftertouchOn, bool& sustainInverted);
+
+	// For CMD 48h response: get expression pedal sensitivity
+	FirmwareSupport::Error unpackGetExpressionPedalSensitivityResponse(const MidiMessage& response, int& sensitivity);
 
 private:
 	// Low-level SysEx message sending

@@ -259,6 +259,17 @@ void PedalSensitivityDlg::firmwareRevisionReceived(FirmwareVersion version)
     }
 }
 
+void PedalSensitivityDlg::presetFlagsReceived(PresetFlags presetFlags)
+{
+    btnInvertExpression->setToggleState(presetFlags.expressionPedalInverted, dontSendNotification);
+    btnInvertSustain->setToggleState(presetFlags.sustainPedalInverted, dontSendNotification);
+}
+
+void PedalSensitivityDlg::expressionPedalSensitivityReceived(int sensitivity)
+{
+    sldExprCtrlSensitivity->setValue(sensitivity, dontSendNotification);
+}
+
 //[/MiscUserCode]
 
 

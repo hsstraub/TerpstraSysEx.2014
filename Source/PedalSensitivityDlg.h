@@ -54,6 +54,8 @@ public:
 
     // LumatoneController::FirmwareListener implementation
     void firmwareRevisionReceived(FirmwareVersion version) override;
+    void presetFlagsReceived(PresetFlags presetFlags) override;
+    void expressionPedalSensitivityReceived(int sensitivity) override;
 
     //[/UserMethods]
 
