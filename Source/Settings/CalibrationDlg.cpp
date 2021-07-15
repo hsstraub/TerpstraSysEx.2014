@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ CalibrationDlg::CalibrationDlg ()
 
     //[UserPreSize]
 
-	updateCalibrationStatus();
+	updateWheelCalibrationStatus();
 
 	// Calibration type selector
 	calibrationSelectorTab.reset(new TabbedButtonBar(TabbedButtonBar::Orientation::TabsAtTop));
@@ -63,6 +63,8 @@ CalibrationDlg::CalibrationDlg ()
 	calibrationSelectorTab->addTab(translate("Modulation Wheel"), juce::Colours::lightgrey, 3);
 
 	calibrationSelectorTab->addChangeListener(this);
+
+	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
 
     //[/UserPreSize]
 
@@ -79,6 +81,7 @@ CalibrationDlg::CalibrationDlg ()
 CalibrationDlg::~CalibrationDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
     //[/Destructor_pre]
 
     btnStart = nullptr;
@@ -87,6 +90,7 @@ CalibrationDlg::~CalibrationDlg()
 
     //[Destructor]. You can add your own custom destruction code here..
 	calibrationSelectorTab = nullptr;
+	wheelsCalibrationComponent = nullptr;
     //[/Destructor]
 }
 
@@ -113,21 +117,44 @@ void CalibrationDlg::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
-	calibrationSelectorTab->setBounds(0, 0, getWidth() - generalRim, OCTAVEBOARDTABHEIGHT);
+	auto currentTab = calibrationSelectorTab->getCurrentTabIndex();
 
-	instructionsBounds.setBounds(
-		generalRim,
-		calibrationSelectorTab->getBottom() + generalRim,
-		getWidth() - 2 * generalRim,
-		btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim);
-	instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
+	calibrationSelectorTab->setBounds(0, 0, getWidth() - generalRim, OCTAVEBOARDTABHEIGHT);
 
 	int buttonWidth = proportionOfWidth(0.3f);
 	int buttonHeight = proportionOfHeight(0.125f);
+
 	btnStart->setSize(buttonWidth, buttonHeight);
 	btnStart->setTopLeftPosition(generalRim, getHeight() - generalRim - buttonHeight);
-
 	btnStop->setBounds(btnStart->getBounds().withX(getWidth() - generalRim - buttonWidth));
+
+	if (currentTab == calibrateModulationWheel && wheelsCalibrationComponent != nullptr)
+	{
+		int panelHeight = btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim;
+
+		wheelsCalibrationComponent->setBounds(
+			generalRim, 
+			calibrationSelectorTab->getBottom() + generalRim, 
+			proportionOfWidth(wheelsGraphicWidthScalar),
+			panelHeight);
+
+		instructionsBounds.setBounds(
+			wheelsCalibrationComponent->getRight() + generalRim,
+			calibrationSelectorTab->getBottom() + generalRim,
+			getWidth() - wheelsCalibrationComponent->getRight() - 2 * generalRim,
+			panelHeight);
+	}
+
+	else
+	{
+		instructionsBounds.setBounds(
+			generalRim,
+			calibrationSelectorTab->getBottom() + generalRim,
+			getWidth() - 2 * generalRim,
+			btnStart->getY() - calibrationSelectorTab->getBottom() - 2 * generalRim);
+		instructionsFont.setHeight(instructionsBounds.getHeight() * fontHeightInBounds);
+	}
+
 
     //[/UserResized]
 }
@@ -155,10 +182,10 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 
 		case calibrateModulationWheel:
 			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(true);
-			
+
 			// Todo - wait for ack
 			TerpstraSysExApplication::getApp().setCalibrationMode(true);
-			updateCalibrationStatus();
+			updateWheelCalibrationStatus();
 			break;
 
 		default:
@@ -185,7 +212,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(false);
 			// Todo - wait for ack
 			TerpstraSysExApplication::getApp().setCalibrationMode(false);
-			updateCalibrationStatus();
+			updateWheelCalibrationStatus();
 			break;
 		default:
 			jassertfalse;
@@ -230,6 +257,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
+			wheelsCalibrationComponent = nullptr;
 			repaint();
 			break;
 
@@ -239,6 +267,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
+			wheelsCalibrationComponent = nullptr;
 			repaint();
 			break;
 
@@ -248,7 +277,8 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< newLine
 				<< translate("Click \'End calibration\' to stop.");
 			btnStop->setVisible(true);
-			updateCalibrationStatus();
+			setupWheelCalibrationLayout();
+			updateWheelCalibrationStatus();
 			repaint();
 			break;
 		default:
@@ -258,11 +288,33 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 	}
 }
 
-void CalibrationDlg::updateCalibrationStatus()
+void CalibrationDlg::setupWheelCalibrationLayout()
+{
+	FirmwareSupport support;
+	if (support.versionAcknowledgesCommand(TerpstraSysExApplication::getApp().getFirmwareVersion(), PERIPHERAL_CALBRATION_DATA))
+	{
+		wheelsCalibrationComponent.reset(new WheelsCalibrationComponent());
+		addAndMakeVisible(wheelsCalibrationComponent.get());
+		resized();
+	}
+}
+
+
+void CalibrationDlg::updateWheelCalibrationStatus()
 {
 	bool inCalibration = TerpstraSysExApplication::getApp().getInCalibrationMode();
 	btnStart->setEnabled(!inCalibration);
 	btnStop->setEnabled(inCalibration);
+}
+
+void CalibrationDlg::wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData)
+{
+	if (wheelsCalibrationComponent != nullptr)
+	{
+		wheelsCalibrationComponent->updateCalibrationData(calibrationData);
+	}
+	else
+		jassertfalse;
 }
 
 //[/MiscUserCode]
@@ -278,7 +330,7 @@ void CalibrationDlg::updateCalibrationStatus()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="CalibrationDlg" componentName=""
-                 parentClasses="public juce::Component, public ChangeListener"
+                 parentClasses="public juce::Component, public ChangeListener, public LumatoneController::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="524"
                  initialHeight="212">

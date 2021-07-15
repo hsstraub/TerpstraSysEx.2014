@@ -513,6 +513,8 @@ struct PeripheralChannelSettings
 	}
 };
 
+#define ADCSCALAR 2.44140625e-4;
+
 struct WheelsCalibrationData
 {
 	int centerPitch = 0;
@@ -521,6 +523,12 @@ struct WheelsCalibrationData
 
 	int minMod = 0;
 	int maxMod = 0;
+
+	float getCentrePitchNorm() const { return centerPitch * ADCSCALAR; }
+	float getMinPitchNorm() const { return minPitch * ADCSCALAR; }
+	float getMaxPitchNorm() const { return maxPitch * ADCSCALAR; }
+	float getMinModNorm() const { return minMod * ADCSCALAR; }
+	float getMaxModNorm() const { return maxMod * ADCSCALAR; }
 
 	String toString() const
 	{

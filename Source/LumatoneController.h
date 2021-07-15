@@ -49,6 +49,8 @@ public:
     FirmwareVersion getFirmwareVersion() const { return firmwareVersion; }
 
     LumatoneFirmwareVersion getConfirmedVersion() const { return determinedVersion; }
+
+    const FirmwareSupport& getFirmwareSupport() const { return firmwareSupport; }
     
     // Takes a generic firmware version and parses it into a recognized firmware version
     void setFirmwareVersion(FirmwareVersion firmwareVersionIn);

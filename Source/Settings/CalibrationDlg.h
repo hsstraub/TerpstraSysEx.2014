@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -21,6 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
+#include "WheelsCalibrationComponent.h"
+#include "../LumatoneController.h"
 //[/Headers]
 
 
@@ -35,6 +37,7 @@
 */
 class CalibrationDlg  : public juce::Component,
                         public ChangeListener,
+                        public LumatoneController::FirmwareListener,
                         public juce::Button::Listener
 {
 public:
@@ -48,7 +51,15 @@ public:
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
-    void updateCalibrationStatus();
+    void setupWheelCalibrationLayout();
+    void updateWheelCalibrationStatus();
+
+    //==============================================================================
+    // LumatoneController::FirmwareListener Implementation
+
+    void wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData) override;
+
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -68,6 +79,7 @@ private:
 	};
 
 	std::unique_ptr<TabbedButtonBar> calibrationSelectorTab;
+    std::unique_ptr<WheelsCalibrationComponent> wheelsCalibrationComponent;
 
 	String instructionText;
 
@@ -76,6 +88,8 @@ private:
     Font instructionsFont;
 	const float fontHeightInBounds = 0.125f;
 	const int generalRim = 12;
+    
+    const float wheelsGraphicWidthScalar = 0.15f;
 
     //[/UserVariables]
 

@@ -85,6 +85,8 @@
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
       <GROUP id="{719050EA-2AD7-FDDF-7DF8-6459AA36D42E}" name="Settings">
+        <FILE id="Ue41yL" name="WheelsCalibrationComponent.h" compile="0" resource="0"
+              file="Source/Settings/WheelsCalibrationComponent.h"/>
         <FILE id="HoxWOs" name="MidiSettingsDlg.cpp" compile="1" resource="0"
               file="Source/Settings/MidiSettingsDlg.cpp"/>
         <FILE id="U8gsXP" name="MidiSettingsDlg.h" compile="0" resource="0"
