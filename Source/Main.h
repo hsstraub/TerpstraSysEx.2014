@@ -119,13 +119,13 @@ public:
 			setContentOwned(new MainContentComponent(), true);
 
 			setResizable(true, true);
-			setConstrainer(TerpstraSysExApplication::getApp().getBoundsConstrainer());
-			centreWithSize(getWidth(), getHeight());
 #if JUCE_ANDROID
 			setFullScreen(true);
+#else
+			setConstrainer(TerpstraSysExApplication::getApp().getBoundsConstrainer());
 #endif
+
 			setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel());
-			setVisible(true);
 		}
 
 		void closeButtonPressed() override
@@ -157,6 +157,7 @@ public:
 
 		void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 		{
+			// Check if stored height is larger than display area
             int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight(); 
             String windowState = propertiesFile->getValue("MainWindowState");
             auto windowProperties = StringArray::fromTokens(windowState, false);
@@ -172,6 +173,8 @@ public:
                 setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
             }
             
+			setVisible(true);
+
 			((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 		}
 
