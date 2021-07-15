@@ -122,7 +122,8 @@ public:
 
         return btn;
     }
-
+    
+    // Primarily used for palette pop-up
     class LumatoneEditorCompactWindow : public LookAndFeel_V4
     {
     public:
@@ -793,7 +794,7 @@ public:
             l->getProperties().set(prop.name, prop.value);
         
         l->setBounds(box.getLocalBounds());
-        l->setFont(getComboBoxFont(box).withHeight(box.getHeight())); // Any style overrides should have been passed to Label
+        l->setFont(getComboBoxFont(box).withHeight(box.getHeight() * CONTROLBOXFONTHEIGHTSCALAR)); // Any style overrides should have been passed to Label
         
         return l;
     }
