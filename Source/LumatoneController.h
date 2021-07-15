@@ -217,6 +217,7 @@ public:
 
     // Reset preset mappings to factory mappings
     void resetPresetsToFactoryDefault();
+    void resetPresetToFactoryDefault(int presetIndex);
 
     // Get interaction flags of current preset
     void getPresetFlags();

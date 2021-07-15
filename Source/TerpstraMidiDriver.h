@@ -291,8 +291,8 @@ public:
 	// CMD 45h: Configure the on/off settings of the sustain pedal
 	void sendInvertSustainPedal(bool setInverted);
 
-	// CMD 46h: Replace current presets with factory presets
-	void sendResetDefaultPresetsRequest();
+	// CMD 46h: Replace a certain preset with the factory preset
+	void sendResetDefaultPresetsRequest(int presetIndex);
 
 	// CMD 47h: Read back the currently configured preset flags of expression & sustain inversion,
 	// plus light-on-keystroke and polyphonic aftertouch

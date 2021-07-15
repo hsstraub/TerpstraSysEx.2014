@@ -623,9 +623,10 @@ void TerpstraMidiDriver::sendInvertSustainPedal(bool setInverted)
 }
 
 // CMD 46h: Replace current presets with factory presets
-void TerpstraMidiDriver::sendResetDefaultPresetsRequest()
+void TerpstraMidiDriver::sendResetDefaultPresetsRequest(int presetIndex)
 {
-    sendSysExRequest(0, RESET_DEFAULT_PRESETS);
+    presetIndex %= 10;
+    sendSysEx(0, RESET_DEFAULT_PRESETS, presetIndex, '\0', '\0', '\0');
 }
 
 // CMD 47h: Read back the currently configured preset flags of expression & sustain inversion,
@@ -741,7 +742,7 @@ void TerpstraMidiDriver::sendSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uin
 {
     if (midiInput != nullptr)
     {
-        jassert(boardIndex < 0x6 && cmd <= 0x44 && data1 <= 0x7f && data2 <= 0x7f && data3 <= 0x7f && data4 <= 0x7f);
+        jassert(boardIndex < 0x6 && data1 <= 0x7f && data2 <= 0x7f && data3 <= 0x7f && data4 <= 0x7f);
         MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
         sendMessageWithAcknowledge(msg);
     }

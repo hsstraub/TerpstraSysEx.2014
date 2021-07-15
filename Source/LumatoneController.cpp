@@ -498,7 +498,15 @@ void LumatoneController::invertSustainPedal(bool setInverted)
 void LumatoneController::resetPresetsToFactoryDefault()
 {
     if (firmwareSupport.versionAcknowledgesCommand(determinedVersion, RESET_DEFAULT_PRESETS))
-        midiDriver.sendResetDefaultPresetsRequest();
+    {
+        for (int i = 0; i < 10; i++)
+        midiDriver.sendResetDefaultPresetsRequest(i);
+    }
+}
+
+void LumatoneController::resetPresetToFactoryDefault(int presetIndex)
+{
+    midiDriver.sendResetDefaultPresetsRequest(presetIndex);
 }
 
 // Get interaction flags of current preset
@@ -1236,17 +1244,17 @@ void LumatoneController::onFirmwareUpdateReceived()
         firmwareTransfer->setProgress(1.0);
         auto possibleUpdate = firmwareSupport.getLumatoneFirmwareVersion(incomingVersion);
         DBG("Waiting for update, received: " + incomingVersion.toString());
-        if (possibleUpdate > determinedVersion)
+        if (possibleUpdate <= determinedVersion)
         {
-            firmwareVersion = incomingVersion;
-            DBG("Confirmed update to firmware version " + firmwareVersion.toString());
-            determinedVersion = possibleUpdate;
+            DBG("Error: Firmware update appears to have failed");
         }
         else
         {
-            DBG("Error: Firmware update appears to have failed");
-            //jassertfalse;
+            DBG("Confirmed update to firmware version " + incomingVersion.toString());
         }
+
+        firmwareVersion = incomingVersion;
+        determinedVersion = possibleUpdate;
 
         editingMode = sysExSendingMode::liveEditor;
         firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion);

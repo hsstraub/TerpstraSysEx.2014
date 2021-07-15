@@ -212,6 +212,24 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == sldExprCtrlSensitivity.get())
     {
         //[UserSliderCode_sldExprCtrlSensitivity] -- add your slider handling code here..
+        int newSensitvity = sldExprCtrlSensitivity->getValue();
+        // ToDo value checking: encapsulate in keyboard data structure?
+        if (newSensitvity < 0)
+        {
+            newSensitvity = 0;
+            sldExprCtrlSensitivity->setValue(newSensitvity);
+        }
+
+        if (newSensitvity > 0x7f)
+        {
+            newSensitvity = 0x7f;
+            sldExprCtrlSensitivity->setValue(newSensitvity);
+        }
+
+        ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
+        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+        TerpstraSysExApplication::getApp().getLumatoneController().sendExpressionPedalSensivity(newSensitvity);
+
         //[/UserSliderCode_sldExprCtrlSensitivity]
     }
 
