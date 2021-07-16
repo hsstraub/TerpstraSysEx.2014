@@ -87,7 +87,8 @@ NoteEditArea::NoteEditArea ()
 	// Single Key fields
 	resetOctaveSize(false);
 
-	/* Dont want to resize niri
+	/* Don't want to resize now
+    /*
     //[/UserPreSize]
 
     setSize (760, 470);
@@ -95,7 +96,14 @@ NoteEditArea::NoteEditArea ()
 
     //[Constructor] You can add your own custom stuff here..
 	*/
+
 	// First octaveboard selection, selection on first key: see MainComponent (Has to be done after change listener has been established)
+
+	auto singleNoteAssign = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(0));
+	if (singleNoteAssign != nullptr)
+	{
+		addColourSelectionListener(singleNoteAssign);
+	}
 
     //[/Constructor]
 }
@@ -125,7 +133,7 @@ NoteEditArea::~NoteEditArea()
 void NoteEditArea::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
-	
+
 	/*
     //[/UserPrePaint]
 
@@ -216,35 +224,44 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 			// Select field
 			changeSingleKeySelection(keyIndex);
 
-			// Perform the edit, according to edit mode. Including sending to device
-			auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
-			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize());
-
-			int editMode = editFunctionsTab->getCurrentTabIndex();
-			switch (editMode)
+			// Grab key colour - may be replaced with eyedropper tool
+			if (e.mods.isAltDown())
 			{
-			case noteEditMode::SingleNoteAssignMode:
-			{
-				auto editAction = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(editMode))->createEditAction(setSelection, keyIndex);
-				TerpstraSysExApplication::getApp().performUndoableAction(editAction);
-				break;
+				auto colour = terpstraKeyFields[keyIndex]->getValue().colour;
+				selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, colour);
 			}
-			case noteEditMode::IsomorphicMassAssignMode:
+			// Standard assign action
+			else
 			{
-				bool mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
-				if (mappingChanged)
+				// Perform the edit, according to edit mode. Including sending to device
+				auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
+				jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS&& keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize());
+
+				int editMode = editFunctionsTab->getCurrentTabIndex();
+				switch (editMode)
 				{
-					TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-					// Refresh key fields (all may be affected)
-					((MainContentComponent*)getParentComponent())->refreshKeyDataFields();
+				case noteEditMode::SingleNoteAssignMode:
+				{
+					auto editAction = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(noteEditMode::SingleNoteAssignMode))->createEditAction(setSelection, keyIndex);
+					TerpstraSysExApplication::getApp().performUndoableAction(editAction);
+					break;
 				}
-				break;
-			}
-			default:
-				break;
-			}
+				case noteEditMode::IsomorphicMassAssignMode:
+				{
+					bool mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+					if (mappingChanged)
+					{
+						TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
+						// Refresh key fields (all may be affected)
+						((MainContentComponent*)getParentComponent())->refreshKeyDataFields();
+					}
+					break;
+				}
+				default:
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -369,6 +386,23 @@ void NoteEditArea::resetOctaveSize(bool refreshAndResize)
 		}
 	}
 }
+
+Colour NoteEditArea::getSelectedColour()
+{
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+	{
+		return terpstraKeyFields[currentSingleKeySelection]->getValue().colour;
+	}
+
+	auto singleNoteAssign = dynamic_cast<SingleNoteAssign*>(editFunctionsTab->getTabContentComponent(SingleNoteAssignMode));
+	if (singleNoteAssign != nullptr)
+	{
+		return singleNoteAssign->getColourEditComponent()->getColourAsObject();
+	}
+
+	return Colour();
+}
+
 //[/MiscUserCode]
 
 
@@ -382,10 +416,10 @@ void NoteEditArea::resetOctaveSize(bool refreshAndResize)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="NoteEditArea" componentName="NoteEditArea"
-                 parentClasses="public Component, public ChangeListener" constructorParams=""
-                 variableInitialisers="currentSingleKeySelection(-1)" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="760" initialHeight="470">
+                 parentClasses="public Component, public ChangeListener, public ColourSelectionBroadcaster"
+                 constructorParams="" variableInitialisers="currentSingleKeySelection(-1)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="760" initialHeight="470">
   <METHODS>
     <METHOD name="mouseDown (const juce::MouseEvent&amp; e)"/>
   </METHODS>

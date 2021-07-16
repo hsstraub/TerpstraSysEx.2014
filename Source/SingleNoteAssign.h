@@ -62,7 +62,7 @@ public:
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
-    
+
     void redrawCCFlipBtn();
     //[/UserMethods]
 
@@ -86,7 +86,7 @@ private:
 
     Font instructionsFont;
     Font parametersFont;
-    
+
     Array<FlexBox> flexRows;
     Array<Rectangle<int>> flexBounds; // Primarily for debugging
     enum SingleNoteFlexRows
@@ -112,11 +112,11 @@ private:
 
     const float controlBoxFontHeightScalar     = 0.75f;
     const float incDecButtonTextBoxWidthScalar = 0.4f;
-    
+
     const float separatorThicknessScalar = 0.005f;
 
     const Colour toggleTextColour = Colour(0xffcbcbcb);
-    
+
     std::unique_ptr<juce::ImageButton> ccFaderIsDefault;
     Path faderDownArrow;
     Path faderUpArrow;
@@ -136,7 +136,7 @@ private:
     std::unique_ptr<ColourTextEditor> colourTextEditor;
     std::unique_ptr<juce::Slider> channelInput;
     std::unique_ptr<juce::Slider> channelAutoIncrNoteInput;
-    
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SingleNoteAssign)

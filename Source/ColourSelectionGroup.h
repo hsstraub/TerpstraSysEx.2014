@@ -26,14 +26,13 @@ class ColourSelectionBroadcaster
 public:
 
     ColourSelectionBroadcaster() {};
-    virtual ~ColourSelectionBroadcaster() {};
 
     virtual Colour getSelectedColour() = 0;
 
     virtual void deselectColour() = 0;
 
     void    addColourSelectionListener(ColourSelectionListener* listenerIn) { selectorListeners.add(listenerIn); }
-    void removeColourSelectionListener(ColourSelectionListener* listenerIn) { selectorListeners.add(listenerIn); }
+    void removeColourSelectionListener(ColourSelectionListener* listenerIn) { selectorListeners.remove(listenerIn); }
 
 protected:
 
@@ -44,6 +43,12 @@ class ColourSelectionGroup :  public ColourSelectionBroadcaster,
                               private ColourSelectionListener
 {
 public:
+
+    ~ColourSelectionGroup()
+    {
+        for (auto selector : colourSelectors)
+            selector->removeColourSelectionListener(this);
+    }
 
     /// <summary>
     /// Adds a ColourPaletteComponent and returns the palette's group index
@@ -105,6 +110,23 @@ public:
         return colourSelectors.indexOf(selectorIn);
     }
 
+    void setCurrentSelector(ColourSelectionBroadcaster* selector)
+    {
+        auto index = colourSelectors.indexOf(selector);
+
+        if (index >= 0 && index < colourSelectors.size())
+        {
+            if (selectedBroadcasterIndex >= 0 && getSelectedBroadcaster() != selector)
+            {
+                getSelectedBroadcaster()->deselectColour();
+            }
+
+            selectedBroadcasterIndex = index;
+
+            selectorListeners.call(&ColourSelectionListener::colourChangedCallback, selector, selector->getSelectedColour());
+        }
+    }
+
     //=========================================================================
 
     /// <summary>
@@ -114,14 +136,7 @@ public:
     /// <param name="newColour"></param>
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override
     {
-        if (getSelectedBroadcaster() && getSelectedBroadcaster() != source)
-        {
-            getSelectedBroadcaster()->deselectColour();
-        }
-
-        selectedBroadcasterIndex = colourSelectors.indexOf(source);
-
-        selectorListeners.call(&ColourSelectionListener::colourChangedCallback, source, newColour);
+        setCurrentSelector(source);
     }
 
 private:

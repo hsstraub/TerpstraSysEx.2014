@@ -44,7 +44,8 @@
                                                                     //[/Comments]
 */
 class NoteEditArea  : public Component,
-                      public ChangeListener
+                      public ChangeListener,
+                      public ColourSelectionBroadcaster
 {
 public:
     //==============================================================================
@@ -81,6 +82,10 @@ public:
     void setControlsTopLeftPosition(int controlsAreaX, int controlsAreaY);
 
     void resetOctaveSize(bool refreshAndResize=true);
+
+    // ColourSelectionBroadcaster Implementation
+    Colour getSelectedColour() override;
+    void deselectColour() override {};
 
     //[/UserMethods]
 

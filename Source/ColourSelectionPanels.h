@@ -280,7 +280,8 @@ protected:
 */
 class CustomPickerPanel : public Component,
     public ChangeListener,
-    public ColourSelectionBroadcaster
+    public ColourSelectionBroadcaster,
+    public ColourSelectionListener
 {
 public:
 
@@ -317,6 +318,12 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source) override
     {
         selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, colourPicker->getCurrentColour());
+    }
+
+    void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override
+    {
+        if (this != source)
+            colourPicker->setCurrentColour(newColour, dontSendNotification);
     }
 
     //==============================================================================

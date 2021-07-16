@@ -303,6 +303,8 @@ void MainContentComponent::buttonClicked(Button* btn)
         {
             colourEdit = noteEditArea->getColourEditComponent();
             paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
+			paletteWindow->addColourSelectorToGroup(noteEditArea.get());
+			paletteWindow->setCurrentColourSelector(noteEditArea->getSingleNoteColourTextEditor());
         }
 
 		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());

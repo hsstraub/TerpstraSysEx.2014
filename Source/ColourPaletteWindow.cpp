@@ -19,9 +19,9 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 {
     setName("ColourPaletteWindow");
 
-    paletteGroup.reset(new ColourSelectionGroup());
+    colourSelectorGroup.reset(new ColourSelectionGroup());
     
-    palettePanel.reset(new ColourPalettesPanel(colourPalettes, paletteGroup.get()));
+    palettePanel.reset(new ColourPalettesPanel(colourPalettes, colourSelectorGroup.get()));
     palettePanel->addListener(this);
 
     palettePanelViewport.reset(new Viewport("PalettePanelViewport"));
@@ -30,7 +30,8 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     palettePanelViewport->getVerticalScrollBar().setColour(ScrollBar::ColourIds::thumbColourId, Colour(0xff2d3135));
 
     customPickerPanel.reset(new CustomPickerPanel());
-    paletteGroup->addSelector(customPickerPanel.get());
+    colourSelectorGroup->addSelector(customPickerPanel.get());
+    colourSelectorGroup->addColourSelectionListener(customPickerPanel.get());
 
     colourToolTabs.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
     colourToolTabs->setName("ColourSelectionToolTabs");
@@ -45,8 +46,7 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 
 ColourPaletteWindow::~ColourPaletteWindow()
 { 
-    paletteGroup->removeSelector(customPickerPanel.get());
-
+    colourSelectorGroup     = nullptr;
     palettePanelViewport    = nullptr;
     colourToolTabs          = nullptr;
     palettePanel            = nullptr;
@@ -123,14 +123,9 @@ void ColourPaletteWindow::newPaletteRequested()
 
 void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
 {
-    // Custom picker colour changed
-    if (source == &colourToolTabs->getTabbedButtonBar())
-    {
-        customPickerPanel->setCurrentColour(paletteGroup->getSelectedColour());
-    }
 
     // Palette editing finished
-    else if (source == paletteEditPanel.get())
+    if (source == paletteEditPanel.get())
     {
         if (paletteEditPanel->wasSaveRequested())
         {
