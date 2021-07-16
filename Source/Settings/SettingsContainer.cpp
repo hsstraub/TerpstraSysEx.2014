@@ -52,6 +52,11 @@ SettingsContainer::~SettingsContainer()
 {
     settingsPanel = nullptr;
     categoryList = nullptr;
+    
+    setLookAndFeel(nullptr);
+    if (auto parentWindow = findParentComponentOfClass<DialogWindow>())
+        parentWindow->setLookAndFeel(nullptr);
+    
     sendChangeMessage();
 }
 

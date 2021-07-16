@@ -173,7 +173,7 @@ void PedalSensitivityDlg::resized()
                           .withTrimmedBottom(buttonHeight * 1.5f)
                           .toNearestInt()
     );
-    
+
     labelExprContrSensitivity->setBounds(
          expressionBounds.withTop(sldExprCtrlSensitivity->getBottom() + buttonHeight * 0.1f)
                          .withTrimmedBottom(buttonHeight * 0.5f)

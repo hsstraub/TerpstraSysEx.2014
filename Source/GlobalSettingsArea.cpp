@@ -131,6 +131,7 @@ GlobalSettingsArea::~GlobalSettingsArea()
     //[Destructor]. You can add your own custom destruction code here..
     if (settingsAreOpen)
     {
+        settingsDialog->setLookAndFeel(nullptr);
         settingsDialog->exitModalState(0);
         settingsDialog = nullptr;
     }
