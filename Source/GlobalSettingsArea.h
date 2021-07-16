@@ -78,9 +78,6 @@ private:
 
     std::unique_ptr<Label> lblDeveloperMode;
 
-    DialogWindow* settingsDialog;
-    bool settingsAreOpen = false;
-
     bool showDeveloperMode = false;
 
     //==============================================================================

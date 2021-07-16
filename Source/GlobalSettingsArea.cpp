@@ -129,12 +129,6 @@ GlobalSettingsArea::~GlobalSettingsArea()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-    if (settingsAreOpen)
-    {
-        settingsDialog->setLookAndFeel(nullptr);
-        settingsDialog->exitModalState(0);
-        settingsDialog = nullptr;
-    }
     //[/Destructor]
 }
 
@@ -203,7 +197,6 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
 		auto settingsComponent = new SettingsContainer();
         settingsComponent->setLookAndFeel(&getLookAndFeel());
-        settingsComponent->addChangeListener(this);
 
 		DialogWindow::LaunchOptions launchOptions;
 		launchOptions.content.setOwned(settingsComponent);
@@ -216,11 +209,12 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
         launchOptions.dialogBackgroundColour = Colour();
 
-		settingsDialog = launchOptions.launchAsync();
-        settingsDialog->centreWithSize(548, 240);
+		auto settingsDialog = launchOptions.launchAsync();
         settingsDialog->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
+        settingsDialog->centreWithSize(548, 240);
 
-        settingsAreOpen = true;
+        TerpstraSysExApplication::getApp().setOpenDialogWindow(settingsDialog);
+
         //[/UserButtonCode_buttonCalibrate]
     }
 
@@ -255,15 +249,6 @@ void GlobalSettingsArea::changeListenerCallback(ChangeBroadcaster *source)
 		String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
 		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonActiveColour(activeMacroButtonColour);
 	}
-    else
-    {
-        auto settings = dynamic_cast<SettingsContainer*>(source);
-        if (settings != nullptr)
-        {
-            // Settings dialog was exited
-            settingsAreOpen = false;
-        }
-    }
 }
 
 void GlobalSettingsArea::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)

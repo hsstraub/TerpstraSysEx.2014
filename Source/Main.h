@@ -102,6 +102,8 @@ public:
 	bool getHasChangesToSave() const { return hasChangesToSave; }
 	void setHasChangesToSave(bool value);
 
+	void setOpenDialogWindow(DialogWindow* dialogWindowIn);
+
 	bool aboutTerpstraSysEx();
 
 	//==============================================================================
@@ -210,6 +212,9 @@ private:
 	File						userPalettesDirectory;
 
 	Array<LumatoneEditorColourPalette> colourPalettes;
+
+	// Make sure an open dialog window is deleted on shutdown
+	std::unique_ptr<DialogWindow> dialogWindow;
 
 	// Communication with Lumatone
 	LumatoneController			lumatoneController;

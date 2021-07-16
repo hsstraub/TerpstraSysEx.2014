@@ -37,7 +37,7 @@ SettingsContainer::SettingsContainer()
         translate("MIDI"),
         translate("Presets")
       })
-{
+{ 
     categoryList.reset(new ListBox("CategoryList"));
     categoryList->setModel(&model);
 
@@ -52,12 +52,7 @@ SettingsContainer::~SettingsContainer()
 {
     settingsPanel = nullptr;
     categoryList = nullptr;
-    
-    setLookAndFeel(nullptr);
-    if (auto parentWindow = findParentComponentOfClass<DialogWindow>())
-        parentWindow->setLookAndFeel(nullptr);
-    
-    sendChangeMessage();
+
 }
 
 void SettingsContainer::paint(Graphics& g)
@@ -77,14 +72,9 @@ void SettingsContainer::resized()
 
 void SettingsContainer::lookAndFeelChanged()
 {
-    auto* lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-    if (lookAndFeel)
-    {
-        setColour(ResizableWindow::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LightBackground));
-        categoryList->setColour(ListBox::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::MediumBackground));
-    }
+    setColour(ResizableWindow::ColourIds::backgroundColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
+    categoryList->setColour(ListBox::ColourIds::backgroundColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground));
 }
-
 void SettingsContainer::changeListenerCallback(ChangeBroadcaster* source)
 {
     auto panelIndex = categoryList->getSelectedRow();

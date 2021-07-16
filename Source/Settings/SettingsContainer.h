@@ -48,7 +48,7 @@ private:
     
 };
 
-class SettingsContainer : public Component, public ChangeBroadcaster, protected ChangeListener
+class SettingsContainer : public Component, protected ChangeListener
 {
 public:
 
