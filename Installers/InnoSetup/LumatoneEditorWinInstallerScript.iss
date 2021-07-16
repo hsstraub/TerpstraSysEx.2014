@@ -24,6 +24,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+AllowNoIcons=yes
 DefaultDirName={autopf64}\{#MyAppName}
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
@@ -34,7 +35,7 @@ OutputDir=.\
 OutputBaseFilename=Install {#MyAppName} {#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
-UsePreviousAppDir=no
+UsePreviousAppDir=yes
 WizardStyle=modern
 
 [Languages]
@@ -58,14 +59,14 @@ Source: "vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafteri
 Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\OpenWithProgIds"; ValueType: string; ValueName: "{#MappingAssocKey}"; ValueData: "%"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}"; ValueType: string; ValueName: ""; ValueData: "{#MappingAssocName}"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\ltn.ico"
-Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
-Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: {#MappingAssocExt}; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeNameDest}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeNameDest}\SupportedTypes"; ValueType: string; ValueName: {#MappingAssocExt}; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\{#PaletteAssocExt}"; ValueType: string; ValueName: ""; ValueData: "{#PaletteAssocName}"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#PaletteAssocExt}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData:"{app}\ltp.ico"
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeNameDest}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeNameDest}"; Tasks: desktopicon
 
 [Code]
 // Pulled from https://stackoverflow.com/questions/24574035/how-to-install-microsoft-vc-redistributables-silently-in-inno-setup
