@@ -1041,6 +1041,10 @@ void LumatoneController::timerCallback()
                         case GET_SERIAL_IDENTITY:
                             errorCode = handleSerialIdentityResponse(midiMessage);
                             break;
+                                
+                        case CALIBRATE_PITCH_MOD_WHEEL:
+                            firmwareListeners.call(&FirmwareListener::calibratePitchModWheelAnswer, (TerpstraMIDIAnswerReturnCode)sysExData[MSG_STATUS]);
+                            break;
 
                         case GET_LUMATOUCH_CONFIG:
                             errorCode = handleLumatouchConfigResponse(midiMessage);

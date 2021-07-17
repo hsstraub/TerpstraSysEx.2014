@@ -182,10 +182,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 
 		case calibrateModulationWheel:
 			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(true);
-
-			// Todo - wait for ack
-			TerpstraSysExApplication::getApp().setCalibrationMode(true);
-			updateWheelCalibrationStatus();
+            startCalibration = true;
 			break;
 
 		default:
@@ -210,9 +207,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 			break;
 		case calibrateModulationWheel:
 			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(false);
-			// Todo - wait for ack
-			TerpstraSysExApplication::getApp().setCalibrationMode(false);
-			updateWheelCalibrationStatus();
+            startCalibration = false;
 			break;
 		default:
 			jassertfalse;
@@ -246,6 +241,7 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 {
 	if (source == calibrationSelectorTab.get())
 	{
+        wheelsCalibrationComponent = nullptr;
 		btnStart->setEnabled(true);
 		// Instructions depending on tab selection
 		auto tabSelection = calibrationSelectorTab->getCurrentTabIndex();
@@ -257,7 +253,6 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
-			wheelsCalibrationComponent = nullptr;
 			resized();
 			break;
 
@@ -267,7 +262,6 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 				<< newLine
 				<< translate("To return to normal operating state, the five submodule boards must exit out calibration mode by pressing their corresponding macro buttons to save or cancel calibration.");
 			btnStop->setVisible(false);
-			wheelsCalibrationComponent = nullptr;
 			resized();
 			break;
 
@@ -280,10 +274,12 @@ void CalibrationDlg::changeListenerCallback(ChangeBroadcaster *source)
 			setupWheelCalibrationLayout();
 			updateWheelCalibrationStatus();
 			break;
+                
 		default:
 			jassertfalse;
 			break;
 		}
+        repaint();
 	}
 }
 
@@ -306,14 +302,27 @@ void CalibrationDlg::updateWheelCalibrationStatus()
 	btnStop->setEnabled(inCalibration);
 }
 
+void CalibrationDlg::calibratePitchModWheelAnswer(TerpstraMIDIAnswerReturnCode code)
+{
+    if (code == TerpstraMIDIAnswerReturnCode::ACK)
+    {
+        if (startCalibration)
+            TerpstraSysExApplication::getApp().setCalibrationMode(true);
+        else
+            TerpstraSysExApplication::getApp().setCalibrationMode(false);
+        updateWheelCalibrationStatus();
+        startCalibration = false;
+    }
+}
+
 void CalibrationDlg::wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData)
 {
 	if (wheelsCalibrationComponent != nullptr)
 	{
 		wheelsCalibrationComponent->updateCalibrationData(calibrationData);
 	}
-	else
-		jassertfalse;
+	//else
+		//jassertfalse;
 }
 
 //[/MiscUserCode]

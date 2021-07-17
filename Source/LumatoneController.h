@@ -307,6 +307,8 @@ public:
         virtual void faderTypeConfigReceived(int octaveIndex, const int* faderTypeData) {};
 
         virtual void serialIdentityReceived(int inputDeviceIndex, const int* serialBytes) {};
+        
+        virtual void calibratePitchModWheelAnswer(TerpstraMIDIAnswerReturnCode code) {};
 
         virtual void lumatouchConfigReceived(const int* lumatouchData) {};
 

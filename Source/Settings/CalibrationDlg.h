@@ -57,6 +57,8 @@ public:
     //==============================================================================
     // LumatoneController::FirmwareListener Implementation
 
+    void calibratePitchModWheelAnswer(TerpstraMIDIAnswerReturnCode code) override;
+    
     void wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData) override;
 
 
@@ -80,6 +82,8 @@ private:
 
 	std::unique_ptr<TabbedButtonBar> calibrationSelectorTab;
     std::unique_ptr<WheelsCalibrationComponent> wheelsCalibrationComponent;
+    
+    bool startCalibration = false;
 
 	String instructionText;
 
