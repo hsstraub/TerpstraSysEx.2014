@@ -128,7 +128,11 @@ void DeviceActivityMonitor::testNextOutput()
     if (testOutputIndex >= 0 && testOutputIndex < outputDevices.size()) 
     {
         DBG("Testing " + outputDevices[testOutputIndex].name);
-        midiDriver.sendGetSerialIdentityRequest(testOutputIndex);
+        if (sendCalibratePitchModOff)
+            midiDriver.sendCalibratePitchModWheel(false, testOutputIndex);
+        else
+            midiDriver.sendGetSerialIdentityRequest(testOutputIndex);
+        
         waitingForTestResponse = true;
         startTimer(responseTimeoutMs);
     }
@@ -260,6 +264,13 @@ void DeviceActivityMonitor::onTestResponseReceived()
     stopTimer();
 
     waitingForTestResponse = false;
+    
+    if (sendCalibratePitchModOff)
+    {
+        sendCalibratePitchModOff = false;
+        checkDetectionStatus();
+        return;
+    }
 
     if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
@@ -385,12 +396,19 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
     if (msg.isSysEx())
     {
         stopTimer();
+        
+        auto sysExData = msg.getSysExData();
+        auto cmd = sysExData[CMD_ID];
+        
+        if (cmd == PERIPHERAL_CALBRATION_DATA && !isConnectionEstablished())
+        {
+            sendCalibratePitchModOff = true;
+            startTimer(100);
+            return;
+        }
 
         if (waitingForTestResponse)
         {
-            auto sysExData = msg.getSysExData();
-            auto cmd = sysExData[CMD_ID];
-
             // Skip echos, or mark as a failed ping
             if (sysExData[MSG_STATUS] == TEST_ECHO)
             {
@@ -424,6 +442,16 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
                 case GET_SERIAL_IDENTITY:
                     onSerialIdentityResponse(msg, deviceIndex);
                     break;
+                        
+                case CALIBRATE_PITCH_MOD_WHEEL:
+                    if (sysExData[PAYLOAD_INIT] != TEST_ECHO)
+                    {
+                        if (!isConnectionEstablished())
+                        {
+                            onTestResponseReceived();
+                        }
+                    }
+                    break;
 
                 case GET_FIRMWARE_REVISION:
                     // TODO
@@ -440,7 +468,8 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
             // Consider a response from a different firmware state as successful
             else if (sysExData[MSG_STATUS] == TerpstraMIDIAnswerReturnCode::STATE)
             {
-                onTestResponseReceived();
+                // Find 'off' message if possible
+                //onTestResponseReceived();
             }
         }
         

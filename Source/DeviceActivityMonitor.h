@@ -158,5 +158,7 @@ private:
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
     
+    bool                    sendCalibratePitchModOff = false;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

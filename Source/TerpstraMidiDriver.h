@@ -187,7 +187,7 @@ public:
 	void startDemoMode(bool turnOn);
 
 	// CMD 26h: Initiate the pitch and mod wheel calibration routine, pass in false to stop
-	void sendCalibratePitchModWheel(bool startCalibration);
+	void sendCalibratePitchModWheel(bool startCalibration, int testOutputIndex = -1);
 
 	// CMD 27h: Set the sensitivity value of the mod wheel, 0x01 to 0x07f
 	void setModWheelSensitivity(uint8 sensitivity);

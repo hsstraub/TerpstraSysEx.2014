@@ -366,9 +366,12 @@ void TerpstraMidiDriver::startDemoMode(bool turnOn)
 }
 
 // CMD 26h: Initiate the pitch and mod wheel calibration routine, pass in false to stop
-void TerpstraMidiDriver::sendCalibratePitchModWheel(bool startCalibration)
+void TerpstraMidiDriver::sendCalibratePitchModWheel(bool startCalibration, int testOutputIndex)
 {
-    sendSysExToggle(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration);
+    if (testOutputIndex < 0)
+        sendSysExToggle(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration);
+    else
+        sendTestMessageNow(testOutputIndex, createTerpstraSysEx(0, CALIBRATE_PITCH_MOD_WHEEL, startCalibration, TEST_ECHO, '\0', '\0'));
 }
 
 // CMD 27h: Set the sensitivity value of the mod wheel, 0x01 to 0x07f
