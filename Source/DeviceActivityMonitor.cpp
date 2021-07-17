@@ -381,11 +381,11 @@ void DeviceActivityMonitor::timerCallback()
 // TerpstraMidiDriver::Listener Implementation
 
 void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMessage& msg)
-{
-    stopTimer();
-    
+{    
     if (msg.isSysEx())
     {
+        stopTimer();
+
         if (waitingForTestResponse)
         {
             auto sysExData = msg.getSysExData();
