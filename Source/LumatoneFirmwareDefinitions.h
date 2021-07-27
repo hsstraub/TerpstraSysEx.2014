@@ -383,6 +383,12 @@ struct FirmwareSupport
                 else
                     return LumatoneFirmwareVersion::FUTURE_VERSION;
             }
+            
+            // MINOR > 1
+            else
+            {
+                return LumatoneFirmwareVersion::FUTURE_VERSION;
+            }
 		}
 
 		else if (versionIn.major < 9 && versionIn.minor < 9 && versionIn.revision < 999)
