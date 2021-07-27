@@ -216,7 +216,8 @@ enum class LumatoneFirmwareVersion
 	VERSION_1_0_11,
 	VERSION_1_0_12,
     VERSION_1_1_0 = VERSION_1_0_12,
-	LAST_VERSION = VERSION_1_1_0,
+    VERSION_1_2_0,
+	LAST_VERSION = VERSION_1_2_0,
 	FUTURE_VERSION = 0xFFFF  // Used when version is nonnegative and below 9.9.999
 } ;
 
@@ -368,6 +369,7 @@ struct FirmwareSupport
 				if (versionIn.revision < 3)
 					return LumatoneFirmwareVersion::VERSION_55_KEYS;
 
+                // Computing is probably not the best thing to do but edge cases are extremely unlikely here
 				else if (versionIn.revision - 3 > (int)LumatoneFirmwareVersion::LAST_VERSION - (int)LumatoneFirmwareVersion::VERSION_1_0_3)
 					return LumatoneFirmwareVersion::FUTURE_VERSION;
 
@@ -380,17 +382,18 @@ struct FirmwareSupport
             {
                 if (versionIn.revision == 0)
                     return LumatoneFirmwareVersion::VERSION_1_1_0;
-                else
-                    return LumatoneFirmwareVersion::FUTURE_VERSION;
             }
             
-            // MINOR > 1
-            else
+            else if (versionIn.minor == 2)
             {
-                return LumatoneFirmwareVersion::FUTURE_VERSION;
+                if (versionIn.revision == 0)
+                    return LumatoneFirmwareVersion::VERSION_1_2_0;
             }
+            
+            return LumatoneFirmwareVersion::FUTURE_VERSION;
 		}
 
+        // Unsure if this is needed, or if returning FUTURE_VERSION without a condition is better
 		else if (versionIn.major < 9 && versionIn.minor < 9 && versionIn.revision < 999)
 			return LumatoneFirmwareVersion::FUTURE_VERSION;
 
