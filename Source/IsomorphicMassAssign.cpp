@@ -424,156 +424,17 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 
 	auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
 
+    TerpstraKey& keyData = mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+    keyData.keyType = LumatoneKeyType::noteOnNoteOff;
+
 	// Save data
 	this->mappingLogic->indexToTerpstraKey(
         noteIndex,
-		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
+        keyData
+		);
 
 	// Send to device
-	TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection,
-		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
-}
-
-// Fill a line in current octave board. Starting point is assumed to have been set
-void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
-{
-	jassert(stepSize != 0);
-
-	int pos, noteIndex;
-	// Forward
-	for (pos = startPos + 1, noteIndex = startNoteIndex + stepSize;
-		pos < line.size() && noteIndex < this->mappingLogic->globalMappingSize();
-		pos++, noteIndex += stepSize)
-	{
-		setSaveSend(setSelection, line[pos], noteIndex);
-	}
-
-	// Backward
-	for (pos = startPos - 1, noteIndex = startNoteIndex - stepSize;
-		pos >= 0 && noteIndex >= 0;
-		pos--, noteIndex -= stepSize)
-	{
-		setSaveSend(setSelection, line[pos], noteIndex);
-	}
-}
-
-// Fill a horizontal line over all octave boards. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize)
-{
-	jassert(stepSize != 0);
-
-	int pos, octaveBoardIndex;
-
-	// Forward
-	// Line belonging to current octave board
-	int noteIndex = startNoteIndex + stepSize;
-
-	for (pos = startPos + 1;
-		pos < globalLine[setSelection].size() && noteIndex < this->mappingLogic->globalMappingSize();
-		pos++, noteIndex += stepSize)
-	{
-		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
-	}
-
-	// Following octave boards
-	for (octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
-    {
-        for (pos = 0;
-            pos < globalLine[octaveBoardIndex].size() && noteIndex < this->mappingLogic->globalMappingSize();
-            pos++, noteIndex += stepSize)
-        {
-            setSaveSend(octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
-        }
-    }
-
-	// Backward
-	// Current octave board
-	noteIndex = startNoteIndex - stepSize;
-
-	for (pos = startPos - 1; pos >= 0 && noteIndex >= 0; pos--, noteIndex -= stepSize)
-	{
-		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
-	}
-
-    // Preceding octave boards
-	for (octaveBoardIndex = setSelection-1; octaveBoardIndex >= 0; octaveBoardIndex--)
-    {
-        for (pos = globalLine[octaveBoardIndex].size()-1;
-            pos >=0  && noteIndex >= 0;
-            pos--, noteIndex -= stepSize)
-        {
-            setSaveSend(octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
-        }
-    }
-}
-
-// Fill a horizontal line and its cutting upwards lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
-	int horizStepSize, int rUpwStepSize,
-	TerpstraBoardGeometry::StraightLineSet& finishedLines)
-{
-	// Only if not done yet
-	if (!finishedLines.contains(horizLine))
-	{
-		// Fill the line itself
-		fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
-
-		// Add to list of finished lines
-		finishedLines.add(horizLine);
-
-		// Find cutting lines and fill them
-		auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
-
-		for (auto horizLineField : horizLine)
-		{
-			// Find the vertical line at this position
-			TerpstraBoardGeometry::StraightLine rUpLine = boardGeometry.rightUpwardLineOfField(horizLineField);
-			int rUpStartPos = rUpLine.indexOf(horizLineField);
-
-			// Start note index: the value that has been set to the horizontal line element (if it has)
-			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				mainComponent->getMappingInEdit()
-                .sets[setSelection].theKeys[horizLineField]);
-
-            if (rUpStartNoteIndex >= 0)
-                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-                fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
-		}
-	}
-}
-
-// Fill a right upward line and its cutting horizontal lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& rUpwLine, int startPos, int startNoteIndex,
-	int horizStepSize, int rUpwStepSize,
-	TerpstraBoardGeometry::StraightLineSet& finishedLines)
-{
-	// Only if not done yet
-	if (!finishedLines.contains(rUpwLine))
-	{
-		// Fill the line itself
-		fillLine(setSelection, rUpwLine, startPos, startNoteIndex, rUpwStepSize);
-
-		// Add to list of finished lines
-		finishedLines.add(rUpwLine);
-
-		// Find cutting lines and fill them
-		auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
-
-		for (auto rUpwLineField : rUpwLine)
-		{
-			// Find the vertical line at this position
-			TerpstraBoardGeometry::StraightLine horizLine = boardGeometry.horizontalLineOfField(rUpwLineField);
-			int horizStartPos = horizLine.indexOf(rUpwLineField);
-
-			// Start note index: the value that has been set to the horizontal line element (if it has)
-			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				mainComponent->getMappingInEdit().sets[setSelection].theKeys[rUpwLineField]);
-
-            if (horizStartNoteIndex >= 0)
-                // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-                fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
-		}
-	}
+	TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection, keyData);
 }
 
 // Implementation of MappingLogicListener
@@ -618,6 +479,10 @@ void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, i
 	editHorizontalSteps->setText(String(horizontalSize));
 }
 
+static int mod(int n, int d) {
+    return ((n % d) + d) % d; // contortion required for cross-platform consistent behaviour.
+}
+
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
 /// <returns>Mapping was changed yes/no</returns>
 bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
@@ -633,91 +498,23 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		int horizStepSize = editHorizontalSteps->getText().getIntValue();
 		int rUpwStepSize = editRightUpwardSteps->getText().getIntValue();
 
-		// Horizontal line
-		if (horizStepSize != 0 && rUpwStepSize == 0)
-		{
-            // Set value of starting point
-            setSaveSend(setSelection, keySelection, startNoteIndex);
+        Point<int>startPos = boardGeometry.coordinatesForKey(setSelection, keySelection); // Get the coordinates of the clicked key.
 
-			TerpstraBoardGeometry::StraightLineSet globalHorizLine =
-                boardGeometry.globalHorizontalLineOfField(setSelection, keySelection);
-			int startPos = globalHorizLine[setSelection].indexOf(keySelection);
-			fillGlobalLine(setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
-
-			mappingChanged = true;
-		}
-
-		// Right vertical line
-		else if (horizStepSize == 0 && rUpwStepSize != 0)
-		{
-            // Set value of starting point
-            setSaveSend(setSelection, keySelection, startNoteIndex);
-
-			TerpstraBoardGeometry::StraightLineSet globalRUpLine =
-                boardGeometry.globalRightUpwardLineOfField(setSelection, keySelection);
-			int startPos = globalRUpLine[setSelection].indexOf(keySelection);
-			fillGlobalLine(setSelection, globalRUpLine, startPos, startNoteIndex, rUpwStepSize);
-			mappingChanged = true;
-		}
-
-		// Two dimensional: fill whole subset
-		else if (horizStepSize != 0 && rUpwStepSize != 0)
-		{
-		    // Lines with right / left continuation
-		    auto linesWithRightContinuation = boardGeometry.getHorizontalLinesWithContinuation(1);
-		    auto linesWithLeftContinuation = boardGeometry.getHorizontalLinesWithContinuation(-1);
-
-		    // List of lines that have been finished, so the recursion ends - per octave board
-			TerpstraBoardGeometry::StraightLineSet finishedLineSets[NUMBEROFBOARDS];
-
-		    // Delete all data first
-		    mainComponent->deleteAll(false);
-
-            // Set value of starting point
-            setSaveSend(setSelection, keySelection, startNoteIndex);
-
-			// Find the horizontal line
-			auto horizLine = boardGeometry.horizontalLineOfField(keySelection);
-			int startPos = horizLine.indexOf(keySelection);
-
-			// Fill the board of current selection, starting from this line
-			fill2DHorizLineRecursive(setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize,
-                finishedLineSets[setSelection]);
-
-            // Following octave boards
-            for ( auto octaveBoardIndex = setSelection+1; octaveBoardIndex < NUMBEROFBOARDS; octaveBoardIndex++)
-            {
-                // Find a field that can be filled, from the values of the preceding octave board
-                for ( auto succeedinghorizLine : linesWithRightContinuation)
-                {
-                    int noteIndex = this->mappingLogic->terpstraKeyToIndex(
-                        mainComponent->getMappingInEdit().sets[octaveBoardIndex-1].theKeys[succeedinghorizLine.getLast()]);
-
-                    if ( noteIndex >= 0 )
-                    {
-                        // A field in preceding octave board with an assigned value has been found-
-                        // Value can be assigned to continuation on current board.
-                        auto newHorizLine = boardGeometry.continuationOfHorizontalLine(succeedinghorizLine, 1);
-
-                   		setSaveSend(octaveBoardIndex, newHorizLine.getFirst(), noteIndex + horizStepSize);
-
-                   		// Fill the whole sub board based on this field
-                        fill2DHorizLineRecursive(octaveBoardIndex, newHorizLine, 0,
-                            noteIndex + horizStepSize, horizStepSize, rUpwStepSize,
-                            finishedLineSets[octaveBoardIndex]);
-
-                        break;  // One field is enough to fill a whole octave board
-                    }
-                }
+        for (int boardIx = 0; boardIx < NUMBEROFBOARDS; boardIx++) { // For each board
+            for (int keyIx = 0; keyIx < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIx++) { // For each key on that board
+                Point<int> keyPos = boardGeometry.coordinatesForKey(boardIx, keyIx); // Get the coordinates of the key to assign.
+                Point<int> keyOffset = keyPos - startPos; // Get the offset of the key to assign, relative to where the user clicked.
+                setSaveSend(
+                    boardIx,
+                    keyIx,
+                    mod(startNoteIndex
+                         + keyOffset.getX() * horizStepSize
+                         + keyOffset.getY() * rUpwStepSize,
+                        this->mappingLogic->globalMappingSize()));
             }
-
-            // Preceding octave boards
-            // ToDo
-
-			mappingChanged = true;
-		}
-	}
-
+        }
+        mappingChanged = true;
+    }
 	return mappingChanged;
 }
 

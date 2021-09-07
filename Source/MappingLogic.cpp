@@ -61,6 +61,7 @@ juce::Colour MappingLogicBase::indexToColour(int inx) const
 
 void MappingLogicBase::indexToTerpstraKey(int inx, TerpstraKey& keyData) const
 {
+    keyData.keyType = LumatoneKeyType::noteOnNoteOff;
 	keyData.channelNumber = indexToMIDIChannel(inx);
 	keyData.noteNumber = indexToMIDINote(inx);
 
