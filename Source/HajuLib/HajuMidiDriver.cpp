@@ -23,7 +23,7 @@ HajuMidiDriver::~HajuMidiDriver()
 {
     if (midiInput != nullptr)
     {
-        midiInput->stop();
+        //midiInput->stop();
         midiInput = nullptr;
     }
 
