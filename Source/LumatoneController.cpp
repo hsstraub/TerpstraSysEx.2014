@@ -1142,11 +1142,11 @@ void LumatoneController::timerCallback()
         }
         else
         {
-            AlertWindow::showMessageBox(
+            AlertWindow::showMessageBoxAsync(
                 AlertWindow::AlertIconType::WarningIcon,
                 "Firmware update not confirmed",
                 "Your Lumatone appears to still be updating, or may have been disconnected. Make sure Lumatone is powered on and connected, and the when Lumatone is ready it will connect successfully.",
-                "Ok"); 
+                "Ok", nullptr); 
 
             onDisconnection();
         }
