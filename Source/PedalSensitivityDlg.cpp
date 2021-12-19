@@ -98,7 +98,7 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
     lblSustain->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
     labelExprContrSensitivity->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
     labelExprContrSensitivity->setJustificationType(Justification::centred);
-    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
     //[/UserPreSize]
 
     setSize (134, 96);
@@ -228,7 +228,7 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
         ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
         TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getLumatoneController().sendExpressionPedalSensivity(newSensitvity);
+        TerpstraSysExApplication::getApp().getLumatoneController()->sendExpressionPedalSensivity(newSensitvity);
 
         //[/UserSliderCode_sldExprCtrlSensitivity]
     }

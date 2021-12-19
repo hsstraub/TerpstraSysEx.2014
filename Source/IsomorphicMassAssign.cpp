@@ -430,7 +430,7 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 
 	// Send to device
-	TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection,
+	TerpstraSysExApplication::getApp().getLumatoneController()->sendKeyParam(setSelection + 1, keySelection,
 		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
 }
 

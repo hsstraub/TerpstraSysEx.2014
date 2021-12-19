@@ -20,7 +20,7 @@ PresetSettingsDlg::PresetSettingsDlg()
     addAndMakeVisible(resetPresetsBtn.get());
     resetPresetsBtn->addListener(this);
 
-    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
     setSupportedControls(TerpstraSysExApplication::getApp().getFirmwareVersion());
 
@@ -30,7 +30,7 @@ PresetSettingsDlg::PresetSettingsDlg()
 
 PresetSettingsDlg::~PresetSettingsDlg()
 {
-    TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->removeFirmwareListener(this);
     resetPresetsBtn = nullptr;
 }
 
@@ -58,7 +58,7 @@ void PresetSettingsDlg::buttonClicked(Button* btn)
 {
     if (btn == resetPresetsBtn.get())
     {
-        TerpstraSysExApplication::getApp().getLumatoneController().resetPresetsToFactoryDefault();
+        TerpstraSysExApplication::getApp().getLumatoneController()->resetPresetsToFactoryDefault();
     }
 }
 

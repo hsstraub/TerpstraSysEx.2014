@@ -44,7 +44,7 @@ MidiSettingsDlg::MidiSettingsDlg()
     flexBox.justifyContent = FlexBox::JustifyContent::flexStart;
     flexBox.alignContent = FlexBox::AlignContent::flexStart;
 
-    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
     setSupportedControls(TerpstraSysExApplication::getApp().getFirmwareVersion());
 }
@@ -52,7 +52,7 @@ MidiSettingsDlg::MidiSettingsDlg()
 MidiSettingsDlg::~MidiSettingsDlg()
 {
     // Not good when app closes with this window open...
-    TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->removeFirmwareListener(this);
     
     setMidiChannelHeader = nullptr;
     setMidiChannelLabels.clear();
@@ -132,7 +132,7 @@ void MidiSettingsDlg::setSupportedControls(FirmwareVersion version)
     if (support.versionAcknowledgesCommand(version, SET_PERIPHERAL_CHANNELS))
     {
         setChannelsEnabled = true;
-        TerpstraSysExApplication::getApp().getLumatoneController().getPeripheralChannels();
+        TerpstraSysExApplication::getApp().getLumatoneController()->getPeripheralChannels();
     }
 
     for (int i = 0; i < ControlNames.size(); i++)
@@ -159,7 +159,7 @@ void MidiSettingsDlg::updateChannelSettings(PeripheralChannelSettings channelSet
 
 void MidiSettingsDlg::sendChannelSettings()
 {
-    TerpstraSysExApplication::getApp().getLumatoneController().setPeripheralChannels(channelSettings);
+    TerpstraSysExApplication::getApp().getLumatoneController()->setPeripheralChannels(channelSettings);
 }
 
 //=========================================================================

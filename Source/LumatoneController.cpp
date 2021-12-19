@@ -13,10 +13,12 @@
 
 
 LumatoneController::LumatoneController()
-    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()), deviceMonitor(midiDriver)
+    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
 {
     midiDriver.addListener(this);
-    deviceMonitor.addChangeListener(this);
+
+    deviceMonitor = std::make_unique<DeviceActivityMonitor>(midiDriver);
+    deviceMonitor->addChangeListener(this);
 }
 
 LumatoneController::~LumatoneController()
@@ -76,12 +78,12 @@ void LumatoneController::setMidiOutput(int deviceIndex)
 
 void LumatoneController::detectAndConnectToLumatone()
 {
-    deviceMonitor.setDetectDeviceIfDisconnected(true);
+    deviceMonitor->setDetectDeviceIfDisconnected(true);
 }
 
 void LumatoneController::stopAutoConnection()
 {
-    deviceMonitor.setDetectDeviceIfDisconnected(false);
+    deviceMonitor->setDetectDeviceIfDisconnected(false);
 }
 
 void LumatoneController::refreshAvailableMidiDevices() 
@@ -912,7 +914,7 @@ void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode sta
     {
     case FirmwareTransfer::StatusCode::SessionBegin:
         midiDriver.clearMIDIMessageBuffer();
-        deviceMonitor.stopMonitoringDevice();
+        deviceMonitor->stopMonitoringDevice();
         waitingForTestResponse = false; // In case connection test was in progress
         break;
 
@@ -925,7 +927,7 @@ void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode sta
         if (statusCode < FirmwareTransfer::StatusCode::NoErr)
         {
             // Update failed
-            deviceMonitor.intializeConnectionLossDetection();
+            deviceMonitor->intializeConnectionLossDetection();
             juce::Timer::callAfterDelay(20, [&] { firmwareTransfer->signalThreadShouldExit(); });
         }
         break;
@@ -1118,9 +1120,9 @@ void LumatoneController::timerCallback()
                     }
                     
                     // THIS IS A KLUDGE! Something kills DeviceActivityMonitor's timer after device comes back online and I'm not yet sure why - vsicurella
-                    else if (!deviceMonitor.isTimerRunning())
+                    else if (!deviceMonitor->isTimerRunning())
                     {
-                         deviceMonitor.initializeDeviceDetection();
+                         deviceMonitor->initializeDeviceDetection();
                     }
                     else
                     {
@@ -1134,7 +1136,7 @@ void LumatoneController::timerCallback()
                     waitingForTestResponse = true;
                     midiDriver.closeMidiInput();
                     midiDriver.closeMidiOutput();
-                    deviceMonitor.initializeDeviceDetection();
+                    deviceMonitor->initializeDeviceDetection();
                 }
                 
                 startTimer(UPDATETIMEOUT);
@@ -1162,12 +1164,12 @@ void LumatoneController::exitSignalSent()
 
 void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 {
-    if (source == &deviceMonitor)
+    if (source == deviceMonitor.get())
     {
         if (!midiDriver.hasDevicesDefined())
         {
-            int newInput = deviceMonitor.getConfirmedInputIndex();
-            int newOutput = deviceMonitor.getConfirmedOutputIndex();
+            int newInput = deviceMonitor->getConfirmedInputIndex();
+            int newOutput = deviceMonitor->getConfirmedOutputIndex();
 
             currentDevicePairConfirmed = false;
 
@@ -1178,7 +1180,7 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
                 currentDevicePairConfirmed = true;
             }
         }
-        else if (deviceMonitor.isConnectionEstablished())
+        else if (deviceMonitor->isConnectionEstablished())
         {
             currentDevicePairConfirmed = true;
         }
@@ -1218,7 +1220,7 @@ void LumatoneController::onConnectionConfirmed(bool sendChangeSignal)
     if (connectedSerialNumber == SERIAL_55_KEYS)
         setFirmwareVersion(LumatoneFirmwareVersion::VERSION_55_KEYS);
     
-    deviceMonitor.intializeConnectionLossDetection();
+    deviceMonitor->intializeConnectionLossDetection();
 
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastInputDeviceId", midiDriver.getLastMidiInputInfo().identifier);
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastOutputDeviceId", midiDriver.getLastMidiOutputInfo().identifier);
@@ -1236,7 +1238,7 @@ void LumatoneController::onDisconnection()
 
     statusListeners.call(&StatusListener::connectionLost);
     
-    deviceMonitor.initializeDeviceDetection();
+    deviceMonitor->initializeDeviceDetection();
 }
 
 void LumatoneController::onFirmwareUpdateReceived()
@@ -1264,7 +1266,7 @@ void LumatoneController::onFirmwareUpdateReceived()
         firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion);
         firmwareTransfer->signalThreadShouldExit();
 
-        deviceMonitor.intializeConnectionLossDetection();
+        deviceMonitor->intializeConnectionLossDetection();
     }
 }
 

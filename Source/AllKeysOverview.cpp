@@ -40,12 +40,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
-	TerpstraSysExApplication::getApp().getLumatoneController().addMidiListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->addMidiListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
-	TerpstraSysExApplication::getApp().getLumatoneController().removeMidiListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->removeMidiListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -216,8 +216,8 @@ AllKeysOverview::AllKeysOverview ()
 	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
 	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
 
-	TerpstraSysExApplication::getApp().getLumatoneController().addStatusListener(this);
-	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->addStatusListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
 	resetOctaveSize();
 

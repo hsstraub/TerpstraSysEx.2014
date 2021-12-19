@@ -47,7 +47,7 @@ MainContentComponent::MainContentComponent()
 	addAndMakeVisible(globalSettingsArea.get());
 	globalSettingsArea->listenToColourEditButtons(this);
 
-	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
 	//lblAppName.reset(new Label("lblAppName", TerpstraSysExApplication::getApp().getApplicationName()));
 	lblAppName.reset(new Label("lblAppName", "lumatone editor"));

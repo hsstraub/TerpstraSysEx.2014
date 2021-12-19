@@ -38,6 +38,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	lumatoneController = std::make_unique<LumatoneController>();
+
 	// Localisation
 	String localisation = getLocalisation(SystemStats::getDisplayLanguage());
 	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
@@ -101,9 +103,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	}
 
 	reloadColourPalettes();
-
-	getLumatoneController().setDeviceDetectionTimeout(propertiesFile->getIntValue("DetectDevicesTimeout", 500));
-	getLumatoneController().checkConnectionWhenInactive(propertiesFile->getBoolValue("CheckConnectionIfInactive", true));
 
 	// State of main window will be read from properties file when main window is created
 }
@@ -732,17 +731,17 @@ void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
 
 	// MIDI channel, MIDI note, colour and key type config for all keys
-	getLumatoneController().sendCompleteMapping(theConfig);
+	getLumatoneController()->sendCompleteMapping(theConfig);
 
 	// General options
-	getLumatoneController().setAftertouchEnabled(theConfig.afterTouchActive);
-	getLumatoneController().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
-	getLumatoneController().sendInvertFootController(theConfig.invertExpression);
-	getLumatoneController().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
-    getLumatoneController().invertSustainPedal(theConfig.invertSustain);
+	getLumatoneController()->setAftertouchEnabled(theConfig.afterTouchActive);
+	getLumatoneController()->sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
+	getLumatoneController()->sendInvertFootController(theConfig.invertExpression);
+	getLumatoneController()->sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+    getLumatoneController()->invertSustainPedal(theConfig.invertSustain);
 
 	// Velocity curve config
-	getLumatoneController().setVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
+	getLumatoneController()->setVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getCurvesArea()->sendConfigToController();
 }
@@ -792,17 +791,17 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	TerpstraSysExApplication::getApp().resetSysExMapping();
 
 	// Request MIDI channel, MIDI note, colour and key type config for all keys
-	getLumatoneController().sendGetCompleteMappingRequest();
+	getLumatoneController()->sendGetCompleteMappingRequest();
 
 	// General options
-	getLumatoneController().getPresetFlags();
-	getLumatoneController().getExpressionPedalSensitivity();
+	getLumatoneController()->getPresetFlags();
+	getLumatoneController()->getExpressionPedalSensitivity();
 
 	// Velocity curve config
-	getLumatoneController().sendVelocityIntervalConfigRequest();
-	getLumatoneController().sendVelocityConfigRequest();
-	getLumatoneController().sendFaderConfigRequest();
-	getLumatoneController().sendAftertouchConfigRequest();
+	getLumatoneController()->sendVelocityIntervalConfigRequest();
+	getLumatoneController()->sendVelocityConfigRequest();
+	getLumatoneController()->sendFaderConfigRequest();
+	getLumatoneController()->sendAftertouchConfigRequest();
 
 }
 
