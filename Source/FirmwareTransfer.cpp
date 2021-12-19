@@ -193,9 +193,12 @@ static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session,
 		fclose(localFile);
 	DBG("All done.");
 
-	libssh2_exit();
-
 	return returnCode;
+}
+
+void FirmwareTransfer::exitLibSsh2()
+{
+	libssh2_exit();
 }
 
 bool FirmwareTransfer::prepareAndRunUpdate()
@@ -314,7 +317,8 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
         return StatusCode::StartupErr;
     }
 
-
+	// Make sure we release libssh2 before app is shutdown
+	TerpstraSysExApplication::getApp().setFirmwareUpdatePerformed(true);
 
 #if JUCE_WINDOWS
 

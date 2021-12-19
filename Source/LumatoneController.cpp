@@ -1236,6 +1236,8 @@ void LumatoneController::onDisconnection()
     lastTestDeviceResponded = -1;
     lastTestDeviceSent = -1;
 
+    editingMode = LumatoneController::sysExSendingMode::offlineEditor;
+
     statusListeners.call(&StatusListener::connectionLost);
     
     deviceMonitor->initializeDeviceDetection();

@@ -62,11 +62,10 @@ void DeviceActivityMonitor::pingAllDevices()
 
     waitingForTestResponse = true;
 
-    // Impossible...but why not limit anyway?
-    const unsigned int maxDevices = jmin(outputDevices.size(), (1 << 28) - 1);
-    for (unsigned int i = 0; i < maxDevices; i++)
+    int maxDevices = jmin(outputDevices.size(), 128);
+    for (int i = 0; i < maxDevices; i++)
     {
-        const unsigned int id = i + 1;
+        unsigned int id = (unsigned int)i + 1;
         midiDriver.ping(id, i);
         outputPingIds.add(id);
     }

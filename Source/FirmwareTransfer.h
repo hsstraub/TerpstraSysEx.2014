@@ -74,6 +74,12 @@ public:
     // TODO use error codes
     static bool checkFirmwareFileIntegrity(String filePathIn);
 
+
+public:
+
+    // Deinitialize libssh2 library
+    static void exitLibSsh2();
+
 public:
 
     class ProcessListener
@@ -122,7 +128,7 @@ private:
 
     int numberOfWaitIncrements = 0;
     // Estimation based on boot time of ~85 seconds, plus transfer time, and overhead
-    const int maxUpdateIncrements = 300000 / UPDATETIMEOUT;
+    const int maxUpdateIncrements = 250000 / UPDATETIMEOUT;
 
 public:
 
