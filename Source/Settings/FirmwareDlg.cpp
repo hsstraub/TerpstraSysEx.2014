@@ -55,7 +55,7 @@ FirmwareDlg::FirmwareDlg()
     addAndMakeVisible(firmwareStatusLabel.get());
     updateFirmwareVersionLabel();
 
-    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
     //if (!updateIsAvailable)
     //{
@@ -65,7 +65,7 @@ FirmwareDlg::FirmwareDlg()
 
 FirmwareDlg::~FirmwareDlg()
 {
-    TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->removeFirmwareListener(this);
 }
 
 void FirmwareDlg::paint(Graphics& g)
@@ -96,7 +96,7 @@ void FirmwareDlg::buttonClicked(Button* btn)
     //}
     if (btn == doUpdateBtn.get())
     {
-        if (TerpstraSysExApplication::getApp().getLumatoneController().getMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getLumatoneController().getMidiOutputIndex() < 0)
+        if (TerpstraSysExApplication::getApp().getLumatoneController()->getMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getLumatoneController()->getMidiOutputIndex() < 0)
         {
             AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
             return;
@@ -107,7 +107,7 @@ void FirmwareDlg::buttonClicked(Button* btn)
         if (firmwareFileSelected.existsAsFile())
         {
             TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastFirmwareBinPath", firmwareFileSelected.getParentDirectory().getFullPathName());
-            TerpstraSysExApplication::getApp().getLumatoneController().requestFirmwareUpdate(firmwareFileSelected, this);
+            TerpstraSysExApplication::getApp().getLumatoneController()->requestFirmwareUpdate(firmwareFileSelected, this);
         }
         else
         {

@@ -582,6 +582,50 @@ void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int n
 		);
 
 	// Send to device
+	TerpstraSysExApplication::getApp().getLumatoneController()->sendKeyParam(setSelection + 1, keySelection,
+		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
+}
+
+// Fill a line in current octave board. Starting point is assumed to have been set
+void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
+{
+	jassert(stepSize != 0);
+
+	int pos, noteIndex;
+	// Forward
+	for (pos = startPos + 1, noteIndex = startNoteIndex + stepSize;
+		pos < line.size() && noteIndex < this->mappingLogic->globalMappingSize();
+		pos++, noteIndex += stepSize)
+	{
+		setSaveSend(setSelection, line[pos], noteIndex);
+	}
+
+	// Backward
+	for (pos = startPos - 1, noteIndex = startNoteIndex - stepSize;
+		pos >= 0 && noteIndex >= 0;
+		pos--, noteIndex -= stepSize)
+	{
+		setSaveSend(setSelection, line[pos], noteIndex);
+	}
+}
+
+// Fill a horizontal line over all octave boards. Starting point is assumed to have been set.
+void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize)
+{
+	jassert(stepSize != 0);
+
+	int pos, octaveBoardIndex;
+
+	// Forward
+	// Line belonging to current octave board
+	int noteIndex = startNoteIndex + stepSize;
+
+	for (pos = startPos + 1;
+		pos < globalLine[setSelection].size() && noteIndex < this->mappingLogic->globalMappingSize();
+		pos++, noteIndex += stepSize)
+	{
+		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
+	}
 	TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection, keyData);
 }
 

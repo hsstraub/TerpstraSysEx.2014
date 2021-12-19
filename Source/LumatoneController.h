@@ -80,11 +80,11 @@ public:
     void detectAndConnectToLumatone();
     void stopAutoConnection();
 
-    bool isDetectingLumatone() const { return deviceMonitor.willDetectDeviceIfDisconnected() && !deviceMonitor.isConnectionEstablished(); }
-    void setDeviceDetectionTimeout(int responseTimeoutMs) { deviceMonitor.setResponseTimeoutMs(responseTimeoutMs); }
+    bool isDetectingLumatone() const { return deviceMonitor->willDetectDeviceIfDisconnected() && !deviceMonitor->isConnectionEstablished(); }
+    void setDeviceDetectionTimeout(int responseTimeoutMs) { deviceMonitor->setResponseTimeoutMs(responseTimeoutMs); }
 
-    bool willCheckConnectionWhenInactvie() const { return deviceMonitor.willCheckForInactivity(); }
-    void checkConnectionWhenInactive(bool checkWhenInactive) { deviceMonitor.setCheckForInactivity(checkWhenInactive); }
+    bool willCheckConnectionWhenInactvie() const { return deviceMonitor->willCheckForInactivity(); }
+    void checkConnectionWhenInactive(bool checkWhenInactive) { deviceMonitor->setCheckForInactivity(checkWhenInactive); }
 
     //============================================================================
     // Combined (hi-level) commands
@@ -429,9 +429,10 @@ private:
 
     HajuErrorVisualizer         errorVisualizer;
     TerpstraMidiDriver          midiDriver;
-    DeviceActivityMonitor       deviceMonitor;
+    
+    std::unique_ptr<DeviceActivityMonitor>  deviceMonitor;
 
-    std::unique_ptr<FirmwareTransfer> firmwareTransfer;
+    std::unique_ptr<FirmwareTransfer>       firmwareTransfer;
 
     MidiBuffer                  responseQueue;
     int                         readSample = 0;

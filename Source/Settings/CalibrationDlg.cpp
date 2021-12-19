@@ -64,7 +64,7 @@ CalibrationDlg::CalibrationDlg ()
 
 	calibrationSelectorTab->addChangeListener(this);
 
-	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
     //[/UserPreSize]
 
@@ -81,7 +81,7 @@ CalibrationDlg::CalibrationDlg ()
 CalibrationDlg::~CalibrationDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->removeFirmwareListener(this);
     //[/Destructor_pre]
 
     btnStart = nullptr;
@@ -173,15 +173,15 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 		switch (tabSelection)
 		{
 		case calibrateKeys:
-			TerpstraSysExApplication::getApp().getLumatoneController().startCalibrateKeys();
+			TerpstraSysExApplication::getApp().getLumatoneController()->startCalibrateKeys();
 			break;
 
 		case calibrateAftertouch:
-			TerpstraSysExApplication::getApp().getLumatoneController().startCalibrateAftertouch();
+			TerpstraSysExApplication::getApp().getLumatoneController()->startCalibrateAftertouch();
 			break;
 
 		case calibrateModulationWheel:
-			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(true);
+			TerpstraSysExApplication::getApp().getLumatoneController()->setCalibratePitchModWheel(true);
             startCalibration = true;
 			break;
 
@@ -206,7 +206,7 @@ void CalibrationDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 			jassertfalse;
 			break;
 		case calibrateModulationWheel:
-			TerpstraSysExApplication::getApp().getLumatoneController().setCalibratePitchModWheel(false);
+			TerpstraSysExApplication::getApp().getLumatoneController()->setCalibratePitchModWheel(false);
             startCalibration = false;
 			break;
 		default:

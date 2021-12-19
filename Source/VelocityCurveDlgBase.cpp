@@ -290,7 +290,7 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
 		velocityValues[x] = velocityBeamTable[x]->getValue();
 	}
 
-	TerpstraSysExApplication::getApp().getLumatoneController().sendTableConfig(velocityCurveType, velocityValues);
+	TerpstraSysExApplication::getApp().getLumatoneController()->sendTableConfig(velocityCurveType, velocityValues);
 }
 
 void VelocityCurveDlgBase::mouseMove(const MouseEvent &event)

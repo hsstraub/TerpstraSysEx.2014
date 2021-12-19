@@ -50,13 +50,13 @@ public:
 	LumatoneEditorLookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	ComponentBoundsConstrainer* getBoundsConstrainer() { return boundsConstrainer.get(); };
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
-	LumatoneController& getLumatoneController() { return lumatoneController; }
+	LumatoneController* getLumatoneController() { return lumatoneController.get(); }
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
-	int getOctaveBoardSize() const { return lumatoneController.getOctaveSize(); }
+	int getOctaveBoardSize() const { return lumatoneController->getOctaveSize(); }
 
-	FirmwareVersion getFirmwareVersion() const { return lumatoneController.getFirmwareVersion(); }
-	String getFirmwareVersionStr() const { return lumatoneController.getFirmwareVersion().toDisplayString(); }
+	FirmwareVersion getFirmwareVersion() const { return lumatoneController->getFirmwareVersion(); }
+	String getFirmwareVersionStr() const { return lumatoneController->getFirmwareVersion().toDisplayString(); }
 
 	void reloadColourPalettes();
 	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
@@ -218,7 +218,7 @@ private:
 	std::unique_ptr<DialogWindow> dialogWindow;
 
 	// Communication with Lumatone
-	LumatoneController			lumatoneController;
+	std::unique_ptr<LumatoneController> lumatoneController;
 
 	std::unique_ptr<FileChooser> chooser;
 };

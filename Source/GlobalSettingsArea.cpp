@@ -95,7 +95,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     lblPresetButtonColours->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 
 
-    TerpstraSysExApplication::getApp().getLumatoneController().addStatusListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addStatusListener(this);
 
     buttonCalibrate->setEnabled(false);
 
@@ -242,12 +242,12 @@ void GlobalSettingsArea::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == inactiveMacroButtonColourEdit.get())
 	{
 		String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendMacroButtonInactiveColour(inactiveMacroButtonColour);
 	}
 	else if (source == activeMacroButtonColourEdit.get())
 	{
 		String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonActiveColour(activeMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendMacroButtonActiveColour(activeMacroButtonColour);
 	}
 }
 
