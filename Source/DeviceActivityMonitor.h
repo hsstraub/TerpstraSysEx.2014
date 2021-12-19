@@ -141,8 +141,8 @@ private:
     bool                    deviceDetectInProgress = false;
     bool                    waitingForTestResponse = false;
 
-    int                     responseTimeoutMs = 500;
-    int                     detectRoutineTimeoutMs = 500;
+    int                     responseTimeoutMs = 600;
+    int                     detectRoutineTimeoutMs = 1000;
     int                     inactivityTimeoutMs  = 1500;
     
     int                     testOutputIndex = -1;

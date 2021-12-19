@@ -15,6 +15,10 @@
 DeviceActivityMonitor::DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn)
     : midiDriver(midiDriverIn)
 {
+    detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
+    checkConnectionOnInactivity = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("CheckConnectionIfInactive", true);
+    responseTimeoutMs = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("DetectDevicesTimeout", responseTimeoutMs);
+
     midiDriver.addListener(this);
 }
 
@@ -185,7 +189,7 @@ void DeviceActivityMonitor::stopMonitoringDevice()
 
 bool DeviceActivityMonitor::initializeConnectionTest()
 {    
-    TerpstraSysExApplication::getApp().getLumatoneController().testCurrentDeviceConnection();
+    TerpstraSysExApplication::getApp().getLumatoneController()->testCurrentDeviceConnection();
 
     waitingForTestResponse = true;
 
