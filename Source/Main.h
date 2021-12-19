@@ -21,6 +21,8 @@
 #include "LocalisationMap.h"
 #include "FirmwareTransfer.h"
 
+#define CHOOSE_FILE_NOOP [](bool) -> void {}
+
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
 {
@@ -67,8 +69,8 @@ public:
 	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
-	bool saveSysExMapping();
-	bool saveSysExMappingAs();
+	bool saveSysExMapping(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
+	bool saveSysExMappingAs(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 	bool resetSysExMapping();
 
 	bool deleteSubBoardData();
@@ -95,7 +97,6 @@ public:
 
 	void sendCurrentConfigurationToDevice();
 	void requestConfigurationFromDevice();
-
 
 	void updateMainTitle();
 
@@ -218,5 +219,6 @@ private:
 
 	// Communication with Lumatone
 	LumatoneController			lumatoneController;
-};
 
+	std::unique_ptr<FileChooser> chooser;
+};

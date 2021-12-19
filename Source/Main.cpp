@@ -204,19 +204,32 @@ void TerpstraSysExApplication::systemRequestedQuit()
 	// If there are changes: ask for save
 	if (hasChangesToSave)
 	{
-		int retc = AlertWindow::showYesNoCancelBox(AlertWindow::AlertIconType::QuestionIcon, "Quitting the application", "Do you want to save your changes?");
-		if (retc == 0)
-		{
-			// "Cancel". Do not quit.
-			return;
-		}
-		else if (retc == 1)
-		{
-			// "Yes". Try to save. Cancel if unsuccessful
-			if (!saveSysExMapping())
-				return;
-		}
-		// retc == 2: "No" -> end without saving
+		AlertWindow::showYesNoCancelBox(
+			AlertWindow::AlertIconType::QuestionIcon, 
+			"Quitting the application", 
+			"Do you want to save your changes?", 
+			"Yes", "No", "Cancel", nullptr, 
+			ModalCallbackFunction::create([&](int retc)
+			{
+				if (retc == 0)
+				{
+					// "Cancel". Do not quit.
+					return;
+				}
+				else if (retc == 1)
+				{
+					// "Yes". Try to save. Cancel if unsuccessful
+					saveSysExMapping([&](bool success) { if (success) quit(); });
+				}
+				else
+				{
+					// retc == 2: "No" -> end without saving
+					quit();
+				}
+			})
+		);
+
+		return;
 	}
 
 	quit();
@@ -425,39 +438,44 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn;*.tsx");
-	if (chooser.browseForFileToOpen())
-	{
-		currentFile = chooser.getResult();
-		return openFromCurrentFile();
-	}
+	chooser = std::make_unique<FileChooser>("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn;*.tsx");
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::openMode,
+		[&](const FileChooser& chooser)
+		{
+			currentFile = chooser.getResult();
+			openFromCurrentFile();
+		});
+
 	return true;
 }
 
-bool TerpstraSysExApplication::saveSysExMapping()
+bool TerpstraSysExApplication::saveSysExMapping(std::function<void(bool success)> saveFileCallback)
 {
 	if (currentFile.getFileName().isEmpty())
-		return saveSysExMappingAs();
+		return saveSysExMappingAs(saveFileCallback);
 	else
 		return saveCurrentFile();
 
 }
 
-bool TerpstraSysExApplication::saveSysExMappingAs()
+bool TerpstraSysExApplication::saveSysExMappingAs(std::function<void(bool)> saveFileCallback)
 {
-	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
-	if (chooser.browseForFileToSave(true))
-	{
-		currentFile = chooser.getResult();
-		if (saveCurrentFile())
+	chooser = std::make_unique<FileChooser>("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::saveMode | FileBrowserComponent::FileChooserFlags::warnAboutOverwriting,
+		[this, saveFileCallback](const FileChooser& chooser)
 		{
-			// Window title
-			updateMainTitle();
-			return true;
-		}
-	}
+			currentFile = chooser.getResult();
+			bool saved = saveCurrentFile();
+			if (saved)
+			{
+				// Window title
+				updateMainTitle();
+			}
 
-	return false;
+			saveFileCallback(saved);
+		});
+
+	return true;
 }
 
 bool TerpstraSysExApplication::resetSysExMapping()
@@ -677,7 +695,7 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 	else
 	{
 		// Show error message
-		AlertWindow::showMessageBox(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
+		AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
 
 		// XXX Update Window title in any case? Make file name empty/make data empty in case of error?
 		return false;
@@ -734,22 +752,41 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	// if editing operations were done that have not been saved, give the possibility to save them
 	if (hasChangesToSave)
 	{
-		int retc = AlertWindow::showYesNoCancelBox(
+		AlertWindow::showYesNoCancelBox(
 			AlertWindow::AlertIconType::QuestionIcon,
 			"Request configuration from device",
-			"The controller's current configuration will be received now. This will overwrite all edits you have done. Do you want to save them first?");
-		if (retc == 0)
-		{
-			// "Cancel". Do not receive config
-			return;
-		}
-		else if (retc == 1)
-		{
-			// "Yes". Try to save. Cancel if unsuccessful
-			if (!saveSysExMapping())
-				return;
-		}
-		// retc == 2: "No" -> no saving, overwrite
+			"The controller's current configuration will be received now. This will overwrite all edits you have done. Do you want to save them first?",
+			"Yes", "No", "Cancel", nullptr,
+			ModalCallbackFunction::create([&](int retc)
+			{
+				if (retc == 0)
+				{
+					// "Cancel". Do not receive config
+					DBG("Layout import cancelled");
+					return;
+				}
+				else if (retc == 1)
+				{
+					// "Yes". Try to save. Cancel if unsuccessful
+					saveSysExMapping([this](bool success) 
+					{ 
+						if (success)
+							this->requestConfigurationFromDevice();
+						else
+							DBG("Cancelled layout import");
+					});
+				}
+				else
+				{
+					// retc == 2: "No" -> no saving, overwrite
+					DBG("Overwriting current edits");
+					setHasChangesToSave(false);
+					requestConfigurationFromDevice();
+				}
+			})
+		);
+
+		return;
 	}
 
 	TerpstraSysExApplication::getApp().resetSysExMapping();
@@ -766,6 +803,7 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 	getLumatoneController().sendVelocityConfigRequest();
 	getLumatoneController().sendFaderConfigRequest();
 	getLumatoneController().sendAftertouchConfigRequest();
+
 }
 
 void TerpstraSysExApplication::updateMainTitle()

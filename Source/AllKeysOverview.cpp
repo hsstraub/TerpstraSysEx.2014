@@ -92,7 +92,7 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 		// Right mouse click: popup menu
 		PopupMenu menu;
 		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
+		menu.showMenuAsync(PopupMenu::Options());
 	}
 
 	// TODO integrate interaction through LumatoneController

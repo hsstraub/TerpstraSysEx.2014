@@ -570,51 +570,55 @@ void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0);
 
-	jassert(alert == nullptr);
+	//jassert(alert == nullptr);
 	// This can get spammed, and needs a real solution, but for now this will prevent it in releases - Vito
-	if (alert == nullptr)
-	{
-		if (dialogTitle.length() == 0)
-			dialogTitle = translate("Connection Established!");
+	// UPDATE 2021-12-18: Unsure about the state of this issue with the asynchronous model
+	//if (alert == nullptr)
+	//{
+	if (dialogTitle.length() == 0)
+		dialogTitle = translate("Connection Established!");
 
-		// Get firmware version so we can use the correct commands
-		TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
+	// Get firmware version so we can use the correct commands
+	TerpstraSysExApplication::getApp().getLumatoneController().sendGetFirmwareRevisionRequest();
 
-		alert.reset(new AlertWindow(dialogTitle, translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent()));
-		alert->addButton("Send Editor Layout", 1);
-		alert->addButton("Keep Editing Offline", 0);
-		alert->addButton("Import From Lumatone", 2);
-		//alert->setLookAndFeel(&lookAndFeel);
+	//auto alert = AlertWindow(dialogTitle, translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent());
+	//alert.addButton("Send Editor Layout", 1);
+	//alert.addButton("Keep Editing Offline", 0);
+	//alert.addButton("Import From Lumatone", 2);
+	//alert->setLookAndFeel(&lookAndFeel);
 
-/*		alert = lookAndFeel.createAlertWindow("Connection established!", translate("Do you want to send the current setup to your Lumatone?"),
-			"Import from Lumatone",
-			"Send layout",
-			"Edit Offline",
-			AlertWindow::AlertIconType::WarningIcon,
-			3, getParentComponent())*/;
-
-		auto retc = alert->runModalLoop(); 
-		if (retc == 1) // Send
+	auto alertOptions = MessageBoxOptions().withTitle(dialogTitle)
+		.withMessage(translate("Do you want to send the current setup to your Lumatone?"))
+		.withIconType(AlertWindow::AlertIconType::QuestionIcon)
+		.withAssociatedComponent(getParentComponent())
+		.withButton("Send Editor Layout")
+		.withButton("Keep Editing Offline")
+		.withButton("Import From Lumatone");
+	
+	AlertWindow::showAsync(alertOptions, [&](int retc)
 		{
-			TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-			liveEditorBtn->setToggleState(true, dontSendNotification);
-			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
-		}
-		else if (retc == 2) // Import
-		{
-			TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
-			liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
-			lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
-		}
-		else // Offline
-		{
-			offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
-			lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
-		}
+			if (retc == 0) // Import
+			{
+				TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
+				liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+				lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+			}
+			else if (retc == 1) // Send
+			{
+				TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
+				liveEditorBtn->setToggleState(true, dontSendNotification);
+				lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
+			}
+			else if (retc == 2) // Offline
+			{
+				offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
+				lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
+			}
+		});
 
 		//alert->setLookAndFeel(nullptr);
-		alert = nullptr;
-	}
+		//alert = nullptr;
+	//}
 }
 
 void MidiEditArea::refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)

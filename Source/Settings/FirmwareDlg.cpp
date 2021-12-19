@@ -21,7 +21,14 @@ FirmwareDlg::FirmwareDlg()
     auto properties = TerpstraSysExApplication::getApp().getPropertiesFile();
     File lastFirmwareLocation = properties->getValue("LastFirmwareBinPath", properties->getValue("UserDocumentsLocation", File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getFullPathName()));
 
-    fileBrowser.reset(new PathBrowserComponent("Lumatone Firmware Update", lastFirmwareLocation));
+    String openFileType =
+#if JUCE_DEBUG
+        ""
+#else
+        "*.tgz"
+#endif
+        ;
+    fileBrowser.reset(new PathBrowserComponent("Lumatone Firmware Update", openFileType, lastFirmwareLocation));
     fileBrowser->getEditor()->setColour(TextEditor::ColourIds::backgroundColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::ControlBoxBackground));
     fileBrowser->getEditor()->setColour(TextEditor::ColourIds::textColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
     fileBrowser->getEditor()->getProperties().set(LumatoneEditorStyleIDs::connectedEdgeFlags, Button::ConnectedEdgeFlags::ConnectedOnRight);
@@ -91,7 +98,7 @@ void FirmwareDlg::buttonClicked(Button* btn)
     {
         if (TerpstraSysExApplication::getApp().getLumatoneController().getMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getLumatoneController().getMidiOutputIndex() < 0)
         {
-            AlertWindow::showMessageBox(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
+            AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
             return;
         }
 

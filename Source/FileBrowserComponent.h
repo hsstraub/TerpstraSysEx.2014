@@ -19,17 +19,12 @@ class PathBrowserComponent : public Component, public Button::Listener
 public:
 
     PathBrowserComponent(const String dialogBoxTitle,
-                         const File& fileIn = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory),
-                         String fileTypeFilter =
-#if JUCE_DEBUG
-     ""
-#else
-    "*.tgz"
-#endif
-                         )
-        : chooser(dialogBoxTitle, File(), fileTypeFilter)
+                         String fileTypeFilter,
+                         File fileIn = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory))
     {
         setName(dialogBoxTitle);
+
+        chooser = std::make_unique<FileChooser>(dialogBoxTitle, fileIn, fileTypeFilter);
 
         editor.reset(new TextEditor(dialogBoxTitle + "Editor"));
         editor->setMultiLine(false, false);
@@ -59,11 +54,16 @@ public:
 
     void buttonClicked(Button* buttonThatWasClicked) override
     {
-        if (chooser.browseForFileToOpen())
-        {
-            editor->setText(chooser.getResult().getFullPathName(), false);
-            listeners.call(&PathBrowserComponent::Listener::fileChanged, this, chooser.getResult());
-        }
+        chooser->launchAsync(FileBrowserComponent::FileChooserFlags::openMode, 
+            [&](const FileChooser& chooser)
+            {
+                auto result = chooser.getResult();
+                if (result.existsAsFile())
+                {
+                    editor->setText(chooser.getResult().getFullPathName(), false);
+                    listeners.call(&PathBrowserComponent::Listener::fileChanged, this, chooser.getResult());
+                }
+            });
     }
 
     TextEditor* getEditor() { return editor.get(); }
@@ -101,7 +101,7 @@ protected:
 
 private:
 
-    FileChooser chooser;
+    std::unique_ptr<FileChooser> chooser;
 
     std::unique_ptr<TextEditor> editor;
     std::unique_ptr<TextButton> openButton;

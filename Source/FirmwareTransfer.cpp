@@ -97,7 +97,7 @@ bool FirmwareTransfer::requestFirmwareUpdate(String firmwareFilePath)
 	selectedFileToTransfer = firmwareFilePath;
 	transferRequested = true;
 
-	runThread();
+	launchThread();
 
 	return true;
 }
