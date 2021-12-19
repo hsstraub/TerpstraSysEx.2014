@@ -58,6 +58,8 @@ public:
 	FirmwareVersion getFirmwareVersion() const { return lumatoneController->getFirmwareVersion(); }
 	String getFirmwareVersionStr() const { return lumatoneController->getFirmwareVersion().toDisplayString(); }
 
+	void setFirmwareUpdatePerformed(bool updateWasRun) { firmwareUpdateWasPerformed = true; }
+
 	void reloadColourPalettes();
 	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
 	bool deletePaletteFile(File pathToPalette);
@@ -221,4 +223,6 @@ private:
 	std::unique_ptr<LumatoneController> lumatoneController;
 
 	std::unique_ptr<FileChooser> chooser;
+
+	bool firmwareUpdateWasPerformed = false; // Allows us to deinitialize libssh2 a single time
 };

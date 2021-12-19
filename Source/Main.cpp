@@ -191,6 +191,10 @@ void TerpstraSysExApplication::shutdown()
     menuModel = nullptr;
 
     mainWindow = nullptr; // (deletes our window)
+
+	if (firmwareUpdateWasPerformed)
+		FirmwareTransfer::exitLibSsh2();
+
 //	commandManager = nullptr;
 }
 
