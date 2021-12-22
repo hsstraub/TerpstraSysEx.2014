@@ -127,6 +127,10 @@ public:
 
         return false;
     }
+    bool saveToFile()
+    {
+        return saveToFile(File(pathToFile));
+    }
 
     ValueTree toValueTree() const
     {

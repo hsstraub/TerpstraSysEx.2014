@@ -61,7 +61,7 @@ public:
 	void setFirmwareUpdatePerformed(bool updateWasRun) { firmwareUpdateWasPerformed = true; }
 
 	void reloadColourPalettes();
-	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette);
+	bool saveColourPalette(LumatoneEditorColourPalette& palette, File pathToPalette=File());
 	bool deletePaletteFile(File pathToPalette);
 
 	// Menu functionality

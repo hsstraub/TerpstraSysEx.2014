@@ -53,9 +53,7 @@ ColourPaletteWindow::~ColourPaletteWindow()
     customPickerPanel       = nullptr;
     
     palettePanelViewport    = nullptr;
-
     palettePanel            = nullptr;
-
     colourSelectorGroup     = nullptr;
 }
 
@@ -124,7 +122,6 @@ void ColourPaletteWindow::newPaletteRequested()
 
 void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
 {
-
     // Palette editing finished
     if (source == paletteEditPanel.get())
     {
@@ -136,34 +133,9 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
                 palette.setColours(paletteEditPanel->getCurrentPalette());
 
                 String newName = paletteEditPanel->getPaletteName();
-
-                // TODO: Move this elsewhere?
-                String paletteFilePath = palette.getPathToFile();
-                File paletteFile;
-                // File name handling if palette already exists
-                if (File::isAbsolutePath(paletteFilePath))
-                {
-                    paletteFile = paletteFilePath;
-
-                    if (palette.getName() != newName)
-                    {
-                        // Delete previous version to ensure name is up to date.
-                        // This is optional - palettes can retain file name and have palette 
-                        // name changed if that's preferred behavior
-                        if (paletteFile.existsAsFile())
-                        {
-                            paletteFile.deleteFile();
-
-                            // Rename file with new palette name
-                            paletteFile = paletteFile.getSiblingFile(newName).withFileExtension(PALETTEFILEEXTENSION);
-                        }
-                    }
-                }
-
                 palette.setName(newName);
 
-                // Save to properties
-                TerpstraSysExApplication::getApp().saveColourPalette(palette, paletteFile);
+                TerpstraSysExApplication::getApp().saveColourPalette(palette);
             }
             else
                 jassert(true); // Something bad happened!

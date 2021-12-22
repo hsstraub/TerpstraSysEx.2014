@@ -123,12 +123,12 @@ public:
             controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
         }
 
-        bottom = controlGroupHitBoxes.getLast().getBottom();
-
         dbgItems = flexBox.items;
 
         newPaletteBtn->setSize(itemWidth, bottomMarginControlHeight);
         newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom() + bottomMarginControlSpace);
+
+        needsResize = false;
     }
 
     void mouseMove(const MouseEvent& mouse) override
@@ -173,7 +173,8 @@ public:
         controlGroups.clear();
         paletteLabels.clear();
         controlGroupHitBoxes.clear();
-        allPalettes.clear();
+        
+        allPalettes = Array<ColourPaletteComponent*>(newPalette.get());
 
         // Palettes with colour
         for (int i = 0; i < palettesIn.size(); i++)
@@ -183,6 +184,8 @@ public:
             auto paletteComponent = group->getPaletteComponent();
             paletteComponent->getProperties().set("index", i);
             addAndMakeVisible(paletteComponent);
+
+            allPalettes.add(paletteComponent);
 
             if (selectionGroup)
                 selectionGroup->addSelector(paletteComponent);
@@ -205,20 +208,27 @@ public:
             controlGroupHitBoxes.add(Rectangle<int>());
         }
 
-        allPalettes = Array<ColourPaletteComponent*>(newPalette.get());
-        for (auto group : controlGroups)
-            allPalettes.add(group->getPaletteComponent());
-
         int rows = ceil((palettesIn.size() + 1) * 0.333333f);
 
+        int w = getWidth();
+        int h = getHeight();
+
         // Set height depending on how many rows
-        width = (width < 1) ? getWidth() : width;
+        width = (width < 1) ? w : width;
         viewableHeight = getHeightFromNumRows(width, rows);
 
         if (resize)
+        {
+            needsResize = true;
             setSize(width, viewableHeight);
 
+            // Force resize
+            if (needsResize)
+                resized();
+        }
+
         numRows = rows;
+
     }
 
 private:
@@ -243,9 +253,8 @@ private:
     Array<FlexItem> dbgItems;
 
     int numRows = 1;
-    //int viewableWidth = 0;
     int viewableHeight = 0;
-    int bottom = 0;
+    bool needsResize = false;
 
     Array<Rectangle<int>> controlGroupHitBoxes;
     int lastPaletteMouseOver = -1;
@@ -559,7 +568,7 @@ private:
     const float editPaletteHeight   = 0.0606f;
 
     const float paletteY            = 0.26f;
-    const float paletteWidthScalar  = 0.27f;
+    const float paletteWidthScalar  = 0.25f;
     const float paletteHeightScalar = 0.25f;
 
     const float buttonY             = 0.6739f;
