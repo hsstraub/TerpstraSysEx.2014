@@ -33,28 +33,39 @@ public:
         newPaletteBtn->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
         newPaletteBtn->onClick = [&] { listeners.call(&ColourPalettesPanel::Listener::newPaletteRequested); };
 
-        flexBox.flexWrap = FlexBox::Wrap::wrap;
-        flexBox.justifyContent = FlexBox::JustifyContent::flexStart;
     };
 
-    // Used to make this component resize itself depending on how many swatches there are
-    void setViewUnits(int widthIn, int heightIn)
+    ~ColourPalettesPanel()
     {
-        viewableWidth = widthIn;
-        viewableHeight = heightIn;
+        for (auto palette : allPalettes)
+            selectionGroup->removeSelector(palette);
 
-        setSize(viewableWidth, getHeightFromNumRows(numRows));
+        paletteLabels.clear();
+        controlGroups.clear();
+        newPaletteBtn = nullptr;
+        newPalette = nullptr;
     }
 
-    int getHeightFromNumRows(int numRowsIn)
+    // Used to make this component resize itself depending on how many swatches there are
+    //void setViewUnits(int widthIn, int heightIn)
+    //{
+    //    viewableWidth = widthIn;
+    //    viewableHeight = heightIn;
+
+    //    setSize(viewableWidth, getHeightFromNumRows(numRows));
+    //}
+
+    int getHeightFromNumRows(int widthIn, int numRowsIn)
     {
-        return roundToInt(viewableHeight * 0.48f * numRowsIn);
+        float rowHeight = widthIn * (itemHeightScalar + topMarginScalar + bottomMarginScalar);
+        auto height = roundToInt(numRowsIn * rowHeight);
+        return height;
     }
 
     void paint(Graphics& g) override 
     {
-        ////Draws rectangles around items and margins 
-        //for (auto item : flexBox.items)
+        //Draws rectangles around items and margins 
+        //for (auto item : dbgItems)
         //{
         //    g.setColour(Colours::red);
         //    g.drawRect(item.currentBounds);
@@ -73,20 +84,20 @@ public:
 
     void resized() override
     {
-        Rectangle<int> viewportBounds(viewableWidth, viewableHeight);
+        Rectangle<int> viewportBounds(getWidth(), viewableHeight);
+        FlexBox flexBox(FlexBox::Direction::row, FlexBox::Wrap::wrap, FlexBox::AlignContent::flexStart, FlexBox::AlignItems::center, FlexBox::JustifyContent::flexStart);
 
         float itemWidth         = viewportBounds.proportionOfWidth(itemWidthScalar);
         float itemHeight        = viewportBounds.proportionOfWidth(itemHeightScalar);
-        float topMargin         = viewportBounds.proportionOfHeight(topMarginScalar);
-        float bottomMargin      = viewportBounds.proportionOfHeight(bottomMarginScalar);
-        float horizontalMargin  = (viewableWidth - (3 * itemWidth)) * 0.143f;
-        
-        for (int i = 0; i < flexBox.items.size(); i++)
+        float topMargin         = viewportBounds.proportionOfWidth(topMarginScalar);
+        float bottomMargin      = viewportBounds.proportionOfWidth(bottomMarginScalar);
+        float horizontalMargin  = (viewportBounds.getWidth() - (3 * itemWidth)) * 0.143f;
+
+        for (auto palette : allPalettes)
         {
-            FlexItem& item = flexBox.items.getReference(i);
-            item.width = itemWidth;
-            item.height = itemHeight;
+            FlexItem item(itemWidth, itemHeight, *palette);
             item.margin = FlexItem::Margin(topMargin, horizontalMargin, bottomMargin, horizontalMargin);
+            flexBox.items.add(item);
         }
 
         flexBox.performLayout(viewportBounds);
@@ -111,6 +122,10 @@ public:
             Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomRight());
             controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
         }
+
+        bottom = controlGroupHitBoxes.getLast().getBottom();
+
+        dbgItems = flexBox.items;
 
         newPaletteBtn->setSize(itemWidth, bottomMarginControlHeight);
         newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom() + bottomMarginControlSpace);
@@ -146,25 +161,19 @@ public:
     }
 
     // Setup panels from scratch
-    void rebuildPanel(Array<LumatoneEditorColourPalette> palettesIn, bool resize = true)
+    void rebuildPanel(Array<LumatoneEditorColourPalette> palettesIn, int width = 0, bool resize = true)
     {
+        for (auto group : controlGroups)
+            selectionGroup->removeSelector(group->getPaletteComponent());
+
         removeAllChildren();
-        flexBox.items.clear();
-        
-        for (auto label : paletteLabels)
-        {
-            removeChildComponent(label);
-        }
-
-        addAndMakeVisible(newPalette.get());
-        flexBox.items.add(*newPalette);
-
         addAndMakeVisible(newPaletteBtn.get());
-        
-        // Remove old ones from colour selection group?
+        addAndMakeVisible(newPalette.get());
+
         controlGroups.clear();
         paletteLabels.clear();
         controlGroupHitBoxes.clear();
+        allPalettes.clear();
 
         // Palettes with colour
         for (int i = 0; i < palettesIn.size(); i++)
@@ -174,7 +183,6 @@ public:
             auto paletteComponent = group->getPaletteComponent();
             paletteComponent->getProperties().set("index", i);
             addAndMakeVisible(paletteComponent);
-            flexBox.items.add(*paletteComponent);
 
             if (selectionGroup)
                 selectionGroup->addSelector(paletteComponent);
@@ -184,7 +192,7 @@ public:
             addChildComponent(group->getEditButton());
 
             group->getTrashButton()->getProperties().set("index", i);
-            group->getTrashButton()->onClick = [&, i] { listeners.call(&ColourPalettesPanel::Listener::deletePaletteRequested, i); };
+            group->getTrashButton()->onClick = [&, group, i] { listeners.call(&ColourPalettesPanel::Listener::deletePaletteRequested, i); };
             addChildComponent(group->getTrashButton());
 
             String name = palettesIn[i].getName();
@@ -197,16 +205,18 @@ public:
             controlGroupHitBoxes.add(Rectangle<int>());
         }
 
+        allPalettes = Array<ColourPaletteComponent*>(newPalette.get());
+        for (auto group : controlGroups)
+            allPalettes.add(group->getPaletteComponent());
+
         int rows = ceil((palettesIn.size() + 1) * 0.333333f);
 
         // Set height depending on how many rows
+        width = (width < 1) ? getWidth() : width;
+        viewableHeight = getHeightFromNumRows(width, rows);
+
         if (resize)
-        {
-            if (rows != numRows)
-                setSize(viewableWidth, getHeightFromNumRows(rows));
-            else
-                resized();
-        }
+            setSize(width, viewableHeight);
 
         numRows = rows;
     }
@@ -224,16 +234,18 @@ private:
 
     ColourSelectionGroup* selectionGroup;
 
-    FlexBox flexBox;
-
     std::unique_ptr<ColourPaletteComponent> newPalette;
     std::unique_ptr<TextButton> newPaletteBtn;
     OwnedArray<PaletteControlGroup> controlGroups;
+    Array<ColourPaletteComponent*> allPalettes;
     OwnedArray<juce::Label> paletteLabels;
 
+    Array<FlexItem> dbgItems;
+
     int numRows = 1;
-    int viewableWidth = 0;
+    //int viewableWidth = 0;
     int viewableHeight = 0;
+    int bottom = 0;
 
     Array<Rectangle<int>> controlGroupHitBoxes;
     int lastPaletteMouseOver = -1;
@@ -241,17 +253,15 @@ private:
     const float itemWidthScalar         = 0.265f;
     const float itemHeightScalar        = 0.24f;
 
-    const float topMarginScalar         = 0.06f;
+    const float topMarginScalar         = 0.04f;
     const float horizontalMarginScalar  = 0.0367f;
-    const float bottomMarginScalar      = 0.08f;
-    const float btmMarginCtrlScalar     = 0.06f;
+    const float bottomMarginScalar      = 0.06f;
+    const float btmMarginCtrlScalar     = 0.02f;
 
     const float buttonWidthScalar       = 0.333333f;
     const float buttonHeightScalar      = 0.166667f;
 
     const float panelLeftMarginWidth    = 0.020833f;
-
-
 
     //==============================================================================
 

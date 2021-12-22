@@ -65,12 +65,12 @@ public:
         return colourSelectors.indexOf(selectorToAdd);
     }
 
-    void removeSelector(ColourSelectionBroadcaster* paletteComponentToRemove)
+    void removeSelector(ColourSelectionBroadcaster* selectorToRemove)
     {
-        int removed = colourSelectors.removeAllInstancesOf(paletteComponentToRemove);
+        int removed = colourSelectors.removeAllInstancesOf(selectorToRemove);
 
         if (removed > 0)
-            paletteComponentToRemove->removeColourSelectionListener(this);
+            selectorToRemove->removeColourSelectionListener(this);
     }
 
     /// <summary>

@@ -46,12 +46,17 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
 
 ColourPaletteWindow::~ColourPaletteWindow()
 { 
-    colourSelectorGroup     = nullptr;
-    palettePanelViewport    = nullptr;
-    colourToolTabs          = nullptr;
-    palettePanel            = nullptr;
-    customPickerPanel       = nullptr;
     paletteEditPanel        = nullptr;
+    colourToolTabs          = nullptr;
+    
+    colourSelectorGroup->removeSelector(customPickerPanel.get());
+    customPickerPanel       = nullptr;
+    
+    palettePanelViewport    = nullptr;
+
+    palettePanel            = nullptr;
+
+    colourSelectorGroup     = nullptr;
 }
 
 void ColourPaletteWindow::resized()
@@ -62,11 +67,7 @@ void ColourPaletteWindow::resized()
     if (paletteEditPanel.get())
         paletteEditPanel->setBounds(getLocalBounds());
 
-    palettePanel->setViewUnits(
-        palettePanelViewport->getMaximumVisibleWidth(),
-        palettePanelViewport->getMaximumVisibleHeight()
-    );
-    palettePanel->rebuildPanel(colourPalettes);
+    palettePanel->rebuildPanel(colourPalettes, palettePanelViewport->getMaximumVisibleWidth());
 }
 
 void ColourPaletteWindow::startEditingPalette(int paletteIndexIn, int selectedSwatchIndex)
