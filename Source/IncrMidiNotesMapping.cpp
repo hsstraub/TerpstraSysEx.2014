@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.1.3
 
   ------------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ IncrMidiNotesMapping::~IncrMidiNotesMapping()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    channelAutoIncrButton = nullptr;  
+    channelAutoIncrButton = nullptr;
     labelMidiNotesUntil = nullptr;
     singleChannelButton = nullptr;
     channelBox = nullptr;
@@ -119,10 +119,10 @@ void IncrMidiNotesMapping::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-   // g.fillAll (juce::Colour (0xffb8d0de));
+    g.fillAll (juce::Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
-	//g.fillAll(findColour(ResizableWindow::backgroundColourId));
+    g.fillAll(Colour(0xff2d3135));
     //[/UserPaint]
 }
 

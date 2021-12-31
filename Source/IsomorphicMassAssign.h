@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.1.3
 
   ------------------------------------------------------------------------------
 
@@ -43,9 +43,9 @@
 class IsomorphicMassAssign  : public Component,
                               public MappingLogicBase::Listener,
                               public ScaleStructureComponent::Listener,
+                              public ColourSelectionListener,
                               public juce::ComboBox::Listener,
-                              public juce::Button::Listener,
-								public ColourSelectionListener
+                              public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -152,6 +152,7 @@ private:
     std::unique_ptr<juce::ComboBox> periodSizeBox;
     std::unique_ptr<juce::Label> labelPeriodSize;
     std::unique_ptr<juce::ToggleButton> setColourToggleButton;
+    std::unique_ptr<juce::ToggleButton> setStepsToggleButton;
 
 
     //==============================================================================
