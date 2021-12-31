@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.1.3
 
   ------------------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     startingPointBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     startingPointBox->addListener (this);
 
-    startingPointBox->setBounds (8, 368, 150, 24);
+    startingPointBox->setBounds (8, 368, 144, 24);
 
     labelStartingPoint.reset (new juce::Label ("labelStartingPoint",
                                                TRANS("Starting value")));
@@ -222,7 +222,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     labelRightUpwardSteps->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     labelRightUpwardSteps->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    labelRightUpwardSteps->setBounds (152, 296, 136, 24);
+    labelRightUpwardSteps->setBounds (160, 312, 136, 24);
 
     editRightUpwardSteps.reset (new juce::TextEditor ("editRightUpwardSteps"));
     addAndMakeVisible (editRightUpwardSteps.get());
@@ -234,7 +234,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     editRightUpwardSteps->setPopupMenuEnabled (true);
     editRightUpwardSteps->setText (juce::String());
 
-    editRightUpwardSteps->setBounds (160, 320, 39, 24);
+    editRightUpwardSteps->setBounds (168, 336, 39, 24);
 
     editInstructionText.reset (new juce::Label ("editInstructionText",
                                                 TRANS("Fill a line or the whole field with constant step distances. \n"
@@ -280,10 +280,10 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     btnScaleStructureEditor.reset (new juce::TextButton ("btnScaleStructureEditor"));
     addAndMakeVisible (btnScaleStructureEditor.get());
     btnScaleStructureEditor->setTooltip (TRANS("Show/hide scale structure editor"));
-    btnScaleStructureEditor->setButtonText (TRANS("Scale structure editor"));
+    btnScaleStructureEditor->setButtonText (TRANS("Scale Wheel"));
     btnScaleStructureEditor->addListener (this);
 
-    btnScaleStructureEditor->setBounds (160, 264, 152, 24);
+    btnScaleStructureEditor->setBounds (160, 278, 152, 32);
 
     periodSizeBox.reset (new juce::ComboBox ("periodSizeBox"));
     addAndMakeVisible (periodSizeBox.get());
@@ -309,23 +309,30 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     setColourToggleButton.reset (new juce::ToggleButton ("setColourToggleButton"));
     addAndMakeVisible (setColourToggleButton.get());
-    setColourToggleButton->setButtonText (TRANS("Colour assignment"));
+    setColourToggleButton->setButtonText (TRANS("Assign Colour"));
     setColourToggleButton->addListener (this);
 
     setColourToggleButton->setBounds (8, 264, 152, 24);
 
+    setStepsToggleButton.reset (new juce::ToggleButton ("setStepsToggleButton"));
+    addAndMakeVisible (setStepsToggleButton.get());
+    setStepsToggleButton->setTooltip (TRANS("Allow editing steps through the Scale Wheel"));
+    setStepsToggleButton->setButtonText (TRANS("Assign Steps"));
+    setStepsToggleButton->addListener (this);
+
+    setStepsToggleButton->setBounds (8, 296, 119, 24);
+
 
     //[UserPreSize]
     editInstructionText->setVisible(false);
-    
-    flexBoxComponents.add(setColourToggleButton.get());
-    flexBoxComponents.add(labelStartingPoint.get());
-    flexBoxComponents.add(labelPeriodSize.get());
-    flexBoxComponents.add(labelHorizontalSteps.get());
-    flexBoxComponents.add(labelRightUpwardSteps.get());
+    groupMapping->setVisible(false);
 
-    flexBox.flexWrap = FlexBox::Wrap::noWrap;
-    flexBox.flexDirection = FlexBox::Direction::column;
+    labelPeriodSize->attachToComponent(periodSizeBox.get(), true);
+    labelMappingType->attachToComponent(cbMappingType.get(), true);
+    labelStartingPoint->attachToComponent(startingPointBox.get(), true);
+    //labelHorizontalSteps->attachToComponent(editHorizontalSteps.get(), false);
+    //labelRightUpwardSteps->attachToComponent(editRightUpwardSteps.get(), false);
+
     //[/UserPreSize]
 
     setSize (320, 400);
@@ -333,24 +340,24 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
     //[Constructor] You can add your own custom stuff here..
 
-	for (int i = 1; i <= 128; i++)
-	{
-		periodSizeBox->addItem(String(i), i);
-	}
+    for (int i = 1; i <= 128; i++)
+    {
+        periodSizeBox->addItem(String(i), i);
+    }
 
-	incrMidiNotesMapping->getMappingLogic()->addListener(this);
-	kbmMappingDlg->getMappingLogic()->addListener(this);
+    incrMidiNotesMapping->getMappingLogic()->addListener(this);
+    kbmMappingDlg->getMappingLogic()->addListener(this);
 
-	// cbMappingStyle default selection: will be read from user settings
+    // cbMappingStyle default selection: will be read from user settings
     //[/Constructor]
 }
 
 IsomorphicMassAssign::~IsomorphicMassAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	incrMidiNotesMapping = nullptr;
-	kbmMappingDlg = nullptr;
-	scaleDesignWindow = nullptr;
+    incrMidiNotesMapping = nullptr;
+    kbmMappingDlg = nullptr;
+    scaleDesignWindow = nullptr;
     //[/Destructor_pre]
 
     startingPointBox = nullptr;
@@ -367,6 +374,7 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
     periodSizeBox = nullptr;
     labelPeriodSize = nullptr;
     setColourToggleButton = nullptr;
+    setStepsToggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -379,12 +387,12 @@ void IsomorphicMassAssign::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    //g.fillAll (juce::Colour (0xffbad0de));
+    g.fillAll (juce::Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
     g.fillAll(Colour(0xff2d3135));
 
-	g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
+    g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
     g.fillRect(instructionsBounds);
 
     g.setColour(getLookAndFeel().findColour(LumatoneEditorColourIDs::InactiveText));
@@ -397,51 +405,81 @@ void IsomorphicMassAssign::paint (juce::Graphics& g)
 void IsomorphicMassAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	int width = getWidth();
+    int width = getWidth();
     int height = getHeight();
-
-    int controlWidth = roundToInt(width * 0.4f);
-    int controlHeight = roundToInt(height * controlHeightScalar);
 
     int xMargin = roundToInt(width * xMarginScalar);
     int yMargin = roundToInt(height * yMarginScalar);
-    int xEnd = width - xMargin;
-
-    flexBox.items.clear();
-    for (auto child : flexBoxComponents)
-    {
-        flexBox.items.add(FlexItem(*child).withHeight(controlHeight).withMargin(FlexItem::Margin(yMargin, 0, 0, 0)));
-    }
-
+    
+    auto areaWidth = width - (xMargin * 2);
+    int controlHeight = roundToInt((height - yMargin * 2) * 0.04);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
     instructionsBounds = getLocalBounds().withBottom(round(height * instructionsBottom));
     instructionsFont.setHeight(instructionsBounds.proportionOfHeight(fontHeightInBounds));
 
+    auto labelFont = labelPeriodSize->getFont();
+
+    resizeLabelWithHeight(labelPeriodSize.get(), controlHeight);
+    auto periodLabelWidth = labelFont.getStringWidth(labelPeriodSize->getText());
+    periodSizeBox->setBounds(periodLabelWidth + xMargin, instructionsBounds.getBottom() + yMargin, areaWidth - periodLabelWidth, controlHeight);
+
     resizeLabelWithHeight(labelMappingType.get(), controlHeight);
-    labelMappingType->setTopLeftPosition(xMargin, labelMappingType->getY());
-    cbMappingType->setBounds(labelMappingType->getBounds().withLeft(labelMappingType->getRight()).withRight(xEnd));
+    auto mappingTypeWidth = labelFont.getStringWidth(labelMappingType->getText());
+    cbMappingType->setBounds(xMargin + mappingTypeWidth, periodSizeBox->getBottom() + yMargin, areaWidth - mappingTypeWidth, controlHeight);
 
-    Rectangle<int> mappingTypeBounds(xMargin, labelMappingType->getBottom() + yMargin, width - xMargin * 2, instructionsBounds.getHeight() + controlHeight);
-
+    auto mappingTypeHeight = instructionsBounds.getHeight() + yMargin;
+    Rectangle<int> mappingTypeBounds(xMargin, cbMappingType->getBottom() + yMargin, areaWidth, mappingTypeHeight);
     incrMidiNotesMapping->setBounds(mappingTypeBounds);
     kbmMappingDlg->setBounds(mappingTypeBounds);
 
-    flexBox.performLayout(getLocalBounds().withTop(mappingTypeBounds.getBottom() + yMargin).withBottom(height - yMargin).reduced(xMargin, 0));
+    FlexBox scaleWheelBox;
+    scaleWheelBox.flexWrap = FlexBox::Wrap::wrap;
+    scaleWheelBox.flexDirection = FlexBox::Direction::column;
+    scaleWheelBox.justifyContent = FlexBox::JustifyContent::center;
 
-    resizeLabelWithHeight(labelStartingPoint.get(),     controlHeight);
-    resizeLabelWithHeight(labelPeriodSize.get(),        controlHeight);
-    resizeLabelWithHeight(labelHorizontalSteps.get(),   controlHeight);
-    resizeLabelWithHeight(labelRightUpwardSteps.get(),  controlHeight);
+    auto scaleWheelRowHeight = controlHeight * 1.5;
+    auto scaleWheelToggleWidth = labelFont.getStringWidth(setColourToggleButton->getButtonText()) + controlHeight;
+    auto scaleWheelToggleHeight = scaleWheelRowHeight * 0.5;
+    auto scaleWheelButtonMargin = controlHeight * 0.5;
+    scaleWheelBox.items.add(FlexItem(areaWidth - scaleWheelToggleWidth, scaleWheelRowHeight, *btnScaleStructureEditor).withMargin(FlexItem::Margin(scaleWheelButtonMargin, 0, scaleWheelButtonMargin, 0)));
+    scaleWheelBox.items.add(FlexItem(scaleWheelToggleWidth, scaleWheelToggleHeight, *setColourToggleButton));
+    scaleWheelBox.items.add(FlexItem(scaleWheelToggleWidth, scaleWheelToggleHeight, *setStepsToggleButton));
 
-    setColourToggleButton->setSize(controlWidth, controlHeight * 0.75);
+    FlexBox flexbox;
+    flexbox.flexWrap = FlexBox::Wrap::noWrap;
+    flexbox.flexDirection = FlexBox::Direction::column;
 
-    btnScaleStructureEditor->   setBounds(setColourToggleButton->   getBounds().withLeft(setColourToggleButton->    getRight() + xMargin).withRight(xEnd));
-    startingPointBox->          setBounds(labelStartingPoint->      getBounds().withLeft(labelStartingPoint->       getRight()).withRight(xEnd));
-    periodSizeBox->             setBounds(labelPeriodSize->         getBounds().withLeft(labelPeriodSize->          getRight()).withRight(xEnd));
-    editHorizontalSteps->       setBounds(labelHorizontalSteps->    getBounds().withLeft(labelHorizontalSteps->     getRight()).withRight(xEnd));
-    editRightUpwardSteps->      setBounds(labelRightUpwardSteps->   getBounds().withLeft(labelRightUpwardSteps->    getRight()).withRight(xEnd));
+    FlexItem::Margin itemYMargin;
+    itemYMargin.top = yMargin;
+
+    flexbox.items.add(FlexItem(areaWidth, scaleWheelRowHeight, scaleWheelBox));
+
+    resizeLabelWithHeight(labelStartingPoint.get(), controlHeight);
+    auto startingPointLabelWidth = labelFont.getStringWidth(labelStartingPoint->getText()) + (labelPeriodSize->getX());
+    flexbox.items.add(FlexItem(areaWidth - startingPointLabelWidth, controlHeight, *startingPointBox).withMargin(FlexItem::Margin(yMargin, 0, 0, startingPointLabelWidth)));
+
+    FlexBox stepsBox;
+    stepsBox.flexDirection = FlexBox::Direction::column;
+
+    auto stepsWidth = labelFont.getStringWidth("999");
+    stepsBox.items.add(FlexItem(areaWidth, controlHeight, *labelHorizontalSteps).withMargin(itemYMargin));
+    stepsBox.items.add(FlexItem(stepsWidth, controlHeight, *editHorizontalSteps).withMargin(itemYMargin));
+    stepsBox.items.add(FlexItem(areaWidth, controlHeight, *labelRightUpwardSteps).withMargin(itemYMargin));
+    stepsBox.items.add(FlexItem(stepsWidth, controlHeight, *editRightUpwardSteps).withMargin(itemYMargin));
+    flexbox.items.add(FlexItem(stepsWidth, controlHeight * 5, stepsBox).withMargin(itemYMargin));
+    
+    flexbox.performLayout(getLocalBounds().withLeft(labelPeriodSize->getX())
+                                          .withTrimmedRight(xMargin)
+                                          .withTop(mappingTypeBounds.getBottom() + yMargin)
+                                          .withBottom(height - yMargin));
+
+    //btnScaleStructureEditor->   setBounds(setColourToggleButton->   getBounds().withLeft(setColourToggleButton->    getRight() + xMargin).withRight(xEnd));
+    //startingPointBox->          setBounds(labelStartingPoint->      getBounds().withLeft(labelStartingPoint->       getRight()).withRight(xEnd));
+    //periodSizeBox->             setBounds(labelPeriodSize->         getBounds().withLeft(labelPeriodSize->          getRight()).withRight(xEnd));
+    //editHorizontalSteps->       setBounds(labelHorizontalSteps->    getBounds().withLeft(labelHorizontalSteps->     getRight()).withRight(xEnd));
+    //editRightUpwardSteps->      setBounds(labelRightUpwardSteps->   getBounds().withLeft(labelRightUpwardSteps->    getRight()).withRight(xEnd));
 
 
     //[/UserResized]
@@ -525,6 +563,11 @@ void IsomorphicMassAssign::buttonClicked (juce::Button* buttonThatWasClicked)
         incrMidiNotesMapping->getMappingLogic()->setAssignColours(assignColours);
         kbmMappingDlg->getMappingLogic()->setAssignColours(assignColours);
         //[/UserButtonCode_setColourToggleButton]
+    }
+    else if (buttonThatWasClicked == setStepsToggleButton.get())
+    {
+        //[UserButtonCode_setStepsToggleButton] -- add your button handler code here..
+        //[/UserButtonCode_setStepsToggleButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -744,13 +787,13 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="IsomorphicMassAssign" componentName=""
-                 parentClasses="public Component, public MappingLogicBase::Listener, public ScaleStructureComponent::Listener"
+                 parentClasses="public Component, public MappingLogicBase::Listener, public ScaleStructureComponent::Listener, public ColourSelectionListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="320"
                  initialHeight="400">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <COMBOBOX name="startingPointBox" id="d526f69bdc196fea" memberName="startingPointBox"
-            virtualName="" explicitFocusOrder="0" pos="8 368 150 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="8 368 144 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelStartingPoint" id="5401a3246c13771e" memberName="labelStartingPoint"
          virtualName="" explicitFocusOrder="0" pos="8 344 150 24" tooltip="Value that will be assigned to the key at mouse pposition when clicking"
@@ -768,12 +811,12 @@ BEGIN_JUCER_METADATA
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="labelRightUpwardSteps" id="43530804741d9cb7" memberName="labelRightUpwardSteps"
-         virtualName="" explicitFocusOrder="0" pos="152 296 136 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="160 312 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Right upward steps" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="editRightUpwardSteps" id="3a1cf8588366e0ca" memberName="editRightUpwardSteps"
-              virtualName="" explicitFocusOrder="0" pos="160 320 39 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="168 336 39 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <LABEL name="editInstructionText" id="c03ef432c2b4599" memberName="editInstructionText"
@@ -794,8 +837,8 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="btnScaleStructureEditor" id="23cc77cbad6653d7" memberName="btnScaleStructureEditor"
-              virtualName="" explicitFocusOrder="0" pos="160 264 152 24" tooltip="Show/hide scale structure editor"
-              buttonText="Scale structure editor" connectedEdges="0" needsCallback="1"
+              virtualName="" explicitFocusOrder="0" pos="160 278 152 32" tooltip="Show/hide scale structure editor"
+              buttonText="Scale Wheel" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <COMBOBOX name="periodSizeBox" id="4560285c5e467e2f" memberName="periodSizeBox"
             virtualName="" explicitFocusOrder="0" pos="200 8 56 24" tooltip="Number of tones per period interval (octave)"
@@ -806,8 +849,12 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="setColourToggleButton" id="fb41f2b9539dfb3f" memberName="setColourToggleButton"
-                virtualName="" explicitFocusOrder="0" pos="8 264 152 24" buttonText="Colour assignment"
+                virtualName="" explicitFocusOrder="0" pos="8 264 152 24" buttonText="Assign Colour"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="setStepsToggleButton" id="ea7fdc2125770501" memberName="setStepsToggleButton"
+                virtualName="" explicitFocusOrder="0" pos="8 296 119 24" tooltip="Allow editing steps through the Scale Wheel"
+                buttonText="Assign Steps" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
