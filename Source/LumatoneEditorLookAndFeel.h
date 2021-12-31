@@ -839,23 +839,23 @@ public:
 	void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
     {
         auto target = options.getTargetComponent();
-		if (target)
-		{
-			float margin = target->getHeight() * comboBoxRoundedCornerScalar;
-            
-            if (target->getProperties().contains(LumatoneEditorStyleIDs::popupMenuBackgroundColour))
-                g.setColour(Colour::fromString(target->getProperties()[LumatoneEditorStyleIDs::popupMenuBackgroundColour].toString()).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
-            else
-                g.setColour(findColour(LumatoneEditorColourIDs::MenuBarBackground));
-			
-            if (target->getProperties()[LumatoneEditorStyleIDs::popupMenuTargetWidth])
-                width = target->getWidth();
 
-			Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
-			g.fillPath(menuShape);
-		}
-		else
-			getDefaultLookAndFeel().drawPopupMenuBackgroundWithOptions(g, width, height, options);
+        int targetWidth = (target != nullptr && target->getProperties()[LumatoneEditorStyleIDs::popupMenuTargetWidth])
+            ? target->getWidth()
+            : width;
+
+        int targetMargin = (target != nullptr)
+            ? target->getHeight() * comboBoxRoundedCornerScalar
+            : 0;
+
+        Colour targetColour = (target != nullptr && target->getProperties().contains(LumatoneEditorStyleIDs::popupMenuBackgroundColour))
+            ? Colour::fromString(target->getProperties()[LumatoneEditorStyleIDs::popupMenuBackgroundColour].toString()).withMultipliedSaturation(1.5f) // Box colour will always be highlighted
+            : findColour(LumatoneEditorColourIDs::MenuBarBackground);
+
+        g.setColour(targetColour);
+		
+		Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, targetWidth, height), targetMargin, Button::ConnectedEdgeFlags::ConnectedOnTop);
+		g.fillPath(menuShape);
     }
 
     void drawPopupMenuItemWithOptions(
@@ -864,7 +864,7 @@ public:
         int width, height;
         getIdealPopupMenuItemSizeWithOptions(item.text, false, area.getHeight(), width, height, options);
 
-        Rectangle<int> areaToUse = area.withWidth(width);
+        Rectangle<int> areaToUse = area;
 
         // Only using PopupMenus with ComboBoxes so this should be fine
         auto target = dynamic_cast<ComboBox*>(options.getTargetComponent());
@@ -876,6 +876,7 @@ public:
             font = getComboBoxFont(*target);
             textColour = target->findColour(ComboBox::ColourIds::textColourId);
             margin = target->proportionOfHeight(comboBoxRoundedCornerScalar);
+            areaToUse = areaToUse.withWidth(width);
         }
         else
         {
@@ -884,6 +885,9 @@ public:
             textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
             margin = roundToInt(height * comboBoxRoundedCornerScalar);
         }
+
+        if (!item.isEnabled)
+            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
         
         font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
 
@@ -893,7 +897,7 @@ public:
             areaToUse = areaToUse.withTrimmedBottom(roundToInt(margin * 0.5f) + 1);
         }
 
-        if (isHighlighted)
+        if (isHighlighted && !item.isSeparator)
         {
             g.setColour(Colours::white.withAlpha(0.15f));
             g.fillRect(areaToUse);
@@ -903,6 +907,12 @@ public:
         g.setFont(font);
         
         g.drawFittedText(item.text, areaToUse.withTrimmedLeft(margin).withTrimmedRight(margin), Justification::centredLeft, 1);
+
+        if (item.subMenu)
+        {
+            g.drawFittedText(">", areaToUse.withTrimmedRight(margin), Justification::centredRight, 1, 0.5f);
+            item.subMenu->setLookAndFeel(this);
+        }
     }
 
     void getIdealPopupMenuItemSizeWithOptions(const String& text, bool isSeparator, int standardMenuItemHeight, int& idealWidth, int& idealHeight, 

@@ -268,6 +268,9 @@ bool TerpstraSysExApplication::saveColourPalette(LumatoneEditorColourPalette& pa
 	{
 		ValueTree paletteNode = palette.toValueTree();
 
+		if (pathToFile == File())
+			pathToFile = File(palette.getPathToFile());
+
 		// New file
 		if (!pathToFile.existsAsFile())
 		{
