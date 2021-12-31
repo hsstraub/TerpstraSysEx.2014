@@ -410,7 +410,7 @@ void IsomorphicMassAssign::resized()
 
     int xMargin = roundToInt(width * xMarginScalar);
     int yMargin = roundToInt(height * yMarginScalar);
-    
+
     auto areaWidth = width - (xMargin * 2);
     int controlHeight = roundToInt((height - yMargin * 2) * 0.04);
     //[/UserPreResize]
@@ -469,18 +469,11 @@ void IsomorphicMassAssign::resized()
     stepsBox.items.add(FlexItem(areaWidth, controlHeight, *labelRightUpwardSteps).withMargin(itemYMargin));
     stepsBox.items.add(FlexItem(stepsWidth, controlHeight, *editRightUpwardSteps).withMargin(itemYMargin));
     flexbox.items.add(FlexItem(stepsWidth, controlHeight * 5, stepsBox).withMargin(itemYMargin));
-    
+
     flexbox.performLayout(getLocalBounds().withLeft(labelPeriodSize->getX())
                                           .withTrimmedRight(xMargin)
                                           .withTop(mappingTypeBounds.getBottom() + yMargin)
                                           .withBottom(height - yMargin));
-
-    //btnScaleStructureEditor->   setBounds(setColourToggleButton->   getBounds().withLeft(setColourToggleButton->    getRight() + xMargin).withRight(xEnd));
-    //startingPointBox->          setBounds(labelStartingPoint->      getBounds().withLeft(labelStartingPoint->       getRight()).withRight(xEnd));
-    //periodSizeBox->             setBounds(labelPeriodSize->         getBounds().withLeft(labelPeriodSize->          getRight()).withRight(xEnd));
-    //editHorizontalSteps->       setBounds(labelHorizontalSteps->    getBounds().withLeft(labelHorizontalSteps->     getRight()).withRight(xEnd));
-    //editRightUpwardSteps->      setBounds(labelRightUpwardSteps->   getBounds().withLeft(labelRightUpwardSteps->    getRight()).withRight(xEnd));
-
 
     //[/UserResized]
 }
@@ -669,7 +662,6 @@ void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometr
 	{
 		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
 	}
-	TerpstraSysExApplication::getApp().getLumatoneController().sendKeyParam(setSelection + 1, keySelection, keyData);
 }
 
 // Implementation of MappingLogicListener
@@ -764,7 +756,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
                 setSaveSend(
                     boardIx,
                     keyIx,
-                    mod(startNoteIndex
+                    modulo(startNoteIndex
                          + keyOffset.getX() * horizStepSize
                          + keyOffset.getY() * rUpwStepSize,
                         this->mappingLogic->globalMappingSize()));
