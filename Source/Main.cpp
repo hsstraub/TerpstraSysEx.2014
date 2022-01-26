@@ -445,7 +445,7 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 bool TerpstraSysExApplication::openSysExMapping()
 {
 	chooser = std::make_unique<FileChooser>("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn;*.tsx");
-	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::openMode,
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
 		[&](const FileChooser& chooser)
 		{
 			currentFile = chooser.getResult();
