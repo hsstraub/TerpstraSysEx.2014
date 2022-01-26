@@ -314,7 +314,8 @@ struct FirmwareSupport
 		messageIsNotResponseToCommand,
 		messageIsNotSysEx,
 		unknownCommand,
-		externalError
+		externalError,
+        commandNotImplemented
 	};
 
 	String errorToString(Error err)
@@ -347,6 +348,8 @@ struct FirmwareSupport
 			return "Unknown command / Not Acknowledged";
 		case Error::externalError:
 			return "Error from device";
+        case Error::commandNotImplemented:
+            return "Command handling not implemented";
 		default:
 			return "Undefined error..";
 		}

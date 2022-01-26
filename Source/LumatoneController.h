@@ -22,6 +22,7 @@
 
 class LumatoneController :  protected TerpstraMidiDriver::Listener, 
                             protected FirmwareTransfer::ProcessListener,
+                            private juce::MidiMessageCollector,
                             private juce::Thread::Listener,
                             private juce::Timer, 
                             private juce::ChangeListener
@@ -236,6 +237,10 @@ public:
     // juce::Timer implementation
 
     void timerCallback() override;
+    
+    // Buffer read helpers
+    FirmwareSupport::Error getBufferErrorCode(const uint8* sysExData);
+    FirmwareSupport::Error handleBufferCommand(const MidiMessage& midiMessage);
     
     //============================================================================
     // juce::ChangeListener implementation
