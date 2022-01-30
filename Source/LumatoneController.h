@@ -20,11 +20,10 @@
 
 
 
-class LumatoneController :  protected TerpstraMidiDriver::Listener, 
-                            protected FirmwareTransfer::ProcessListener,
-                            private juce::MidiMessageCollector,
-                            private juce::Thread::Listener,
-                            private juce::Timer, 
+class LumatoneController :  private TerpstraMidiDriver::Collector,
+                            protected FirmwareTransfer::ProcessListener, // Firmware transfer updates
+                            private juce::Thread::Listener,              // Firmware thread exited
+                            private juce::Timer,
                             private juce::ChangeListener
 {
 public:
@@ -40,6 +39,8 @@ public:
 
     LumatoneController();
     ~LumatoneController();
+    
+    void runSendCrashTest();
 
     //============================================================================
     // Methods to configure firmware communication parameters
@@ -252,14 +253,10 @@ protected:
     // Implementation of TerpstraMidiDriver::Listener
 
     virtual void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) override;
-
-    virtual void midiMessageSent(const MidiMessage& midiMessage) override;
-
+    virtual void midiMessageSent(MidiOutput* target, const MidiMessage& midiMessage) override;
     virtual void midiSendQueueSize(int queueSize) override;
-
     virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
-
-    virtual void noAnswerToMessage(const MidiMessage& midiMessage) override;
+    virtual void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage) override;
 
 public:
     //============================================================================
@@ -291,6 +288,8 @@ public:
     class FirmwareListener
     {
     public:
+        
+        virtual ~FirmwareListener() {}
 
         // rgbFlag uses 0 for red, 1 for green, 2 for blue
         virtual void octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData) {};
@@ -439,12 +438,15 @@ private:
 
     std::unique_ptr<FirmwareTransfer>       firmwareTransfer;
 
-    MidiBuffer                  responseQueue;
-    int                         readSample = 0;
-    int                         sampleNum = 0;
-    const int                   bufferReadTimeoutMs = 50;
+//    MidiBuffer                  responseQueue;
+//    int                         readSample = 0;
+//    int                         sampleNum = 0;
+    const int                   bufferReadTimeoutMs = 30;
     const int                   bufferReadSize = 16;
     bool                        bufferReadRequested = false;
+
+    std::atomic<int>            readQueueSize = 0;
+    int                         sendQueueSize = 0;
 
     int                         lastTestDeviceSent = -1;
     int                         lastTestDeviceResponded = -1;

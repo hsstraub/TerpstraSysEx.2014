@@ -95,6 +95,11 @@ public:
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
+    bool setCurrentFile(File fileToOpen)
+    {
+        currentFile = fileToOpen;
+        return openFromCurrentFile();
+    }
 	bool saveCurrentFile();
 
 	void sendCurrentConfigurationToDevice();

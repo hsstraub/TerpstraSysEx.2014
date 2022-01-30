@@ -19,7 +19,9 @@
 
 #include "TerpstraMidiDriver.h"
 
-class DeviceActivityMonitor : public juce::Timer, public juce::ChangeBroadcaster, protected TerpstraMidiDriver::Listener
+class DeviceActivityMonitor : public juce::Timer, 
+                              public juce::ChangeBroadcaster, 
+                              protected TerpstraMidiDriver::Collector
 {
     
 public:
@@ -106,6 +108,13 @@ private:
     /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
     bool initializeConnectionTest();
 
+    /// <summary>
+    /// Handle a response from a test or confirmed MidiInput device
+    /// </summary>
+    /// <param name="testInputIndex"></param>
+    /// <param name="midiMessage"></param>
+    void handleResponse(int testInputIndex, const MidiMessage& midiMessage);
+
 
 private:
     //=========================================================================
@@ -121,17 +130,19 @@ private:
     void onSuccessfulDetection();
 
     void onDisconnection();
-
+    
 protected:
 
     //=========================================================================
     // TerpstraMidiDriver::Listener Implementation
 
     void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) override;
-    void midiMessageSent(const MidiMessage& midiMessage) override {};
-    void midiSendQueueSize(int queueSizeIn) override { midiQueueSize = queueSizeIn; };
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
-    void noAnswerToMessage(const MidiMessage& midiMessage) override;
+    void midiMessageSent(MidiOutput* target, const MidiMessage& midiMessage) override {}
+    void midiSendQueueSize(int queueSizeIn) override { sentQueueSize = queueSizeIn; }
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+    void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage) override;
+
+    void testMessageReceived(int testInputIndex, const MidiMessage& midiMessage) override;
 
 private:
 
@@ -153,7 +164,9 @@ private:
     int                     confirmedInputIndex = -1;
     int                     confirmedOutputIndex = -1;
 
-    int                     midiQueueSize = 0;
+    int                     sentQueueSize = 0;
+    int                     blockSize = 16;
+    int                     bufferTimeoutMs = 30;
     
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;

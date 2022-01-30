@@ -22,23 +22,36 @@
 Connection to midi, sending SysEx parameters to keyboard
 ==============================================================================
 */
-class TerpstraMidiDriver : public HajuMidiDriver, public MidiInputCallback, public Timer
+class TerpstraMidiDriver : public HajuMidiDriver, public Timer
 {
     // Types
 public:
-	// Listener class, to notify changes
-	class Listener
+	// MidiMessageCollector version of previous TerpstraMidiDriver::Listener, as to keep the Midi thread lightweight
+	class Collector : protected MidiMessageCollector
 	{
-	public:
-		// Destructor
-		virtual ~Listener() {}
+		MidiBuffer messagesSentQueue;
 
-		virtual void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) = 0;
-		virtual void midiMessageSent(const MidiMessage& midiMessage) = 0;
-		virtual void midiSendQueueSize(int queueSize) = 0;
-        virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) = 0;
-		virtual void noAnswerToMessage(const MidiMessage& midiMessage) = 0;
-	};
+	public:
+        virtual ~Collector() {}
+        
+		virtual void midiMessageReceived(MidiInput* source, const MidiMessage& message) = 0;
+		virtual void midiMessageSent(MidiOutput* target, const MidiMessage& message) = 0;
+		virtual void midiSendQueueSize(int size) = 0;
+		virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) {}
+
+		// Realtime messages before a device is connected - not for heavy processing!
+		virtual void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& message) = 0;
+		virtual void testMessageReceived(int testInputIndex, const MidiMessage& midiMessage) {};
+    };
+
+private:
+	// Helper callbacks for notifying Collectors
+	void notifyMessageReceived(MidiInput* source, const MidiMessage& midiMessage);
+	void notifyMessageSent(MidiOutput* target, const MidiMessage& midiMessage);
+	void notifySendQueueSize();
+	void notifyLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel);
+    void notifyNoAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage);
+	void notifyTestMessageReceived(int testInputIndex, const MidiMessage& midiMessage);
 
 private:
     typedef enum
@@ -51,8 +64,10 @@ public:
 	TerpstraMidiDriver();
 	~TerpstraMidiDriver();
 
-	void addListener(Listener* listenerToAdd);
-	void removeListener(Listener* listenerToRemove);
+//	void addListener(Listener* listenerToAdd);
+//	void removeListener(Listener* listenerToRemove);
+    void addMessageCollector(Collector* collectorToAdd);
+    void removeMessageCollector(Collector* collectorToRemove);
 
 	void restrictToRequestMessages(bool testMessagesOnly) { onlySendRequestMessages = testMessagesOnly; }
 
@@ -477,7 +492,8 @@ private:
 
 	// Attributes
 protected:
-    ListenerList<Listener> listeners;
+    // ListenerList<Listener> listeners;
+	Array<Collector*> collectors;
 
 private:
 

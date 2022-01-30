@@ -18,16 +18,51 @@ TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
 {
+    collectors.clear();
 }
 
-void TerpstraMidiDriver::addListener(TerpstraMidiDriver::Listener* listener)
+//============================================================================
+// TerpstaMidiDriver::Collector helpers
+
+void TerpstraMidiDriver::addMessageCollector(Collector* collectorToAdd)
 {
-	listeners.add(listener);
+    collectors.addIfNotAlreadyThere(collectorToAdd);
 }
 
-void TerpstraMidiDriver::removeListener(TerpstraMidiDriver::Listener* listener)
+void TerpstraMidiDriver::removeMessageCollector(Collector* collectorToRemove)
 {
-	listeners.remove(listener);
+    collectors.removeFirstMatchingValue(collectorToRemove);
+}
+
+void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMessage& midiMessage)
+{
+    for (auto collector : collectors) collector->midiMessageReceived(source, midiMessage);
+}
+
+void TerpstraMidiDriver::notifyMessageSent(MidiOutput* target, const MidiMessage& midiMessage)
+{
+    for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
+}
+
+void TerpstraMidiDriver::notifySendQueueSize()
+{
+    auto size = messageBuffer.size();
+    for (auto collector : collectors) collector->midiSendQueueSize(size);
+}
+
+void TerpstraMidiDriver::notifyLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel)
+{
+    for (auto collector : collectors) collector->generalLogMessage(textMessage, errorLevel);
+}
+
+void TerpstraMidiDriver::notifyNoAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
+{
+    for (auto collector : collectors) collector->noAnswerToMessage(expectedDevice, midiMessage);
+}
+
+void TerpstraMidiDriver::notifyTestMessageReceived(int testInputIndex, const MidiMessage& midiMessage)
+{
+    for (auto collector : collectors) collector->testMessageReceived(testInputIndex, midiMessage);
 }
 
 /*
@@ -1353,16 +1388,18 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
         sendMessageNow(message);
 
 	    // Notify listeners
-		const MessageManagerLock mmLock;
-		this->listeners.call(&Listener::midiMessageSent, message);
+		// const MessageManagerLock mmLock;
+		// this->listeners.call(&Listener::midiMessageSent, message);
+        notifyMessageSent(midiOutput, message);
     }
     else
     {
         // Add message to queue first. The oldest message in queue will be sent.
 		{
 			messageBuffer.add(message);
-			const MessageManagerLock mmLock;
-			this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+			// const MessageManagerLock mmLock;
+			// this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+            notifySendQueueSize();
 		}
 
         // If there is no message waiting for acknowledge: send oldest message of queue
@@ -1384,8 +1421,9 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
         hasMsgWaitingForAck = true;
 		messageBuffer.remove(0);                        // remove from buffer
 		{
-			const MessageManagerLock mmLock;
-			this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+			// const MessageManagerLock mmLock;
+			// this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+            notifySendQueueSize();
 		}
 
         sendCurrentMessage();
@@ -1411,8 +1449,9 @@ void TerpstraMidiDriver::sendCurrentMessage()
     // Notify listeners
 	{
         DBG("SENT    : " + currentMsgWaitingForAck.getDescription());
-		const MessageManagerLock mmLock;
-		this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
+		// const MessageManagerLock mmLock;
+		// this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
+        notifyMessageSent(midiOutput, currentMsgWaitingForAck);
 	}
 
     timerType = waitForAnswer;
@@ -1427,19 +1466,25 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
         if (message.isMetaEvent())
             msgStr += ": Type " + String(message.getMetaEventType()) + ", Length: " + String(message.getMetaEventLength());
         DBG("RCVD: " + msgStr);
-		const MessageManagerLock mmLock;
+    }
+//		const MessageManagerLock mmLock;
         
         // DEBUG
         if (message.isSysEx())
             DBG("RECEIVED: " + message.getDescription());
-        
-		this->listeners.call(&Listener::midiMessageReceived, source, message);
-	}
+
+//		this->listeners.call(&Listener::midiMessageReceived, source, message);
+
+    auto testInput = testInputs.indexOf(source);
+    if (testInput >= 0)
+        notifyTestMessageReceived(testInput, message);
+    else
+        notifyMessageReceived(source, message);
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
     {
-        jassert(timerType == waitForAnswer);
+         jassert(timerType == waitForAnswer);
 
         // Answer has come, we can stop the timer
         stopTimer();
@@ -1485,9 +1530,11 @@ void TerpstraMidiDriver::timerCallback()
         // No answer came from MIDI input
 		{
             DBG("DRIVER: NO ANSWER");
-			const MessageManagerLock mmLock;
-			listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
-            listeners.call(&Listener::noAnswerToMessage, currentMsgWaitingForAck);
+			//const MessageManagerLock mmLock;
+			// listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+            // listeners.call(&Listener::noAnswerToMessage, currentMsgWaitingForAck);
+            notifyLogMessage("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+            notifyNoAnswerToMessage(midiInput, currentMsgWaitingForAck);
 		}
 
         sendOldestMessageInQueue();
@@ -1505,5 +1552,6 @@ void TerpstraMidiDriver::clearMIDIMessageBuffer()
 { 
     messageBuffer.clear();
     hasMsgWaitingForAck = false;
-    this->listeners.call(&Listener::midiSendQueueSize, 0); 
+    // this->listeners.call(&Listener::midiSendQueueSize, 0); 
+    notifySendQueueSize();
 }
