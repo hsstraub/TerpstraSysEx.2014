@@ -650,3 +650,32 @@ namespace LumatoneEditorStyleIDs
     static Identifier roundedDiagonalCorners = Identifier("RoundedDiagonalCorners");
 
 }
+
+// LookAndFeel doesn't have Slider IncDec button access in drawIncDecButtonsBackground
+class TextButtonMouseHighlight : public TextButton
+{
+
+    Colour highlightColour;
+
+public:
+
+    TextButtonMouseHighlight(Colour highlightColourIn = Colour())
+        : highlightColour(highlightColourIn) {}
+
+    ~TextButtonMouseHighlight() {}
+
+    void paint(Graphics& g) override
+    {
+        TextButton::paint(g);
+
+        if (isEnabled() && isMouseOver())
+        {
+            auto bounds = getLocalBounds().toFloat();
+
+            Colour c = (isMouseButtonDown()) ? highlightColour.overlaidWith(Colours::white.withAlpha(0.1f))
+                                             : highlightColour;
+            g.setColour(c);
+            g.fillRoundedRectangle(bounds, getHeight() * 0.25f);
+        }
+    }
+};

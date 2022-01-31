@@ -507,6 +507,7 @@ public:
 
     void drawIncDecButtonsBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider& sld)
     {
+        
         //Rectangle<int> bounds(x, y, width, height);
         //g.setColour(Colours::red);
         //g.fillRect(bounds);
@@ -532,16 +533,12 @@ public:
 
     Button* createSliderButton(Slider& sld, bool isIncrement) override
     {
-        auto btn = new TextButton();
+        auto btn = new TextButtonMouseHighlight(Colours::white.withAlpha(0.2f));
 
         btn->setColour(TextButton::ColourIds::buttonColourId, Colour());
         btn->setColour(TextButton::ColourIds::buttonOnColourId, Colour());
 
         Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
-        
-        if (!sld.isEnabled())
-            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
-
         btn->setColour(TextButton::ColourIds::textColourOnId, textColour);
         btn->setColour(TextButton::ColourIds::textColourOffId, textColour);
 
