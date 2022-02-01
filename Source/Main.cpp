@@ -767,8 +767,8 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 		AlertWindow::showYesNoCancelBox(
 			AlertWindow::AlertIconType::QuestionIcon,
 			"Request configuration from device",
-			"The controller's current configuration will be received now. This will overwrite all edits you have done. Do you want to save them first?",
-			"Yes", "No", "Cancel", nullptr,
+			"Lumatone's layout will now be imported. This will overwrite your unsaved changes. Do you want to save them first?",
+			"Save to file", "Import anyway", "Cancel import", nullptr,
 			ModalCallbackFunction::create([&](int retc)
 			{
 				if (retc == 0)

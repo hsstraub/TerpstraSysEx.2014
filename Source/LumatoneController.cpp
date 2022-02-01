@@ -1178,6 +1178,7 @@ void LumatoneController::confirmAutoConnection()
 {
     if (midiDriver.hasDevicesDefined() && !currentDevicePairConfirmed)
     {
+        // I don't know why the Lumatone sometimes doesn't respond to this the first time
         if (connectedSerialNumber.isEmpty())
             sendGetSerialIdentityRequest();
         else

@@ -419,7 +419,8 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		switch (sysExSendingMode)
 		{
 		case LumatoneController::sysExSendingMode::liveEditor:
-			onOpenConnectionToDevice(translate("Switch to Live Mode"));
+            if (TerpstraSysExApplication::getApp().getHasChangesToSave())
+                onOpenConnectionToDevice(translate("Switch to Live Mode with unsaved changes"));
 			break;
 
 		case LumatoneController::sysExSendingMode::offlineEditor:
@@ -570,20 +571,9 @@ void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0);
 
-	//jassert(alert == nullptr);
-	// This can get spammed, and needs a real solution, but for now this will prevent it in releases - Vito
-	// UPDATE 2021-12-18: Unsure about the state of this issue with the asynchronous model
-	//if (alert == nullptr)
-	//{
 	if (dialogTitle.length() == 0)
 		dialogTitle = translate("Connection Established!");
 
-	//auto alert = AlertWindow(dialogTitle, translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent());
-	//alert.addButton("Send Editor Layout", 1);
-	//alert.addButton("Keep Editing Offline", 0);
-	//alert.addButton("Import From Lumatone", 2);
-	//alert->setLookAndFeel(&lookAndFeel);
-    
     jassert(!isWaitingForUserChoice);
     if (isWaitingForUserChoice)
     {
