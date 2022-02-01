@@ -445,7 +445,7 @@ private:
     const int                   bufferReadSize = 16;
     bool                        bufferReadRequested = false;
 
-    std::atomic<int>            readQueueSize = 0;
+    std::atomic<int>            readQueueSize;
     int                         sendQueueSize = 0;
 
     int                         lastTestDeviceSent = -1;

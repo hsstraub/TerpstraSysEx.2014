@@ -13,7 +13,8 @@
 
 
 LumatoneController::LumatoneController()
-    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel())
+    : errorVisualizer(TerpstraSysExApplication::getApp().getLookAndFeel()),
+        readQueueSize(0)
 {
     reset(bufferReadSize);
     midiDriver.addMessageCollector(this);
@@ -41,7 +42,7 @@ void LumatoneController::runSendCrashTest()
         bool opened = TerpstraSysExApplication::getApp().setCurrentFile(file);
     }
     
-    callAfterDelay(3500, [&]() { runSendCrashTest(); });
+    callAfterDelay(4000, [&]() { runSendCrashTest(); });
 }
 
 void LumatoneController::setSysExSendingMode(sysExSendingMode newMode)
