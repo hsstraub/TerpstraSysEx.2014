@@ -303,7 +303,12 @@ void MainContentComponent::buttonClicked(Button* btn)
         {
             colourEdit = noteEditArea->getColourEditComponent();
             paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
-			paletteWindow->listenToColourSelection(noteEditArea->getIsomorphicMassAssignPanel());
+            
+            // Shouldn't be necessary when Isomorphic is moved from dev to public
+            auto isomorphicPanel = noteEditArea->getIsomorphicMassAssignPanel();
+            if (isomorphicPanel != nullptr)
+                paletteWindow->listenToColourSelection(isomorphicPanel);
+            
 			paletteWindow->addColourSelectorToGroup(noteEditArea.get());
 			paletteWindow->setCurrentColourSelector(noteEditArea->getSingleNoteColourTextEditor());
         }
