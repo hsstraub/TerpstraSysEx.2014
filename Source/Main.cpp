@@ -708,6 +708,12 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 	}
 }
 
+bool TerpstraSysExApplication::setCurrentFile(File fileToOpen)
+{
+    currentFile = fileToOpen;
+    return openFromCurrentFile();
+}
+
 // Saves the current mapping to file, specified in currentFile.
 bool TerpstraSysExApplication::saveCurrentFile()
 {

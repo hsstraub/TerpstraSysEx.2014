@@ -28,23 +28,6 @@ LumatoneController::~LumatoneController()
 
 }
 
-void LumatoneController::runSendCrashTest()
-{
-    auto dir = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("Lumatone Editor").getChildFile("Mappings");
-    auto mappings = dir.findChildFiles(File::TypesOfFileToFind::findFiles, false);
-    auto numfiles = mappings.size();
-    auto r = Random();
-    auto fileIndex = r.nextInt(numfiles-1);
-    auto file = mappings[fileIndex];
-    if (file.exists() && file.hasFileExtension(".ltn"))
-    {
-        DBG("Found " + String(numfiles) + " files, loading " + file.getFileName());
-        bool opened = TerpstraSysExApplication::getApp().setCurrentFile(file);
-    }
-    
-    callAfterDelay(4000, [&]() { runSendCrashTest(); });
-}
-
 void LumatoneController::setSysExSendingMode(sysExSendingMode newMode)
 {
     // Might be worth it to provide further context of commands, such as which ones are mutable or not
@@ -1211,8 +1194,6 @@ void LumatoneController::onConnectionConfirmed(bool sendChangeSignal)
 
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastInputDeviceId", midiDriver.getLastMidiInputInfo().identifier);
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastOutputDeviceId", midiDriver.getLastMidiOutputInfo().identifier);
-    
-    callAfterDelay(1000, [&]() { runSendCrashTest(); });
 }
 
 void LumatoneController::onDisconnection()
@@ -1261,3 +1242,24 @@ void LumatoneController::onFirmwareUpdateReceived()
     }
 }
 
+void LumatoneController::loadRandomMappings(int testTimeoutMs,  int maxIterations, int i)
+{
+    auto dir = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("Lumatone Editor").getChildFile("Mappings");
+    auto mappings = dir.findChildFiles(File::TypesOfFileToFind::findFiles, false);
+    auto numfiles = mappings.size();
+    auto r = Random();
+        
+    auto fileIndex = r.nextInt(numfiles-1);
+    auto file = mappings[fileIndex];
+
+    if (file.exists() && file.hasFileExtension(".ltn"))
+    {
+        DBG("Found " + String(numfiles) + " files, loading " + file.getFileName());
+        bool opened = TerpstraSysExApplication::getApp().setCurrentFile(file);
+    }
+    
+    if (i < maxIterations)
+        callAfterDelay(testTimeoutMs, [&]() { loadRandomMappings(testTimeoutMs, maxIterations, i + 1); });
+    else
+        DBG("Finished random mappings test.");
+}

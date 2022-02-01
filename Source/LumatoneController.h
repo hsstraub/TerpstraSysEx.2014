@@ -40,8 +40,6 @@ public:
     LumatoneController();
     ~LumatoneController();
     
-    void runSendCrashTest();
-
     //============================================================================
     // Methods to configure firmware communication parameters
 
@@ -247,6 +245,13 @@ public:
     // juce::ChangeListener implementation
 
     void changeListenerCallback(ChangeBroadcaster* source) override;
+
+
+    //============================================================================
+    // Test functions
+
+    void loadRandomMappings(int testTimeoutMs, int maxIterations, int i = 0);
+    
 
 protected:
     //============================================================================
