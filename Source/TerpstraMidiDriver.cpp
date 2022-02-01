@@ -60,11 +60,6 @@ void TerpstraMidiDriver::notifyNoAnswerToMessage(MidiInput* expectedDevice, cons
     for (auto collector : collectors) collector->noAnswerToMessage(expectedDevice, midiMessage);
 }
 
-void TerpstraMidiDriver::notifyTestMessageReceived(int testInputIndex, const MidiMessage& midiMessage)
-{
-    for (auto collector : collectors) collector->testMessageReceived(testInputIndex, midiMessage);
-}
-
 /*
 ==============================================================================
 Single (mid-level) commands, firmware specific
@@ -509,7 +504,9 @@ void TerpstraMidiDriver::ping(uint8 value1, uint8 value2, uint8 value3, int send
     if (sendToTestDevice < 0)
         sendSysEx(0, LUMA_PING, TEST_ECHO, value1, value2, value3);
     else if (sendToTestDevice < midiOutputs.size())
+    {
         sendTestMessageNow(sendToTestDevice, createTerpstraSysEx(0, LUMA_PING, TEST_ECHO, value1, value2, value3));
+    }
 }
 
 // CMD 33h: Echo the payload, 0x00-0x7f, for use in connection monitoring
@@ -1420,11 +1417,10 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
         currentMsgWaitingForAck = messageBuffer[0];     // oldest element in buffer
         hasMsgWaitingForAck = true;
 		messageBuffer.remove(0);                        // remove from buffer
-		{
-			// const MessageManagerLock mmLock;
-			// this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
-            notifySendQueueSize();
-		}
+        
+        // const MessageManagerLock mmLock;
+        // this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
+        notifySendQueueSize();
 
         sendCurrentMessage();
     }
@@ -1447,12 +1443,10 @@ void TerpstraMidiDriver::sendCurrentMessage()
     sendMessageNow(currentMsgWaitingForAck);        // send it
 
     // Notify listeners
-	{
-        DBG("SENT    : " + currentMsgWaitingForAck.getDescription());
-		// const MessageManagerLock mmLock;
-		// this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
-        notifyMessageSent(midiOutput, currentMsgWaitingForAck);
-	}
+    DBG("SENT: " + currentMsgWaitingForAck.getDescription());
+    // const MessageManagerLock mmLock;
+    // this->listeners.call(&Listener::midiMessageSent, currentMsgWaitingForAck);
+    notifyMessageSent(midiOutput, currentMsgWaitingForAck);
 
     timerType = waitForAnswer;
     startTimer(receiveTimeoutInMilliseconds);       // Start waiting for answer
@@ -1460,45 +1454,35 @@ void TerpstraMidiDriver::sendCurrentMessage()
 
 void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-    // Notify listeners
-	{
-        String msgStr = message.getDescription();
-        if (message.isMetaEvent())
-            msgStr += ": Type " + String(message.getMetaEventType()) + ", Length: " + String(message.getMetaEventLength());
-        DBG("RCVD: " + msgStr);
-    }
-//		const MessageManagerLock mmLock;
-        
-        // DEBUG
-        if (message.isSysEx())
-            DBG("RECEIVED: " + message.getDescription());
+#if JUCE_DEBUG
+    if (message.isSysEx())
+        DBG("RCVD: " + message.getDescription());
+#endif
 
+//      const MessageManagerLock mmLock;
 //		this->listeners.call(&Listener::midiMessageReceived, source, message);
-
-    auto testInput = testInputs.indexOf(source);
-    if (testInput >= 0)
-        notifyTestMessageReceived(testInput, message);
-    else
-        notifyMessageReceived(source, message);
+    notifyMessageReceived(source, message);
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
     {
-         jassert(timerType == waitForAnswer);
+        jassert(timerType == waitForAnswer);
 
         // Answer has come, we can stop the timer
         stopTimer();
 
         // Check answer state (error yes/no)
         auto answerState = message.getSysExData()[5];
-        // if answer state is "busy": resend message after a little delay
+        
+        // This would be nice but we can't be sure the state is demo mode
 //        if (answerState == TerpstraMIDIAnswerReturnCode::STATE)
 //        {
 //            // turn demo mode off
 //            startDemoMode(false);
 //        }
 
-        if ( answerState == TerpstraMIDIAnswerReturnCode::BUSY)
+        // if answer state is "busy": resend message after a little delay
+        if (answerState == TerpstraMIDIAnswerReturnCode::BUSY)
         {
             // Start delay timer, after which message will be sent again
             timerType = delayWhileDeviceBusy;
@@ -1528,14 +1512,14 @@ void TerpstraMidiDriver::timerCallback()
         hasMsgWaitingForAck = false;
 
         // No answer came from MIDI input
-		{
-            DBG("DRIVER: NO ANSWER");
-			//const MessageManagerLock mmLock;
-			// listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
-            // listeners.call(&Listener::noAnswerToMessage, currentMsgWaitingForAck);
-            notifyLogMessage("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
-            notifyNoAnswerToMessage(midiInput, currentMsgWaitingForAck);
-		}
+		
+        DBG("DRIVER: NO ANSWER");
+        //const MessageManagerLock mmLock;
+        // listeners.call(&Listener::generalLogMessage, "No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+        // listeners.call(&Listener::noAnswerToMessage, currentMsgWaitingForAck);
+        notifyLogMessage("No answer from device", HajuErrorVisualizer::ErrorLevel::error);
+        notifyNoAnswerToMessage(midiInput, currentMsgWaitingForAck);
+    
 
         sendOldestMessageInQueue();
     }

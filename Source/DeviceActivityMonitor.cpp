@@ -402,7 +402,7 @@ void DeviceActivityMonitor::timerCallback()
     }
 }
 
-void DeviceActivityMonitor::handleResponse(int testInputIndex, const MidiMessage& msg)
+void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessage& msg)
 {
     if (msg.isSysEx())
     {
@@ -451,7 +451,7 @@ void DeviceActivityMonitor::handleResponse(int testInputIndex, const MidiMessage
                 switch (cmd)
                 {
                 case GET_SERIAL_IDENTITY:
-                    onSerialIdentityResponse(msg, testInputIndex);
+                    onSerialIdentityResponse(msg, inputDeviceIndex);
                     break;
 
                 case CALIBRATE_PITCH_MOD_WHEEL:
@@ -469,7 +469,7 @@ void DeviceActivityMonitor::handleResponse(int testInputIndex, const MidiMessage
                     break;
 
                 case LUMA_PING:
-                    onPingResponse(msg, testInputIndex);
+                    onPingResponse(msg, inputDeviceIndex);
                     break;
 
                 default:
@@ -508,13 +508,9 @@ void DeviceActivityMonitor::handleResponse(int testInputIndex, const MidiMessage
 
 void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMessage& msg)
 {
-    // TODO: implement separate queue for handling
-    handleResponse(-1, msg);
-}
-
-void DeviceActivityMonitor::testMessageReceived(int testInputIndex, const MidiMessage& msg)
-{
-    handleResponse(testInputIndex, msg);
+    int deviceIndex = (source == nullptr) ? -1
+                                          : midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
+    handleResponse(deviceIndex, msg);
 }
 
 void DeviceActivityMonitor::noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)

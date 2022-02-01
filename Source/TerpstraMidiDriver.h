@@ -41,7 +41,7 @@ public:
 
 		// Realtime messages before a device is connected - not for heavy processing!
 		virtual void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& message) = 0;
-		virtual void testMessageReceived(int testInputIndex, const MidiMessage& midiMessage) {};
+//		virtual void testMessageReceived(int testInputIndex, const MidiMessage& midiMessage) {};
     };
 
 private:
@@ -51,7 +51,7 @@ private:
 	void notifySendQueueSize();
 	void notifyLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel);
     void notifyNoAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage);
-	void notifyTestMessageReceived(int testInputIndex, const MidiMessage& midiMessage);
+//	void notifyTestMessageReceived(int testInputIndex, const MidiMessage& midiMessage);
 
 private:
     typedef enum

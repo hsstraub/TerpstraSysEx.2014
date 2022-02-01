@@ -92,6 +92,7 @@ private:
 
     bool                        isConnected = false;
     bool                        isWaitingForConnectionTest = false;
+    bool                        isWaitingForUserChoice = false;
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
 

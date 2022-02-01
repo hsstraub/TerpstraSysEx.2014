@@ -242,7 +242,7 @@ void HajuMidiDriver::sendTestMessageNow(int outputDeviceIndex, const MidiMessage
     if (outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
     {
         //DBG("Sending this message to " + testOutputs[outputDeviceIndex]->getName() + ":");
-        //DBG("          " + message.getDescription());
+        DBG("TEST: " + message.getDescription());
         testOutputs.getUnchecked(outputDeviceIndex)->sendMessageNow(message);
     }
 }

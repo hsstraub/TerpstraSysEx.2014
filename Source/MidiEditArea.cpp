@@ -578,22 +578,28 @@ void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 	if (dialogTitle.length() == 0)
 		dialogTitle = translate("Connection Established!");
 
-	// Get firmware version so we can use the correct commands
-	TerpstraSysExApplication::getApp().getLumatoneController()->sendGetFirmwareRevisionRequest();
-
 	//auto alert = AlertWindow(dialogTitle, translate("Do you want to send the current setup to your Lumatone?"), AlertWindow::AlertIconType::QuestionIcon, getParentComponent());
 	//alert.addButton("Send Editor Layout", 1);
 	//alert.addButton("Keep Editing Offline", 0);
 	//alert.addButton("Import From Lumatone", 2);
 	//alert->setLookAndFeel(&lookAndFeel);
+    
+    jassert(!isWaitingForUserChoice);
+    if (isWaitingForUserChoice)
+    {
+        DBG("Bad connection loop detected");
+        return;
+    }
+    
+    isWaitingForUserChoice = true;
 
 	auto alertOptions = MessageBoxOptions().withTitle(dialogTitle)
-		.withMessage(translate("Do you want to send the current setup to your Lumatone?"))
-		.withIconType(AlertWindow::AlertIconType::QuestionIcon)
-		.withAssociatedComponent(getParentComponent())
-		.withButton("Send Editor Layout")
-		.withButton("Keep Editing Offline")
-		.withButton("Import From Lumatone");
+                                           .withMessage(translate("Do you want to send the current setup to your Lumatone?"))
+                                           .withIconType(AlertWindow::AlertIconType::QuestionIcon)
+                                           .withAssociatedComponent(getParentComponent())
+                                           .withButton("Send Editor Layout")
+                                           .withButton("Keep Editing Offline")
+                                           .withButton("Import From Lumatone");
 	
 	AlertWindow::showAsync(alertOptions, [&](int retc)
 		{
@@ -614,11 +620,9 @@ void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 				offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
 				lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
 			}
+        
+            isWaitingForUserChoice = false;
 		});
-
-		//alert->setLookAndFeel(nullptr);
-		//alert = nullptr;
-	//}
 }
 
 void MidiEditArea::refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType)

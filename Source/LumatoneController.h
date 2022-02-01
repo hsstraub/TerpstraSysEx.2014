@@ -51,12 +51,6 @@ public:
     LumatoneFirmwareVersion getConfirmedVersion() const { return determinedVersion; }
 
     const FirmwareSupport& getFirmwareSupport() const { return firmwareSupport; }
-    
-    // Takes a generic firmware version and parses it into a recognized firmware version
-    void setFirmwareVersion(FirmwareVersion firmwareVersionIn);
-
-    // Takes a recognized firmware version
-    void setFirmwareVersion(LumatoneFirmwareVersion lumatoneVersion, bool parseVersion = true);
 
     int getOctaveSize() const { return octaveSize; }
 
@@ -250,7 +244,15 @@ public:
     //============================================================================
     // Test functions
 
-    void loadRandomMappings(int testTimeoutMs, int maxIterations, int i = 0);
+    void loadRandomMapping(int testTimeoutMs, int maxIterations, int i = 0);
+    
+private:
+    
+    // Takes a generic firmware version and parses it into a recognized firmware version
+    void setFirmwareVersion(FirmwareVersion firmwareVersionIn);
+
+    // Takes a recognized firmware version
+    void setFirmwareVersion(LumatoneFirmwareVersion lumatoneVersion, bool parseVersion = true);
     
 
 protected:
@@ -281,9 +283,8 @@ public:
 
 private:
     
-    void testResponseReceived();
-
-    void onConnectionConfirmed(bool sendChangeSignal);
+    void confirmAutoConnection();
+    void onConnectionConfirm(bool sendChangeSignal);
     void onDisconnection();
     void onFirmwareUpdateReceived();
 

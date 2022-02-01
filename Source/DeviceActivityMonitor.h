@@ -113,7 +113,7 @@ private:
     /// </summary>
     /// <param name="testInputIndex"></param>
     /// <param name="midiMessage"></param>
-    void handleResponse(int testInputIndex, const MidiMessage& midiMessage);
+    void handleResponse(int inputDeviceIndex, const MidiMessage& midiMessage);
 
 
 private:
@@ -141,8 +141,6 @@ protected:
     void midiSendQueueSize(int queueSizeIn) override { sentQueueSize = queueSizeIn; }
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
     void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage) override;
-
-    void testMessageReceived(int testInputIndex, const MidiMessage& midiMessage) override;
 
 private:
 
