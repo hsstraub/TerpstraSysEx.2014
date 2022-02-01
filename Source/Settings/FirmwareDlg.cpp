@@ -44,7 +44,6 @@ FirmwareDlg::FirmwareDlg()
     infoBox->setMouseClickGrabsKeyboardFocus(false);
     infoBox->setReadOnly(true);
     infoBox->setMultiLine(true);
-    infoBox->insertTextAtCaret(translate("Select a firmware file and then click \"Begin Update\""));
     infoBox->setColour(TextEditor::ColourIds::backgroundColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::ControlBoxBackground));
     infoBox->setColour(TextEditor::ColourIds::textColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
     infoBox->setColour(ScrollBar::ColourIds::thumbColourId, Colour(0xff2d3135));
@@ -56,6 +55,8 @@ FirmwareDlg::FirmwareDlg()
     updateFirmwareVersionLabel();
 
     TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
+
+    postMessage(translate("Select a firmware file and then click \"Begin Update\""));
 
     //if (!updateIsAvailable)
     //{
@@ -111,7 +112,8 @@ void FirmwareDlg::buttonClicked(Button* btn)
         }
         else
         {
-            infoBox->setText(infoBox->getText() + "Error: Not a valid firmware file...");
+            postMessage("Error: Not a valid firmware file...");
+            //infoBox->setText();
         }
     }
 }
@@ -144,9 +146,7 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
 
     if (msg != "")
     {
-        msgLog += (msg + "\n");
-        infoNeedsUpdate = true;
-        startTimer(infoUpdateTimeoutMs);
+        postMessage(msg);
     }
 }
 

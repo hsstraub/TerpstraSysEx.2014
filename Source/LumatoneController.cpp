@@ -585,10 +585,10 @@ void LumatoneController::generalLogMessage(String textMessage, HajuErrorVisualiz
 
 void LumatoneController::noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
 {
-    if (midiMessage.isSysEx())
-    {
-        callAfterDelay(bufferReadTimeoutMs, [&]() { firmwareListeners.call(&FirmwareListener::noAnswerToCommand, midiMessage.getSysExData()[CMD_ID]); });
-    }
+    //if (midiMessage.isSysEx())
+    //{
+    //    callAfterDelay(bufferReadTimeoutMs, [&]() { firmwareListeners.call(&FirmwareListener::noAnswerToCommand, midiMessage.getSysExData()[CMD_ID]); });
+    //}
 }
 
 FirmwareSupport::Error LumatoneController::handleOctaveConfigResponse(
@@ -907,6 +907,8 @@ void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode sta
 
     case FirmwareTransfer::StatusCode::InstallBegin:
         editingMode = sysExSendingMode::firmwareUpdate;
+        midiDriver.closeMidiInput();
+        midiDriver.closeMidiOutput();
         startTimer(UPDATETIMEOUT);
         break;
             
@@ -1158,12 +1160,15 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 
         if (newInput >= 0 && newOutput >= 0)
         {
-            // This should not get triggered if we already connected
-            jassert(!midiDriver.hasDevicesDefined());
-            
             midiDriver.setMidiInput(newInput);
             midiDriver.setMidiOutput(newOutput);
-            
+
+            if (editingMode == sysExSendingMode::firmwareUpdate)
+            {
+                confirmAutoConnection();
+                return;
+            }
+
             // Confirm connection via handleSerialIdentityResponse or handlePingResponse
             return;
         }
@@ -1238,6 +1243,7 @@ void LumatoneController::onFirmwareUpdateReceived()
         determinedVersion = possibleUpdate;
 
         editingMode = sysExSendingMode::liveEditor;
+        currentDevicePairConfirmed = true;
         firmwareListeners.call(&FirmwareListener::firmwareRevisionReceived, firmwareVersion);
         firmwareTransfer->signalThreadShouldExit();
 
