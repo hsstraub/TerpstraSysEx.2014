@@ -102,7 +102,7 @@ public:
 
         flexBox.performLayout(viewportBounds);
         
-        float bottomMarginControlHeight = roundToInt(viewportBounds.proportionOfHeight(btmMarginCtrlScalar));
+        float bottomMarginControlHeight = roundToInt(viewportBounds.proportionOfWidth(btmMarginCtrlScalar));
         float bottomMarginControlSpace  = (bottomMargin - bottomMarginControlHeight) * 0.5f;
 
         for (int i = 0; i < controlGroups.size(); i++)
@@ -265,7 +265,7 @@ private:
     const float topMarginScalar         = 0.04f;
     const float horizontalMarginScalar  = 0.0367f;
     const float bottomMarginScalar      = 0.06f;
-    const float btmMarginCtrlScalar     = 0.02f;
+    const float btmMarginCtrlScalar     = 0.04f;
 
     const float buttonWidthScalar       = 0.333333f;
     const float buttonHeightScalar      = 0.166667f;
