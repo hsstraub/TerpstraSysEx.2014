@@ -28,6 +28,13 @@ public:
 	bool isEmpty() const { return channelNumber == 0; }
 
     bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType || ccFaderDefault != second.ccFaderDefault; }
+    
+    // Chainable setters
+    TerpstraKey withKeyType(LumatoneKeyType type) const { return TerpstraKey(type, channelNumber, noteNumber, colour, ccFaderDefault); }
+    TerpstraKey withColour(Colour newColour) const { return TerpstraKey(keyType, channelNumber, noteNumber, newColour, ccFaderDefault); }
+    TerpstraKey withNoteOrCC(int noteOrCC) const { return TerpstraKey(keyType, channelNumber, noteOrCC, colour, ccFaderDefault); }
+    TerpstraKey withChannelNumber(int channel) const { return TerpstraKey(keyType, channel, noteNumber, colour, ccFaderDefault); }
+    TerpstraKey withInvertCCFader(bool invertCCFader) const { return TerpstraKey(keyType, channelNumber, noteNumber, colour, invertCCFader); }
 
 public:
 	int			noteNumber;
