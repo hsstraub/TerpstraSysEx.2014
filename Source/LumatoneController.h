@@ -53,6 +53,8 @@ public:
     const FirmwareSupport& getFirmwareSupport() const { return firmwareSupport; }
 
     int getOctaveSize() const { return octaveSize; }
+    
+    int getNumBoards() const { return BOARD_OCT_5; } // TODO: Set variable based on serial/version
 
     void refreshAvailableMidiDevices();
 
