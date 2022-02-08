@@ -153,13 +153,63 @@ bool MainContentComponent::copyCurrentSubBoardData()
 UndoableAction* MainContentComponent::createPasteCurrentSectionAction()
 {
 	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
-	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize()
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getNumBoards()
 		&& !copiedSubBoardData.isEmpty())
 	{
 		return new Lumatone::SectionEditAction(currentSetSelection, copiedSubBoardData);
 	}
 	else
 		return nullptr;
+}
+
+UndoableAction* MainContentComponent::createModifiedPasteCurrentSectionAction(CommandID commandID)
+{
+    auto currentSetSelectionIndex = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+    if (currentSetSelectionIndex >= 0 && currentSetSelectionIndex < TerpstraSysExApplication::getApp().getNumBoards()
+        && !copiedSubBoardData.isEmpty())
+    {
+        auto modifiedSubBoardData = copiedSubBoardData;
+        auto octaveSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
+        
+        for (int i = 0; i < octaveSize; i++)
+        {
+            auto currentSectionKey = mappingData.sets[currentSetSelectionIndex].theKeys[i];
+            auto modifiedKey = modifiedSubBoardData.theKeys[i];
+            
+            switch (commandID)
+            {
+            case Lumatone::Menu::commandIDs::pasteOctaveBoardNotes:
+                modifiedKey = currentSectionKey.withNoteOrCC(modifiedKey.noteNumber);
+                break;
+                    
+            case Lumatone::Menu::commandIDs::pasteOctaveBoardChannels:
+                modifiedKey = currentSectionKey.withChannelNumber(modifiedKey.channelNumber);
+                break;
+                    
+            case Lumatone::Menu::commandIDs::pasteOctaveBoardColours:
+                modifiedKey = currentSectionKey.withColour(modifiedKey.colour);
+                break;
+                    
+            case Lumatone::Menu::commandIDs::pasteOctaveBoardTypes:
+                modifiedKey = currentSectionKey.withKeyType(modifiedKey.keyType).withInvertCCFader(modifiedKey.ccFaderDefault);
+                break;
+                    
+            default:
+                jassertfalse;
+            }
+            
+            modifiedSubBoardData.theKeys[i] = modifiedKey;
+        }
+        
+        return new Lumatone::SectionEditAction(currentSetSelectionIndex, modifiedSubBoardData);
+    }
+    else
+        return nullptr;
+}
+
+bool MainContentComponent::canPasteCopiedSubBoard() const
+{
+    return !copiedSubBoardData.isEmpty();
 }
 
 bool MainContentComponent::setDeveloperMode(bool developerModeOn)

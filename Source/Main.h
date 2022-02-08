@@ -54,6 +54,7 @@ public:
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return lumatoneController->getOctaveSize(); }
+    int getNumBoards() const { return lumatoneController->getNumBoards(); }
 
 	FirmwareVersion getFirmwareVersion() const { return lumatoneController->getFirmwareVersion(); }
 	String getFirmwareVersionStr() const { return lumatoneController->getFirmwareVersion().toDisplayString(); }
@@ -78,6 +79,8 @@ public:
 	bool deleteSubBoardData();
 	bool copySubBoardData();
 	bool pasteSubBoardData();
+    bool pasteModifiedSubBoardData(CommandID commandID);
+    bool canPasteSubBoardData() const;
 
 	void setCalibrationMode(bool calibrationStarted) { inCalibrationMode = calibrationStarted; }
 	bool getInCalibrationMode() const { return inCalibrationMode; }
@@ -188,7 +191,7 @@ public:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 	};
 
-	MainContentComponent* getMainContentComponent();
+	MainContentComponent* getMainContentComponent() const;
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;

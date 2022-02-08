@@ -59,6 +59,8 @@ public:
 	UndoableAction* createDeleteCurrentSectionAction();
 	bool copyCurrentSubBoardData();
 	UndoableAction* createPasteCurrentSectionAction();
+    UndoableAction* createModifiedPasteCurrentSectionAction(CommandID commandID);
+    bool canPasteCopiedSubBoard() const;
 
 	bool setDeveloperMode(bool developerModeOn);
 

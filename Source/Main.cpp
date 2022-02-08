@@ -17,7 +17,7 @@
 
 //==============================================================================
 
-MainContentComponent* TerpstraSysExApplication::getMainContentComponent()
+MainContentComponent* TerpstraSysExApplication::getMainContentComponent() const
 {
 	jassert(mainWindow != nullptr);
 	return (MainContentComponent*)(mainWindow->getContentComponent());
@@ -326,6 +326,11 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		Lumatone::Menu::commandIDs::deleteOctaveBoard,
 		Lumatone::Menu::commandIDs::copyOctaveBoard,
 		Lumatone::Menu::commandIDs::pasteOctaveBoard,
+        Lumatone::Menu::commandIDs::pasteOctaveBoardChannels,
+        Lumatone::Menu::commandIDs::pasteOctaveBoardNotes,
+        Lumatone::Menu::commandIDs::pasteOctaveBoardColours,
+        Lumatone::Menu::commandIDs::pasteOctaveBoardTypes,
+        
 		Lumatone::Menu::commandIDs::undo,
 		Lumatone::Menu::commandIDs::redo,
 
@@ -372,10 +377,35 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		break;
 
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
-		result.setInfo("Paste section", "Paste current section data", "Edit", 0);
+		result.setInfo("Paste section", "Paste copied section data", "Edit", 0);
 		result.addDefaultKeypress('v', ModifierKeys::commandModifier);
+        result.setActive(canPasteSubBoardData());
 		break;
 
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardNotes:
+        result.setInfo("Paste notes", "Paste copied section notes", "Edit", 0);
+        result.addDefaultKeypress('v', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
+        result.setActive(canPasteSubBoardData());
+        break;
+
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardChannels:
+        result.setInfo("Paste channels", "Paste copied section channels", "Edit", 0);
+        result.addDefaultKeypress('v', ModifierKeys::commandModifier | ModifierKeys::altModifier);
+        result.setActive(canPasteSubBoardData());
+        break;
+            
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardColours:
+        result.setInfo("Paste colours", "Paste copied section colours", "Edit", 0);
+        result.addDefaultKeypress('v', ModifierKeys::altModifier);
+        result.setActive(canPasteSubBoardData());
+        break;
+            
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardTypes:
+        result.setInfo("Paste types", "Paste copied section key types", "Edit", 0);
+        result.addDefaultKeypress('v', ModifierKeys::altModifier | ModifierKeys::shiftModifier);
+        result.setActive(canPasteSubBoardData());
+        break;
+            
 	case Lumatone::Menu::commandIDs::undo:
 		result.setInfo("Undo", "Undo latest edit", "Edit", 0);
 		result.addDefaultKeypress('z', ModifierKeys::commandModifier);
@@ -418,13 +448,18 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return saveSysExMappingAs();
 	case Lumatone::Menu::commandIDs::resetSysExMapping:
 		return resetSysExMapping();
-	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
 
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
 		return deleteSubBoardData();
 	case Lumatone::Menu::commandIDs::copyOctaveBoard:
 		return copySubBoardData();
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardNotes:
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardChannels:
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardColours:
+    case Lumatone::Menu::commandIDs::pasteOctaveBoardTypes:
+        return pasteModifiedSubBoardData(info.commandID);
 
 	case Lumatone::Menu::commandIDs::undo:
 		return undo();
@@ -517,7 +552,29 @@ bool TerpstraSysExApplication::copySubBoardData()
 
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
-	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createPasteCurrentSectionAction());;
+	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createPasteCurrentSectionAction());
+}
+
+bool TerpstraSysExApplication::pasteModifiedSubBoardData(CommandID commandID)
+{
+    switch (commandID)
+    {
+    case Lumatone::Menu::pasteOctaveBoardNotes:
+    case Lumatone::Menu::pasteOctaveBoardColours:
+    case Lumatone::Menu::pasteOctaveBoardChannels:
+    case Lumatone::Menu::pasteOctaveBoardTypes:
+        return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createModifiedPasteCurrentSectionAction(commandID));
+    default:
+        jassertfalse;
+        return false;
+    }
+}
+
+bool TerpstraSysExApplication::canPasteSubBoardData() const
+{
+    if (mainWindow != nullptr)
+        return getMainContentComponent()->canPasteCopiedSubBoard();
+    return false;
 }
 
 bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
