@@ -562,7 +562,7 @@ void MidiEditArea::attemptDeviceConnection()
 	else
 	{
 		//isWaitingForConnectionTest = true;
-		//TerpstraSysExApplication::getApp().getLumatoneController()->testCurrentDeviceConnection();
+		TerpstraSysExApplication::getApp().getLumatoneController()->testCurrentDeviceConnection();
 		//jassert(isWaitingForConnectionTest); // Triggered if a test is requested before opening any devices
 	}
 }
