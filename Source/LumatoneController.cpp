@@ -585,10 +585,15 @@ void LumatoneController::generalLogMessage(String textMessage, HajuErrorVisualiz
 
 void LumatoneController::noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
 {
-    //if (midiMessage.isSysEx())
-    //{
+    if (midiMessage.isSysEx())
+    {
     //    callAfterDelay(bufferReadTimeoutMs, [&]() { firmwareListeners.call(&FirmwareListener::noAnswerToCommand, midiMessage.getSysExData()[CMD_ID]); });
-    //}
+        
+        if (!currentDevicePairConfirmed)
+        {
+            statusListeners.call(&StatusListener::connectionFailed);
+        }
+    }
 }
 
 FirmwareSupport::Error LumatoneController::handleOctaveConfigResponse(

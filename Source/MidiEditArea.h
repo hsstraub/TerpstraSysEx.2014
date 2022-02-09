@@ -60,7 +60,7 @@ public:
     void refreshOutputMenuAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
 	// Implementation of LumatoneController::StatusListener
-    //void availableDevicesChanged(const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) override;
+    void connectionFailed() override;
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
 
@@ -69,7 +69,7 @@ public:
 
 private:
 
-    void setConnectivity(bool isConnected);
+    void setConnectivity(bool isConnected, String connectionStatus=String());
 
 public:
     //[/UserMethods]

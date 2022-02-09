@@ -275,8 +275,9 @@ public:
     {
     public:
 
-        virtual void connectionEstablished(int inputMidiDevice, int outputMidiDevice) {};
-        virtual void connectionLost() {};
+        virtual void connectionFailed() {}
+        virtual void connectionEstablished(int inputMidiDevice, int outputMidiDevice) {}
+        virtual void connectionLost() {}
     };
 
     ListenerList<StatusListener> statusListeners;

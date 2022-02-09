@@ -453,7 +453,7 @@ void MidiEditArea::lookAndFeelChanged()
 	connectedColours.add(getLookAndFeel().findColour(LumatoneEditorColourIDs::ConnectedGreen));
 }
 
-void MidiEditArea::setConnectivity(bool isConnectedIn)
+void MidiEditArea::setConnectivity(bool isConnectedIn, String connectionStatus)
 {
 	bool isNotConnected = !isConnectedIn;
 
@@ -472,20 +472,32 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 
 	if (isConnected)
 	{
-		stopTimer();
-
 		if (liveEditorBtn->getToggleState())
-			lblConnectionState->setText(translate("Connected"), dontSendNotification);
+		{
+			if (connectionStatus.isEmpty())
+				connectionStatus = "Connected";
+			lblConnectionState->setText(translate(connectionStatus), dontSendNotification);
+		}
 		else
-			lblConnectionState->setText(translate("Offline"), dontSendNotification);
+		{
+			if (connectionStatus.isEmpty())
+				connectionStatus = "Offline";
+			lblConnectionState->setText(translate(connectionStatus), dontSendNotification);
+		}
 	}
 	else
 	{	
 		if (btnAutoConnect->getToggleState())
-			lblConnectionState->setText(translate("Searching for Lumatone..."), dontSendNotification);
+		{
+			if (connectionStatus.isEmpty())
+				connectionStatus = "Searching for Lumatone...";
+			lblConnectionState->setText(translate(connectionStatus), dontSendNotification);
+		}
 		else
 		{
-			lblConnectionState->setText(translate("Disconnected"), dontSendNotification);
+			if (connectionStatus.isEmpty())
+				connectionStatus = "Disconnected";
+			lblConnectionState->setText(translate(connectionStatus), dontSendNotification);
 			startTimer(deviceRefreshTimeoutMs);
 		}
 	}
@@ -508,6 +520,17 @@ void MidiEditArea::setConnectivity(bool isConnectedIn)
 //	}
 //}
 
+void MidiEditArea::connectionFailed()
+{
+	setConnectivity(false, "No answer");
+	//errorVisualizer.setErrorLevel(
+    //    *lblConnectionState.get(),
+    //    HajuErrorVisualizer::ErrorLevel::error,
+    //    "No answer...");
+	refreshInputMenuAndSetSelected(0, NotificationType::dontSendNotification);
+	refreshOutputMenuAndSetSelected(0, NotificationType::dontSendNotification);
+}
+
 void MidiEditArea::connectionEstablished(int inputDevice, int outputDevice)
 {
     if (inputDevice >= 0 && outputDevice >= 0)
@@ -528,21 +551,17 @@ void MidiEditArea::connectionEstablished(int inputDevice, int outputDevice)
 
 void MidiEditArea::connectionLost()
 {
+	// Lost should only happen after connection is established
+	jassert(isConnected);
+
 	if (!btnAutoConnect->getToggleState())
 		startTimer(deviceRefreshTimeoutMs);
 
-	if (isWaitingForConnectionTest)
-	{
-		lblConnectionState->setText(translate("No answer"), NotificationType::dontSendNotification);
-		//errorVisualizer.setErrorLevel(
-		//    *lblConnectionState.get(),
-		//    HajuErrorVisualizer::ErrorLevel::error,
-		//    "No answer");
-	}
 	else
-	{
-		setConnectivity(false);
-	}
+    {
+        refreshInputMenuAndSetSelected(0, NotificationType::dontSendNotification);
+        refreshOutputMenuAndSetSelected(0, NotificationType::sendNotificationAsync);
+    }
 }
 
 void MidiEditArea::attemptDeviceConnection()
