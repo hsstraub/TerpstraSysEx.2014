@@ -120,10 +120,13 @@ bool HajuMidiDriver::refreshDeviceLists()
 
 void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
-    jassert(deviceIndex >= 0 && deviceIndex < midiInputs.size());
+    jassert(deviceIndex < midiInputs.size());
 
     testInputs.clear();
     closeMidiInput();
+
+    if (deviceIndex < 0)
+        return;
     
     DBG("Trying to open input device: " + midiInputs[deviceIndex].name);
     selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
@@ -144,10 +147,13 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
-    jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
+    jassert(deviceIndex < midiOutputs.size());
 
     testOutputs.clear();
     closeMidiOutput();
+
+    if (deviceIndex < 0)
+        return;
 
     DBG("Trying to open output device: " + midiOutputs[deviceIndex].name);
     selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);

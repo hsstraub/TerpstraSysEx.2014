@@ -348,7 +348,8 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			attemptDeviceConnection();
+			jassert(!isConnected);
+			lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
 		}
         //[/UserComboBoxCode_cbMidiInput]
     }
@@ -368,7 +369,8 @@ void MidiEditArea::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			attemptDeviceConnection();
+			jassert(!isConnected);
+			lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
 		}
         //[/UserComboBoxCode_cbMidiOutput]
     }
@@ -508,18 +510,6 @@ void MidiEditArea::setConnectivity(bool isConnectedIn, String connectionStatus)
 	repaint();
 }
 
-// Called when DeviceActivityMonitor detects a change in devices
-
-//void MidiEditArea::connectionChanged(bool hasConnection)
-//{
-//	if (hasConnection && btnAutoConnect->getToggleState() == false)
-//	{
-//		DBG("MIDIAREA SETTING DEVICES");
-//		TerpstraSysExApplication::getApp().getLumatoneController()->setMidiInput(cbMidiInput->getSelectedId() - 1);
-//		TerpstraSysExApplication::getApp().getLumatoneController()->setMidiOutput(cbMidiOutput->getSelectedId() - 1);
-//	}
-//}
-
 void MidiEditArea::connectionFailed()
 {
 	setConnectivity(false, "No answer");
@@ -527,8 +517,8 @@ void MidiEditArea::connectionFailed()
     //    *lblConnectionState.get(),
     //    HajuErrorVisualizer::ErrorLevel::error,
     //    "No answer...");
-	refreshInputMenuAndSetSelected(0, NotificationType::dontSendNotification);
-	refreshOutputMenuAndSetSelected(0, NotificationType::dontSendNotification);
+	TerpstraSysExApplication::getApp().getLumatoneController()->setMidiInput(-1);
+	TerpstraSysExApplication::getApp().getLumatoneController()->setMidiOutput(-1);
 }
 
 void MidiEditArea::connectionEstablished(int inputDevice, int outputDevice)
@@ -562,28 +552,6 @@ void MidiEditArea::connectionLost()
         refreshInputMenuAndSetSelected(0, NotificationType::dontSendNotification);
         refreshOutputMenuAndSetSelected(0, NotificationType::sendNotificationAsync);
     }
-}
-
-void MidiEditArea::attemptDeviceConnection()
-{
-    jassert(!isConnected);
-
-    lblConnectionState->setText("Connecting...", NotificationType::dontSendNotification);
-    //errorVisualizer.setErrorLevel(
-    //    *lblConnectionState.get(),
-    //    HajuErrorVisualizer::ErrorLevel::noError,
-    //    "Connecting...");
-
-	if (TerpstraSysExApplication::getApp().getLumatoneController()->isConnected())
-	{
-		onOpenConnectionToDevice();
-	}
-	else
-	{
-		//isWaitingForConnectionTest = true;
-		TerpstraSysExApplication::getApp().getLumatoneController()->testCurrentDeviceConnection();
-		//jassert(isWaitingForConnectionTest); // Triggered if a test is requested before opening any devices
-	}
 }
 
 void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
@@ -641,7 +609,7 @@ void MidiEditArea::refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::No
 	for (auto device : TerpstraSysExApplication::getApp().getLumatoneController()->getMidiInputList())
 		cbMidiInput->addItem(device.name, i++);
 
-	if (inputDeviceIndex > 0)
+	if (inputDeviceIndex >= 0)
 		cbMidiInput->setSelectedId(inputDeviceIndex, notificationType);
 }
 
@@ -652,7 +620,7 @@ void MidiEditArea::refreshOutputMenuAndSetSelected(int outputDeviceIndex, juce::
 	for (auto device : TerpstraSysExApplication::getApp().getLumatoneController()->getMidiOutputList())
 		cbMidiOutput->addItem(device.name, i++);
 
-	if (outputDeviceIndex > 0)
+	if (outputDeviceIndex >= 0)
 		cbMidiOutput->setSelectedId(outputDeviceIndex, notificationType);
 }
 
