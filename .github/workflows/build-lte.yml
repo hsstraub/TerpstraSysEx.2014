@@ -35,4 +35,32 @@ jobs:
           name: LumatoneSetup-Linux
           path: Builds/Linux/build/LumatoneSetup
 
+  build-lte-macos:
+    name: Build Lumatone Editor (macOS)
 
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install JUCE to $HOME
+        run: |
+          wget https://github.com/juce-framework/JUCE/releases/download/6.1.5/juce-6.1.5-osx.zip
+          unzip -d ~ juce-6.1.5-osx.zip
+      - name: Prepare dependencies
+        run: |
+          sudo mkdir -p /Users/soundtoys/Programming/Vito/TerpstraSysEx.2014
+          sudo cp -r Libraries /Users/soundtoys/Programming/Vito/TerpstraSysEx.2014
+      - name: Build Lumatone Editor
+        run: |
+          ~/JUCE/Projucer.app/Contents/MacOS/Projucer --resave TerpstraSysEx.jucer
+          cd Builds/MacOSX
+          xcodebuild -configuration Release
+      - name: List build directory
+        run: |
+          cd Builds/MacOSX
+          find .
+      - name: Upload Lumatone Editor
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneSetup-macOS
+          path: Builds/MacOSX/build/Release
