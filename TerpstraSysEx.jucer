@@ -366,7 +366,7 @@
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
                        libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"
-                       headerPath="$(ProjectDir)..\..\Libraries\win64\include"/>
+                       headerPath="$(ProjectDir)..\..\Libraries\win64\include" defines="JUCE_MODAL_LOOPS_PERMITTED=1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>
