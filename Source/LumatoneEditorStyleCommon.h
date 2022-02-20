@@ -101,7 +101,7 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     {
         yTo = endpoint.y - roundedCornerSize;
         rect.lineTo(endpoint.x, yTo);
-        rect.addArc(endpoint.x - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, float_Pi);
+        rect.addArc(endpoint.x - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, MathConstants<float>::pi);
     }
 
     if (connectedFlags & Button::ConnectedEdgeFlags::ConnectedOnBottom || connectedFlags & Button::ConnectedEdgeFlags::ConnectedOnLeft)
@@ -111,7 +111,7 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     else
     {
         rect.lineTo(roundedCornerSize, endpoint.y);
-        rect.addArc(origin.x, endpoint.y - roundedCornerSize, roundedCornerSize, roundedCornerSize, -float_Pi, PATH_PI_2_CCW);
+        rect.addArc(origin.x, endpoint.y - roundedCornerSize, roundedCornerSize, roundedCornerSize, -MathConstants<float>::pi, PATH_PI_2_CCW);
     }
 
     rect.closeSubPath();
@@ -143,7 +143,7 @@ static Path getDiagonalRoundedCornersPath(Rectangle<float> bounds, float rounded
         {
             xTo += roundedCornerSize;
             rect.lineTo(xTo, yTo);
-            rect.addArc(xTo - roundedCornerSize, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, -float_Pi, PATH_PI_2_CCW);
+            rect.addArc(xTo - roundedCornerSize, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, -MathConstants<float>::pi, PATH_PI_2_CCW);
         }
         else
         {
@@ -161,7 +161,7 @@ static Path getDiagonalRoundedCornersPath(Rectangle<float> bounds, float rounded
         {
             yTo -= roundedCornerSize;
             rect.lineTo(xTo, yTo);
-            rect.addArc(xTo - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, float_Pi);
+            rect.addArc(xTo - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, MathConstants<float>::pi);
         }
         else
         {
@@ -403,7 +403,7 @@ static Path createLogomark()
     float phi2 = PHI * 2;
     float innerRad = 1.0f / phi2;
     float outerRad = phi2 * 0.125f;
-    float ang = float_Pi * 0.083333f;
+    float ang = MathConstants<float>::pi * 0.083333f;
     float angOff = ang * 0.5f;
 
     logo.addPolygon(center, 6, innerRad, ang - angOff);

@@ -80,7 +80,7 @@ Path GroupHandle::getLine(float lineThickness) const
 	Path diamond;
 
 	if (size > 0)
-		diamond.addPolygon(line.getPointAlongLineProportionally(1/size), 4, lineThickness, position.x + float_Pi / 2);
+		diamond.addPolygon(line.getPointAlongLineProportionally(1/size), 4, lineThickness, position.x + MathConstants<float>::pi / 2);
 
 	return diamond;
 }

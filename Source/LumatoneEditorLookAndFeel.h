@@ -554,7 +554,7 @@ public:
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, Slider& sld) override
     {
-        const float halfPi = float_Pi * 0.5f;
+        const float halfPi = MathConstants<float>::pi * 0.5f;
         const float arcThickness = 0.15f;
         const float endAngleNorm = rotaryAngleEnd - halfPi;
 
@@ -1297,6 +1297,6 @@ private:
 
     const float comboBoxRoundedCornerScalar = 0.304878f;
 
-    const float rotaryAngleStart = float_Pi * -0.64f; // pi * -2/3
+    const float rotaryAngleStart = MathConstants<float>::pi * -0.64f; // pi * -2/3
     const float rotaryAngleEnd = -rotaryAngleStart;
 };
