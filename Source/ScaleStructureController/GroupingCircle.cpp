@@ -284,7 +284,7 @@ void GroupingCircle::resized()
 	groupInnerCircleBounds = groupOuterCircleBounds.reduced(groupRingWidth);
 	degreeInnerCircleBounds = groupInnerCircleBounds.reduced(degreeRingWidth);
 	
-	angleIncrement = 2 * double_Pi / groupChain.size();
+	angleIncrement = 2 * MathConstants<double>::pi / groupChain.size();
 	angleHalf = angleIncrement / 2.0f;
 
 	handleDragThreshold = angleIncrement * 2.0 / 3.0f;
