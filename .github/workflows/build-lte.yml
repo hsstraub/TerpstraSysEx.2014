@@ -34,6 +34,7 @@ jobs:
         with:
           name: LumatoneSetup-Linux
           path: Builds/Linux/build/LumatoneSetup
+          if-no-files-found: error
 
   build-lte-macos:
     name: Build Lumatone Editor (macOS)
@@ -64,3 +65,39 @@ jobs:
         with:
           name: LumatoneSetup-macOS
           path: Builds/MacOSX/build/Release
+          if-no-files-found: error
+
+  build-lte-windows:
+    name: Build Lumatone Editor (Windows)
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: microsoft/setup-msbuild@v1.1
+      - name: Install JUCE to C:\
+        run: |
+          Invoke-WebRequest https://github.com/juce-framework/JUCE/releases/download/6.1.5/juce-6.1.5-windows.zip -O juce-6.1.5-windows.zip
+          7z x juce-6.1.5-windows.zip -oC:\
+      - name: Build Lumatone Editor
+        run: |
+          bash -c '/c/JUCE/Projucer --resave TerpstraSysEx.jucer'
+          cd Builds/VisualStudio2019
+          msbuild LumatoneSetup.sln /p:configuration=Release
+      - name: List build directory
+        run: |
+          cd Builds/VisualStudio2019
+          Get-ChildItem -Recurse
+      - name: Upload Lumatone Editor
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneSetup-Windows
+          path: Builds/VisualStudio2019/x64/Release/App/LumatoneSetup.exe
+          if-no-files-found: error
+      - name: Upload dynamic libraries
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneSetup-Windows
+          path: Libraries/win64/bin/*.dll
+          if-no-files-found: error
+
