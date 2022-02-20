@@ -13,7 +13,6 @@
 
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
-
 }
 
 TerpstraMidiDriver::~TerpstraMidiDriver()
@@ -36,11 +35,13 @@ void TerpstraMidiDriver::removeMessageCollector(Collector* collectorToRemove)
 
 void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMessage& midiMessage)
 {
+    const MessageManagerLock lock;
     for (auto collector : collectors) collector->midiMessageReceived(source, midiMessage);
 }
 
 void TerpstraMidiDriver::notifyMessageSent(MidiOutput* target, const MidiMessage& midiMessage)
 {
+    const MessageManagerLock lock;
     for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
 }
 
@@ -57,6 +58,7 @@ void TerpstraMidiDriver::notifyLogMessage(String textMessage, HajuErrorVisualize
 
 void TerpstraMidiDriver::notifyNoAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
 {
+    const MessageManagerLock lock;
     for (auto collector : collectors) collector->noAnswerToMessage(expectedDevice, midiMessage);
 }
 
@@ -1459,9 +1461,9 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
         DBG("RCVD: " + message.getDescription());
 #endif
 
-//      const MessageManagerLock mmLock;
-//		this->listeners.call(&Listener::midiMessageReceived, source, message);
-    notifyMessageReceived(source, message);
+        //const MessageManagerLock mmLock;
+        //this->listeners.call(&Listener::midiMessageReceived, source, message);
+        notifyMessageReceived(source, message);
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
