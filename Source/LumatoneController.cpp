@@ -756,8 +756,10 @@ FirmwareSupport::Error LumatoneController::handleFirmwareRevisionResponse(const 
     auto errorCode = midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, major, minor, revision);
     if (errorCode == FirmwareSupport::Error::noError)
     {
+        auto version = FirmwareVersion(major, minor, revision);
+        DBG("Firmware version is: " + version.toString());
         // Listener call handled here
-        setFirmwareVersion(FirmwareVersion(major, minor, revision));
+        setFirmwareVersion(version);
     }
 
     return errorCode;
