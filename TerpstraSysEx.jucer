@@ -304,8 +304,7 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="LumatoneSetup"/>
-        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
-                       targetName="LumatoneSetup"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" targetName="LumatoneSetup"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -326,8 +325,8 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
                        osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
+        <CONFIGURATION name="Release" isDebug="0" targetName="LumatoneSetup" osxArchitecture="64BitIntel"
+                       libraryPath="../../Libraries/mac/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
