@@ -1087,7 +1087,7 @@ void LumatoneController::timerCallback()
             // Ignore non-sysex messages
         }
 
-        auto bufferSize = jlimit(0, INT_MAX, readQueueSize.load() - bufferReadSize);
+        auto bufferSize = jlimit(0, 999999, readQueueSize.load() - bufferReadSize);
         readQueueSize.store(bufferSize);
         
         if (bufferSize != 0)
