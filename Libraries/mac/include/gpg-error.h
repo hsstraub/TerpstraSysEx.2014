@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: LGPL-2.1+
  *
  * Do not edit.  Generated from gpg-error.h.in for:
-                 x86_64-apple-darwin15.5.0
+                 arm-apple-darwin21.1.0
  */
 
 /* The GnuPG project consists of many components.  Error codes are
@@ -66,12 +66,12 @@
 #include <stdarg.h>
 
 /* The version string of this header. */
-#define GPG_ERROR_VERSION "1.42"
-#define GPGRT_VERSION     "1.42"
+#define GPG_ERROR_VERSION "1.43-beta11"
+#define GPGRT_VERSION     "1.43-beta11"
 
 /* The version number of this header. */
-#define GPG_ERROR_VERSION_NUMBER 0x012a00
-#define GPGRT_VERSION_NUMBER     0x012a00
+#define GPG_ERROR_VERSION_NUMBER 0x012b00
+#define GPGRT_VERSION_NUMBER     0x012b00
 
 
 #ifdef __GNUC__
