@@ -300,7 +300,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <LINUX_MAKE targetFolder="Builds/Linux" smallIcon="fwSyLL" bigIcon="yjLw0u"
-                linuxExtraPkgConfig="libssh2" extraDefs="HAVE_ARPA_INET_H=1 HAVE_UNISTD_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot; JUCE_MODAL_LOOPS_PERMITTED=1">
+                linuxExtraPkgConfig="libssh2" extraDefs="HAVE_ARPA_INET_H=1 HAVE_UNISTD_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="LumatoneSetup"/>
@@ -325,11 +325,9 @@
                smallIcon="fwSyLL">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"
-                       defines="JUCE_MODAL_LOOPS_PERMITTED=1"/>
+                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"
-                       defines="JUCE_MODAL_LOOPS_PERMITTED=1"/>
+                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
