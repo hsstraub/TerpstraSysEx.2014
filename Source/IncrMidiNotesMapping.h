@@ -42,7 +42,7 @@ class IncrMidiNotesMapping  : public Component,
 public:
     //==============================================================================
     IncrMidiNotesMapping (int& periodSizeReference, ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
-    ~IncrMidiNotesMapping() override;
+    virtual ~IncrMidiNotesMapping() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.

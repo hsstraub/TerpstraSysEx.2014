@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "VelocityCurveComponents.h"
 
@@ -24,6 +24,7 @@ class VelocityCurveEditStrategyBase
 {
 public:
 	VelocityCurveEditStrategyBase(/*Path& beamTableFrameRef,*/ std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
+	virtual ~VelocityCurveEditStrategyBase() {}
 
 	// Set value table (e. g. from LMT file)
 	virtual bool setEditConfig(int velocityTableValues[]) = 0;
@@ -84,6 +85,7 @@ class VelocityCurveSegmentEditStrategyBase : public VelocityCurveEditStrategyBas
 {
 public:
 	VelocityCurveSegmentEditStrategyBase(/*Path& beamTableFrameRef, */std::unique_ptr<VelocityCurveBeam>* velocityBeamTablePtr);
+	virtual ~VelocityCurveSegmentEditStrategyBase() {}
 
 	bool setEditConfig(int velocityTableValues[]) override;
 	bool exportEditConfig(int velocityTableValues[]) override;

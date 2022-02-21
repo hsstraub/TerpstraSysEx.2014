@@ -22,7 +22,7 @@ class GroupingCircle    : public Component
 {
 public:
     GroupingCircle(const ScaleStructure& structureIn, Array<Colour>& colourTableIn);
-    ~GroupingCircle();
+    virtual ~GroupingCircle();
 
 	float getInnerRadius() const;
 	float getMiddleRadius() const;
@@ -57,7 +57,7 @@ public:
 	class Listener
 	{
 	public:
-		~Listener() {};
+		virtual ~Listener() {}
 
 		virtual void offsetChanged(int newOffset) = 0;
 		

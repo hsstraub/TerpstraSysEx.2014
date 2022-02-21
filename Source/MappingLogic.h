@@ -21,6 +21,7 @@ class MappingLogicBase
 {
 public:
     MappingLogicBase(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
+    virtual ~MappingLogicBase() {}
 
 	void setPeriodSize(int newPeriodSize, bool forceRefresh = false);
     void setAssignColours(bool value) { assignColours = value; };
@@ -136,7 +137,8 @@ private:
 
 public:
     KBMFilesMappingLogic(ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
-
+    virtual ~KBMFilesMappingLogic() {}
+    
     //===============================
 	// Set parameters
 

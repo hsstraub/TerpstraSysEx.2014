@@ -275,6 +275,8 @@ public:
     {
     public:
 
+        virtual ~StatusListener() {}
+
         virtual void connectionFailed() {}
         virtual void connectionEstablished(int inputMidiDevice, int outputMidiDevice) {}
         virtual void connectionLost() {}
@@ -347,24 +349,26 @@ public:
     void    addFirmwareListener(FirmwareListener* listenerIn) { firmwareListeners.add(listenerIn); }
     void removeFirmwareListener(FirmwareListener* listenerIn) { firmwareListeners.remove(listenerIn); }
 
+    // Unused
+    // class EditorListener
+    // {
+    // public:
 
-    class EditorListener
-    {
-    public:
+    //     virtual void keyFunctionConfigurationChanged(int octaveNumber, int keyNumber, int noteOrCC, int midiChannel, LumatoneKeyType keyType, bool faderUpIsNull) {};
 
-        virtual void keyFunctionConfigurationChanged(int octaveNumber, int keyNumber, int noteOrCC, int midiChannel, LumatoneKeyType keyType, bool faderUpIsNull) {};
+    //     virtual void keyColourConfigurationChanged(int octaveNumber, int keyNumber, Colour keyColour) {};
+    // };
 
-        virtual void keyColourConfigurationChanged(int octaveNumber, int keyNumber, Colour keyColour) {};
-    };
+    // ListenerList<EditorListener> editorListeners;
 
-    ListenerList<EditorListener> editorListeners;
-
-    void    addEditorListener(EditorListener* listenerIn) { editorListeners.add(listenerIn); }
-    void removeEditorListener(EditorListener* listenerIn) { editorListeners.remove(listenerIn); }
+    // void    addEditorListener(EditorListener* listenerIn) { editorListeners.add(listenerIn); }
+    // void removeEditorListener(EditorListener* listenerIn) { editorListeners.remove(listenerIn); }
 
     class MidiListener
     {
     public:
+
+        virtual ~MidiListener() {}
 
         virtual void handleMidiMessage(const MidiMessage& msg) = 0;
     };

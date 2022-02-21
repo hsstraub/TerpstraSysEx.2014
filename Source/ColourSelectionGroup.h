@@ -18,6 +18,7 @@ class ColourSelectionBroadcaster;
 class ColourSelectionListener
 {
 public:
+    virtual ~ColourSelectionListener() {}
     virtual void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) = 0;
 };
 
@@ -26,6 +27,7 @@ class ColourSelectionBroadcaster
 public:
 
     ColourSelectionBroadcaster() {};
+    virtual ~ColourSelectionBroadcaster() {}
 
     virtual Colour getSelectedColour() = 0;
 

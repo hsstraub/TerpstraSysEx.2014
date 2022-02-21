@@ -85,6 +85,7 @@ public:
     class ProcessListener
     {
     public:
+        virtual ~ProcessListener() {}
         virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg)=0;
     };
 

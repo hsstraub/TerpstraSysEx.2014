@@ -26,9 +26,7 @@ public:
         // Setup paths needed to draw swatches
     }
 
-    ~Palette() override
-    {
-    }
+    virtual ~Palette() {}
 
     //======================================================================
     // Implementation of juce::Component

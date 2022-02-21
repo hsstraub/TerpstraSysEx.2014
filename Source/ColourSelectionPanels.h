@@ -279,6 +279,7 @@ public:
     class Listener
     {
     public:
+        virtual ~Listener() {}
 
         virtual void editPaletteRequested(int paletteIndex, int selectedSwatchIndex) = 0;
         virtual void deletePaletteRequested(int paletteIndex) = 0;
