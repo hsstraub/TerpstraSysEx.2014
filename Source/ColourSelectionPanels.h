@@ -32,7 +32,7 @@ public:
         newPaletteBtn->setButtonText(translate("NewPalette"));
         newPaletteBtn->getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
         newPaletteBtn->onClick = [&] { listeners.call(&ColourPalettesPanel::Listener::newPaletteRequested); };
-
+        
     };
 
     ~ColourPalettesPanel()
@@ -105,28 +105,40 @@ public:
         float bottomMarginControlHeight = roundToInt(viewportBounds.proportionOfWidth(btmMarginCtrlScalar));
         float bottomMarginControlSpace  = (bottomMargin - bottomMarginControlHeight) * 0.5f;
 
+        float labelYItemOffset = itemHeight * 0.8f;
         for (int i = 0; i < controlGroups.size(); i++)
         {
             FlexItem& item = flexBox.items.getReference(i + 1);
             Rectangle<float> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
             int halfItemWidth = bottomMarginBounds.proportionOfWidth(0.5f);
 
-            auto label = paletteLabels[i];
-            label->setBounds(item.currentBounds.withTrimmedTop(itemHeight * 0.8f).toNearestInt());
+            Rectangle<float> labelBounds = item.currentBounds.withTrimmedTop(labelYItemOffset);
+            Point<float> controlsPosition;
+            if (paletteLabels[i]->getText().isNotEmpty())
+            {
+                auto label = paletteLabels[i];
+                label->setBounds(labelBounds.toNearestInt());
+                controlsPosition = bottomMarginBounds.getPosition().translated(0, bottomMarginControlSpace);
+            }
+            else
+            {
+                controlsPosition = labelBounds.getPosition();
+            }
 
             auto group = controlGroups.getUnchecked(i);
             group->getEditButton()->setSize(halfItemWidth, bottomMarginControlHeight);
-            group->getEditButton()->setTopLeftPosition(bottomMarginBounds.getPosition().translated(0, bottomMarginControlSpace).roundToInt());
+            group->getEditButton()->setTopLeftPosition(controlsPosition.roundToInt());
             group->getTrashButton()->setBounds(group->getEditButton()->getBounds().translated(halfItemWidth, 0));
 
-            Rectangle<float> controlBounds = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomRight());
-            controlGroupHitBoxes.set(i, controlBounds.toNearestInt());
+            auto hitBox = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomRight()).toNearestInt();
+            controlGroupHitBoxes.set(i, hitBox);
         }
 
         dbgItems = flexBox.items;
 
         newPaletteBtn->setSize(itemWidth, bottomMarginControlHeight);
-        newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getBottom() + bottomMarginControlSpace);
+        newPaletteBtn->setTopLeftPosition(newPalette->getX(), newPalette->getY() + labelYItemOffset);
+        newPaletteBtn->toFront(false);
 
         needsResize = false;
     }
@@ -140,7 +152,7 @@ public:
         }
         else
         {
-            for (int i = 0; i < controlGroupHitBoxes.size(); i++)
+            for (int i = 0; i < controlGroups.size(); i++)
             {
                 if (controlGroupHitBoxes[i].contains(mouse.getEventRelativeTo(this).position.roundToInt()))
                 {
@@ -172,7 +184,6 @@ public:
 
         controlGroups.clear();
         paletteLabels.clear();
-        controlGroupHitBoxes.clear();
         
         allPalettes = Array<ColourPaletteComponent*>(newPalette.get());
 
@@ -205,13 +216,12 @@ public:
             label->getProperties().set(LumatoneEditorStyleIDs::labelMaximumLineCount, 2);
             addAndMakeVisible(label);
 
-            controlGroupHitBoxes.add(Rectangle<int>());
+            controlGroupHitBoxes.set(i, Rectangle<int>());
         }
 
         int rows = ceil((palettesIn.size() + 1) * 0.333333f);
 
         int w = getWidth();
-        int h = getHeight();
 
         // Set height depending on how many rows
         width = (width < 1) ? w : width;
