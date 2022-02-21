@@ -1279,9 +1279,6 @@ private:
         setColour(AlertWindow::ColourIds::outlineColourId, findColour(LumatoneEditorColourIDs::MediumBackground));
     }
 
-public:
-    LumatoneEditorCompactWindow compactWindowStyle;
-
 private:
 
     LumatoneEditorFonts::Library appFonts;
@@ -1299,4 +1296,8 @@ private:
 
     const float rotaryAngleStart = MathConstants<float>::pi * -0.64f; // pi * -2/3
     const float rotaryAngleEnd = -rotaryAngleStart;
+
+public:
+    LumatoneEditorCompactWindow compactWindowStyle;
+
 };

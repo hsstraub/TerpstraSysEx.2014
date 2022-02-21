@@ -31,10 +31,6 @@ public:
     //======================================================================
     // Implementation of juce::Component
 
-    virtual void paint(Graphics& g) = 0;
-    
-    virtual void resized() = 0;
-
     virtual void mouseDown(const MouseEvent& e) override    
     {
         if (isEnabled())

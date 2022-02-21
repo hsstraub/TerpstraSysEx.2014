@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "LumatoneMenu.h"
 #include "MainComponent.h"
 #include "LumatoneController.h"
@@ -30,14 +30,14 @@ public:
 	//==============================================================================
 	TerpstraSysExApplication();
 
-	const String getApplicationName()       { return ProjectInfo::projectName; }
-	const String getApplicationVersion()    { return ProjectInfo::versionString; }
-	bool moreThanOneInstanceAllowed()       { return true; }
+	const String getApplicationName() override		{ return ProjectInfo::projectName; }
+	const String getApplicationVersion() override   { return ProjectInfo::versionString; }
+	bool moreThanOneInstanceAllowed() override      { return true; }
 
-	void initialise(const String& commandLine);
-	void shutdown();
-	void systemRequestedQuit();
-	void anotherInstanceStarted(const String& commandLine);
+	void initialise(const String& commandLine) override;
+	void shutdown() override;
+	void systemRequestedQuit() override;
+	void anotherInstanceStarted(const String& commandLine) override;
 
 	static TerpstraSysExApplication& getApp()
 	{
