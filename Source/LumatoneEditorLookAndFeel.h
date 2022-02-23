@@ -1227,16 +1227,16 @@ private:
         arrowDownIconPath = getArrowPath(Point<float>(0.5f, 0.08f), Point<float>(0.5f, 0.96f), 0.55, 0.667f);
 
         // Create duplicate icon
-        auto duplicateIcon = getDuplicateIconPath();
-        duplicateIcon.scaleToFit(0, 0, 80, 80, true);
+        auto cloneIcon = getCloneIconPath();
+        cloneIcon.scaleToFit(0, 0, 80, 80, true);
 
-        auto duplicateImg = Image(Image::PixelFormat::ARGB, 100, 100, true);
-        Graphics dupeG(duplicateImg);
-        dupeG.setColour(Colours::white.darker(0.1f));
-        dupeG.setOrigin(Point<int>(10, 10));
+        auto cloneImg = Image(Image::PixelFormat::ARGB, 100, 100, true);
+        Graphics cloneG(cloneImg);
+        cloneG.setColour(Colours::white.darker(0.1f));
+        cloneG.setOrigin(Point<int>(10, 10));
         auto stroke = PathStrokeType(8.0f, PathStrokeType::JointStyle::curved);
-        dupeG.strokePath(duplicateIcon, stroke);
-        ImageCache::addImageToCache(duplicateImg, LumatoneEditorAssets::DuplicateIcon);
+        cloneG.strokePath(cloneIcon, stroke);
+        ImageCache::addImageToCache(cloneImg, LumatoneEditorAssets::CloneIcon);
     }
 
     /// <summary>

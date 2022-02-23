@@ -110,7 +110,7 @@ PaletteControlGroup::PaletteControlGroup(LumatoneEditorColourPalette newPaletteI
     editButton.setButtonText("Edit");
     editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
 
-    const Image cloneIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::DuplicateIcon);
+    const Image cloneIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::CloneIcon);
     cloneButton.setImages(false, true, true,
         cloneIcon, 1.0f, Colour(),
         cloneIcon, 1.0f, Colours::white.withAlpha(0.4f),

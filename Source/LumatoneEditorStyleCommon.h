@@ -550,7 +550,7 @@ static void getCCPolarityIconPath(bool inverted, Path& arrowPath, Path& faderPat
     }
 }
 
-static Path getDuplicateIconPath()
+static Path getCloneIconPath()
 {
     // side-by-side
 //    float yMargin = 0.1f;
@@ -592,7 +592,7 @@ enum LumatoneEditorAssets
     SavePalette         = 0x0005000,
     CancelPalette       = 0x0005001,
     TrashCanIcon        = 0x0005002,
-    DuplicateIcon       = 0x0005003
+    CloneIcon           = 0x0005003
 };
 
 enum LumatoneEditorIcon
