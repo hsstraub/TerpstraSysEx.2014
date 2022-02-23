@@ -1380,16 +1380,16 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
         }
     }
 
-    // If there is no MIDI input port active: just send, without expecting acknowledge
-	// ToDo Or do nothing?
+    jassert(midiInput != nullptr);
     if (midiInput == nullptr)
     {
-        sendMessageNow(message);
+        DBG("No MidiInput open to send message to.");
+//        sendMessageNow(message);
 
 	    // Notify listeners
 		// const MessageManagerLock mmLock;
 		// this->listeners.call(&Listener::midiMessageSent, message);
-        notifyMessageSent(midiOutput, message);
+//        notifyMessageSent(midiOutput, message);
     }
     else
     {

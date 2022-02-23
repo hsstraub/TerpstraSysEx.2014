@@ -176,7 +176,10 @@ void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
 	if (midiOutput != nullptr)
     {
 		midiOutput->sendMessageNow(message);
+        return;
     }
+    jassertfalse;
+    DBG("MidiOutput is null!");
 }
 
 void HajuMidiDriver::sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity)
