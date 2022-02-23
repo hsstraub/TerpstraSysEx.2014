@@ -110,7 +110,7 @@ public:
         {
             FlexItem& item = flexBox.items.getReference(i + 1);
             Rectangle<float> bottomMarginBounds(item.currentBounds.getX(), item.currentBounds.getBottom(), itemWidth, bottomMargin);
-            int halfItemWidth = bottomMarginBounds.proportionOfWidth(0.5f);
+            int fourthWidthItem = bottomMarginBounds.proportionOfWidth(0.25f);
 
             Rectangle<float> labelBounds = item.currentBounds.withTrimmedTop(labelYItemOffset);
             Point<float> controlsPosition;
@@ -126,9 +126,10 @@ public:
             }
 
             auto group = controlGroups.getUnchecked(i);
-            group->getEditButton()->setSize(halfItemWidth, bottomMarginControlHeight);
-            group->getEditButton()->setTopLeftPosition(controlsPosition.roundToInt());
-            group->getTrashButton()->setBounds(group->getEditButton()->getBounds().translated(halfItemWidth, 0));
+            group->getEditButton()->setSize(fourthWidthItem, bottomMarginControlHeight);
+            group->getEditButton()->setTopLeftPosition(controlsPosition.roundToInt().translated(bottomMarginBounds.proportionOfWidth(0.125f), 0));
+            group->getCloneButton()->setBounds(group->getEditButton()->getBounds().translated(fourthWidthItem, 0));
+            group->getTrashButton()->setBounds(group->getEditButton()->getBounds().translated(fourthWidthItem * 2.0f, 0));
 
             auto hitBox = Rectangle<float>(item.currentBounds.getTopLeft().translated(-horizontalMargin, -topMargin), bottomMarginBounds.getBottomRight()).toNearestInt();
             controlGroupHitBoxes.set(i, hitBox);
@@ -205,6 +206,10 @@ public:
             group->getEditButton()->onClick = [&, i, paletteComponent] { listeners.call(&ColourPalettesPanel::Listener::editPaletteRequested, i, paletteComponent->getSelectedSwatchNumber()); };
             addChildComponent(group->getEditButton());
 
+            group->getCloneButton()->getProperties().set("index", i);
+            group->getCloneButton()->onClick = [&, i, paletteComponent] { listeners.call(&ColourPalettesPanel::Listener::clonePaletteRequested, i); };
+            addChildComponent(group->getCloneButton());
+
             group->getTrashButton()->getProperties().set("index", i);
             group->getTrashButton()->onClick = [&, group, i] { listeners.call(&ColourPalettesPanel::Listener::deletePaletteRequested, i); };
             addChildComponent(group->getTrashButton());
@@ -247,6 +252,7 @@ private:
     {
         auto group = controlGroups.getUnchecked(paletteIndex);
         group->getEditButton()->setVisible(areVisible);
+        group->getCloneButton()->setVisible(areVisible);
         group->getTrashButton()->setVisible(areVisible);
     }
 
@@ -292,6 +298,7 @@ public:
         virtual ~Listener() {}
 
         virtual void editPaletteRequested(int paletteIndex, int selectedSwatchIndex) = 0;
+        virtual void clonePaletteRequested(int paletteIndex) = 0;
         virtual void deletePaletteRequested(int paletteIndex) = 0;
         virtual void newPaletteRequested() = 0;
     };

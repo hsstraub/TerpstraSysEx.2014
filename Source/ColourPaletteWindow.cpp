@@ -82,6 +82,14 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn, int selectedSw
         paletteEditPanel->setSelectedSwatch(selectedSwatchIndex);
 }
 
+void ColourPaletteWindow::duplicatePalette(int paletteIndexIn)
+{
+    auto copiedPalette = colourPalettes[paletteIndexIn];
+    colourPalettes.insert(paletteIndexIn + 1, copiedPalette);
+    TerpstraSysExApplication::getApp().saveColourPalette(copiedPalette);
+    palettePanel->rebuildPanel(colourPalettes);
+}
+
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
 {
     // Remove loaded colour palette
@@ -101,6 +109,16 @@ void ColourPaletteWindow::editPaletteRequested(int paletteIndex, int selectedSwa
     }
     else
         jassert(true); // Something bad happened!   
+}
+
+void ColourPaletteWindow::clonePaletteRequested(int paletteIndex)
+{
+    if (paletteIndex >= 0 && paletteIndex < colourPalettes.size())
+    {
+        duplicatePalette(paletteIndex);
+    }
+    else
+        jassert(true); // Something bad happened!
 }
 
 void ColourPaletteWindow::deletePaletteRequested(int paletteIndex)

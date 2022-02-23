@@ -104,10 +104,18 @@ void ColourPaletteComponent::deselectColour()
 PaletteControlGroup::PaletteControlGroup(LumatoneEditorColourPalette newPaletteIn)
     : palette(ColourPaletteComponent(newPaletteIn)),
       editButton("EditButton_" + newPaletteIn.getName(), translate("EditButtonTip")),
+      cloneButton("CloneButton_" + newPaletteIn.getName()),
       trashButton("TrashButton_" + newPaletteIn.getName())
 {
     editButton.setButtonText("Edit");
     editButton.getProperties().set(LumatoneEditorStyleIDs::textButtonHyperlinkFlag, 1);
+
+    const Image cloneIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::DuplicateIcon);
+    cloneButton.setImages(false, true, true,
+        cloneIcon, 1.0f, Colour(),
+        cloneIcon, 1.0f, Colours::white.withAlpha(0.4f),
+        cloneIcon, 1.0f, Colour()
+    );
 
     const Image trashIcon = ImageCache::getFromHashCode(LumatoneEditorAssets::TrashCanIcon);
     trashButton.setImages(false, true, true,

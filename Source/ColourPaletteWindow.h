@@ -67,6 +67,12 @@ private:
     void startEditingPalette(int paletteIndexIn, int selectedSwatchIndex = -1);
 
     /// <summary>
+    /// Creates a new palette with the same name and swatches
+    /// </summary>
+    /// <param name="paletteIndexIn"></param>
+    void duplicatePalette(int paletteIndexIn);
+
+    /// <summary>
     /// Removes a palette and associated buttons
     /// </summary>
     /// <param name="paletteIndexToRemove"></param>
@@ -75,6 +81,8 @@ private:
 protected:
 
     void editPaletteRequested(int paletteIndex, int selectedSwatchIndex) override;
+
+    void clonePaletteRequested(int paletteIndex) override;
 
     void deletePaletteRequested(int paletteIndex) override;
 

@@ -550,7 +550,32 @@ static void getCCPolarityIconPath(bool inverted, Path& arrowPath, Path& faderPat
     }
 }
 
-//static void drawSaveIconAt(Graphics& g, int x, int y)
+static Path getDuplicateIconPath()
+{
+    // side-by-side
+//    float yMargin = 0.1f;
+//    float height = 1.0f - yMargin * 2.0f;
+//
+//    float width = 5.0f/12.0f;
+//
+//    auto leftRect = Rectangle<float>(1.0/12.0f, yMargin, width, height);
+//    auto rightRect = Rectangle<float>(width, yMargin, width, height);
+    
+    // bottom left overlapping top right
+    
+    float xMargin = 0.1f;
+    float yMargin = 0.1f;
+    float size = 0.5f;
+    
+    auto leftRect = Rectangle<float>(xMargin, 1.0f - yMargin - size, size, size);
+    auto rightRect = Rectangle<float>(1.0f - xMargin - size, yMargin, size, size);
+
+    auto path = Path();
+    path.addRoundedRectangle(leftRect, 0.1f, 0.1f);
+    path.addRoundedRectangle(rightRect, 0.1f, 0.1f);
+
+    return path;
+}
 
 
 // Hash codes for use with ImageCache::getFromHashCode()
@@ -566,7 +591,8 @@ enum LumatoneEditorAssets
     TickBox             = 0x0003100,
     SavePalette         = 0x0005000,
     CancelPalette       = 0x0005001,
-    TrashCanIcon        = 0x0005002
+    TrashCanIcon        = 0x0005002,
+    DuplicateIcon       = 0x0005003
 };
 
 enum LumatoneEditorIcon
