@@ -1163,10 +1163,10 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
     {
         int newInput = deviceMonitor->getConfirmedInputIndex();
         int newOutput = deviceMonitor->getConfirmedOutputIndex();
-        currentDevicePairConfirmed = false;
 
         if (newInput >= 0 && newOutput >= 0)
         {
+            currentDevicePairConfirmed = false;
             midiDriver.setMidiInput(newInput);
             midiDriver.setMidiOutput(newOutput);
 
@@ -1180,9 +1180,20 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
             return;
         }
         
-        // This should not get triggered if we are already disconnected
-        jassert(midiDriver.hasDevicesDefined());
-        onDisconnection();
+        if (currentDevicePairConfirmed)
+        {
+            // This should not get triggered if we are already disconnected
+            jassert(midiDriver.hasDevicesDefined());
+            onDisconnection();
+        }
+        else
+        {
+            // Something went wrong, but just try to continue connecting
+            DBG("Connection was tripped");
+            // Kludge - device monitor should be able to do this on it's own
+            if (deviceMonitor->willDetectDeviceIfDisconnected())
+                deviceMonitor->initializeDeviceDetection();
+        }
     }
 }
 
@@ -1190,7 +1201,6 @@ void LumatoneController::confirmAutoConnection()
 {
     if (midiDriver.hasDevicesDefined() && !currentDevicePairConfirmed)
     {
-        // I don't know why the Lumatone sometimes doesn't respond to this the first time
         if (connectedSerialNumber.isEmpty())
             sendGetSerialIdentityRequest();
         else

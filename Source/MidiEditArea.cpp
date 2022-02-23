@@ -552,6 +552,8 @@ void MidiEditArea::connectionLost()
         refreshInputMenuAndSetSelected(0, NotificationType::dontSendNotification);
         refreshOutputMenuAndSetSelected(0, NotificationType::sendNotificationAsync);
     }
+    
+    setConnectivity(false);
 }
 
 void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
