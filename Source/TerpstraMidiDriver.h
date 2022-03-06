@@ -455,7 +455,7 @@ private:
 	MidiMessage createExtendedMacroColourSysEx(uint8 cmd, int red, int green, int blue) const;
 
 	// Create a SysEx message encoding a table with a defined size
-	MidiMessage sendTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, const uint8 table[]);
+	MidiMessage createTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, const uint8 table[]);
 
     // Send a SysEx message with standardized length
 	void sendSysEx(uint8 boardIndex, uint8 cmd, uint8 data1, uint8 data2, uint8 data3, uint8 data4, bool overrideEditMode = false);

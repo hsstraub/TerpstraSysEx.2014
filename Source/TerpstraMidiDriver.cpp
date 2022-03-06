@@ -201,9 +201,8 @@ void TerpstraMidiDriver::sendVelocityConfig(const uint8 velocityTable[])
         reversedTable[x] = velocityTable[127 - x] & 0x7f;
     }
 
-    MidiMessage msg = sendTableSysEx(0, SET_VELOCITY_CONFIG, 128, reversedTable);
-		
-	sendMessageWithAcknowledge(msg);
+    auto msg = createTableSysEx(0, SET_VELOCITY_CONFIG, 128, reversedTable);
+    sendMessageWithAcknowledge(msg);
 }
 
 // CMD 09h: Save velocity config to EEPROM
@@ -221,7 +220,7 @@ void TerpstraMidiDriver::resetVelocityConfig()
 // CMD 0Bh: Adjust the internal fader look-up table (128 7-bit values)
 void TerpstraMidiDriver::sendFaderConfig(const uint8 faderTable[])
 {
-    MidiMessage msg = sendTableSysEx(0, SET_FADER_CONFIG, 128, faderTable);
+    MidiMessage msg = createTableSysEx(0, SET_FADER_CONFIG, 128, faderTable);
     sendMessageWithAcknowledge(msg);
 }
 
@@ -252,7 +251,7 @@ void TerpstraMidiDriver::sendCalibrateAfterTouch()
 // CMD 10h: Adjust the internal aftertouch look-up table (size of 128)
 void TerpstraMidiDriver::sendAftertouchConfig(const uint8 aftertouchTable[])
 {
-    MidiMessage msg = sendTableSysEx(0, SET_AFTERTOUCH_CONFIG, 128, aftertouchTable);
+    MidiMessage msg = createTableSysEx(0, SET_AFTERTOUCH_CONFIG, 128, aftertouchTable);
     sendMessageWithAcknowledge(msg);
 }
 
@@ -359,7 +358,7 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(const int velocityIntervalTa
         formattedTable[1 + 2*i] = velocityIntervalTable[i] & 0x3f;
     }
 
-	MidiMessage msg = sendTableSysEx(0, SET_VELOCITY_INTERVALS, payloadSize, formattedTable);
+	MidiMessage msg = createTableSysEx(0, SET_VELOCITY_INTERVALS, payloadSize, formattedTable);
 	sendMessageWithAcknowledge(msg);
 }
 
@@ -457,7 +456,7 @@ void TerpstraMidiDriver::setAftertouchKeySensitivity(uint8 boardIndex, uint8 sen
 // CMD 2Dh: Adjust the Lumatouch table, a 128 byte array with value of 127 being a key fully pressed
 void TerpstraMidiDriver::setLumatouchConfig(const uint8 lumatouchTable[])
 {
-    MidiMessage msg = sendTableSysEx(0, SET_LUMATOUCH_CONFIG, 128, lumatouchTable);
+    MidiMessage msg = createTableSysEx(0, SET_LUMATOUCH_CONFIG, 128, lumatouchTable);
     sendMessageWithAcknowledge(msg);
 }
 
@@ -751,7 +750,7 @@ MidiMessage TerpstraMidiDriver::createExtendedMacroColourSysEx(uint8 cmd, int re
     return createExtendedMacroColourSysEx(cmd, red >> 4, red & 0xf, green >> 4, green & 0xf, blue >> 4, blue & 0xf);
 }
 
-MidiMessage TerpstraMidiDriver::sendTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, const uint8 table[])
+MidiMessage TerpstraMidiDriver::createTableSysEx(uint8 boardIndex, uint8 cmd, uint8 tableSize, const uint8 table[])
 {
     size_t msgSize = tableSize + 5;
     Array<unsigned char> dataArray;
@@ -771,8 +770,6 @@ MidiMessage TerpstraMidiDriver::sendTableSysEx(uint8 boardIndex, uint8 cmd, uint
 #endif
 
     auto msg = MidiMessage::createSysExMessage(sysExData, msgSize);
-    sendMessageWithAcknowledge(msg);
-
     return msg;
 }
 
@@ -1380,7 +1377,7 @@ void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
         }
     }
 
-    jassert(midiInput != nullptr);
+//    jassert(midiInput != nullptr);
     if (midiInput == nullptr)
     {
         DBG("No MidiInput open to send message to.");
