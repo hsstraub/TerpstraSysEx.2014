@@ -191,6 +191,8 @@
             file="Source/VelocityCurveComponents.cpp"/>
       <FILE id="oGCzej" name="VelocityCurveComponents.h" compile="0" resource="0"
             file="Source/VelocityCurveComponents.h"/>
+      <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
+            file="Source/VelocityCurveEditStrategy.h"/>
       <FILE id="QI0Qip" name="VelocityCurveEditStrategy.cpp" compile="1"
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
       <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
@@ -204,8 +206,6 @@
         <FILE id="gWcasD" name="NoteNames.cpp" compile="1" resource="0" file="Source/ScaleStructureController/NoteNames.cpp"/>
         <FILE id="WuLSNJ" name="NoteNames.h" compile="0" resource="0" file="Source/ScaleStructureController/NoteNames.h"/>
         <FILE id="dJtPB6" name="Symmetry.h" compile="0" resource="0" file="Source/ScaleStructureController/Symmetry.h"/>
-        <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
-              file="Source/VelocityCurveEditStrategy.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
               file="Source/ScaleStructureController/GroupingCircle.cpp"/>
         <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
