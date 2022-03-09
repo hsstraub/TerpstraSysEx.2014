@@ -74,13 +74,15 @@ void LumatoneController::setFirmwareVersion(LumatoneFirmwareVersion lumatoneVers
 void LumatoneController::setMidiInput(int deviceIndex)
 {
     midiDriver.setMidiInput(deviceIndex);
-    testCurrentDeviceConnection();
+    if (deviceIndex >= 0)
+        testCurrentDeviceConnection();
 }
 
 void LumatoneController::setMidiOutput(int deviceIndex)
 {
     midiDriver.setMidiOutput(deviceIndex);
-    testCurrentDeviceConnection();
+    if (deviceIndex >= 0)
+        testCurrentDeviceConnection();
 }
 
 void LumatoneController::detectAndConnectToLumatone()
@@ -1035,6 +1037,10 @@ FirmwareSupport::Error LumatoneController::handleBufferCommand(const MidiMessage
 
     case GET_EXPRESSION_PEDAL_SENSITIVIY:
         return handleGetExpressionPedalSensitivityResponse(midiMessage);
+            
+    case SET_VELOCITY_CONFIG:
+        DBG("Send layout complete.");
+        return FirmwareSupport::Error::noError;
 
     default:
         jassert(sysExData[MSG_STATUS] == TerpstraMIDIAnswerReturnCode::ACK);
@@ -1224,6 +1230,7 @@ void LumatoneController::onDisconnection()
 {
     midiDriver.closeMidiInput();
     midiDriver.closeMidiOutput();
+    midiDriver.clearMIDIMessageBuffer();
     
     waitingForTestResponse = false;
     currentDevicePairConfirmed = false;
@@ -1271,7 +1278,7 @@ void LumatoneController::onFirmwareUpdateReceived()
 void LumatoneController::loadRandomMapping(int testTimeoutMs,  int maxIterations, int i)
 {
     auto dir = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile("Lumatone Editor").getChildFile("Mappings");
-    auto mappings = dir.findChildFiles(File::TypesOfFileToFind::findFiles, false);
+    auto mappings = dir.findChildFiles(File::TypesOfFileToFind::findFiles, true);
     auto numfiles = mappings.size();
     auto r = Random();
         
@@ -1284,8 +1291,8 @@ void LumatoneController::loadRandomMapping(int testTimeoutMs,  int maxIterations
         bool opened = TerpstraSysExApplication::getApp().setCurrentFile(file);
     }
     
-    if (i < maxIterations)
-        callAfterDelay(testTimeoutMs, [&]() { loadRandomMapping(testTimeoutMs, maxIterations, i + 1); });
-    else
-        DBG("Finished random mappings test.");
+//    if (i < maxIterations)
+//        Timer::callAfterDelay(testTimeoutMs, [&]() { loadRandomMapping(testTimeoutMs, maxIterations, i + 1); });
+//    else
+//        DBG("Finished random mappings test.");
 }

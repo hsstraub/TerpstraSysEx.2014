@@ -35,14 +35,17 @@ void TerpstraMidiDriver::removeMessageCollector(Collector* collectorToRemove)
 
 void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMessage& midiMessage)
 {
-    const MessageManagerLock lock;
-    for (auto collector : collectors) collector->midiMessageReceived(source, midiMessage);
+    //const MessageManagerLock lock;
+    MessageManager::callAsync([this, source, midiMessage]{
+        for (auto collector : collectors) collector->midiMessageReceived(source, midiMessage);
+    });
 }
 
 void TerpstraMidiDriver::notifyMessageSent(MidiOutput* target, const MidiMessage& midiMessage)
 {
-    const MessageManagerLock lock;
-    for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
+    MessageManager::callAsync([this, target, midiMessage]{
+        for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
+    });
 }
 
 void TerpstraMidiDriver::notifySendQueueSize()
@@ -58,8 +61,9 @@ void TerpstraMidiDriver::notifyLogMessage(String textMessage, HajuErrorVisualize
 
 void TerpstraMidiDriver::notifyNoAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
 {
-    const MessageManagerLock lock;
-    for (auto collector : collectors) collector->noAnswerToMessage(expectedDevice, midiMessage);
+    MessageManager::callAsync([this, expectedDevice, midiMessage]{
+        for (auto collector : collectors) collector->noAnswerToMessage(expectedDevice, midiMessage);
+    });
 }
 
 /*
@@ -1535,6 +1539,7 @@ void TerpstraMidiDriver::clearMIDIMessageBuffer()
 { 
     messageBuffer.clear();
     hasMsgWaitingForAck = false;
+    stopTimer();
     // this->listeners.call(&Listener::midiSendQueueSize, 0); 
     notifySendQueueSize();
 }
