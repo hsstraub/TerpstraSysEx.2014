@@ -577,7 +577,6 @@ static Path getCloneIconPath()
     return path;
 }
 
-
 // Hash codes for use with ImageCache::getFromHashCode()
 enum LumatoneEditorAssets
 {
@@ -594,6 +593,27 @@ enum LumatoneEditorAssets
     TrashCanIcon        = 0x0005002,
     CloneIcon           = 0x0005003
 };
+
+// TODO: clean up / make a better routine with ImageCache usage
+static Image getCachedCloneImage()
+{
+    auto cloneImg = ImageCache::getFromHashCode(LumatoneEditorAssets::CloneIcon);
+    if (cloneImg.isValid())
+        return cloneImg;
+    
+    // Create duplicate icon
+    auto cloneIcon = getCloneIconPath();
+    cloneIcon.scaleToFit(0, 0, 80, 80, true);
+
+    cloneImg = Image(Image::PixelFormat::ARGB, 100, 100, true);
+    Graphics cloneG(cloneImg);
+    cloneG.setColour(Colours::white.darker(0.1f));
+    cloneG.setOrigin(Point<int>(10, 10));
+    auto stroke = PathStrokeType(8.0f, PathStrokeType::JointStyle::curved);
+    cloneG.strokePath(cloneIcon, stroke);
+    ImageCache::addImageToCache(cloneImg, LumatoneEditorAssets::CloneIcon);
+    return cloneImg;
+}
 
 enum LumatoneEditorIcon
 {
