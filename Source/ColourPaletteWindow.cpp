@@ -135,7 +135,7 @@ void ColourPaletteWindow::newPaletteRequested()
 {
     paletteEditingIsNew = true;
     colourPalettes.insert(0, LumatoneEditorColourPalette());
-    startEditingPalette(0);
+    startEditingPalette(0, 0);
 }
 
 void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)

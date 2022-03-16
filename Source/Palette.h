@@ -40,12 +40,6 @@ public:
                 if (s.contains(e.position))
                 {
                     setSelectedSwatchNumber(swatchPaths.indexOf(s));
-
-                    if (selector)
-                    {
-                        selector->setCurrentColour(palette[selectedSwatch], dontSendNotification);
-                    }
-
                     return;
                 }
             }
@@ -93,6 +87,10 @@ public:
     virtual void setSelectedSwatchNumber(int swatchIndex)
     {
         selectedSwatch = swatchIndex;
+        if (selector)
+        {
+            selector->setCurrentColour(palette[selectedSwatch], dontSendNotification);
+        }
         repaint();
     }
 
