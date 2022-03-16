@@ -330,7 +330,7 @@ public:
             + ColourSelector::ColourSelectorOptions::showColourspace
         ));
 
-
+        colourPicker->setName("ColourPicker");
         addAndMakeVisible(*colourPicker);
         colourPicker->addChangeListener(this);
     }

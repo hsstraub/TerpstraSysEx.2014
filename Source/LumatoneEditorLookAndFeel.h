@@ -189,7 +189,31 @@ public:
 
     Font getLabelFont(Label& l) override
     {
+        // For some reason ComboBox labels aren't scaling like other components do
+        auto parent = l.getParentComponent();
+        if (parent)
+        {
+            auto comboBox = dynamic_cast<ComboBox*>(parent);
+            if (comboBox)
+                return getComboBoxFont(*comboBox);            
+        }
+        
         Font font = l.getFont().withHeight(l.getHeight());
+        
+        if (parent)
+        {
+            // Kludge - override font size for ColourSelector label so that it doesn't get cut off, and set TextEditor background colour
+            // Probably need to make a bunch of changes to the way LookAndFeel is used to avoid this
+            auto parentParent = parent->getParentComponent();
+            auto colourPicker = dynamic_cast<ColourSelector*>(parentParent);
+            if (colourPicker)
+            {
+                auto stringWidth = font.getStringWidth(l.getText() + "_");
+                auto labelScalar = (float)l.getWidth() / stringWidth;
+                font.setHeight(l.getHeight() * labelScalar);
+                l.setColour(Label::ColourIds::backgroundWhenEditingColourId, colourPicker->getCurrentColour());
+            }
+        }
 
         NamedValueSet& properties = l.getProperties();
         if (properties.contains(LumatoneEditorStyleIDs::fontOverride))
