@@ -271,22 +271,33 @@ bool TerpstraSysExApplication::saveColourPalette(LumatoneEditorColourPalette& pa
 		if (pathToFile == File())
 			pathToFile = File(palette.getPathToFile());
 
+        // If name changed, delete the old one
+        if (pathToFile.exists())
+        {
+            auto currentName = pathToFile.getFileName();
+            if (currentName != palette.getName())
+            {
+                pathToFile.deleteFile();
+            }
+        }
+        
 		// New file
 		if (!pathToFile.existsAsFile())
 		{
-			if (palette.getName() != String())
-				pathToFile = userPalettesDirectory.getChildFile(palette.getName());
-			else
-				pathToFile = userPalettesDirectory.getChildFile("UnnamedPalette");
+            String fileName = "UnnamedPalette";
+            
+			if (palette.getName().isNotEmpty())
+                fileName = palette.getName();
+                       
+            pathToFile = userPalettesDirectory.getChildFile(fileName);
 
 			// Make sure filename is unique since saving happens automatically
-			int nameId = 0;
-
-			// One thousand should be enough...right?
-			while (pathToFile.withFileExtension(PALETTEFILEEXTENSION).existsAsFile() && nameId < 1000)
+            // Sorry programmers, we're using cardinal numbers here, and the original is implicitly #1 ;)
+			int nameId = 1;
+			while (pathToFile.withFileExtension(PALETTEFILEEXTENSION).existsAsFile() && nameId < 999999)
 			{
-				nameId++;
-				pathToFile = userPalettesDirectory.getChildFile("UnnamedPalette" + String(nameId));
+                auto fileNameToSave = fileName + "_" + String(++nameId);
+                pathToFile = userPalettesDirectory.getChildFile(fileNameToSave);
 			}
 		}
 

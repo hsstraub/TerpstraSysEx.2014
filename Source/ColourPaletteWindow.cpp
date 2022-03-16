@@ -84,7 +84,7 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn, int selectedSw
 
 void ColourPaletteWindow::duplicatePalette(int paletteIndexIn)
 {
-    auto copiedPalette = colourPalettes[paletteIndexIn];
+    auto copiedPalette = colourPalettes[paletteIndexIn].clone();
     colourPalettes.insert(paletteIndexIn + 1, copiedPalette);
     TerpstraSysExApplication::getApp().saveColourPalette(copiedPalette);
     palettePanel->rebuildPanel(colourPalettes);
