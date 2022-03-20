@@ -11,6 +11,12 @@
 #include "TerpstraMidiDriver.h"
 #include "Main.h"
 
+// There are different race-condition issues between macOS and Windows. 
+// This Driver may need to be redesigned, but for now this define is
+// used for including a MessageManagerLock on Windows, but not on macOS.
+
+#define MIDI_DRIVER_USE_LOCK JUCE_WINDOWS
+
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
 }
@@ -35,7 +41,10 @@ void TerpstraMidiDriver::removeMessageCollector(Collector* collectorToRemove)
 
 void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMessage& midiMessage)
 {
-    //const MessageManagerLock lock;
+#if MIDI_DRIVER_USE_LOCK
+    const MessageManagerLock lock;
+#endif
+
     MessageManager::callAsync([this, source, midiMessage]{
         for (auto collector : collectors) collector->midiMessageReceived(source, midiMessage);
     });
@@ -43,6 +52,10 @@ void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMess
 
 void TerpstraMidiDriver::notifyMessageSent(MidiOutput* target, const MidiMessage& midiMessage)
 {
+#if MIDI_DRIVER_USE_LOCK
+    const MessageManagerLock lock;
+#endif
+
     MessageManager::callAsync([this, target, midiMessage]{
         for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
     });
