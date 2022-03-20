@@ -13,20 +13,25 @@
 
 
 DeviceActivityMonitor::DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn)
-    : midiDriver(midiDriverIn)
+    : midiDriver(midiDriverIn), readQueueSize(0)
 {
     detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
     checkConnectionOnInactivity = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("CheckConnectionIfInactive", true);
     responseTimeoutMs = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("DetectDevicesTimeout", responseTimeoutMs);
 
 //    midiDriver.addListener(this);
-    reset(blockSize);
+    reset(readBlockSize);
     midiDriver.addMessageCollector(this);
+
+    // avoid resizing during communication
+    ensureStorageAllocated(2000);
+    testResponseDeviceIndices.resize(2000);
 }
 
 DeviceActivityMonitor::~DeviceActivityMonitor()
 {
-
+    removeAllChangeListeners();
+    midiDriver.removeMessageCollector(this);
 }
 
 void DeviceActivityMonitor::setDetectDeviceIfDisconnected(bool doDetection)
@@ -51,7 +56,9 @@ void DeviceActivityMonitor::setCheckForInactivity(bool monitorActivity)
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("CheckConnectionIfInactive", checkConnectionOnInactivity);
     
     if (checkConnectionOnInactivity && isConnectionEstablished())
+    {
         startTimer(inactivityTimeoutMs);
+    }
 }
 
 void DeviceActivityMonitor::pingAllDevices()
@@ -191,9 +198,8 @@ void DeviceActivityMonitor::stopMonitoringDevice()
 bool DeviceActivityMonitor::initializeConnectionTest()
 {    
     TerpstraSysExApplication::getApp().getLumatoneController()->testCurrentDeviceConnection();
-
     waitingForTestResponse = true;
-
+    startTimer(inactivityTimeoutMs);
     return true;
 }
 
@@ -216,7 +222,6 @@ void DeviceActivityMonitor::onSerialIdentityResponse(const MidiMessage& msg, int
             confirmedInputIndex = deviceIndexResponded;
         }
 
-        startTimer(10);
         break;
 
     case DetectConnectionMode::waitingForInactivity:
@@ -260,7 +265,7 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
         {
             confirmedOutputIndex = pingId - 1;
             confirmedInputIndex = deviceIndexResponded;
-            startTimer(10);
+            // startTimer(10);
         }
     }
 
@@ -272,8 +277,6 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
 
 void DeviceActivityMonitor::onTestResponseReceived()
 {
-    stopTimer();
-
     waitingForTestResponse = false;
     
     if (sendCalibratePitchModOff)
@@ -359,6 +362,13 @@ void DeviceActivityMonitor::timerCallback()
 {
     stopTimer();
 
+    MidiBuffer readBuffer;
+    removeNextBlockOfMessages(readBuffer, readBlockSize);
+    
+    handleMessageQueue(readBuffer, testResponseDeviceIndices);
+    auto size = readQueueSize.load();
+    readQueueSize.store(jlimit(0, 999999, size - readBlockSize));
+
     switch (deviceConnectionMode)
     {
     case DetectConnectionMode::noDeviceActivity:
@@ -394,6 +404,10 @@ void DeviceActivityMonitor::timerCallback()
 
             initializeConnectionTest();
         }
+        else
+        {
+            DBG("waiting for test response...");
+        }
 
         break;
 
@@ -406,15 +420,13 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
 {
     if (msg.isSysEx())
     {
-        stopTimer();
-
         auto sysExData = msg.getSysExData();
         auto cmd = sysExData[CMD_ID];
 
         if (cmd == PERIPHERAL_CALBRATION_DATA && !isConnectionEstablished())
         {
             sendCalibratePitchModOff = true;
-            startTimer(100);
+            // startTimer(100);
             return;
         }
 
@@ -427,6 +439,7 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
                 {
                 case LUMA_PING:
                 {
+                    DBG("Ignoring Ping Echo");
                     onFailedPing(msg);
                     break;
                 }
@@ -434,15 +447,13 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
                     break;
 
                 case GET_FIRMWARE_REVISION:
-                    onTestResponseReceived();
+                    DBG("Ignoring Firmware Echo");
+                    // onTestResponseReceived();
                     break;
 
                 default:
                     return;
                 }
-
-                waitingForTestResponse = false;
-                startTimer(10);
                 break;
             }
 
@@ -459,13 +470,12 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
                     {
                         if (!isConnectionEstablished())
                         {
-                            onTestResponseReceived();
+                            sendCalibratePitchModOff = true;
                         }
                     }
                     break;
 
                 case GET_FIRMWARE_REVISION:
-                    // TODO
                     break;
 
                 case LUMA_PING:
@@ -475,6 +485,8 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
                 default:
                     break;
                 }
+
+                waitingForTestResponse = false;
                 break;
             }
 
@@ -494,12 +506,23 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
 
             // Maybe not best solution?
             deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-            startTimer(10);
         }
         else
         {
             startTimer(inactivityTimeoutMs);
         }
+    }
+
+}
+
+void DeviceActivityMonitor::handleMessageQueue(const MidiBuffer& readBuffer, const Array<int, CriticalSection>& devices)
+{
+    int smpl = 0;
+    for (auto event : readBuffer)
+    {
+        auto msg = event.getMessage();
+        handleResponse(devices[smpl], msg);
+        smpl++;
     }
 }
 
@@ -508,9 +531,17 @@ void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessa
 
 void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMessage& msg)
 {
+    if (!msg.isSysEx())
+        return;
+
     int deviceIndex = (source == nullptr) ? -1
                                           : midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
-    handleResponse(deviceIndex, msg);
+
+    addMessageToQueue(msg);
+
+    auto size = readQueueSize.load();
+    testResponseDeviceIndices.set(size, deviceIndex);
+    readQueueSize.store(size + 1);
 }
 
 void DeviceActivityMonitor::noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
@@ -520,7 +551,6 @@ void DeviceActivityMonitor::noAnswerToMessage(MidiInput* expectedDevice, const M
     if (waitingForTestResponse && deviceConnectionMode < DetectConnectionMode::noDeviceMonitoring)
     {
         waitingForTestResponse = false;
-        
         auto sysExData = midiMessage.getSysExData();
         if (sysExData[CMD_ID] == LUMA_PING && outputPingIds.size() > 0)
         {

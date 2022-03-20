@@ -21,13 +21,8 @@ HajuMidiDriver::HajuMidiDriver()
 
 HajuMidiDriver::~HajuMidiDriver()
 {
-    if (midiInput != nullptr)
-    {
-        //midiInput->stop();
-        midiInput = nullptr;
-    }
-
-	midiOutput = nullptr;
+    closeMidiInput();
+    closeMidiOutput();
 }
 
 const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiInputList()
@@ -126,7 +121,9 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
     closeMidiInput();
 
     if (deviceIndex < 0)
+    {
         return;
+    }
     
     DBG("Trying to open input device: " + midiInputs[deviceIndex].name);
     selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
@@ -153,7 +150,9 @@ void HajuMidiDriver::setMidiOutput(int deviceIndex)
     closeMidiOutput();
 
     if (deviceIndex < 0)
+    {
         return;
+    }
 
     DBG("Trying to open output device: " + midiOutputs[deviceIndex].name);
     selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
@@ -200,7 +199,7 @@ void HajuMidiDriver::closeMidiInput()
     {
         midiInput->stop();
         midiInput = nullptr;
-       lastInputIndex = -1;
+        lastInputIndex = -1;
     }
     
     selectedInput = nullptr;
@@ -230,18 +229,21 @@ void HajuMidiDriver::openAvailableDevicesForTesting()
 
     for (auto device : midiOutputs)
     {
-        auto newOutput = testOutputs.add(MidiOutput::openDevice(device.identifier));
+        auto newOutput = MidiOutput::openDevice(device.identifier);
         if (newOutput == nullptr)
-            testOutputs.removeObject(newOutput);
+            continue;
+
+        testOutputs.add(newOutput.release());
     }
 
     for (auto device : midiInputs)
     {
-        auto newInput = testInputs.add(MidiInput::openDevice(device.identifier, this));
-        if (newInput != nullptr)
-            newInput->start();
-        else
-            testInputs.removeObject(newInput);
+        auto newInput = MidiInput::openDevice(device.identifier, this);
+        if (newInput == nullptr)
+            continue;
+
+        auto openedInput = testInputs.add(newInput.release());
+        openedInput->start();
     }
 }
 

@@ -120,6 +120,8 @@ private:
     //=========================================================================
     // Callback functions
 
+    void handleMessageQueue(const MidiBuffer& readBuffer, const Array<int, CriticalSection>& devices);
+
     void onSerialIdentityResponse(const MidiMessage& msg, int deviceIndexResponded);
 
     void onFailedPing(const MidiMessage& msg);
@@ -153,7 +155,12 @@ private:
     int                     responseTimeoutMs = 600;
     int                     detectRoutineTimeoutMs = 1000;
     int                     inactivityTimeoutMs  = 1500;
-    
+
+    Array<int, CriticalSection> testResponseDeviceIndices;
+    std::atomic<int>        readQueueSize;
+    const int               readBlockSize = 64;
+    int                     sentQueueSize = 0;
+
     int                     testOutputIndex = -1;
     Array<MidiDeviceInfo>   outputDevices;
     Array<MidiDeviceInfo>   inputDevices;
@@ -162,10 +169,6 @@ private:
     int                     confirmedInputIndex = -1;
     int                     confirmedOutputIndex = -1;
 
-    int                     sentQueueSize = 0;
-    int                     blockSize = 16;
-    int                     bufferTimeoutMs = 30;
-    
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
     

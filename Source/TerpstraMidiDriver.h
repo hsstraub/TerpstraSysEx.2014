@@ -500,7 +500,7 @@ private:
     MidiMessage currentMsgWaitingForAck;    // std::optional would be the object of choice,once that is available...
 	bool hasMsgWaitingForAck = false;       // will be obsolete when std::optional is available
 
-	Array<MidiMessage> messageBuffer;
+	Array<MidiMessage, CriticalSection> messageBuffer;
 
 	// Used for device detection and "Offline" mode (no messages that mutate board data)
 	bool      onlySendRequestMessages = false;

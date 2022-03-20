@@ -25,7 +25,7 @@ LumatoneController::LumatoneController()
 
 LumatoneController::~LumatoneController()
 {
-
+    midiDriver.removeMessageCollector(this);
 }
 
 void LumatoneController::setSysExSendingMode(sysExSendingMode newMode)
@@ -746,7 +746,8 @@ FirmwareSupport::Error LumatoneController::handleSerialIdentityResponse(const Mi
     // Get Firmware Version
     if (connectedSerialNumber == SERIAL_55_KEYS)
         setFirmwareVersion(LumatoneFirmwareVersion::VERSION_55_KEYS);
-    else
+
+    if (midiDriver.hasDevicesDefined() && !currentDevicePairConfirmed)
         confirmAutoConnection();
 
     return errorCode;
@@ -786,8 +787,6 @@ FirmwareSupport::Error LumatoneController::handlePingResponse(const MidiMessage&
 
     firmwareListeners.call(&FirmwareListener::pingResponseReceived, lastTestDeviceResponded, value);
     
-    confirmAutoConnection();
-
     return errorCode;
 }
 
@@ -1040,6 +1039,7 @@ FirmwareSupport::Error LumatoneController::handleBufferCommand(const MidiMessage
             
     case SET_VELOCITY_CONFIG:
         DBG("Send layout complete.");
+        // loadRandomMapping(1000, 1); // uncomment for test sequence
         return FirmwareSupport::Error::noError;
 
     default:
@@ -1176,14 +1176,16 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
             midiDriver.setMidiInput(newInput);
             midiDriver.setMidiOutput(newOutput);
 
-            if (editingMode == sysExSendingMode::firmwareUpdate)
-            {
+            // if (editingMode == sysExSendingMode::firmwareUpdate)
+            // {
                 confirmAutoConnection();
                 return;
-            }
+            // }
 
-            // Confirm connection via handleSerialIdentityResponse or handlePingResponse
-            return;
+            // if (connectedSerialNumber.isEmpty())
+            //     sendGetSerialIdentityRequest();
+
+            // return;
         }
         
         if (currentDevicePairConfirmed)
@@ -1208,9 +1210,13 @@ void LumatoneController::confirmAutoConnection()
     if (midiDriver.hasDevicesDefined() && !currentDevicePairConfirmed)
     {
         if (connectedSerialNumber.isEmpty())
+        {
             sendGetSerialIdentityRequest();
+        }
         else
+        {
             sendGetFirmwareRevisionRequest();
+        }
     }
 }
 
@@ -1288,7 +1294,7 @@ void LumatoneController::loadRandomMapping(int testTimeoutMs,  int maxIterations
     if (file.exists() && file.hasFileExtension(".ltn"))
     {
         DBG("Found " + String(numfiles) + " files, loading " + file.getFileName());
-        bool opened = TerpstraSysExApplication::getApp().setCurrentFile(file);
+        MessageManager::callAsync([file]() { TerpstraSysExApplication::getApp().setCurrentFile(file); });
     }
     
 //    if (i < maxIterations)

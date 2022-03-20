@@ -13,9 +13,9 @@
 
 // There are different race-condition issues between macOS and Windows. 
 // This Driver may need to be redesigned, but for now this define is
-// used for including a MessageManagerLock on Windows, but not on macOS.
+// used for including a MessageManagerLock on Windows & Linux, but not on macOS.
 
-#define MIDI_DRIVER_USE_LOCK JUCE_WINDOWS
+#define MIDI_DRIVER_USE_LOCK JUCE_WINDOWS //|| JUCE_LINUX
 
 TerpstraMidiDriver::TerpstraMidiDriver() : HajuMidiDriver()
 {
@@ -44,7 +44,6 @@ void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMess
 #if MIDI_DRIVER_USE_LOCK
     const MessageManagerLock lock;
 #endif
-
     MessageManager::callAsync([this, source, midiMessage]{
         for (auto collector : collectors) collector->midiMessageReceived(source, midiMessage);
     });
@@ -52,13 +51,14 @@ void TerpstraMidiDriver::notifyMessageReceived(MidiInput* source, const MidiMess
 
 void TerpstraMidiDriver::notifyMessageSent(MidiOutput* target, const MidiMessage& midiMessage)
 {
-#if MIDI_DRIVER_USE_LOCK
-    const MessageManagerLock lock;
-#endif
+    // Currently unused
+// #if MIDI_DRIVER_USE_LOCK
+//     const MessageManagerLock lock;
+// #endif
 
-    MessageManager::callAsync([this, target, midiMessage]{
-        for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
-    });
+//     MessageManager::callAsync([this, target, midiMessage]{
+//         for (auto collector : collectors) collector->midiMessageSent(target, midiMessage);
+//     });
 }
 
 void TerpstraMidiDriver::notifySendQueueSize()
@@ -1475,9 +1475,9 @@ void TerpstraMidiDriver::handleIncomingMidiMessage(MidiInput* source, const Midi
         DBG("RCVD: " + message.getDescription());
 #endif
 
-        //const MessageManagerLock mmLock;
-        //this->listeners.call(&Listener::midiMessageReceived, source, message);
-        notifyMessageReceived(source, message);
+    //const MessageManagerLock mmLock;
+    //this->listeners.call(&Listener::midiMessageReceived, source, message);
+    notifyMessageReceived(source, message);
 
     // Check whether received message is an answer to the previously sent one
     if (hasMsgWaitingForAck && messageIsResponseToMessage(message, currentMsgWaitingForAck))
