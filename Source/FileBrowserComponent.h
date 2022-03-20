@@ -54,7 +54,7 @@ public:
 
     void buttonClicked(Button* buttonThatWasClicked) override
     {
-        chooser->launchAsync(FileBrowserComponent::FileChooserFlags::openMode, 
+        chooser->launchAsync(FileBrowserComponent::FileChooserFlags::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles, 
             [&](const FileChooser& chooser)
             {
                 auto result = chooser.getResult();
