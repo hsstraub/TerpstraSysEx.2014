@@ -28,7 +28,7 @@
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
 // Index in edit mode tab coincides with sysExSendingMode. In case that changes in the future, modify this here.
-LumatoneController::sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int tabIndex) { return static_cast<LumatoneController::sysExSendingMode>(tabIndex); }
+sysExSendingMode editModeTabIndexToMidiSysExSendingMode(int tabIndex) { return static_cast<sysExSendingMode>(tabIndex); }
 
 //[/MiscUserDefs]
 
@@ -168,6 +168,7 @@ MidiEditArea::MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn)
 
     //[Constructor] You can add your own custom stuff here..
 	TerpstraSysExApplication::getApp().getLumatoneController()->addStatusListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addEditorListener(this);
 	auto inputs = TerpstraSysExApplication::getApp().getLumatoneController()->getMidiInputList();
 	auto outputs = TerpstraSysExApplication::getApp().getLumatoneController()->getMidiOutputList();
 	refreshInputMenuAndSetSelected(0, dontSendNotification);
@@ -416,30 +417,7 @@ void MidiEditArea::buttonClicked (juce::Button* buttonThatWasClicked)
 	{
 		auto sysExSendingMode = editModeTabIndexToMidiSysExSendingMode((int)!liveEditorBtn->getToggleState());
 
-		TerpstraSysExApplication::getApp().getLumatoneController()->setSysExSendingMode(sysExSendingMode);
-
-		switch (sysExSendingMode)
-		{
-		case LumatoneController::sysExSendingMode::liveEditor:
-            if (TerpstraSysExApplication::getApp().getHasChangesToSave())
-                onOpenConnectionToDevice(translate("Switch to Live Mode with unsaved changes"));
-			break;
-
-		case LumatoneController::sysExSendingMode::offlineEditor:
-			lblConnectionState->setText(translate("Offline"), NotificationType::dontSendNotification);
-			//errorVisualizer.setErrorLevel(
-			//	*lblConnectionState.get(),
-			//	HajuErrorVisualizer::ErrorLevel::noError,
-			//	"Offline");
-			break;
-
-		default:
-			jassertfalse;
-			break;
-		}
-
-		lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[(int)liveEditorBtn->getToggleState()]);
-		repaint();
+		TerpstraSysExApplication::getApp().setEditMode(sysExSendingMode);
 	}
     //[/UserbuttonClicked_Post]
 }
@@ -556,6 +534,34 @@ void MidiEditArea::connectionLost()
     setConnectivity(false);
 }
 
+void MidiEditArea::editorModeChanged(sysExSendingMode editMode)
+{
+    switch (editMode)
+    {
+    case sysExSendingMode::liveEditor:
+        liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+        if (TerpstraSysExApplication::getApp().getHasChangesToSave())
+            onOpenConnectionToDevice(translate("Switch to Live Mode with unsaved changes"));
+        break;
+
+    case sysExSendingMode::offlineEditor:
+        offlineEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+        lblConnectionState->setText(translate("Offline"), NotificationType::dontSendNotification);
+        //errorVisualizer.setErrorLevel(
+        //    *lblConnectionState.get(),
+        //    HajuErrorVisualizer::ErrorLevel::noError,
+        //    "Offline");
+        break;
+
+    default:
+        jassertfalse;
+        break;
+    }
+
+    lblConnectionState->setColour(Label::ColourIds::textColourId, connectedColours[(int)liveEditorBtn->getToggleState()]);
+    repaint();
+}
+
 void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 {
 	jassert(cbMidiInput->getSelectedItemIndex() >= 0 && cbMidiOutput->getSelectedItemIndex() >= 0);
@@ -582,16 +588,18 @@ void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 	
 	AlertWindow::showAsync(alertOptions, [&](int retc)
 		{
+            isWaitingForUserChoice = false;
+
 			if (retc == 0) // Import
 			{
 				TerpstraSysExApplication::getApp().requestConfigurationFromDevice();
-				liveEditorBtn->setToggleState(true, NotificationType::dontSendNotification);
+				liveEditorBtn->setToggleState(true, NotificationType::sendNotification);
 				lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 			}
 			else if (retc == 1) // Send
 			{
 				TerpstraSysExApplication::getApp().sendCurrentConfigurationToDevice();
-				liveEditorBtn->setToggleState(true, dontSendNotification);
+				liveEditorBtn->setToggleState(true, NotificationType::sendNotification);
 				lblConnectionState->setText("Connected", NotificationType::dontSendNotification);
 			}
 			else if (retc == 2) // Offline
@@ -599,8 +607,6 @@ void MidiEditArea::onOpenConnectionToDevice(String dialogTitle)
 				offlineEditorBtn->setToggleState(true, NotificationType::sendNotification);
 				lblConnectionState->setText("Offline", NotificationType::dontSendNotification);
 			}
-        
-            isWaitingForUserChoice = false;
 		});
 }
 

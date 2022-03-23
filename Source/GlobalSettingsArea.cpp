@@ -307,7 +307,7 @@ void GlobalSettingsArea::connectionLost()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GlobalSettingsArea" componentName=""
-                 parentClasses="public juce::Component, public ChangeListener, public LumatoneController::StatusListener"
+                 parentClasses="public juce::Component, public ChangeListener, public LumatoneEditor::StatusListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="456"
                  initialHeight="64">

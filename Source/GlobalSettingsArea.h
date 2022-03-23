@@ -38,7 +38,7 @@
 */
 class GlobalSettingsArea  : public juce::Component,
                             public ChangeListener,
-                            public LumatoneController::StatusListener,
+                            public LumatoneEditor::StatusListener,
                             public juce::Button::Listener
 {
 public:
@@ -59,7 +59,7 @@ public:
 
     void setDeveloperMode(bool devModeOn);
 
-    // LumatoneController::StatusListener implementation
+    // LumatoneEditor::StatusListener implementation
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
 

@@ -36,7 +36,7 @@
                                                                     //[/Comments]
 */
 class GeneralOptionsDlg  : public Component,
-                           public LumatoneController::FirmwareListener,
+                           public LumatoneEditor::FirmwareListener,
                            public juce::Button::Listener
 {
 public:
@@ -52,7 +52,7 @@ public:
 
     void lookAndFeelChanged() override;
 
-    // LumatoneController::FirmwareListener Implementation
+    // LumatoneEditor::FirmwareListener Implementation
     void presetFlagsReceived(PresetFlags presetFlags) override;
 
     //[/UserMethods]

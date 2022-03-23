@@ -338,7 +338,7 @@ void CalibrationDlg::wheelsCalibrationDataReceived(WheelsCalibrationData calibra
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="CalibrationDlg" componentName=""
-                 parentClasses="public juce::Component, public ChangeListener, public LumatoneController::FirmwareListener"
+                 parentClasses="public juce::Component, public ChangeListener, public LumatoneEditor::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="524"
                  initialHeight="212">

@@ -163,7 +163,7 @@ void MidiSettingsDlg::sendChannelSettings()
 }
 
 //=========================================================================
-// LumatoneController::FirmwareListener implementation
+// LumatoneEditor::FirmwareListener implementation
 
 void MidiSettingsDlg::firmwareRevisionReceived(FirmwareVersion version)
 {

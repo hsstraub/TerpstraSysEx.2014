@@ -20,9 +20,8 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include <JuceHeader.h>
-#include "WheelsCalibrationComponent.h"
 #include "../LumatoneController.h"
+#include "WheelsCalibrationComponent.h"
 //[/Headers]
 
 
@@ -37,7 +36,7 @@
 */
 class CalibrationDlg  : public juce::Component,
                         public ChangeListener,
-                        public LumatoneController::FirmwareListener,
+                        public LumatoneEditor::FirmwareListener,
                         public juce::Button::Listener
 {
 public:
@@ -55,7 +54,7 @@ public:
     void updateWheelCalibrationStatus();
 
     //==============================================================================
-    // LumatoneController::FirmwareListener Implementation
+    // LumatoneEditor::FirmwareListener Implementation
 
     void calibratePitchModWheelAnswer(TerpstraMIDIAnswerReturnCode code) override;
     

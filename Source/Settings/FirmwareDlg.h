@@ -18,7 +18,7 @@ class FirmwareDlg : public Component,
     protected Button::Listener, 
     protected PathBrowserComponent::Listener,
     protected FirmwareTransfer::ProcessListener,
-    protected LumatoneController::FirmwareListener,
+    protected LumatoneEditor::FirmwareListener,
     private Timer
 {
 public:
@@ -45,7 +45,7 @@ public:
     void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg) override;
 
     //=========================================================================
-    // LumatoneController::FirmwareListener implementation
+    // LumatoneEditor::FirmwareListener implementation
 
     void firmwareRevisionReceived(FirmwareVersion version) override;
     

@@ -36,7 +36,7 @@
                                                                     //[/Comments]
 */
 class PedalSensitivityDlg  : public juce::Component,
-                             public LumatoneController::FirmwareListener,
+                             public LumatoneEditor::FirmwareListener,
                              public juce::Button::Listener,
                              public juce::Slider::Listener
 {
@@ -52,7 +52,7 @@ public:
 
 	void lookAndFeelChanged() override;
 
-    // LumatoneController::FirmwareListener implementation
+    // LumatoneEditor::FirmwareListener implementation
     void firmwareRevisionReceived(FirmwareVersion version) override;
     void presetFlagsReceived(PresetFlags presetFlags) override;
     void expressionPedalSensitivityReceived(int sensitivity) override;

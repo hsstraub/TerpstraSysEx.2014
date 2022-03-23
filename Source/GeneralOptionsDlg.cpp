@@ -192,7 +192,7 @@ void GeneralOptionsDlg::presetFlagsReceived(PresetFlags presetFlags)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
-                 parentClasses="public Component, public LumatoneController::FirmwareListener"
+                 parentClasses="public Component, public LumatoneEditor::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="188"
                  initialHeight="96">

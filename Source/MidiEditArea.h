@@ -21,10 +21,9 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "TerpstraMidiDriver.h"
 #include "HajuLib/HajuErrorVisualizer.h"
+#include "ApplicationListeners.h"
 #include "LumatoneEditorLookAndFeel.h"
-#include "DeviceActivityMonitor.h"
 //[/Headers]
 
 
@@ -38,7 +37,8 @@
                                                                     //[/Comments]
 */
 class MidiEditArea  : public Component,
-                      public LumatoneController::StatusListener,
+                      public LumatoneEditor::StatusListener,
+                      public LumatoneEditor::EditorListener,
                       public juce::ComboBox::Listener,
                       public juce::Button::Listener,
                       public juce::Timer
@@ -57,10 +57,13 @@ public:
     void refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
     void refreshOutputMenuAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
-	// Implementation of LumatoneController::StatusListener
+	// Implementation of LumatoneEditor::StatusListener
     void connectionFailed() override;
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
+    
+    // Implementation of LumatoneEditor::EditorListener
+    void editorModeChanged(sysExSendingMode editMode) override;
 
 
     void timerCallback() override;

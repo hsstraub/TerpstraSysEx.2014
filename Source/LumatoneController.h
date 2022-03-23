@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "ApplicationListeners.h"
 #include "KeyboardDataStructure.h"
 #include "TerpstraMidiDriver.h"
 #include "DeviceActivityMonitor.h"
@@ -26,14 +27,6 @@ class LumatoneController :  private TerpstraMidiDriver::Collector,
                             private juce::Timer,
                             private juce::ChangeListener
 {
-public:
-
-    enum sysExSendingMode
-    {
-        liveEditor = 0,
-        offlineEditor = 1,
-        firmwareUpdate = 2
-    };
 
 public:
 
@@ -43,7 +36,7 @@ public:
     //============================================================================
     // Methods to configure firmware communication parameters
 
-    sysExSendingMode getSysExSendingMode() const { return editingMode; }
+    sysExSendingMode getEditorMode() const { return editingMode; }
     void setSysExSendingMode(sysExSendingMode newMode);
 
     FirmwareVersion getFirmwareVersion() const { return firmwareVersion; }
@@ -255,7 +248,6 @@ private:
 
     // Takes a recognized firmware version
     void setFirmwareVersion(LumatoneFirmwareVersion lumatoneVersion, bool parseVersion = true);
-    
 
 protected:
     //============================================================================
@@ -267,116 +259,37 @@ protected:
     virtual void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override;
     virtual void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage) override;
 
-public:
-    //============================================================================
-    // Public interface for Lumatone connection status
-
-    class StatusListener
-    {
-    public:
-
-        virtual ~StatusListener() {}
-
-        virtual void connectionFailed() {}
-        virtual void connectionEstablished(int inputMidiDevice, int outputMidiDevice) {}
-        virtual void connectionLost() {}
-    };
-
-    ListenerList<StatusListener> statusListeners;
-    void    addStatusListener(StatusListener* listenerIn) { statusListeners.add(listenerIn); }
-    void removeStatusListener(StatusListener* listenerIn) { statusListeners.remove(listenerIn); }
-
 private:
     
     void confirmAutoConnection();
     void onConnectionConfirm(bool sendChangeSignal);
     void onDisconnection();
     void onFirmwareUpdateReceived();
-
+    
+    
+private:
+    ListenerList<LumatoneEditor::StatusListener> statusListeners;
 public:
-    //============================================================================
-    // Public interface for Lumatone firmware communication
-    class FirmwareListener
-    {
-    public:
-        
-        virtual ~FirmwareListener() {}
+    void    addStatusListener(LumatoneEditor::StatusListener* listenerIn) { statusListeners.add(listenerIn); }
+    void removeStatusListener(LumatoneEditor::StatusListener* listenerIn) { statusListeners.remove(listenerIn); }
 
-        // rgbFlag uses 0 for red, 1 for green, 2 for blue
-        virtual void octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData) {};
+private:
+    ListenerList<LumatoneEditor::FirmwareListener> firmwareListeners;
+public:
+    void    addFirmwareListener(LumatoneEditor::FirmwareListener* listenerIn) { firmwareListeners.add(listenerIn); }
+    void removeFirmwareListener(LumatoneEditor::FirmwareListener* listenerIn) { firmwareListeners.remove(listenerIn); }
 
-        virtual void octaveChannelConfigReceived(int octaveIndex, const int* channelData) {};
+private:
+     ListenerList<LumatoneEditor::EditorListener> editorListeners;
+public:
+     void    addEditorListener(LumatoneEditor::EditorListener* listenerIn) { editorListeners.add(listenerIn); }
+     void removeEditorListener(LumatoneEditor::EditorListener* listenerIn) { editorListeners.remove(listenerIn); }
 
-        virtual void octaveNoteConfigReceived(int octaveIndex, const int* noteData) {};
-
-        virtual void keyTypeConfigReceived(int octaveIndex, const int* keyTypeData) {};
-
-        virtual void velocityConfigReceived(const int* velocityData) {};
-
-        virtual void aftertouchConfigReceived(const int* aftertouch) {};
-
-        virtual void velocityIntervalConfigReceived(const int* velocityData) {};
-
-        virtual void faderConfigReceived(const int* faderData) {};
-
-        virtual void faderTypeConfigReceived(int octaveIndex, const int* faderTypeData) {};
-
-        virtual void serialIdentityReceived(int inputDeviceIndex, const int* serialBytes) {};
-        
-        virtual void calibratePitchModWheelAnswer(TerpstraMIDIAnswerReturnCode code) {};
-
-        virtual void lumatouchConfigReceived(const int* lumatouchData) {};
-
-        virtual void firmwareRevisionReceived(FirmwareVersion version) {};
-
-        virtual void pingResponseReceived(int inputDeviceIndex, unsigned int pingValue) {};
-
-        virtual void peripheralMidiChannelsReceived(PeripheralChannelSettings channelSettings) {};
-
-        virtual void pedalCalibrationDataReceived(int minBound, int maxBound, bool pedalIsActive) {};
-
-        virtual void wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData) {};
-
-        virtual void presetFlagsReceived(PresetFlags presetFlags) {};
-
-        virtual void expressionPedalSensitivityReceived(int sensitivity) {};
-
-        virtual void noAnswerToCommand(int cmd) {};
-    };
-
-    ListenerList<FirmwareListener> firmwareListeners;
-
-    void    addFirmwareListener(FirmwareListener* listenerIn) { firmwareListeners.add(listenerIn); }
-    void removeFirmwareListener(FirmwareListener* listenerIn) { firmwareListeners.remove(listenerIn); }
-
-    // Unused
-    // class EditorListener
-    // {
-    // public:
-
-    //     virtual void keyFunctionConfigurationChanged(int octaveNumber, int keyNumber, int noteOrCC, int midiChannel, LumatoneKeyType keyType, bool faderUpIsNull) {};
-
-    //     virtual void keyColourConfigurationChanged(int octaveNumber, int keyNumber, Colour keyColour) {};
-    // };
-
-    // ListenerList<EditorListener> editorListeners;
-
-    // void    addEditorListener(EditorListener* listenerIn) { editorListeners.add(listenerIn); }
-    // void removeEditorListener(EditorListener* listenerIn) { editorListeners.remove(listenerIn); }
-
-    class MidiListener
-    {
-    public:
-
-        virtual ~MidiListener() {}
-
-        virtual void handleMidiMessage(const MidiMessage& msg) = 0;
-    };
-
-    ListenerList<MidiListener> midiListeners;
-
-    void    addMidiListener(MidiListener* listenerIn) { midiListeners.add(listenerIn); }
-    void removeMidiListener(MidiListener* listenerIn) { midiListeners.remove(listenerIn); }
+//private:
+//    ListenerList<MidiListener> midiListeners;
+//public:
+//    void    addMidiListener(MidiListener* listenerIn) { midiListeners.add(listenerIn); }
+//    void removeMidiListener(MidiListener* listenerIn) { midiListeners.remove(listenerIn); }
 
 private:
     //============================================================================
@@ -466,5 +379,5 @@ private:
     bool                        waitingForTestResponse = false;
     bool                        currentDevicePairConfirmed = false;
     
-    LumatoneController::sysExSendingMode editingMode = sysExSendingMode::offlineEditor;
+    sysExSendingMode editingMode = sysExSendingMode::offlineEditor;
 };

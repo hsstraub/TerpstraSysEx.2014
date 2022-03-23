@@ -40,12 +40,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
-	TerpstraSysExApplication::getApp().getLumatoneController()->addMidiListener(this);
+//	TerpstraSysExApplication::getApp().getLumatoneController()->addMidiListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
-	TerpstraSysExApplication::getApp().getLumatoneController()->removeMidiListener(this);
+//	TerpstraSysExApplication::getApp().getLumatoneController()->removeMidiListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -480,7 +480,7 @@ void AllKeysOverview::resetOctaveSize()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="AllKeysOverview" componentName="AllKeysOverview"
-                 parentClasses="public juce::Component, public LumatoneController::StatusListener, public LumatoneController::FirmwareListener"
+                 parentClasses="public juce::Component, public LumatoneEditor::StatusListener, public LumatoneEditor::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="928"
                  initialHeight="214">

@@ -81,6 +81,8 @@ public:
 	bool pasteSubBoardData();
     bool pasteModifiedSubBoardData(CommandID commandID);
     bool canPasteSubBoardData() const;
+    
+    void setEditMode(sysExSendingMode editMode);
 
 	void setCalibrationMode(bool calibrationStarted) { inCalibrationMode = calibrationStarted; }
 	bool getInCalibrationMode() const { return inCalibrationMode; }
@@ -99,7 +101,7 @@ public:
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
     bool setCurrentFile(File fileToOpen);
-	bool saveCurrentFile();
+	bool saveCurrentFile(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 
 	void sendCurrentConfigurationToDevice();
 	void requestConfigurationFromDevice();

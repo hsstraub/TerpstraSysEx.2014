@@ -506,7 +506,7 @@ bool TerpstraSysExApplication::saveSysExMapping(std::function<void(bool success)
 	if (currentFile.getFileName().isEmpty())
 		return saveSysExMappingAs(saveFileCallback);
 	else
-		return saveCurrentFile();
+		return saveCurrentFile(saveFileCallback);
 
 }
 
@@ -633,6 +633,11 @@ bool TerpstraSysExApplication::toggleDeveloperMode()
 	bool newMode = !propertiesFile->getBoolValue("DeveloperMode");
 	propertiesFile->setValue("DeveloperMode", newMode);
 	return ((MainContentComponent*)(mainWindow->getContentComponent()))->setDeveloperMode(newMode);
+}
+
+void TerpstraSysExApplication::setEditMode(sysExSendingMode editMode)
+{
+    lumatoneController->setSysExSendingMode(editMode);
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()
@@ -783,7 +788,7 @@ bool TerpstraSysExApplication::setCurrentFile(File fileToOpen)
 }
 
 // Saves the current mapping to file, specified in currentFile.
-bool TerpstraSysExApplication::saveCurrentFile()
+bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)> saveFileCallback)
 {
 	if (currentFile.existsAsFile())
 		currentFile.deleteFile();
@@ -793,11 +798,13 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	TerpstraKeyMapping keyMapping;
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
 
+    bool appendSuccess = true;
 	StringArray stringArray = keyMapping.toStringArray();
 	for (int i = 0; i < stringArray.size(); i++)
-		currentFile.appendText(stringArray[i] + "\n");
-
-	setHasChangesToSave(false);
+		appendSuccess = appendSuccess && currentFile.appendText(stringArray[i] + "\n");
+        
+	setHasChangesToSave(!appendSuccess);
+    saveFileCallback(appendSuccess);
 
 	// ToDo undo history?
 
@@ -841,8 +848,9 @@ void TerpstraSysExApplication::requestConfigurationFromDevice()
 			{
 				if (retc == 0)
 				{
-					// "Cancel". Do not receive config
+					// "Cancel". Do not receive config, go offline
 					DBG("Layout import cancelled");
+                    setEditMode(sysExSendingMode::offlineEditor);
 					return;
 				}
 				else if (retc == 1)

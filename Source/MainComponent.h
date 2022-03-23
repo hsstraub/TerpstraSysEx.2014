@@ -33,7 +33,7 @@
     your controls and content.
 */
 class MainContentComponent : public Component, 
-							 public LumatoneController::FirmwareListener,
+							 public LumatoneEditor::FirmwareListener,
 							 public ChangeListener,
 							 public Button::Listener
 {
@@ -77,7 +77,7 @@ public:
 	void refreshKeyDataFields();
 	void refreshAllFields();
 
-	// Implementation of LumatoneController::FirmwareListener
+	// Implementation of LumatoneEditor::FirmwareListener
 
 	void octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData) override;
 

@@ -14,7 +14,7 @@
 
 class MidiSettingsDlg : public Component,
     protected Slider::Listener,
-    protected LumatoneController::FirmwareListener
+    protected LumatoneEditor::FirmwareListener
 {
 public:
 
@@ -34,7 +34,7 @@ public:
     void sendChannelSettings();
 
     //=========================================================================
-    // LumatoneController::FirmwareListener implementation
+    // LumatoneEditor::FirmwareListener implementation
 
     void firmwareRevisionReceived(FirmwareVersion version) override;
 

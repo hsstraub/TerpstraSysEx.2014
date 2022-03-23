@@ -301,7 +301,7 @@ void PedalSensitivityDlg::expressionPedalSensitivityReceived(int sensitivity)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="PedalSensitivityDlg" componentName=""
-                 parentClasses="public juce::Component, public LumatoneController::FirmwareListener"
+                 parentClasses="public juce::Component, public LumatoneEditor::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="134"
                  initialHeight="96">

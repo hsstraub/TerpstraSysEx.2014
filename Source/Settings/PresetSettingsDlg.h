@@ -13,7 +13,7 @@
 
 class PresetSettingsDlg : public Component,
     protected Button::Listener,
-    protected LumatoneController::FirmwareListener
+    protected LumatoneEditor::FirmwareListener
 
 {
 public:
@@ -30,7 +30,7 @@ public:
     void setSupportedControls(FirmwareVersion version);
 
     //=========================================================================
-    // LumatoneController::FirmwareListener implementation
+    // LumatoneEditor::FirmwareListener implementation
 
     void firmwareRevisionReceived(FirmwareVersion version) override;
 
