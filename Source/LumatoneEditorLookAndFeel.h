@@ -36,6 +36,16 @@ public:
         }
 
     }
+    
+    LumatoneEditorLookAndFeel(const LumatoneEditorLookAndFeel& lafCopy)
+        : appFonts(lafCopy.appFonts),
+          saveIconPath(lafCopy.saveIconPath),
+          arrowUpIconPath(lafCopy.arrowUpIconPath),
+          arrowDownIconPath(lafCopy.arrowDownIconPath),
+          compactWindowStyle(this)
+    {
+        setupDefaultColours();
+    }
 
     Font getAppFont(LumatoneEditorFont fontIdIn)
     {

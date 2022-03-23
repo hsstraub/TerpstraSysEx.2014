@@ -89,6 +89,8 @@ protected:
     void newPaletteRequested() override;
 
 private:
+    
+    LumatoneEditorLookAndFeel lookAndFeel;
 
     Array<LumatoneEditorColourPalette>& colourPalettes;
 

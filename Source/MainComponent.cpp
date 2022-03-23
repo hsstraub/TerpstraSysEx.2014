@@ -365,7 +365,7 @@ void MainContentComponent::buttonClicked(Button* btn)
 
 		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());
 
-		CallOutBox& popupBox = CallOutBox::launchAsynchronously(
+		CallOutBox::launchAsynchronously(
 			std::unique_ptr<Component>(paletteWindow),
 			componentArea,
 			this
@@ -373,7 +373,6 @@ void MainContentComponent::buttonClicked(Button* btn)
 
 		// else, a preset button colour button was pressed
 		paletteWindow->listenToColourSelection(colourEdit);
-		popupBox.setLookAndFeel(&getLookAndFeel());
 		// TODO: Set swatch # or custom colour as current colour
 	}
 }

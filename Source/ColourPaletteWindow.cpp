@@ -15,8 +15,11 @@
 // ColourPaletteWindow Definitions
 
 ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& colourPalettesIn)
-    : colourPalettes(colourPalettesIn)
+    : lookAndFeel(TerpstraSysExApplication::getApp().getLookAndFeel()),
+      colourPalettes(colourPalettesIn)
 {
+    setLookAndFeel(&lookAndFeel);
+    
     setName("ColourPaletteWindow");
 
     colourSelectorGroup.reset(new ColourSelectionGroup());
@@ -57,6 +60,8 @@ ColourPaletteWindow::~ColourPaletteWindow()
     palettePanelViewport    = nullptr;
     palettePanel            = nullptr;
     colourSelectorGroup     = nullptr;
+    
+    setLookAndFeel(nullptr);
 }
 
 void ColourPaletteWindow::resized()
