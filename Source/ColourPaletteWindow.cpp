@@ -40,7 +40,9 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     colourToolTabs->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
     colourToolTabs->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.9f);
     addAndMakeVisible(*colourToolTabs);
-
+    
+    const int firstTabIndex = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("LastColourPopupTabIndex");
+    colourToolTabs->setCurrentTabIndex(firstTabIndex);
     colourToolTabs->getTabbedButtonBar().addChangeListener(this);
 }
 
@@ -167,5 +169,11 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
         paletteIndexEditing = -1;
         paletteEditingIsNew = false;
         paletteEditPanel = nullptr;
+    }
+    
+    else if (source == &colourToolTabs->getTabbedButtonBar())
+    {
+        const int newTab = colourToolTabs->getCurrentTabIndex();
+        TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastColourPopupTabIndex", newTab);
     }
 }
