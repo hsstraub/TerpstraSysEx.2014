@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Please run in the same directory as the Presets folder
-
 PRESETS=`pwd`/Presets
 
 cd ~/Documents
