@@ -168,15 +168,25 @@ public:
 
 		void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 		{
-			// Check if stored height is larger than display area
-            int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight(); 
-            String windowState = propertiesFile->getValue("MainWindowState");
-            auto windowProperties = StringArray::fromTokens(windowState, false);
-            bool useSavedState = windowProperties[windowProperties.size() - 1].getIntValue() <= maxWindowHeight;
-            if (useSavedState)
-            {
-                useSavedState = restoreWindowStateFromString(propertiesFile->getValue("MainWindowState"));
-            }
+			bool useSavedState = restoreWindowStateFromString(propertiesFile->getValue("MainWindowState"));
+
+			int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight();
+			if (useSavedState)
+			{
+				// Check if stored height is larger than display area
+				useSavedState = getHeight() <= maxWindowHeight;
+			}
+
+			if (useSavedState)
+			{
+				// Check if Y position causes it to clip the screen border
+				int clipBottomAmount = (getScreenY() + getHeight()) - maxWindowHeight;
+				if (clipBottomAmount > 0)
+					setTopLeftPosition(getScreenX(), getScreenY() - clipBottomAmount);
+
+				if (getScreenY() < 0)
+					setTopLeftPosition(getScreenX(), 0);
+			}
 
             if (!useSavedState)
             {
