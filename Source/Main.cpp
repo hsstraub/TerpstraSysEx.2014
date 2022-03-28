@@ -930,30 +930,37 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	String m;
 
 	m << "Lumatone Editor" << newLine
+		<< "Version " << getApplicationVersion() << newLine
 		<< newLine
-		<< "Version " << String((JUCE_APP_VERSION_HEX >> 16) & 0xff) << "."
-		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
-		<< String(JUCE_APP_VERSION_HEX & 0xff) << newLine
-
-		<< "@ Hans Straub, Vincenzo Sicurella 2014 - 2021" << newLine
+		<< "@ Hans Straub 2014 - 2021," << newLine
+		<< "& Vincenzo Sicurella 2020 - 2022" << newLine
 		<< newLine
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to:" << newLine
 		<< newLine
-		<< "http://lumatone.io";
+		<< "https://www.lumatone.io/" << newLine
+		<< newLine
+		<< "Built " << Time::getCompilationDate().toString(true, true, false, true)
+		<< "with " << SystemStats::getOperatingSystemName() << newLine
+		<< "on " << SystemStats::getCpuModel() << newLine
+		<< SystemStats::getJUCEVersion();
 
 	DialogWindow::LaunchOptions options;
-	Label* label = new Label();
-	label->setLookAndFeel(&lookAndFeel);
-	label->setText(m, dontSendNotification);
-	label->setFont(lookAndFeel.getAppFont(LumatoneEditorFont::FranklinGothic));
-	options.content.setOwned(label);
+	auto textDisplay = new TextEditor();
+	//textDisplay->setLookAndFeel(&lookAndFeel);
+	lookAndFeel.setupTextEditor(*textDisplay);
+	textDisplay->setMultiLine(true, true);
+	textDisplay->setText(m, dontSendNotification);
+	textDisplay->setFont(lookAndFeel.getAppFont(LumatoneEditorFont::FranklinGothic));
+	textDisplay->setReadOnly(true);
+	textDisplay->setCaretVisible(false);
+	options.content.setOwned(textDisplay);
 
 	juce::Rectangle<int> area(0, 0, 400, 200);
 	options.content->setSize(area.getWidth(), area.getHeight());
 
-	resizeLabelWithHeight(label, roundToInt(area.getHeight() * 0.24f));
+	//resizeLabelWithHeight(label, roundToInt(area.getHeight() * 0.24f));
 
 	options.dialogTitle = "About Lumatone Editor";
 	options.dialogBackgroundColour = lookAndFeel.findColour(LumatoneEditorColourIDs::DarkBackground);
@@ -964,7 +971,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 
 
 	auto dw = options.launchAsync();
-	dw->setLookAndFeel(&lookAndFeel);
+	//dw->setLookAndFeel(&lookAndFeel);
 	dw->centreWithSize(400, 260);
 
 	setOpenDialogWindow(dw);

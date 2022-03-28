@@ -1227,6 +1227,10 @@ public:
     void setupTextEditor(TextEditor& editor)
     {
         editor.setIndents(4, 0);
+        editor.setColour(TextEditor::ColourIds::backgroundColourId, findColour(TextEditor::ColourIds::backgroundColourId));
+        editor.setColour(TextEditor::ColourIds::textColourId, findColour(TextEditor::ColourIds::textColourId));
+        editor.setColour(TextEditor::ColourIds::outlineColourId, Colour());
+
     }
 
 public:
