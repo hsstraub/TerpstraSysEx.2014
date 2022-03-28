@@ -14,8 +14,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install JUCE to $HOME
         run: |
-          wget https://github.com/juce-framework/JUCE/releases/download/6.1.5/juce-6.1.5-linux.zip
-          unzip -d ~ juce-6.1.5-linux.zip
+          wget https://github.com/juce-framework/JUCE/releases/download/6.1.6/juce-6.1.6-linux.zip
+          unzip -d ~ juce-6.1.6-linux.zip
       - name: Install APT dependencies
         run: |
           sudo apt update
@@ -45,8 +45,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install JUCE to $HOME
         run: |
-          wget https://github.com/juce-framework/JUCE/releases/download/6.1.5/juce-6.1.5-osx.zip
-          unzip -d ~ juce-6.1.5-osx.zip
+          wget https://github.com/juce-framework/JUCE/releases/download/6.1.6/juce-6.1.6-osx.zip
+          unzip -d ~ juce-6.1.6-osx.zip
       - name: Build Lumatone Editor
         run: |
           ~/JUCE/Projucer.app/Contents/MacOS/Projucer --resave TerpstraSysEx.jucer
@@ -73,8 +73,8 @@ jobs:
       - uses: microsoft/setup-msbuild@v1.1
       - name: Install JUCE to C:\
         run: |
-          Invoke-WebRequest https://github.com/juce-framework/JUCE/releases/download/6.1.5/juce-6.1.5-windows.zip -O juce-6.1.5-windows.zip
-          7z x juce-6.1.5-windows.zip -oC:\
+          Invoke-WebRequest https://github.com/juce-framework/JUCE/releases/download/6.1.6/juce-6.1.6-windows.zip -O juce-6.1.6-windows.zip
+          7z x juce-6.1.6-windows.zip -oC:\
       - name: Build Lumatone Editor
         run: |
           bash -c '/c/JUCE/Projucer --resave TerpstraSysEx.jucer'
