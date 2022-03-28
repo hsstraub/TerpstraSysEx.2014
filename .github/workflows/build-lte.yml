@@ -32,8 +32,8 @@ jobs:
       - name: Upload Lumatone Editor
         uses: actions/upload-artifact@v2
         with:
-          name: LumatoneSetup-Linux
-          path: Builds/Linux/build/LumatoneSetup
+          name: LumatoneEditor-Linux
+          path: Builds/Linux/build/Lumatone\ Editor
           if-no-files-found: error
 
   build-lte-macos:
@@ -59,7 +59,7 @@ jobs:
       - name: Upload Lumatone Editor
         uses: actions/upload-artifact@v2
         with:
-          name: LumatoneSetup-macOS
+          name: LumatoneEditor-macOS
           path: Builds/MacOSX/build/Release
           if-no-files-found: error
 
@@ -79,7 +79,7 @@ jobs:
         run: |
           bash -c '/c/JUCE/Projucer --resave TerpstraSysEx.jucer'
           cd Builds/VisualStudio2019
-          msbuild LumatoneSetup.sln /p:configuration=Release
+          msbuild Lumatone\ Editor.sln /p:configuration=Release
       - name: List build directory
         run: |
           cd Builds/VisualStudio2019
@@ -87,13 +87,13 @@ jobs:
       - name: Upload Lumatone Editor
         uses: actions/upload-artifact@v2
         with:
-          name: LumatoneSetup-Windows
-          path: Builds/VisualStudio2019/x64/Release/App/LumatoneSetup.exe
+          name: LumatoneEditor-Windows
+          path: Builds/VisualStudio2019/x64/Release/App/Lumatone\ Editor.exe
           if-no-files-found: error
       - name: Upload dynamic libraries
         uses: actions/upload-artifact@v2
         with:
-          name: LumatoneSetup-Windows
+          name: LumatoneEditor-Windows
           path: Libraries/win64/bin/*.dll
           if-no-files-found: error
 
