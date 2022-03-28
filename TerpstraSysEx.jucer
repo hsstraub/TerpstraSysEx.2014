@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="1.0.2b"
-              bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              companyName="Hans Straub" headerPath="../../../JUCE/modules"
-              jucerFormatVersion="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
+<JUCERPROJECT id="oPBJmN" name="Lumatone Editor" projectType="guiapp" version="1.0.2b"
+              bundleIdentifier="com.Lumatone.LumatoneEditor" includeBinaryInAppConfig="1"
+              companyName="Lumatone" headerPath="../../../JUCE/modules" jucerFormatVersion="1"
+              userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
               defines="USE_LICENSED_FONTS=0 SERVERKEY=&quot;debian&quot; SERVERPWD=&quot;temppwd&quot;"
-              displaySplashScreen="0">
-  <MAINGROUP id="obWLli" name="LumatoneSetup">
+              displaySplashScreen="0" companyWebsite="https://www.lumatone.io/">
+  <MAINGROUP id="obWLli" name="Lumatone Editor">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
         <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
@@ -305,8 +305,8 @@
                 linuxExtraPkgConfig="libssh2" extraDefs="HAVE_ARPA_INET_H=1 HAVE_UNISTD_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="LumatoneSetup"/>
-        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" targetName="LumatoneSetup"/>
+                       targetName="Lumatone Editor"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" targetName="Lumatone Editor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -325,9 +325,9 @@
                embeddedFrameworks="../../Libraries/mac/lib/libgpg-error.dylib&#10;../../Libraries/mac/lib/libgcrypt.dylib&#10;../../Libraries/mac/lib/libssh2.dylib"
                smallIcon="fwSyLL">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Lumatone Editor"
                        osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
-        <CONFIGURATION name="Release" isDebug="0" targetName="LumatoneSetup" osxArchitecture="64BitIntel"
+        <CONFIGURATION name="Release" isDebug="0" targetName="Lumatone Editor" osxArchitecture="64BitIntel"
                        libraryPath="../../Libraries/mac/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
@@ -345,9 +345,9 @@
             extraDefs="SERVERHOST=&quot;192.168.7.2&quot;" externalLibraries="libssh2.dll.a">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
-                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
+                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib" targetName="Lumatone Editor"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"
-                       headerPath="$(ProjectDir)..\..\Libraries\win64\include"/>
+                       headerPath="$(ProjectDir)..\..\Libraries\win64\include" targetName="Lumatone Editor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -364,9 +364,9 @@
             smallIcon="fwSyLL" bigIcon="yjLw0u" extraDefs="SERVERHOST=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
-                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
+                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib" targetName="Lumatone Editor"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"
-                       headerPath="$(ProjectDir)..\..\Libraries\win64\include"/>
+                       headerPath="$(ProjectDir)..\..\Libraries\win64\include" targetName="Lumatone Editor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>
