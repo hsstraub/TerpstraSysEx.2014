@@ -49,6 +49,10 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	boundsConstrainer.reset(new ComponentBoundsConstrainer());
 	boundsConstrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
 	boundsConstrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
+	
+	// Don't allow to resize more than current screen height
+	int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight();
+	boundsConstrainer->setMaximumHeight(maxWindowHeight);
 
 	// Colour scheme
 	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
