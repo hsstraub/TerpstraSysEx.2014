@@ -946,7 +946,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< "https://www.lumatone.io/" << newLine
 		<< newLine
 		<< "Built " << Time::getCompilationDate().toString(true, true, false, true)
-		<< "with " << SystemStats::getOperatingSystemName() << newLine
+		<< " with " << SystemStats::getOperatingSystemName() << newLine
 		<< "on " << SystemStats::getCpuModel() << newLine
 		<< SystemStats::getJUCEVersion();
 
