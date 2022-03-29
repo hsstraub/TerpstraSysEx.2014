@@ -34,319 +34,13 @@
 										<integer>0</integer>
 									</dict>
 									<key>CHILDREN</key>
-									<array>
-										<dict>
-											<key>CHILDREN</key>
-											<array>
-												<dict>
-													<key>CHILDREN</key>
-													<array>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/_CodeSignature/CodeResources</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>420</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-													</array>
-													<key>EXPANDED</key>
-													<true/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/_CodeSignature</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>493</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-												<dict>
-													<key>CHILDREN</key>
-													<array/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/CodeResources</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>420</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-												<dict>
-													<key>CHILDREN</key>
-													<array>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Frameworks/libgcrypt.dylib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Frameworks/libgpg-error.dylib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Frameworks/libssh2.dylib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-													</array>
-													<key>EXPANDED</key>
-													<true/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Frameworks</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>493</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-												<dict>
-													<key>CHILDREN</key>
-													<array/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Info.plist</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>420</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-												<dict>
-													<key>CHILDREN</key>
-													<array>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/MacOS/LumatoneSetup</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-													</array>
-													<key>EXPANDED</key>
-													<true/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/MacOS</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>493</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-												<dict>
-													<key>CHILDREN</key>
-													<array/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/PkgInfo</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>420</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-												<dict>
-													<key>CHILDREN</key>
-													<array>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Resources/Icon.icns</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>420</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Resources/libgcrypt.20.dylib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Resources/libgpg-error.0.dylib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Resources/libssh2.1.dylib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>493</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-														<dict>
-															<key>CHILDREN</key>
-															<array/>
-															<key>GID</key>
-															<integer>80</integer>
-															<key>PATH</key>
-															<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Resources/RecentFilesMenuTemplate.nib</string>
-															<key>PATH_TYPE</key>
-															<integer>3</integer>
-															<key>PERMISSIONS</key>
-															<integer>420</integer>
-															<key>TYPE</key>
-															<integer>3</integer>
-															<key>UID</key>
-															<integer>0</integer>
-														</dict>
-													</array>
-													<key>EXPANDED</key>
-													<true/>
-													<key>GID</key>
-													<integer>80</integer>
-													<key>PATH</key>
-													<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents/Resources</string>
-													<key>PATH_TYPE</key>
-													<integer>3</integer>
-													<key>PERMISSIONS</key>
-													<integer>493</integer>
-													<key>TYPE</key>
-													<integer>3</integer>
-													<key>UID</key>
-													<integer>0</integer>
-												</dict>
-											</array>
-											<key>EXPANDED</key>
-											<true/>
-											<key>GID</key>
-											<integer>80</integer>
-											<key>PATH</key>
-											<string>Builds/MacOSX/notarized/Lumatone Editor.app/Contents</string>
-											<key>PATH_TYPE</key>
-											<integer>3</integer>
-											<key>PERMISSIONS</key>
-											<integer>493</integer>
-											<key>TYPE</key>
-											<integer>3</integer>
-											<key>UID</key>
-											<integer>0</integer>
-										</dict>
-									</array>
-									<key>EXPANDED</key>
-									<true/>
+									<array/>
 									<key>GID</key>
 									<integer>80</integer>
 									<key>PATH</key>
-									<string>Builds/MacOSX/notarized/Lumatone Editor.app</string>
+									<string>../../../Releases/macOS/Latest/Lumatone Editor.app</string>
 									<key>PATH_TYPE</key>
-									<integer>3</integer>
+									<integer>1</integer>
 									<key>PERMISSIONS</key>
 									<integer>493</integer>
 									<key>TYPE</key>
@@ -1095,9 +789,9 @@
 				<key>POSTINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>/Users/soundtoys/Programming/Vito/TerpstraSysEx.2014/Scripts/install-presets.sh</string>
+					<string>../../../Scripts/install-presets.sh</string>
 					<key>PATH_TYPE</key>
-					<integer>0</integer>
+					<integer>1</integer>
 				</dict>
 				<key>PREINSTALL_PATH</key>
 				<dict>
@@ -1112,9 +806,9 @@
 						<key>GID</key>
 						<integer>0</integer>
 						<key>PATH</key>
-						<string>Presets</string>
+						<string>../../../Presets</string>
 						<key>PATH_TYPE</key>
-						<integer>3</integer>
+						<integer>1</integer>
 						<key>PERMISSIONS</key>
 						<integer>493</integer>
 						<key>TYPE</key>
@@ -1149,7 +843,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>1.0.1</string>
+				<string>1.0.2</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>
@@ -1290,9 +984,9 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>/Users/soundtoys/Programming/Vito/TerpstraSysEx.2014/Installers/Packages/Lumatone Editor/LICENSE.txt</string>
+							<string>/Users/vito/Programming/Projects/TerpstraSysEx.2014/Installers/Packages/Lumatone Editor/LICENSE.txt</string>
 							<key>PATH_TYPE</key>
-							<integer>0</integer>
+							<integer>1</integer>
 						</dict>
 					</dict>
 				</array>
