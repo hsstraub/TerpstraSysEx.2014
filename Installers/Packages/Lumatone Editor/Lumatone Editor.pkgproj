@@ -789,7 +789,7 @@
 				<key>POSTINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>../../../Scripts/install-presets.sh</string>
+					<string>../../../Scripts/pkg-install-presets.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>
