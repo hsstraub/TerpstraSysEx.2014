@@ -21,11 +21,22 @@ MainWindow::MainWindow(ComponentBoundsConstrainer* constrainerIn) : DocumentWind
 #if JUCE_ANDROID
 	setFullScreen(true);
 #else
+    // Window aspect ratio
+    constrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
+    constrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
+
 	setConstrainer(constrainer);
-	updateBoundsConstrainer();
+	updateMaxHeight();
+    startTimer(2000);
 #endif
 
 	setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel());
+}
+
+MainWindow::~MainWindow()
+{
+    stopTimer();
+    setConstrainer(nullptr);
 }
 
 void MainWindow::closeButtonPressed()
@@ -43,8 +54,10 @@ BorderSize<int> MainWindow::getBorderThickness()
 
 bool MainWindow::isLargerThanCurrentScreen() const
 {
-	int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight();
-	return getHeight() > maxWindowHeight;
+    if (maxWindowHeight > 0)
+        return getHeight() > maxWindowHeight;
+    
+    return false; // shouldn't happen
 }
 
 bool MainWindow::isHandleOutOfBounds() const
@@ -61,7 +74,7 @@ void MainWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 
 void MainWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 {
-	bool useSavedState = restoreWindowStateFromString(propertiesFile->getValue("MainWindowState"));
+    bool useSavedState = false;//restoreWindowStateFromString(propertiesFile->getValue("MainWindowState"));
 
 	fixWindowPositionAndSize(!useSavedState);
 
@@ -70,15 +83,21 @@ void MainWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
 	((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 }
 
-void MainWindow::updateBoundsConstrainer()
+void MainWindow::updateMaxHeight()
 {
-	// Window aspect ratio
-	constrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
-	constrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
-
-	// Don't allow to resize more than current screen height
-	int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight();
-	constrainer->setMaximumHeight(maxWindowHeight);
+    auto thisDisplay = Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds());
+    
+    if (thisDisplay != nullptr)
+    {
+        int screenHeight = thisDisplay->userArea.getHeight();
+        if (screenHeight != maxWindowHeight)
+        {
+            maxWindowHeight = screenHeight;
+            constrainer->setMaximumHeight(maxWindowHeight);
+            
+            fixWindowPositionAndSize();
+        }
+    }
 }
 
 void MainWindow::fixWindowPositionAndSize(bool setToDefault)
@@ -92,4 +111,9 @@ void MainWindow::fixWindowPositionAndSize(bool setToDefault)
 	{
 		setTopLeftPosition(getScreenX(), 0);
 	}
+}
+
+void MainWindow::timerCallback()
+{
+    updateMaxHeight();
 }

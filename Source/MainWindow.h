@@ -15,11 +15,13 @@
 This class implements the desktop window that contains an instance of
 our MainContentComponent class.
 */
-class MainWindow : public DocumentWindow
+class MainWindow : public DocumentWindow, public Timer
 {
 public:
 	MainWindow(ComponentBoundsConstrainer* constrainerIn);
 
+    virtual ~MainWindow();
+    
 	void closeButtonPressed() override;
 
 	BorderSize<int> getBorderThickness() override;
@@ -40,14 +42,19 @@ public:
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
-
-	void updateBoundsConstrainer();
+    
+    // Checks size of current display and updates constraint
+    void updateMaxHeight();
 
 	void fixWindowPositionAndSize(bool setToDefault=false);
+    
+    void timerCallback() override;
 
 private:
 
 	ComponentBoundsConstrainer* constrainer;
+    
+    int maxWindowHeight = 0;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 };
