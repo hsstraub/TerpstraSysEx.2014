@@ -45,15 +45,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
 	LocalisedStrings::getCurrentMappings()->setFallback(new LocalisedStrings(BinaryData::engb_txt, false));
 
-	// Window aspect ratio
-	boundsConstrainer.reset(new ComponentBoundsConstrainer());
-	boundsConstrainer->setFixedAspectRatio(DEFAULTMAINWINDOWASPECT);
-	boundsConstrainer->setMinimumSize(800, round(800 / DEFAULTMAINWINDOWASPECT));
-	
-	// Don't allow to resize more than current screen height
-	int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight();
-	boundsConstrainer->setMaximumHeight(maxWindowHeight);
-
 	// Colour scheme
 	//lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
@@ -146,7 +137,9 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	commandManager->registerAllCommandsForTarget(this);
     menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));
     
-	mainWindow.reset(new MainWindow());
+	boundsConstrainer = std::make_unique<ComponentBoundsConstrainer>();
+
+	mainWindow.reset(new MainWindow(boundsConstrainer.get()));
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 	mainWindow->restoreStateFromPropertiesFile(propertiesFile);
 

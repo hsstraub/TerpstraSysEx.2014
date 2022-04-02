@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include "LumatoneMenu.h"
-#include "MainComponent.h"
+#include "MainWindow.h"
 #include "LumatoneController.h"
 
 #include "ViewConstants.h"
@@ -115,93 +115,6 @@ public:
 
 	bool aboutTerpstraSysEx();
 
-	//==============================================================================
-	/*
-	This class implements the desktop window that contains an instance of
-	our MainContentComponent class.
-	*/
-	class MainWindow : public DocumentWindow
-	{
-	public:
-		MainWindow() : DocumentWindow("Lumatone Editor", 
-			TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground),
-			DocumentWindow::minimiseButton + DocumentWindow::closeButton)
-		{
-			setContentOwned(new MainContentComponent(), true);
-
-			setResizable(true, true);
-#if JUCE_ANDROID
-			setFullScreen(true);
-#else
-			setConstrainer(TerpstraSysExApplication::getApp().getBoundsConstrainer());
-#endif
-
-			setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel());
-		}
-
-		void closeButtonPressed() override
-		{
-			// This is called when the user tries to close this window. Here, we'll just
-			// ask the app to quit when this happens, but you can change this to do
-			// whatever you need.
-			JUCEApplication::getInstance()->systemRequestedQuit();
-		}
-
-		BorderSize<int> getBorderThickness() override
-		{
-			return BorderSize <int>(1);
-		}
-
-		/* Note: Be careful if you override any DocumentWindow methods - the base
-		class uses a lot of them, so by overriding you might break its functionality.
-		It's best to do all your work in your content component instead, but if
-		you really have to override any DocumentWindow methods, make sure your
-		subclass also calls the superclass's method.
-		*/
-
-		void saveStateToPropertiesFile(PropertiesFile* propertiesFile)
-		{
-			// Save state of main window
-			propertiesFile->setValue("MainWindowState", getWindowStateAsString());
-			((MainContentComponent*)(getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
-		}
-
-		void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
-		{
-			bool useSavedState = restoreWindowStateFromString(propertiesFile->getValue("MainWindowState"));
-
-			int maxWindowHeight = Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.getHeight();
-			if (useSavedState)
-			{
-				// Check if stored height is larger than display area
-				useSavedState = getHeight() <= maxWindowHeight;
-			}
-
-			if (useSavedState)
-			{
-				// Check if Y position causes it to clip the screen border
-				int clipBottomAmount = (getScreenY() + getHeight()) - maxWindowHeight;
-				if (clipBottomAmount > 0)
-					setTopLeftPosition(getScreenX(), getScreenY() - clipBottomAmount);
-
-				if (getScreenY() < 0)
-					setTopLeftPosition(getScreenX(), 0);
-			}
-
-            if (!useSavedState)
-            {
-                // Default window state
-                setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
-            }
-            
-			setVisible(true);
-
-			((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
-		}
-
-	private:
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
-	};
 
 	MainContentComponent* getMainContentComponent() const;
 

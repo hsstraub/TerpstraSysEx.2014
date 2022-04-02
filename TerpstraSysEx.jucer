@@ -84,6 +84,8 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="uHwlF9" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
+      <FILE id="GIvNyp" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
       <FILE id="S1tuPL" name="ApplicationListeners.h" compile="0" resource="0"
             file="Source/ApplicationListeners.h"/>
       <GROUP id="{719050EA-2AD7-FDDF-7DF8-6459AA36D42E}" name="Settings">
