@@ -2,10 +2,10 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Lumatone Editor"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "Lumatone"
 #define MyAppURL "https://www.lumatone.io/"
-#define MyAppExeName "LumatoneSetup.exe"
+#define MyAppExeName "Lumatone Editor.exe"
 #define MyAppExeNameDest "Lumatone Editor.exe"
 #define MappingAssocName MyAppName + " Mapping"
 #define MappingAssocExt ".ltn"
