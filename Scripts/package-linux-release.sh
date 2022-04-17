@@ -22,11 +22,11 @@ TARGET=$PARENT_DIR/$VERSION
 ([[ -d $PARENT_DIR ]] && rm -r $TARGET/) || mkdir $PARENT_DIR
 mkdir $TARGET
 
-echo copying files...               && \
-    cp "${LTE_BIN}" $TARGET/            && \
+echo copying files...           && \
+    cp "${LTE_BIN}" $TARGET/    && \
     cp ./install.sh $TARGET/    && \
-    cp ../LICENSE $TARGET/              && \
-    cp -r ../Presets $TARGET/           && \
+    cp ../LICENSE $TARGET/      && \
+    cp -r ../Presets $TARGET/   && \
     # todo install deps
     # todo readme
     COPIED=1
@@ -34,6 +34,10 @@ echo copying files...               && \
 [[ ! $COPIED ]] && exit 1
 
 cd ${TARGET}
+
+echo "Run the install.sh script to install presets, or move the Presets child folders to ~/Documents/Lumatone Editor/" > INSTALL
+echo "You will also need to install the libssh2 dependency." >> INSTALL
+echo "Then simply launch 'Lumatone Editor' to get started!" >> INSTALL
 
 ZIP_OUT="LumatoneEditor-${VERSION}-Linux.zip"
 
