@@ -1,0 +1,99 @@
+name: Build Lumatone Editor
+
+on: [push, pull_request]
+
+env: {}
+
+jobs:
+  build-lte-linux:
+    name: Build Lumatone Editor (Linux)
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install JUCE to $HOME
+        run: |
+          wget https://github.com/juce-framework/JUCE/releases/download/6.1.6/juce-6.1.6-linux.zip
+          unzip -d ~ juce-6.1.6-linux.zip
+      - name: Install APT dependencies
+        run: |
+          sudo apt update
+          sudo apt install libssh2-1-dev libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev  libfreetype6-dev libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev mesa-common-dev
+      - name: Build Lumatone Editor
+        run: |
+          ~/JUCE/Projucer --resave TerpstraSysEx.jucer
+          cd Builds/Linux
+          make CONFIG=Release
+      - name: List build directory
+        run: |
+          cd Builds/Linux
+          find
+      - name: Upload Lumatone Editor
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneEditor-Linux
+          path: Builds/Linux/build/Lumatone\ Editor
+          if-no-files-found: error
+
+  build-lte-macos:
+    name: Build Lumatone Editor (macOS)
+
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install JUCE to $HOME
+        run: |
+          wget https://github.com/juce-framework/JUCE/releases/download/6.1.6/juce-6.1.6-osx.zip
+          unzip -d ~ juce-6.1.6-osx.zip
+      - name: Build Lumatone Editor
+        run: |
+          ~/JUCE/Projucer.app/Contents/MacOS/Projucer --resave TerpstraSysEx.jucer
+          cd Builds/MacOSX
+          xcodebuild -configuration Release
+      - name: List build directory
+        run: |
+          cd Builds/MacOSX
+          find .
+      - name: Upload Lumatone Editor
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneEditor-macOS
+          path: Builds/MacOSX/build/Release
+          if-no-files-found: error
+
+  build-lte-windows:
+    name: Build Lumatone Editor (Windows)
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: microsoft/setup-msbuild@v1.1
+      - name: Install JUCE to C:\
+        run: |
+          Invoke-WebRequest https://github.com/juce-framework/JUCE/releases/download/6.1.6/juce-6.1.6-windows.zip -O juce-6.1.6-windows.zip
+          7z x juce-6.1.6-windows.zip -oC:\
+      - name: Build Lumatone Editor
+        run: |
+          bash -c '/c/JUCE/Projucer --resave TerpstraSysEx.jucer'
+          cd Builds/VisualStudio2019
+          msbuild "Lumatone Editor.sln" /p:configuration=Release
+      - name: List build directory
+        run: |
+          cd Builds/VisualStudio2019
+          Get-ChildItem -Recurse
+      - name: Upload Lumatone Editor
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneEditor-Windows
+          path: "Builds/VisualStudio2019/x64/Release/App/Lumatone Editor.exe"
+          if-no-files-found: error
+      - name: Upload dynamic libraries
+        uses: actions/upload-artifact@v2
+        with:
+          name: LumatoneEditor-Windows
+          path: Libraries/win64/bin/*.dll
+          if-no-files-found: error
+

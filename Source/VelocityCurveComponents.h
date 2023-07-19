@@ -28,10 +28,10 @@ public:
 	void setValueAtLeast(int newValue);
 	void setValueAtMost(int newValue);
 
-	void paint(Graphics& g);
-	void resized();
+	void paint(Graphics& g) override;
+	void resized() override;
 
-  juce::Point<float> getBottomMid();
+    juce::Point<float> getBottomMid();
 
 	float getBeamHeightFromValue(int value);
 	float getBeamHeightFromValue() { return getBeamHeightFromValue(beamValue); }

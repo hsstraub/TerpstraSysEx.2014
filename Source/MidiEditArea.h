@@ -21,10 +21,9 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "TerpstraMidiDriver.h"
 #include "HajuLib/HajuErrorVisualizer.h"
+#include "ApplicationListeners.h"
 #include "LumatoneEditorLookAndFeel.h"
-#include "DeviceActivityMonitor.h"
 //[/Headers]
 
 
@@ -38,7 +37,8 @@
                                                                     //[/Comments]
 */
 class MidiEditArea  : public Component,
-                      public LumatoneController::StatusListener,
+                      public LumatoneEditor::StatusListener,
+                      public LumatoneEditor::EditorListener,
                       public juce::ComboBox::Listener,
                       public juce::Button::Listener,
                       public juce::Timer
@@ -52,24 +52,25 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     void lookAndFeelChanged() override;
 
-    void attemptDeviceConnection();
-	void onOpenConnectionToDevice();
+	void onOpenConnectionToDevice(String dialogTitle = "");
 
-    // For now, preserve connection functionality and make sure internal combo boxes are up to date
     void refreshInputMenuAndSetSelected(int inputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
     void refreshOutputMenuAndSetSelected(int outputDeviceIndex, juce::NotificationType notificationType = NotificationType::sendNotification);
 
-	// Implementation of LumatoneController::StatusListener
-    //void availableDevicesChanged(const Array<MidiDeviceInfo>& inputDevices, int lastInputDevice, const Array<MidiDeviceInfo>& outputDevices, int lastOutputDevice) override;
+	// Implementation of LumatoneEditor::StatusListener
+    void connectionFailed() override;
     void connectionEstablished(int inputDevice, int outputDevice) override;
     void connectionLost() override;
+    
+    // Implementation of LumatoneEditor::EditorListener
+    void editorModeChanged(sysExSendingMode editMode) override;
 
 
     void timerCallback() override;
 
 private:
 
-    void setConnectivity(bool isConnected);
+    void setConnectivity(bool isConnected, String connectionStatus=String());
 
 public:
     //[/UserMethods]
@@ -92,6 +93,7 @@ private:
 
     bool                        isConnected = false;
     bool                        isWaitingForConnectionTest = false;
+    bool                        isWaitingForUserChoice = false;
 
     LumatoneEditorLookAndFeel&  lookAndFeel;
 
@@ -111,7 +113,7 @@ private:
     //==============================================================================
     // Helpers
 
-    std::unique_ptr<AlertWindow>     alert;
+    //std::unique_ptr<AlertWindow>     alert;
 
     FlexBox          ioAreaFlexBox;
 
@@ -169,11 +171,8 @@ private:
     const float connectedAreaX                  = 0.8387f;
 
     const float controlBoundsMarginScalar       = 0.0325f;
-    const float connectedX                      = 0.871f;
     const float connectivityHeight              = 0.1957f;
 
-    const float logomarkX                       = 0.9559f;
-    const float logomarkY                       = 0.2222f;
     const float logomarkHeight                  = 0.5f;
     //[/UserVariables]
 

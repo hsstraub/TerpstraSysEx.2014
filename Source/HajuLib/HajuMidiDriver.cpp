@@ -21,13 +21,8 @@ HajuMidiDriver::HajuMidiDriver()
 
 HajuMidiDriver::~HajuMidiDriver()
 {
-    if (midiInput != nullptr)
-    {
-        midiInput->stop();
-        midiInput = nullptr;
-    }
-
-	midiOutput = nullptr;
+    closeMidiInput();
+    closeMidiOutput();
 }
 
 const Array<MidiDeviceInfo>& HajuMidiDriver::getMidiInputList()
@@ -120,10 +115,15 @@ bool HajuMidiDriver::refreshDeviceLists()
 
 void HajuMidiDriver::setMidiInput(int deviceIndex)
 {
-    jassert(deviceIndex >= 0 && deviceIndex < midiInputs.size());
+    jassert(deviceIndex < midiInputs.size());
 
     testInputs.clear();
     closeMidiInput();
+
+    if (deviceIndex < 0)
+    {
+        return;
+    }
     
     DBG("Trying to open input device: " + midiInputs[deviceIndex].name);
     selectedInput = MidiInput::openDevice(midiInputs[deviceIndex].identifier, this);
@@ -144,10 +144,15 @@ void HajuMidiDriver::setMidiInput(int deviceIndex)
 
 void HajuMidiDriver::setMidiOutput(int deviceIndex)
 {
-    jassert(deviceIndex >= 0 && deviceIndex < midiOutputs.size());
+    jassert(deviceIndex < midiOutputs.size());
 
     testOutputs.clear();
     closeMidiOutput();
+
+    if (deviceIndex < 0)
+    {
+        return;
+    }
 
     DBG("Trying to open output device: " + midiOutputs[deviceIndex].name);
     selectedOutput = MidiOutput::openDevice(midiOutputs[deviceIndex].identifier);
@@ -170,7 +175,10 @@ void HajuMidiDriver::sendMessageNow(const MidiMessage& message)
 	if (midiOutput != nullptr)
     {
 		midiOutput->sendMessageNow(message);
+        return;
     }
+    jassertfalse;
+    DBG("MidiOutput is null!");
 }
 
 void HajuMidiDriver::sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity)
@@ -191,7 +199,7 @@ void HajuMidiDriver::closeMidiInput()
     {
         midiInput->stop();
         midiInput = nullptr;
-       lastInputIndex = -1;
+        lastInputIndex = -1;
     }
     
     selectedInput = nullptr;
@@ -221,18 +229,21 @@ void HajuMidiDriver::openAvailableDevicesForTesting()
 
     for (auto device : midiOutputs)
     {
-        auto newOutput = testOutputs.add(MidiOutput::openDevice(device.identifier));
+        auto newOutput = MidiOutput::openDevice(device.identifier);
         if (newOutput == nullptr)
-            testOutputs.removeObject(newOutput);
+            continue;
+
+        testOutputs.add(newOutput.release());
     }
 
     for (auto device : midiInputs)
     {
-        auto newInput = testInputs.add(MidiInput::openDevice(device.identifier, this));
-        if (newInput != nullptr)
-            newInput->start();
-        else
-            testInputs.removeObject(newInput);
+        auto newInput = MidiInput::openDevice(device.identifier, this);
+        if (newInput == nullptr)
+            continue;
+
+        auto openedInput = testInputs.add(newInput.release());
+        openedInput->start();
     }
 }
 
@@ -242,7 +253,7 @@ void HajuMidiDriver::sendTestMessageNow(int outputDeviceIndex, const MidiMessage
     if (outputDeviceIndex >= 0 && outputDeviceIndex < testOutputs.size())
     {
         //DBG("Sending this message to " + testOutputs[outputDeviceIndex]->getName() + ":");
-        //DBG("          " + message.getDescription());
+        DBG("TEST: " + message.getDescription());
         testOutputs.getUnchecked(outputDeviceIndex)->sendMessageNow(message);
     }
 }

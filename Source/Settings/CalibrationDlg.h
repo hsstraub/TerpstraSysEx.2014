@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -20,7 +20,8 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include <JuceHeader.h>
+#include "../LumatoneController.h"
+#include "WheelsCalibrationComponent.h"
 //[/Headers]
 
 
@@ -35,6 +36,7 @@
 */
 class CalibrationDlg  : public juce::Component,
                         public ChangeListener,
+                        public LumatoneEditor::FirmwareListener,
                         public juce::Button::Listener
 {
 public:
@@ -48,7 +50,17 @@ public:
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
-    void updateCalibrationStatus();
+    void setupWheelCalibrationLayout();
+    void updateWheelCalibrationStatus();
+
+    //==============================================================================
+    // LumatoneEditor::FirmwareListener Implementation
+
+    void calibratePitchModWheelAnswer(TerpstraMIDIAnswerReturnCode code) override;
+    
+    void wheelsCalibrationDataReceived(WheelsCalibrationData calibrationData) override;
+
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -68,6 +80,9 @@ private:
 	};
 
 	std::unique_ptr<TabbedButtonBar> calibrationSelectorTab;
+    std::unique_ptr<WheelsCalibrationComponent> wheelsCalibrationComponent;
+    
+    bool startCalibration = false;
 
 	String instructionText;
 
@@ -76,6 +91,8 @@ private:
     Font instructionsFont;
 	const float fontHeightInBounds = 0.125f;
 	const int generalRim = 12;
+
+    const float wheelsGraphicWidthScalar = 0.15f;
 
     //[/UserVariables]
 

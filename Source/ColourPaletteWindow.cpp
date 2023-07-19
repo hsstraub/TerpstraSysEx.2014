@@ -15,13 +15,16 @@
 // ColourPaletteWindow Definitions
 
 ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& colourPalettesIn)
-    : colourPalettes(colourPalettesIn)
+    : lookAndFeel(TerpstraSysExApplication::getApp().getLookAndFeel()),
+      colourPalettes(colourPalettesIn)
 {
+    setLookAndFeel(&lookAndFeel);
+    
     setName("ColourPaletteWindow");
 
-    paletteGroup.reset(new ColourSelectionGroup());
+    colourSelectorGroup.reset(new ColourSelectionGroup());
     
-    palettePanel.reset(new ColourPalettesPanel(colourPalettes, paletteGroup.get()));
+    palettePanel.reset(new ColourPalettesPanel(colourPalettes, colourSelectorGroup.get()));
     palettePanel->addListener(this);
 
     palettePanelViewport.reset(new Viewport("PalettePanelViewport"));
@@ -30,7 +33,8 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     palettePanelViewport->getVerticalScrollBar().setColour(ScrollBar::ColourIds::thumbColourId, Colour(0xff2d3135));
 
     customPickerPanel.reset(new CustomPickerPanel());
-    paletteGroup->addSelector(customPickerPanel.get());
+    colourSelectorGroup->addSelector(customPickerPanel.get());
+    colourSelectorGroup->addColourSelectionListener(customPickerPanel.get());
 
     colourToolTabs.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
     colourToolTabs->setName("ColourSelectionToolTabs");
@@ -39,19 +43,25 @@ ColourPaletteWindow::ColourPaletteWindow(Array<LumatoneEditorColourPalette>& col
     colourToolTabs->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
     colourToolTabs->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::fontHeightScalar, 0.9f);
     addAndMakeVisible(*colourToolTabs);
-
+    
+    const int firstTabIndex = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("LastColourPopupTabIndex");
+    colourToolTabs->setCurrentTabIndex(firstTabIndex);
     colourToolTabs->getTabbedButtonBar().addChangeListener(this);
 }
 
 ColourPaletteWindow::~ColourPaletteWindow()
 { 
-    paletteGroup->removeSelector(customPickerPanel.get());
-
-    palettePanelViewport    = nullptr;
-    colourToolTabs          = nullptr;
-    palettePanel            = nullptr;
-    customPickerPanel       = nullptr;
     paletteEditPanel        = nullptr;
+    colourToolTabs          = nullptr;
+    
+    colourSelectorGroup->removeSelector(customPickerPanel.get());
+    customPickerPanel       = nullptr;
+    
+    palettePanelViewport    = nullptr;
+    palettePanel            = nullptr;
+    colourSelectorGroup     = nullptr;
+    
+    setLookAndFeel(nullptr);
 }
 
 void ColourPaletteWindow::resized()
@@ -62,11 +72,7 @@ void ColourPaletteWindow::resized()
     if (paletteEditPanel.get())
         paletteEditPanel->setBounds(getLocalBounds());
 
-    palettePanel->setViewUnits(
-        palettePanelViewport->getMaximumVisibleWidth(),
-        palettePanelViewport->getMaximumVisibleHeight()
-    );
-    palettePanel->rebuildPanel(colourPalettes);
+    palettePanel->rebuildPanel(colourPalettes, palettePanelViewport->getMaximumVisibleWidth());
 }
 
 void ColourPaletteWindow::startEditingPalette(int paletteIndexIn, int selectedSwatchIndex)
@@ -81,6 +87,14 @@ void ColourPaletteWindow::startEditingPalette(int paletteIndexIn, int selectedSw
     // Retain selected swatch
     if (selectedSwatchIndex >= 0)
         paletteEditPanel->setSelectedSwatch(selectedSwatchIndex);
+}
+
+void ColourPaletteWindow::duplicatePalette(int paletteIndexIn)
+{
+    auto copiedPalette = colourPalettes[paletteIndexIn].clone();
+    colourPalettes.insert(paletteIndexIn + 1, copiedPalette);
+    TerpstraSysExApplication::getApp().saveColourPalette(copiedPalette);
+    palettePanel->rebuildPanel(colourPalettes);
 }
 
 void ColourPaletteWindow::removePalette(int paletteIndexToRemove)
@@ -104,6 +118,16 @@ void ColourPaletteWindow::editPaletteRequested(int paletteIndex, int selectedSwa
         jassert(true); // Something bad happened!   
 }
 
+void ColourPaletteWindow::clonePaletteRequested(int paletteIndex)
+{
+    if (paletteIndex >= 0 && paletteIndex < colourPalettes.size())
+    {
+        duplicatePalette(paletteIndex);
+    }
+    else
+        jassert(true); // Something bad happened!
+}
+
 void ColourPaletteWindow::deletePaletteRequested(int paletteIndex)
 {
     if (paletteIndex >= 0 && paletteIndex < colourPalettes.size())
@@ -118,19 +142,13 @@ void ColourPaletteWindow::newPaletteRequested()
 {
     paletteEditingIsNew = true;
     colourPalettes.insert(0, LumatoneEditorColourPalette());
-    startEditingPalette(0);
+    startEditingPalette(0, 0);
 }
 
 void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
 {
-    // Custom picker colour changed
-    if (source == &colourToolTabs->getTabbedButtonBar())
-    {
-        customPickerPanel->setCurrentColour(paletteGroup->getSelectedColour());
-    }
-
     // Palette editing finished
-    else if (source == paletteEditPanel.get())
+    if (source == paletteEditPanel.get())
     {
         if (paletteEditPanel->wasSaveRequested())
         {
@@ -140,34 +158,9 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
                 palette.setColours(paletteEditPanel->getCurrentPalette());
 
                 String newName = paletteEditPanel->getPaletteName();
-
-                // TODO: Move this elsewhere?
-                String paletteFilePath = palette.getPathToFile();
-                File paletteFile;
-                // File name handling if palette already exists
-                if (File::isAbsolutePath(paletteFilePath))
-                {
-                    paletteFile = paletteFilePath;
-
-                    if (palette.getName() != newName)
-                    {
-                        // Delete previous version to ensure name is up to date.
-                        // This is optional - palettes can retain file name and have palette 
-                        // name changed if that's preferred behavior
-                        if (paletteFile.existsAsFile())
-                        {
-                            paletteFile.deleteFile();
-
-                            // Rename file with new palette name
-                            paletteFile = paletteFile.getSiblingFile(newName).withFileExtension(PALETTEFILEEXTENSION);
-                        }
-                    }
-                }
-
                 palette.setName(newName);
 
-                // Save to properties
-                TerpstraSysExApplication::getApp().saveColourPalette(palette, paletteFile);
+                TerpstraSysExApplication::getApp().saveColourPalette(palette);
             }
             else
                 jassert(true); // Something bad happened!
@@ -181,5 +174,11 @@ void ColourPaletteWindow::changeListenerCallback(ChangeBroadcaster* source)
         paletteIndexEditing = -1;
         paletteEditingIsNew = false;
         paletteEditPanel = nullptr;
+    }
+    
+    else if (source == &colourToolTabs->getTabbedButtonBar())
+    {
+        const int newTab = colourToolTabs->getCurrentTabIndex();
+        TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastColourPopupTabIndex", newTab);
     }
 }

@@ -64,11 +64,14 @@ public:
 
     TextButton* getEditButton() { return &editButton; }
 
+    ImageButton* getCloneButton() { return &cloneButton; }
+
     ImageButton* getTrashButton() { return &trashButton; }
 
 private:
 
     ColourPaletteComponent palette;
     TextButton editButton;
+    ImageButton cloneButton;
     ImageButton trashButton;
 };

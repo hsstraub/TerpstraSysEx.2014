@@ -97,7 +97,7 @@ bool FirmwareTransfer::requestFirmwareUpdate(String firmwareFilePath)
 	selectedFileToTransfer = firmwareFilePath;
 	transferRequested = true;
 
-	runThread();
+	launchThread();
 
 	return true;
 }
@@ -142,7 +142,7 @@ void FirmwareTransfer::run()
 
 	else if (transferRequested)
 	{
-		prepareForUpdate();
+		prepareAndRunUpdate();
 		transferRequested = false;
 	}
 }
@@ -193,12 +193,15 @@ static FirmwareTransfer::StatusCode shutdownSSHSession(LIBSSH2_SESSION* session,
 		fclose(localFile);
 	DBG("All done.");
 
-	libssh2_exit();
-
 	return returnCode;
 }
 
-bool FirmwareTransfer::prepareForUpdate()
+void FirmwareTransfer::exitLibSsh2()
+{
+	libssh2_exit();
+}
+
+bool FirmwareTransfer::prepareAndRunUpdate()
 {
 	StatusCode returnStatus = StatusCode::Initialize;
 	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus, statusCodeToMessage(returnStatus));
@@ -314,9 +317,10 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
         return StatusCode::StartupErr;
     }
 
+	// Make sure we release libssh2 before app is shutdown
+	TerpstraSysExApplication::getApp().setFirmwareUpdatePerformed(true);
 
-
-#ifdef JUCE_WIN
+#if JUCE_WINDOWS
 
 	// Create socket and connect to port 22
 	sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -339,11 +343,11 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	{
 		DBG("failed to connect!");
 
-#if WIN32
+	#if WIN32
 		closesocket(sock);
-#else
+	#else
 		close(sock);
-#endif
+	#endif
 
 		return StatusCode::HostConnectErr;
 	}

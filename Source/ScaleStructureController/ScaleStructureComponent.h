@@ -163,9 +163,9 @@ private:
 	const float sizeRadiusScalar = 0.493827f;
 
 	const float offsetFontHeightScalar = 0.0208333f;
-	const float offsetArrowAngle1 = float_Pi * 0.083333f;
+	const float offsetArrowAngle1 = MathConstants<float>::pi * 0.083333f;
 	const float offsetArrowAngle2 = offsetArrowAngle1 * 0.5f;
-	const float offsetArrowAngle3 = float_Pi * 0.071429f;
+	const float offsetArrowAngle3 = MathConstants<float>::pi * 0.071429f;
 	const float offsetArrowRadScalar0 = 0.0769231f;
 	const float offsetArrowRadScalar1 = 0.92857f;
 

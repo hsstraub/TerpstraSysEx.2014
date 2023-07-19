@@ -52,6 +52,7 @@ private:
 
 	juce::Colour			keyColour;
 	LumatoneKeyType			keyType;
+    bool                    ccFaderDefault;
 	
 	float					keySize;
 

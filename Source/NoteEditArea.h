@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -31,6 +31,9 @@
 
 #include "BoardGeometry.h"
 
+#include "SingleNoteAssign.h"
+#include "IsomorphicMassAssign.h"
+
 //[/Headers]
 
 
@@ -44,7 +47,8 @@
                                                                     //[/Comments]
 */
 class NoteEditArea  : public Component,
-                      public ChangeListener
+                      public ChangeListener,
+                      public ColourSelectionBroadcaster
 {
 public:
     //==============================================================================
@@ -71,6 +75,8 @@ public:
 
     ColourTextEditor* getSingleNoteColourTextEditor();
 
+    IsomorphicMassAssign* getIsomorphicMassAssignPanel() { return dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(1)); }
+
 	void changeSingleKeySelection(int newSelection);
 
 	void refreshKeyFields();
@@ -82,11 +88,16 @@ public:
 
     void resetOctaveSize(bool refreshAndResize=true);
 
+    // ColourSelectionBroadcaster Implementation
+    Colour getSelectedColour() override;
+    void deselectColour() override {};
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
     void mouseDown (const juce::MouseEvent& e) override;
+
 
 
 private:

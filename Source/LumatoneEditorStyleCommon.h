@@ -32,7 +32,7 @@
 
 
 #define SETTINGSAREAMARGINHEIGHT 0.1714f
-#define SETTINGSLABELHEIGHT      0.14f
+#define SETTINGSLABELHEIGHT      0.13f
 #define SETTINGSLABELMARGINWIDTH 0.01f
 
 #define SETTINGSCONTROLMARGINTOAPPWIDTH 0.01171875f
@@ -40,7 +40,7 @@
 
 #if JUCE_MAC
     #define GLOBALFONTSCALAR 0.9f
-    #define CONTROLBOXFONTHEIGHTSCALAR 0.66f
+    #define CONTROLBOXFONTHEIGHTSCALAR 0.7f
 #elif JUCE_WINDOWS
     #define GLOBALFONTSCALAR 1.0f
     #define CONTROLBOXFONTHEIGHTSCALAR 0.8f
@@ -101,7 +101,7 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     {
         yTo = endpoint.y - roundedCornerSize;
         rect.lineTo(endpoint.x, yTo);
-        rect.addArc(endpoint.x - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, float_Pi);
+        rect.addArc(endpoint.x - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, MathConstants<float>::pi);
     }
 
     if (connectedFlags & Button::ConnectedEdgeFlags::ConnectedOnBottom || connectedFlags & Button::ConnectedEdgeFlags::ConnectedOnLeft)
@@ -111,7 +111,7 @@ static Path getConnectedRoundedRectPath(Rectangle<float> bounds, float roundedCo
     else
     {
         rect.lineTo(roundedCornerSize, endpoint.y);
-        rect.addArc(origin.x, endpoint.y - roundedCornerSize, roundedCornerSize, roundedCornerSize, -float_Pi, PATH_PI_2_CCW);
+        rect.addArc(origin.x, endpoint.y - roundedCornerSize, roundedCornerSize, roundedCornerSize, -MathConstants<float>::pi, PATH_PI_2_CCW);
     }
 
     rect.closeSubPath();
@@ -143,7 +143,7 @@ static Path getDiagonalRoundedCornersPath(Rectangle<float> bounds, float rounded
         {
             xTo += roundedCornerSize;
             rect.lineTo(xTo, yTo);
-            rect.addArc(xTo - roundedCornerSize, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, -float_Pi, PATH_PI_2_CCW);
+            rect.addArc(xTo - roundedCornerSize, yTo - roundedCornerSize, roundedCornerSize, roundedCornerSize, -MathConstants<float>::pi, PATH_PI_2_CCW);
         }
         else
         {
@@ -161,7 +161,7 @@ static Path getDiagonalRoundedCornersPath(Rectangle<float> bounds, float rounded
         {
             yTo -= roundedCornerSize;
             rect.lineTo(xTo, yTo);
-            rect.addArc(xTo - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, float_Pi);
+            rect.addArc(xTo - roundedCornerSize, yTo, roundedCornerSize, roundedCornerSize, PATH_PI_2_CW, MathConstants<float>::pi);
         }
         else
         {
@@ -271,10 +271,10 @@ static void addArcToPath(Path& pathIn, Rectangle<float>& ellipseBounds, float fr
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setWidthRetainingAspectRatio(Component* component, const Image& image, int widthIn)
-{
-    component->setSize(widthIn, round(image.getHeight() / (float) image.getWidth() * widthIn));
-}
+//static void setWidthRetainingAspectRatio(Component* component, const Image& image, int widthIn)
+//{
+//    component->setSize(widthIn, round(image.getHeight() / (float) image.getWidth() * widthIn));
+//}
 
 /// <summary>
 /// Sets the height of a component while retaining the aspect ratio of a given image
@@ -282,10 +282,10 @@ static void setWidthRetainingAspectRatio(Component* component, const Image& imag
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setHeightRetainingAspectRatio(Component* component, const Image& image, int heightIn)
-{
-    component->setSize(round(image.getWidth() / (float) image.getHeight() * heightIn), heightIn);
-}
+//static void setHeightRetainingAspectRatio(Component* component, const Image& image, int heightIn)
+//{
+//    component->setSize(round(image.getWidth() / (float) image.getHeight() * heightIn), heightIn);
+//}
 
 /// <summary>
 /// Sets the width of an ImageComponent while retaining the aspect ratio of its image
@@ -304,10 +304,10 @@ static void setHeightRetainingAspectRatio(Component* component, const Image& ima
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setHeightRetainingAspectRatio(ImageComponent* component, int heightIn)
-{
-    setHeightRetainingAspectRatio(component, component->getImage(), heightIn);
-}
+//static void setHeightRetainingAspectRatio(ImageComponent* component, int heightIn)
+//{
+//    setHeightRetainingAspectRatio(component, component->getImage(), heightIn);
+//}
 
 /// <summary>
 /// Sets the width of an ImageButton while retaining the aspect ratio of its normal image
@@ -315,10 +315,10 @@ static void setHeightRetainingAspectRatio(ImageComponent* component, int heightI
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setWidthRetainingAspectRatio(ImageButton* component, int widthIn)
-{
-    setWidthRetainingAspectRatio(component, component->getNormalImage(), widthIn);
-}
+//static void setWidthRetainingAspectRatio(ImageButton* component, int widthIn)
+//{
+//    setWidthRetainingAspectRatio(component, component->getNormalImage(), widthIn);
+//}
 
 /// <summary>
 /// Sets the height of an ImageButton while retaining the aspect ratio of its normal image
@@ -326,10 +326,10 @@ static void setWidthRetainingAspectRatio(ImageButton* component, int widthIn)
 /// <param name="component"></param>
 /// <param name="image"></param>
 /// <param name="widthIn"></param>
-static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
-{
-    setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
-}
+//static void setHeightRetainingAspectRatio(ImageButton* component, int heightIn)
+//{
+//    setHeightRetainingAspectRatio(component, component->getNormalImage(), heightIn);
+//}
 
 static void resizeLabelWithHeight(Label* label, int height, float fontHeightScalar = 1.0f, String textSuffix = "_")
 {
@@ -381,7 +381,7 @@ static float scalarToFitString(Label& labelIn)
 static void resizeToggleButtonWithHeight(ToggleButton* btn, Font font, int heightIn, String textSuffix = "_")
 {
     font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
-    btn->setSize(btn->getHeight() + round(font.getStringWidth(btn->getButtonText() + textSuffix)), heightIn);
+    btn->setSize(btn->getHeight() + roundToInt(font.getStringWidth(btn->getButtonText() + textSuffix)), heightIn);
 }
 
 static void drawPathToFillBounds(Graphics& g, const Path& path, Rectangle<float> boundsToFill)
@@ -403,7 +403,7 @@ static Path createLogomark()
     float phi2 = PHI * 2;
     float innerRad = 1.0f / phi2;
     float outerRad = phi2 * 0.125f;
-    float ang = float_Pi * 0.083333f;
+    float ang = MathConstants<float>::pi * 0.083333f;
     float angOff = ang * 0.5f;
 
     logo.addPolygon(center, 6, innerRad, ang - angOff);
@@ -550,8 +550,32 @@ static void getCCPolarityIconPath(bool inverted, Path& arrowPath, Path& faderPat
     }
 }
 
-//static void drawSaveIconAt(Graphics& g, int x, int y)
+static Path getCloneIconPath()
+{
+    // side-by-side
+//    float yMargin = 0.1f;
+//    float height = 1.0f - yMargin * 2.0f;
+//
+//    float width = 5.0f/12.0f;
+//
+//    auto leftRect = Rectangle<float>(1.0/12.0f, yMargin, width, height);
+//    auto rightRect = Rectangle<float>(width, yMargin, width, height);
+    
+    // bottom left overlapping top right
+    
+    float xMargin = 0.1f;
+    float yMargin = 0.1f;
+    float size = 0.5f;
+    
+    auto leftRect = Rectangle<float>(xMargin, 1.0f - yMargin - size, size, size);
+    auto rightRect = Rectangle<float>(1.0f - xMargin - size, yMargin, size, size);
 
+    auto path = Path();
+    path.addRoundedRectangle(leftRect, 0.1f, 0.1f);
+    path.addRoundedRectangle(rightRect, 0.1f, 0.1f);
+
+    return path;
+}
 
 // Hash codes for use with ImageCache::getFromHashCode()
 enum LumatoneEditorAssets
@@ -566,8 +590,30 @@ enum LumatoneEditorAssets
     TickBox             = 0x0003100,
     SavePalette         = 0x0005000,
     CancelPalette       = 0x0005001,
-    TrashCanIcon        = 0x0005002
+    TrashCanIcon        = 0x0005002,
+    CloneIcon           = 0x0005003
 };
+
+// TODO: clean up / make a better routine with ImageCache usage
+static Image getCachedCloneImage()
+{
+    auto cloneImg = ImageCache::getFromHashCode(LumatoneEditorAssets::CloneIcon);
+    if (cloneImg.isValid())
+        return cloneImg;
+    
+    // Create duplicate icon
+    auto cloneIcon = getCloneIconPath();
+    cloneIcon.scaleToFit(0, 0, 80, 80, true);
+
+    cloneImg = Image(Image::PixelFormat::ARGB, 100, 100, true);
+    Graphics cloneG(cloneImg);
+    cloneG.setColour(Colours::white.darker(0.1f));
+    cloneG.setOrigin(Point<int>(10, 10));
+    auto stroke = PathStrokeType(8.0f, PathStrokeType::JointStyle::curved);
+    cloneG.strokePath(cloneIcon, stroke);
+    ImageCache::addImageToCache(cloneImg, LumatoneEditorAssets::CloneIcon);
+    return cloneImg;
+}
 
 enum LumatoneEditorIcon
 {
@@ -650,3 +696,32 @@ namespace LumatoneEditorStyleIDs
     static Identifier roundedDiagonalCorners = Identifier("RoundedDiagonalCorners");
 
 }
+
+// LookAndFeel doesn't have Slider IncDec button access in drawIncDecButtonsBackground
+class TextButtonMouseHighlight : public TextButton
+{
+
+    Colour highlightColour;
+
+public:
+
+    TextButtonMouseHighlight(Colour highlightColourIn = Colour())
+        : highlightColour(highlightColourIn) {}
+
+    ~TextButtonMouseHighlight() {}
+
+    void paint(Graphics& g) override
+    {
+        TextButton::paint(g);
+
+        if (isEnabled() && isMouseOver())
+        {
+            auto bounds = getLocalBounds().toFloat();
+
+            Colour c = (isMouseButtonDown()) ? highlightColour.overlaidWith(Colours::white.withAlpha(0.1f))
+                                             : highlightColour;
+            g.setColour(c);
+            g.fillRoundedRectangle(bounds, getHeight() * 0.25f);
+        }
+    }
+};

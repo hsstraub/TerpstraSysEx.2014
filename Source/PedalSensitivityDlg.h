@@ -36,7 +36,7 @@
                                                                     //[/Comments]
 */
 class PedalSensitivityDlg  : public juce::Component,
-                             public LumatoneController::FirmwareListener,
+                             public LumatoneEditor::FirmwareListener,
                              public juce::Button::Listener,
                              public juce::Slider::Listener
 {
@@ -52,8 +52,10 @@ public:
 
 	void lookAndFeelChanged() override;
 
-    // LumatoneController::FirmwareListener implementation
+    // LumatoneEditor::FirmwareListener implementation
     void firmwareRevisionReceived(FirmwareVersion version) override;
+    void presetFlagsReceived(PresetFlags presetFlags) override;
+    void expressionPedalSensitivityReceived(int sensitivity) override;
 
     //[/UserMethods]
 
@@ -66,20 +68,20 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	int roundedCornerSize;
-    Rectangle<float> controlBounds;
-
-    // Style Constants
-    const Rectangle<float> sliderBoundsProps = { 0.54f, 0.38f, 0.4f, 0.52f };
+    int roundedCornerSize = 0;
+    Rectangle<float> expressionBounds;
+    Rectangle<float> sustainBounds;
+    const float sectionMarginWidth = 0.05f;
 
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::Label> labelExprContrSensitivity;
     std::unique_ptr<juce::ToggleButton> btnInvertExpression;
-    std::unique_ptr<juce::Label> labelPedalTitle;
+    std::unique_ptr<juce::Label> lblExpression;
     std::unique_ptr<juce::Slider> sldExprCtrlSensitivity;
     std::unique_ptr<juce::ToggleButton> btnInvertSustain;
+    std::unique_ptr<juce::Label> lblSustain;
 
 
     //==============================================================================

@@ -13,14 +13,25 @@
 
 
 DeviceActivityMonitor::DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn)
-    : midiDriver(midiDriverIn)
+    : midiDriver(midiDriverIn), readQueueSize(0)
 {
-    midiDriver.addListener(this);
+    detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
+    checkConnectionOnInactivity = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("CheckConnectionIfInactive", true);
+    responseTimeoutMs = TerpstraSysExApplication::getApp().getPropertiesFile()->getIntValue("DetectDevicesTimeout", responseTimeoutMs);
+
+//    midiDriver.addListener(this);
+    reset(readBlockSize);
+    midiDriver.addMessageCollector(this);
+
+    // avoid resizing during communication
+    ensureStorageAllocated(2000);
+    testResponseDeviceIndices.resize(2000);
 }
 
 DeviceActivityMonitor::~DeviceActivityMonitor()
 {
-
+    removeAllChangeListeners();
+    midiDriver.removeMessageCollector(this);
 }
 
 void DeviceActivityMonitor::setDetectDeviceIfDisconnected(bool doDetection)
@@ -45,7 +56,9 @@ void DeviceActivityMonitor::setCheckForInactivity(bool monitorActivity)
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("CheckConnectionIfInactive", checkConnectionOnInactivity);
     
     if (checkConnectionOnInactivity && isConnectionEstablished())
+    {
         startTimer(inactivityTimeoutMs);
+    }
 }
 
 void DeviceActivityMonitor::pingAllDevices()
@@ -58,11 +71,10 @@ void DeviceActivityMonitor::pingAllDevices()
 
     waitingForTestResponse = true;
 
-    // Impossible...but why not limit anyway?
-    const unsigned int maxDevices = jmin(outputDevices.size(), (1 << 28) - 1);
-    for (unsigned int i = 0; i < maxDevices; i++)
+    int maxDevices = jmin(outputDevices.size(), 128);
+    for (int i = 0; i < maxDevices; i++)
     {
-        const unsigned int id = i + 1;
+        unsigned int id = (unsigned int)i + 1;
         midiDriver.ping(id, i);
         outputPingIds.add(id);
     }
@@ -128,7 +140,11 @@ void DeviceActivityMonitor::testNextOutput()
     if (testOutputIndex >= 0 && testOutputIndex < outputDevices.size()) 
     {
         DBG("Testing " + outputDevices[testOutputIndex].name);
-        midiDriver.sendGetSerialIdentityRequest(testOutputIndex);
+        if (sendCalibratePitchModOff)
+            midiDriver.sendCalibratePitchModWheel(false, testOutputIndex);
+        else
+            midiDriver.sendGetSerialIdentityRequest(testOutputIndex);
+        
         waitingForTestResponse = true;
         startTimer(responseTimeoutMs);
     }
@@ -181,10 +197,9 @@ void DeviceActivityMonitor::stopMonitoringDevice()
 
 bool DeviceActivityMonitor::initializeConnectionTest()
 {    
-    TerpstraSysExApplication::getApp().getLumatoneController().testCurrentDeviceConnection();
-
+    TerpstraSysExApplication::getApp().getLumatoneController()->testCurrentDeviceConnection();
     waitingForTestResponse = true;
-
+    startTimer(inactivityTimeoutMs);
     return true;
 }
 
@@ -193,8 +208,9 @@ void DeviceActivityMonitor::onSerialIdentityResponse(const MidiMessage& msg, int
 {
     waitingForTestResponse = false;
 
-    if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
+    switch (deviceConnectionMode)
     {
+    case DetectConnectionMode::lookingForDevice:
         if (midiDriver.hasDevicesDefined())
         {
             confirmedOutputIndex = midiDriver.getMidiOutputIndex();
@@ -206,11 +222,15 @@ void DeviceActivityMonitor::onSerialIdentityResponse(const MidiMessage& msg, int
             confirmedInputIndex = deviceIndexResponded;
         }
 
-        startTimer(10);
-    }
-    else if (deviceConnectionMode == DetectConnectionMode::waitingForInactivity)
-    {
+        break;
+
+    case DetectConnectionMode::waitingForInactivity:
         startTimer(inactivityTimeoutMs);
+        break;
+
+    default:
+        // TODO review
+        break;
     }
 }
 
@@ -245,7 +265,7 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
         {
             confirmedOutputIndex = pingId - 1;
             confirmedInputIndex = deviceIndexResponded;
-            startTimer(10);
+            // startTimer(10);
         }
     }
 
@@ -257,9 +277,14 @@ void DeviceActivityMonitor::onPingResponse(const MidiMessage& msg, int deviceInd
 
 void DeviceActivityMonitor::onTestResponseReceived()
 {
-    stopTimer();
-
     waitingForTestResponse = false;
+    
+    if (sendCalibratePitchModOff)
+    {
+        sendCalibratePitchModOff = false;
+        checkDetectionStatus();
+        return;
+    }
 
     if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
@@ -337,67 +362,84 @@ void DeviceActivityMonitor::timerCallback()
 {
     stopTimer();
 
-    if (deviceConnectionMode < DetectConnectionMode::noDeviceMonitoring)
+    MidiBuffer readBuffer;
+    removeNextBlockOfMessages(readBuffer, readBlockSize);
+    
+    handleMessageQueue(readBuffer, testResponseDeviceIndices);
+    auto size = readQueueSize.load();
+    readQueueSize.store(jlimit(0, 999999, size - readBlockSize));
+
+    switch (deviceConnectionMode)
     {
+    case DetectConnectionMode::noDeviceActivity:
+    case DetectConnectionMode::lookingForDevice:
         if (detectDevicesIfDisconnected)
         {
             checkDetectionStatus();
+            break;
         }
-        else
-        {
-            stopDeviceDetection();
-        }
-    }
-    else if (deviceConnectionMode >= DetectConnectionMode::noDeviceMonitoring)
-    {
-        jassert(isConnectionEstablished() && midiDriver.hasDevicesDefined());
-        if (checkConnectionOnInactivity)
-        {
-            if (!waitingForTestResponse)
-            {
-                if (midiQueueSize == 0)
-                {
-                    if (deviceConnectionMode == DetectConnectionMode::noDeviceMonitoring)
-                        deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
 
-                    initializeConnectionTest();
-                }
-                else
-                {
-                    startTimer(inactivityTimeoutMs);
-                }
-            }
-        }
-        else
+        stopDeviceDetection();
+        break;
+
+    case DetectConnectionMode::noDeviceMonitoring:
+    case DetectConnectionMode::waitingForInactivity:
+        jassert(isConnectionEstablished() && midiDriver.hasDevicesDefined());
+        if (!checkConnectionOnInactivity)
         {
             stopMonitoringDevice();
+            break;
         }
-    }
-    else
+
+        if (!waitingForTestResponse)
+        {
+            if (sentQueueSize > 0)
+            {
+                startTimer(inactivityTimeoutMs);
+                break;
+            }
+
+            if (deviceConnectionMode == DetectConnectionMode::noDeviceMonitoring)
+                deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
+
+            initializeConnectionTest();
+        }
+        else
+        {
+            DBG("waiting for test response...");
+        }
+
+        break;
+
+    default:
         jassertfalse;
+    }
 }
 
-//=========================================================================
-// TerpstraMidiDriver::Listener Implementation
-
-void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMessage& msg)
+void DeviceActivityMonitor::handleResponse(int inputDeviceIndex, const MidiMessage& msg)
 {
-    stopTimer();
-    
     if (msg.isSysEx())
     {
-        if (waitingForTestResponse)
-        {
-            auto sysExData = msg.getSysExData();
-            auto cmd = sysExData[CMD_ID];
+        auto sysExData = msg.getSysExData();
+        auto cmd = sysExData[CMD_ID];
 
+        if (cmd == PERIPHERAL_CALBRATION_DATA && !isConnectionEstablished())
+        {
+            sendCalibratePitchModOff = true;
+            // startTimer(100);
+            return;
+        }
+
+        if (waitingForTestResponse) switch (sysExData[MSG_STATUS])
+        {
             // Skip echos, or mark as a failed ping
-            if (sysExData[MSG_STATUS] == TEST_ECHO)
+            case TEST_ECHO:
             {
                 switch (cmd)
                 {
                 case LUMA_PING:
                 {
+                    DBG("Ignoring Ping Echo");
                     onFailedPing(msg);
                     break;
                 }
@@ -405,65 +447,110 @@ void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMes
                     break;
 
                 case GET_FIRMWARE_REVISION:
-                    onTestResponseReceived();
+                    DBG("Ignoring Firmware Echo");
+                    // onTestResponseReceived();
                     break;
-                    
+
                 default:
                     return;
                 }
-                
-                waitingForTestResponse = false;
-                startTimer(10);
+                break;
             }
-            else if (sysExData[MSG_STATUS] == TerpstraMIDIAnswerReturnCode::ACK)
-            {
-                int deviceIndex = midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
 
+            case TerpstraMIDIAnswerReturnCode::ACK:
+            {
                 switch (cmd)
                 {
                 case GET_SERIAL_IDENTITY:
-                    onSerialIdentityResponse(msg, deviceIndex);
+                    onSerialIdentityResponse(msg, inputDeviceIndex);
+                    break;
+
+                case CALIBRATE_PITCH_MOD_WHEEL:
+                    if (sysExData[PAYLOAD_INIT] != TEST_ECHO)
+                    {
+                        if (!isConnectionEstablished())
+                        {
+                            sendCalibratePitchModOff = true;
+                        }
+                    }
                     break;
 
                 case GET_FIRMWARE_REVISION:
-                    // TODO
                     break;
 
                 case LUMA_PING:
-                    onPingResponse(msg, deviceIndex);
+                    onPingResponse(msg, inputDeviceIndex);
                     break;
 
                 default:
                     break;
                 }
+
+                waitingForTestResponse = false;
+                break;
+            }
+
+            // Consider a response from a different firmware state as successful
+            case TerpstraMIDIAnswerReturnCode::STATE:
+            {
+                // Find 'off' message if possible
+                //onTestResponseReceived();
             }
         }
-        
+
         // Edge case if we're disconnected but get a response
         else if (!isConnectionEstablished())
         {
             confirmedInputIndex = midiDriver.getMidiInputIndex();
             confirmedOutputIndex = midiDriver.getMidiOutputIndex();
-            
+
             // Maybe not best solution?
             deviceConnectionMode = DetectConnectionMode::lookingForDevice;
-            startTimer(10);
         }
         else
         {
             startTimer(inactivityTimeoutMs);
         }
     }
+
 }
 
-void DeviceActivityMonitor::noAnswerToMessage(const MidiMessage& midiMessage)
+void DeviceActivityMonitor::handleMessageQueue(const MidiBuffer& readBuffer, const Array<int, CriticalSection>& devices)
+{
+    int smpl = 0;
+    for (auto event : readBuffer)
+    {
+        auto msg = event.getMessage();
+        handleResponse(devices[smpl], msg);
+        smpl++;
+    }
+}
+
+//=========================================================================
+// TerpstraMidiDriver::Listener Implementation
+
+void DeviceActivityMonitor::midiMessageReceived(MidiInput* source, const MidiMessage& msg)
+{
+    if (!msg.isSysEx())
+        return;
+
+    int deviceIndex = (source == nullptr) ? -1
+                                          : midiDriver.getMidiInputList().indexOf(source->getDeviceInfo());
+
+    addMessageToQueue(msg);
+
+    auto size = readQueueSize.load();
+    testResponseDeviceIndices.set(size, deviceIndex);
+    readQueueSize.store(size + 1);
+}
+
+void DeviceActivityMonitor::noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage)
 {
     stopTimer();
     
     if (waitingForTestResponse && deviceConnectionMode < DetectConnectionMode::noDeviceMonitoring)
     {
         waitingForTestResponse = false;
-        
         auto sysExData = midiMessage.getSysExData();
         if (sysExData[CMD_ID] == LUMA_PING && outputPingIds.size() > 0)
         {

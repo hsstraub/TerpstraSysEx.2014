@@ -207,7 +207,7 @@ private:
 	float verticalScalar = 1.0f;
 
 	double columnBasisAngle = 0.0;
-	double rowBasisAngle = -double_Pi / 3.0;
+	double rowBasisAngle = -MathConstants<double>::pi / 3.0;
 
 	Point<double> startingCentre = Point<double>(0.4330127, 0.5);
 

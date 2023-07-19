@@ -21,7 +21,14 @@ FirmwareDlg::FirmwareDlg()
     auto properties = TerpstraSysExApplication::getApp().getPropertiesFile();
     File lastFirmwareLocation = properties->getValue("LastFirmwareBinPath", properties->getValue("UserDocumentsLocation", File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getFullPathName()));
 
-    fileBrowser.reset(new PathBrowserComponent("Lumatone Firmware Update", lastFirmwareLocation));
+    String openFileType =
+#if JUCE_DEBUG
+        ""
+#else
+        "*.tgz"
+#endif
+        ;
+    fileBrowser.reset(new PathBrowserComponent("Lumatone Firmware Update", openFileType, lastFirmwareLocation));
     fileBrowser->getEditor()->setColour(TextEditor::ColourIds::backgroundColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::ControlBoxBackground));
     fileBrowser->getEditor()->setColour(TextEditor::ColourIds::textColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
     fileBrowser->getEditor()->getProperties().set(LumatoneEditorStyleIDs::connectedEdgeFlags, Button::ConnectedEdgeFlags::ConnectedOnRight);
@@ -37,7 +44,6 @@ FirmwareDlg::FirmwareDlg()
     infoBox->setMouseClickGrabsKeyboardFocus(false);
     infoBox->setReadOnly(true);
     infoBox->setMultiLine(true);
-    infoBox->insertTextAtCaret(translate("Select a firmware file and then click \"Begin Update\""));
     infoBox->setColour(TextEditor::ColourIds::backgroundColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::ControlBoxBackground));
     infoBox->setColour(TextEditor::ColourIds::textColourId, TerpstraSysExApplication::getApp().getLookAndFeel().findColour(LumatoneEditorColourIDs::DescriptionText));
     infoBox->setColour(ScrollBar::ColourIds::thumbColourId, Colour(0xff2d3135));
@@ -48,7 +54,9 @@ FirmwareDlg::FirmwareDlg()
     addAndMakeVisible(firmwareStatusLabel.get());
     updateFirmwareVersionLabel();
 
-    TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
+
+    postMessage(translate("Select a firmware file and then click \"Begin Update\""));
 
     //if (!updateIsAvailable)
     //{
@@ -58,7 +66,7 @@ FirmwareDlg::FirmwareDlg()
 
 FirmwareDlg::~FirmwareDlg()
 {
-    TerpstraSysExApplication::getApp().getLumatoneController().removeFirmwareListener(this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->removeFirmwareListener(this);
 }
 
 void FirmwareDlg::paint(Graphics& g)
@@ -68,10 +76,7 @@ void FirmwareDlg::paint(Graphics& g)
 
 void FirmwareDlg::resized()
 {
-    int margin = 12;
-    int doubleMargin = margin * 2;
-    int buttonWidth = proportionOfWidth(0.3f);
-    int buttonHeight = 30;
+    int buttonWidth = proportionOfWidth(buttonWidthScalar);
 
     //checkUpdateBtn->setBounds(margin, margin, buttonWidth, buttonHeight);
 
@@ -92,9 +97,9 @@ void FirmwareDlg::buttonClicked(Button* btn)
     //}
     if (btn == doUpdateBtn.get())
     {
-        if (TerpstraSysExApplication::getApp().getLumatoneController().getMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getLumatoneController().getMidiOutputIndex() < 0)
+        if (TerpstraSysExApplication::getApp().getLumatoneController()->getMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getLumatoneController()->getMidiOutputIndex() < 0)
         {
-            AlertWindow::showMessageBox(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
+            AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
             return;
         }
 
@@ -103,11 +108,12 @@ void FirmwareDlg::buttonClicked(Button* btn)
         if (firmwareFileSelected.existsAsFile())
         {
             TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastFirmwareBinPath", firmwareFileSelected.getParentDirectory().getFullPathName());
-            TerpstraSysExApplication::getApp().getLumatoneController().requestFirmwareUpdate(firmwareFileSelected, this);
+            TerpstraSysExApplication::getApp().getLumatoneController()->requestFirmwareUpdate(firmwareFileSelected, this);
         }
         else
         {
-            infoBox->setText(infoBox->getText() + "Error: Not a valid firmware file...");
+            postMessage("Error: Not a valid firmware file...");
+            //infoBox->setText();
         }
     }
 }
@@ -138,11 +144,9 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         firmwareUpdateInProgress = false;
     }
 
-    if (msg!= "")
+    if (msg != "")
     {
-        msgLog += (msg + "\n");
-        infoNeedsUpdate = true;
-        startTimer(infoUpdateTimeoutMs);
+        postMessage(msg);
     }
 }
 
@@ -158,7 +162,7 @@ void FirmwareDlg::timerCallback()
 void FirmwareDlg::firmwareRevisionReceived(FirmwareVersion version)
 {
      updateFirmwareVersionLabel();
-     postMessage("Firmware update complete! Lumatone is now running firmware version " + version.toString());
+     postMessage("Firmware update complete! Lumatone is now running firmware version " + version.toDisplayString());
 }
 
 void FirmwareDlg::postMessage(String msg) 

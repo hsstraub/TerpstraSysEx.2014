@@ -74,11 +74,18 @@ public:
     // TODO use error codes
     static bool checkFirmwareFileIntegrity(String filePathIn);
 
+
+public:
+
+    // Deinitialize libssh2 library
+    static void exitLibSsh2();
+
 public:
 
     class ProcessListener
     {
     public:
+        virtual ~ProcessListener() {}
         virtual void firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg)=0;
     };
 
@@ -94,7 +101,7 @@ protected:
 private:
 
     // Return true if update was successful
-    bool       prepareForUpdate();
+    bool       prepareAndRunUpdate();
     StatusCode performFirmwareUpdate();
 
     // header only in .cpp
@@ -122,7 +129,7 @@ private:
 
     int numberOfWaitIncrements = 0;
     // Estimation based on boot time of ~85 seconds, plus transfer time, and overhead
-    const int maxUpdateIncrements = 300000 / UPDATETIMEOUT;
+    const int maxUpdateIncrements = 250000 / UPDATETIMEOUT;
 
 public:
 
@@ -158,7 +165,8 @@ public:
             return translate("Error: Could not prepare device communication protool");
 
         case FirmwareTransfer::StatusCode::HostConnectErr:
-            return translate("Error: Could not communicate with Lumatone");
+            return translate("Error: Could not communicate with Lumatone"
+                             "\nPlease make sure you are connected over USB.");
 
         case FirmwareTransfer::StatusCode::SessionEstErr:
             return translate("Error: Could not verify connection with Lumatone");

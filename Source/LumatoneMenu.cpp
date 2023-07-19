@@ -51,6 +51,10 @@ namespace Lumatone {
 			menu.addCommandItem(theManager, deleteOctaveBoard);
 			menu.addCommandItem(theManager, copyOctaveBoard);
 			menu.addCommandItem(theManager, pasteOctaveBoard);
+            menu.addCommandItem(theManager, pasteOctaveBoardChannels);
+            menu.addCommandItem(theManager, pasteOctaveBoardNotes);
+            menu.addCommandItem(theManager, pasteOctaveBoardColours);
+            menu.addCommandItem(theManager, pasteOctaveBoardTypes);
 			menu.addCommandItem(theManager, undo);
 			menu.addCommandItem(theManager, redo);
 		}

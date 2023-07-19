@@ -26,16 +26,10 @@ public:
         // Setup paths needed to draw swatches
     }
 
-    ~Palette() override
-    {
-    }
+    virtual ~Palette() {}
 
     //======================================================================
     // Implementation of juce::Component
-
-    virtual void paint(Graphics& g) = 0;
-    
-    virtual void resized() = 0;
 
     virtual void mouseDown(const MouseEvent& e) override    
     {
@@ -46,12 +40,6 @@ public:
                 if (s.contains(e.position))
                 {
                     setSelectedSwatchNumber(swatchPaths.indexOf(s));
-
-                    if (selector)
-                    {
-                        selector->setCurrentColour(palette[selectedSwatch], dontSendNotification);
-                    }
-
                     return;
                 }
             }
@@ -99,6 +87,10 @@ public:
     virtual void setSelectedSwatchNumber(int swatchIndex)
     {
         selectedSwatch = swatchIndex;
+        if (selector)
+        {
+            selector->setCurrentColour(palette[selectedSwatch], dontSendNotification);
+        }
         repaint();
     }
 

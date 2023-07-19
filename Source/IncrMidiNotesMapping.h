@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.1.3
 
   ------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ class IncrMidiNotesMapping  : public Component,
 public:
     //==============================================================================
     IncrMidiNotesMapping (int& periodSizeReference, ScaleStructure& scaleStructureIn, Array<Colour>& colourTableIn);
-    ~IncrMidiNotesMapping() override;
+    virtual ~IncrMidiNotesMapping() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.

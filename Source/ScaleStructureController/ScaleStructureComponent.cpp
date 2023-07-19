@@ -165,7 +165,7 @@ void ScaleStructureComponent::resized()
 	periodSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.4f, 0));
 
 	generatorSlider->setSize(proportionOfWidth(0.2f), proportionOfHeight(sliderHeight));
-	generatorSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.125f, float_Pi));
+	generatorSlider->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 0.125f, MathConstants<float>::pi));
 
 	offsetLabel->setFont(Font().withHeight(offsetFontHeightScalar));
 	offsetLabel->setSize(offsetLabel->getFont().getStringWidth("Offset") * 2, offsetLabel->getFont().getHeight() * 3);
@@ -190,11 +190,11 @@ void ScaleStructureComponent::resized()
 
 	resizeLabelWithWidth(generatorValueLbl.get(), proportionOfWidth(0.25f));
 	generatorValueLbl->setSize(proportionOfWidth(0.4f), generatorValueLbl->getHeight());
-	generatorValueLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 3.0f * controlUnit, float_Pi));
+	generatorValueLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 3.0f * controlUnit, MathConstants<float>::pi));
 
 	resizeLabelWithWidth(stepSizePatternLbl.get(), proportionOfWidth(0.25f));
 	stepSizePatternLbl->setSize(proportionOfWidth(0.4f), stepSizePatternLbl->getHeight());
-	stepSizePatternLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 4.5 * controlUnit, float_Pi));
+	stepSizePatternLbl->setCentrePosition(circle->getIntPointFromCenter(circle->getInnerRadius() * 4.5 * controlUnit, MathConstants<float>::pi));
 
     //[/UserResized]
 }

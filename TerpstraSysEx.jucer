@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="oPBJmN" name="LumatoneSetup" projectType="guiapp" version="1.0.1"
-              bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
-              companyName="Hans Straub" headerPath="../../../JUCE/modules"
-              jucerFormatVersion="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
+<JUCERPROJECT id="oPBJmN" name="Lumatone Editor" projectType="guiapp" version="1.0.2"
+              bundleIdentifier="com.Lumatone.LumatoneEditor" includeBinaryInAppConfig="1"
+              companyName="Lumatone" headerPath="../../../JUCE/modules" jucerFormatVersion="1"
+              userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
               defines="USE_LICENSED_FONTS=0 SERVERKEY=&quot;debian&quot; SERVERPWD=&quot;temppwd&quot;"
-              displaySplashScreen="0">
-  <MAINGROUP id="obWLli" name="LumatoneSetup">
+              displaySplashScreen="0" companyWebsite="https://www.lumatone.io/"
+              companyEmail="support@lumatone.io">
+  <MAINGROUP id="obWLli" name="Lumatone Editor">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
       <GROUP id="{7D9A2DE4-358A-0DBD-7EAE-169E05F8498D}" name="Assets">
         <GROUP id="{C936084B-5C4C-78FE-8A50-C5BCA0658F94}" name="PNG">
@@ -84,7 +85,17 @@
       </GROUP>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="uHwlF9" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
+      <FILE id="GIvNyp" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
+      <FILE id="S1tuPL" name="ApplicationListeners.h" compile="0" resource="0"
+            file="Source/ApplicationListeners.h"/>
       <GROUP id="{719050EA-2AD7-FDDF-7DF8-6459AA36D42E}" name="Settings">
+        <FILE id="Ue41yL" name="WheelsCalibrationComponent.h" compile="0" resource="0"
+              file="Source/Settings/WheelsCalibrationComponent.h"/>
+        <FILE id="HoxWOs" name="MidiSettingsDlg.cpp" compile="1" resource="0"
+              file="Source/Settings/MidiSettingsDlg.cpp"/>
+        <FILE id="U8gsXP" name="MidiSettingsDlg.h" compile="0" resource="0"
+              file="Source/Settings/MidiSettingsDlg.h"/>
         <FILE id="DQiMtc" name="CalibrationDlg.cpp" compile="1" resource="0"
               file="Source/Settings/CalibrationDlg.cpp"/>
         <FILE id="qfDjlv" name="CalibrationDlg.h" compile="0" resource="0"
@@ -95,6 +106,10 @@
               file="Source/Settings/SettingsContainer.cpp"/>
         <FILE id="chrN2g" name="SettingsContainer.h" compile="0" resource="0"
               file="Source/Settings/SettingsContainer.h"/>
+        <FILE id="bxATOX" name="PresetSettingsDlg.cpp" compile="1" resource="0"
+              file="Source/Settings/PresetSettingsDlg.cpp"/>
+        <FILE id="suUqru" name="PresetSettingsDlg.h" compile="0" resource="0"
+              file="Source/Settings/PresetSettingsDlg.h"/>
       </GROUP>
       <FILE id="WG01Cj" name="EditActions.cpp" compile="1" resource="0" file="Source/EditActions.cpp"/>
       <FILE id="cMcg6t" name="EditActions.h" compile="0" resource="0" file="Source/EditActions.h"/>
@@ -181,6 +196,8 @@
             file="Source/VelocityCurveComponents.cpp"/>
       <FILE id="oGCzej" name="VelocityCurveComponents.h" compile="0" resource="0"
             file="Source/VelocityCurveComponents.h"/>
+      <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
+            file="Source/VelocityCurveEditStrategy.h"/>
       <FILE id="QI0Qip" name="VelocityCurveEditStrategy.cpp" compile="1"
             resource="0" file="Source/VelocityCurveEditStrategy.cpp"/>
       <FILE id="zD1emI" name="VelocityCurveDlgBase.cpp" compile="1" resource="0"
@@ -194,8 +211,6 @@
         <FILE id="gWcasD" name="NoteNames.cpp" compile="1" resource="0" file="Source/ScaleStructureController/NoteNames.cpp"/>
         <FILE id="WuLSNJ" name="NoteNames.h" compile="0" resource="0" file="Source/ScaleStructureController/NoteNames.h"/>
         <FILE id="dJtPB6" name="Symmetry.h" compile="0" resource="0" file="Source/ScaleStructureController/Symmetry.h"/>
-        <FILE id="nX0VGI" name="VelocityCurveEditStrategy.h" compile="0" resource="0"
-              file="Source/VelocityCurveEditStrategy.h"/>
         <FILE id="yEc0oD" name="GroupingCircle.cpp" compile="1" resource="0"
               file="Source/ScaleStructureController/GroupingCircle.cpp"/>
         <FILE id="lVLktX" name="GroupingCircle.h" compile="0" resource="0"
@@ -293,9 +308,8 @@
                 linuxExtraPkgConfig="libssh2" extraDefs="HAVE_ARPA_INET_H=1 HAVE_UNISTD_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="LumatoneSetup"/>
-        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
-                       targetName="LumatoneSetup"/>
+                       targetName="Lumatone Editor"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" targetName="Lumatone Editor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -310,14 +324,14 @@
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX" bigIcon="yjLw0u" hardenedRuntime="1"
                extraDefs="HAVE_SYS_SOCKET_H=1 HAVE_NETINET_IN_H=1 HAVE_SYS_SELECT_H=1 HAVE_UNISTD_H=1 HAVE_ARPA_INET_H=1 HAVE_SYS_TIME_H=1 HAVE_POLL_H=1 SERVERHOST1=&quot;192.168.6.2&quot; SERVERHOST2=&quot;192.168.7.2&quot;"
-               xcodeValidArchs="x86_64" extraCompilerFlags="-I../../Libraries/mac/include"
-               embeddedFrameworks="../../Libraries/mac/lib/libgpg-error.0.dylib&#10;../../Libraries/mac/lib/libgcrypt.20.dylib&#10;../../Libraries/mac/lib/libssh2.1.dylib"
+               xcodeValidArchs="arm64,x86_64" extraCompilerFlags="-I../../Libraries/mac/include"
+               embeddedFrameworks="../../Libraries/mac/lib/libgpg-error.dylib&#10;../../Libraries/mac/lib/libgcrypt.dylib&#10;../../Libraries/mac/lib/libssh2.dylib"
                smallIcon="fwSyLL">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LumatoneSetup"
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Lumatone Editor"
                        osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="LumatoneSetup"
-                       osxArchitecture="64BitIntel" libraryPath="../../Libraries/mac/lib"/>
+        <CONFIGURATION name="Release" isDebug="0" targetName="Lumatone Editor" osxArchitecture="64BitIntel"
+                       libraryPath="../../Libraries/mac/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -334,9 +348,9 @@
             extraDefs="SERVERHOST=&quot;192.168.7.2&quot;" externalLibraries="libssh2.dll.a">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
-                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
+                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib" targetName="Lumatone Editor"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"
-                       headerPath="$(ProjectDir)..\..\Libraries\win64\include"/>
+                       headerPath="$(ProjectDir)..\..\Libraries\win64\include" targetName="Lumatone Editor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\modules"/>
@@ -353,9 +367,9 @@
             smallIcon="fwSyLL" bigIcon="yjLw0u" extraDefs="SERVERHOST=&quot;192.168.7.2&quot;">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="$(ProjectDir)..\..\Libraries\win64\include"
-                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"/>
+                       libraryPath="$(ProjectDir)..\..\Libraries\win64\lib" targetName="Lumatone Editor"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="$(ProjectDir)..\..\Libraries\win64\lib"
-                       headerPath="$(ProjectDir)..\..\Libraries\win64\include"/>
+                       headerPath="$(ProjectDir)..\..\Libraries\win64\include" targetName="Lumatone Editor"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>

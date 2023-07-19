@@ -17,13 +17,12 @@ TerpstraKeys class
 ==============================================================================
 */
 
-TerpstraKeys::TerpstraKeys()
+TerpstraKeys::TerpstraKeys(LumatoneKeyType newKeyType)
 {
     for (int i = 0; i < 56; i++)
-        theKeys[i] = TerpstraKey();
+        theKeys[i] = TerpstraKey(newKeyType);
     board_idx = 0;
     key_idx = 0;
-
 }
 
 bool TerpstraKeys::isEmpty() const
@@ -245,10 +244,14 @@ void TerpstraKeyMapping::clearVelocityIntervalTable()
     memmove(velocityIntervalTableValues, DefaultVelocityIntervalTable, sizeof(DefaultVelocityIntervalTable));
 }
 
-void TerpstraKeyMapping::clearAll()
+void TerpstraKeyMapping::clearAll(bool initializeWithNoteKeyType)
 {
+    auto newKeyType = (initializeWithNoteKeyType) ? LumatoneKeyType::noteOnNoteOff : LumatoneKeyType::disabled;
+
     for (int i = 0; i < NUMBEROFBOARDS; i++)
-        sets[i] = TerpstraKeys();
+    {
+        sets[i] = TerpstraKeys(newKeyType);
+    }
 
     // Default values for options
     afterTouchActive = false;
@@ -276,7 +279,7 @@ bool TerpstraKeyMapping::isEmpty() const
 
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 {
-    clearAll();
+    clearAll(true);
 
     bool hasFiftySixKeys = false;
 
@@ -310,7 +313,13 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
                 int keyValue = currentLine.substring(pos2 + 1).getIntValue();
                 if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
                     if (keyIndex >= 0 && keyIndex < 56) {
-                        sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
+
+                        if (keyValue > 0 && keyValue <= 16) {
+                            sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
+                        } else {
+                            sets[boardIndex].theKeys[keyIndex].channelNumber = 1;
+                            sets[boardIndex].theKeys[keyIndex].keyType = LumatoneKeyType::disabledDefault;
+                        }
 
                         if (keyIndex == 55)
                             hasFiftySixKeys = true;
@@ -338,16 +347,25 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
                 int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
                 int keyValue = currentLine.substring(pos2 + 1).getIntValue();
                 if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
-                    if (keyIndex >= 0 && keyIndex < 56)
-                        if (keyValue >= 1 && keyValue < 5)
-                            sets[boardIndex].theKeys[keyIndex].keyType = (LumatoneKeyType)keyValue;
-                        else
+                    if (keyIndex >= 0 && keyIndex < 56) {
+                        auto currentKeyType = sets[boardIndex].theKeys[keyIndex].keyType;
+                        if (keyValue < 0 && keyValue >= 5 || currentKeyType == LumatoneKeyType::disabledDefault)
                             sets[boardIndex].theKeys[keyIndex].keyType = LumatoneKeyType::disabled;
-                    else
+                        else
+                            sets[boardIndex].theKeys[keyIndex].keyType = (LumatoneKeyType)keyValue;
+                    } else
                         jassert(false);
                 }
             } else
                 jassert(false);
+        } else if ((pos1 = currentLine.indexOf("CCInvert_")) >= 0) {
+            int keyIndex = currentLine.substring(pos1 + 9, currentLine.length()).getIntValue();
+            if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
+                if (keyIndex >= 0 && keyIndex < 56)
+                        sets[boardIndex].theKeys[keyIndex].ccFaderDefault = false;
+                else
+                    jassert(false);
+            }
         }
         // General options
         else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0) {
@@ -357,7 +375,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
         } else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0) {
             invertExpression = currentLine.substring(pos1 + 21).getIntValue() > 0;
         } else if ((pos1 = currentLine.indexOf("InvertSustain=")) >= 0) {
-            invertSustain = currentLine.substring(pos1 + 21).getIntValue() > 0;
+            invertSustain = currentLine.substring(pos1 + 14).getIntValue() > 0;
         } else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0) {
             expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
         }
@@ -423,6 +441,8 @@ StringArray TerpstraKeyMapping::toStringArray()
             result.add("Col_" + String(keyIndex) + "=" + sets[boardIndex].theKeys[keyIndex].colour.toDisplayString(false));
             if (sets[boardIndex].theKeys[keyIndex].keyType != LumatoneKeyType::noteOnNoteOff)
                 result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
+            if (sets[boardIndex].theKeys[keyIndex].ccFaderDefault != true)
+                result.add("CCInvert_" + String(keyIndex));
         }
     }
 
@@ -465,3 +485,22 @@ StringArray TerpstraKeyMapping::toStringArray()
 //
 //	return result;
 //}
+
+TerpstraVelocityCurveConfig* TerpstraKeyMapping::getVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+{
+	switch (velocityCurveType)
+	{
+	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
+		return &noteOnOffVelocityCurveConfig;
+
+	case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
+		return &faderConfig;
+	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
+		return &afterTouchConfig;
+	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+		return &lumaTouchConfig;
+	default:
+		jassertfalse;
+		return nullptr;
+	}
+}
