@@ -51,10 +51,10 @@ public:
             g.setColour(getSwatchColour(i));
             g.fillPath(swatch);
 
-#if JUCE_DEBUG
-            g.setColour(getSwatchColour(i).contrasting());
-            g.drawFittedText(String(i), swatch.getBounds().toNearestInt(), Justification::centred, 1);
-#endif
+//#if JUCE_DEBUG
+//            g.setColour(getSwatchColour(i).contrasting());
+//            g.drawFittedText(String(i), swatch.getBounds().toNearestInt(), Justification::centred, 1);
+//#endif
         }
 
         if (selectedSwatch >= 0)
@@ -69,6 +69,8 @@ public:
         float scalar = (width > height)
             ? getWidth() / width
             : getHeight() / height;
+
+        scalar *= (1 - 0.05f); // kludge margin to fix it getting cutoff sometimes
 
         float newWidth = width * scalar;
         float newHeight = height * scalar;

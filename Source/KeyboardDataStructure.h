@@ -20,19 +20,27 @@ public:
 	typedef juce::Colour COLOURTYPE;
 
 public:
-	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = juce::Colour(); keyType = noteOnNoteOff; };
-	TerpstraKey(LumatoneKeyType newKeyType, int newChannelNumber, int newNoteNumber, COLOURTYPE newColour)
+    TerpstraKey(LumatoneKeyType newKeyType = LumatoneKeyType::disabled) { noteNumber = 0; channelNumber = 1; colour = juce::Colour(); keyType = newKeyType; ccFaderDefault = true; };
+	TerpstraKey(LumatoneKeyType newKeyType, int newChannelNumber, int newNoteNumber, COLOURTYPE newColour, bool invertCCFader = false)
 	{
-		keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour;
+        keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour; ccFaderDefault = invertCCFader;
 	}
 	bool isEmpty() const { return channelNumber == 0; }
 
-	bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType; }
+    bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType || ccFaderDefault != second.ccFaderDefault; }
+    
+    // Chainable setters
+    TerpstraKey withKeyType(LumatoneKeyType type) const { return TerpstraKey(type, channelNumber, noteNumber, colour, ccFaderDefault); }
+    TerpstraKey withColour(Colour newColour) const { return TerpstraKey(keyType, channelNumber, noteNumber, newColour, ccFaderDefault); }
+    TerpstraKey withNoteOrCC(int noteOrCC) const { return TerpstraKey(keyType, channelNumber, noteOrCC, colour, ccFaderDefault); }
+    TerpstraKey withChannelNumber(int channel) const { return TerpstraKey(keyType, channel, noteNumber, colour, ccFaderDefault); }
+    TerpstraKey withInvertCCFader(bool invertCCFader) const { return TerpstraKey(keyType, channelNumber, noteNumber, colour, invertCCFader); }
 
 public:
 	int			noteNumber;
 	int			channelNumber;
 	COLOURTYPE	colour;
+    bool        ccFaderDefault;
 	LumatoneKeyType		keyType;
 };
 
@@ -42,7 +50,7 @@ struct TerpstraKeys {
 	int				board_idx;
 	int				key_idx;
 
-	TerpstraKeys();
+	TerpstraKeys(LumatoneKeyType newKeyType = LumatoneKeyType::disabled);
 
 	bool isEmpty() const;
 };
@@ -103,7 +111,7 @@ public:
 	TerpstraKeyMapping();
 
 	void clearVelocityIntervalTable();
-	void clearAll();
+	void clearAll(bool initializeWithNoteKeyType=false);
     bool isEmpty() const;
 
 	void fromStringArray(const StringArray& stringArray);
@@ -112,6 +120,7 @@ public:
 	// The colours that are used
 	//SortedSet<TerpstraKey::COLOURTYPE> getUsedColours();
 
+	TerpstraVelocityCurveConfig* getVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
 
 public:
 	// Key configuration

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -29,28 +29,45 @@
 
 //==============================================================================
 GeneralOptionsDlg::GeneralOptionsDlg ()
-    : Component("GeneralOptionsDlg")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle", translate("GeneralSettings")));
+    labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle",
+                                                       TRANS("General Settings")));
     addAndMakeVisible (labelGeneralSettingslTitle.get());
-    labelGeneralSettingslTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+    labelGeneralSettingslTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelGeneralSettingslTitle->setJustificationType (juce::Justification::centredLeft);
+    labelGeneralSettingslTitle->setEditable (false, false, false);
+    labelGeneralSettingslTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
+    labelGeneralSettingslTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelGeneralSettingslTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
+    labelGeneralSettingslTitle->setBounds (8, 0, 104, 24);
 
     buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
-    buttonAfterTouchActive->setButtonText (translate("PolyphonicAftertouch"));
+    buttonAfterTouchActive->setButtonText (TRANS("Polyphonic Aftertouch"));
     buttonAfterTouchActive->addListener (this);
+
+    buttonAfterTouchActive->setBounds (8, 32, 176, 24);
 
     buttonLightOnKeyStrokes.reset (new juce::ToggleButton ("buttonLightOnKeyStrokes"));
     addAndMakeVisible (buttonLightOnKeyStrokes.get());
-    buttonLightOnKeyStrokes->setButtonText (translate("LightOnKeystrokes"));
+    buttonLightOnKeyStrokes->setButtonText (TRANS("Light on Keystrokes"));
     buttonLightOnKeyStrokes->addListener (this);
 
+    buttonLightOnKeyStrokes->setBounds (8, 64, 176, 24);
+
+
     //[UserPreSize]
+    labelGeneralSettingslTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+
+    TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
     //[/UserPreSize]
+
+    setSize (188, 96);
+
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
@@ -59,6 +76,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 GeneralOptionsDlg::~GeneralOptionsDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+    TerpstraSysExApplication::getApp().getLumatoneController()->removeFirmwareListener(this);
     //[/Destructor_pre]
 
     labelGeneralSettingslTitle = nullptr;
@@ -74,11 +92,11 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
 void GeneralOptionsDlg::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
+
     //[/UserPrePaint]
 
-    //g.fillAll (juce::Colour (0xffbad0de));
-
     //[UserPaint] Add your own custom painting code here..
+
     g.setColour(Colour(0xff212626));
     g.fillRoundedRectangle(getLocalBounds().toFloat().withTop(proportionOfHeight(SETTINGSAREAMARGINHEIGHT)), roundedCornerSize);
     //[/UserPaint]
@@ -91,7 +109,7 @@ void GeneralOptionsDlg::resized()
 
     //[UserResized] Add your own custom resize handling here..
 
-    roundedCornerSize = round(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
+    roundedCornerSize = roundToInt(getParentHeight() * ROUNDEDCORNERTOAPPHEIGHT);
 
     resizeLabelWithHeight(labelGeneralSettingslTitle.get(), roundToInt(getHeight() * SETTINGSLABELHEIGHT));
     labelGeneralSettingslTitle->setTopLeftPosition(roundToInt(getWidth() * SETTINGSLABELMARGINWIDTH), 0);
@@ -119,7 +137,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_buttonAfterTouchActive] -- add your button handler code here..
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().afterTouchActive = buttonAfterTouchActive->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getLumatoneController().setAftertouchEnabled(buttonAfterTouchActive->getToggleState());
+		TerpstraSysExApplication::getApp().getLumatoneController()->setAftertouchEnabled(buttonAfterTouchActive->getToggleState());
         //[/UserButtonCode_buttonAfterTouchActive]
     }
     else if (buttonThatWasClicked == buttonLightOnKeyStrokes.get())
@@ -127,7 +145,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_buttonLightOnKeyStrokes] -- add your button handler code here..
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().lightOnKeyStrokes = buttonLightOnKeyStrokes->getToggleState();
 		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getLumatoneController().sendLightOnKeyStrokes(buttonLightOnKeyStrokes->getToggleState());
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendLightOnKeyStrokes(buttonLightOnKeyStrokes->getToggleState());
         //[/UserButtonCode_buttonLightOnKeyStrokes]
     }
 
@@ -155,6 +173,12 @@ void GeneralOptionsDlg::loadFromMapping()
 	buttonLightOnKeyStrokes->setToggleState(mappingInEdit.lightOnKeyStrokes, juce::NotificationType::dontSendNotification);
 }
 
+void GeneralOptionsDlg::presetFlagsReceived(PresetFlags presetFlags)
+{
+    buttonAfterTouchActive->setToggleState(presetFlags.polyphonicAftertouch, dontSendNotification);
+    buttonLightOnKeyStrokes->setToggleState(presetFlags.lightsOnKeystroke, dontSendNotification);
+}
+
 //[/MiscUserCode]
 
 
@@ -168,10 +192,11 @@ void GeneralOptionsDlg::loadFromMapping()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="188" initialHeight="96">
-  <BACKGROUND backgroundColour="ffbad0de"/>
+                 parentClasses="public Component, public LumatoneEditor::FirmwareListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="188"
+                 initialHeight="96">
+  <BACKGROUND backgroundColour="0"/>
   <LABEL name="labelGeneralSettingslTitle" id="9ac4ac959d4cd11a" memberName="labelGeneralSettingslTitle"
          virtualName="" explicitFocusOrder="0" pos="8 0 104 24" textCol="ff61acc8"
          edTextCol="ff000000" edBkgCol="0" labelText="General Settings"

@@ -19,7 +19,9 @@
 
 #include "TerpstraMidiDriver.h"
 
-class DeviceActivityMonitor : public juce::Timer, public juce::ChangeBroadcaster, protected TerpstraMidiDriver::Listener
+class DeviceActivityMonitor : public juce::Timer, 
+                              public juce::ChangeBroadcaster, 
+                              protected TerpstraMidiDriver::Collector
 {
     
 public:
@@ -106,10 +108,19 @@ private:
     /// <returns>Returns false if devices are not valid, and true if it an attempt to connect was made</returns>
     bool initializeConnectionTest();
 
+    /// <summary>
+    /// Handle a response from a test or confirmed MidiInput device
+    /// </summary>
+    /// <param name="testInputIndex"></param>
+    /// <param name="midiMessage"></param>
+    void handleResponse(int inputDeviceIndex, const MidiMessage& midiMessage);
+
 
 private:
     //=========================================================================
     // Callback functions
+
+    void handleMessageQueue(const MidiBuffer& readBuffer, const Array<int, CriticalSection>& devices);
 
     void onSerialIdentityResponse(const MidiMessage& msg, int deviceIndexResponded);
 
@@ -121,17 +132,17 @@ private:
     void onSuccessfulDetection();
 
     void onDisconnection();
-
+    
 protected:
 
     //=========================================================================
     // TerpstraMidiDriver::Listener Implementation
 
     void midiMessageReceived(MidiInput* source, const MidiMessage& midiMessage) override;
-    void midiMessageSent(const MidiMessage& midiMessage) override {};
-    void midiSendQueueSize(int queueSizeIn) override { midiQueueSize = queueSizeIn; };
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
-    void noAnswerToMessage(const MidiMessage& midiMessage) override;
+    void midiMessageSent(MidiOutput* target, const MidiMessage& midiMessage) override {}
+    void midiSendQueueSize(int queueSizeIn) override { sentQueueSize = queueSizeIn; }
+    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+    void noAnswerToMessage(MidiInput* expectedDevice, const MidiMessage& midiMessage) override;
 
 private:
 
@@ -141,10 +152,15 @@ private:
     bool                    deviceDetectInProgress = false;
     bool                    waitingForTestResponse = false;
 
-    int                     responseTimeoutMs = 500;
-    int                     detectRoutineTimeoutMs = 500;
+    int                     responseTimeoutMs = 600;
+    int                     detectRoutineTimeoutMs = 1000;
     int                     inactivityTimeoutMs  = 1500;
-    
+
+    Array<int, CriticalSection> testResponseDeviceIndices;
+    std::atomic<int>        readQueueSize;
+    const int               readBlockSize = 64;
+    int                     sentQueueSize = 0;
+
     int                     testOutputIndex = -1;
     Array<MidiDeviceInfo>   outputDevices;
     Array<MidiDeviceInfo>   inputDevices;
@@ -153,10 +169,10 @@ private:
     int                     confirmedInputIndex = -1;
     int                     confirmedOutputIndex = -1;
 
-    int                     midiQueueSize = 0;
-    
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
+    
+    bool                    sendCalibratePitchModOff = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };

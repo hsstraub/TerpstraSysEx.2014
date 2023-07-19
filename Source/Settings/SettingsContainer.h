@@ -12,10 +12,14 @@
 #include "../LumatoneEditorLookAndFeel.h"
 #include "CalibrationDlg.h"
 #include "FirmwareDlg.h"
+#include "PresetSettingsDlg.h"
+#include "MidiSettingsDlg.h"
 
 typedef enum {
     Calibration = 0,
-    Firmware = 1
+    Firmware    = 1,
+    Midi        = 2,
+    Presets     = 3
 } LumatoneEditorSettingCategories;
 
 class SettingsCategoryModel : public ListBoxModel, public ChangeBroadcaster
@@ -49,6 +53,8 @@ class SettingsContainer : public Component, protected ChangeListener
 public:
 
     SettingsContainer();
+
+    // Send change signal when destructed
     ~SettingsContainer();
 
     void paint(Graphics& g) override;

@@ -31,8 +31,13 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
 
 SettingsContainer::SettingsContainer()
     : Component("SettingsContainer"),
-      model({"Calibrate", "Firmware"})
-{
+      model({
+        translate("Calibrate"), 
+        translate("Firmware"),
+        translate("MIDI"),
+        translate("Presets")
+      })
+{ 
     categoryList.reset(new ListBox("CategoryList"));
     categoryList->setModel(&model);
 
@@ -45,7 +50,9 @@ SettingsContainer::SettingsContainer()
 
 SettingsContainer::~SettingsContainer()
 {
+    settingsPanel = nullptr;
     categoryList = nullptr;
+
 }
 
 void SettingsContainer::paint(Graphics& g)
@@ -65,14 +72,9 @@ void SettingsContainer::resized()
 
 void SettingsContainer::lookAndFeelChanged()
 {
-    auto* lookAndFeel = dynamic_cast<LumatoneEditorLookAndFeel*>(&getLookAndFeel());
-    if (lookAndFeel)
-    {
-        setColour(ResizableWindow::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::LightBackground));
-        categoryList->setColour(ListBox::ColourIds::backgroundColourId, lookAndFeel->findColour(LumatoneEditorColourIDs::MediumBackground));
-    }
+    setColour(ResizableWindow::ColourIds::backgroundColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::LightBackground));
+    categoryList->setColour(ListBox::ColourIds::backgroundColourId, getLookAndFeel().findColour(LumatoneEditorColourIDs::MediumBackground));
 }
-
 void SettingsContainer::changeListenerCallback(ChangeBroadcaster* source)
 {
     auto panelIndex = categoryList->getSelectedRow();
@@ -90,6 +92,14 @@ void SettingsContainer::showPanel(int editorSettingCategory)
 
     case LumatoneEditorSettingCategories::Firmware:
         newPanel = new FirmwareDlg();
+        break;
+
+    case LumatoneEditorSettingCategories::Midi:
+        newPanel = new MidiSettingsDlg();
+        break;
+
+    case LumatoneEditorSettingCategories::Presets:
+        newPanel = new PresetSettingsDlg();
         break;
     }
 

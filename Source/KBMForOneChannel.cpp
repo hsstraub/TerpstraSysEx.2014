@@ -154,12 +154,15 @@ void KBMForOneChannel::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-		FileChooser chooser("Open a Scala KBM mapping", File(), "*.kbm");
-		if (chooser.browseForFileToOpen())
-		{
-			currentFile = chooser.getResult();
-			updateFieldsAndMappingLogic();
-		}
+		//FileChooser chooser("Open a Scala KBM mapping", File(), "*.kbm");
+		//if (chooser.browseForFileToOpen())
+		//{
+		//	currentFile = chooser.getResult();
+		//	updateFieldsAndMappingLogic();
+		//}
+        
+        // TODO: update this to Juce 6.1
+         
         //[/UserButtonCode_btnFileSelectMacro]
     }
 

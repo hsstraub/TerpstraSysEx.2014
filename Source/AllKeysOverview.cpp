@@ -40,12 +40,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
-	TerpstraSysExApplication::getApp().getLumatoneController().addMidiListener(this);
+//	TerpstraSysExApplication::getApp().getLumatoneController()->addMidiListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
-	TerpstraSysExApplication::getApp().getLumatoneController().removeMidiListener(this);
+//	TerpstraSysExApplication::getApp().getLumatoneController()->removeMidiListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -61,8 +61,8 @@ void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 
 	if (colourGraphic && shadowGraphic)
 	{
-		int x = round((getWidth()  - colourGraphic->getWidth()) * 0.5f);
-		int y = round((getHeight() - colourGraphic->getHeight()) * 0.5f);
+		int x = roundToInt((getWidth()  - colourGraphic->getWidth()) * 0.5f);
+		int y = roundToInt((getHeight() - colourGraphic->getHeight()) * 0.5f);
 
 		g.drawImageAt(*colourGraphic, x, y, true);
 		g.drawImageAt(*shadowGraphic, x, y);
@@ -92,7 +92,7 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 		// Right mouse click: popup menu
 		PopupMenu menu;
 		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
+		menu.showMenuAsync(PopupMenu::Options());
 	}
 
 	// TODO integrate interaction through LumatoneController
@@ -175,43 +175,49 @@ void KeyMiniDisplayInsideAllKeysOverview::setKeyGraphics(Image& colourGraphicIn,
 //[/MiscUserDefs]
 
 //==============================================================================
-AllKeysOverview::AllKeysOverview()
-	: Component("AllKeysOverview")
+AllKeysOverview::AllKeysOverview ()
 {
-	//[Constructor_pre] You can add your own custom stuff here..
-	//[/Constructor_pre]
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
-	btnLoadFile.reset(new juce::TextButton("btnLoadFile"));
-	addAndMakeVisible(btnLoadFile.get());
+    setName ("AllKeysOverview");
+    btnLoadFile.reset (new juce::TextButton ("btnLoadFile"));
+    addAndMakeVisible (btnLoadFile.get());
+    btnLoadFile->setButtonText (TRANS("LoadFile"));
+    btnLoadFile->addListener (this);
 
-	btnLoadFile->setButtonText(translate("LoadFile"));
-	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::LoadIcon);
-	btnLoadFile->addListener(this);
+    btnLoadFile->setBounds (368, 8, 96, 24);
 
-	btnSaveFile.reset(new juce::TextButton("btnSaveFile"));
-	addAndMakeVisible(btnSaveFile.get());
-	btnSaveFile->setButtonText(translate("SaveFile"));
-	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::SaveIcon);
-	btnSaveFile->addListener(this);
+    btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
+    addAndMakeVisible (btnSaveFile.get());
+    btnSaveFile->setButtonText (TRANS("SaveFile"));
+    btnSaveFile->addListener (this);
 
-	buttonReceive.reset(new juce::TextButton("buttonReceive"));
-	addAndMakeVisible(buttonReceive.get());
-	buttonReceive->setTooltip(translate("ImportTooltip"));
-	buttonReceive->setButtonText(translate("Import from Lumatone"));
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ArrowUp);
-	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
-	buttonReceive->addListener(this);
+    btnSaveFile->setBounds (472, 8, 96, 24);
 
-	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
-	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
+    buttonReceive.reset (new juce::TextButton ("buttonReceive"));
+    addAndMakeVisible (buttonReceive.get());
+    buttonReceive->setTooltip (TRANS("ImportTooltip"));
+    buttonReceive->setButtonText (TRANS("Import from Lumatone"));
+    buttonReceive->addListener (this);
+
+    buttonReceive->setBounds (584, 8, 176, 24);
 
 
     //[UserPreSize]
+	btnLoadFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::LoadIcon);
+	btnSaveFile->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::SaveIcon);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconHashCode, LumatoneEditorIcon::ArrowUp);
+	buttonReceive->getProperties().set(LumatoneEditorStyleIDs::textButtonIconPlacement, LumatoneEditorStyleIDs::TextButtonIconPlacement::RightOfText);
 
 	lblFirmwareVersion.reset(new Label("FirmwareVersionLabel"));
 	addChildComponent(lblFirmwareVersion.get());
 
-	TerpstraSysExApplication::getApp().getLumatoneController().addFirmwareListener(this);
+	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
+	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
+
+	TerpstraSysExApplication::getApp().getLumatoneController()->addStatusListener(this);
+	TerpstraSysExApplication::getApp().getLumatoneController()->addFirmwareListener(this);
 
 	resetOctaveSize();
 
@@ -222,7 +228,7 @@ AllKeysOverview::AllKeysOverview()
 
     //[Constructor] You can add your own custom stuff here..
 	currentSetSelection = -1;
-
+    buttonReceive->setVisible(false);
     showDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
     //[/Constructor]
 }
@@ -283,27 +289,27 @@ void AllKeysOverview::resized()
 		graphicWidth, graphicHeight
 	);
 
-	int btnHeight = round(getHeight() * saveLoadH);
-	int btnMargin = round(getWidth() * saveloadMarginW);
-	int saveLoadWidth = round(getWidth() * saveLoadW);
-	int btnY = lumatoneBounds.getY() - round(getHeight() * btnYFromImageTop);
+	int btnHeight = roundToInt(getHeight() * saveLoadH);
+	int btnMargin = roundToInt(getWidth() * saveloadMarginW);
+	int saveLoadWidth = roundToInt(getWidth() * saveLoadW);
+	int btnY = lumatoneBounds.getY() - roundToInt(getHeight() * btnYFromImageTop);
 
-	int halfWidthX = round(getWidth() * 0.5f);
+	int halfWidthX = roundToInt(getWidth() * 0.5f);
 
 	btnLoadFile->setBounds(halfWidthX - btnMargin - saveLoadWidth, btnY, saveLoadWidth, btnHeight);
 	btnSaveFile->setBounds(halfWidthX + btnMargin, btnY, saveLoadWidth, btnHeight);
 
-	octaveLineY = lumatoneBounds.getBottom() + round(getHeight() * octaveLineYRatio);
+	octaveLineY = lumatoneBounds.getBottom() + roundToInt(getHeight() * octaveLineYRatio);
 
-	int importY = lumatoneBounds.getY() - round(getHeight() * importYFromImageTop);
-	int importWidth = round(getWidth() * importW);
+	int importY = lumatoneBounds.getY() - roundToInt(getHeight() * importYFromImageTop);
+	int importWidth = roundToInt(getWidth() * importW);
 	buttonReceive->setBounds(lumatoneBounds.getRight() - importWidth, importY, importWidth, btnHeight);
 
 	resizeLabelWithHeight(lblFirmwareVersion.get(), btnHeight * 0.6f);
 	lblFirmwareVersion->setTopLeftPosition(lumatoneBounds.getX(), lumatoneBounds.getY() - btnHeight * 0.6f);
 
-	int keyWidth = round(lumatoneBounds.getWidth() * keyW);
-	int keyHeight = round(lumatoneBounds.getHeight() * keyH);
+	int keyWidth = roundToInt(lumatoneBounds.getWidth() * keyW);
+	int keyHeight = roundToInt(lumatoneBounds.getHeight() * keyH);
 
 	// Scale key graphics once
 	lumatoneGraphic = imageProcessor->resizeImage(ImageCache::getFromHashCode(LumatoneEditorAssets::LumatoneGraphic), lumatoneBounds.getWidth(), lumatoneBounds.getHeight());
@@ -388,12 +394,16 @@ void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 		{
 			if (versionIn.revision == 55)
 			{
-				lblFirmwareVersion->setText("Prototype 55-keys", NotificationType::dontSendNotification);
+				lblFirmwareVersion->setText("55-keys Prototype", NotificationType::dontSendNotification);
 			}
 		}
 		else
 		{
+#if JUCE_DEBUG
 			lblFirmwareVersion->setText("Firmware version: " + versionIn.toString(), NotificationType::dontSendNotification);
+#else
+			lblFirmwareVersion->setText("Firmware version: " + versionIn.toDisplayString(), NotificationType::dontSendNotification);
+#endif
 		}
 
 		lblFirmwareVersion->setVisible(true);
@@ -409,7 +419,20 @@ void AllKeysOverview::setFirmwareVersion(FirmwareVersion versionIn)
 
 void AllKeysOverview::showDeveloperMode(bool developerModeOn)
 {
+	if (developerModeOn)
+		buttonReceive->setVisible(true);
+
     repaint();
+}
+
+void AllKeysOverview::connectionEstablished(int, int)
+{
+	buttonReceive->setVisible(true);
+}
+
+void AllKeysOverview::connectionLost()
+{
+	buttonReceive->setVisible(false);
 }
 
 void AllKeysOverview::firmwareRevisionReceived(FirmwareVersion version)
@@ -456,8 +479,8 @@ void AllKeysOverview::resetOctaveSize()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="AllKeysOverview" componentName=""
-                 parentClasses="public juce::Component, public LumatoneController::FirmwareListener"
+<JUCER_COMPONENT documentType="Component" className="AllKeysOverview" componentName="AllKeysOverview"
+                 parentClasses="public juce::Component, public LumatoneEditor::StatusListener, public LumatoneEditor::FirmwareListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="928"
                  initialHeight="214">
@@ -469,7 +492,7 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="472 8 96 24" buttonText="Save File"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="buttonReceive" id="6a7ed19ee86a3b97" memberName="buttonReceive"
-              virtualName="" explicitFocusOrder="0" pos="584 8 176 24" tooltip="Receive the current configuration from controller"
+              virtualName="" explicitFocusOrder="0" pos="584 8 176 24" tooltip="Receive current layout from connected Lumatone"
               buttonText="Import from Lumatone" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
 </JUCER_COMPONENT>

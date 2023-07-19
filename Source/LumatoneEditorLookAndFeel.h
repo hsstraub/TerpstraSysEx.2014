@@ -36,6 +36,16 @@ public:
         }
 
     }
+    
+    LumatoneEditorLookAndFeel(const LumatoneEditorLookAndFeel& lafCopy)
+        : appFonts(lafCopy.appFonts),
+          saveIconPath(lafCopy.saveIconPath),
+          arrowUpIconPath(lafCopy.arrowUpIconPath),
+          arrowDownIconPath(lafCopy.arrowDownIconPath),
+          compactWindowStyle(this)
+    {
+        setupDefaultColours();
+    }
 
     Font getAppFont(LumatoneEditorFont fontIdIn)
     {
@@ -122,7 +132,8 @@ public:
 
         return btn;
     }
-
+    
+    // Primarily used for palette pop-up
     class LumatoneEditorCompactWindow : public LookAndFeel_V4
     {
     public:
@@ -188,7 +199,31 @@ public:
 
     Font getLabelFont(Label& l) override
     {
+        // For some reason ComboBox labels aren't scaling like other components do
+        auto parent = l.getParentComponent();
+        if (parent)
+        {
+            auto comboBox = dynamic_cast<ComboBox*>(parent);
+            if (comboBox)
+                return getComboBoxFont(*comboBox);            
+        }
+        
         Font font = l.getFont().withHeight(l.getHeight());
+        
+        if (parent)
+        {
+            // Kludge - override font size for ColourSelector label so that it doesn't get cut off, and set TextEditor background colour
+            // Probably need to make a bunch of changes to the way LookAndFeel is used to avoid this
+            auto parentParent = parent->getParentComponent();
+            auto colourPicker = dynamic_cast<ColourSelector*>(parentParent);
+            if (colourPicker)
+            {
+                auto stringWidth = font.getStringWidth(l.getText() + "_");
+                auto labelScalar = (float)l.getWidth() / stringWidth;
+                font.setHeight(l.getHeight() * labelScalar);
+                l.setColour(Label::ColourIds::backgroundWhenEditingColourId, colourPicker->getCurrentColour());
+            }
+        }
 
         NamedValueSet& properties = l.getProperties();
         if (properties.contains(LumatoneEditorStyleIDs::fontOverride))
@@ -307,12 +342,18 @@ public:
             int iconW = iconH;
             int iconY = roundToInt((btn.getHeight() - iconH) * 0.5f);
 
-            if (iconCode == LumatoneEditorIcon::LoadIcon)
+            // Icon specific adjustments
+            switch (iconCode)
             {
+            case LumatoneEditorIcon::LoadIcon:
                 iconW *= 1.125f;
                 iconH *= 1.125f;
+                break;
+            case LumatoneEditorIcon::ArrowUp:
+                margin = font.getStringWidth(" ");
+                break;
             }
-
+            
             if (iconW < 1) iconW = 1;
             if (iconH < 1) iconH = 1;
 
@@ -464,7 +505,7 @@ public:
         }
     }   
 
-    void drawToggleButton(Graphics& g, ToggleButton& btn, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+    void drawToggleButton(Graphics& g, ToggleButton& btn, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
         drawTickBox(g, btn, 0, 0, btn.getHeight(), btn.getHeight(), btn.getToggleState(), btn.isEnabled(),
             shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
@@ -500,6 +541,7 @@ public:
 
     void drawIncDecButtonsBackground(Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider& sld)
     {
+        
         //Rectangle<int> bounds(x, y, width, height);
         //g.setColour(Colours::red);
         //g.fillRect(bounds);
@@ -525,16 +567,12 @@ public:
 
     Button* createSliderButton(Slider& sld, bool isIncrement) override
     {
-        auto btn = new TextButton();
+        auto btn = new TextButtonMouseHighlight(Colours::white.withAlpha(0.2f));
 
         btn->setColour(TextButton::ColourIds::buttonColourId, Colour());
         btn->setColour(TextButton::ColourIds::buttonOnColourId, Colour());
 
         Colour textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
-        
-        if (!sld.isEnabled())
-            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
-
         btn->setColour(TextButton::ColourIds::textColourOnId, textColour);
         btn->setColour(TextButton::ColourIds::textColourOffId, textColour);
 
@@ -550,7 +588,7 @@ public:
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, Slider& sld) override
     {
-        const float halfPi = float_Pi * 0.5f;
+        const float halfPi = MathConstants<float>::pi * 0.5f;
         const float arcThickness = 0.15f;
         const float endAngleNorm = rotaryAngleEnd - halfPi;
 
@@ -613,7 +651,10 @@ public:
             label->setColour(Label::ColourIds::textColourId, textColour);
 
             int sliderSize = jmin(sld.getWidth(), sld.getHeight());
-            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false, roundToInt(sliderSize * 0.5f), roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.5f));
+            sld.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, false,
+                roundToInt(sliderSize * 0.5f),
+                roundToInt((sld.getHeight() - sliderSize * 0.5f) * 0.75f)
+            );
 
             return label;
         }
@@ -734,15 +775,11 @@ public:
         }
         g.fillPath(boxShape);
 
-        g.setFont(getComboBoxFont(box));
-        g.setColour(textColour);
-
         int realButtonX = jmax(margin, box.getWidth() - box.getHeight());
 
         if (buttonW > 0)
         {
             g.setColour(textColour);
-
             g.setFont(appFonts[LumatoneEditorFont::GothamNarrowLight].withHeight(buttonH * 0.5f).withHorizontalScale(2.0f));
             g.drawFittedText("v", realButtonX, 0, box.getHeight(), box.getHeight(), Justification::centred, 1);
         }
@@ -776,7 +813,6 @@ public:
     Label* createComboBoxTextBox(ComboBox& box) override
     {
         Label* l = new Label(box.getName(), box.getText());
-        l->setFont(getComboBoxFont(box));
 
         Colour textColour = box.findColour(ComboBox::ColourIds::textColourId);
 
@@ -789,7 +825,8 @@ public:
             l->getProperties().set(prop.name, prop.value);
         
         l->setBounds(box.getLocalBounds());
-
+        l->setFont(getComboBoxFont(box).withHeight(box.getHeight() * CONTROLBOXFONTHEIGHTSCALAR)); // Any style overrides should have been passed to Label
+        
         return l;
     }
 
@@ -808,7 +845,6 @@ public:
     {
         String text = (box.getNumItems()) ? box.getTextWhenNothingSelected() : box.getTextWhenNoChoicesAvailable();
         l.setText(text, NotificationType::dontSendNotification);
-        l.setFont(getComboBoxFont(box));
     }
 
     PopupMenu::Options getOptionsForComboBoxPopupMenu(ComboBox& box, Label& label) override
@@ -834,23 +870,23 @@ public:
 	void drawPopupMenuBackgroundWithOptions(Graphics& g, int width, int height, const PopupMenu::Options& options) override
     {
         auto target = options.getTargetComponent();
-		if (target)
-		{
-			float margin = target->getHeight() * comboBoxRoundedCornerScalar;
-            
-            if (target->getProperties().contains(LumatoneEditorStyleIDs::popupMenuBackgroundColour))
-                g.setColour(Colour::fromString(target->getProperties()[LumatoneEditorStyleIDs::popupMenuBackgroundColour].toString()).withMultipliedSaturation(1.5f)); // Box colour will always be highlighted
-            else
-                g.setColour(findColour(LumatoneEditorColourIDs::MenuBarBackground));
-			
-            if (target->getProperties()[LumatoneEditorStyleIDs::popupMenuTargetWidth])
-                width = target->getWidth();
 
-			Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, width, height), margin, Button::ConnectedEdgeFlags::ConnectedOnTop);
-			g.fillPath(menuShape);
-		}
-		else
-			getDefaultLookAndFeel().drawPopupMenuBackgroundWithOptions(g, width, height, options);
+        int targetWidth = (target != nullptr && target->getProperties()[LumatoneEditorStyleIDs::popupMenuTargetWidth])
+            ? target->getWidth()
+            : width;
+
+        int targetMargin = (target != nullptr)
+            ? target->getHeight() * comboBoxRoundedCornerScalar
+            : 0;
+
+        Colour targetColour = (target != nullptr && target->getProperties().contains(LumatoneEditorStyleIDs::popupMenuBackgroundColour))
+            ? Colour::fromString(target->getProperties()[LumatoneEditorStyleIDs::popupMenuBackgroundColour].toString()).withMultipliedSaturation(1.5f) // Box colour will always be highlighted
+            : findColour(LumatoneEditorColourIDs::MenuBarBackground);
+
+        g.setColour(targetColour);
+		
+		Path menuShape = getConnectedRoundedRectPath(Rectangle<float>(0, 0, targetWidth, height), targetMargin, Button::ConnectedEdgeFlags::ConnectedOnTop);
+		g.fillPath(menuShape);
     }
 
     void drawPopupMenuItemWithOptions(
@@ -859,7 +895,7 @@ public:
         int width, height;
         getIdealPopupMenuItemSizeWithOptions(item.text, false, area.getHeight(), width, height, options);
 
-        Rectangle<int> areaToUse = area.withWidth(width);
+        Rectangle<int> areaToUse = area;
 
         // Only using PopupMenus with ComboBoxes so this should be fine
         auto target = dynamic_cast<ComboBox*>(options.getTargetComponent());
@@ -869,9 +905,9 @@ public:
         if (target)
         {
             font = getComboBoxFont(*target);
-            font.setHeight(font.getHeight() * CONTROLBOXFONTHEIGHTSCALAR);
             textColour = target->findColour(ComboBox::ColourIds::textColourId);
             margin = target->proportionOfHeight(comboBoxRoundedCornerScalar);
+            areaToUse = areaToUse.withWidth(width);
         }
         else
         {
@@ -880,6 +916,9 @@ public:
             textColour = findColour(LumatoneEditorColourIDs::DescriptionText);
             margin = roundToInt(height * comboBoxRoundedCornerScalar);
         }
+
+        if (!item.isEnabled)
+            textColour = textColour.overlaidWith(findColour(LumatoneEditorColourIDs::DisabledOverlay));
         
         font.setHeight(font.getHeight() * GLOBALFONTSCALAR);
 
@@ -889,7 +928,7 @@ public:
             areaToUse = areaToUse.withTrimmedBottom(roundToInt(margin * 0.5f) + 1);
         }
 
-        if (isHighlighted)
+        if (isHighlighted && !item.isSeparator)
         {
             g.setColour(Colours::white.withAlpha(0.15f));
             g.fillRect(areaToUse);
@@ -898,7 +937,13 @@ public:
         g.setColour(textColour);
         g.setFont(font);
         
-        g.drawFittedText(item.text, areaToUse.withTrimmedLeft(margin), Justification::centredLeft, 1);
+        g.drawFittedText(item.text, areaToUse.withTrimmedLeft(margin).withTrimmedRight(margin), Justification::centredLeft, 1);
+
+        if (item.subMenu)
+        {
+            g.drawFittedText(">", areaToUse.withTrimmedRight(margin), Justification::centredRight, 1, 0.5f);
+            item.subMenu->setLookAndFeel(this);
+        }
     }
 
     void getIdealPopupMenuItemSizeWithOptions(const String& text, bool isSeparator, int standardMenuItemHeight, int& idealWidth, int& idealHeight, 
@@ -1098,24 +1143,24 @@ public:
     //    return window;
     //}
 
-    virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
-    {
-        g.setColour(findColour(AlertWindow::ColourIds::backgroundColourId));
-        //g.fillRoundedRectangle(window.getLocalBounds().toFloat(), 15);
-        g.fillAll();
+    //virtual void drawAlertBox(Graphics& g, AlertWindow& window, const Rectangle<int> &textArea, TextLayout& layout) override
+    //{
+    //    g.setColour(findColour(AlertWindow::ColourIds::backgroundColourId));
+    //    //g.fillRoundedRectangle(window.getLocalBounds().toFloat(), 15);
+    //    g.fillAll();
 
-        g.setColour(findColour(AlertWindow::ColourIds::outlineColourId));
-        g.drawRect(window.getLocalBounds(), 2);
+    //    g.setColour(findColour(AlertWindow::ColourIds::outlineColourId));
+    //    g.drawRect(window.getLocalBounds(), 2);
 
-        g.setColour(findColour(AlertWindow::ColourIds::textColourId));
-        float widthRatio = 0.05f;
-        float heightRatio = 0.15f;
-        
-        layout.draw(g, 
-            textArea.constrainedWithin(
-                window.getLocalBounds().reduced(window.getWidth() * widthRatio, window.getHeight() * heightRatio)
-            ).toFloat());
-    }
+    //    g.setColour(findColour(AlertWindow::ColourIds::textColourId));
+    //    float widthRatio = 0.05f;
+    //    float heightRatio = 0.15f;
+    //    
+    //    layout.draw(g, 
+    //        textArea.constrainedWithin(
+    //            window.getLocalBounds().reduced(window.getWidth() * widthRatio, window.getHeight() * heightRatio)
+    //        ).toFloat());
+    //}
 
     //virtual Array<int> getWidthsForTextButtons(AlertWindow& window, const Array<TextButton*>& btns) override
     //{
@@ -1127,20 +1172,20 @@ public:
     //    return 16;
     //}
 
-    virtual Font getAlertWindowTitleFont() override
-    {
-        return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
-    }
+    //virtual Font getAlertWindowTitleFont() override
+    //{
+    //    return getAppFont(LumatoneEditorFont::UniviaProBold).withHeight(18);
+    //}
 
-    virtual Font getAlertWindowMessageFont()  override
-    {
-        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
-    }
+    //virtual Font getAlertWindowMessageFont()  override
+    //{
+    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(16);
+    //}
 
-    virtual Font getAlertWindowFont()  override
-    {
-        return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
-    }
+    //virtual Font getAlertWindowFont()  override
+    //{
+    //    return getAppFont(LumatoneEditorFont::GothamNarrowMedium).withHeight(14);
+    //}
 
 public:
     //==============================================================================================
@@ -1182,6 +1227,10 @@ public:
     void setupTextEditor(TextEditor& editor)
     {
         editor.setIndents(4, 0);
+        editor.setColour(TextEditor::ColourIds::backgroundColourId, findColour(TextEditor::ColourIds::backgroundColourId));
+        editor.setColour(TextEditor::ColourIds::textColourId, findColour(TextEditor::ColourIds::textColourId));
+        editor.setColour(TextEditor::ColourIds::outlineColourId, Colour());
+
     }
 
 public:
@@ -1202,9 +1251,6 @@ private:
     /// </summary>
     void cacheImages()
     {
-        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::ImportIcon4x_png,   BinaryData::ImportIcon4x_pngSize),   LumatoneEditorAssets::ImportIcon);
-        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::SaveIcon4x_png,     BinaryData::SaveIcon4x_pngSize),     LumatoneEditorAssets::SaveIcon);
-        //ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::LoadIcon4x_png,     BinaryData::LoadIcon4x_pngSize),     LumatoneEditorAssets::LoadIcon);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyboardBase_png,   BinaryData::KeyboardBase_pngSize),   LumatoneEditorAssets::LumatoneGraphic);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeybedShadows_png,  BinaryData::KeybedShadows_pngSize),  LumatoneEditorAssets::KeybedShadows);
         ImageCache::addImageToCache(ImageCache::getFromMemory(BinaryData::KeyShape2x_png,     BinaryData::KeyShape2x_pngSize),     LumatoneEditorAssets::KeyShape);
@@ -1271,9 +1317,6 @@ private:
         setColour(AlertWindow::ColourIds::outlineColourId, findColour(LumatoneEditorColourIDs::MediumBackground));
     }
 
-public:
-    LumatoneEditorCompactWindow compactWindowStyle;
-
 private:
 
     LumatoneEditorFonts::Library appFonts;
@@ -1289,6 +1332,10 @@ private:
 
     const float comboBoxRoundedCornerScalar = 0.304878f;
 
-    const float rotaryAngleStart = float_Pi * -0.64f; // pi * -2/3
+    const float rotaryAngleStart = MathConstants<float>::pi * -0.64f; // pi * -2/3
     const float rotaryAngleEnd = -rotaryAngleStart;
+
+public:
+    LumatoneEditorCompactWindow compactWindowStyle;
+
 };

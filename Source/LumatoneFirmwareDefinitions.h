@@ -146,25 +146,35 @@ System exclusive command bytes
 #define CALLIBRATE_EXPRESSION_PEDAL 0x38
 #define RESET_EXPRESSION_PEDAL_BOUNDS 0x39
 
-// Firmware Version 1.0.12
+// Firmware Version 1.0.12 / 1.1.0
 #define GET_BOARD_THRESHOLD_VALUES 0x3A
 #define GET_BOARD_SENSITIVITY_VALUES 0x3B
 
-// Firmware Version 1.0.13
 #define SET_PERIPHERAL_CHANNELS 0x3C
 #define GET_PERIPHERAL_CHANNELS 0x3D
 #define PERIPHERAL_CALBRATION_DATA 0x3E
 
-// Firmware Version 1.0.14
 #define SET_AFTERTOUCH_TRIGGER_DELAY 0x3F
 #define GET_AFTERTOUCH_TRIGGER_DELAY 0x40
 
-// Firmware Version 1.0.15
 #define SET_LUMATOUCH_NOTE_OFF_DELAY 0x41
 #define GET_LUMATOUCH_NOTE_OFF_DELAY 0x42
 #define SET_EXPRESSION_PEDAL_THRESHOLD 0x43
 #define GET_EXPRESSION_PEDAL_THRESHOLD 0x44
 #define INVERT_SUSTAIN_PEDAL 0x45
+#define RESET_DEFAULT_PRESETS 0x46
+#define GET_PRESET_FLAGS 0x47
+#define GET_EXPRESSION_PEDAL_SENSITIVIY 0x48
+
+#define GET_MACRO_LIGHT_INTENSITY 0x49
+#define RESET_MACRO_LIGHT_INTENSITY 0x4A
+
+#define RESET_BOARD_KEYS 0x4B
+#define RESET_AFTERTOUCH_TRIGGER_DELAY 0x4C
+
+#define RESET_LUMATOUCH_NOTE_OFF_DELAY 0x4D
+#define GET_PITCH_AND_MOD_BOUNDS 0x4E
+#define GET_EXPRESSION_PEDAL_BOUNDS 0x4F
 
 typedef enum
 {
@@ -177,11 +187,18 @@ typedef enum
 
 typedef enum
 {
+    disabledDefault      = 0,
 	noteOnNoteOff        = 1,
 	continuousController = 2,
 	lumaTouch            = 3,
 	disabled             = 4
 } LumatoneKeyType;
+
+typedef enum
+{
+	ExpressionPedal = 0,
+	PitchAndModWheels
+} PeripheralCalibrationDataMode;
 
 enum class LumatoneFirmwareVersion
 {
@@ -198,10 +215,9 @@ enum class LumatoneFirmwareVersion
 	VERSION_1_0_10,
 	VERSION_1_0_11,
 	VERSION_1_0_12,
-	VERSION_1_0_13,
-	VERSION_1_0_14,
-	VERSION_1_0_15,
-	LAST_VERSION = VERSION_1_0_15,
+    VERSION_1_1_0 = VERSION_1_0_12,
+    VERSION_1_2_0,
+	LAST_VERSION = VERSION_1_2_0,
 	FUTURE_VERSION = 0xFFFF  // Used when version is nonnegative and below 9.9.999
 } ;
 
@@ -217,6 +233,15 @@ struct FirmwareVersion
 	bool isValid() { return major > 0 || minor > 0 || revision > 0; }
 
 	String toString() const { return String(major) + "." + String(minor) + "." + String(revision); }
+
+	String toDisplayString() const 
+	{ 
+		String str = String(major) + "." + String(minor);
+		if (revision > 0)
+			str += ("." + String(revision));
+
+		return str;
+	}
 
 	//============================================================================
 
@@ -289,7 +314,8 @@ struct FirmwareSupport
 		messageIsNotResponseToCommand,
 		messageIsNotSysEx,
 		unknownCommand,
-		externalError
+		externalError,
+        commandNotImplemented
 	};
 
 	String errorToString(Error err)
@@ -322,6 +348,8 @@ struct FirmwareSupport
 			return "Unknown command / Not Acknowledged";
 		case Error::externalError:
 			return "Error from device";
+        case Error::commandNotImplemented:
+            return "Command handling not implemented";
 		default:
 			return "Undefined error..";
 		}
@@ -335,21 +363,40 @@ struct FirmwareSupport
 		else if ((versionIn.major < 0) | (versionIn.minor < 0) | (versionIn.revision < 0))
 			return LumatoneFirmwareVersion::UNKNOWN_VERSION;
 		
+        // MAJOR: 1
 		else if (versionIn.major == 1)
 		{
+            // MINOR: 0
 			if (versionIn.minor == 0)
 			{
 				if (versionIn.revision < 3)
 					return LumatoneFirmwareVersion::VERSION_55_KEYS;
 
+                // Computing is probably not the best thing to do but edge cases are extremely unlikely here
 				else if (versionIn.revision - 3 > (int)LumatoneFirmwareVersion::LAST_VERSION - (int)LumatoneFirmwareVersion::VERSION_1_0_3)
 					return LumatoneFirmwareVersion::FUTURE_VERSION;
 
 				else if (versionIn.revision >= 3)
 					return (LumatoneFirmwareVersion)((int)LumatoneFirmwareVersion::VERSION_1_0_3 + (versionIn.revision - 3));
 			}
+            
+            // MINOR: 1
+            else if (versionIn.minor == 1)
+            {
+                if (versionIn.revision == 0)
+                    return LumatoneFirmwareVersion::VERSION_1_1_0;
+            }
+            
+            else if (versionIn.minor == 2)
+            {
+                if (versionIn.revision == 0)
+                    return LumatoneFirmwareVersion::VERSION_1_2_0;
+            }
+            
+            return LumatoneFirmwareVersion::FUTURE_VERSION;
 		}
 
+        // Unsure if this is needed, or if returning FUTURE_VERSION without a condition is better
 		else if (versionIn.major < 9 && versionIn.minor < 9 && versionIn.revision < 999)
 			return LumatoneFirmwareVersion::FUTURE_VERSION;
 
@@ -361,22 +408,22 @@ struct FirmwareSupport
 	LumatoneFirmwareVersion getLowestVersionAcknowledged(unsigned int CMD)
 	{
 		if (CMD < CHANGE_KEY_NOTE) // 0x00
-			LumatoneFirmwareVersion::UNKNOWN_VERSION;
+			return LumatoneFirmwareVersion::UNKNOWN_VERSION;
 
 		else if (CMD <= GET_SERIAL_IDENTITY) // 0x23
-			LumatoneFirmwareVersion::NO_VERSION;
+			return LumatoneFirmwareVersion::NO_VERSION;
 
 		else if (CMD <= DEMO_MODE) // 0x25
-			LumatoneFirmwareVersion::VERSION_1_0_5;
+			return LumatoneFirmwareVersion::VERSION_1_0_5;
 
 		else if (CMD <= CALIBRATE_PITCH_MOD_WHEEL) // 0x26
-			LumatoneFirmwareVersion::VERSION_1_0_6;
+			return LumatoneFirmwareVersion::VERSION_1_0_6;
 
 		else if (CMD <= SET_KEY_MAX_THRESHOLD) // 0x29
-			LumatoneFirmwareVersion::VERSION_1_0_7;
+			return LumatoneFirmwareVersion::VERSION_1_0_7;
 
 		else if (CMD <= GET_FIRMWARE_REVISION) // 0x31
-			LumatoneFirmwareVersion::VERSION_1_0_8;
+			return LumatoneFirmwareVersion::VERSION_1_0_8;
 
 		else if (CMD <= LUMA_PING) // 0x33
 			return LumatoneFirmwareVersion::VERSION_1_0_9;
@@ -387,17 +434,8 @@ struct FirmwareSupport
 		else if (CMD <= RESET_EXPRESSION_PEDAL_BOUNDS) // 0x39
 			return LumatoneFirmwareVersion::VERSION_1_0_11;
 
-		else if (CMD <= GET_BOARD_SENSITIVITY_VALUES) // 0x3B
-			return LumatoneFirmwareVersion::VERSION_1_0_12;
-
-		else if (CMD <= PERIPHERAL_CALBRATION_DATA) // 0x3E
-			return LumatoneFirmwareVersion::VERSION_1_0_13;
-
-		else if (CMD <= SET_AFTERTOUCH_TRIGGER_DELAY) // 0x3F
-			return LumatoneFirmwareVersion::VERSION_1_0_14;
-
-		else if (CMD <= INVERT_SUSTAIN_PEDAL) //0x45
-			return LumatoneFirmwareVersion::VERSION_1_0_15;
+		else if (CMD <= GET_EXPRESSION_PEDAL_BOUNDS) // 0x4F
+			return LumatoneFirmwareVersion::VERSION_1_1_0;
 
 		else
 			return LumatoneFirmwareVersion::FUTURE_VERSION;
@@ -433,4 +471,105 @@ struct FirmwareSupport
         return String::toHexString(serialBytes, 6);
     }
 
+};
+
+typedef enum
+{
+	PitchWheel = 0,
+	ModWheel,
+	Expression,
+	Sustain
+} PeripheralChannel;
+
+struct PeripheralChannelSettings
+{
+	int pitchWheel = 1;
+	int modWheel = 1;
+	int expressionPedal = 1;
+	int sustainPedal = 1;
+
+	void setChannel(PeripheralChannel controlId, int channelIn)
+	{
+		if (channelIn < 1)
+			channelIn = 1;
+
+		if (channelIn > 16)
+			channelIn = 16;
+
+		switch (controlId)
+		{
+		case PeripheralChannel::PitchWheel:
+			pitchWheel = channelIn;
+			break;
+
+		case PeripheralChannel::ModWheel:
+			modWheel = channelIn;
+			break;
+
+		case PeripheralChannel::Expression:
+			expressionPedal = channelIn;
+			break;
+
+		case PeripheralChannel::Sustain:
+			sustainPedal = channelIn;
+			break;
+		}
+	}
+
+	int getChannel(PeripheralChannel controlId)
+	{
+		switch (controlId)
+		{
+		case PeripheralChannel::PitchWheel:
+			return pitchWheel;
+
+		case PeripheralChannel::ModWheel:
+			return modWheel;
+
+		case PeripheralChannel::Expression:
+			return expressionPedal;
+
+		case PeripheralChannel::Sustain:
+			return sustainPedal;
+		}
+
+		return 0;
+	}
+};
+
+#define ADCSCALAR 2.44140625e-4;
+
+struct WheelsCalibrationData
+{
+	int centerPitch = 0;
+	int minPitch = 0;
+	int maxPitch = 0;
+
+	int minMod = 0;
+	int maxMod = 0;
+
+	float getCentrePitchNorm() const { return centerPitch * ADCSCALAR; }
+	float getMinPitchNorm() const { return minPitch * ADCSCALAR; }
+	float getMaxPitchNorm() const { return maxPitch * ADCSCALAR; }
+	float getMinModNorm() const { return minMod * ADCSCALAR; }
+	float getMaxModNorm() const { return maxMod * ADCSCALAR; }
+
+	String toString() const
+	{
+		String str;
+		str += ("Center Pitch: " + String(centerPitch) + newLine);
+		str += ("   Min Pitch: " + String(minPitch) + newLine);
+		str += ("   Max Pitch: " + String(maxPitch) + newLine);
+		str += ("     Min Mod: " + String(minMod) + newLine);
+		str += ("     Max Mod: " + String(maxMod) + newLine);
+		return str;
+	}
+};
+
+struct PresetFlags
+{
+	bool expressionPedalInverted = false;
+	bool lightsOnKeystroke = false;
+	bool polyphonicAftertouch = false;
+	bool sustainPedalInverted = false;
 };

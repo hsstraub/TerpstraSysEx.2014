@@ -51,12 +51,11 @@ public:
     LumatoneEditorColourPalette(Array<Colour> colourPaletteIn, String paletteName, String paletteAuthor, String paletteNotes="")
         : LumatoneEditorColourPalette(colourPaletteIn, paletteName)
     {
-        name = paletteName;
         author = paletteAuthor;
         notes = paletteNotes;
-
-        setColours(colourPaletteIn);
     }
+    
+    LumatoneEditorColourPalette clone() const { return LumatoneEditorColourPalette(colourPalette, name, author, notes); }
 
     int size() const { return colourPalette.size(); }
 
@@ -126,6 +125,10 @@ public:
         }
 
         return false;
+    }
+    bool saveToFile()
+    {
+        return saveToFile(File(pathToFile));
     }
 
     ValueTree toValueTree() const

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -54,23 +54,27 @@ void CurvesArea::CurvesTabComponent::resized()
 
 //==============================================================================
 CurvesArea::CurvesArea ()
-    : Component("CurvesArea")
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	showDeveloperMode = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false);
-	//[/Constructor_pre]
+    //[/Constructor_pre]
 
-    labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("Curves")));
+    setName ("CurvesArea");
+    labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
+                                             TRANS("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
-    labelWindowTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
-    labelWindowTitle->setColour (Label::backgroundColourId, Colour());
+    labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
+    labelWindowTitle->setEditable (false, false, false);
+    labelWindowTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    labelWindowTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    labelWindowTitle->setBounds (8, 8, 150, 24);
 
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
-    curvesTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
-    curvesTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
-    curvesTab->addTab (TRANS("Note Velocity"), Colour(), new NoteOnOffVelocityCurveDialog(), true);
+    curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
 
     curvesTab->setBounds (8, 40, 464, 200);
@@ -85,9 +89,27 @@ CurvesArea::CurvesArea ()
 
     //[UserPreSize]
     setDeveloperMode(showDeveloperMode);
+
+    labelWindowTitle->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+    labelWindowTitle->setColour(Label::backgroundColourId, Colour());
+
+    curvesTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+    curvesTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+    //curvesTab->addTab(TRANS("Note Velocity"), Colour(), new NoteOnOffVelocityCurveDialog(), true);
+    curvesTab->setTabBackgroundColour(0, Colour());
+
+
+    /* Don't want to resize here
+    *
     //[/UserPreSize]
 
+    setSize (472, 240);
+
+
     //[Constructor] You can add your own custom stuff here..
+    */
+
+
     //[/Constructor]
 }
 
@@ -109,33 +131,39 @@ CurvesArea::~CurvesArea()
 void CurvesArea::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
+    /*
     //[/UserPrePaint]
 
-    //g.fillAll (juce::Colour (0xff323e44));
+    g.fillAll (juce::Colour (0xff323e44));
 
     //[UserPaint] Add your own custom painting code here..
-
+    */
     //[/UserPaint]
 }
 
 void CurvesArea::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
     int tabBarDepth = roundToInt(getHeight() * tabDepth);
     int tabY = proportionOfHeight(tabYScalar);
+    //[/UserPreResize]
 
-	btnDeveloperMode->setBounds(
-		getWidth() - btnDeveloperMode->getWidth(), 
-		proportionOfHeight(0.0f), 
-		btnDeveloperMode->getWidth(), 
-		tabY);
+    //[UserResized] Add your own custom resize handling here..
+
+    btnDeveloperMode->setBounds(
+        getWidth() - btnDeveloperMode->getWidth(),
+        proportionOfHeight(0.0f),
+        btnDeveloperMode->getWidth(),
+        tabY);
 
     curvesTab->setTabBarDepth(tabBarDepth);
     curvesTab->setTabsIndent(roundToInt(getWidth() * tabXScalar));
-  
+
     curvesTab->setBounds(0, tabY, getWidth(), getHeight() - tabY);
 
     resizeLabelWithHeight(labelWindowTitle.get(), tabBarDepth * 0.9f);
     labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * 0.01f), tabY);
+    //[/UserResized]
 }
 
 void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
@@ -204,7 +232,7 @@ void CurvesArea::setDeveloperMode(bool devModeOn)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="CurvesArea" componentName=""
+<JUCER_COMPONENT documentType="Component" className="CurvesArea" componentName="CurvesArea"
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="472" initialHeight="240">

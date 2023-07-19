@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -30,43 +30,86 @@
 
 //==============================================================================
 GlobalSettingsArea::GlobalSettingsArea ()
-    : Component("GlobalSettingsArea")
 {
-    lblPresetButtonColours.reset(new juce::Label("lblPresetButtonColours", translate("PresetButtonColours")));
-    addAndMakeVisible(lblPresetButtonColours.get());
-    lblPresetButtonColours->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
+    lblPresetButtonColours.reset (new juce::Label ("lblPresetButtonColours",
+                                                   TRANS("Preset Button Colours:")));
+    addAndMakeVisible (lblPresetButtonColours.get());
+    lblPresetButtonColours->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblPresetButtonColours->setJustificationType (juce::Justification::centredLeft);
+    lblPresetButtonColours->setEditable (false, false, false);
+    lblPresetButtonColours->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblPresetButtonColours->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblPresetButtonColours->setBounds (0, 8, 150, 24);
+
+    lblColourInactiveMacroButton.reset (new juce::Label ("lblColourInactiveMacroButton",
+                                                         TRANS("inactive")));
+    addAndMakeVisible (lblColourInactiveMacroButton.get());
+    lblColourInactiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblColourInactiveMacroButton->setJustificationType (juce::Justification::centredLeft);
+    lblColourInactiveMacroButton->setEditable (false, false, false);
+    lblColourInactiveMacroButton->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblColourInactiveMacroButton->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblColourInactiveMacroButton->setBounds (152, 32, 64, 24);
+
+    lblColourActiveMacroButton.reset (new juce::Label ("lblColourActiveMacroButton",
+                                                       TRANS("active")));
+    addAndMakeVisible (lblColourActiveMacroButton.get());
+    lblColourActiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    lblColourActiveMacroButton->setJustificationType (juce::Justification::centredLeft);
+    lblColourActiveMacroButton->setEditable (false, false, false);
+    lblColourActiveMacroButton->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    lblColourActiveMacroButton->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    lblColourActiveMacroButton->setBounds (152, 8, 56, 24);
+
+    buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
+    addAndMakeVisible (buttonCalibrate.get());
+    buttonCalibrate->setTooltip (TRANS("Show controls for calibration, setting controller MIDI channels, and updating firmware"));
+    buttonCalibrate->setButtonText (TRANS("Settings"));
+    buttonCalibrate->addListener (this);
+
+    buttonCalibrate->setBounds (336, 8, 112, 24);
+
+
+    //[UserPreSize]
     activeMacroButtonColourEdit.reset(new ColourEditComponent());
     addAndMakeVisible(activeMacroButtonColourEdit.get());
     activeMacroButtonColourEdit->addChangeListener(this);
 
-    lblColourActiveMacroButton.reset(new juce::Label("lblColourActiveMacroButton", translate("Active")));
-    addAndMakeVisible(lblColourActiveMacroButton.get());
+    inactiveMacroButtonColourEdit.reset(new ColourEditComponent());
+    addAndMakeVisible(inactiveMacroButtonColourEdit.get());
+    inactiveMacroButtonColourEdit->addChangeListener(this);
+
+    lblDeveloperMode.reset(new Label("DeveloperModeLabel", "Developer Mode"));
+    addChildComponent(lblDeveloperMode.get());
+    setDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
+
+
+    lblPresetButtonColours->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
     lblColourActiveMacroButton->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::GothamNarrowMedium));
-
-	inactiveMacroButtonColourEdit.reset(new ColourEditComponent());
-	addAndMakeVisible(inactiveMacroButtonColourEdit.get());
-	inactiveMacroButtonColourEdit->addChangeListener(this);
-
-    lblColourInactiveMacroButton.reset(new juce::Label("lblColourInactiveMacroButton", translate("Inactive")));
-    addAndMakeVisible(lblColourInactiveMacroButton.get());
     lblPresetButtonColours->setFont(TerpstraSysExApplication::getApp().getAppFont(LumatoneEditorFont::UniviaProBold));
 
 
-    buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
-    addAndMakeVisible (buttonCalibrate.get());
-    buttonCalibrate->setTooltip (translate("CalibrateKeys") + " " + translate("Aftertouch"));
-    buttonCalibrate->setButtonText (translate("Settings"));
-    buttonCalibrate->addListener (this);
+    TerpstraSysExApplication::getApp().getLumatoneController()->addStatusListener(this);
 
-    //[UserPreSize]
-    lblDeveloperMode.reset(new Label("DeveloperModeLabel", "Developer Mode"));
-    addChildComponent(lblDeveloperMode.get());
+    buttonCalibrate->setEnabled(false);
 
-    setDeveloperMode(TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DeveloperMode", false));
+    /* We don't want a resize here
+    /*
     //[/UserPreSize]
 
+    setSize (456, 64);
+
+
     //[Constructor] You can add your own custom stuff here..
+    */
+
+
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
     //[/Constructor]
@@ -95,8 +138,6 @@ void GlobalSettingsArea::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    //g.fillAll (juce::Colour (0xff323e44));
-
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
@@ -109,10 +150,10 @@ void GlobalSettingsArea::resized()
 
     int calbrateBtnHeight = roundToInt(getHeight() * calibrateHeight);
     int calibrateWidth = getLookAndFeel().getTextButtonWidthToFitText(*buttonCalibrate, calbrateBtnHeight);
-    
+
     buttonCalibrate->setSize(calibrateWidth, calbrateBtnHeight);
     buttonCalibrate->setTopRightPosition(getWidth(), roundToInt((getHeight() - buttonCalibrate->getHeight()) * 0.5f));
-    
+
     float margin = roundToInt(getHeight() * 0.1f);
     float colourEditHeight = proportionOfHeight(controlsHeight);
     float controlY = proportionOfHeight((1 - controlsHeight) / 2.0f);
@@ -154,11 +195,11 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
-		auto settingsWindow = new SettingsContainer();
-        settingsWindow->setLookAndFeel(&getLookAndFeel());
+		auto settingsComponent = new SettingsContainer();
+        settingsComponent->setLookAndFeel(&getLookAndFeel());
 
 		DialogWindow::LaunchOptions launchOptions;
-		launchOptions.content.setOwned(settingsWindow);
+		launchOptions.content.setOwned(settingsComponent);
 		launchOptions.content->setSize(480, 240);
 
 		launchOptions.dialogTitle = "Settings";
@@ -168,9 +209,12 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
 
         launchOptions.dialogBackgroundColour = Colour();
 
-		auto dw = launchOptions.launchAsync();
-		dw->centreWithSize(548, 240);
-        dw->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
+		auto settingsDialog = launchOptions.launchAsync();
+        settingsDialog->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
+        settingsDialog->centreWithSize(548, 240);
+
+        TerpstraSysExApplication::getApp().setOpenDialogWindow(settingsDialog);
+
         //[/UserButtonCode_buttonCalibrate]
     }
 
@@ -198,12 +242,12 @@ void GlobalSettingsArea::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == inactiveMacroButtonColourEdit.get())
 	{
 		String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendMacroButtonInactiveColour(inactiveMacroButtonColour);
 	}
 	else if (source == activeMacroButtonColourEdit.get())
 	{
 		String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getLumatoneController().sendMacroButtonActiveColour(activeMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendMacroButtonActiveColour(activeMacroButtonColour);
 	}
 }
 
@@ -235,7 +279,19 @@ void GlobalSettingsArea::setDeveloperMode(bool devModeOn)
 {
     showDeveloperMode = devModeOn;
     lblDeveloperMode->setVisible(showDeveloperMode);
+    if (devModeOn)
+        buttonCalibrate->setEnabled(true);
     repaint();
+}
+
+void GlobalSettingsArea::connectionEstablished(int inputDevice, int outputDevice)
+{
+    buttonCalibrate->setEnabled(true);
+}
+
+void GlobalSettingsArea::connectionLost()
+{
+    buttonCalibrate->setEnabled(false);
 }
 
 //[/MiscUserCode]
@@ -251,11 +307,11 @@ void GlobalSettingsArea::setDeveloperMode(bool devModeOn)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GlobalSettingsArea" componentName=""
-                 parentClasses="public juce::Component, public ChangeListener"
+                 parentClasses="public juce::Component, public ChangeListener, public LumatoneEditor::StatusListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="456"
                  initialHeight="64">
-  <BACKGROUND backgroundColour="ff323e44"/>
+  <BACKGROUND backgroundColour="0"/>
   <LABEL name="lblPresetButtonColours" id="988da53c99fc73f2" memberName="lblPresetButtonColours"
          virtualName="" explicitFocusOrder="0" pos="0 8 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Preset Button Colours:" editableSingleClick="0"
@@ -272,9 +328,8 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="buttonCalibrate" id="47242594c34a8de9" memberName="buttonCalibrate"
-              virtualName="" explicitFocusOrder="0" pos="336 8 112 24" tooltip="Calibrate keys aftertouch"
-              buttonText="Calibrate Keys" connectedEdges="0" needsCallback="1"
-              radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="336 8 112 24" tooltip="Show controls for calibration, setting controller MIDI channels, and updating firmware"
+              buttonText="Settings" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -22,7 +22,7 @@ class GroupingCircle    : public Component
 {
 public:
     GroupingCircle(const ScaleStructure& structureIn, Array<Colour>& colourTableIn);
-    ~GroupingCircle();
+    virtual ~GroupingCircle();
 
 	float getInnerRadius() const;
 	float getMiddleRadius() const;
@@ -57,7 +57,7 @@ public:
 	class Listener
 	{
 	public:
-		~Listener() {};
+		virtual ~Listener() {}
 
 		virtual void offsetChanged(int newOffset) = 0;
 		
@@ -123,7 +123,7 @@ private:
 	Array<int> highlightedDegreeEdges; // TODO: turn this into Array<Point<int>> to differentiate symmetric edges
 	Array<Line<float>> highlightedEdgeLines;
 		
-	const float handleDotAngRatio = float_Pi / 100.0f;
+	const float handleDotAngRatio = MathConstants<float>::pi / 100.0f;
 	float handleDotRadius;
 	float handleHighlightMult = 1.5f;
 	float handlePlacementRadius;
@@ -150,7 +150,7 @@ private:
 	float degreeMiddleRadius;
 
 	Point<float> center;
-	float circleOffset = float_Pi / 2.0f;
+	float circleOffset = MathConstants<float>::pi / 2.0f;
 
 	float groupRingWidth;
 	float degreeRingWidth;
@@ -161,8 +161,8 @@ private:
 
 	double angleIncrement;
 	double angleHalf;
-	const float float_HalfPi = float_Pi / 2;
-	const float float_Tau = float_Pi * 2;
+	const float float_HalfPi = MathConstants<float>::pi / 2;
+	const float float_Tau = MathConstants<float>::pi * 2;
 
 	Array<Line<float>> radiLines;
 	Array<Path> degreeArcPaths;

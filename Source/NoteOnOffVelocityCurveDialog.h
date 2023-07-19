@@ -15,13 +15,7 @@
 // Note on/on velocity curve dialog. Horizontal axis stands for ticks
 class NoteOnOffVelocityCurveDialog : public VelocityCurveDlgBase {
 public:
-    //==============================================================================
     NoteOnOffVelocityCurveDialog();
-    //~NoteOnOffVelocityCurveDialog() override;
-
-    //protected:
-    //	virtual float beamWidth(int xPos) override;
-
 };
 
 class FaderVelocityCurveDialog : public VelocityCurveDlgBase {

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.7
 
   ------------------------------------------------------------------------------
 
@@ -73,13 +73,14 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
-
     void lookAndFeelChanged() override;
+
+
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType;
-	Path beamTableFrame;
+	//Path beamTableFrame;
     Path beamTableContour;
     Path beamTableGrid;
 	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];

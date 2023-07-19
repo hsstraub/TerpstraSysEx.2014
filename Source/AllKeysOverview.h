@@ -31,7 +31,7 @@
 
 
 // Representation of a key inside the overview
-class KeyMiniDisplayInsideAllKeysOverview : public Component, public LumatoneController::MidiListener
+class KeyMiniDisplayInsideAllKeysOverview : public Component, public LumatoneEditor::MidiListener
 {
 public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
@@ -82,7 +82,8 @@ private:
                                                                     //[/Comments]
 */
 class AllKeysOverview  : public juce::Component,
-                         public LumatoneController::FirmwareListener,
+                         public LumatoneEditor::StatusListener,
+                         public LumatoneEditor::FirmwareListener,
                          public juce::Button::Listener
 {
 public:
@@ -101,6 +102,12 @@ public:
     void setFirmwareVersion(FirmwareVersion versionIn);
 
 	void resetOctaveSize();
+
+	// LumatoneEditor::StatusListener
+	void connectionEstablished(int, int) override;
+	void connectionLost() override;
+
+	// LumatoneEditor::FirmwareListener implementation
 	void firmwareRevisionReceived(FirmwareVersion version) override;
     //[/UserMethods]
 

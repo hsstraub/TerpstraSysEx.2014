@@ -47,6 +47,9 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 		this->rightUpwardLines.add(StraightLine({ 54, 53 }));
 
 		this->firstColumnOffsets = Array<int>({ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5 });
+		this->rowOffsets = Array<int>({-4, -3, -3, -2, -2, -1, -1, 0, 0, 2, 6});
+		this->boardXOffset = 7;
+		this->boardYOffset = -2;
 	}
 	else
 	{
@@ -77,14 +80,32 @@ TerpstraBoardGeometry::TerpstraBoardGeometry()
 		this->rightUpwardLines.add(StraightLine({ 55, 53 }));
 
 		this->firstColumnOffsets = Array<int>({ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4 });
+		this->rowOffsets = Array<int>({-4, -3, -3, -2, -2, -1, -1, 0, 0, 2, 5});
+		this->boardXOffset = 7;
+		this->boardYOffset = -2;
 	}
-  
+
 	maxHorizontalLineSize = 0;
 
 	for (auto line : horizontalLines)
 		if (line.size() > maxHorizontalLineSize)
 			maxHorizontalLineSize = line.size();
 
+}
+
+// Given a board number and key index, compute Cartesian coordinates for the given key,
+// the x axis is the shallow diagonal, and the y axis is the right-upward diagonal.
+// (0,0) is at the top left, so most coordinates are negative, but that's okay for our purposes.
+Point<int> TerpstraBoardGeometry::coordinatesForKey (int boardIndex, int keyIndex) const {
+	for (int lineIx = 0; lineIx < this->horizontalLines.size(); lineIx++) {
+		int rowIx = this->horizontalLines[lineIx].indexOf(keyIndex);
+		if (rowIx != -1) {
+			return (Point<int>(this->boardXOffset * boardIndex + rowIx + this->rowOffsets[lineIx], this->boardYOffset * boardIndex - lineIx));
+		}
+	}
+	// If we get here, the requested key was out of range.
+	jassert(false);
+	return Point<int>(0,0);
 }
 
 // returns the unique straight line that contains the given field

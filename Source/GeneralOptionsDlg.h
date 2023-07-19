@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -36,6 +36,7 @@
                                                                     //[/Comments]
 */
 class GeneralOptionsDlg  : public Component,
+                           public LumatoneEditor::FirmwareListener,
                            public juce::Button::Listener
 {
 public:
@@ -50,6 +51,10 @@ public:
 	void loadFromMapping();
 
     void lookAndFeelChanged() override;
+
+    // LumatoneEditor::FirmwareListener Implementation
+    void presetFlagsReceived(PresetFlags presetFlags) override;
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

@@ -6,3 +6,5 @@
 /Installers/InnoSetup/Install*
 /Installers/InnoSetup/archive*
 /Installers/Packages/build*
+.vscode
+/Releases

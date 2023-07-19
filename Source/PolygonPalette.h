@@ -19,7 +19,7 @@
 class PolygonPalette  : public Palette
 {
 public:
-    PolygonPalette(int numSidesIn = 6, float angleOffsetIn = float_Pi / 12.0f)
+    PolygonPalette(int numSidesIn = 6, float angleOffsetIn = MathConstants<float>::pi / 12.0f)
         : Palette(numSidesIn), angleOffset(angleOffsetIn)
     {
         createSwatches();
@@ -76,7 +76,7 @@ private:
 
     void createSwatches()
     {
-        float angInc = 2 * float_Pi / getNumberOfSwatches();
+        float angInc = 2 * MathConstants<float>::pi / getNumberOfSwatches();
         float angMargin = angInc * margin * 0.5f;
 
         for (int i = 0; i < getNumberOfSwatches(); i++)

@@ -62,7 +62,7 @@ public:
     ColourTextEditor* getColourTextEditor() { return colourTextEditor.get(); }
 
     void colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour) override;
-    
+
     void redrawCCFlipBtn();
     //[/UserMethods]
 
@@ -81,12 +81,12 @@ private:
     int roundedCornerSize;
     Rectangle<int> instructionsAreaBounds;
     Rectangle<int> instructionsBounds;
-    int controlsX;
-    int separatorY;
+    float controlsX;
+    float separatorY;
 
     Font instructionsFont;
     Font parametersFont;
-    
+
     Array<FlexBox> flexRows;
     Array<Rectangle<int>> flexBounds; // Primarily for debugging
     enum SingleNoteFlexRows
@@ -107,15 +107,17 @@ private:
     const float controlAreaYScalar  = 0.183333f;
     const float controlsXScalar     = 0.06f;
     const float separatorYScalar    = 0.666667f;
-    const float toggleHeightScalar  = 0.042f;
+    const float toggleHeightScalar  = 0.041f;
     const float controlHeightScalar = 0.0647f;
 
     const float controlBoxFontHeightScalar     = 0.75f;
     const float incDecButtonTextBoxWidthScalar = 0.4f;
 
+    const float separatorThicknessScalar = 0.005f;
+
     const Colour toggleTextColour = Colour(0xffcbcbcb);
-    
-    std::unique_ptr<juce::ImageButton> ccFaderFlipBtn;
+
+    std::unique_ptr<juce::ImageButton> ccFaderIsDefault;
     Path faderDownArrow;
     Path faderUpArrow;
     //[/UserVariables]
@@ -134,7 +136,7 @@ private:
     std::unique_ptr<ColourTextEditor> colourTextEditor;
     std::unique_ptr<juce::Slider> channelInput;
     std::unique_ptr<juce::Slider> channelAutoIncrNoteInput;
-    
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SingleNoteAssign)

@@ -2,10 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Lumatone Editor"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "Lumatone"
 #define MyAppURL "https://www.lumatone.io/"
 #define MyAppExeName "Lumatone Editor.exe"
+#define MyAppExeNameDest "Lumatone Editor.exe"
 #define MappingAssocName MyAppName + " Mapping"
 #define MappingAssocExt ".ltn"
 #define MappingAssocKey StringChange(MappingAssocName, " ", "") + MappingAssocExt
@@ -23,6 +24,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+AllowNoIcons=yes
 DefaultDirName={autopf64}\{#MyAppName}
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
@@ -33,7 +35,7 @@ OutputDir=.\
 OutputBaseFilename=Install {#MyAppName} {#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
-UsePreviousAppDir=no
+UsePreviousAppDir=yes
 WizardStyle=modern
 
 [Languages]
@@ -42,8 +44,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[Files]
-Source: "..\..\Builds\VisualStudio2019\x64\Release\App\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+[Files]                                                         
+Source: "..\..\Builds\VisualStudio2019\x64\Release\App\{#MyAppExeName}"; DestDir: "{app}"; DestName: "{#MyAppExeNameDest}"; Flags: ignoreversion
 Source: "..\..\Presets\Mappings\*"; DestDir: "{userdocs}\{#MyAppName}\Mappings"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\..\Presets\Palettes\*"; DestDir: "{userdocs}\{#MyAppName}\Palettes"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\..\Libraries\win64\bin\libssh2-x64.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -57,14 +59,14 @@ Source: "vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafteri
 Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\OpenWithProgIds"; ValueType: string; ValueName: "{#MappingAssocKey}"; ValueData: "%"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}"; ValueType: string; ValueName: ""; ValueData: "{#MappingAssocName}"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\ltn.ico"
-Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
-Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: {#MappingAssocExt}; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\{#MappingAssocExt}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeNameDest}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeNameDest}\SupportedTypes"; ValueType: string; ValueName: {#MappingAssocExt}; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\{#PaletteAssocExt}"; ValueType: string; ValueName: ""; ValueData: "{#PaletteAssocName}"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#PaletteAssocExt}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData:"{app}\ltp.ico"
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeNameDest}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeNameDest}"; Tasks: desktopicon
 
 [Code]
 // Pulled from https://stackoverflow.com/questions/24574035/how-to-install-microsoft-vc-redistributables-silently-in-inno-setup
@@ -94,5 +96,5 @@ end;
 [Run]
 Filename: "{tmp}\vc_redist.x64.exe"; Description: "Install VC Redistributable package if necessary"; Parameters: "/q /norestart /c:""msiexec /q /i vcredist.msi"""; \
    Check: VCRedistNeedsInstall; StatusMsg: "Installing Microsoft Visual C++ 2015, may take a few minutes..."
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeNameDest}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 

@@ -573,7 +573,7 @@ bool ScaleStructure::setChromaAlterations(Array<Point<int>> chromaAlterationsIn)
 
 void ScaleStructure::calculateProperties()
 {
-	DBG("~~~ ScaleStructure is calculating properties ~~~");
+	//DBG("~~~ ScaleStructure is calculating properties ~~~")
 	// Clear all data dependent on Generator and Size choices
 	scaleSizes.clear();
 	keyboardTypes.clear();
@@ -711,7 +711,7 @@ void ScaleStructure::calculateGeneratorChain()
 		}
 	}
 
-	DBG("SS Generator Chain: " + dbgstr);
+//	DBG("SS Generator Chain: " + dbgstr);
 
 	calculateIntervalScales();
 }
@@ -758,32 +758,32 @@ void ScaleStructure::fillSymmetricGrouping(bool applyAlterations)
 
 	// DEBUG PRINTING
 
-	String dbgstr = "";
-	int size, sum = 0;
-	for (int i = 0; i < degreeGroupIndexedSizes.size(); i++) {
-		size = degreeGroupScaleSizes[i];
-		dbgstr += String(size) + ", ";
-		sum += size;
-	}
-	dbgstr += " = " + String(sum);
-	DBG("SS Updated grouping: " + dbgstr);
+//	String dbgstr = "";
+//	int size, sum = 0;
+//	for (int i = 0; i < degreeGroupIndexedSizes.size(); i++) {
+//		size = degreeGroupScaleSizes[i];
+//		dbgstr += String(size) + ", ";
+//		sum += size;
+//	}
+//	dbgstr += " = " + String(sum);
+//	DBG("SS Updated grouping: " + dbgstr);
 
-	dbgstr = "\t";
-	for (int group = 0; group < degreeGroupIndexedSizes.size(); group++)
-	{
-		Array<int> degreeGroup = degreeGroupings[group];
-		dbgstr += "Tier " + String(group) + ": ";
-		for (int deg = 0; deg < degreeGroup.size(); deg++)
-		{
-			dbgstr += String(degreeGroup[deg]) + ", ";
-		}
-
-		if (group + 1 < degreeGroupIndexedSizes.size())
-			dbgstr += "\n\t";
-	}
-
-	DBG("SS Degree groupings: ");
-	DBG(dbgstr);
+//	dbgstr = "\t";
+//	for (int group = 0; group < degreeGroupIndexedSizes.size(); group++)
+//	{
+//		Array<int> degreeGroup = degreeGroupings[group];
+//		dbgstr += "Tier " + String(group) + ": ";
+//		for (int deg = 0; deg < degreeGroup.size(); deg++)
+//		{
+//			dbgstr += String(degreeGroup[deg]) + ", ";
+//		}
+//
+//		if (group + 1 < degreeGroupIndexedSizes.size())
+//			dbgstr += "\n\t";
+//	}
+//
+//	DBG("SS Degree groupings: ");
+//	DBG(dbgstr);
 }
 
 void ScaleStructure::applyChromaAlterations()
@@ -876,16 +876,16 @@ void ScaleStructure::applyChromaAlterations()
 				groupChain.add(deg);
 	}
 
-	String dbgstr = "";
-
-	for (auto alteration : chromaAlterations)
-	{
-		dbgstr += "(" + alteration.toString() + "), ";
-	}
-	dbgstr = alterationsAttachedToDegree 
-		? "SS MODMOS Properties by degree:\t" + dbgstr 
-		: "SS MODMOS Properties by gIndex:\t" + dbgstr;
-	DBG(dbgstr);
+//	String dbgstr = "";
+//
+//	for (auto alteration : chromaAlterations)
+//	{
+//		dbgstr += "(" + alteration.toString() + "), ";
+//	}
+//	dbgstr = alterationsAttachedToDegree
+//		? "SS MODMOS Properties by degree:\t" + dbgstr
+//		: "SS MODMOS Properties by gIndex:\t" + dbgstr;
+//	DBG(dbgstr);
 }
 
 int ScaleStructure::getSymmetricGroup(int groupIndexIn) const
@@ -1742,7 +1742,9 @@ String ScaleStructure::getIntervalSteps(Point<int>& stepSizesOut, bool withModif
 	for (int i = 1; i <= getScaleSize() * periodFactorSelected; i++)
 	{
 		sizes.set(i - 1, sizes[i] - sizes[i - 1]);
+#if JUCE_DEBUG
 		steps += String(sizes[i - 1]) + " ";
+#endif
 	}
 
 	// Extract step sizes

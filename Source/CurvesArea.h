@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 6.0.8
 
   ------------------------------------------------------------------------------
 
@@ -68,15 +68,17 @@ public:
 	void sendConfigToController();
 
     void setDeveloperMode(bool devModeOn);
-  //[/UserMethods]
+    //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
+
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
- 
+
 	bool showDeveloperMode = false;
 
     //==============================================================================
@@ -87,7 +89,7 @@ private:
     const float tabYScalar          = 0.06f;
     const float tabWidth            = 0.65f;
     const float tabFontHeight       = 0.058f;
-    
+
     //[/UserVariables]
 
     //==============================================================================

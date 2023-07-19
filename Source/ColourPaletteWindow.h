@@ -37,7 +37,26 @@ public:
     /// Registers a listener to receive the colour the user's input resolves to
     /// </summary>
     /// <param name="listenerIn"></param>
-    void listenToColourSelection(ColourSelectionListener* listenerIn) { paletteGroup->addColourSelectionListener(listenerIn); }
+    void listenToColourSelection(ColourSelectionListener* listenerIn) { colourSelectorGroup->addColourSelectionListener(listenerIn); }
+
+    /// <summary>
+    /// Adds a colour selector component to the colour selection group
+    /// </summary>
+    /// <param name="broadcaster"></param>
+    void addColourSelectorToGroup(ColourSelectionBroadcaster* broadcaster) { colourSelectorGroup->addSelector(broadcaster); }
+
+    /// <summary>
+    /// Force a colour selector (added to the group) to be selected
+    /// </summary>
+    /// <param name="newSelector"></param>
+    void setCurrentColourSelector(ColourSelectionBroadcaster* newSelector) 
+    { 
+        // This statement is kind of a kludge - vsicurella
+        if (colourSelectorGroup->getIndexOfSelector(newSelector) < 0)
+            colourSelectorGroup->addSelector(newSelector);
+
+        colourSelectorGroup->setCurrentSelector(newSelector); 
+    }
 
 private:
 
@@ -46,6 +65,12 @@ private:
     /// </summary>
     /// <param name="paletteIn"></param>
     void startEditingPalette(int paletteIndexIn, int selectedSwatchIndex = -1);
+
+    /// <summary>
+    /// Creates a new palette with the same name and swatches
+    /// </summary>
+    /// <param name="paletteIndexIn"></param>
+    void duplicatePalette(int paletteIndexIn);
 
     /// <summary>
     /// Removes a palette and associated buttons
@@ -57,11 +82,15 @@ protected:
 
     void editPaletteRequested(int paletteIndex, int selectedSwatchIndex) override;
 
+    void clonePaletteRequested(int paletteIndex) override;
+
     void deletePaletteRequested(int paletteIndex) override;
 
     void newPaletteRequested() override;
 
 private:
+    
+    LumatoneEditorLookAndFeel lookAndFeel;
 
     Array<LumatoneEditorColourPalette>& colourPalettes;
 
@@ -72,7 +101,7 @@ private:
 
     std::unique_ptr<Viewport> palettePanelViewport;
 
-    std::unique_ptr<ColourSelectionGroup> paletteGroup;
+    std::unique_ptr<ColourSelectionGroup> colourSelectorGroup;
 
     int paletteIndexEditing = -1;
     bool paletteEditingIsNew = false;

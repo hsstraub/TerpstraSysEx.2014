@@ -51,12 +51,17 @@ public:
 
 	Array<Point<int>> getOctaveCoordinates(int boardIndex) const;
 
+	Point<int> coordinatesForKey (int boardIndex, int keyIndex) const;
+
 	// Attributes
 private:
 	StraightLineSet	horizontalLines;
 	StraightLineSet	rightUpwardLines;
-	Array<int>		firstColumnOffsets;
-	int				maxHorizontalLineSize;
+	Array<int> firstColumnOffsets;
+	Array<int> rowOffsets; // Horizonal offset of each horizontal line on the board, relative to the lower left key.
+	int boardXOffset; // Offset along shallow diagonals between analogous keys from one board to the next (typically 7)
+	int boardYOffset; // Offset along up/right diagonals between analogous keys from one board to the next (typically -2)
+	int maxHorizontalLineSize;
 };
 
 #endif  // BOARDGEOMETRY_H_INCLUDED

@@ -74,3 +74,6 @@ countries: ca gb au
 "Linear" = "Linear"
 "Quadratic" = "Quadratic"
 "Ticks" = "ticks"
+"EditButtonTip" = "Edit palette colours"
+"CloneButtonTip" = "Clone palette"
+"TrashButtonTip" = "Delete palette (currently irreversible)"
