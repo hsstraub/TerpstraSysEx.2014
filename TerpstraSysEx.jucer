@@ -4,7 +4,7 @@
               bundleIdentifier="HansStraub.Lumatone.LumatoneSetup" includeBinaryInAppConfig="1"
               companyName="Hans Straub" headerPath="../../../JUCE/modules"
               jucerFormatVersion="1" userNotes="If you'd like to build with licensed fonts, set the associated preprocessor definition to 1, drag &amp; drop a folder containing the official fonts into the Projucer file list, and save the project. Please remember to discard .jucer changes related to licensed fonts before commiting or pushing to a public repo. The folder .\BinaryData\Assets\Fonts is preferred for the font files as it is included in .gitignore."
-              defines="USE_LICENSED_FONTS=0 SERVERKEY=&quot;debian&quot; SERVERPWD=&quot;temppwd&quot;"
+              defines="USE_LICENSED_FONTS=0 SERVERKEY=&quot;debian&quot; SERVERPWD=&quot;temppwd&quot;&#10;JUCE_MODAL_LOOPS_PERMITTED=1"
               displaySplashScreen="0">
   <MAINGROUP id="obWLli" name="LumatoneSetup">
     <GROUP id="{31606CD9-167B-B953-3A0D-86939C49A59D}" name="BinaryData">
