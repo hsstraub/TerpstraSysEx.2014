@@ -108,25 +108,38 @@ void TerpstraSysExApplication::shutdown()
 //==============================================================================
 void TerpstraSysExApplication::systemRequestedQuit()
 {
-    // This is called when the app is being asked to quit: you can ignore this
-    // request and let the app carry on running, or call quit() to allow the app to close.
+	// This is called when the app is being asked to quit: you can ignore this
+	// request and let the app carry on running, or call quit() to allow the app to close.
 
 	// If there are changes: ask for save
 	if (hasChangesToSave)
 	{
-		int retc = AlertWindow::showYesNoCancelBox(AlertWindow::AlertIconType::QuestionIcon, "Quitting the application", "Do you want to save your changes?");
-		if (retc == 0)
-		{
-			// "Cancel". Do not quit.
-			return;
-		}
-		else if (retc == 1)
-		{
-			// "Yes". Try to save. Canvel if unsuccessful
-			if (!saveSysExMapping())
-				return;
-		}
-		// retc == 2: "No" -> end without saving
+		AlertWindow::showYesNoCancelBox(
+			AlertWindow::AlertIconType::QuestionIcon,
+			"Quitting the application",
+			"Do you want to save your changes?",
+			"Yes", "No", "Cancel", nullptr,
+			ModalCallbackFunction::create([&](int retc)
+				{
+					if (retc == 0)
+					{
+						// "Cancel". Do not quit.
+						return;
+					}
+					else if (retc == 1)
+					{
+						// "Yes". Try to save. Cancel if unsuccessful
+						saveSysExMapping([&](bool success) { if (success) quit(); });
+					}
+					else
+					{
+						// retc == 2: "No" -> end without saving
+						quit();
+					}
+				})
+		);
+
+		return;
 	}
 
 	quit();
@@ -295,16 +308,15 @@ bool TerpstraSysExApplication::openSysExMapping()
 	return true;
 }
 
-bool TerpstraSysExApplication::saveSysExMapping()
+bool TerpstraSysExApplication::saveSysExMapping(std::function<void(bool success)> saveFileCallback)
 {
 	if (currentFile.getFileName().isEmpty())
-		return saveSysExMappingAs();
+		return saveSysExMappingAs(saveFileCallback);
 	else
-		return saveCurrentFile();
-
+		return saveCurrentFile(saveFileCallback);
 }
 
-bool TerpstraSysExApplication::saveSysExMappingAs()
+bool TerpstraSysExApplication::saveSysExMappingAs(std::function<void(bool)> saveFileCallback)
 {
 	chooser = std::make_unique<FileChooser>("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
 	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::saveMode | FileBrowserComponent::FileChooserFlags::warnAboutOverwriting,
@@ -587,7 +599,7 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 	else
 	{
 		// Show error message
-		AlertWindow::showMessageBox(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
+		AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
 
 		// XXX Update Window title in any case? Make file name empty/make data empty in case of error?
 		return false;

@@ -55,8 +55,8 @@ public:
 	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
-	bool saveSysExMapping();
-	bool saveSysExMappingAs();
+	bool saveSysExMapping(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
+	bool saveSysExMappingAs(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 	bool resetSysExMapping();
 
 	bool deleteSubBoardData();
