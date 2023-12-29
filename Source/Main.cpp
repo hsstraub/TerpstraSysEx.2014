@@ -284,14 +284,14 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	// XXX If there are changes: ask for saving these first?
+	chooser = std::make_unique<FileChooser>("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn;*.tsx");
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
+		[&](const FileChooser& chooser)
+		{
+			currentFile = chooser.getResult();
+			openFromCurrentFile();
+		});
 
-	FileChooser chooser("Open a Lumatone key mapping", File(), "*.tsx");
-	if (chooser.browseForFileToOpen())
-	{
-		currentFile = chooser.getResult();
-		return openFromCurrentFile();
-	}
 	return true;
 }
 
@@ -306,19 +306,22 @@ bool TerpstraSysExApplication::saveSysExMapping()
 
 bool TerpstraSysExApplication::saveSysExMappingAs()
 {
-	FileChooser chooser("Lumatone Key Mapping Files", File(), "*.tsx");
-	if (chooser.browseForFileToSave(true))
-	{
-		currentFile = chooser.getResult();
-		if (saveCurrentFile() )
+	chooser = std::make_unique<FileChooser>("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::saveMode | FileBrowserComponent::FileChooserFlags::warnAboutOverwriting,
+		[this, saveFileCallback](const FileChooser& chooser)
 		{
-			// Window title
-			updateMainTitle();
-			return true;
-		}
-	}
+			currentFile = chooser.getResult();
+			bool saved = saveCurrentFile();
+			if (saved)
+			{
+				// Window title
+				updateMainTitle();
+			}
 
-	return false;
+			saveFileCallback(saved);
+		});
+
+	return true;
 }
 
 bool TerpstraSysExApplication::resetSysExMapping()
@@ -592,7 +595,7 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 }
 
 // Saves the current mapping to file, specified in currentFile.
-bool TerpstraSysExApplication::saveCurrentFile()
+bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)> saveFileCallback)
 {
 	if (currentFile.existsAsFile())
 		currentFile.deleteFile();
@@ -602,11 +605,15 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	TerpstraKeyMapping keyMapping;
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
 
+	bool appendSuccess = true;
 	StringArray stringArray = keyMapping.toStringArray();
 	for (int i = 0; i < stringArray.size(); i++)
-		currentFile.appendText(stringArray[i] + "\n");
+		appendSuccess = appendSuccess && currentFile.appendText(stringArray[i] + "\n");
 
-	setHasChangesToSave(false);
+	setHasChangesToSave(!appendSuccess);
+	saveFileCallback(appendSuccess);
+
+	// ToDo undo history?
 
 	// Add file to recent files list - or put it on top of the list
 	recentFiles.addFile(currentFile);

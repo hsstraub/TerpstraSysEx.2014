@@ -18,6 +18,7 @@
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
 
+#define CHOOSE_FILE_NOOP [](bool) -> void {}
 
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
@@ -72,7 +73,7 @@ public:
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
-	bool saveCurrentFile();
+	bool saveCurrentFile(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 
 	void sendCurrentMappingToDevice();
 
@@ -137,6 +138,8 @@ private:
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
+
+	std::unique_ptr<FileChooser> chooser;
 };
 
 
