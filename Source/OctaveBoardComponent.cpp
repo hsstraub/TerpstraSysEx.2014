@@ -11,6 +11,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "OctaveBoardComponent.h"
 #include "Main.h"
+#include "ViewComponents.h"
+#include "MainComponent.h"
 
 
 //==============================================================================

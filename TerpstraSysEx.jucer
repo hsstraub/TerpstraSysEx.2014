@@ -12,6 +12,8 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="LE3qJG" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
+      <FILE id="ZgWqCR" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
       <FILE id="oPf8iZ" name="NoteOnOffVelocityCurveDialog.cpp" compile="1"
             resource="0" file="Source/NoteOnOffVelocityCurveDialog.cpp"/>
       <FILE id="Vj8Ki8" name="NoteOnOffVelocityCurveDialog.h" compile="0"
@@ -129,7 +131,8 @@
             file="Source/ViewComponents.cpp"/>
       <FILE id="DfBSef" name="ViewComponents.h" compile="0" resource="0"
             file="Source/ViewComponents.h"/>
-      <FILE id="HAyzGx" name="LumatoneMenu.cpp" compile="1" resource="0" file="Source/LumatoneMenu.cpp"/>
+      <FILE id="HAyzGx" name="LumatoneMenu.cpp" compile="1" resource="0"
+            file="Source/LumatoneMenu.cpp"/>
       <FILE id="iBGzO1" name="LumatoneMenu.h" compile="0" resource="0" file="Source/LumatoneMenu.h"/>
       <FILE id="HkSDhK" name="KeyboardDataStructure.h" compile="0" resource="0"
             file="Source/KeyboardDataStructure.h"/>

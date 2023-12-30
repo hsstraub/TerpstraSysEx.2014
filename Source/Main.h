@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "LumatoneMenu.h"
-#include "MainComponent.h"
+#include "MainWindow.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
@@ -80,48 +80,6 @@ public:
 	void setHasChangesToSave(bool value);
 
 	bool aboutTerpstraSysEx();
-
-	//==============================================================================
-	/*
-	This class implements the desktop window that contains an instance of
-	our MainContentComponent class.
-	*/
-	class MainWindow : public DocumentWindow
-	{
-	public:
-		MainWindow() : DocumentWindow("Lumatone Keyboard Setup Utility",
-			Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(DocumentWindow::backgroundColourId)),
-			DocumentWindow::allButtons)
-		{
-			setContentOwned(new MainContentComponent(), true);
-
-			setResizable(true, false);
-			centreWithSize(getWidth(), getHeight());
-#if JUCE_ANDROID
-			setFullScreen(true);
-#endif
-			setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel());
-			setVisible(true);
-		}
-
-		void closeButtonPressed()
-		{
-			// This is called when the user tries to close this window. Here, we'll just
-			// ask the app to quit when this happens, but you can change this to do
-			// whatever you need.
-			JUCEApplication::getInstance()->systemRequestedQuit();
-		}
-
-		/* Note: Be careful if you override any DocumentWindow methods - the base
-		class uses a lot of them, so by overriding you might break its functionality.
-		It's best to do all your work in your content component instead, but if
-		you really have to override any DocumentWindow methods, make sure your
-		subclass also calls the superclass's method.
-		*/
-
-	private:
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
-	};
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
