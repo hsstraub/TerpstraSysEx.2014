@@ -8,11 +8,10 @@
   ==============================================================================
 */
 
-#ifndef MAIN_H_INCLUDED
-#define MAIN_H_INCLUDED
+#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MainMenu.h"
+#include "LumatoneMenu.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -27,9 +26,9 @@ public:
 	//==============================================================================
 	TerpstraSysExApplication();
 
-	const String getApplicationName()       { return ProjectInfo::projectName; }
-	const String getApplicationVersion()    { return ProjectInfo::versionString; }
-	bool moreThanOneInstanceAllowed()       { return true; }
+	const String getApplicationName() override		{ return ProjectInfo::projectName; }
+	const String getApplicationVersion() override   { return ProjectInfo::versionString; }
+	bool moreThanOneInstanceAllowed() override      { return true; }
 
 	void initialise(const String& commandLine);
 	void shutdown();
@@ -47,7 +46,7 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel.get(); }
+	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
 
 	// Menu functionality
 	void getAllCommands(Array <CommandID>& commands) override;
@@ -127,7 +126,7 @@ public:
 private:
 	std::unique_ptr<MainWindow> mainWindow;
 	std::unique_ptr<ApplicationCommandManager> commandManager;
-	std::unique_ptr<TerpstraSysExMainMenuModel> menuModel;
+	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LookAndFeel_V3				lookAndFeel;
@@ -141,6 +140,3 @@ private:
 
 	std::unique_ptr<FileChooser> chooser;
 };
-
-
-#endif  // MAIN_H_INCLUDED

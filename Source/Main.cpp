@@ -60,7 +60,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	commandManager.reset(new ApplicationCommandManager());
 	commandManager->registerAllCommandsForTarget(this);
 
-	menuModel.reset(new TerpstraSysExMainMenuModel(commandManager.get()));
+	menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));
 
     mainWindow.reset(new MainWindow());
 	mainWindow->setMenuBar(menuModel.get());
@@ -157,24 +157,24 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 	JUCEApplication::getAllCommands(commands);
 
 	const CommandID ids[] = {
-		TerpstraSysExMainMenuModel::commandIDs::openSysExMapping,
-		TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping,
-		TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs,
-		TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping,
+		Lumatone::Menu::commandIDs::openSysExMapping,
+		Lumatone::Menu::commandIDs::saveSysExMapping,
+		Lumatone::Menu::commandIDs::saveSysExMappingAs,
+		Lumatone::Menu::commandIDs::resetSysExMapping,
 
-		TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard,
-		TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard,
-		TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard,
+		Lumatone::Menu::commandIDs::deleteOctaveBoard,
+		Lumatone::Menu::commandIDs::copyOctaveBoard,
+		Lumatone::Menu::commandIDs::pasteOctaveBoard,
 
-		TerpstraSysExMainMenuModel::commandIDs::lightColourScheme,
-		TerpstraSysExMainMenuModel::commandIDs::darkColourScheme,
+		Lumatone::Menu::commandIDs::lightColourScheme,
+		Lumatone::Menu::commandIDs::darkColourScheme,
 
-		TerpstraSysExMainMenuModel::commandIDs::generalOptions,
-		TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve,
-		TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve,
-		TerpstraSysExMainMenuModel::commandIDs::aftertouchVelocityCurve,
+		Lumatone::Menu::commandIDs::generalOptions,
+		Lumatone::Menu::commandIDs::noteOnOffVelocityCurve,
+		Lumatone::Menu::commandIDs::faderVelocityCurve,
+		Lumatone::Menu::commandIDs::aftertouchVelocityCurve,
 
-		TerpstraSysExMainMenuModel::commandIDs::aboutSysEx
+		Lumatone::Menu::commandIDs::aboutSysEx
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -184,67 +184,67 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 {
 	switch (commandID)
 	{
-	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
+	case Lumatone::Menu::commandIDs::openSysExMapping:
 		result.setInfo("Load file mapping", "Open a Lumatone key mapping", "File", 0);
 		result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
+	case Lumatone::Menu::commandIDs::saveSysExMapping:
 		result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
 		result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
+	case Lumatone::Menu::commandIDs::saveSysExMappingAs:
 		result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
 		result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
+	case Lumatone::Menu::commandIDs::resetSysExMapping:
 		result.setInfo("Reset", "Close file without saving and clear all edit fields", "File", 0);
 		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
 		result.setInfo("Delete", "Delete subboard data", "Edit", 0);
 		result.addDefaultKeypress(KeyPress::deleteKey, ModifierKeys::noModifiers);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:
+	case Lumatone::Menu::commandIDs::copyOctaveBoard:
 		result.setInfo("Copy", "Copy subboard data", "Edit", 0);
 		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
+	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		result.setInfo("Paste", "Paste subboard data", "Edit", 0);
 		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
+	case Lumatone::Menu::commandIDs::lightColourScheme:
 		result.setInfo("Light", "Light colour scheme", "View", 0);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
+	case Lumatone::Menu::commandIDs::darkColourScheme:
 		result.setInfo("Dark", "Dark colour scheme", "View", 0);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+	case Lumatone::Menu::commandIDs::generalOptions:
 		result.setInfo("General options", "General options", "Options", 0);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
+	case Lumatone::Menu::commandIDs::noteOnOffVelocityCurve:
 		result.setInfo("Note on/off velocity curve", "Note on/off velocity curve", "Options", 0);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
+	case Lumatone::Menu::commandIDs::faderVelocityCurve:
 		result.setInfo("Fader velocity curve", "Fader velocity curve", "Options", 0);
 		break;
 
-	case TerpstraSysExMainMenuModel::commandIDs::aftertouchVelocityCurve:
+	case Lumatone::Menu::commandIDs::aftertouchVelocityCurve:
 		result.setInfo("Aftertouch parameters", "Aftertouch parameters", "Options", 0);
 		break;
 
 
-	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
+	case Lumatone::Menu::commandIDs::aboutSysEx:
 		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
 		break;
 
@@ -258,37 +258,37 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 {
 	switch (info.commandID)
 	{
-	case TerpstraSysExMainMenuModel::commandIDs::openSysExMapping:
+	case Lumatone::Menu::commandIDs::openSysExMapping:
 		return openSysExMapping();
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMapping:
+	case Lumatone::Menu::commandIDs::saveSysExMapping:
 		return saveSysExMapping();
-	case TerpstraSysExMainMenuModel::commandIDs::saveSysExMappingAs:
+	case Lumatone::Menu::commandIDs::saveSysExMappingAs:
 		return saveSysExMappingAs();
-	case TerpstraSysExMainMenuModel::commandIDs::resetSysExMapping:
+	case Lumatone::Menu::commandIDs::resetSysExMapping:
 		return resetSysExMapping();
 
-	case TerpstraSysExMainMenuModel::commandIDs::deleteOctaveBoard:
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
 		return deleteSubBoardData();
-	case TerpstraSysExMainMenuModel::commandIDs::copyOctaveBoard:
+	case Lumatone::Menu::commandIDs::copyOctaveBoard:
 		return copySubBoardData();
-	case TerpstraSysExMainMenuModel::commandIDs::pasteOctaveBoard:
+	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
 
-	case TerpstraSysExMainMenuModel::commandIDs::lightColourScheme:
+	case Lumatone::Menu::commandIDs::lightColourScheme:
 		return applyLightColourScheme(true);
-	case TerpstraSysExMainMenuModel::commandIDs::darkColourScheme:
+	case Lumatone::Menu::commandIDs::darkColourScheme:
 		return applyDarkColourScheme(true);
 
-	case TerpstraSysExMainMenuModel::commandIDs::generalOptions:
+	case Lumatone::Menu::commandIDs::generalOptions:
 		return generalOptionsDialog();
-	case TerpstraSysExMainMenuModel::commandIDs::noteOnOffVelocityCurve:
+	case Lumatone::Menu::commandIDs::noteOnOffVelocityCurve:
 		return noteOnOffVelocityCurveDialog();
-	case TerpstraSysExMainMenuModel::commandIDs::faderVelocityCurve:
+	case Lumatone::Menu::commandIDs::faderVelocityCurve:
 		return faderVelocityCurveDialog();
-	case TerpstraSysExMainMenuModel::commandIDs::aftertouchVelocityCurve:
+	case Lumatone::Menu::commandIDs::aftertouchVelocityCurve:
 		return aftertouchVelocityCurveDialog();
 
-	case TerpstraSysExMainMenuModel::commandIDs::aboutSysEx:
+	case Lumatone::Menu::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
 	default:
 		return JUCEApplication::perform(info);
