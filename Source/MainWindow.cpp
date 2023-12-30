@@ -35,3 +35,12 @@ void MainWindow::closeButtonPressed()
 	JUCEApplication::getInstance()->systemRequestedQuit();
 }
 
+void MainWindow::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
+{
+    ((MainContentComponent*)(getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+}
+
+void MainWindow::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
+{
+    ((MainContentComponent*)(getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+}

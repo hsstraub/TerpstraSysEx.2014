@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "LumatoneMenu.h"
 #include "MainWindow.h"
 #include "KeyboardDataStructure.h"
@@ -30,10 +30,10 @@ public:
 	const String getApplicationVersion() override   { return ProjectInfo::versionString; }
 	bool moreThanOneInstanceAllowed() override      { return true; }
 
-	void initialise(const String& commandLine);
-	void shutdown();
-	void systemRequestedQuit();
-	void anotherInstanceStarted(const String& commandLine);
+	void initialise(const String& commandLine) override;
+	void shutdown() override;
+	void systemRequestedQuit() override;
+	void anotherInstanceStarted(const String& commandLine) override;
 
 	static TerpstraSysExApplication& getApp()
 	{
@@ -46,9 +46,10 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
 
 	// Menu functionality
+	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
+
 	void getAllCommands(Array <CommandID>& commands) override;
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 	bool perform(const InvocationInfo& info) override;

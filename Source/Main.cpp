@@ -67,7 +67,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	mainWindow->setMenuBar(menuModel.get());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 
-	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+	mainWindow->restoreStateFromPropertiesFile(propertiesFile);
 
 	// commandLine: may contain a file name
 	if (!commandLine.isEmpty())
@@ -95,7 +95,7 @@ void TerpstraSysExApplication::shutdown()
 	propertiesFile->setValue("RecentFiles", recentFiles.toString());
 
 	// Save state of main window
-	((MainContentComponent*)(mainWindow->getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+	mainWindow->saveStateToPropertiesFile(propertiesFile);
 
 	propertiesFile->saveIfNeeded();
 	delete propertiesFile;

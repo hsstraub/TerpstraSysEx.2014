@@ -31,6 +31,8 @@ public:
 	subclass also calls the superclass's method.
 	*/
 
+    void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
+    void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 };
