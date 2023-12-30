@@ -10,6 +10,7 @@
 */
 
 #include "Main.h"
+#include "MainComponent.h"
 #include "GeneralOptionsDlg.h"
 #include "VelocityCurveDlgBase.h"
 #include "NoteOnOffVelocityCurveDialog.h"
