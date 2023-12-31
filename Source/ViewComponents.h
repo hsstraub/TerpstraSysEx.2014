@@ -51,7 +51,7 @@ private:
 	Label*  midiChannelLabel;
 
 	int						keyColour;
-	TerpstraKey::KEYTYPE	keyType;
+	LumatoneKeyType			keyType;
 };
 
 

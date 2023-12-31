@@ -14,6 +14,7 @@
 #include "LumatoneMenu.h"
 #include "MainWindow.h"
 #include "KeyboardDataStructure.h"
+#include "LumatoneController.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
 
@@ -46,6 +47,7 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	int getOctaveBoardSize() const { return lumatoneController->getOctaveSize(); }
 
 	// Menu functionality
 	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
@@ -97,5 +99,7 @@ private:
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
 
+	// Communication with Lumatone
+	std::unique_ptr<LumatoneController> lumatoneController;
 	std::unique_ptr<FileChooser> chooser;
 };

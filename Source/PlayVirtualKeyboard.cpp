@@ -103,13 +103,13 @@ void PlayVirtualKeyboard::resized()
 /// <returns>Mapping was changed yes/no</returns>
 bool PlayVirtualKeyboard::performMouseDown(int setSelection, int keySelection)
 {
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
 
 	if (keyData.channelNumber > 0)
 	{
-		if (keyData.keyType == TerpstraKey::noteOnNoteOff)
+		if (keyData.keyType == LumatoneKeyType::noteOnNoteOff)
 		{
 			// Send "note on" event
 			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData.noteNumber, keyData.channelNumber, 60);
@@ -124,13 +124,13 @@ bool PlayVirtualKeyboard::performMouseDown(int setSelection, int keySelection)
 /// <returns>Mapping was changed yes/no</returns>
 bool PlayVirtualKeyboard::performMouseUp(int setSelection, int keySelection)
 {
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
 
 	if (keyData.channelNumber > 0)
 	{
-		if (keyData.keyType == TerpstraKey::noteOnNoteOff)
+		if (keyData.keyType == LumatoneKeyType::noteOnNoteOff)
 		{
 			// Send "note off" event
 			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData.noteNumber, keyData.channelNumber, 60);

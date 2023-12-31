@@ -56,7 +56,7 @@ public:
 	TerpstraKeys* getKeyData();
 
 private:
-	std::unique_ptr<KeyMiniDisplayInsideOctaveBoardComponent>	keyMiniDisplay[TERPSTRABOARDSIZE];
+	std::unique_ptr<KeyMiniDisplayInsideOctaveBoardComponent>	keyMiniDisplay[56];
 
 	int octaveBoardIndex = -1;
 	bool isSelected = false;

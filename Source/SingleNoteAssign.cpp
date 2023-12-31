@@ -161,7 +161,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
-	keyTypeCombo->setSelectedId(TerpstraKey::noteOnNoteOff);
+	keyTypeCombo->setSelectedId(LumatoneKeyType::noteOnNoteOff);
 	//colourCombo->setTextFieldToColour(XXX);
     //[/Constructor]
 }
@@ -238,7 +238,7 @@ void SingleNoteAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
 
         // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
             setNoteToggleButton->setButtonText("CC Type:");
 
@@ -316,7 +316,7 @@ void SingleNoteAssign::buttonClicked (Button* buttonThatWasClicked)
 bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 {
 	bool mappingChanged = false;
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	TerpstraKey& keyData = ((MainContentComponent*)(getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
 
@@ -345,7 +345,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 	// Set key type if specified
 	if (keyTypeToggleButton->getToggleState())
 	{
-		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
+		keyData.keyType = (LumatoneKeyType)keyTypeCombo->getSelectedId();	// XXX if no selection?
 		mappingChanged = true;
 	}
 

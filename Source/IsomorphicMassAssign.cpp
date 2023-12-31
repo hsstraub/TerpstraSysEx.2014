@@ -567,7 +567,7 @@ void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, i
 bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 {
 	bool mappingChanged = false;
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	int startNoteIndex = this->startingPointBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)

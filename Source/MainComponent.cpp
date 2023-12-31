@@ -29,7 +29,7 @@ MainContentComponent::MainContentComponent()
 	}
 
 	// Single Key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
 		addAndMakeVisible(terpstraKeyFields[i].get());
@@ -67,7 +67,7 @@ MainContentComponent::~MainContentComponent()
 		terpstraSetSelectors[i] = nullptr;
 	}
 
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		terpstraKeyFields[i] = nullptr;
 	}
@@ -187,9 +187,9 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& message)
         if (answerState == TerpstraMidiDriver::ACK)
         {
             // After the answer state byte there must be 55 bytes of data (one for each key)
-            jassert(message.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
+            jassert(message.getSysExDataSize() >= TerpstraSysExApplication::getApp().getOctaveBoardSize() + 6); // ToDo display error otherwise
 
-            for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+            for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
             {
                 auto newValue = sysExData[6 + keyIndex];
 
@@ -230,7 +230,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& message)
                     break;
 
                 case GET_KEYTYPE_CONFIG:
-                    keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
+                    keyData.keyType = (LumatoneKeyType)newValue;
                     break;
 
                 default:
@@ -321,7 +321,7 @@ void MainContentComponent::resized()
 		}
 	}
 
-	jassert(TERPSTRABOARDSIZE == keyIndex);
+	jassert(TerpstraSysExApplication::getApp().getOctaveBoardSize() == keyIndex);
 
 	// Midi input + output
 	midiEditArea->setBounds(EDITAREAFIRSTCOLPOS, newMidiEditFirstYPos, EDITAREAWIDTH, MIDIEDITAREAHEIGHT);
@@ -349,7 +349,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
 	}
 
 	// Selection of single key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
 		{
@@ -370,7 +370,7 @@ void MainContentComponent::mouseDown(const MouseEvent &event)
     // Refresh display (edit may affect all octave boards)
     if (mappingChanged)
     {
-        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+        for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
         {
             terpstraSetSelectors[i]->repaint();
         }
@@ -384,7 +384,7 @@ void MainContentComponent::mouseUp(const MouseEvent &event)
 	bool mappingChanged = false;
 
 	// Selection of single key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		if (event.eventComponent == terpstraKeyFields[i].get() || event.eventComponent->getParentComponent() == terpstraKeyFields[i].get())
 		{
@@ -402,7 +402,7 @@ void MainContentComponent::mouseUp(const MouseEvent &event)
     // Refresh display (edit may affect all octave boards)
     if ( mappingChanged)
     {
-        for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+        for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
         {
             terpstraSetSelectors[i]->repaint();
         }
@@ -421,7 +421,7 @@ void MainContentComponent::changeSetSelection(int newSelection, bool forceRefres
 		// Set data of new selection
 		if (newSelection >= 0 && newSelection < NUMBEROFBOARDS )
 		{
-			for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+			for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 				terpstraKeyFields[i]->setValue(mappingData.sets[newSelection].theKeys[i]);
 		}
 
@@ -436,11 +436,11 @@ void MainContentComponent::changeSetSelection(int newSelection, bool forceRefres
 void MainContentComponent::changeSingleKeySelection(int newSelection)
 {
 	// Unselect previous key
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE )
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
 
 	// Select new key
 	currentSingleKeySelection = newSelection;
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
 }

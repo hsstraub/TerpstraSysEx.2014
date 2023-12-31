@@ -12,6 +12,12 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="f1n3MS" name="LumatoneController.cpp" compile="1" resource="0"
+            file="Source/LumatoneController.cpp"/>
+      <FILE id="VO5ivb" name="LumatoneController.h" compile="0" resource="0"
+            file="Source/LumatoneController.h"/>
+      <FILE id="vsMMIL" name="LumatoneFirmwareDefinitions.h" compile="0"
+            resource="0" file="Source/LumatoneFirmwareDefinitions.h"/>
       <FILE id="LE3qJG" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
       <FILE id="ZgWqCR" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
       <FILE id="oPf8iZ" name="NoteOnOffVelocityCurveDialog.cpp" compile="1"

@@ -82,7 +82,7 @@ void KeyMiniDisplayInsideOctaveBoardComponent::mouseDown(const MouseEvent& e)
 
 Colour KeyMiniDisplayInsideOctaveBoardComponent::getKeyColour()
 {
-    if ( keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+    if ( keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize())
     {
         TerpstraKeys* pCurrentOctaveBoardData = ((OctaveBoardComponent*)getParentComponent())->getKeyData();
         if ( pCurrentOctaveBoardData != nullptr)
@@ -99,7 +99,7 @@ OctaveBoardComponent::OctaveBoardComponent(int newOctaveBoardIndex)
     // initialise any special settings that your component needs.
     octaveBoardIndex = newOctaveBoardIndex;
 
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		keyMiniDisplay[i].reset(new KeyMiniDisplayInsideOctaveBoardComponent(i));
 		addAndMakeVisible(keyMiniDisplay[i].get());
@@ -108,7 +108,7 @@ OctaveBoardComponent::OctaveBoardComponent(int newOctaveBoardIndex)
 
 OctaveBoardComponent::~OctaveBoardComponent()
 {
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		keyMiniDisplay[i] = nullptr;
 	}
@@ -185,7 +185,7 @@ void OctaveBoardComponent::mouseDown(const MouseEvent& e)
 	{
 		PopupMenu menu;
 		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
+		menu.showMenuAsync(PopupMenu::Options());
 	}
 }
 
@@ -200,7 +200,7 @@ void OctaveBoardComponent::setIsSelected(bool newValue)
 
 TerpstraKeys* OctaveBoardComponent::getKeyData()
 {
-     if ( octaveBoardIndex >= 0 && octaveBoardIndex < TERPSTRABOARDSIZE)
+     if ( octaveBoardIndex >= 0 && octaveBoardIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize())
     {
         return &((MainContentComponent*)(getParentComponent()))->getMappingInEdit().sets[octaveBoardIndex];
     }

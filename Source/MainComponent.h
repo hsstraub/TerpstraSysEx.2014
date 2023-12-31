@@ -78,7 +78,7 @@ private:
 	std::unique_ptr<OctaveBoardComponent> terpstraSetSelectors[NUMBEROFBOARDS];
 
 	// Editing single keys (of the selected 56-key set)
-	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[TERPSTRABOARDSIZE];
+	std::unique_ptr<TerpstraKeyEdit>	terpstraKeyFields[56];
 
 	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;
