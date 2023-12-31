@@ -33,6 +33,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	lumatoneController = std::make_unique<LumatoneController>();
+
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 

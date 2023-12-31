@@ -9,3 +9,10 @@
 */
 
 #include "LumatoneController.h"
+LumatoneController::LumatoneController()
+{
+}
+
+LumatoneController::~LumatoneController()
+{
+}

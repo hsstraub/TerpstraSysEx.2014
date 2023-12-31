@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "ViewConstants.h"
+#include "Main.h"
 //[/Headers]
 
 #include "NoteEditArea.h"
@@ -186,7 +187,7 @@ void NoteEditArea::saveStateToPropertiesFile(PropertiesFile* propertiesFile)
 /// <returns>Mapping was changed yes/no</returns>
 bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 {
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	int editMode = cbEditMode->getSelectedItemIndex();
 	switch (editMode)
@@ -206,7 +207,7 @@ bool NoteEditArea::performMouseDown(int setSelection, int keySelection)
 /// <returns>Mapping was changed yes/no</returns>
 bool NoteEditArea::performMouseUp(int setSelection, int keySelection)
 {
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	int editMode = cbEditMode->getSelectedItemIndex();
 

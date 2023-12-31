@@ -13,6 +13,9 @@
 class LumatoneController
 {
 public:
+    LumatoneController();
+    ~LumatoneController();
+
 	int getOctaveSize() const { return octaveSize; }
 
 private:
