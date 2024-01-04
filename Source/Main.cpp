@@ -59,12 +59,14 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 void TerpstraSysExApplication::initialise(const String& commandLine)
 {
     // This method is where you should put your application's initialisation code..
-	//commandManager.reset(new ApplicationCommandManager());
-	//commandManager->registerAllCommandsForTarget(this);
+	commandManager.reset(new ApplicationCommandManager());
+	commandManager->registerAllCommandsForTarget(this);
 
+	menuModel.reset(new Lumatone::Menu::MainMenuModel(commandManager.get()));
 
-    mainWindow.reset(new MainWindow());
-	//mainWindow->addKeyListener(commandManager->getKeyMappings());
+	mainWindow.reset(new MainWindow());
+	mainWindow->setMenuBar(menuModel.get());
+	mainWindow->addKeyListener(commandManager->getKeyMappings());
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
 
@@ -79,9 +81,10 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 			if (commandLine.startsWithChar('"') && commandLine.endsWithChar('"'))
 				currentFile = File(commandLine.substring(1, commandLine.length() - 1));
 		}
-
-		openFromCurrentFile();
 	}
+
+	if (currentFile.existsAsFile())
+		openFromCurrentFile();
 }
 
 void TerpstraSysExApplication::shutdown()
@@ -136,6 +139,111 @@ void TerpstraSysExApplication::anotherInstanceStarted(const String& commandLine)
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what
     // the other instance's command-line arguments were.
+}
+
+void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
+{
+	JUCEApplication::getAllCommands(commands);
+
+	const CommandID ids[] = {
+		Lumatone::Menu::commandIDs::openSysExMapping,
+		Lumatone::Menu::commandIDs::saveSysExMapping,
+		Lumatone::Menu::commandIDs::saveSysExMappingAs,
+		Lumatone::Menu::commandIDs::resetSysExMapping,
+
+		Lumatone::Menu::commandIDs::deleteOctaveBoard,
+		Lumatone::Menu::commandIDs::copyOctaveBoard,
+		Lumatone::Menu::commandIDs::pasteOctaveBoard,
+		Lumatone::Debug::commandIDs::toggleDeveloperMode,
+
+		Lumatone::Menu::commandIDs::aboutSysEx
+	};
+
+	commands.addArray(ids, numElementsInArray(ids));
+}
+
+void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
+{
+	switch (commandID)
+	{
+	case Lumatone::Menu::commandIDs::openSysExMapping:
+		result.setInfo("Load file mapping", "Open a Lumatone key mapping", "File", 0);
+		result.addDefaultKeypress('o', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::saveSysExMapping:
+		result.setInfo("Save mapping", "Save the current mapping to file", "File", 0);
+		result.addDefaultKeypress('s', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::saveSysExMappingAs:
+		result.setInfo("Save mapping as...", "Save the current mapping to new file", "File", 0);
+		result.addDefaultKeypress('a', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::resetSysExMapping:
+		result.setInfo("New", "Start new mapping. Clear all edit fields, do not save current edits.", "File", 0);
+		result.addDefaultKeypress('r', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
+		result.setInfo("Delete", "Delete section data", "Edit", 0);
+		result.addDefaultKeypress(KeyPress::deleteKey, ModifierKeys::noModifiers);
+		break;
+
+	case Lumatone::Menu::commandIDs::copyOctaveBoard:
+		result.setInfo("Copy", "Copy section data", "Edit", 0);
+		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
+		result.setInfo("Paste", "Paste section data", "Edit", 0);
+		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
+		break;
+
+	case Lumatone::Menu::commandIDs::aboutSysEx:
+		result.setInfo("About LumatoneSetup", "Shows version and copyright", "Help", 0);
+		break;
+
+	case Lumatone::Debug::commandIDs::toggleDeveloperMode:
+		result.setInfo("Toggle Developer Mode", "Show/hide controls for tweaking internal parameters", "Edit", 0);
+		result.addDefaultKeypress('m', juce::ModifierKeys::allKeyboardModifiers);
+		break;
+
+	default:
+		JUCEApplication::getCommandInfo(commandID, result);
+		break;
+	}
+}
+
+bool TerpstraSysExApplication::perform(const InvocationInfo& info)
+{
+	switch (info.commandID)
+	{
+	case Lumatone::Menu::commandIDs::openSysExMapping:
+		return openSysExMapping();
+	case Lumatone::Menu::commandIDs::saveSysExMapping:
+		return saveSysExMapping();
+	case Lumatone::Menu::commandIDs::saveSysExMappingAs:
+		return saveSysExMappingAs();
+	case Lumatone::Menu::commandIDs::resetSysExMapping:
+		return resetSysExMapping();
+	case Lumatone::Menu::commandIDs::deleteOctaveBoard:
+
+		return deleteSubBoardData();
+	case Lumatone::Menu::commandIDs::copyOctaveBoard:
+		return copySubBoardData();
+	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
+		return pasteSubBoardData();
+
+	case Lumatone::Menu::commandIDs::aboutSysEx:
+		return aboutTerpstraSysEx();
+
+	//case Lumatone::Debug::commandIDs::toggleDeveloperMode:
+	//	return toggleDeveloperMode();
+	default:
+		return JUCEApplication::perform(info);
+	}
 }
 
 bool TerpstraSysExApplication::openSysExMapping()

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LumatoneMenu.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -44,6 +45,12 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+
+	// Menu functionality
+	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	void getAllCommands(Array <CommandID>& commands) override;
+	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
+	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
 	bool saveSysExMapping();
@@ -116,7 +123,8 @@ public:
 
 private:
 	std::unique_ptr<MainWindow> mainWindow;
-	//std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<ApplicationCommandManager> commandManager;
+	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	LookAndFeel_V4				lookAndFeel;
