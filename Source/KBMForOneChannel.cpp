@@ -148,13 +148,15 @@ void KBMForOneChannel::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-		FileChooser chooser("Open a Scala KBM mapping", File(), "*.kbm");
-		if (chooser.browseForFileToOpen())
-		{
-			currentFile = chooser.getResult();
-			updateFieldsAndMappingLogic();
-		}
-        //[/UserButtonCode_btnFileSelectMacro]
+		auto chooser = std::make_unique<FileChooser>("Open a Scala KBM mapping", File(), "*.kbm", true, false, this);
+        chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
+            [&](const FileChooser& chooser)
+            {
+                currentFile = chooser.getResult();
+                updateFieldsAndMappingLogic();
+            });
+
+		//[/UserButtonCode_btnFileSelectMacro]
     }
 
     //[UserbuttonClicked_Post]
