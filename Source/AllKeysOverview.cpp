@@ -114,16 +114,26 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 	isHighlighted = true;
 	repaint();
 
-	// NoteOn MIDI message
-	auto keyData = getKeyData();
-	if (keyData != nullptr && keyData->channelNumber > 0)
+	if (e.mods.isRightButtonDown())
 	{
-		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+		// Right mouse click: popup menu
+		PopupMenu menu;
+		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
+		menu.show();
+	}
+	else
+	{
+		// NoteOn MIDI message
+		auto keyData = getKeyData();
+		if (keyData != nullptr && keyData->channelNumber > 0)
 		{
-			// Send "note on" event
-			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+			{
+				// Send "note on" event
+				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			}
+			// ToDo if keyType is "continuous controller": send controller event?
 		}
-		// ToDo if keyType is "continuous controller": send controller event?
 	}
 }
 
@@ -162,7 +172,7 @@ void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage&
 
 const TerpstraKey* KeyMiniDisplayInsideAllKeysOverview::getKeyData() const
 {
-	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+	if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 	{
 		jassert(getParentComponent() != nullptr);
 		jassert(getParentComponent()->getParentComponent() != nullptr);
@@ -209,7 +219,7 @@ AllKeysOverview::AllKeysOverview ()
 
 	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
-		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		{
 			octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].reset(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
 			addAndMakeVisible(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].get());

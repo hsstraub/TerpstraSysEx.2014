@@ -45,9 +45,11 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+	int getOctaveBoardSize() const { return octaveBoardSize; }
 
 	// Menu functionality
 	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
+	Lumatone::Menu::MainMenuModel* getMainMenu() { return menuModel.get(); }
 	void getAllCommands(Array <CommandID>& commands) override;
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 	bool perform(const InvocationInfo& info) override;
@@ -102,7 +104,7 @@ public:
 			setVisible(true);
 		}
 
-		void closeButtonPressed()
+		void closeButtonPressed() override
 		{
 			// This is called when the user tries to close this window. Here, we'll just
 			// ask the app to quit when this happens, but you can change this to do
@@ -135,5 +137,7 @@ private:
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
+	// Size of octaver board. Usually 56, but there are a few devices with55.
+	int octaveBoardSize = 56;
 };
 

@@ -114,54 +114,56 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 
 bool MainContentComponent::deleteCurrentSubBoardData()
 {
-	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	//{
-	//	// Delete subboard data
-	//	mappingData.sets[currentSetSelection] = TerpstraKeys();
+	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+		{
+		// Delete subboard data
+		mappingData.sets[currentSetSelection] = TerpstraKeys();
 
-	//	// Refresh display
-	//	changeSetSelection(currentSetSelection, true);
+		// Refresh display
+		refreshAllKeysOverview();
+		noteEditArea->refreshKeyFields();
 
-	//	// Mark that there are changes
-	//	TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		// Mark that there are changes
+		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
 
-	//	return true;
-	//}
-	//else
-	//todo
+		return true;
+	}
+	else
 		return false;
 }
 
 bool MainContentComponent::copyCurrentSubBoardData()
 {
-	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	//{
-	//	copiedSubBoardData = mappingData.sets[currentSetSelection];
-	//	return true;
-	//}
-	//else
-	//ToDo
+	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+	{
+		copiedSubBoardData = mappingData.sets[currentSetSelection];
+		return true;
+	}
+	else
 		return false;
 }
 
 bool MainContentComponent::pasteCurrentSubBoardData()
 {
-	//if (currentSetSelection >= 0 && currentSetSelection < NUMBEROFBOARDS)
-	//{
-	//	if (!copiedSubBoardData.isEmpty())
-	//	{
-	//		mappingData.sets[currentSetSelection] = copiedSubBoardData;
+	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
+		{
+		if (!copiedSubBoardData.isEmpty())
+		{
+			mappingData.sets[currentSetSelection] = copiedSubBoardData;
 
-	//		// Refresh display
-	//		changeSetSelection(currentSetSelection, true);
+			// Refresh display
+			refreshAllKeysOverview();
+			noteEditArea->refreshKeyFields();
 
-	//		// Mark that there are changes
-	//		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-	//	}
-	//	return true;
-	//}
-	//else
-	// ToDO
+			// Mark that there are changes
+			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+		}
+		return true;
+	}
+	else
 		return false;
 }
 
