@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     //[/Constructor_pre]
 
     lblPresetButtonColours.reset (new juce::Label ("lblPresetButtonColours",
-                                                   TRANS("Preset Button Colours:")));
+                                                   TRANS ("Preset Button Colours:")));
     addAndMakeVisible (lblPresetButtonColours.get());
     lblPresetButtonColours->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblPresetButtonColours->setJustificationType (juce::Justification::centredLeft);
@@ -54,7 +54,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     lblPresetButtonColours->setBounds (0, 8, 150, 24);
 
     lblColourInactiveMacroButton.reset (new juce::Label ("lblColourInactiveMacroButton",
-                                                         TRANS("inactive")));
+                                                         TRANS ("inactive")));
     addAndMakeVisible (lblColourInactiveMacroButton.get());
     lblColourInactiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblColourInactiveMacroButton->setJustificationType (juce::Justification::centredLeft);
@@ -65,7 +65,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
     lblColourInactiveMacroButton->setBounds (152, 32, 64, 24);
 
     lblColourActiveMacroButton.reset (new juce::Label ("lblColourActiveMacroButton",
-                                                       TRANS("active")));
+                                                       TRANS ("active")));
     addAndMakeVisible (lblColourActiveMacroButton.get());
     lblColourActiveMacroButton->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblColourActiveMacroButton->setJustificationType (juce::Justification::centredLeft);
@@ -77,8 +77,8 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
     buttonCalibrate.reset (new juce::TextButton ("buttonCalibrate"));
     addAndMakeVisible (buttonCalibrate.get());
-    buttonCalibrate->setTooltip (TRANS("Calibrate keys aftertouch"));
-    buttonCalibrate->setButtonText (TRANS("Calibrate Keys"));
+    buttonCalibrate->setTooltip (TRANS ("Calibrate keys aftertouch"));
+    buttonCalibrate->setButtonText (TRANS ("Calibrate Keys"));
     buttonCalibrate->addListener (this);
 
     buttonCalibrate->setBounds (336, 8, 112, 24);

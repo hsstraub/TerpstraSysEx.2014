@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -63,10 +63,6 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> labelExprContrSensivity;
-    std::unique_ptr<juce::TextEditor> txtExprCtrlSensivity;
-    std::unique_ptr<juce::ToggleButton> btnInvertFootCtrl;
-    std::unique_ptr<juce::Label> labelEXpressionPedalTitle;
     std::unique_ptr<juce::Label> labelGeneralSettingslTitle;
     std::unique_ptr<juce::ToggleButton> buttonAfterTouchActive;
     std::unique_ptr<juce::ToggleButton> buttonLightOnKeyStrokes;

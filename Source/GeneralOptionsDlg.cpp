@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -33,50 +33,8 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    labelExprContrSensivity.reset (new juce::Label ("new label",
-                                                    TRANS("Sensivity:")));
-    addAndMakeVisible (labelExprContrSensivity.get());
-    labelExprContrSensivity->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelExprContrSensivity->setJustificationType (juce::Justification::centredLeft);
-    labelExprContrSensivity->setEditable (false, false, false);
-    labelExprContrSensivity->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelExprContrSensivity->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelExprContrSensivity->setBounds (200, 32, 64, 24);
-
-    txtExprCtrlSensivity.reset (new juce::TextEditor ("txtExprCtrlSensivity"));
-    addAndMakeVisible (txtExprCtrlSensivity.get());
-    txtExprCtrlSensivity->setMultiLine (false);
-    txtExprCtrlSensivity->setReturnKeyStartsNewLine (false);
-    txtExprCtrlSensivity->setReadOnly (false);
-    txtExprCtrlSensivity->setScrollbarsShown (true);
-    txtExprCtrlSensivity->setCaretVisible (true);
-    txtExprCtrlSensivity->setPopupMenuEnabled (true);
-    txtExprCtrlSensivity->setText (juce::String());
-
-    txtExprCtrlSensivity->setBounds (264, 32, 56, 24);
-
-    btnInvertFootCtrl.reset (new juce::ToggleButton ("btnInvertFootCtrl"));
-    addAndMakeVisible (btnInvertFootCtrl.get());
-    btnInvertFootCtrl->setButtonText (TRANS("Invert Pedal"));
-    btnInvertFootCtrl->addListener (this);
-
-    btnInvertFootCtrl->setBounds (200, 64, 128, 24);
-
-    labelEXpressionPedalTitle.reset (new juce::Label ("labelEXpressionPedalTitle",
-                                                      TRANS("Expression Pedal")));
-    addAndMakeVisible (labelEXpressionPedalTitle.get());
-    labelEXpressionPedalTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    labelEXpressionPedalTitle->setJustificationType (juce::Justification::centredLeft);
-    labelEXpressionPedalTitle->setEditable (false, false, false);
-    labelEXpressionPedalTitle->setColour (juce::Label::textColourId, juce::Colour (0xff61acc8));
-    labelEXpressionPedalTitle->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    labelEXpressionPedalTitle->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    labelEXpressionPedalTitle->setBounds (200, 0, 104, 24);
-
     labelGeneralSettingslTitle.reset (new juce::Label ("labelGeneralSettingslTitle",
-                                                       TRANS("General Settings")));
+                                                       TRANS ("General Settings")));
     addAndMakeVisible (labelGeneralSettingslTitle.get());
     labelGeneralSettingslTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelGeneralSettingslTitle->setJustificationType (juce::Justification::centredLeft);
@@ -89,14 +47,14 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     buttonAfterTouchActive.reset (new juce::ToggleButton ("buttonAfterTouchActive"));
     addAndMakeVisible (buttonAfterTouchActive.get());
-    buttonAfterTouchActive->setButtonText (TRANS("Polyphonic Aftertouch"));
+    buttonAfterTouchActive->setButtonText (TRANS ("Polyphonic Aftertouch"));
     buttonAfterTouchActive->addListener (this);
 
     buttonAfterTouchActive->setBounds (8, 32, 176, 24);
 
     buttonLightOnKeyStrokes.reset (new juce::ToggleButton ("buttonLightOnKeyStrokes"));
     addAndMakeVisible (buttonLightOnKeyStrokes.get());
-    buttonLightOnKeyStrokes->setButtonText (TRANS("Light on Keystrokes"));
+    buttonLightOnKeyStrokes->setButtonText (TRANS ("Light on Keystrokes"));
     buttonLightOnKeyStrokes->addListener (this);
 
     buttonLightOnKeyStrokes->setBounds (8, 64, 176, 24);
@@ -106,7 +64,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 	txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
-    setSize (328, 96);
+    setSize (180, 96);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -118,10 +76,6 @@ GeneralOptionsDlg::~GeneralOptionsDlg()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    labelExprContrSensivity = nullptr;
-    txtExprCtrlSensivity = nullptr;
-    btnInvertFootCtrl = nullptr;
-    labelEXpressionPedalTitle = nullptr;
     labelGeneralSettingslTitle = nullptr;
     buttonAfterTouchActive = nullptr;
     buttonLightOnKeyStrokes = nullptr;
@@ -158,15 +112,7 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == btnInvertFootCtrl.get())
-    {
-        //[UserButtonCode_btnInvertFootCtrl] -- add your button handler code here..
-		((MainContentComponent*)getParentComponent())->getMappingInEdit().invertFootController = btnInvertFootCtrl->getToggleState();
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertFootCtrl->getToggleState());
-        //[/UserButtonCode_btnInvertFootCtrl]
-    }
-    else if (buttonThatWasClicked == buttonAfterTouchActive.get())
+    if (buttonThatWasClicked == buttonAfterTouchActive.get())
     {
         //[UserButtonCode_buttonAfterTouchActive] -- add your button handler code here..
 		((MainContentComponent*)getParentComponent())->getMappingInEdit().afterTouchActive = buttonAfterTouchActive->getToggleState();
@@ -264,27 +210,9 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
                  parentClasses="public Component, public TextEditor::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="328"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="180"
                  initialHeight="96">
   <BACKGROUND backgroundColour="ffbad0de"/>
-  <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensivity"
-         virtualName="" explicitFocusOrder="0" pos="200 32 64 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Sensivity:" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="txtExprCtrlSensivity" id="859fad57998470cd" memberName="txtExprCtrlSensivity"
-              virtualName="" explicitFocusOrder="0" pos="264 32 56 24" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-              caret="1" popupmenu="1"/>
-  <TOGGLEBUTTON name="btnInvertFootCtrl" id="ef6e332d2b99beda" memberName="btnInvertFootCtrl"
-                virtualName="" explicitFocusOrder="0" pos="200 64 128 24" buttonText="Invert Pedal"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <LABEL name="labelEXpressionPedalTitle" id="afc0b85c8e03b3d6" memberName="labelEXpressionPedalTitle"
-         virtualName="" explicitFocusOrder="0" pos="200 0 104 24" textCol="ff61acc8"
-         edTextCol="ff000000" edBkgCol="0" labelText="Expression Pedal"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="18.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
   <LABEL name="labelGeneralSettingslTitle" id="9ac4ac959d4cd11a" memberName="labelGeneralSettingslTitle"
          virtualName="" explicitFocusOrder="0" pos="8 0 104 24" textCol="ff61acc8"
          edTextCol="ff000000" edBkgCol="0" labelText="General Settings"
