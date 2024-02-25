@@ -61,7 +61,6 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
 
     //[UserPreSize]
-	txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
     setSize (180, 96);
@@ -191,8 +190,6 @@ void GeneralOptionsDlg::loadFromMapping()
 	buttonAfterTouchActive->setToggleState(mappingInEdit.afterTouchActive, juce::NotificationType::dontSendNotification);
 	buttonLightOnKeyStrokes->setToggleState(mappingInEdit.lightOnKeyStrokes, juce::NotificationType::dontSendNotification);
 
-	btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::dontSendNotification);
-	txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity), false);
 }
 
 //[/MiscUserCode]

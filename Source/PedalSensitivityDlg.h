@@ -33,17 +33,21 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class PedalSensivityDlg  : public juce::Component,
-                           public juce::Button::Listener,
-                           public juce::Slider::Listener
+class PedalSensitivityDlg  : public juce::Component,
+                             public juce::Button::Listener,
+                             public juce::Slider::Listener
 {
 public:
     //==============================================================================
-    PedalSensivityDlg ();
-    ~PedalSensivityDlg() override;
+    PedalSensitivityDlg ();
+    ~PedalSensitivityDlg() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+    // New mapping is loaded. Display data.
+    void loadFromMapping();
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -67,7 +71,7 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PedalSensivityDlg)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PedalSensitivityDlg)
 };
 
 //[EndFile] You can add extra defines here...

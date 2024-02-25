@@ -18,16 +18,17 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
 //[/Headers]
 
-#include "PedalSensivityDlg.h"
+#include "PedalSensitivityDlg.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-PedalSensivityDlg::PedalSensivityDlg ()
+PedalSensitivityDlg::PedalSensitivityDlg ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -92,6 +93,7 @@ PedalSensivityDlg::PedalSensivityDlg ()
 
 
     //[UserPreSize]
+    txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
     setSize (180, 112);
@@ -101,7 +103,7 @@ PedalSensivityDlg::PedalSensivityDlg ()
     //[/Constructor]
 }
 
-PedalSensivityDlg::~PedalSensivityDlg()
+PedalSensitivityDlg::~PedalSensitivityDlg()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -119,7 +121,7 @@ PedalSensivityDlg::~PedalSensivityDlg()
 }
 
 //==============================================================================
-void PedalSensivityDlg::paint (juce::Graphics& g)
+void PedalSensitivityDlg::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -130,7 +132,7 @@ void PedalSensivityDlg::paint (juce::Graphics& g)
     //[/UserPaint]
 }
 
-void PedalSensivityDlg::resized()
+void PedalSensitivityDlg::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
@@ -139,7 +141,7 @@ void PedalSensivityDlg::resized()
     //[/UserResized]
 }
 
-void PedalSensivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
+void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -159,7 +161,7 @@ void PedalSensivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void PedalSensivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
+void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
@@ -177,6 +179,14 @@ void PedalSensivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void PedalSensitivityDlg::loadFromMapping()
+{
+	auto mappingInEdit = ((MainContentComponent*)getParentComponent())->getMappingInEdit();
+
+    btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::dontSendNotification);
+    txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity), false);
+}
+
 //[/MiscUserCode]
 
 
@@ -189,7 +199,7 @@ void PedalSensivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="PedalSensivityDlg" componentName=""
+<JUCER_COMPONENT documentType="Component" className="PedalSensitivityDlg" componentName=""
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="180" initialHeight="112">

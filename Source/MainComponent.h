@@ -21,6 +21,7 @@
 #include "GeneralOptionsDlg.h"
 #include "CurvesArea.h"
 #include "GlobalSettingsArea.h"
+#include "PedalSensitivityDlg.h"
 
 
 
@@ -89,6 +90,8 @@ private:
 	std::unique_ptr<CurvesArea> curvesArea;
 
 	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
+
+	std::unique_ptr<PedalSensitivityDlg> pedalSensitivityDlg;
 
 	//==============================================================================
 	// Data
