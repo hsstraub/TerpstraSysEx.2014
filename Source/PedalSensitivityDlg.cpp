@@ -95,7 +95,7 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (180, 116);
+    setSize (180, 148);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -202,7 +202,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="PedalSensitivityDlg" componentName=""
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="180" initialHeight="116">
+                 fixedSize="1" initialWidth="180" initialHeight="148">
   <BACKGROUND backgroundColour="ff323e44"/>
   <LABEL name="new label" id="22d529ada4ac7738" memberName="labelExprContrSensitivity"
          virtualName="" explicitFocusOrder="0" pos="16 152 74 24" edTextCol="ff000000"

@@ -63,7 +63,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (188, 116);
+    setSize (188, 148);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -160,7 +160,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="188" initialHeight="116">
+                 fixedSize="1" initialWidth="188" initialHeight="148">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="labelGeneralSettingslTitle" id="9ac4ac959d4cd11a" memberName="labelGeneralSettingslTitle"
          virtualName="" explicitFocusOrder="0" pos="8 0 104 24" textCol="ff61acc8"
