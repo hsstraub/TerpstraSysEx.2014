@@ -183,13 +183,11 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
         auto midiCmd = sysExData[4];
         auto answerState = sysExData[5];
 
-        if (answerState == TerpstraMidiDriver::ACK)
-        {
+        if (answerState == TerpstraMidiDriver::ACK) {
 			// ToDo General options
 
 			// Velocity curves
-			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
-			{
+			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage)) {
 				// After the answer state byte there must be 254 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
@@ -198,27 +196,21 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 
 				curvesArea->resized();
 				curvesArea->repaint();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff))
-			{
+			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)) {
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 				for (int x = 0; x < 128; x++)
 					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::fader))
-			{
+			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::fader)) {
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 				for (int x = 0; x < 128; x++)
 					this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::afterTouch))
-			{
+			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::afterTouch)) {
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
@@ -229,19 +221,16 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 
 			// Key configurations
 			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
-				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG)
-			{
+				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG) {
 				// After the answer state byte there must be 55 bytes of data (one for each key)
 				jassert(midiMessage.getSysExDataSize() >= TERPSTRABOARDSIZE + 6); // ToDo display error otherwise
 
-				for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
-				{
+				for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++) {
 					auto newValue = sysExData[6 + keyIndex];
 
 					TerpstraKey& keyData = this->mappingData.sets[boardNo - 1].theKeys[keyIndex];
 
-					switch (midiCmd)
-					{
+					switch (midiCmd) {
 					case GET_RED_LED_CONFIG:
 					{
 						auto theColour = Colour(keyData.colour);
@@ -333,6 +322,7 @@ void MainContentComponent::resized()
 	
 	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
 	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+	pedalSensitivityDlg->setBounds(noteEditAreaWidth + generalOptionsArea->getWidth(), generalOptionsYPos, pedalSensitivityDlg->getWidth(), pedalSensitivityDlg->getHeight());
 
 	int curvesAreaYPos = generalOptionsArea->getBottom();
 	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
