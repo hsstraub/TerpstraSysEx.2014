@@ -34,7 +34,6 @@
                                                                     //[/Comments]
 */
 class GeneralOptionsDlg  : public Component,
-                           public TextEditor::Listener,
                            public juce::Button::Listener
 {
 public:
@@ -44,8 +43,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void textEditorTextChanged(TextEditor& textEdit) override;
-	void textEditorFocusLost(TextEditor& textEdit) override;
 
 	// New mapping is loaded. Display data.
 	void loadFromMapping();

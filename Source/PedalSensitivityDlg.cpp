@@ -93,7 +93,6 @@ PedalSensitivityDlg::PedalSensitivityDlg ()
 
 
     //[UserPreSize]
-    txtExprCtrlSensivity->addListener(this);
     //[/UserPreSize]
 
     setSize (180, 112);
@@ -183,8 +182,9 @@ void PedalSensitivityDlg::loadFromMapping()
 {
 	auto mappingInEdit = ((MainContentComponent*)getParentComponent())->getMappingInEdit();
 
-    btnInvertFootCtrl->setToggleState(mappingInEdit.invertFootController, juce::NotificationType::dontSendNotification);
-    txtExprCtrlSensivity->setText(String(mappingInEdit.expressionControllerSensivity), false);
+	btnInvertExpression->setToggleState(mappingInEdit.invertExpression, juce::NotificationType::dontSendNotification);
+    btnInvertSustain->setToggleState(mappingInEdit.invertSustain, juce::NotificationType::dontSendNotification);
+	sldExprCtrlSensitivity->setValue(mappingInEdit.expressionControllerSensivity, juce::NotificationType::dontSendNotification);
 }
 
 //[/MiscUserCode]

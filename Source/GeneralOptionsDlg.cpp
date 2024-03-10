@@ -136,53 +136,6 @@ void GeneralOptionsDlg::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void GeneralOptionsDlg::textEditorTextChanged(TextEditor& textEdit)
-{
-	if (&textEdit == txtExprCtrlSensivity.get())
-	{
-		int newSensitvity = textEdit.getText().getIntValue();
-		// ToDo value checking: encapsulate in keyboard data structure?
-		if (newSensitvity < 0)
-		{
-			newSensitvity = 0;
-			textEdit.setText(String(newSensitvity));
-		}
-
-		if (newSensitvity > 0x7f)
-		{
-			newSensitvity = 0x7f;
-			textEdit.setText(String(newSensitvity));
-		}
-
-		((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
-	}
-}
-
-void GeneralOptionsDlg::textEditorFocusLost(TextEditor& textEdit)
-{
-	if (&textEdit == txtExprCtrlSensivity.get())
-	{
-		int newSensitvity = textEdit.getText().getIntValue();
-		if (newSensitvity < 0)
-		{
-			newSensitvity = 0;
-			textEdit.setText(String(newSensitvity));
-		}
-
-		if (newSensitvity > 0x7f)
-		{
-			newSensitvity = 0x7f;
-			textEdit.setText(String(newSensitvity));
-		}
-
-		((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
-	}
-}
-
 void GeneralOptionsDlg::loadFromMapping()
 {
 	auto mappingInEdit = ((MainContentComponent*)getParentComponent())->getMappingInEdit();
@@ -205,10 +158,9 @@ void GeneralOptionsDlg::loadFromMapping()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneralOptionsDlg" componentName=""
-                 parentClasses="public Component, public TextEditor::Listener"
-                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="1" initialWidth="180"
-                 initialHeight="96">
+                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="1" initialWidth="180" initialHeight="96">
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="labelGeneralSettingslTitle" id="9ac4ac959d4cd11a" memberName="labelGeneralSettingslTitle"
          virtualName="" explicitFocusOrder="0" pos="8 0 104 24" textCol="ff61acc8"

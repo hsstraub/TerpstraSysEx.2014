@@ -110,7 +110,8 @@ public:
 	// General options
 	bool afterTouchActive;
 	bool lightOnKeyStrokes;
-	bool invertFootController;
+	bool invertExpression;
+	bool invertSustain;
 	int expressionControllerSensivity;
 
 	// Velocity curves
@@ -119,4 +120,5 @@ public:
 	TerpstraVelocityCurveConfig	noteOnOffVelocityCurveConfig;
 	TerpstraVelocityCurveConfig faderConfig;
 	TerpstraVelocityCurveConfig afterTouchConfig;
+	TerpstraVelocityCurveConfig lumaTouchConfig;
 };

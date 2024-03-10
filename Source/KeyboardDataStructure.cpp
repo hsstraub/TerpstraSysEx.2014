@@ -186,7 +186,8 @@ void TerpstraKeyMapping::clearAll()
 	// Default values for options
 	afterTouchActive = false;
 	lightOnKeyStrokes = false;
-	invertFootController = false;
+    invertExpression = false;
+    invertSustain = false;
 	expressionControllerSensivity = 0;
 
 	clearVelocityIntervalTable();
@@ -201,130 +202,94 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 
 	bool hasFiftySixKeys = false;
 	int boardIndex = -1;
-	for (int i = 0; i < stringArray.size(); i++)
-	{
+	for (int i = 0; i < stringArray.size(); i++) {
 		String currentLine = stringArray[i];
 		int pos1, pos2;
-		if ((pos1 = currentLine.indexOf("[Board")) >= 0)
-		{
+		if ((pos1 = currentLine.indexOf("[Board")) >= 0) {
 			pos2 = currentLine.indexOf("]");
-			if (pos2 >= 0 && pos2>pos1)
-			{
+			if (pos2 >= 0 && pos2>pos1) {
 				boardIndex = currentLine.substring(pos1 + 6, pos2).getIntValue();
-			}
-			else
+			} else
 				jassert(false);
-		}
-		else if ((pos1 = currentLine.indexOf("Key_")) >= 0)
-		{
+		} else if ((pos1 = currentLine.indexOf("Key_")) >= 0) {
 			pos2 = currentLine.indexOf("=");
-			if (pos2 >= 0 && pos2 > pos1)
-			{
+			if (pos2 >= 0 && pos2 > pos1) {
 				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
-				{
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
 					else
 						jassert(false);
-				}
-				else
+				} else
 					jassert(false);
 			}
-		}
-		else if ((pos1 = currentLine.indexOf("Chan_")) >= 0)
-		{
+		} else if ((pos1 = currentLine.indexOf("Chan_")) >= 0) {
 			pos2 = currentLine.indexOf("=");
-			if (pos2 >= 0 && pos2 > pos1)
-			{
+			if (pos2 >= 0 && pos2 > pos1) {
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
-				{
-					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
-                    {
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
+					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE) {
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
 
-						if ( keyIndex == 55)
+						if ( keyIndex == 55) 
                             hasFiftySixKeys = true;
-                    }
-					else
+                    } else
 						jassert(false);
-				}
-				else
+				} else
 					jassert(false);
 			}
-		}
-		else if ((pos1 = currentLine.indexOf("Col_")) >= 0)
-		{
+		} else if ((pos1 = currentLine.indexOf("Col_")) >= 0) {
 			pos2 = currentLine.indexOf("=");
-			if (pos2 >= 0 && pos2 > pos1)
-			{
+			if (pos2 >= 0 && pos2 > pos1) {
 				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
 				int colValue = currentLine.substring(pos2 + 1).getHexValue32();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
-				{
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].colour = colValue;
 					else
 						jassert(false);
-				}
-				else
+				} else
 					jassert(false);
 			}
-		}
-		else if ((pos1 = currentLine.indexOf("KTyp_")) >= 0)
-		{
+		} else if ((pos1 = currentLine.indexOf("KTyp_")) >= 0) {
 			pos2 = currentLine.indexOf("=");
-			if (pos2 >= 0 && pos2 > pos1)
-			{
+			if (pos2 >= 0 && pos2 > pos1) {
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
-				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS)
-				{
+				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
 						sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
 					else
 					jassert(false);
 				}
-			}
-			else
+			} else
 				jassert(false);
 		}
 		// General options
-		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0)
-		{
+		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0) {
 			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
-		}
-		else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0)
-		{
+		} else if ((pos1 = currentLine.indexOf("LightOnKeyStrokes=")) >= 0) {
 			lightOnKeyStrokes = currentLine.substring(pos1 + 18).getIntValue() > 0;
-		}
-		else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0)
-		{
-			invertFootController = currentLine.substring(pos1 + 21).getIntValue() > 0;
-		}
-		else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0)
-		{
+        } else if ((pos1 = currentLine.indexOf("InvertFootController=")) >= 0) {
+            invertExpression = currentLine.substring(pos1 + 21).getIntValue() > 0;
+		} else if ((pos1 = currentLine.indexOf("InvertSustain=")) >= 0) {
+			invertSustain = currentLine.substring(pos1 + 14).getIntValue() > 0;
+		} else if ((pos1 = currentLine.indexOf("ExprCtrlSensivity=")) >= 0) {
 			expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
 		}
 		// Velocity curve config
-		else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0)
-		{
+		else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0) {
 			String intervalTableString = currentLine.substring(pos1 + 18);
 			StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
-			if (intervalTableValueArray.size() > 0)
-			{
+			if (intervalTableValueArray.size() > 0) {
 				jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
 
-				for (int x = 0; x < VELOCITYINTERVALTABLESIZE; x++)
-				{
+				for (int x = 0; x < VELOCITYINTERVALTABLESIZE; x++) {
 					velocityIntervalTableValues[x] = intervalTableValueArray[x].getIntValue();
 				}
-			}
-			else
-			{
+			} else {
 				clearVelocityIntervalTable();
 			}
 		}
@@ -380,7 +345,8 @@ StringArray TerpstraKeyMapping::toStringArray()
 	// General options
 	result.add("AfterTouchActive=" + String(afterTouchActive ? 1 : 0));
 	result.add("LightOnKeyStrokes=" + String(lightOnKeyStrokes ? 1 : 0));
-	result.add("InvertFootController=" + String(invertFootController ? 1 : 0));
+    result.add("InvertFootController=" + String(invertExpression ? 1 : 0));
+    result.add("InvertSustain=" + String(invertSustain ? 1 : 0));
 	result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
 
 	// Velocity curve interval table
