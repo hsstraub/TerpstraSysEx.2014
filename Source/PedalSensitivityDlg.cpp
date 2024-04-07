@@ -148,11 +148,17 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertExpression.get())
     {
         //[UserButtonCode_btnInvertExpression] -- add your button handler code here..
+        ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertExpression = btnInvertExpression->getToggleState();
+        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+        TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertExpression->getToggleState());
         //[/UserButtonCode_btnInvertExpression]
     }
     else if (buttonThatWasClicked == btnInvertSustain.get())
     {
         //[UserButtonCode_btnInvertSustain] -- add your button handler code here..
+        ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertSustain = btnInvertSustain->getToggleState();
+        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+        // ToDO TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertSustain->getToggleState());
         //[/UserButtonCode_btnInvertSustain]
     }
 
@@ -168,6 +174,23 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == sldExprCtrlSensitivity.get())
     {
         //[UserSliderCode_sldExprCtrlSensitivity] -- add your slider handling code here..
+        int newSensitvity = sldExprCtrlSensitivity->getValue();
+        // ToDo value checking: encapsulate in keyboard data structure?
+        if (newSensitvity < 0)
+        {
+            newSensitvity = 0;
+            sldExprCtrlSensitivity->setValue(newSensitvity);
+        }
+
+        if (newSensitvity > 0x7f)
+        {
+            newSensitvity = 0x7f;
+            sldExprCtrlSensitivity->setValue(newSensitvity);
+        }
+
+        ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
+        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+        TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
         //[/UserSliderCode_sldExprCtrlSensitivity]
     }
 
