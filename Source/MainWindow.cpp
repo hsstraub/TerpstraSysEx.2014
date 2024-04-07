@@ -11,7 +11,7 @@
 #include "MainWindow.h"
 #include "Main.h"
 
-MainWindow::MainWindow() : DocumentWindow("Lumatone Keyboard Setup Utility",
+MainWindow::MainWindow() : DocumentWindow("Lumatone Editor (with Mass Assign)",
 	Colour(TerpstraSysExApplication::getApp().getLookAndFeel().findColour(DocumentWindow::backgroundColourId)),
 	DocumentWindow::allButtons)
 {

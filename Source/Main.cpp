@@ -498,8 +498,8 @@ void TerpstraSysExApplication::sendCurrentMappingToDevice()
 
 void TerpstraSysExApplication::updateMainTitle()
 {
-	String windowTitle("Lumatone Setup Utility");
-	if (!currentFile.getFileName().isEmpty() )
+	String windowTitle("Lumatone Editor (with Mass Assign)");
+	if (!currentFile.getFileName().isEmpty())
 		windowTitle << " - " << currentFile.getFileName();
 	if (hasChangesToSave)
 		windowTitle << "*";
@@ -519,7 +519,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 {
 	String m;
 
-	m << "Lumatone Keyboard Setup Utility" << newLine
+	m << "Lumatone Editor with Mass Assign" << newLine
 		<< newLine
 		<< "Version " << String((JUCE_APP_VERSION_HEX >> 16) & 0xff) << "."
 		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
@@ -528,6 +528,8 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< "@ Hans Straub, Vincenzo Sicurella 2014 - 2024" << newLine
 		<< newLine
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
+		<< newLine
+		<< "Version with isomorphic mass assign and simplified GUI"
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
 		<< newLine 
