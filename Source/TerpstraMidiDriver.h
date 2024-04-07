@@ -67,6 +67,7 @@ System exclusive command bytes
 #define SET_VELOCITY_INTERVALS 0x20
 #define GET_VELOCITY_INTERVALS 0x21
 
+#define INVERT_SUSTAIN_PEDAL 0x45
 
 /*
 ==============================================================================
@@ -203,6 +204,8 @@ public:
 	void sendVelocityIntervalConfigRequest();
 
 	////////////////////////////////////////////////////////////////////////////
+	// CMD 45h: Configure the on/off settings of the sustain pedal
+	void sendInvertSustainPedal(bool setInverted);
 	// Implementation of bidirectional communication with acknowledge messages
 
 	// MIDI input callback: handle acknowledge messages

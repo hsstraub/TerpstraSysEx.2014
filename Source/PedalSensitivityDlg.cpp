@@ -158,7 +158,7 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_btnInvertSustain] -- add your button handler code here..
         ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertSustain = btnInvertSustain->getToggleState();
         TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        // ToDO TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertSustain->getToggleState());
+        TerpstraSysExApplication::getApp().getMidiDriver().sendInvertSustainPedal(btnInvertSustain->getToggleState());
         //[/UserButtonCode_btnInvertSustain]
     }
 

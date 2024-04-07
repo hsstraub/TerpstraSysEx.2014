@@ -303,6 +303,12 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
+// CMD 45h: Configure the on/off settings of the sustain pedal
+void TerpstraMidiDriver::sendInvertSustainPedal(bool value)
+{
+    sendSysEx(0, INVERT_SUSTAIN_PEDAL, value ? '\1' : '\0', '\0', '\0', '\0');
+}
+
 /*
 ==============================================================================
 Low-level SysEx calls
