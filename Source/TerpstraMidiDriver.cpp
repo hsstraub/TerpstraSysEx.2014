@@ -227,7 +227,7 @@ void TerpstraMidiDriver::resetVelocityConfig(TerpstraMidiDriver::VelocityCurveTy
             sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
         case TerpstraMidiDriver::VelocityCurveType::afterTouch:
-            sendSysEx(0, RESET_AFTERTOCUH_CONFIG, '\0', '\0', '\0', '\0');
+            sendSysEx(0, RESET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
         default:
             jassert(false);

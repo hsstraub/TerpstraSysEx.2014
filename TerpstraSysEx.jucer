@@ -13,6 +13,8 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="rsvJEz" name="LumatoneFirmwareDefinitions.h" compile="0"
+            resource="0" file="Source/LumatoneFirmwareDefinitions.h"/>
       <FILE id="ehNXqr" name="PedalSensitivityDlg.cpp" compile="1" resource="0"
             file="Source/PedalSensitivityDlg.cpp"/>
       <FILE id="vDzRkC" name="PedalSensitivityDlg.h" compile="0" resource="0"
