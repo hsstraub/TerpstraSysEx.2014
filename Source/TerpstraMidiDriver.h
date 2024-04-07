@@ -205,7 +205,7 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////
 	// CMD 45h: Configure the on/off settings of the sustain pedal
-	void sendInvertSustainPedal(bool setInverted);
+	void sendInvertSustainPedal(bool value);
 	// Implementation of bidirectional communication with acknowledge messages
 
 	// MIDI input callback: handle acknowledge messages

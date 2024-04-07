@@ -487,6 +487,7 @@ void TerpstraSysExApplication::sendCurrentMappingToDevice()
 	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
 	getMidiDriver().sendInvertFootController(theConfig.invertExpression);
 	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+	getMidiDriver().sendInvertSustainPedal(theConfig.invertSustain);
 
 	// Velocity curve config
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);	
