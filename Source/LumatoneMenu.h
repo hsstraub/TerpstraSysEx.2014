@@ -21,13 +21,13 @@ namespace Lumatone {
 			saveSysExMappingAs = 0x200012,
 			resetSysExMapping = 0x200013,
 
-			deleteOctaveBoard = 0x200017,
-			copyOctaveBoard = 0x200018,
-			pasteOctaveBoard = 0x200019,
+			deleteOctaveBoard = 0x200100,
+			copyOctaveBoard = 0x200101,
+			pasteOctaveBoard = 0x200102,
 
-			recentFilesBaseID = 0x200100,
+			recentFilesBaseID = 0x200300,
 
-			aboutSysEx = 0x200040
+			aboutSysEx = 0x200400
 		};
 
 		class MainMenuModel : public MenuBarModel

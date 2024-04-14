@@ -192,13 +192,13 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 		break;
 
 	case Lumatone::Menu::commandIDs::copyOctaveBoard:
-		result.setInfo("Copy", "Copy section data", "Edit", 0);
+		result.setInfo("Copy section", "Copy current octave board data", "Edit", 0);
 		result.addDefaultKeypress('c', ModifierKeys::ctrlModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
-		result.setInfo("Paste", "Paste section data", "Edit", 0);
-		result.addDefaultKeypress('v', ModifierKeys::ctrlModifier);
+		result.setInfo("Paste section", "Paste copied section data", "Edit", 0);
+		result.addDefaultKeypress('v', ModifierKeys::commandModifier);
 		break;
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
