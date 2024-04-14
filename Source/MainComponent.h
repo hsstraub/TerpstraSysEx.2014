@@ -50,8 +50,9 @@ public:
 	TabbedButtonBar* getOctaveBoardSelectorTab() { return  noteEditArea->getOctaveBoardSelectorTab(); }
 
 	// Board edit operations
-	bool deleteCurrentSubBoardData();
+	UndoableAction* createDeleteCurrentSectionAction();
 	bool copyCurrentSubBoardData();
+	UndoableAction* createPasteCurrentSectionAction();
 	bool pasteCurrentSubBoardData();
 
 	// Implementation of TerpstraNidiDriver::Listener

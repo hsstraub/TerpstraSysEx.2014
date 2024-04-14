@@ -154,6 +154,10 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		Lumatone::Menu::commandIDs::deleteOctaveBoard,
 		Lumatone::Menu::commandIDs::copyOctaveBoard,
 		Lumatone::Menu::commandIDs::pasteOctaveBoard,
+        
+		Lumatone::Menu::commandIDs::undo,
+		Lumatone::Menu::commandIDs::redo,
+
 		Lumatone::Debug::commandIDs::toggleDeveloperMode,
 
 		Lumatone::Menu::commandIDs::aboutSysEx
@@ -199,6 +203,20 @@ void TerpstraSysExApplication::getCommandInfo(CommandID commandID, ApplicationCo
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		result.setInfo("Paste section", "Paste copied section data", "Edit", 0);
 		result.addDefaultKeypress('v', ModifierKeys::commandModifier);
+        result.setActive(canPasteSubBoardData());
+		break;
+
+	case Lumatone::Menu::commandIDs::undo:
+		result.setInfo("Undo", "Undo latest edit", "Edit", 0);
+		result.addDefaultKeypress('z', ModifierKeys::commandModifier);
+		result.setActive(undoManager.canUndo());
+		break;
+
+	case Lumatone::Menu::commandIDs::redo:
+		result.setInfo("Redo", "Redo latest edit", "Edit", 0);
+		result.addDefaultKeypress('y', ModifierKeys::commandModifier);
+		result.addDefaultKeypress('z', ModifierKeys::commandModifier + ModifierKeys::shiftModifier);
+		result.setActive(undoManager.canRedo());
 		break;
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
@@ -235,6 +253,12 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 		return copySubBoardData();
 	case Lumatone::Menu::commandIDs::pasteOctaveBoard:
 		return pasteSubBoardData();
+
+	case Lumatone::Menu::commandIDs::undo:
+		return undo();
+
+	case Lumatone::Menu::commandIDs::redo:
+		return redo();
 
 	case Lumatone::Menu::commandIDs::aboutSysEx:
 		return aboutTerpstraSysEx();
@@ -301,7 +325,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 bool TerpstraSysExApplication::deleteSubBoardData()
 {
-	return ((MainContentComponent*)(mainWindow->getContentComponent()))->deleteCurrentSubBoardData();
+	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createDeleteCurrentSectionAction());
 }
 
 bool TerpstraSysExApplication::copySubBoardData()
@@ -311,7 +335,31 @@ bool TerpstraSysExApplication::copySubBoardData()
 
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
-	return ((MainContentComponent*)(mainWindow->getContentComponent()))->pasteCurrentSubBoardData();
+	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createPasteCurrentSectionAction());
+}
+bool TerpstraSysExApplication::undo()
+{
+	if (undoManager.undo())
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+		return true;
+	}
+	else
+		return false;
+}
+
+bool TerpstraSysExApplication::redo()
+{
+	if (undoManager.redo())
+	{
+		setHasChangesToSave(true);
+		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+		return true;
+	}
+	else
+		return false;
+}
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()
@@ -437,6 +485,9 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		// Mark file as unchanged
 		setHasChangesToSave(false);
 
+		// Clear undo history
+		undoManager.clearUndoHistory();
+
 		// Add file to recent files list
 		recentFiles.addFile(currentFile);
 
@@ -525,11 +576,11 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< String((JUCE_APP_VERSION_HEX >> 8) & 0xff) << "."
 		<< String(JUCE_APP_VERSION_HEX & 0xff) << newLine
 
-		<< "@ Hans Straub, Vincenzo Sicurella 2014 - 2024" << newLine
+		<< "Lumatone Editor @ Hans Straub, Vincenzo Sicurella 2014 - 2024" << newLine
 		<< newLine
 		<< "Based on the program 'TerpstraSysEx' @ Dylan Horvath 2007" << newLine
 		<< newLine
-		<< "Version with isomorphic mass assign and simplified GUI"
+		<< "Version with isomorphic mass assign and simplified GUI @ Hans Straub 2024"
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
 		<< newLine 

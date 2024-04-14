@@ -63,7 +63,11 @@ public:
 	bool deleteSubBoardData();
 	bool copySubBoardData();
 	bool pasteSubBoardData();
+    bool canPasteSubBoardData() const;
 
+	bool performUndoableAction(UndoableAction* editAction);
+	bool undo();
+	bool redo();
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
@@ -88,6 +92,8 @@ private:
 	std::unique_ptr<Lumatone::Menu::MainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+	juce::UndoManager undoManager;
+	
 	LookAndFeel_V4				lookAndFeel;
 
 	PropertiesFile*				propertiesFile;

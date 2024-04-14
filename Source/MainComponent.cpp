@@ -11,6 +11,7 @@
 #include "MainComponent.h"
 #include "ViewConstants.h"
 #include "Main.h"
+#include "EditActions.h"
 
 
 //==============================================================================
@@ -117,25 +118,17 @@ void MainContentComponent::getData(TerpstraKeyMapping& newData)
 	newData = mappingData;
 }
 
-bool MainContentComponent::deleteCurrentSubBoardData()
+UndoableAction* MainContentComponent::createDeleteCurrentSectionAction()
 {
 	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
 	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		{
 		// Delete subboard data
-		mappingData.sets[currentSetSelection] = TerpstraKeys();
-
-		// Refresh display
-		refreshAllKeysOverview();
-		noteEditArea->refreshKeyFields();
-
-		// Mark that there are changes
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-		return true;
+        auto keySet = TerpstraKeys();
+        return new Lumatone::SectionEditAction(currentSetSelection, keySet);
 	}
 	else
-		return false;
+		return nullptr;
 }
 
 bool MainContentComponent::copyCurrentSubBoardData()
@@ -150,22 +143,23 @@ bool MainContentComponent::copyCurrentSubBoardData()
 		return false;
 }
 
-bool MainContentComponent::pasteCurrentSubBoardData()
+UndoableAction* MainContentComponent::createPasteCurrentSectionAction()
 {
 	auto currentSetSelection = noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex();
-	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
-		{
-		if (!copiedSubBoardData.isEmpty())
-		{
-			mappingData.sets[currentSetSelection] = copiedSubBoardData;
+	if (currentSetSelection >= 0 && currentSetSelection < TerpstraSysExApplication::getApp().getNumBoards()
+		&& !copiedSubBoardData.isEmpty())
+	{
+		return new Lumatone::SectionEditAction(currentSetSelection, copiedSubBoardData);
+	}
+	else
+		return nullptr;
+}
 
-			// Refresh display
-			refreshAllKeysOverview();
-			noteEditArea->refreshKeyFields();
+bool MainContentComponent::canPasteCopiedSubBoard() const
+{
+    return !copiedSubBoardData.isEmpty();
+}
 
-			// Mark that there are changes
-			TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-		}
 		return true;
 	}
 	else
