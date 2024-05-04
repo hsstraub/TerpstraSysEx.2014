@@ -18,6 +18,7 @@
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
 
+#define CHOOSE_FILE_NOOP [](bool) -> void {}
 
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
@@ -26,14 +27,14 @@ public:
 	//==============================================================================
 	TerpstraSysExApplication();
 
-	const String getApplicationName()       { return ProjectInfo::projectName; }
-	const String getApplicationVersion()    { return ProjectInfo::versionString; }
-	bool moreThanOneInstanceAllowed()       { return true; }
+	const String getApplicationName() override		{ return ProjectInfo::projectName; }
+	const String getApplicationVersion() override   { return ProjectInfo::versionString; }
+	bool moreThanOneInstanceAllowed() override      { return true; }
 
-	void initialise(const String& commandLine);
-	void shutdown();
-	void systemRequestedQuit();
-	void anotherInstanceStarted(const String& commandLine);
+	void initialise(const String& commandLine) override;
+	void shutdown() override;
+	void systemRequestedQuit() override;
+	void anotherInstanceStarted(const String& commandLine) override;
 
 	static TerpstraSysExApplication& getApp()
 	{
@@ -56,8 +57,8 @@ public:
 	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
-	bool saveSysExMapping();
-	bool saveSysExMappingAs();
+	bool saveSysExMapping(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
+	bool saveSysExMappingAs(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 	bool resetSysExMapping();
 
 	bool deleteSubBoardData();
@@ -71,7 +72,8 @@ public:
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
-	bool saveCurrentFile();
+    bool setCurrentFile(File fileToOpen);
+	bool saveCurrentFile(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 
 	void sendCurrentMappingToDevice();
 
@@ -94,8 +96,11 @@ private:
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
 
+	std::unique_ptr<FileChooser> chooser;
+
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
+
 	// Size of octaver board. Usually 56, but there are a few devices with55.
 	int octaveBoardSize = 56;
 };

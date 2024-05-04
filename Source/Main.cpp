@@ -116,19 +116,32 @@ void TerpstraSysExApplication::systemRequestedQuit()
 	// If there are changes: ask for save
 	if (hasChangesToSave)
 	{
-		int retc = AlertWindow::showYesNoCancelBox(AlertWindow::AlertIconType::QuestionIcon, "Quitting the application", "Do you want to save your changes?");
-		if (retc == 0)
-		{
-			// "Cancel". Do not quit.
-			return;
-		}
-		else if (retc == 1)
-		{
-			// "Yes". Try to save. Canvel if unsuccessful
-			if (!saveSysExMapping())
-				return;
-		}
-		// retc == 2: "No" -> end without saving
+		AlertWindow::showYesNoCancelBox(
+			AlertWindow::AlertIconType::QuestionIcon, 
+			"Quitting the application", 
+			"Do you want to save your changes?", 
+			"Yes", "No", "Cancel", nullptr, 
+			ModalCallbackFunction::create([&](int retc)
+			{
+				if (retc == 0)
+				{
+					// "Cancel". Do not quit.
+					return;
+				}
+				else if (retc == 1)
+				{
+					// "Yes". Try to save. Cancel if unsuccessful
+					saveSysExMapping([&](bool success) { if (success) quit(); });
+				}
+				else
+				{
+					// retc == 2: "No" -> end without saving
+					quit();
+				}
+			})
+		);
+
+		return;
 	}
 
 	quit();
@@ -248,39 +261,44 @@ bool TerpstraSysExApplication::perform(const InvocationInfo& info)
 
 bool TerpstraSysExApplication::openSysExMapping()
 {
-	FileChooser chooser("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
-	if (chooser.browseForFileToOpen())
-	{
-		currentFile = chooser.getResult();
-		return openFromCurrentFile();
-	}
+	chooser = std::make_unique<FileChooser>("Open a Lumatone key mapping", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
+		[&](const FileChooser& chooser)
+		{
+			currentFile = chooser.getResult();
+			openFromCurrentFile();
+		});
+
 	return true;
 }
 
-bool TerpstraSysExApplication::saveSysExMapping()
+bool TerpstraSysExApplication::saveSysExMapping(std::function<void(bool success)> saveFileCallback)
 {
 	if (currentFile.getFileName().isEmpty())
-		return saveSysExMappingAs();
+		return saveSysExMappingAs(saveFileCallback);
 	else
-		return saveCurrentFile();
+		return saveCurrentFile(saveFileCallback);
 
 }
 
-bool TerpstraSysExApplication::saveSysExMappingAs()
+bool TerpstraSysExApplication::saveSysExMappingAs(std::function<void(bool)> saveFileCallback)
 {
-	FileChooser chooser("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
-	if (chooser.browseForFileToSave(true))
-	{
-		currentFile = chooser.getResult();
-		if (saveCurrentFile() )
+	chooser = std::make_unique<FileChooser>("Lumatone Key Mapping Files", recentFiles.getFile(0).getParentDirectory(), "*.ltn");
+	chooser->launchAsync(FileBrowserComponent::FileChooserFlags::saveMode | FileBrowserComponent::FileChooserFlags::warnAboutOverwriting,
+		[this, saveFileCallback](const FileChooser& chooser)
 		{
-			// Window title
-			updateMainTitle();
-			return true;
-		}
-	}
+			currentFile = chooser.getResult();
+			bool saved = saveCurrentFile();
+			if (saved)
+			{
+				// Window title
+				updateMainTitle();
+			}
 
-	return false;
+			saveFileCallback(saved);
+		});
+
+	return true;
 }
 
 bool TerpstraSysExApplication::resetSysExMapping()
@@ -445,15 +463,21 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 	else
 	{
 		// Show error message
-		AlertWindow::showMessageBox(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
+		AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Open File Error", "The file " + currentFile.getFullPathName() + " could not be opened.");
 
 		// XXX Update Window title in any case? Make file name empty/make data empty in case of error?
 		return false;
 	}
 }
 
+bool TerpstraSysExApplication::setCurrentFile(File fileToOpen)
+{
+    currentFile = fileToOpen;
+    return openFromCurrentFile();
+}
+
 // Saves the current mapping to file, specified in currentFile.
-bool TerpstraSysExApplication::saveCurrentFile()
+bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)> saveFileCallback)
 {
 	if (currentFile.existsAsFile())
 		currentFile.deleteFile();
@@ -463,11 +487,13 @@ bool TerpstraSysExApplication::saveCurrentFile()
 	TerpstraKeyMapping keyMapping;
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
 
+    bool appendSuccess = true;
 	StringArray stringArray = keyMapping.toStringArray();
 	for (int i = 0; i < stringArray.size(); i++)
-		currentFile.appendText(stringArray[i] + "\n");
-
-	setHasChangesToSave(false);
+		appendSuccess = appendSuccess && currentFile.appendText(stringArray[i] + "\n");
+        
+	setHasChangesToSave(!appendSuccess);
+    saveFileCallback(appendSuccess);
 
 	// Add file to recent files list - or put it on top of the list
 	recentFiles.addFile(currentFile);
