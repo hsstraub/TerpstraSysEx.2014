@@ -237,27 +237,46 @@ void MidiEditArea::onOpenConnectionToDevice()
 	// if editing operations were done that have not been saved, warn that edits will be overwritten when configuration is read from device
 	if (TerpstraSysExApplication::getApp().getHasChangesToSave())
 	{
-		auto retc = AlertWindow::showOkCancelBox(
+		AlertWindow::showOkCancelBox(
 			AlertWindow::AlertIconType::QuestionIcon,
 			"Establishing connection to controller",
-			"The controller's current configuration will be received now. This will overwrite all edits you have done, Do you want to continue?");
+			"The controller's current configuration will be received now. This will overwrite all edits you have done. Do you want to continue??",
+			"Yes", "No", nullptr,
+			ModalCallbackFunction::create([&](int retc)
+				{
+					if (retc == 0)
+					{
+						// "Cancel".
+						editModeSelector->setCurrentTabIndex(midiEditMode::offlineEditor, true);
+						return;
+					}
+					else
+					{
+						TerpstraSysExApplication::getApp().resetSysExMapping();
 
-		if (retc == false)
-		{
-			editModeSelector->setCurrentTabIndex(midiEditMode::offlineEditor, true);
-			return;
-		}
+						lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
+						errorVisualizer.setErrorLevel(
+							*lblConnectionState.get(),
+							HajuErrorVisualizer::ErrorLevel::noError,
+							"Connecting");
+
+						requestConfigurationFromDevice();
+					}
+				})
+		);
 	}
+	else
+	{
+		TerpstraSysExApplication::getApp().resetSysExMapping();
 
-	TerpstraSysExApplication::getApp().resetSysExMapping();
+		lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
+		errorVisualizer.setErrorLevel(
+			*lblConnectionState.get(),
+			HajuErrorVisualizer::ErrorLevel::noError,
+			"Connecting");
 
-	lblConnectionState->setText("Connecting", NotificationType::dontSendNotification);
-	errorVisualizer.setErrorLevel(
-		*lblConnectionState.get(),
-		HajuErrorVisualizer::ErrorLevel::noError,
-		"Connecting");
-
-	requestConfigurationFromDevice();
+		requestConfigurationFromDevice();
+	}
 }
 
 void MidiEditArea::requestConfigurationFromDevice()
