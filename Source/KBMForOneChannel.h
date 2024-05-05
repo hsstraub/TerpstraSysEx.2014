@@ -72,6 +72,8 @@ private:
     KBMFilesMappingLogic*	pMappingLogic;
     HajuErrorVisualizer     errorVisualizer;
    	int&    periodSize;
+
+    std::unique_ptr<FileChooser> chooser;
     //[/UserVariables]
 
     //==============================================================================

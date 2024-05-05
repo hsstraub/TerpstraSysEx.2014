@@ -148,7 +148,7 @@ void KBMForOneChannel::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-		auto chooser = std::make_unique<FileChooser>("Open a Scala KBM mapping", File(), "*.kbm", true, false, this);
+		chooser = std::make_unique<FileChooser>("Open a Scala KBM mapping", File(), "*.kbm", true, false, this);
         chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
             [&](const FileChooser& chooser)
             {
