@@ -18,6 +18,7 @@
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
 
+#define CHOOSE_FILE_NOOP [](bool) -> void {}
 
 //==============================================================================
 class TerpstraSysExApplication : public JUCEApplication
@@ -56,8 +57,8 @@ public:
 	bool perform(const InvocationInfo& info) override;
 
 	bool openSysExMapping();
-	bool saveSysExMapping();
-	bool saveSysExMappingAs();
+	bool saveSysExMapping(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
+	bool saveSysExMappingAs(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 	bool resetSysExMapping();
 
 	bool deleteSubBoardData();
@@ -75,7 +76,8 @@ public:
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
-	bool saveCurrentFile();
+    bool setCurrentFile(File fileToOpen);
+	bool saveCurrentFile(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 
 	void sendCurrentMappingToDevice();
 
@@ -100,8 +102,11 @@ private:
 	File						currentFile;
 	RecentlyOpenedFilesList		recentFiles;
 
+	std::unique_ptr<FileChooser> chooser;
+
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
+
 	// Size of octaver board. Usually 56, but there are a few devices with55.
 	int octaveBoardSize = 56;
 };
