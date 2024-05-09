@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -53,6 +53,7 @@ public:
     void textEditorFocusLost(TextEditor& textEdit) override;
 
 	void updateFieldsAndMappingLogic();
+    void OpenKbmFileDialog();
 
 public:
     //[/UserMethods]
@@ -72,6 +73,8 @@ private:
     KBMFilesMappingLogic*	pMappingLogic;
     HajuErrorVisualizer     errorVisualizer;
    	int&    periodSize;
+
+    std::unique_ptr<FileChooser> chooser;
     //[/UserVariables]
 
     //==============================================================================

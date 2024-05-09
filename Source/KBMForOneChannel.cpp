@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
     channelBox->setEditableText (false);
     channelBox->setJustificationType (juce::Justification::centredLeft);
     channelBox->setTextWhenNothingSelected (juce::String());
-    channelBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    channelBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     channelBox->addListener (this);
 
     channelBox->setBounds (0, 8, 48, 24);
@@ -56,14 +56,14 @@ KBMForOneChannel::KBMForOneChannel (int		subDlgIndex, KBMFilesMappingLogic&	mapp
     textMappingFile->setPopupMenuEnabled (true);
     textMappingFile->setText (juce::String());
 
-    textMappingFile->setBounds (56, 8, 104, 24);
+    textMappingFile->setBounds (56, 8, 68, 24);
 
     btnFileSelectMacro.reset (new juce::TextButton ("btnFileSelectMacro"));
     addAndMakeVisible (btnFileSelectMacro.get());
-    btnFileSelectMacro->setButtonText (TRANS("..."));
+    btnFileSelectMacro->setButtonText (TRANS ("..."));
     btnFileSelectMacro->addListener (this);
 
-    btnFileSelectMacro->setBounds (168, 8, 24, 24);
+    btnFileSelectMacro->setBounds (132, 8, 24, 24);
 
 
     //[UserPreSize]
@@ -148,15 +148,8 @@ void KBMForOneChannel::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnFileSelectMacro.get())
     {
         //[UserButtonCode_btnFileSelectMacro] -- add your button handler code here..
-		auto chooser = std::make_unique<FileChooser>("Open a Scala KBM mapping", File(), "*.kbm", true, false, this);
-        chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
-            [&](const FileChooser& chooser)
-            {
-                currentFile = chooser.getResult();
-                updateFieldsAndMappingLogic();
-            });
-
-		//[/UserButtonCode_btnFileSelectMacro]
+        OpenKbmFileDialog();
+        //[/UserButtonCode_btnFileSelectMacro]
     }
 
     //[UserbuttonClicked_Post]
@@ -274,6 +267,17 @@ void KBMForOneChannel::updateFieldsAndMappingLogic()
         pMappingLogic->setMapping(subDlgIndex, midiChannel, kbmMappingStructure);
 }
 
+void KBMForOneChannel::OpenKbmFileDialog()
+{
+    chooser = std::make_unique<FileChooser>("Open a Scala KBM mapping", File(), "*.kbm", true, false, this);
+    chooser->launchAsync(FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::openMode,
+        [&](const FileChooser& chooser)
+        {
+            currentFile = chooser.getResult();
+            updateFieldsAndMappingLogic();
+        });
+}
+
 //[/MiscUserCode]
 
 
@@ -297,11 +301,11 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="0 8 48 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TEXTEDITOR name="textMappingFile" id="b9bc5baf677ed902" memberName="textMappingFile"
-              virtualName="" explicitFocusOrder="0" pos="56 8 104 24" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="56 8 68 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <TEXTBUTTON name="btnFileSelectMacro" id="23cc77cbad6653d7" memberName="btnFileSelectMacro"
-              virtualName="" explicitFocusOrder="0" pos="168 8 24 24" buttonText="..."
+              virtualName="" explicitFocusOrder="0" pos="132 8 24 24" buttonText="..."
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
