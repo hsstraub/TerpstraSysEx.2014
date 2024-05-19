@@ -140,6 +140,10 @@ void NoteEditArea::resized()
 
 	octaveBoardSelectorTab->setBounds(labelWindowTitle->getRight(), labelWindowTitle->getY(), getWidth()- labelWindowTitle->getWidth(), OCTAVEBOARDTABHEIGHT);
 
+	// Edit functions tab
+	int newEditFunctionTabWidth = jmax(getWidth() - SINGLENOTECONTROLAREAWIDTH, MINIMALEDITFUNCTIONSTABWIDTH);
+	editFunctionsTab->setBounds(editFunctionsTab->getX(), editFunctionsTab->getY(), newEditFunctionTabWidth, editFunctionsTab->getHeight());
+
 	// Single Key fields
 
 	// Transformation Rotate slightly counterclockwise
