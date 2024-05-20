@@ -259,6 +259,7 @@ void IsomorphicMassAssign::resized()
     //[UserPreResize] Add your own custom resize code here..
 	int width = getWidth();
 
+    groupMapping->setBounds(groupMapping->getX(), groupMapping->getY(), width, groupMapping->getHeight());
 	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
 	kbmMappingDlg->setBounds(16, MAPPINGSUBWINTOP, width, MAPPINGSUBWINHEIGHT);
     //[/UserPreResize]
