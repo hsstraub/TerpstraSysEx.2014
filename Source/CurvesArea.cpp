@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ CurvesArea::CurvesArea ()
     //[/Constructor_pre]
 
     labelWindowTitle.reset (new juce::Label ("labelWindowTitle",
-                                             TRANS("Curves")));
+                                             TRANS ("Curves")));
     addAndMakeVisible (labelWindowTitle.get());
     labelWindowTitle->setFont (juce::Font (18.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     labelWindowTitle->setJustificationType (juce::Justification::centredLeft);
@@ -59,14 +59,14 @@ CurvesArea::CurvesArea ()
     curvesTab.reset (new CurvesTabComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (curvesTab.get());
     curvesTab->setTabBarDepth (30);
-    curvesTab->addTab (TRANS("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
+    curvesTab->addTab (TRANS ("Note Velocity"), juce::Colours::lightgrey, new NoteOnOffVelocityCurveDialog(), true);
     curvesTab->setCurrentTabIndex (0);
 
     curvesTab->setBounds (8, 40, 464, 200);
 
     btnDeveloperMode.reset (new juce::ToggleButton ("btnDeveloperMode"));
     addAndMakeVisible (btnDeveloperMode.get());
-    btnDeveloperMode->setButtonText (TRANS("Developer Mode"));
+    btnDeveloperMode->setButtonText (TRANS ("Developer Mode"));
     btnDeveloperMode->addListener (this);
 
     btnDeveloperMode->setBounds (200, 8, 158, 24);
@@ -75,7 +75,7 @@ CurvesArea::CurvesArea ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (472, 240);
+    setSize (456, 240);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -111,13 +111,11 @@ void CurvesArea::paint (juce::Graphics& g)
 void CurvesArea::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-	int newWidth = getWidth();
-	int newHeight = getHeight();
 	int curvesTabRimLeft = labelWindowTitle->getX();
 	int curvesTabYPos = labelWindowTitle->getBottom() + CURVETABRIMABOVE;
 
-	int newTabCompWidth = jmax(newWidth - 2 * curvesTabRimLeft, MINIMALCURVESAREAWIDTH);
-	int newTabCompHeight = jmax(newHeight - curvesTabYPos, MINIMALCURVESAREAHEIGHT);
+	int newTabCompWidth = getWidth() - 2 * curvesTabRimLeft;
+	int newTabCompHeight = getHeight() - curvesTabYPos;
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
@@ -175,7 +173,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="CurvesArea" componentName=""
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="472" initialHeight="240">
+                 fixedSize="0" initialWidth="456" initialHeight="240">
   <BACKGROUND backgroundColour="ff323e44"/>
   <LABEL name="labelWindowTitle" id="2a34b5a9d981827a" memberName="labelWindowTitle"
          virtualName="" explicitFocusOrder="0" pos="8 8 150 24" edTextCol="ff000000"

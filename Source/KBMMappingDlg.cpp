@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.4
+  Created with Projucer version: 7.0.9
 
   ------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
     //[/Constructor_pre]
 
     lblChannel.reset (new juce::Label ("lblChannel",
-                                       TRANS("Chnl")));
+                                       TRANS ("Chnl")));
     addAndMakeVisible (lblChannel.get());
     lblChannel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblChannel->setJustificationType (juce::Justification::centredLeft);
@@ -46,7 +46,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
     lblChannel->setBounds (0, 8, 40, 24);
 
     lblMappingFile.reset (new juce::Label ("lblMappingFile",
-                                           TRANS("Mapping file")));
+                                           TRANS ("Mapping file")));
     addAndMakeVisible (lblMappingFile.get());
     lblMappingFile->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblMappingFile->setJustificationType (juce::Justification::centredLeft);
@@ -57,7 +57,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
     lblMappingFile->setBounds (48, 8, 104, 24);
 
     lblChannel2.reset (new juce::Label ("lblChannel2",
-                                        TRANS("Chnl")));
+                                        TRANS ("Chnl")));
     addAndMakeVisible (lblChannel2.get());
     lblChannel2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblChannel2->setJustificationType (juce::Justification::centredLeft);
@@ -68,7 +68,7 @@ KBMMappingDlg::KBMMappingDlg (int& periodSizeReference, ScaleStructure& scaleStr
     lblChannel2->setBounds (152, 7, 40, 24);
 
     lblMappingFile2.reset (new juce::Label ("lblMappingFile2",
-                                            TRANS("Mapping file")));
+                                            TRANS ("Mapping file")));
     addAndMakeVisible (lblMappingFile2.get());
     lblMappingFile2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     lblMappingFile2->setJustificationType (juce::Justification::centredLeft);
@@ -130,14 +130,19 @@ void KBMMappingDlg::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    auto newSubDlgWidth = jmax((getWidth()) / 2, MINIMALKBMSUBDIALGWIDTH);
+
+    lblChannel2->setBounds(newSubDlgWidth, lblChannel2->getY(), lblChannel2->getWidth(), lblChannel2->getHeight());
+    lblMappingFile2->setBounds(lblChannel2->getRight(), lblMappingFile2->getY(), lblMappingFile2->getWidth(), lblMappingFile2->getHeight());
+
     auto col1 = lblChannel->getX();
     auto col2 = lblChannel2->getX();
 
     int noOfRows = KBMFilesMappingLogic::noOfChannels/2;
  	for (int i = 0; i < noOfRows; i ++)
 	{
-		channelMappingComponents[i]->setBounds(col1, 32 + 32 * i, channelMappingComponents[i]->getWidth(), 32);
-		channelMappingComponents[noOfRows + i]->setBounds(col2, 32 + 32 * i, channelMappingComponents[noOfRows + i]->getWidth(), 32);
+		channelMappingComponents[i]->setBounds(col1, 32 + 32 * i, newSubDlgWidth, 32);
+		channelMappingComponents[noOfRows + i]->setBounds(col2, 32 + 32 * i, newSubDlgWidth, 32);
 	}
     //[/UserResized]
 }
@@ -202,7 +207,7 @@ BEGIN_JUCER_METADATA
   </METHODS>
   <BACKGROUND backgroundColour="ffbad0de"/>
   <LABEL name="lblChannel" id="dda6cf104269f7ea" memberName="lblChannel"
-         virtualName="" explicitFocusOrder="0" pos="0 8 40 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 8 48 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Chnl" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
@@ -212,7 +217,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="lblChannel2" id="d3e62a70b82307b5" memberName="lblChannel2"
-         virtualName="" explicitFocusOrder="0" pos="152 7 40 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="152 7 48 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Chnl" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>

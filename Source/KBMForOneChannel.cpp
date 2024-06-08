@@ -115,6 +115,19 @@ void KBMForOneChannel::resized()
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..
+    auto newWidth = getWidth();
+    auto btnFileSelectMacroWidth = btnFileSelectMacro->getWidth();
+    auto newMappingFileEditWidth = jmax(
+        newWidth - textMappingFile->getX() - btnFileSelectMacroWidth - (3*MAPPINGFILEEDITRIMBETWEENCONTROLS), 
+        MINIMALMAPPINGFILEEDITWIDTH);
+    
+    textMappingFile->setBounds(
+        textMappingFile->getX(), textMappingFile->getY(), newMappingFileEditWidth, textMappingFile->getHeight());
+    btnFileSelectMacro->setBounds(
+        textMappingFile->getRight() + MAPPINGFILEEDITRIMBETWEENCONTROLS, 
+        btnFileSelectMacro->getY(), 
+        btnFileSelectMacroWidth, 
+        btnFileSelectMacro->getHeight());
     //[/UserResized]
 }
 

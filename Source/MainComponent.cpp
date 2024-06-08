@@ -300,29 +300,29 @@ void MainContentComponent::resized()
 	int midiAreaXPos = jmax(newWidth - midiAreaWidth, 0);
 	midiEditArea->setBounds(midiAreaXPos, 0, midiAreaWidth, midiAreaHeight);
 
-	// All keys overview/virtual keyboard playing
-	// New height of subset field area, with minimal value
-	int noteEditAreaWidth = noteEditArea->getWidth();
+	int settingsAreaWidth = globalSettingsArea->getWidth();
+
+	int newNoteEditAreaWidth = jmax(newWidth - settingsAreaWidth, MINIMALNOTEEDITAREAWIDTH);
 	int noteEditAreaHeight = noteEditArea->getHeight();
 
+	// All keys overview/virtual keyboard playing
+	// New height of subset field area, with minimal value
 	int newKeysOverviewAreaHeight = jmax(newHeight - midiAreaHeight - noteEditAreaHeight, MINIMALTERPSTRAKEYSETAREAHEIGHT);
 
 	allKeysOverview->setBounds(0, midiAreaHeight, newWidth, newKeysOverviewAreaHeight);
 
 	// Edit function/single key field area
-	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, noteEditAreaWidth, noteEditAreaHeight);
-
-	int optionsAreaWidth = jmax(newWidth - noteEditAreaWidth, MINIMALCURVESAREAWIDTH);
+	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, newNoteEditAreaWidth, noteEditAreaHeight);
 	
 	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
-	generalOptionsArea->setBounds(noteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
-	pedalSensitivityDlg->setBounds(noteEditAreaWidth + generalOptionsArea->getWidth(), generalOptionsYPos, pedalSensitivityDlg->getWidth(), pedalSensitivityDlg->getHeight());
+	generalOptionsArea->setBounds(newNoteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
+	pedalSensitivityDlg->setBounds(newNoteEditAreaWidth + generalOptionsArea->getWidth(), generalOptionsYPos, pedalSensitivityDlg->getWidth(), pedalSensitivityDlg->getHeight());
 
 	int curvesAreaYPos = generalOptionsArea->getBottom();
 	int curvesAreaHeight = jmax(newHeight - curvesAreaYPos - globalSettingsArea->getHeight(), MINIMALCURVESAREAHEIGHT);
-	curvesArea->setBounds(noteEditAreaWidth, curvesAreaYPos, optionsAreaWidth, curvesAreaHeight);
+	curvesArea->setBounds(newNoteEditAreaWidth, curvesAreaYPos, settingsAreaWidth, curvesAreaHeight);
 
-	globalSettingsArea->setBounds(noteEditAreaWidth, curvesArea->getBottom(), globalSettingsArea->getWidth(), globalSettingsArea->getHeight());
+	globalSettingsArea->setBounds(newNoteEditAreaWidth, curvesArea->getBottom(), settingsAreaWidth, globalSettingsArea->getHeight());
 }
 
 void MainContentComponent::refreshAllKeysOverview()
