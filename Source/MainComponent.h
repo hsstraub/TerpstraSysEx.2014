@@ -53,7 +53,7 @@ public:
 	UndoableAction* createDeleteCurrentSectionAction();
 	bool copyCurrentSubBoardData();
 	UndoableAction* createPasteCurrentSectionAction();
-	bool pasteCurrentSubBoardData();
+	bool canPasteCopiedSubBoard() const;
 
 	// Implementation of TerpstraNidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
@@ -69,6 +69,7 @@ public:
     void resized();
 
 	void refreshAllKeysOverview();
+	void refreshAllFields();
 
 private:
     //==============================================================================

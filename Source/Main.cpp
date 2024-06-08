@@ -335,6 +335,11 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 	setHasChangesToSave(false);
 
+	// Clear undoable actions
+	// ToDo (?)
+	undoManager.clearUndoHistory();
+
+
 	// Window title
 	updateMainTitle();
 
@@ -355,6 +360,30 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 {
 	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createPasteCurrentSectionAction());
 }
+
+bool TerpstraSysExApplication::canPasteSubBoardData() const
+{
+    if (mainWindow != nullptr)
+        return ((MainContentComponent*)(mainWindow->getContentComponent()))->canPasteCopiedSubBoard();
+    return false;
+}
+
+bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
+{
+	if (editAction != nullptr)
+	{
+		undoManager.beginNewTransaction();
+		if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
+		{
+			setHasChangesToSave(true);
+			((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool TerpstraSysExApplication::undo()
 {
 	if (undoManager.undo())
@@ -377,7 +406,6 @@ bool TerpstraSysExApplication::redo()
 	}
 	else
 		return false;
-}
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()

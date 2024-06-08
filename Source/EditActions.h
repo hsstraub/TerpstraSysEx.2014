@@ -26,10 +26,10 @@ namespace Lumatone {
 			bool setNote,
 			bool setColour,
             bool ccFaderDefault,
-			LumatoneKeyType newKeyType = LumatoneKeyType::noteOnNoteOff,
+			TerpstraKey::KEYTYPE newKeyType = TerpstraKey::KEYTYPE::noteOnNoteOff,
 			int newChannelNumber = 0, 
 			int newNoteNumber = 0,
-			TerpstraKey::COLOURTYPE newColour = juce::Colour(),
+			int newColour = 0,
             bool newCCFaderDefault = true);
 
 		SingleNoteAssignAction(const SingleNoteAssignAction& second)
