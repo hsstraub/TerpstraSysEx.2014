@@ -88,6 +88,8 @@ public:
 
 	bool aboutTerpstraSysEx();
 
+	MainContentComponent* getMainContentComponent() const;
+
 private:
 	std::unique_ptr<MainWindow> mainWindow;
 	std::unique_ptr<ApplicationCommandManager> commandManager;

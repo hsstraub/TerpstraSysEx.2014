@@ -118,15 +118,15 @@ void KBMForOneChannel::resized()
     auto newWidth = getWidth();
     auto btnFileSelectMacroWidth = btnFileSelectMacro->getWidth();
     auto newMappingFileEditWidth = jmax(
-        newWidth - textMappingFile->getX() - btnFileSelectMacroWidth - (3*MAPPINGFILEEDITRIMBETWEENCONTROLS), 
+        newWidth - textMappingFile->getX() - btnFileSelectMacroWidth - (3*MAPPINGFILEEDITRIMBETWEENCONTROLS),
         MINIMALMAPPINGFILEEDITWIDTH);
-    
+
     textMappingFile->setBounds(
         textMappingFile->getX(), textMappingFile->getY(), newMappingFileEditWidth, textMappingFile->getHeight());
     btnFileSelectMacro->setBounds(
-        textMappingFile->getRight() + MAPPINGFILEEDITRIMBETWEENCONTROLS, 
-        btnFileSelectMacro->getY(), 
-        btnFileSelectMacroWidth, 
+        textMappingFile->getRight() + MAPPINGFILEEDITRIMBETWEENCONTROLS,
+        btnFileSelectMacro->getY(),
+        btnFileSelectMacroWidth,
         btnFileSelectMacro->getHeight());
     //[/UserResized]
 }

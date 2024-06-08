@@ -16,6 +16,12 @@
 
 //==============================================================================
 
+MainContentComponent* TerpstraSysExApplication::getMainContentComponent() const
+{
+	jassert(mainWindow != nullptr);
+	return (MainContentComponent*)(mainWindow->getContentComponent());
+}
+
 TerpstraSysExApplication::TerpstraSysExApplication()
 	: tooltipWindow(), hasChangesToSave(false)
 {
@@ -68,7 +74,7 @@ void TerpstraSysExApplication::initialise(const String& commandLine)
 	mainWindow->setMenuBar(menuModel.get());
 	mainWindow->addKeyListener(commandManager->getKeyMappings());
 
-	((MainContentComponent*)(mainWindow->getContentComponent()))->restoreStateFromPropertiesFile(propertiesFile);
+	getMainContentComponent()->restoreStateFromPropertiesFile(propertiesFile);
 
 	// commandLine: may contain a file name
 	if (!commandLine.isEmpty())
@@ -97,7 +103,7 @@ void TerpstraSysExApplication::shutdown()
 	propertiesFile->setValue("RecentFiles", recentFiles.toString());
 
 	// Save state of main window
-	((MainContentComponent*)(mainWindow->getContentComponent()))->saveStateToPropertiesFile(propertiesFile);
+	getMainContentComponent()->saveStateToPropertiesFile(propertiesFile);
 
 	propertiesFile->saveIfNeeded();
 	delete propertiesFile;
@@ -331,7 +337,7 @@ bool TerpstraSysExApplication::resetSysExMapping()
 	currentFile = File();
 
 	// Clear all edit fields
-	((MainContentComponent*)(mainWindow->getContentComponent()))->deleteAll();
+	getMainContentComponent()->deleteAll();
 
 	setHasChangesToSave(false);
 
@@ -348,23 +354,23 @@ bool TerpstraSysExApplication::resetSysExMapping()
 
 bool TerpstraSysExApplication::deleteSubBoardData()
 {
-	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createDeleteCurrentSectionAction());
+	return performUndoableAction(getMainContentComponent()->createDeleteCurrentSectionAction());
 }
 
 bool TerpstraSysExApplication::copySubBoardData()
 {
-	return ((MainContentComponent*)(mainWindow->getContentComponent()))->copyCurrentSubBoardData();
+	return getMainContentComponent()->copyCurrentSubBoardData();
 }
 
 bool TerpstraSysExApplication::pasteSubBoardData()
 {
-	return performUndoableAction(((MainContentComponent*)(mainWindow->getContentComponent()))->createPasteCurrentSectionAction());
+	return performUndoableAction(getMainContentComponent()->createPasteCurrentSectionAction());
 }
 
 bool TerpstraSysExApplication::canPasteSubBoardData() const
 {
     if (mainWindow != nullptr)
-        return ((MainContentComponent*)(mainWindow->getContentComponent()))->canPasteCopiedSubBoard();
+        return getMainContentComponent()->canPasteCopiedSubBoard();
     return false;
 }
 
@@ -376,7 +382,7 @@ bool TerpstraSysExApplication::performUndoableAction(UndoableAction* editAction)
 		if (undoManager.perform(editAction))	// UndoManager will check for nullptr and also for disposing of the object
 		{
 			setHasChangesToSave(true);
-			((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+			getMainContentComponent()->refreshAllFields();
 			return true;
 		}
 	}
@@ -389,7 +395,7 @@ bool TerpstraSysExApplication::undo()
 	if (undoManager.undo())
 	{
 		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+		getMainContentComponent()->refreshAllFields();
 		return true;
 	}
 	else
@@ -401,7 +407,7 @@ bool TerpstraSysExApplication::redo()
 	if (undoManager.redo())
 	{
 		setHasChangesToSave(true);
-		((MainContentComponent*)(mainWindow->getContentComponent()))->refreshAllFields();
+		getMainContentComponent()->refreshAllFields();
 		return true;
 	}
 	else
@@ -520,7 +526,7 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		TerpstraKeyMapping keyMapping;
 		keyMapping.fromStringArray(stringArray);
 
-		((MainContentComponent*)(mainWindow->getContentComponent()))->setData(keyMapping);
+		getMainContentComponent()->setData(keyMapping);
 
 		// Window title
 		updateMainTitle();
@@ -564,7 +570,7 @@ bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)>
 	// XXX error handling
 
 	TerpstraKeyMapping keyMapping;
-	((MainContentComponent*)(mainWindow->getContentComponent()))->getData(keyMapping);
+	getMainContentComponent()->getData(keyMapping);
 
     bool appendSuccess = true;
 	StringArray stringArray = keyMapping.toStringArray();
@@ -582,7 +588,7 @@ bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)>
 
 void TerpstraSysExApplication::sendCurrentMappingToDevice()
 {
-	auto theConfig = ((MainContentComponent*)(mainWindow->getContentComponent()))->getMappingInEdit();
+	auto theConfig = getMainContentComponent()->getMappingInEdit();
 	
 	// MIDI channel, MIDI note, colour and key type config for all keys
 	getMidiDriver().sendCompleteMapping(theConfig);
