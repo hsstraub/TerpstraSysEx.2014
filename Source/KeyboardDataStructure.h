@@ -26,6 +26,10 @@ public:
 
 public:
 	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
+	TerpstraKey(KEYTYPE newKeyType, int newChannelNumber, int newNoteNumber, int newColour/*, bool invertCCFader = false*/)
+	{
+        keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour; /* ccFaderDefault = invertCCFader; */
+	}
 	bool isEmpty() const { return channelNumber == 0; }
 
 	bool operator!=(const TerpstraKey& second) const { return noteNumber != second.noteNumber || channelNumber != second.channelNumber || colour != second.colour || keyType != second.keyType; }
