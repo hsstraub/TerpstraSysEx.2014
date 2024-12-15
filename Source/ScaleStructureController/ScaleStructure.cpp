@@ -11,6 +11,13 @@
 
 #include "ScaleStructure.h"
 
+#if JUCE_LINUX
+
+// Hack
+#define INT_MAX 2147483647
+
+#endif
+
 ScaleStructure::ScaleStructure()
 {
 	period = 0;
@@ -294,7 +301,7 @@ Array<Point<int>> ScaleStructure::findDegreeMods(int degreeIndex, int chromaLeve
 		levels = jmin(chromaLevels, stepsToChromas.size());
 
 	String dbgstr = "";
-	
+
 	// Change so that non-group 0 degree can be fully altered
 	int indexLimit = getScaleSize() * periodFactorSelected;
 
@@ -357,7 +364,7 @@ Array<Point<int>> ScaleStructure::findDegreeMods(int degreeIndex, int chromaLeve
 		step = stepsToChromas[0] * -chromas;
 		index = modulo(degreeIndex - step, period);
 	}
-	
+
 
 	DBG("Degree candidates for modding " + String(groupChain[degreeIndex]) + ":\n\t" + dbgstr);
 
@@ -835,7 +842,7 @@ void ScaleStructure::applyChromaAlterations()
 			for (int g = 0; g < degreeGroupings.size(); g++)
 			{
 				Array<int>& group = degreeGroupings.getReference(g);
-				
+
 				for (int i = 0; i < group.size(); i++)
 				{
 					if (group[i] == degree)
@@ -849,7 +856,7 @@ void ScaleStructure::applyChromaAlterations()
 						shiftedGroupIndex = i;
 					}
 				}
-				
+
 				// Swap the degrees
 				if (originalGroupNum > -1 && shiftedGroupNum > -1)
 				{
@@ -858,7 +865,7 @@ void ScaleStructure::applyChromaAlterations()
 
 					// record inverse alteration
 					degreeAlterations.set(alteredDegree, alteration.withY(-alteration.y));
-					
+
 					break;
 				}
 			}
@@ -882,8 +889,8 @@ void ScaleStructure::applyChromaAlterations()
 	{
 		dbgstr += "(" + alteration.toString() + "), ";
 	}
-	dbgstr = alterationsAttachedToDegree 
-		? "SS MODMOS Properties by degree:\t" + dbgstr 
+	dbgstr = alterationsAttachedToDegree
+		? "SS MODMOS Properties by degree:\t" + dbgstr
 		: "SS MODMOS Properties by gIndex:\t" + dbgstr;
 	DBG(dbgstr);
 }
@@ -1076,7 +1083,7 @@ Array<int> ScaleStructure::getComplimentarySizeGrouping()
 			num = 0;
 		}
 	}
-	
+
 	//DBG("Complimentary group:");
 	//String dbgstr = "";
 	//for (int i = 0; i < grouping.size(); i++)
