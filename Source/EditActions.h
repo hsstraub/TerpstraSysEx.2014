@@ -22,15 +22,15 @@ namespace Lumatone {
 			int setSelection,
 			int keySelection,
 			bool setKeyType,
-			bool setChannel, 
+			bool setChannel,
 			bool setNote,
 			bool setColour,
             bool ccFaderDefault,
 			TerpstraKey::KEYTYPE newKeyType = TerpstraKey::KEYTYPE::noteOnNoteOff,
-			int newChannelNumber = 0, 
+			int newChannelNumber = 0,
 			int newNoteNumber = 0,
-			int newColour = 0,
-            bool newCCFaderDefault = true);
+			int newColour = 0/*,
+            bool newCCFaderDefault = true*/);
 
 		SingleNoteAssignAction(const SingleNoteAssignAction& second)
 			: setSelection(second.setSelection)
@@ -48,7 +48,7 @@ namespace Lumatone {
 
 		virtual bool perform() override;
 		virtual bool undo() override;
-		
+
 		int getSizeInUnits() override { return sizeof(SingleNoteAssignAction); }
 
 	private:
@@ -129,11 +129,11 @@ namespace Lumatone {
     {
     public:
         InvertSustainEditAction(bool newValue);
-        
+
         InvertSustainEditAction(const InvertSustainEditAction& second)
             : previousData(second.previousData), newData(second.newData)
         {}
-        
+
         virtual bool perform() override;
         virtual bool undo() override;
         int getSizeInUnits() override { return sizeof(InvertSustainEditAction); }

@@ -19,15 +19,15 @@ namespace Lumatone {
 		int setSelection,
 		int keySelection,
 		bool setKeyType,
-		bool setChannel, 
+		bool setChannel,
 		bool setNote,
 		bool setColour,
         bool setCCPolarity,
 		TerpstraKey::KEYTYPE newKeyType,
 		int newChannelNumber,
-		int newNoteNumber, 
-		int newColour,
-        bool newCCFaderIsDefault)
+		int newNoteNumber,
+		int newColour/*,
+        bool newCCFaderIsDefault*/)
 		: setSelection(setSelection), keySelection(keySelection)
 		, setKeyType(setKeyType), setChannel(setChannel), setNote(setNote), setColour(setColour), setCCFaderPolarity(setCCPolarity)
 		, newData(newKeyType, newChannelNumber, newNoteNumber, newColour/*, newCCFaderIsDefault */)

@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "Main.h"
 #include "MainComponent.h"
+#include "EditActions.h"
 //[/Headers]
 
 #include "SingleNoteAssign.h"
@@ -310,58 +311,34 @@ void SingleNoteAssign::buttonClicked (juce::Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-/// <summary>Called from MainComponent when one of the keys is clicked</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
+/// <summary>Called from parent when one of the keys is clicked</summary>
+/// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
+UndoableAction* SingleNoteAssign::createEditAction(int setSelection, int keySelection)
 {
-	bool mappingChanged = false;
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	int newNote = noteBox->getSelectedItemIndex();
+	int newChannel = channelBox->getSelectedId();
 
-	TerpstraKey& keyData = (dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent()))->getMappingInEdit().sets[setSelection].theKeys[keySelection];
+	auto editAction = new Lumatone::SingleNoteAssignAction(
+		setSelection, keySelection,
+		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
+		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
+        (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController,
+		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), newChannel,
+		newNote, colourSubwindow->getColourAsNumber()/*, ccFaderIsDefault->getToggleState()*/);
 
-	// Set note if specified
-	if (setNoteToggleButton->getToggleState())
-	{
-		keyData.noteNumber = noteBox->getSelectedItemIndex(); //-1 for no selection or 0-127
-		if (keyData.noteNumber < 0) keyData.noteNumber = 0;
-		mappingChanged = true;
-	}
-
-	// Set channel if specified
-	if (setChannelToggleButton->getToggleState())
-	{
-		keyData.channelNumber = channelBox->getSelectedId();	// 0 for no selection or 1-16
-		mappingChanged = true;
-	}
-
-	// Set colour if specified
-	if (setColourToggleButton->getToggleState())
-	{
-		keyData.colour = colourSubwindow->getColourAsNumber();
-		mappingChanged = true;
-	}
-
-	// Set key type if specified
-	if (keyTypeToggleButton->getToggleState())
-	{
-		keyData.keyType = (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId();	// XXX if no selection?
-		mappingChanged = true;
-	}
-
-	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection, keyData);
+	jassert(editAction != nullptr && editAction->isValid());
 
 	// Auto increment note
 	if (noteAutoIncrButton->getToggleState())
 	{
-		int newNote = keyData.noteNumber + 1;
+		newNote++;
 
 		// Auto increment channel
 		if (channelAutoIncrButton->getToggleState() && channelAutoIncrNoteBox->getSelectedItemIndex() > 0 &&
 			newNote > channelAutoIncrNoteBox->getSelectedItemIndex())
 		{
 			newNote = 0;
-			int newChannel = keyData.channelNumber + 1;
+			newChannel++;
 			if (newChannel > 16)
 				newChannel = 1;
 			channelBox->setSelectedId(newChannel);
@@ -373,7 +350,7 @@ bool SingleNoteAssign::performMouseDown(int setSelection, int keySelection)
 		noteBox->setSelectedItemIndex(newNote);
 	}
 
-	return mappingChanged;
+	return editAction;
 }
 
 void SingleNoteAssign::onSetData(TerpstraKeyMapping& newData)
