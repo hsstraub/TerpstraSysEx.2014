@@ -213,26 +213,26 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 					break;
 				}
 			case noteEditMode::IsomorphicMassAssignMode:
-				mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
-				break;
+				{
+					bool mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
+					if (mappingChanged)
+					{
+						TerpstraSysExApplication::getApp().setHasChangesToSave(true);
+
+                        // Refresh key fields (all may be affected)
+                        // repaint();	That should be enough - but is not. apparently...XXX
+                        refreshKeyFields();
+
+                        ((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
+					}
+					break;
+				}
 			default:
 				break;
 			}
 
 			break;
 		}
-	}
-
-	// Mark that there are changes
-	if (mappingChanged)
-	{
-		TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-		// Refresh key fields (all may be affected)
-		// repaint();	That should be enough - but is not. apparently...XXX
-		refreshKeyFields();
-
-		((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
 	}
 
     //[/UserCode_mouseDown]
