@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
@@ -200,20 +200,6 @@ AllKeysOverview::AllKeysOverview ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    btnLoadFile.reset (new juce::TextButton ("btnLoadFile"));
-    addAndMakeVisible (btnLoadFile.get());
-    btnLoadFile->setButtonText (TRANS("Load File"));
-    btnLoadFile->addListener (this);
-
-    btnLoadFile->setBounds (368, 8, 96, 24);
-
-    btnSaveFile.reset (new juce::TextButton ("btnSaveFile"));
-    addAndMakeVisible (btnSaveFile.get());
-    btnSaveFile->setButtonText (TRANS("Save File"));
-    btnSaveFile->addListener (this);
-
-    btnSaveFile->setBounds (472, 8, 96, 24);
-
 
     //[UserPreSize]
 
@@ -241,8 +227,6 @@ AllKeysOverview::~AllKeysOverview()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    btnLoadFile = nullptr;
-    btnSaveFile = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -320,7 +304,7 @@ void AllKeysOverview::resized()
 			else
 				xbasepos = 6.0f * subBoardIndex * newSingleKeySize + newSingleKeySize / 2.0f;
 
-			float ybasepos = btnLoadFile->getBottom() + TERPSTRAKEYSETVERTICALRIM + subBoardIndex * newSingleKeySize * 3.0f / 2.0f + rowIndex * newSingleKeySize * 3.0f / 4.0f;
+			float ybasepos = TERPSTRAKEYSETVERTICALRIM + subBoardIndex * newSingleKeySize * 3.0f / 2.0f + rowIndex * newSingleKeySize * 3.0f / 4.0f;
 
 			int subBoardRowSize = boardGeometry.horizontalLineSize(rowIndex);
 			for (int posInRow = 0; posInRow < subBoardRowSize; posInRow++)
@@ -357,28 +341,6 @@ void AllKeysOverview::resized()
     //[/UserResized]
 }
 
-void AllKeysOverview::buttonClicked (juce::Button* buttonThatWasClicked)
-{
-    //[UserbuttonClicked_Pre]
-    //[/UserbuttonClicked_Pre]
-
-    if (buttonThatWasClicked == btnLoadFile.get())
-    {
-        //[UserButtonCode_btnLoadFile] -- add your button handler code here..
-		TerpstraSysExApplication::getApp().openSysExMapping();
-        //[/UserButtonCode_btnLoadFile]
-    }
-    else if (buttonThatWasClicked == btnSaveFile.get())
-    {
-        //[UserButtonCode_btnSaveFile] -- add your button handler code here..
-		TerpstraSysExApplication::getApp().saveSysExMappingAs();
-        //[/UserButtonCode_btnSaveFile]
-    }
-
-    //[UserbuttonClicked_Post]
-    //[/UserbuttonClicked_Post]
-}
-
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -399,12 +361,6 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="928" initialHeight="214">
   <BACKGROUND backgroundColour="ff323e44"/>
-  <TEXTBUTTON name="btnLoadFile" id="6c0c074c9f137f23" memberName="btnLoadFile"
-              virtualName="" explicitFocusOrder="0" pos="368 8 96 24" buttonText="Load File"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="btnSaveFile" id="abbc33d699ba1e52" memberName="btnSaveFile"
-              virtualName="" explicitFocusOrder="0" pos="472 8 96 24" buttonText="Save File"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

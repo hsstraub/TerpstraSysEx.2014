@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 6.0.5
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
@@ -68,8 +68,7 @@ private:
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class AllKeysOverview  : public juce::Component,
-                         public juce::Button::Listener
+class AllKeysOverview  : public juce::Component
 {
 public:
     //==============================================================================
@@ -86,7 +85,6 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -105,8 +103,6 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::TextButton> btnLoadFile;
-    std::unique_ptr<juce::TextButton> btnSaveFile;
 
 
     //==============================================================================
