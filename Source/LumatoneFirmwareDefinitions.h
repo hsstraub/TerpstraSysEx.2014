@@ -60,3 +60,13 @@ System exclusive command bytes
 
 // Firmware Version 1.0.12 / 1.1.0
 #define INVERT_SUSTAIN_PEDAL 0x45
+
+typedef enum
+{
+    disabledDefault      = 0,
+	noteOnNoteOff        = 1,
+	continuousController = 2,
+	lumaTouch            = 3,
+	disabled             = 4
+} LumatoneKeyType;
+

@@ -247,7 +247,7 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 						break;
 
 					case GET_KEYTYPE_CONFIG:
-						keyData.keyType = (TerpstraKey::KEYTYPE)newValue;
+						keyData.keyType = (LumatoneKeyType)newValue;
 						break;
 
 					default:
@@ -302,7 +302,7 @@ void MainContentComponent::resized()
 
 	// Edit function/single key field area
 	noteEditArea->setBounds(0, midiAreaHeight + newKeysOverviewAreaHeight, newNoteEditAreaWidth, noteEditAreaHeight);
-	
+
 	int generalOptionsYPos = allKeysOverview->getBottom() + OCTAVEBOARDTABHEIGHT;
 	generalOptionsArea->setBounds(newNoteEditAreaWidth, generalOptionsYPos, generalOptionsArea->getWidth(), generalOptionsArea->getHeight());
 	pedalSensitivityDlg->setBounds(newNoteEditAreaWidth + generalOptionsArea->getWidth(), generalOptionsYPos, pedalSensitivityDlg->getWidth(), pedalSensitivityDlg->getHeight());

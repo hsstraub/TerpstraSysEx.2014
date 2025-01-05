@@ -127,7 +127,7 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 		auto keyData = getKeyData();
 		if (keyData != nullptr && keyData->channelNumber > 0)
 		{
-			if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+			if (keyData->keyType == LumatoneKeyType::noteOnNoteOff)
 			{
 				// Send "note on" event
 				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
@@ -148,7 +148,7 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 	auto keyData = getKeyData();
 	if (keyData != nullptr && keyData->channelNumber > 0)
 	{
-		if (keyData->keyType == TerpstraKey::noteOnNoteOff)
+		if (keyData->keyType == LumatoneKeyType::noteOnNoteOff)
 		{
 			// Send "note off" event
 			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);

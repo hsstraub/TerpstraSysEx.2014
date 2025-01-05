@@ -8,10 +8,8 @@
   ==============================================================================
 */
 
-#ifndef VIEWCOMPOONENTS_H_INCLUDED
-#define VIEWCOMPOONENTS_H_INCLUDED
-
-#include "../JuceLibraryCode/JuceHeader.h"
+#pragma once
+#include <JuceHeader.h>
 
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
@@ -51,8 +49,5 @@ private:
 	Label*  midiChannelLabel;
 
 	int						keyColour;
-	TerpstraKey::KEYTYPE	keyType;
+	LumatoneKeyType     	keyType;
 };
-
-
-#endif  // VIEWCOMPOONENTS_H_INCLUDED

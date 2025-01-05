@@ -162,7 +162,7 @@ SingleNoteAssign::SingleNoteAssign ()
 	setChannelToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
-	keyTypeCombo->setSelectedId(TerpstraKey::noteOnNoteOff);
+	keyTypeCombo->setSelectedId(LumatoneKeyType::noteOnNoteOff);
     //[/Constructor]
 }
 
@@ -238,7 +238,7 @@ void SingleNoteAssign::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_keyTypeCombo] -- add your combo box handling code here..
 
         // Label the "note box" accordingly (controller no. for key type "Fader")
-        if (keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController)
+        if (keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController)
         {
             setNoteToggleButton->setButtonText("CC Type:");
 
@@ -322,8 +322,8 @@ UndoableAction* SingleNoteAssign::createEditAction(int setSelection, int keySele
 		setSelection, keySelection,
 		keyTypeToggleButton->getToggleState(), setChannelToggleButton->getToggleState(),
 		setNoteToggleButton->getToggleState(), setColourToggleButton->getToggleState(),
-        (TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId() == TerpstraKey::KEYTYPE::continuousController,
-		(TerpstraKey::KEYTYPE)keyTypeCombo->getSelectedId(), newChannel,
+        (LumatoneKeyType)keyTypeCombo->getSelectedId() == LumatoneKeyType::continuousController,
+		(LumatoneKeyType)keyTypeCombo->getSelectedId(), newChannel,
 		newNote, colourSubwindow->getColourAsNumber()/*, ccFaderIsDefault->getToggleState()*/);
 
 	jassert(editAction != nullptr && editAction->isValid());

@@ -10,23 +10,15 @@ Author:  hsstraub
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-
+#include <JuceHeader.h>
+#include "LumatoneFirmwareDefinitions.h"
 
 // Mapping of one key
 class TerpstraKey
 {
 public:
-	typedef enum
-	{
-		noteOnNoteOff = 1,
-		continuousController = 2,
-		lumaTouch = 3
-	} KEYTYPE;
-
-public:
-	TerpstraKey() { noteNumber = 0; channelNumber = 0; colour = 0; keyType = noteOnNoteOff; };
-	TerpstraKey(KEYTYPE newKeyType, int newChannelNumber, int newNoteNumber, int newColour/*, bool invertCCFader = false*/)
+    TerpstraKey(LumatoneKeyType newKeyType = LumatoneKeyType::noteOnNoteOff) { noteNumber = 0; channelNumber = 1; colour = 0; keyType = newKeyType; /* ccFaderDefault = true;*/ };
+	TerpstraKey(LumatoneKeyType newKeyType, int newChannelNumber, int newNoteNumber, int newColour /*, bool invertCCFader = false */)
 	{
         keyType = newKeyType; channelNumber = newChannelNumber; noteNumber = newNoteNumber; colour = newColour; /* ccFaderDefault = invertCCFader; */
 	}
@@ -38,7 +30,7 @@ public:
 	int		noteNumber;
 	int		channelNumber;
 	int		colour;
-	KEYTYPE	keyType;
+	LumatoneKeyType	keyType;
 };
 
 // Subset of 56 keys

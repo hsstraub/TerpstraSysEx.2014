@@ -233,7 +233,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE) {
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
 
-						if ( keyIndex == 55) 
+						if ( keyIndex == 55)
                             hasFiftySixKeys = true;
                     } else
 						jassert(false);
@@ -260,7 +260,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
 					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
-						sets[boardIndex].theKeys[keyIndex].keyType = (TerpstraKey::KEYTYPE)keyValue;
+						sets[boardIndex].theKeys[keyIndex].keyType = (LumatoneKeyType)keyValue;
 					else
 					jassert(false);
 				}
@@ -337,7 +337,7 @@ StringArray TerpstraKeyMapping::toStringArray()
 			result.add("Chan_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].channelNumber));
 			if (sets[boardIndex].theKeys[keyIndex].colour != 0)
 				result.add("Col_" + String(keyIndex) + "=" + String::toHexString((sets[boardIndex].theKeys[keyIndex].colour)));
-			if (sets[boardIndex].theKeys[keyIndex].keyType != TerpstraKey::noteOnNoteOff)
+			if (sets[boardIndex].theKeys[keyIndex].keyType != LumatoneKeyType::noteOnNoteOff)
 				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
 		}
 	}

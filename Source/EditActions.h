@@ -26,7 +26,7 @@ namespace Lumatone {
 			bool setNote,
 			bool setColour,
             bool ccFaderDefault,
-			TerpstraKey::KEYTYPE newKeyType = TerpstraKey::KEYTYPE::noteOnNoteOff,
+			LumatoneKeyType newKeyType = LumatoneKeyType::noteOnNoteOff,
 			int newChannelNumber = 0,
 			int newNoteNumber = 0,
 			int newColour = 0/*,
