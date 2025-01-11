@@ -189,7 +189,6 @@ void NoteEditArea::resized()
 void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 {
     //[UserCode_mouseDown] -- Add your code here...
-	bool mappingChanged = false;
 
 	// Selection of single key fields
 	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
@@ -214,17 +213,8 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 				}
 			case noteEditMode::IsomorphicMassAssignMode:
 				{
-					bool mappingChanged = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->performMouseDown(setSelection, keyIndex);
-					if (mappingChanged)
-					{
-						TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-
-                        // Refresh key fields (all may be affected)
-                        // repaint();	That should be enough - but is not. apparently...XXX
-                        refreshKeyFields();
-
-                        ((MainContentComponent*)getParentComponent())->refreshAllKeysOverview();
-					}
+					auto editAction = dynamic_cast<IsomorphicMassAssign*>(editFunctionsTab->getTabContentComponent(editMode))->createEditAction(setSelection, keyIndex);
+                    TerpstraSysExApplication::getApp().performUndoableAction(editAction);
 					break;
 				}
 			default:

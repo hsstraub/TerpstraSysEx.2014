@@ -217,6 +217,77 @@ namespace Lumatone {
 	}
 
 	// ==============================================================================
+	// Implementation of FullKeySetEditAction
+
+	FullKeySetEditAction::FullKeySetEditAction()
+	{
+    	auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+		jassert(mainComponent != nullptr);
+
+		for (int i = 0; i < NUMBEROFBOARDS; i++)
+		{
+            newData[i] = mainComponent->getMappingInEdit().sets[i];
+            previousData[i] = mainComponent->getMappingInEdit().sets[i];
+		}
+
+		isEmpty = true;
+	}
+
+    FullKeySetEditAction::FullKeySetEditAction(const FullKeySetEditAction& second)
+    {
+        for (int i = 0; i < NUMBEROFBOARDS; i++)
+        {
+            previousData[i] = second.previousData[i];
+            newData[i] = second.newData[i];
+        }
+    }
+
+    void FullKeySetEditAction::clearNewData()
+    {
+        auto keySet = TerpstraKeys();
+        for (int i = 0; i < NUMBEROFBOARDS; i++)
+        {
+            newData[i] = keySet;
+        }
+    }
+
+	bool FullKeySetEditAction::perform()
+	{
+            auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+			jassert(mainComponent != nullptr);
+			TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+			for ( int i = 0; i < NUMBEROFBOARDS; i++)
+			{
+                mappingInEdit.sets[i] = newData[i];
+
+                // Send to device
+                TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(i + 1, mappingInEdit.sets[i]);
+			}
+
+			// Notify that there are changes: in calling function
+			return true;
+	}
+
+    bool FullKeySetEditAction::undo()
+	{
+        auto mainComponent = TerpstraSysExApplication::getApp().getMainContentComponent();
+        jassert(mainComponent != nullptr);
+        TerpstraKeyMapping& mappingInEdit = mainComponent->getMappingInEdit();
+
+        for ( int i = 0; i < NUMBEROFBOARDS; i++)
+        {
+			mappingInEdit.sets[i] = previousData[i];
+
+			// Send to device
+			TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(i + 1, mappingInEdit.sets[i]);
+        }
+
+        // Notify that there are changes: in calling function
+        return true;
+    }
+
+	// ==============================================================================
 	// Implementation of InvertFootControllerEditAction
 
 	InvertFootControllerEditAction::InvertFootControllerEditAction(bool newValue)
