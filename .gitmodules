@@ -1,0 +1,4 @@
+[submodule "Source/HajuLib"]
+	path = Source/HajuLib
+	url = https://github.com/hsstraub/HajuLib
+	branch = main
