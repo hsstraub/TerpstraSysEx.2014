@@ -386,24 +386,24 @@ void IsomorphicMassAssign::saveStateToPropertiesFile(PropertiesFile* propertiesF
 	// TODO: Save full ScaleStructure state
 }
 
-void IsomorphicMassAssign::setSaveSend(int setSelection, int keySelection, int noteIndex)
+void IsomorphicMassAssign::addToUndoableAction(
+    Lumatone::FullKeySetEditAction* editAction, int setSelection, int keySelection, int noteIndex)
 {
-	// XXX This could be in a common base class for all assign edit components
-
-	auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
-
-	// Save data
+	// Add data to editAction
 	this->mappingLogic->indexToTerpstraKey(
         noteIndex,
-		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
+		editAction->newData[setSelection].theKeys[keySelection]);
 
-	// Send to device
-	TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(setSelection + 1, keySelection,
-		mainComponent->getMappingInEdit().sets[setSelection].theKeys[keySelection]);
+    editAction->isEmpty = false;
 }
 
 // Fill a line in current octave board. Starting point is assumed to have been set
-void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize)
+void IsomorphicMassAssign::fillLine(
+    Lumatone::FullKeySetEditAction* editAction,
+    int setSelection,
+    TerpstraBoardGeometry::StraightLine& line,
+    int startPos, int startNoteIndex,
+    int stepSize)
 {
 	jassert(stepSize != 0);
 
@@ -413,7 +413,7 @@ void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::Str
 		pos < line.size() && noteIndex < this->mappingLogic->globalMappingSize();
 		pos++, noteIndex += stepSize)
 	{
-		setSaveSend(setSelection, line[pos], noteIndex);
+		addToUndoableAction(editAction, setSelection, line[pos], noteIndex);
 	}
 
 	// Backward
@@ -421,12 +421,17 @@ void IsomorphicMassAssign::fillLine(int setSelection, TerpstraBoardGeometry::Str
 		pos >= 0 && noteIndex >= 0;
 		pos--, noteIndex -= stepSize)
 	{
-		setSaveSend(setSelection, line[pos], noteIndex);
+		addToUndoableAction(editAction, setSelection, line[pos], noteIndex);
 	}
 }
 
 // Fill a horizontal line over all octave boards. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize)
+void IsomorphicMassAssign::fillGlobalLine(
+    Lumatone::FullKeySetEditAction* editAction,
+    int setSelection,
+    TerpstraBoardGeometry::StraightLineSet& globalLine,
+    int startPos, int startNoteIndex,
+    int stepSize)
 {
 	jassert(stepSize != 0);
 
@@ -440,7 +445,7 @@ void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometr
 		pos < globalLine[setSelection].size() && noteIndex < this->mappingLogic->globalMappingSize();
 		pos++, noteIndex += stepSize)
 	{
-		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
+		addToUndoableAction(editAction, setSelection, globalLine[setSelection][pos], noteIndex);
 	}
 
 	// Following octave boards
@@ -450,7 +455,7 @@ void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometr
             pos < globalLine[octaveBoardIndex].size() && noteIndex < this->mappingLogic->globalMappingSize();
             pos++, noteIndex += stepSize)
         {
-            setSaveSend(octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
+            addToUndoableAction(editAction, octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
         }
     }
 
@@ -460,7 +465,7 @@ void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometr
 
 	for (pos = startPos - 1; pos >= 0 && noteIndex >= 0; pos--, noteIndex -= stepSize)
 	{
-		setSaveSend(setSelection, globalLine[setSelection][pos], noteIndex);
+		addToUndoableAction(editAction, setSelection, globalLine[setSelection][pos], noteIndex);
 	}
 
     // Preceding octave boards
@@ -470,13 +475,17 @@ void IsomorphicMassAssign::fillGlobalLine(int setSelection, TerpstraBoardGeometr
             pos >=0  && noteIndex >= 0;
             pos--, noteIndex -= stepSize)
         {
-            setSaveSend(octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
+            addToUndoableAction(editAction, octaveBoardIndex, globalLine[octaveBoardIndex][pos], noteIndex);
         }
     }
 }
 
 // Fill a horizontal line and its cutting upwards lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
+void IsomorphicMassAssign::fill2DHorizLineRecursive(
+    Lumatone::FullKeySetEditAction* editAction,
+    int setSelection,
+    TerpstraBoardGeometry::StraightLine& horizLine,
+    int startPos, int startNoteIndex,
 	int horizStepSize, int rUpwStepSize,
 	TerpstraBoardGeometry::StraightLineSet& finishedLines)
 {
@@ -484,14 +493,12 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 	if (!finishedLines.contains(horizLine))
 	{
 		// Fill the line itself
-		fillLine(setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
+		fillLine(editAction, setSelection, horizLine, startPos, startNoteIndex, horizStepSize);
 
 		// Add to list of finished lines
 		finishedLines.add(horizLine);
 
 		// Find cutting lines and fill them
-		auto mainComponent = (MainContentComponent*)(getParentComponent()->getParentComponent()->getParentComponent());
-
 		for (auto horizLineField : horizLine)
 		{
 			// Find the vertical line at this position
@@ -500,18 +507,21 @@ void IsomorphicMassAssign::fill2DHorizLineRecursive(int setSelection, TerpstraBo
 
 			// Start note index: the value that has been set to the horizontal line element (if it has)
 			int rUpStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				mainComponent->getMappingInEdit()
-                .sets[setSelection].theKeys[horizLineField]);
+				editAction->newData[setSelection].theKeys[horizLineField]);
 
             if (rUpStartNoteIndex >= 0)
                 // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-                fill2DRUpwLineRecursive(setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+                fill2DRUpwLineRecursive(editAction, setSelection, rUpLine, rUpStartPos, rUpStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
 
 // Fill a right upward line and its cutting horizontal lines, recursively. Fill only those that have not been filled yet. Starting point is assumed to have been set.
-void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& rUpwLine, int startPos, int startNoteIndex,
+void IsomorphicMassAssign::fill2DRUpwLineRecursive(
+    Lumatone::FullKeySetEditAction* editAction,
+    int setSelection,
+    TerpstraBoardGeometry::StraightLine& rUpwLine,
+    int startPos, int startNoteIndex,
 	int horizStepSize, int rUpwStepSize,
 	TerpstraBoardGeometry::StraightLineSet& finishedLines)
 {
@@ -519,14 +529,12 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 	if (!finishedLines.contains(rUpwLine))
 	{
 		// Fill the line itself
-		fillLine(setSelection, rUpwLine, startPos, startNoteIndex, rUpwStepSize);
+		fillLine(editAction, setSelection, rUpwLine, startPos, startNoteIndex, rUpwStepSize);
 
 		// Add to list of finished lines
 		finishedLines.add(rUpwLine);
 
 		// Find cutting lines and fill them
-		auto mainComponent = dynamic_cast<MainContentComponent*>(getParentComponent()->getParentComponent()->getParentComponent());
-
 		for (auto rUpwLineField : rUpwLine)
 		{
 			// Find the vertical line at this position
@@ -535,11 +543,12 @@ void IsomorphicMassAssign::fill2DRUpwLineRecursive(int setSelection, TerpstraBoa
 
 			// Start note index: the value that has been set to the horizontal line element (if it has)
 			int horizStartNoteIndex = this->mappingLogic->terpstraKeyToIndex(
-				mainComponent->getMappingInEdit().sets[setSelection].theKeys[rUpwLineField]);
+				editAction->newData[setSelection].theKeys[rUpwLineField]);
 
             if (horizStartNoteIndex >= 0)
                 // Fill it and its cutting lines, if it has not been done before. Check of the latter is done inside.
-                fill2DHorizLineRecursive(setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
+                fill2DHorizLineRecursive(
+                    editAction, setSelection, horizLine, horizStartPos, horizStartNoteIndex, horizStepSize, rUpwStepSize, finishedLines);
 		}
 	}
 }
@@ -573,11 +582,12 @@ void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, i
 }
 
 /// <summary>Called from MainComponent when one of the keys is clicked</summary>
-/// <returns>Mapping was changed yes/no</returns>
-bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
+/// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
+UndoableAction* IsomorphicMassAssign::createEditAction(int setSelection, int keySelection)
 {
-	bool mappingChanged = false;
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+
+	auto editAction = new Lumatone::FullKeySetEditAction();
 
 	int startNoteIndex = this->startingPointBox->getSelectedItemIndex();
 	if (this->mappingLogic != nullptr && startNoteIndex >= 0)
@@ -591,27 +601,24 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 		if (horizStepSize != 0 && rUpwStepSize == 0)
 		{
             // Set value of starting point
-            setSaveSend(setSelection, keySelection, startNoteIndex);
+            addToUndoableAction(editAction, setSelection, keySelection, startNoteIndex);
 
 			TerpstraBoardGeometry::StraightLineSet globalHorizLine =
                 boardGeometry.globalHorizontalLineOfField(setSelection, keySelection);
 			int startPos = globalHorizLine[setSelection].indexOf(keySelection);
-			fillGlobalLine(setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
-
-			mappingChanged = true;
+			fillGlobalLine(editAction, setSelection, globalHorizLine, startPos, startNoteIndex, horizStepSize);
 		}
 
 		// Right vertical line
 		else if (horizStepSize == 0 && rUpwStepSize != 0)
 		{
             // Set value of starting point
-            setSaveSend(setSelection, keySelection, startNoteIndex);
+            addToUndoableAction(editAction, setSelection, keySelection, startNoteIndex);
 
 			TerpstraBoardGeometry::StraightLineSet globalRUpLine =
                 boardGeometry.globalRightUpwardLineOfField(setSelection, keySelection);
 			int startPos = globalRUpLine[setSelection].indexOf(keySelection);
-			fillGlobalLine(setSelection, globalRUpLine, startPos, startNoteIndex, rUpwStepSize);
-			mappingChanged = true;
+			fillGlobalLine(editAction, setSelection, globalRUpLine, startPos, startNoteIndex, rUpwStepSize);
 		}
 
 		// Two dimensional: fill whole subset
@@ -625,17 +632,19 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 			TerpstraBoardGeometry::StraightLineSet finishedLineSets[NUMBEROFBOARDS];
 
 		    // Delete all data first
-		    mainComponent->deleteAll(false);
+		    editAction->clearNewData();
 
             // Set value of starting point
-            setSaveSend(setSelection, keySelection, startNoteIndex);
+            addToUndoableAction(editAction, setSelection, keySelection, startNoteIndex);
 
 			// Find the horizontal line
 			auto horizLine = boardGeometry.horizontalLineOfField(keySelection);
 			int startPos = horizLine.indexOf(keySelection);
 
 			// Fill the board of current selection, starting from this line
-			fill2DHorizLineRecursive(setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize,
+			fill2DHorizLineRecursive(
+                editAction,
+                setSelection, horizLine, startPos, startNoteIndex, horizStepSize, rUpwStepSize,
                 finishedLineSets[setSelection]);
 
             // Following octave boards
@@ -645,7 +654,7 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
                 for ( auto succeedinghorizLine : linesWithRightContinuation)
                 {
                     int noteIndex = this->mappingLogic->terpstraKeyToIndex(
-                        mainComponent->getMappingInEdit().sets[octaveBoardIndex-1].theKeys[succeedinghorizLine.getLast()]);
+                        editAction->newData[octaveBoardIndex-1].theKeys[succeedinghorizLine.getLast()]);
 
                     if ( noteIndex >= 0 )
                     {
@@ -653,10 +662,12 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
                         // Value can be assigned to continuation on current board.
                         auto newHorizLine = boardGeometry.continuationOfHorizontalLine(succeedinghorizLine, 1);
 
-                   		setSaveSend(octaveBoardIndex, newHorizLine.getFirst(), noteIndex + horizStepSize);
+                   		addToUndoableAction(editAction, octaveBoardIndex, newHorizLine.getFirst(), noteIndex + horizStepSize);
 
                    		// Fill the whole sub board based on this field
-                        fill2DHorizLineRecursive(octaveBoardIndex, newHorizLine, 0,
+                        fill2DHorizLineRecursive(
+                            editAction,
+                            octaveBoardIndex, newHorizLine, 0,
                             noteIndex + horizStepSize, horizStepSize, rUpwStepSize,
                             finishedLineSets[octaveBoardIndex]);
 
@@ -667,12 +678,12 @@ bool IsomorphicMassAssign::performMouseDown(int setSelection, int keySelection)
 
             // Preceding octave boards
             // ToDo
-
-			mappingChanged = true;
 		}
 	}
 
-	return mappingChanged;
+	// ToDo if edit Action is empty: delete it right away and return nothing?
+	return editAction;
+
 }
 
 //[/MiscUserCode]

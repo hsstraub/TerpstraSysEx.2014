@@ -89,6 +89,25 @@ namespace Lumatone {
 		TerpstraKeys newData;
 	};
 
+	class FullKeySetEditAction : public UndoableAction
+	{
+	public:
+        FullKeySetEditAction();
+		FullKeySetEditAction(const FullKeySetEditAction& second);
+
+		void clearNewData();
+
+		virtual bool perform() override;
+		virtual bool undo() override;
+		int getSizeInUnits() override { return sizeof(FullKeySetEditAction); }
+
+		TerpstraKeys	newData[NUMBEROFBOARDS];    // These are changed directly by MappingLogic
+		bool            isEmpty;
+
+	private:
+        TerpstraKeys	previousData[NUMBEROFBOARDS];
+	};
+
 	class InvertFootControllerEditAction : public UndoableAction
 	{
 	public:

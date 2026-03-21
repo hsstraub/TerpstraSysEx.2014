@@ -27,6 +27,7 @@
 #include "BoardGeometry.h"
 #include "ScaleStructureController/ScaleStructureComponent.h"
 #include "ScaleStructureController/ScaleDesignWindow.h"
+#include "EditActions.h"
 //[/Headers]
 
 
@@ -56,22 +57,35 @@ public:
 	void restoreStateFromPropertiesFile(PropertiesFile* propertiesFile);
 	void saveStateToPropertiesFile(PropertiesFile* propertiesFile);
 
-	// Set, save and maybe send data of one key
-	void setSaveSend(int setSelection, int keySelection, int noteIndex);
+	// Add one key to UndoableAction
+	void addToUndoableAction(
+        Lumatone::FullKeySetEditAction* editAction, int setSelection, int keySelection, int noteIndex);
 
 	// Fill a line, Starting point is assumed to have been set
-	void fillLine(int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
+	void fillLine(
+        Lumatone::FullKeySetEditAction* editAction,
+        int setSelection, TerpstraBoardGeometry::StraightLine& line, int startPos, int startNoteIndex, int stepSize);
 
 	// Fill a line over all octave boards. Starting point is assumed to have been set.
-	void fillGlobalLine(int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize);
+	void fillGlobalLine(
+        Lumatone::FullKeySetEditAction* editAction,
+        int setSelection, TerpstraBoardGeometry::StraightLineSet& globalLine, int startPos, int startNoteIndex, int stepSize);
 
 	// Fill a horizontal line and its cutting upwards lines, recursively
-	void fill2DHorizLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& horizLine, int startPos, int startNoteIndex,
+	void fill2DHorizLineRecursive(
+        Lumatone::FullKeySetEditAction* editAction,
+        int setSelection,
+        TerpstraBoardGeometry::StraightLine& horizLine,
+        int startPos, int startNoteIndex,
 		int horizStepSize, int rUpwStepSize,
 		TerpstraBoardGeometry::StraightLineSet& finishedLines);
 
 	// Fill a right upward line and its cutting horizontal lines, recursively
-	void fill2DRUpwLineRecursive(int setSelection, TerpstraBoardGeometry::StraightLine& rUpwLine, int startPos, int startNoteIndex,
+	void fill2DRUpwLineRecursive(
+        Lumatone::FullKeySetEditAction* editAction,
+        int setSelection,
+        TerpstraBoardGeometry::StraightLine& rUpwLine,
+        int startPos, int startNoteIndex,
 		int horizStepSize, int rUpwStepSize,
 		TerpstraBoardGeometry::StraightLineSet& finishedLines);
 
@@ -82,7 +96,7 @@ public:
 	void scaleStructurePeriodChanged(int newPeriod) override;
 	void scaleStructureStepSizesChanged(int rightUpwardSize, int horizontalSize) override;
 
-	bool performMouseDown(int setSelection, int keySelection);
+	UndoableAction* createEditAction(int setSelection, int keySelection);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
