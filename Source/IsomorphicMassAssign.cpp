@@ -585,7 +585,7 @@ void IsomorphicMassAssign::scaleStructureStepSizesChanged(int rightUpwardSize, i
 /// <returns>Pointer to undoable action to be passed to the undo manager. The latter has to be done in calling function.</returns>
 UndoableAction* IsomorphicMassAssign::createEditAction(int setSelection, int keySelection)
 {
-	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TERPSTRABOARDSIZE);
+	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keySelection >= 0 && keySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 	auto editAction = new Lumatone::FullKeySetEditAction();
 

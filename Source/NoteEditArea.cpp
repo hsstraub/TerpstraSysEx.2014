@@ -78,7 +78,11 @@ NoteEditArea::NoteEditArea ()
 	octaveBoardSelectorTab->addChangeListener(this);
 
 	// Single Key fields
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	int boardSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
+
+	jassert(boardSize == 55 || boardSize == 56);
+
+	for (int i = 0; i < boardSize; i++)
 	{
 		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
 		addAndMakeVisible(terpstraKeyFields[i].get());
@@ -110,7 +114,7 @@ NoteEditArea::~NoteEditArea()
 
 	octaveBoardSelectorTab = nullptr;
 
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 	{
 		terpstraKeyFields[i] = nullptr;
 	}
@@ -181,7 +185,7 @@ void NoteEditArea::resized()
 		}
 	}
 
-	jassert(TERPSTRABOARDSIZE == keyIndex);
+	jassert(TerpstraSysExApplication::getApp().getOctaveBoardSize() == keyIndex);
 
     //[/UserResized]
 }
@@ -191,7 +195,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
     //[UserCode_mouseDown] -- Add your code here...
 
 	// Selection of single key fields
-	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 	{
 		if (e.eventComponent == terpstraKeyFields[keyIndex].get() || e.eventComponent->getParentComponent() == terpstraKeyFields[keyIndex].get())
 		{
@@ -200,7 +204,7 @@ void NoteEditArea::mouseDown (const juce::MouseEvent& e)
 
 			// Perform the edit, according to edit mode. Including sending to device
 			auto setSelection = octaveBoardSelectorTab->getCurrentTabIndex();
-			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE);
+			jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS && keyIndex >= 0 && keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
 			int editMode = editFunctionsTab->getCurrentTabIndex();
 			switch (editMode)
@@ -264,19 +268,19 @@ void NoteEditArea::onSetData(TerpstraKeyMapping& newData)
 
 void NoteEditArea::setKeyFieldValues(const TerpstraKeys& keySet)
 {
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 		terpstraKeyFields[i]->setValue(keySet.theKeys[i]);
 }
 
 void NoteEditArea::changeSingleKeySelection(int newSelection)
 {
 	// Unselect previous key
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(false);
 
 	// Select new key
 	currentSingleKeySelection = newSelection;
-	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TERPSTRABOARDSIZE)
+	if (currentSingleKeySelection >= 0 && currentSingleKeySelection < TerpstraSysExApplication::getApp().getOctaveBoardSize())
 		terpstraKeyFields[currentSingleKeySelection]->setIsSelected(true);
 }
 

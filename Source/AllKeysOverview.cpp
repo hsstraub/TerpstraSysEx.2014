@@ -203,14 +203,20 @@ AllKeysOverview::AllKeysOverview ()
 
     //[UserPreSize]
 
+    octaveBoards.clear();
+
 	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
+        OctaveBoard* board = octaveBoards.add(new OctaveBoard());
+
 		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		{
-			octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].reset(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
-			addAndMakeVisible(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex].get());
+            auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
+            addAndMakeVisible(key);
 		}
 	}
+
+	jassert(octaveBoards.size() == NUMBEROFBOARDS);
 
     //[/UserPreSize]
 
@@ -230,13 +236,6 @@ AllKeysOverview::~AllKeysOverview()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-	{
-		for (int i = 0; i < TERPSTRABOARDSIZE; i++)
-		{
-			octaveBoards[subBoardIndex].keyMiniDisplay[i] = nullptr;
-		}
-	}
     //[/Destructor]
 }
 
@@ -256,8 +255,8 @@ void AllKeysOverview::paint (juce::Graphics& g)
 	{
 		Path selectionMarkPath;
 		auto yPos = getHeight() - TERPSTRAKEYSETVERTICALRIM / 2;
-		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection].leftPos, yPos);
-		selectionMarkPath.lineTo(octaveBoards[currentSetSelection].rightPos, yPos);
+		selectionMarkPath.startNewSubPath(octaveBoards[currentSetSelection]->leftPos, yPos);
+		selectionMarkPath.lineTo(octaveBoards[currentSetSelection]->rightPos, yPos);
 
 		Colour lineColour = findColour(TerpstraKeyEdit::outlineColourId);
 		g.setColour(lineColour);
@@ -293,8 +292,8 @@ void AllKeysOverview::resized()
 	for (subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 	{
 		keyIndex = 0;
-		octaveBoards[subBoardIndex].leftPos = newWidth;
-		octaveBoards[subBoardIndex].rightPos = 0;
+		octaveBoards[subBoardIndex]->leftPos = newWidth;
+		octaveBoards[subBoardIndex]->rightPos = 0;
 
 		for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 		{
@@ -312,12 +311,12 @@ void AllKeysOverview::resized()
 				x = xbasepos + (boardGeometry.firstColumnOffset(rowIndex) + posInRow)*newSingleKeySize;
 				y = ybasepos;
 				transform.transformPoint(x, y);
-				octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->setBounds(roundToInt(x), roundToInt(y), newSingleKeySize, newSingleKeySize);
+				octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->setBounds(roundToInt(x), roundToInt(y), newSingleKeySize, newSingleKeySize);
 
-				mostBottomKeyPos = jmax(mostBottomKeyPos, octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getBottom());
+				mostBottomKeyPos = jmax(mostBottomKeyPos, octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->getBottom());
 
-				octaveBoards[subBoardIndex].leftPos = jmin(octaveBoards[subBoardIndex].leftPos, octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getX());
-				octaveBoards[subBoardIndex].rightPos = jmax(octaveBoards[subBoardIndex].rightPos, octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getRight());
+				octaveBoards[subBoardIndex]->leftPos = jmin(octaveBoards[subBoardIndex]->leftPos, octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->getX());
+				octaveBoards[subBoardIndex]->rightPos = jmax(octaveBoards[subBoardIndex]->rightPos, octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->getRight());
 
 				keyIndex++;
 			}
@@ -330,10 +329,10 @@ void AllKeysOverview::resized()
 		int ydispacement = (newHeight - TERPSTRAKEYSETVERTICALRIM - mostBottomKeyPos)/2;
 		for (subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
 		{
-			for (keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+			for (keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 			{
-				octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->setTopLeftPosition(
-					juce::Point<int>(octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getX(), octaveBoards[subBoardIndex].keyMiniDisplay[keyIndex]->getY() + ydispacement));
+				octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->setTopLeftPosition(
+					juce::Point<int>(octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->getX(), octaveBoards[subBoardIndex]->keyMiniDisplay[keyIndex]->getY() + ydispacement));
 			}
 		}
 	}

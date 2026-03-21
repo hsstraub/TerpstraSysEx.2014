@@ -57,7 +57,7 @@ Combined (hi-level) commands
 
 void TerpstraMidiDriver::sendAllParamsOfBoard(int boardIndex, TerpstraKeys boardData)
 {
-	for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+	for (int keyIndex = 0; keyIndex < 56; keyIndex++)
 		sendKeyParam(boardIndex, keyIndex, boardData.theKeys[keyIndex]);
 }
 

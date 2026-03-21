@@ -9,6 +9,7 @@
 */
 
 #include "KeyboardDataStructure.h"
+#include "Main.h"
 
 /*
 ==============================================================================
@@ -18,7 +19,7 @@ TerpstraKeys class
 
 TerpstraKeys::TerpstraKeys()
 {
-	for (int i = 0; i < TERPSTRABOARDSIZE; i++)
+	for (int i = 0; i < 56; i++)
 		theKeys[i] = TerpstraKey();
 	board_idx = 0;
 	key_idx = 0;
@@ -30,7 +31,7 @@ bool TerpstraKeys::isEmpty() const
 	TerpstraKey emptyKeyData = TerpstraKey();
 
 	bool setIsEmpty = true;
-	for (int i = 0; i < TERPSTRABOARDSIZE && setIsEmpty; i++)
+	for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize() && setIsEmpty; i++)
 	{
 		if (theKeys[i] != emptyKeyData)
 		{
@@ -217,7 +218,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
-					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+					if (keyIndex >= 0 && keyIndex < 56)
 						sets[boardIndex].theKeys[keyIndex].noteNumber = keyValue;
 					else
 						jassert(false);
@@ -230,7 +231,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
-					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE) {
+					if (keyIndex >= 0 && keyIndex < 56) {
 						sets[boardIndex].theKeys[keyIndex].channelNumber = keyValue;
 
 						if ( keyIndex == 55)
@@ -246,7 +247,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				int keyIndex = currentLine.substring(pos1 + 4, pos2).getIntValue();
 				int colValue = currentLine.substring(pos2 + 1).getHexValue32();
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
-					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+					if (keyIndex >= 0 && keyIndex < 56)
 						sets[boardIndex].theKeys[keyIndex].colour = colValue;
 					else
 						jassert(false);
@@ -259,7 +260,7 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				int keyIndex = currentLine.substring(pos1 + 5, pos2).getIntValue();
 				int keyValue = currentLine.substring(pos2 + 1).getIntValue();
 				if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
-					if (keyIndex >= 0 && keyIndex < TERPSTRABOARDSIZE)
+					if (keyIndex >= 0 && keyIndex < 56)
 						sets[boardIndex].theKeys[keyIndex].keyType = (LumatoneKeyType)keyValue;
 					else
 					jassert(false);
@@ -331,7 +332,7 @@ StringArray TerpstraKeyMapping::toStringArray()
 	{
 		result.add("[Board" + String(boardIndex) + "]");
 
-		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 		{
 			result.add("Key_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].noteNumber));
 			result.add("Chan_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].channelNumber));
@@ -371,7 +372,7 @@ SortedSet<int> TerpstraKeyMapping::getUsedColours()
 
 	for (int boardIndex = 0; boardIndex < NUMBEROFBOARDS; boardIndex++)
 	{
-		for (int keyIndex = 0; keyIndex < TERPSTRABOARDSIZE; keyIndex++)
+		for (int keyIndex = 0; keyIndex < 56; keyIndex++)
 		{
 			result.add(sets[boardIndex].theKeys[keyIndex].colour);
 		}
