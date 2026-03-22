@@ -13,6 +13,10 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="OGo7Oh" name="LumatoneController.cpp" compile="1" resource="0"
+            file="Source/LumatoneController.cpp"/>
+      <FILE id="qsXqlk" name="LumatoneController.h" compile="0" resource="0"
+            file="Source/LumatoneController.h"/>
       <FILE id="wIyitL" name="EditActions.cpp" compile="1" resource="0" file="Source/EditActions.cpp"/>
       <FILE id="fRZLXh" name="EditActions.h" compile="0" resource="0" file="Source/EditActions.h"/>
       <FILE id="rsvJEz" name="LumatoneFirmwareDefinitions.h" compile="0"

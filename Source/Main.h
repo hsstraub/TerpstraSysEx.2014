@@ -10,13 +10,14 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "LumatoneMenu.h"
 #include "MainWindow.h"
 #include "MainComponent.h"
 #include "KeyboardDataStructure.h"
 #include "ViewConstants.h"
 #include "TerpstraMidiDriver.h"
+#include "LumatoneController.h"
 
 #define CHOOSE_FILE_NOOP [](bool) -> void {}
 
@@ -47,7 +48,8 @@ public:
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
-	int getOctaveBoardSize() const { return octaveBoardSize; }
+	LumatoneController* getLumatoneController() { return lumatoneController.get(); }
+	int getOctaveBoardSize() const { return lumatoneController->getOctaveSize(); }
 
 	// Menu functionality
 	ApplicationCommandManager* getCommandManager() { return commandManager.get(); }
@@ -97,7 +99,7 @@ private:
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
 	juce::UndoManager undoManager;
-	
+
 	LookAndFeel_V4				lookAndFeel;
 
 	PropertiesFile*				propertiesFile;
@@ -108,8 +110,6 @@ private:
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;
-
-	// Size of octaver board. Usually 56, but there are a few devices with55.
-	int octaveBoardSize = 56;
+    std::unique_ptr<LumatoneController> lumatoneController;
 };
 
