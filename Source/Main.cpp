@@ -37,6 +37,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	lumatoneController = std::make_unique<LumatoneController>();
+
 	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
 	midiDriver.setManufacturerId(manufacturerId);
 
@@ -123,10 +125,10 @@ void TerpstraSysExApplication::systemRequestedQuit()
 	if (hasChangesToSave)
 	{
 		AlertWindow::showYesNoCancelBox(
-			AlertWindow::AlertIconType::QuestionIcon, 
-			"Quitting the application", 
-			"Do you want to save your changes?", 
-			"Yes", "No", "Cancel", nullptr, 
+			AlertWindow::AlertIconType::QuestionIcon,
+			"Quitting the application",
+			"Do you want to save your changes?",
+			"Yes", "No", "Cancel", nullptr,
 			ModalCallbackFunction::create([&](int retc)
 			{
 				if (retc == 0)
@@ -173,7 +175,7 @@ void TerpstraSysExApplication::getAllCommands(Array <CommandID>& commands)
 		Lumatone::Menu::commandIDs::deleteOctaveBoard,
 		Lumatone::Menu::commandIDs::copyOctaveBoard,
 		Lumatone::Menu::commandIDs::pasteOctaveBoard,
-        
+
 		Lumatone::Menu::commandIDs::undo,
 		Lumatone::Menu::commandIDs::redo,
 
@@ -576,7 +578,7 @@ bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)>
 	StringArray stringArray = keyMapping.toStringArray();
 	for (int i = 0; i < stringArray.size(); i++)
 		appendSuccess = appendSuccess && currentFile.appendText(stringArray[i] + "\n");
-        
+
 	setHasChangesToSave(!appendSuccess);
     saveFileCallback(appendSuccess);
 
@@ -589,7 +591,7 @@ bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)>
 void TerpstraSysExApplication::sendCurrentMappingToDevice()
 {
 	auto theConfig = getMainContentComponent()->getMappingInEdit();
-	
+
 	// MIDI channel, MIDI note, colour and key type config for all keys
 	getMidiDriver().sendCompleteMapping(theConfig);
 
@@ -601,7 +603,7 @@ void TerpstraSysExApplication::sendCurrentMappingToDevice()
 	getMidiDriver().sendInvertSustainPedal(theConfig.invertSustain);
 
 	// Velocity curve config
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);	
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
 	// ToDo Note on/off velocity configuration
 	// ToDo Fader configuration
 	// ToDo Aftertouch configuration
@@ -643,7 +645,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 		<< "Version with isomorphic mass assign and simplified GUI @ Hans Straub 2024"
 		<< newLine
 		<< "For help on using this program, or any questions relating to the Lumatone keyboard, go to" << newLine
-		<< newLine 
+		<< newLine
 		<< "http://lumatone.io";
 
 	DialogWindow::LaunchOptions options;
