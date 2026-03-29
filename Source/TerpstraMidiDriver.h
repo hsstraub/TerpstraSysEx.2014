@@ -114,20 +114,36 @@ public:
 	// Send parametrization of light on keystrokes
 	void sendLightOnKeyStrokes(bool value);
 
-	// Send a value for a velocity lookup table
-	void sendVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType, unsigned char velocityTable[]);
+	// CMD 08h: Send a value for a velocity lookup table (128 7-bit values)
+	void sendVelocityConfig(unsigned char velocityTable[]);
 
-	// Save velocity config to EEPROM
-	void saveVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
+	// CMD 09h: Save velocity config to EEPROM
+	void saveVelocityConfig();
 
-	// reset velocity config to value from EEPROM
-	void resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
+	// CMD 0Ah: Reset velocity config to value from EEPROM
+	void resetVelocityConfig();
+
+	// CMD 0Bh: Adjust the internal fader look-up table (size of 128)
+	void sendFaderConfig(unsigned char faderTable[]);
+
+	// CMD 0Ch: **DEPRECATED** Save the changes made to the fader look-up table
+	void saveFaderConfiguration();
+
+	// CMD 0Dh: Reset the fader lookup table back to its factory fader settings.
+	void resetFaderConfig();
 
 	void sendAfterTouchActivation(bool value);
 
 	void sendCalibrateAfterTouch();
 
-    void sendVelocityIntervalConfig(int velocityIntervalTable[]);
+	// CMD 10h: Adjust the internal aftertouch look-up table (size of 128)
+	void sendAftertouchConfig(unsigned char aftertouchTable[]);
+
+	// CMD 11h: **DEPRECATED** Save the changes made to the aftertouch look-up table
+	void saveAftertouchConfig();
+
+	// CMD 12h: Reset the aftertouch lookup table back to its factory aftertouch settings.
+	void resetAftertouchConfig();
 
 	void sendRedLEDConfigurationRequest(int boardIndex);
 
@@ -141,9 +157,26 @@ public:
 
 	void sendKeyTypeConfigurationRequest(int boardIndex);
 
-	void sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
+	// CMD 1Dh: Read back the current velocity look up table of the keyboard.
+	void sendVelocityConfigRequest();
 
+	// CMD 1Eh: Read back the current fader look up table of the keyboard.
+	void sendFaderConfigRequest();
+
+	// CMD 1Fh: Read back the current aftertouch look up table of the keyboard.
+	void sendAftertouchConfigRequest();
+
+	// CMD 20h: Set the velocity interval table, 127 12-bit values (up to 0x7fff
+    void sendVelocityIntervalConfig(int velocityIntervalTable[]);
+
+	// CMD 21h: Sead back the velocity interval table
 	void sendVelocityIntervalConfigRequest();
+
+	// CMD 22h: Read back the fader type of all keys on the targeted board.
+	void sendFaderTypeConfigRequest(uint8 boardIndex);
+
+	// CMD 23h: This command is used to read back the serial identification number of the keyboard.
+	void sendGetSerialIdentityRequest(int sendToTestDevice = -1);
 
 	////////////////////////////////////////////////////////////////////////////
 	// CMD 45h: Configure the on/off settings of the sustain pedal

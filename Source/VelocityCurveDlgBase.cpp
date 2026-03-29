@@ -251,7 +251,21 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
 		velocityValues[x] = velocityBeamTable[x]->getValue();
 	}
 
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityCurveType, velocityValues);
+    switch(velocityCurveType)
+    {
+        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
+            TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfig(velocityValues);
+            break;
+        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
+            TerpstraSysExApplication::getApp().getMidiDriver().sendFaderConfig(velocityValues);
+            break;
+        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
+            TerpstraSysExApplication::getApp().getMidiDriver().sendAftertouchConfig(velocityValues);
+            break;
+        default:
+            jassert(false);
+            break;
+    }
 }
 
 bool VelocityCurveDlgBase::showBeamValueOfMousePosition(juce::Point<float> localPoint)

@@ -138,8 +138,41 @@ void TerpstraMidiDriver::sendLightOnKeyStrokes(bool value)
 }
 
 
-// Send a value for a velocity lookup table
-void TerpstraMidiDriver::sendVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType, unsigned char velocityTable[])
+// CMD 08h: Send a value for a velocity lookup table
+void TerpstraMidiDriver::sendVelocityConfig(unsigned char velocityTable[])
+{
+	if (midiOutput != nullptr)
+	{
+        // ToDO Values are in reverse order (shortest ticks count is the highest velocity)
+		unsigned char sysExData[133];
+		sysExData[0] = (manufacturerId >> 16) & 0xff;
+		sysExData[1] = (manufacturerId >> 8) & 0xff;
+		sysExData[2] = manufacturerId & 0xff;
+		sysExData[3] = '\0';
+
+        sysExData[4] = SET_VELOCITY_CONFIG;
+
+		memmove(&sysExData[5], velocityTable, 128);
+
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+		sendMessageNow(msg);
+	}
+}
+
+// CMD 09h: Save velocity config to EEPROM
+void TerpstraMidiDriver::saveVelocityConfig()
+{
+    sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+// CMD 0Ah: Reset velocity config to value from EEPROM
+void TerpstraMidiDriver::resetVelocityConfig()
+{
+    sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+// CMD 0Bh: Adjust the internal fader look-up table (128 7-bit values)
+void TerpstraMidiDriver::sendFaderConfig(unsigned char velocityTable[])
 {
 	if (midiOutput != nullptr)
 	{
@@ -149,21 +182,7 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraVelocityCurveConfig::Velocit
 		sysExData[2] = manufacturerId & 0xff;
 		sysExData[3] = '\0';
 
-		switch(velocityCurveType)
-		{
-		    case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-                sysExData[4] = SET_VELOCITY_CONFIG;
-                break;
-            case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-                sysExData[4] = SET_FADER_CONFIG;
-                break;
-            case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-                sysExData[4] = SET_AFTERTOUCH_CONFIG;
-                break;
-            default:
-                jassert(false);
-                break;
-		}
+        sysExData[4] = SET_FADER_CONFIG;
 
 		memmove(&sysExData[5], velocityTable, 128);
 
@@ -172,80 +191,62 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraVelocityCurveConfig::Velocit
 	}
 }
 
-void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
+// CMD 0Ch: **DEPRECATED** Save the changes made to the fader look-up table
+void TerpstraMidiDriver::saveFaderConfiguration()
 {
-	if (midiOutput != nullptr)
-	{
-		unsigned char sysExData[259];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = '\0';
-        sysExData[4] = SET_VELOCITY_INTERVALS;
-
-        // Interval table contains 127 values!
-        for ( int i = 0; i<127; i++)
-        {
-            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
-            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
-        }
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
-		sendMessageNow(msg);
-	}
+    sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0');
 }
 
-// Save velocity config to EEPROM
-void TerpstraMidiDriver::saveVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+// CMD 0Dh: Reset the fader lookup table back to its factory fader settings.
+void TerpstraMidiDriver::resetFaderConfig()
 {
-    switch(velocityCurveType)
-    {
-        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, SAVE_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-            sendSysEx(0, SAVE_FADER_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        default:
-            jassert(false);
-            break;
-    }
+    sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
 }
 
-// reset velocity config to value from EEPROM
-void TerpstraMidiDriver::resetVelocityConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
-{
-    switch(velocityCurveType)
-    {
-        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, RESET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-            sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, RESET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        default:
-            jassert(false);
-            break;
-    }
-}
-
-// Enable or disable aftertouch functionality
+// CMD 0Eh: Enable or disable aftertouch functionality
 void TerpstraMidiDriver::sendAfterTouchActivation(bool value)
 {
 	sendSysEx(0, SET_AFTERTOUCH_FLAG, value ? '\1' : '\0', '\0', '\0', '\0');
 }
 
-// Initiate aftertouch calibration routine
+// CMD 0Fh: Initiate aftertouch calibration routine
 void TerpstraMidiDriver::sendCalibrateAfterTouch()
 {
 	sendSysEx(0, CALIBRATE_AFTERTOUCH, '\0', '\0', '\0', '\0');
 }
+
+// CMD 10h: Adjust the internal aftertouch look-up table (size of 128)
+void TerpstraMidiDriver::sendAftertouchConfig(unsigned char velocityTable[])
+{
+	if (midiOutput != nullptr)
+	{
+		unsigned char sysExData[133];
+		sysExData[0] = (manufacturerId >> 16) & 0xff;
+		sysExData[1] = (manufacturerId >> 8) & 0xff;
+		sysExData[2] = manufacturerId & 0xff;
+		sysExData[3] = '\0';
+
+        sysExData[4] = SET_AFTERTOUCH_CONFIG;
+
+		memmove(&sysExData[5], velocityTable, 128);
+
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+		sendMessageNow(msg);
+	}
+}
+
+// CMD 11h: **DEPRECATED** Save the changes made to the aftertouch look-up table
+void TerpstraMidiDriver::saveAftertouchConfig()
+{
+    sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+// CMD 12h: Reset the aftertouch lookup table back to its factory aftertouch settings.
+void TerpstraMidiDriver::resetAftertouchConfig()
+{
+    sendSysEx(0, RESET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
+}
+
 
 void TerpstraMidiDriver::sendRedLEDConfigurationRequest(int boardIndex)
 {
@@ -278,26 +279,49 @@ void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(int boardIndex)
 
 }
 
-void TerpstraMidiDriver::sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType)
+// CMD 1Dh: Read back the current velocity look up table of the keyboard.
+void TerpstraMidiDriver::sendVelocityConfigRequest()
 {
-    switch(velocityCurveType)
-    {
-        case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-            sendSysEx(0, GET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-            sendSysEx(0, GET_FADER_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, GET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
-            break;
-        default:
-            jassert(false);
-            break;
-    }
+    sendSysEx(0, GET_VELOCITY_CONFIG, '\0', '\0', '\0', '\0');
 }
 
+// CMD 1Eh: Read back the current fader look up table of the keyboard.
+void TerpstraMidiDriver::sendFaderConfigRequest()
+{
+    sendSysEx(0, GET_FADER_CONFIG, '\0', '\0', '\0', '\0');
+}
 
+// CMD 1Fh: Read back the current aftertouch look up table of the keyboard.
+void TerpstraMidiDriver::sendAftertouchConfigRequest()
+{
+    sendSysEx(0, GET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+// CMD 20h: Set the velocity interval table, 127 12-bit values
+void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
+{
+	if (midiOutput != nullptr)
+	{
+		unsigned char sysExData[259];
+		sysExData[0] = (manufacturerId >> 16) & 0xff;
+		sysExData[1] = (manufacturerId >> 8) & 0xff;
+		sysExData[2] = manufacturerId & 0xff;
+		sysExData[3] = '\0';
+        sysExData[4] = SET_VELOCITY_INTERVALS;
+
+        // Interval table contains 127 values!
+        for ( int i = 0; i<127; i++)
+        {
+            sysExData[5 + 2*i] = velocityIntervalTable[i] >> 6;
+            sysExData[6 + 2*i] = velocityIntervalTable[i] & 0x3f;
+        }
+
+		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
+		sendMessageNow(msg);
+	}
+}
+
+// CMD 21h: Sead back the velocity interval table
 void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
 {
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');

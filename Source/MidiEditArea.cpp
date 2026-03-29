@@ -292,9 +292,9 @@ void MidiEditArea::requestConfigurationFromDevice()
 
 	// Velocity curve config
 	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfigRequest();
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigurationRequest(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
+	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityConfigRequest();
+	TerpstraSysExApplication::getApp().getMidiDriver().sendFaderConfigRequest();
+	TerpstraSysExApplication::getApp().getMidiDriver().sendAftertouchConfigRequest();
 }
 
 
