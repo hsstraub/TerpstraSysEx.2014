@@ -145,16 +145,22 @@ public:
 	// CMD 12h: Reset the aftertouch lookup table back to its factory aftertouch settings.
 	void resetAftertouchConfig();
 
+	// CMD 13h: Read back the current red intensity of all the keys of the target board.
 	void sendRedLEDConfigurationRequest(int boardIndex);
 
+	// CMD 14h: Read back the current green intensity of all the keys of the target board.
 	void sendGreenLEDConfigurationRequest(int boardIndex);
 
+	// CMD 15h: Read back the current blue intensity of all the keys of the target board.
 	void sendBlueLEDConfigurationRequest(int boardIndex);
 
+	// CMD 16h: Read back the current channel configuration of all the keys of the target board.
 	void sendChannelConfigurationRequest(int boardIndex);
 
+	// CMD 17h: Read back the current note configuration of all the keys of the target board.
 	void sendNoteConfigurationRequest(int boardIndex);
 
+	// CMD 18h: Read back the current key type configuration of all the keys of the target board.
 	void sendKeyTypeConfigurationRequest(int boardIndex);
 
 	// CMD 1Dh: Read back the current velocity look up table of the keyboard.
@@ -207,6 +213,11 @@ public:
     bool messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage);
 
 private:
+	// Fill a buffer with 3-bytes representing the manufacturer's ID
+	void fillManufacturerId(unsigned char* data) const;
+
+	MidiMessage createTableSysEx(unsigned char cmd, unsigned char table[]);
+
 	// Low-level SysEx message sending
 	void sendMessageWithAcknowledge(const MidiMessage& message);
 

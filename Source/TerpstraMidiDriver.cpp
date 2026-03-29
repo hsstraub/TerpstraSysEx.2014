@@ -143,18 +143,14 @@ void TerpstraMidiDriver::sendVelocityConfig(unsigned char velocityTable[])
 {
 	if (midiOutput != nullptr)
 	{
-        // ToDO Values are in reverse order (shortest ticks count is the highest velocity)
-		unsigned char sysExData[133];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = '\0';
+        // Values are in reverse order (shortest ticks count is the highest velocity)
+        uint8 reversedTable[128];
+        for (uint8 x = 0; x < 128; x++)
+        {
+            reversedTable[x] = velocityTable[127 - x] & 0x7f;
+        }
 
-        sysExData[4] = SET_VELOCITY_CONFIG;
-
-		memmove(&sysExData[5], velocityTable, 128);
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+        auto msg = createTableSysEx(SET_VELOCITY_CONFIG, reversedTable);
 		sendMessageNow(msg);
 	}
 }
@@ -172,21 +168,11 @@ void TerpstraMidiDriver::resetVelocityConfig()
 }
 
 // CMD 0Bh: Adjust the internal fader look-up table (128 7-bit values)
-void TerpstraMidiDriver::sendFaderConfig(unsigned char velocityTable[])
+void TerpstraMidiDriver::sendFaderConfig(unsigned char faderTable[])
 {
 	if (midiOutput != nullptr)
 	{
-		unsigned char sysExData[133];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = '\0';
-
-        sysExData[4] = SET_FADER_CONFIG;
-
-		memmove(&sysExData[5], velocityTable, 128);
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+        MidiMessage msg = createTableSysEx(SET_FADER_CONFIG, faderTable);
 		sendMessageNow(msg);
 	}
 }
@@ -216,21 +202,11 @@ void TerpstraMidiDriver::sendCalibrateAfterTouch()
 }
 
 // CMD 10h: Adjust the internal aftertouch look-up table (size of 128)
-void TerpstraMidiDriver::sendAftertouchConfig(unsigned char velocityTable[])
+void TerpstraMidiDriver::sendAftertouchConfig(unsigned char aftertouchTable[])
 {
 	if (midiOutput != nullptr)
 	{
-		unsigned char sysExData[133];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
-		sysExData[3] = '\0';
-
-        sysExData[4] = SET_AFTERTOUCH_CONFIG;
-
-		memmove(&sysExData[5], velocityTable, 128);
-
-		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 133);
+        MidiMessage msg = createTableSysEx(SET_AFTERTOUCH_CONFIG, aftertouchTable);
 		sendMessageNow(msg);
 	}
 }
@@ -303,9 +279,7 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
 	if (midiOutput != nullptr)
 	{
 		unsigned char sysExData[259];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
+        fillManufacturerId(sysExData);
 		sysExData[3] = '\0';
         sysExData[4] = SET_VELOCITY_INTERVALS;
 
@@ -338,15 +312,34 @@ void TerpstraMidiDriver::sendInvertSustainPedal(bool value)
 Low-level SysEx calls
 */
 
+void TerpstraMidiDriver::fillManufacturerId(unsigned char* data) const
+{
+    sysExData[0] = (manufacturerId >> 16) & 0xff;
+    sysExData[1] = (manufacturerId >> 8) & 0xff;
+    sysExData[2] = manufacturerId & 0xff;
+}
+
+MidiMessage TerpstraMidiDriver::createTableSysEx(unsigned char cmd, unsigned char table[])
+{
+    unsigned char sysExData[133];
+    fillManufacturerId(sysExData);
+    sysExData[3] = '\0';
+
+    sysExData[4] = cmd;
+
+    memmove(&sysExData[5], table, 128);
+
+    auto msg = MidiMessage::createSysExMessage(sysExData, 133);
+    return msg;
+}
+
 void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
 {
 	// Send only if output device is there and SysEx sending is meant to be active
 	if (midiOutput != nullptr & currentSysExSendingMode == sysExSendingMode::liveEditor)
 	{
 		unsigned char sysExData[9];
-		sysExData[0] = (manufacturerId >> 16) & 0xff;
-		sysExData[1] = (manufacturerId >> 8) & 0xff;
-		sysExData[2] = manufacturerId & 0xff;
+        fillManufacturerId(sysExData);
 		sysExData[3] = boardIndex;
 		sysExData[4] = cmd;
 		sysExData[5] = data1;
