@@ -57,6 +57,13 @@ public:
 		quadraticCurves = 2
 	} EDITSTRATEGYINDEX;
 
+ 	typedef enum
+	{
+		noteOnNoteOff = 1,
+		fader = 2,
+		afterTouch = 3
+	} VelocityCurveType;
+
 public:
 	TerpstraVelocityCurveConfig();
 	TerpstraVelocityCurveConfig(const String& velocityCurveConfigString);

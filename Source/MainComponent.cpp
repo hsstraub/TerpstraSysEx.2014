@@ -179,21 +179,21 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 
 				curvesArea->resized();
 				curvesArea->repaint();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)) {
+			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)) {
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 				for (int x = 0; x < 128; x++)
 					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::fader)) {
+			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::fader)) {
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 				for (int x = 0; x < 128; x++)
 					this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraMidiDriver::VelocityCurveType::afterTouch)) {
+			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch)) {
 				// After the answer state byte there must be 128 bytes of data
 				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
 				this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;

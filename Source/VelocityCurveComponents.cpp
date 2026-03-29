@@ -92,7 +92,7 @@ juce::Point<float> VelocityCurveBeam::getBottomMid()
 
 float VelocityCurveBeam::getBeamHeightFromValue(int value)
 {
-	return value * this->getHeight() / 128;
+	return value * this->getHeight() / 128.0f;
 }
 
 int VelocityCurveBeam::getBeamValueFromLocalPoint(juce::Point<float> localPoint)

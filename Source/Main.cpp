@@ -463,7 +463,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 
 bool TerpstraSysExApplication::faderVelocityCurveDialog()
 {
-	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::fader);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
 	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("FaderVelocityCurveWindowWidth", 648);
@@ -487,7 +487,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 
 bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
 {
-	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::afterTouch);
+	VelocityCurveDlgBase* velocityCurveWindow = new VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
 	velocityCurveWindow->setLookAndFeel(&lookAndFeel);
 
 	int dlgWidth = propertiesFile->getIntValue("AftertouchVelocityCurveWindowWidth", 768);

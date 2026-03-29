@@ -24,7 +24,7 @@
 
 #include "VelocityCurveComponents.h"
 #include "VelocityCurveEditStrategy.h"
-#include "TerpstraMidiDriver.h"
+#include "KeyboardDataStructure.h"
 
 //[/Headers]
 
@@ -43,7 +43,7 @@ class VelocityCurveDlgBase  : public Component,
 {
 public:
     //==============================================================================
-    VelocityCurveDlgBase (TerpstraMidiDriver::VelocityCurveType typeValue);
+    VelocityCurveDlgBase (TerpstraVelocityCurveConfig::VelocityCurveType typeValue);
     ~VelocityCurveDlgBase() override;
 
     //==============================================================================
@@ -81,14 +81,14 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	TerpstraMidiDriver::VelocityCurveType velocityCurveType;
+	TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType;
 	Path beamTableFrame;
 	std::unique_ptr<VelocityCurveBeam> velocityBeamTable[128];
 
 	VelocityCurveFreeDrawingStrategy freeDrawingStrategy;
 	VelocityCurveLinearDrawingStrategy linearDrawingStrategy;
 	VelocityCurveQuadraticDrawingStrategy quadraticDrawingStrategy;
-	
+
 	std::map<TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX, VelocityCurveEditStrategyBase*> drawingStrategies;
 
 protected:

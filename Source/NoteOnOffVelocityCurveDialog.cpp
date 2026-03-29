@@ -14,7 +14,7 @@
 
 //==============================================================================
 NoteOnOffVelocityCurveDialog::NoteOnOffVelocityCurveDialog()
-	: VelocityCurveDlgBase(TerpstraMidiDriver::VelocityCurveType::noteOnNoteOff)
+	: VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)
 {
 	labelCurrentXPos->setSize(128, labelCurrentXPos->getHeight());
 }
@@ -34,7 +34,7 @@ String NoteOnOffVelocityCurveDialog::beamXPosText(int xPos) const
 
 float NoteOnOffVelocityCurveDialog::beamWidth(int xPos)
 {
-	auto mappingInEdit = getMappingInEdit();	
+	auto mappingInEdit = getMappingInEdit();
 	if ( mappingInEdit == nullptr)	// Security at start of program
 		return 1;	// ad-hoc
 
