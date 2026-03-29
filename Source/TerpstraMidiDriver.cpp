@@ -314,9 +314,9 @@ Low-level SysEx calls
 
 void TerpstraMidiDriver::fillManufacturerId(unsigned char* data) const
 {
-    sysExData[0] = (manufacturerId >> 16) & 0xff;
-    sysExData[1] = (manufacturerId >> 8) & 0xff;
-    sysExData[2] = manufacturerId & 0xff;
+    data[0] = (manufacturerId >> 16) & 0xff;
+    data[1] = (manufacturerId >> 8) & 0xff;
+    data[2] = manufacturerId & 0xff;
 }
 
 MidiMessage TerpstraMidiDriver::createTableSysEx(unsigned char cmd, unsigned char table[])
