@@ -103,6 +103,8 @@ public:
 	// The colours that are used
 	SortedSet<int> getUsedColours();
 
+	TerpstraVelocityCurveConfig* getVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType velocityCurveType);
+
 	// Ticks count of a position in the celocity interval table
 	static int ticksCountFromXPos(int xPos) { return xPos * 16; }
 

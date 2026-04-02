@@ -217,7 +217,10 @@ void VelocityCurveDlgBase::comboBoxChanged (juce::ComboBox* comboBoxThatHasChang
 
 void VelocityCurveDlgBase::loadFromMapping()
 {
+    auto defaultConfig = TerpstraVelocityCurveConfig(velocityCurveType);
 	auto configInEdit = getConfigInEdit();
+	if (configInEdit == nullptr)
+		configInEdit = &defaultConfig;
 
 	if (configInEdit != nullptr)
 	{
@@ -240,6 +243,8 @@ void VelocityCurveDlgBase::loadFromMapping()
 		for (int x = 0; x < 128; x++)
 			velocityBeamTable[x]->setValue(x);
 	}
+
+	repaint();
 }
 
 void VelocityCurveDlgBase::sendVelocityTableToController()
@@ -403,19 +408,7 @@ TerpstraVelocityCurveConfig* VelocityCurveDlgBase::getConfigInEdit()
 	if(mappingInEdit == nullptr)
 		return nullptr;
 
-	switch(velocityCurveType)
-	{
-	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
-		return &mappingInEdit->noteOnOffVelocityCurveConfig;
-
-	case TerpstraVelocityCurveConfig::VelocityCurveType::fader:
-		return &mappingInEdit->faderConfig;
-	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-		return &mappingInEdit->afterTouchConfig;
-	default:
-		jassertfalse;
-		return nullptr;
-	}
+	return mappingInEdit->getVelocityCurveConfig(velocityCurveType);
 }
 
 VelocityCurveEditStrategyBase* VelocityCurveDlgBase::getCurrentDrawingStrategy()

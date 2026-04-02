@@ -54,6 +54,9 @@ MainContentComponent::MainContentComponent()
 	changeListenerCallback(noteEditArea->getOctaveBoardSelectorTab());
 
 	noteEditArea->changeSingleKeySelection(0);
+
+    // Initialize mapping structure
+    deleteAll();
 }
 
 MainContentComponent::~MainContentComponent()
