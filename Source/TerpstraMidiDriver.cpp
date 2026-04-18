@@ -224,31 +224,37 @@ void TerpstraMidiDriver::resetAftertouchConfig()
 }
 
 
+// CMD 13h: Read back the current red intensity of all the keys of the target board.
 void TerpstraMidiDriver::sendRedLEDConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_RED_LED_CONFIG, '\0', '\0', '\0', '\0');
 }
 
+// CMD 14h: Read back the current green intensity of all the keys of the target board.
 void TerpstraMidiDriver::sendGreenLEDConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_GREEN_LED_CONFIG, '\0', '\0', '\0', '\0');
 }
 
+// CMD 15h: Read back the current blue intensity of all the keys of the target board.
 void TerpstraMidiDriver::sendBlueLEDConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_BLUE_LED_CONFIG, '\0', '\0', '\0', '\0');
 }
 
+// CMD 16h: Read back the current channel configuration of all the keys of the target board.
 void TerpstraMidiDriver::sendChannelConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_CHANNEL_CONFIG, '\0', '\0', '\0', '\0');
 }
 
+// CMD 17h: Read back the current note configuration of all the keys of the target board.
 void TerpstraMidiDriver::sendNoteConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_NOTE_CONFIG, '\0', '\0', '\0', '\0');
 }
 
+// CMD 18h: Read back the current key type configuration of all the keys of the target board.
 void TerpstraMidiDriver::sendKeyTypeConfigurationRequest(int boardIndex)
 {
     sendSysEx(boardIndex, GET_KEYTYPE_CONFIG, '\0', '\0', '\0', '\0');
@@ -299,6 +305,32 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
 void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
 {
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
+}
+
+// CMD 2Dh: Adjust the Lumatouch table, a 128 byte array with value of 127 being a key fully pressed
+void TerpstraMidiDriver::sendLumatouchConfig(unsigned char lumatouchTable[])
+{
+    MidiMessage msg = createTableSysEx(SET_LUMATOUCH_CONFIG, lumatouchTable);
+
+    sendMessageWithAcknowledge(msg);
+}
+
+// CMD 2Eh: **DEPRECATED** Save Lumatouch table changes
+void TerpstraMidiDriver::saveLumatoneConfig()
+{
+    sendSysEx(0, SAVE_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+// CMD 2Fh: Reset the Lumatouch table back to factory settings
+void TerpstraMidiDriver::resetLumatouchConfig()
+{
+    sendSysEx(0, RESET_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
+}
+
+// CMD 30h: Read back the Lumatouch table
+void TerpstraMidiDriver::sendLumatouchConfigRequest()
+{
+    sendSysEx(0, GET_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
 }
 
 // CMD 45h: Configure the on/off settings of the sustain pedal

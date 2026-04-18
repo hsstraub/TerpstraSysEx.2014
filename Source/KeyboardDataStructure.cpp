@@ -273,6 +273,7 @@ void TerpstraKeyMapping::clearAll()
     noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
     faderConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
     afterTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
+    lumaTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch);
 }
 
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
@@ -470,8 +471,8 @@ TerpstraVelocityCurveConfig* TerpstraKeyMapping::getVelocityCurveConfig(Terpstra
 		return &faderConfig;
 	case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
 		return &afterTouchConfig;
-//	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
-//		return &lumaTouchConfig;
+	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+		return &lumaTouchConfig;
 	default:
 		jassertfalse;
 		return nullptr;

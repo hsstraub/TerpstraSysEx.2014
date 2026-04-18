@@ -58,6 +58,12 @@ System exclusive command bytes
 #define SET_VELOCITY_INTERVALS 0x20
 #define GET_VELOCITY_INTERVALS 0x21
 
+// Firmware Version 1.0.7, Start shipping backers and batches
+#define SET_LUMATOUCH_CONFIG 0x2D
+#define SAVE_LUMATOUCH_CONFIG 0x2E
+#define RESET_LUMATOUCH_CONFIG 0x2F
+#define GET_LUMATOUCH_CONFIG 0x30
+
 // Firmware Version 1.0.12 / 1.1.0
 #define INVERT_SUSTAIN_PEDAL 0x45
 

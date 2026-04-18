@@ -31,3 +31,10 @@ public:
     {
     }
 };
+
+class LumatouchVelocityCurveDialog : public VelocityCurveDlgBase {
+public:
+    LumatouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch)
+    {
+    }
+};

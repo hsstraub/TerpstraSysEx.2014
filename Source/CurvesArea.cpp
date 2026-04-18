@@ -135,10 +135,12 @@ void CurvesArea::buttonClicked (juce::Button* buttonThatWasClicked)
 		{
 			curvesTab->addTab(TRANS("CC Fader"), juce::Colours::lightgrey, new FaderVelocityCurveDialog(), true);
 			curvesTab->addTab(TRANS("Aftertouch"), juce::Colours::lightgrey, new AftertouchVelocityCurveDialog(), true);
+			curvesTab->addTab(TRANS("Lumatouch"), juce::Colours::lightgrey, new LumatouchVelocityCurveDialog(), true);
 		}
 		else
 		{
 			curvesTab->setCurrentTabIndex(0);
+			curvesTab->removeTab(3);
 			curvesTab->removeTab(2);
 			curvesTab->removeTab(1);
 		}

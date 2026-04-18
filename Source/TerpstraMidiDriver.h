@@ -184,6 +184,18 @@ public:
 	// CMD 23h: This command is used to read back the serial identification number of the keyboard.
 	void sendGetSerialIdentityRequest(int sendToTestDevice = -1);
 
+	// CMD 2Dh: Adjust the Lumatouch table, 127 7-bit values, where 127 is a result of a fully pressed key
+	void sendLumatouchConfig(unsigned char lumatouchTable[]);
+
+	// CMD 2Eh: **DEPRECATED** Save Lumatouch table changes
+	void saveLumatoneConfig();
+
+	// CMD 2Fh: Reset the Lumatouch table back to factory settings
+	void resetLumatouchConfig();
+
+	// CMD 30h: Read back the Lumatouch table
+	void sendLumatouchConfigRequest();
+
 	////////////////////////////////////////////////////////////////////////////
 	// CMD 45h: Configure the on/off settings of the sustain pedal
 	void sendInvertSustainPedal(bool value);

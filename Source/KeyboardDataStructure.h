@@ -61,7 +61,9 @@ public:
 	{
 		noteOnNoteOff = 1,
 		fader = 2,
-		afterTouch = 3
+		afterTouch = 3,
+		lumaTouch = 4
+		// ToDo modulation wheel
 	} VelocityCurveType;
 
 public:

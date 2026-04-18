@@ -267,6 +267,9 @@ void VelocityCurveDlgBase::sendVelocityTableToController()
         case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             TerpstraSysExApplication::getApp().getMidiDriver().sendAftertouchConfig(velocityValues);
             break;
+        case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+            TerpstraSysExApplication::getApp().getMidiDriver().sendLumatouchConfig(velocityValues);
+            break;
         default:
             jassert(false);
             break;
