@@ -95,7 +95,7 @@ int DefaultAfterTouchVelocityTable[128] = {
     106, 107, 108, 108, 109, 110, 111, 112, 112, 113, 114, 115, 116, 116, 117, 118, 119, 120, 120, 121,
     122, 123, 123, 124, 125, 126, 126, 127};
 
-int DefaulLumatouchVelocityTable[128] = {
+int DefaultLumatouchVelocityTable[128] = {
     0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8,
     8, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 14, 14, 15, 15, 15, 16,
     16, 17, 17, 18, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 22, 23, 23, 24, 24, 25,
@@ -128,6 +128,12 @@ TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(TerpstraVelocityCurveCo
         case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             jassert(sizeof(DefaultAfterTouchVelocityTable) == sizeof(velocityValues));
             memmove(velocityValues, DefaultAfterTouchVelocityTable, sizeof(DefaultAfterTouchVelocityTable));
+            editStrategy = EDITSTRATEGYINDEX::freeDrawing;
+            break;
+
+        case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+            jassert(sizeof(DefaultLumatouchVelocityTable) == sizeof(velocityValues));
+            memmove(velocityValues, DefaultLumatouchVelocityTable, sizeof(DefaultLumatouchVelocityTable));
             editStrategy = EDITSTRATEGYINDEX::freeDrawing;
             break;
 
