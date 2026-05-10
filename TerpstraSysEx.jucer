@@ -13,6 +13,12 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="aFDEjH" name="ApplicationListeners.h" compile="0" resource="0"
+            file="Source/ApplicationListeners.h"/>
+      <FILE id="DEbACB" name="DeviceActivityMonitor.cpp" compile="1" resource="0"
+            file="Source/DeviceActivityMonitor.cpp"/>
+      <FILE id="JhNJPY" name="DeviceActivityMonitor.h" compile="0" resource="0"
+            file="Source/DeviceActivityMonitor.h"/>
       <FILE id="OGo7Oh" name="LumatoneController.cpp" compile="1" resource="0"
             file="Source/LumatoneController.cpp"/>
       <FILE id="qsXqlk" name="LumatoneController.h" compile="0" resource="0"
