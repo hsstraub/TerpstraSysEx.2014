@@ -36,6 +36,7 @@
 */
 class GlobalSettingsArea  : public juce::Component,
                             public ChangeListener,
+                            public LumatoneEditor::StatusListener,
                             public juce::Button::Listener
 {
 public:

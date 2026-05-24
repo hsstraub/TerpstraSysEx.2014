@@ -75,11 +75,10 @@ namespace Lumatone {
                 //}
 
 				// Send to device
-				TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(
+				TerpstraSysExApplication::getApp().getLumatoneController()->sendKeyParam(
 					setSelection + 1,
 					keySelection,
 					mappingInEdit.sets[setSelection].theKeys[keySelection]);
-
 				// Notify that there are changes: in calling function
 			}
 			else
@@ -128,11 +127,10 @@ namespace Lumatone {
                 //    mappingInEdit.sets[setSelection].theKeys[keySelection].ccFaderDefault = previousData.ccFaderDefault;
                 //}
 
-				TerpstraSysExApplication::getApp().getMidiDriver().sendKeyParam(
+				TerpstraSysExApplication::getApp().getLumatoneController()->sendKeyParam(
 					setSelection + 1,
 					keySelection,
 					mappingInEdit.sets[setSelection].theKeys[keySelection]);
-
 				// Notify that there are changes: in calling function
 			}
 			else
@@ -180,7 +178,7 @@ namespace Lumatone {
 			mappingInEdit.sets[setSelection] = newData;
 
 			// Send to device
-			TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(setSelection + 1, mappingInEdit.sets[setSelection]);
+			TerpstraSysExApplication::getApp().getLumatoneController()->sendAllParamsOfBoard(setSelection + 1, mappingInEdit.sets[setSelection]);
 
 			// Notify that there are changes: in calling function
 			return true;
@@ -203,7 +201,7 @@ namespace Lumatone {
 			mappingInEdit.sets[setSelection] = previousData;
 
 			// Send to device
-			TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(setSelection + 1, mappingInEdit.sets[setSelection]);
+			TerpstraSysExApplication::getApp().getLumatoneController()->sendAllParamsOfBoard(setSelection + 1, mappingInEdit.sets[setSelection]);
 
 			// Notify that there are changes: in calling function
 			return true;
@@ -262,7 +260,7 @@ namespace Lumatone {
                 mappingInEdit.sets[i] = newData[i];
 
                 // Send to device
-                TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(i + 1, mappingInEdit.sets[i]);
+                TerpstraSysExApplication::getApp().getLumatoneController()->sendAllParamsOfBoard(i + 1, mappingInEdit.sets[i]);
 			}
 
 			// Notify that there are changes: in calling function
@@ -280,7 +278,7 @@ namespace Lumatone {
 			mappingInEdit.sets[i] = previousData[i];
 
 			// Send to device
-			TerpstraSysExApplication::getApp().getMidiDriver().sendAllParamsOfBoard(i + 1, mappingInEdit.sets[i]);
+            TerpstraSysExApplication::getApp().getLumatoneController()->sendAllParamsOfBoard(i + 1, mappingInEdit.sets[i]);
         }
 
         // Notify that there are changes: in calling function
@@ -308,7 +306,7 @@ namespace Lumatone {
 		mappingInEdit.invertExpression = newData;
 
 		// Send to device
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(newData);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendInvertFootController(newData);
 
 		// Notify that there are changes: in calling function
 		return true;
@@ -323,7 +321,7 @@ namespace Lumatone {
 		mappingInEdit.invertExpression = previousData;
 
 		// Send to device
-		TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(previousData);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendInvertFootController(previousData);
 
 		// Notify that there are changes: in calling function
 		return true;
@@ -350,7 +348,7 @@ namespace Lumatone {
 		mappingInEdit.expressionControllerSensivity = newData;
 
 		// Send to device
-		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newData);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendExpressionPedalSensivity(newData);
 
 		// Notify that there are changes: in calling function
 		return true;
@@ -365,7 +363,7 @@ namespace Lumatone {
 		mappingInEdit.expressionControllerSensivity = previousData;
 
 		// Send to device
-		TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(previousData);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendExpressionPedalSensivity(previousData);
 
 		// Notify that there are changes: in calling function
 		return true;
@@ -392,7 +390,7 @@ namespace Lumatone {
         mappingInEdit.invertSustain = newData;
 
         // Send to device
-        TerpstraSysExApplication::getApp().getMidiDriver().sendInvertSustainPedal(newData);
+        TerpstraSysExApplication::getApp().getLumatoneController()->invertSustainPedal(newData);
 
         // Notify that there are changes: in calling function
         return true;
@@ -407,7 +405,7 @@ namespace Lumatone {
         mappingInEdit.invertSustain = previousData;
 
         // Send to device
-        TerpstraSysExApplication::getApp().getMidiDriver().sendInvertSustainPedal(previousData);
+        TerpstraSysExApplication::getApp().getLumatoneController()->invertSustainPedal(previousData);
 
         // Notify that there are changes: in calling function
         return true;

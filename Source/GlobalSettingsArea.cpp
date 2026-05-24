@@ -85,6 +85,7 @@ GlobalSettingsArea::GlobalSettingsArea ()
 
 
     //[UserPreSize]
+    TerpstraSysExApplication::getApp().getLumatoneController()->addStatusListener(this);
     //[/UserPreSize]
 
     setSize (456, 64);
@@ -146,7 +147,6 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_buttonCalibrate] -- add your button handler code here..
 
 		// ToDo popup dialog
-		TerpstraSysExApplication::getApp().getMidiDriver().sendCalibrateAfterTouch();
 
         //[/UserButtonCode_buttonCalibrate]
     }
@@ -164,12 +164,12 @@ void GlobalSettingsArea::changeListenerCallback(ChangeBroadcaster *source)
 	if (source == inactiveMacroButtonColourEdit.get())
 	{
 		String inactiveMacroButtonColour = inactiveMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonInactiveColour(inactiveMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendMacroButtonInactiveColour(inactiveMacroButtonColour);
 	}
 	else if (source == activeMacroButtonColourEdit.get())
 	{
 		String activeMacroButtonColour = activeMacroButtonColourEdit->getColourAsString();
-		TerpstraSysExApplication::getApp().getMidiDriver().sendMacroButtonActiveColour(activeMacroButtonColour);
+		TerpstraSysExApplication::getApp().getLumatoneController()->sendMacroButtonActiveColour(activeMacroButtonColour);
 	}
 }
 

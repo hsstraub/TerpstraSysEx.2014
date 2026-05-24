@@ -34,6 +34,7 @@
                                                                     //[/Comments]
 */
 class GeneralOptionsDlg  : public Component,
+                           LumatoneEditor::FirmwareListener,
                            public juce::Button::Listener
 {
 public:
