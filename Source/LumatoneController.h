@@ -214,6 +214,11 @@ public:
     void getExpressionPedalSensitivity();
 
     //============================================================================
+    // FirmwareTransfer::Listener
+
+    void exitSignalSent() override;
+
+    //============================================================================
     // juce::Timer implementation
 
     void timerCallback() override;

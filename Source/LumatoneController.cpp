@@ -1059,6 +1059,11 @@ void LumatoneController::timerCallback()
     bufferReadRequested = false;
 }
 
+void LumatoneController::exitSignalSent()
+{
+    // Todo
+}
+
 void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 {
     if (source == deviceMonitor.get())

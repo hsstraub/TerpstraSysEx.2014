@@ -262,12 +262,24 @@ void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
 	curvesArea->loadFromMapping();
 }
 
+void MainContentComponent::firmwareRevisionReceived(FirmwareVersion version)
+{
+	// Make sure changes happen in proper order
+	noteEditArea->resetOctaveSize();
+	allKeysOverview->resetOctaveSize();
+}
+
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 {
 	if (source == noteEditArea->getOctaveBoardSelectorTab())
 	{
 		allKeysOverview->setCurrentSetSelection(noteEditArea->getOctaveBoardSelectorTab()->getCurrentTabIndex());
 	}
+}
+
+void MainContentComponent::buttonClicked(Button* btn)
+{
+    // Todo colour palette
 }
 
 void MainContentComponent::paint (Graphics& g)

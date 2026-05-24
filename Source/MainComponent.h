@@ -62,12 +62,17 @@ public:
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 
+	// Implementation of Button::Listener
+	void buttonClicked(Button* btn) override;
+
 	// GUI implementation
     void paint (Graphics&);
     void resized();
 
 	void refreshKeyDataFields();
 	void refreshAllFields();
+
+	// Implementation of LumatoneEditor::FirmwareListener
 
 	void octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData) override;
 
@@ -88,6 +93,8 @@ public:
 	void faderTypeConfigReceived(int octaveIndex, const int* faderTypeData) override;
 
 	void lumatouchConfigReceived(const int* lumatouchData) override;
+
+	void firmwareRevisionReceived(FirmwareVersion version) override;
 
 private:
     //==============================================================================
