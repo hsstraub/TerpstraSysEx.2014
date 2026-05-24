@@ -78,16 +78,7 @@ NoteEditArea::NoteEditArea ()
 	octaveBoardSelectorTab->addChangeListener(this);
 
 	// Single Key fields
-	int boardSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
-
-	jassert(boardSize == 55 || boardSize == 56);
-
-	for (int i = 0; i < boardSize; i++)
-	{
-		terpstraKeyFields[i].reset(new TerpstraKeyEdit());
-		addAndMakeVisible(terpstraKeyFields[i].get());
-		terpstraKeyFields[i]->addMouseListener(this, true);
-	}
+	resetOctaveSize(false);
 
     //[/UserPreSize]
 
@@ -290,6 +281,35 @@ void NoteEditArea::refreshKeyFields()
 	jassert(setSelection >= 0 && setSelection < NUMBEROFBOARDS);
 	setKeyFieldValues(((MainContentComponent*)getParentComponent())->getMappingInEdit().sets[setSelection]);
 }
+
+void NoteEditArea::resetOctaveSize(bool refreshAndResize)
+{
+	int boardSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
+
+	jassert(boardSize == 55 || boardSize == 56);
+
+	if (currentBoardSize != boardSize)
+	{
+		for (int i = 0; i < 56; i++)
+			terpstraKeyFields[i] = nullptr;
+
+        for (int i = 0; i < boardSize; i++)
+        {
+            terpstraKeyFields[i].reset(new TerpstraKeyEdit());
+            addAndMakeVisible(terpstraKeyFields[i].get());
+            terpstraKeyFields[i]->addMouseListener(this, true);
+        }
+
+		currentBoardSize = boardSize;
+
+		if (refreshAndResize)
+		{
+			refreshKeyFields();
+			resized();
+		}
+	}
+}
+
 //[/MiscUserCode]
 
 

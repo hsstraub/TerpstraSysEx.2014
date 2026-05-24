@@ -200,20 +200,7 @@ AllKeysOverview::AllKeysOverview ()
 
     //[UserPreSize]
 
-    octaveBoards.clear();
-
-	for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
-	{
-        OctaveBoard* board = octaveBoards.add(new OctaveBoard());
-
-		for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
-		{
-            auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
-            addAndMakeVisible(key);
-		}
-	}
-
-	jassert(octaveBoards.size() == NUMBEROFBOARDS);
+    resetOctaveSize();
 
     //[/UserPreSize]
 
@@ -340,6 +327,32 @@ void AllKeysOverview::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void AllKeysOverview::resetOctaveSize()
+{
+	int octaveSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
+
+	if (currentOctaveSize != octaveSize)
+	{
+        octaveBoards.clear();
+
+        for (int subBoardIndex = 0; subBoardIndex < NUMBEROFBOARDS; subBoardIndex++)
+        {
+            OctaveBoard* board = octaveBoards.add(new OctaveBoard());
+
+            for (int keyIndex = 0; keyIndex < octaveSize; keyIndex++)
+            {
+                auto key = board->keyMiniDisplay.add(new KeyMiniDisplayInsideAllKeysOverview(subBoardIndex, keyIndex));
+                addAndMakeVisible(key);
+            }
+
+            jassert(board->keyMiniDisplay.size() == octaveSize);
+        }
+
+        jassert(octaveBoards.size() == NUMBEROFBOARDS);
+	}
+}
+
 //[/MiscUserCode]
 
 

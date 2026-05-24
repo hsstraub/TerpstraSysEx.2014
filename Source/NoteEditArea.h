@@ -64,6 +64,8 @@ public:
 
 	void refreshKeyFields();
 
+	void resetOctaveSize(bool refreshAndResize=true);
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -79,6 +81,8 @@ private:
         SingleNoteAssignMode = 0,
         IsomorphicMassAssignMode = 1
     };
+
+    int currentBoardSize = 0;
 
 	// Selector for octave boards
 	std::unique_ptr<TabbedButtonBar> octaveBoardSelectorTab;

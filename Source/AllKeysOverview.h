@@ -81,6 +81,8 @@ public:
 	int getCurrentSetSelection() const { return currentSetSelection ;}
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
 
+	void resetOctaveSize();
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -99,6 +101,7 @@ private:
 
 	OwnedArray<OctaveBoard> octaveBoards;
 
+	int			currentOctaveSize = 0;
 	int			currentSetSelection;
     //[/UserVariables]
 
