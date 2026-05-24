@@ -163,20 +163,20 @@ void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgb
 
 		if (rgbFlag == 0)
 		{
--		    auto theColour = Colour(keyData.colour);
--			theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
+-		    auto theColour = juce::Colour(keyData.colour);
+-			theColour = juce::Colour(newValue, theColour.getGreen(), theColour.getBlue());
 -			keyData.colour = theColour.toDisplayString(false).getHexValue32();
 		}
 		else if (rgbFlag == 1)
 		{
--			auto theColour = Colour(keyData.colour);
--			theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
+-			auto theColour = juce::Colour(keyData.colour);
+-			theColour = juce::Colour(theColour.getRed(), theColour.getGreen(), newValue);
 -			keyData.colour = theColour.toDisplayString(false).getHexValue32();
 		}
 		else if (rgbFlag == 2)
 		{
--			auto theColour = Colour(keyData.colour);
--			theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
+-			auto theColour = juce::Colour(keyData.colour);
+-			theColour = juce::Colour(theColour.getRed(), newValue, theColour.getBlue());
 -			keyData.colour = theColour.toDisplayString(false).getHexValue32();
 		}
 		else

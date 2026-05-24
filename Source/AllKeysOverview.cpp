@@ -130,7 +130,7 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseDown(const MouseEvent& e)
 			if (keyData->keyType == LumatoneKeyType::noteOnNoteOff)
 			{
 				// Send "note on" event
-				TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
+				TerpstraSysExApplication::getApp().getLumatoneController()->sendNoteOnMessage(keyData->noteNumber, keyData->channelNumber, 60);
 			}
 			// ToDo if keyType is "continuous controller": send controller event?
 		}
@@ -151,7 +151,7 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 		if (keyData->keyType == LumatoneKeyType::noteOnNoteOff)
 		{
 			// Send "note off" event
-			TerpstraSysExApplication::getApp().getMidiDriver().sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
+			TerpstraSysExApplication::getApp().getLumatoneController()->sendNoteOffMessage(keyData->noteNumber, keyData->channelNumber, 60);
 		}
 	}
 }

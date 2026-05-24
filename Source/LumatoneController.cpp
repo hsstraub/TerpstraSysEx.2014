@@ -42,7 +42,7 @@ void LumatoneController::setSysExSendingMode(sysExSendingMode newMode)
             stopTimer();
         }
     }
-    
+
     editorListeners.call(&LumatoneEditor::EditorListener::editorModeChanged, newMode);
     midiDriver.restrictToRequestMessages(editingMode == sysExSendingMode::offlineEditor);
 }
@@ -62,9 +62,9 @@ void LumatoneController::setFirmwareVersion(LumatoneFirmwareVersion lumatoneVers
 
     if (parseVersion)
         firmwareVersion = FirmwareVersion::fromDeterminedVersion(determinedVersion);
-    
+
     firmwareListeners.call(&LumatoneEditor::FirmwareListener::firmwareRevisionReceived, firmwareVersion);
-    
+
     // Set connection process as complete
     if (!currentDevicePairConfirmed)
     {
@@ -86,6 +86,16 @@ void LumatoneController::setMidiOutput(int deviceIndex)
         testCurrentDeviceConnection();
 }
 
+void LumatoneController::sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity)
+{
+    midiDriver.sendNoteOnMessage(noteNumber, channelNumber, velocity);
+}
+
+void LumatoneController::sendNoteOffMessage(int noteNumber, int channelNumber, uint8 velocity)
+{
+    midiDriver.sendNoteOffMessage(noteNumber, channelNumber, velocity);
+}
+
 void LumatoneController::detectAndConnectToLumatone()
 {
     deviceMonitor->setDetectDeviceIfDisconnected(true);
@@ -96,32 +106,10 @@ void LumatoneController::stopAutoConnection()
     deviceMonitor->setDetectDeviceIfDisconnected(false);
 }
 
-void LumatoneController::refreshAvailableMidiDevices() 
-{ 
+void LumatoneController::refreshAvailableMidiDevices()
+{
     if (midiDriver.refreshDeviceLists() && midiDriver.testIsIncomplete())
         midiDriver.openAvailableDevicesForTesting();
-}
-
-bool LumatoneController::requestFirmwareUpdate(File firmwareFile, FirmwareTransfer::ProcessListener* listenerIn)
-{
-    if (firmwareTransfer == nullptr)
-    {
-        incomingVersion = FirmwareVersion(0, 0, 0);
-        firmwareTransfer.reset(new FirmwareTransfer(midiDriver));
-        firmwareTransfer->addTransferListener(this);
-        firmwareTransfer->addListener(this);
-
-        if (listenerIn != nullptr)
-        {
-            firmwareTransfer->addTransferListener(listenerIn);
-        }
-
-        return firmwareTransfer->requestFirmwareUpdate(firmwareFile.getFullPathName());
-    }
-    else
-        jassertfalse;
-
-    return false;
 }
 
 /*
@@ -138,7 +126,8 @@ void LumatoneController::sendAllParamsOfBoard(int boardIndex, TerpstraKeys board
         {
             auto key = &boardData.theKeys[keyIndex];
             midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, key->noteNumber, key->channelNumber, key->keyType & 0x3);
-            midiDriver.sendKeyLightParameters(boardIndex, keyIndex, key->colour.getRed(), key->colour.getGreen(), key->colour.getBlue());
+            auto theColour = juce::Colour(key->colour);
+            midiDriver.sendKeyLightParameters(boardIndex, keyIndex, theColour.getRed(), theColour.getGreen(), theColour.getBlue());
         }
     }
     else
@@ -147,7 +136,8 @@ void LumatoneController::sendAllParamsOfBoard(int boardIndex, TerpstraKeys board
         {
             auto key = &boardData.theKeys[keyIndex];
             midiDriver.sendKeyFunctionParameters(boardIndex, keyIndex, key->noteNumber, key->channelNumber, key->keyType & 0x3);
-            midiDriver.sendKeyLightParameters_Version_1_0_0(boardIndex, keyIndex, key->colour.getRed() / 2, key->colour.getGreen() / 2, key->colour.getBlue() / 2);
+            auto theColour = juce::Colour(key->colour);
+            midiDriver.sendKeyLightParameters_Version_1_0_0(boardIndex, keyIndex, theColour.getRed() / 2, theColour.getGreen() / 2, theColour.getBlue() / 2);
         }
     }
 }
@@ -248,10 +238,10 @@ void LumatoneController::testCurrentDeviceConnection()
 
 // Send parametrization of one key to the device
 void LumatoneController::sendKeyParam(int boardIndex, int keyIndex, TerpstraKey keyData)
-{    
+{
     // Default CC polarity = 1, Inverted CC polarity = 0
     sendKeyConfig(boardIndex, keyIndex, keyData.noteNumber, keyData.channelNumber, keyData.keyType, keyData.ccFaderDefault);
-    sendKeyColourConfig(boardIndex, keyIndex, keyData.colour);
+    sendKeyColourConfig(boardIndex, keyIndex, juce::Colour(keyData.colour));
 }
 
 // Send configuration of a certain look up table
@@ -542,22 +532,7 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
 {
     if (midiMessage.isSysEx()) switch (editingMode)
     {
-        case sysExSendingMode::firmwareUpdate:
-        {
-            // Handle firmware update confirmation responses
-            auto sysExData = midiMessage.getSysExData();
-            if (sysExData[CMD_ID] == GET_FIRMWARE_REVISION)
-            {
-                midiDriver.unpackGetFirmwareRevisionResponse(midiMessage, incomingVersion.major, incomingVersion.minor, incomingVersion.revision);
-                if (incomingVersion.isValid())
-                {
-                    startTimer(UPDATETIMEOUT);
-                }
-            }
-
-            break;
-        }
-
+        // ToDo firmware update
         default:
         {
             addMessageToQueue(midiMessage);
@@ -579,7 +554,7 @@ void LumatoneController::midiMessageReceived(MidiInput* source, const MidiMessag
 
 void LumatoneController::midiMessageSent(MidiOutput* target, const MidiMessage& midiMessage) { }
 
-void LumatoneController::midiSendQueueSize(int queueSize) 
+void LumatoneController::midiSendQueueSize(int queueSize)
 {
     sendQueueSize = queueSize;
 }
@@ -591,7 +566,7 @@ void LumatoneController::noAnswerToMessage(MidiInput* expectedDevice, const Midi
     if (midiMessage.isSysEx())
     {
     //    callAfterDelay(bufferReadTimeoutMs, [&]() { firmwareListeners.call(&LumatoneEditor::FirmwareListener::noAnswerToCommand, midiMessage.getSysExData()[CMD_ID]); });
-        
+
         if (!currentDevicePairConfirmed)
         {
             statusListeners.call(&LumatoneEditor::StatusListener::connectionFailed);
@@ -600,13 +575,13 @@ void LumatoneController::noAnswerToMessage(MidiInput* expectedDevice, const Midi
 }
 
 FirmwareSupport::Error LumatoneController::handleOctaveConfigResponse(
-    const MidiMessage& midiMessage, 
+    const MidiMessage& midiMessage,
     std::function<FirmwareSupport::Error(const MidiMessage&, int&, uint8, int*)> unpackFunction,
     std::function<void(int,void*)> callbackFunctionIfNoError)
 {
     int boardId = -1;
     int channelData[56];
-    
+
     auto errorCode = unpackFunction(midiMessage, boardId, octaveSize, channelData);
     if (errorCode == FirmwareSupport::Error::noError)
     {
@@ -625,7 +600,7 @@ FirmwareSupport::Error LumatoneController::handleTableConfigResponse(
     auto errorCode = unpackFunction(midiMessage, veloctiyData);
     if (errorCode == FirmwareSupport::Error::noError)
         callbackFunctionIfNoError(veloctiyData);
-    
+
     return errorCode;
 }
 
@@ -652,7 +627,7 @@ FirmwareSupport::Error LumatoneController::handleLEDConfigResponse(const MidiMes
         int colorCode = cmd - GET_RED_LED_CONFIG;
         firmwareListeners.call(&LumatoneEditor::FirmwareListener::octaveColourConfigReceived, boardId, colorCode, colourData);
     }
-    
+
     return errorCode;
 }
 
@@ -743,7 +718,7 @@ FirmwareSupport::Error LumatoneController::handleSerialIdentityResponse(const Mi
     DBG("Device serial is: " + connectedSerialNumber);
 
     firmwareListeners.call(&LumatoneEditor::FirmwareListener::serialIdentityReceived, lastTestDeviceResponded, serialBytes);
-    
+
     // Get Firmware Version
     if (connectedSerialNumber == SERIAL_55_KEYS)
         setFirmwareVersion(LumatoneFirmwareVersion::VERSION_55_KEYS);
@@ -782,12 +757,12 @@ FirmwareSupport::Error LumatoneController::handlePingResponse(const MidiMessage&
 {
     unsigned int value = 0;
     auto errorCode = midiDriver.unpackPingResponse(midiMessage, value);
-    
+
     if (errorCode != FirmwareSupport::Error::noError)
         return errorCode;
 
     firmwareListeners.call(&LumatoneEditor::FirmwareListener::pingResponseReceived, lastTestDeviceResponded, value);
-    
+
     return errorCode;
 }
 
@@ -835,7 +810,7 @@ FirmwareSupport::Error LumatoneController::handlePeripheralCalibrationData(const
 {
     int mode = -1;
     auto errorCode = midiDriver.unpackPeripheralCalibrationMode(midiMessage, mode);
-    
+
     if (errorCode != FirmwareSupport::Error::noError)
         return errorCode;
 
@@ -893,43 +868,15 @@ void LumatoneController::handleMidiDriverError(FirmwareSupport::Error errorToHan
     case FirmwareSupport::Error::messageIsAnEcho:
     case FirmwareSupport::Error::commandNotImplemented:
         return;
-        
+
     case FirmwareSupport::Error::messageHasInvalidStatusByte:
         return;
-            
+
     default:
         DBG("ERROR from command " + String::toHexString(commandReceived) + ": " + firmwareSupport.errorToString(errorToHandle));
     }
-    
+
     jassertfalse;
-}
-
-void LumatoneController::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode, String msg)
-{
-    switch (statusCode)
-    {
-    case FirmwareTransfer::StatusCode::SessionBegin:
-        midiDriver.clearMIDIMessageBuffer();
-        deviceMonitor->stopMonitoringDevice();
-        waitingForTestResponse = false; // In case connection test was in progress
-        break;
-
-    case FirmwareTransfer::StatusCode::InstallBegin:
-        editingMode = sysExSendingMode::firmwareUpdate;
-        midiDriver.closeMidiInput();
-        midiDriver.closeMidiOutput();
-        startTimer(UPDATETIMEOUT);
-        break;
-            
-    default:
-        if (statusCode < FirmwareTransfer::StatusCode::NoErr)
-        {
-            // Update failed
-            deviceMonitor->intializeConnectionLossDetection();
-            juce::Timer::callAfterDelay(20, [&] { firmwareTransfer->signalThreadShouldExit(); });
-        }
-        break;
-    }
 }
 
 FirmwareSupport::Error LumatoneController::getBufferErrorCode(const uint8* sysExData)
@@ -973,7 +920,7 @@ FirmwareSupport::Error LumatoneController::getBufferErrorCode(const uint8* sysEx
             "");
         break;
     }
-    
+
     return FirmwareSupport::Error::noError;
 }
 
@@ -981,7 +928,7 @@ FirmwareSupport::Error LumatoneController::handleBufferCommand(const MidiMessage
 {
     auto sysExData = midiMessage.getSysExData();
     unsigned int cmd = sysExData[CMD_ID];
-    
+
     switch (cmd)
     {
     case GET_RED_LED_CONFIG:
@@ -1006,13 +953,13 @@ FirmwareSupport::Error LumatoneController::handleBufferCommand(const MidiMessage
 
     case GET_VELOCITY_CONFIG:
         return handleVelocityConfigResponse(midiMessage);
-            
+
     case GET_FADER_TYPE_CONFIGURATION:
         return handleFaderTypeConfigResponse(midiMessage);
 
     case GET_SERIAL_IDENTITY:
         return handleSerialIdentityResponse(midiMessage);
-            
+
     case CALIBRATE_PITCH_MOD_WHEEL:
         firmwareListeners.call(&LumatoneEditor::FirmwareListener::calibratePitchModWheelAnswer, (TerpstraMIDIAnswerReturnCode)sysExData[MSG_STATUS]);
         return FirmwareSupport::Error::noError;
@@ -1037,7 +984,7 @@ FirmwareSupport::Error LumatoneController::handleBufferCommand(const MidiMessage
 
     case GET_EXPRESSION_PEDAL_SENSITIVIY:
         return handleGetExpressionPedalSensitivityResponse(midiMessage);
-            
+
     case SET_VELOCITY_CONFIG:
         DBG("Send layout complete.");
         // loadRandomMapping(1000, 1); // uncomment for test sequence
@@ -1057,7 +1004,7 @@ FirmwareSupport::Error LumatoneController::handleBufferCommand(const MidiMessage
             return FirmwareSupport::Error::commandNotImplemented;
         }
     }
-    
+
     return FirmwareSupport::Error::unknownCommand;
 }
 
@@ -1080,88 +1027,36 @@ void LumatoneController::timerCallback()
             {
                 auto sysExData = midiMessage.getSysExData();
                 auto cmd = sysExData[CMD_ID];
-                
+
                 auto errorCode = getBufferErrorCode(sysExData);
                 handleMidiDriverError(errorCode, cmd);
-                
+
                 if (sysExData[MSG_STATUS] == 1)
                 {
                     errorCode = handleBufferCommand(midiMessage);
                     handleMidiDriverError(errorCode, cmd);
                 }
             }
-            
+
             // Ignore non-sysex messages
         }
 
         auto bufferSize = jlimit(0, 999999, readQueueSize.load() - bufferReadSize);
         readQueueSize.store(bufferSize);
-        
+
         if (bufferSize != 0)
             startTimer(bufferReadTimeoutMs);
-        
+
         break;
     }
-    
-    case sysExSendingMode::firmwareUpdate:
-    {
-        if (firmwareTransfer == nullptr)
-        {
-            AlertWindow::showMessageBoxAsync(
-                AlertWindow::AlertIconType::WarningIcon,
-                "Firmware update not confirmed",
-                "Your Lumatone appears to still be updating, or may have been disconnected. "
-                "Make sure Lumatone is powered on and connected, and the when Lumatone is ready it will connect successfully.",
-                "Ok", nullptr);
 
-            onDisconnection();
-            break;
-        }
-        
-        firmwareTransfer->incrementProgress();
-
-        if (waitingForTestResponse)
-        {
-            if (midiDriver.hasDevicesDefined() && incomingVersion.isValid())
-            {
-                waitingForTestResponse = true;
-                onFirmwareUpdateReceived();
-            }
-            
-            // THIS IS A KLUDGE! Something kills DeviceActivityMonitor's timer after device comes back online and I'm not yet sure why - vsicurella
-            else if (!deviceMonitor->isTimerRunning())
-            {
-                 deviceMonitor->initializeDeviceDetection();
-            }
-            else
-            {
-                sendGetFirmwareRevisionRequest();
-            }
-        }
-
-        // Reset connection and start polling with GetFirmwareRevision
-        else if (!incomingVersion.isValid())
-        {
-            waitingForTestResponse = true;
-            midiDriver.closeMidiInput();
-            midiDriver.closeMidiOutput();
-            deviceMonitor->initializeDeviceDetection();
-        }
-        
-        startTimer(UPDATETIMEOUT);
-        break;
-    }
-            
+    // case sysExSendingMode::firmwareUpdate:
+    // ToDo
     default:
         jassertfalse;
     }
 
     bufferReadRequested = false;
-}
-
-void LumatoneController::exitSignalSent()
-{
-    firmwareTransfer = nullptr;
 }
 
 void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
@@ -1188,7 +1083,7 @@ void LumatoneController::changeListenerCallback(ChangeBroadcaster* source)
 
             // return;
         }
-        
+
         if (currentDevicePairConfirmed)
         {
             // This should not get triggered if we are already disconnected
@@ -1226,7 +1121,7 @@ void LumatoneController::onConnectionConfirm(bool sendChangeSignal)
     currentDevicePairConfirmed = true;
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastInputDeviceId", midiDriver.getLastMidiInputInfo().identifier);
     TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastOutputDeviceId", midiDriver.getLastMidiOutputInfo().identifier);
-    
+
     deviceMonitor->intializeConnectionLossDetection();
 
     if (sendChangeSignal)
@@ -1238,7 +1133,7 @@ void LumatoneController::onDisconnection()
     midiDriver.closeMidiInput();
     midiDriver.closeMidiOutput();
     midiDriver.clearMIDIMessageBuffer();
-    
+
     waitingForTestResponse = false;
     currentDevicePairConfirmed = false;
     lastTestDeviceResponded = -1;
@@ -1248,38 +1143,8 @@ void LumatoneController::onDisconnection()
     editingMode = sysExSendingMode::offlineEditor;
 
     statusListeners.call(&LumatoneEditor::StatusListener::connectionLost);
-    
+
     deviceMonitor->initializeDeviceDetection();
-}
-
-void LumatoneController::onFirmwareUpdateReceived()
-{
-    jassert(firmwareTransfer != nullptr && editingMode == sysExSendingMode::firmwareUpdate);
-
-    if (firmwareTransfer != nullptr)
-    {
-        firmwareTransfer->setProgress(1.0);
-        auto possibleUpdate = firmwareSupport.getLumatoneFirmwareVersion(incomingVersion);
-        DBG("Waiting for update, received: " + incomingVersion.toString());
-        if (possibleUpdate <= determinedVersion)
-        {
-            DBG("Error: Firmware update appears to have failed");
-        }
-        else
-        {
-            DBG("Confirmed update to firmware version " + incomingVersion.toString());
-        }
-
-        firmwareVersion = incomingVersion;
-        determinedVersion = possibleUpdate;
-
-        editingMode = sysExSendingMode::liveEditor;
-        currentDevicePairConfirmed = true;
-        firmwareListeners.call(&LumatoneEditor::FirmwareListener::firmwareRevisionReceived, firmwareVersion);
-        firmwareTransfer->signalThreadShouldExit();
-
-        deviceMonitor->intializeConnectionLossDetection();
-    }
 }
 
 void LumatoneController::loadRandomMapping(int testTimeoutMs,  int maxIterations, int i)
@@ -1288,7 +1153,7 @@ void LumatoneController::loadRandomMapping(int testTimeoutMs,  int maxIterations
     auto mappings = dir.findChildFiles(File::TypesOfFileToFind::findFiles, true);
     auto numfiles = mappings.size();
     auto r = Random();
-        
+
     auto fileIndex = r.nextInt(numfiles-1);
     auto file = mappings[fileIndex];
 
@@ -1297,7 +1162,7 @@ void LumatoneController::loadRandomMapping(int testTimeoutMs,  int maxIterations
         DBG("Found " + String(numfiles) + " files, loading " + file.getFileName());
         MessageManager::callAsync([file]() { TerpstraSysExApplication::getApp().setCurrentFile(file); });
     }
-    
+
 //    if (i < maxIterations)
 //        Timer::callAfterDelay(testTimeoutMs, [&]() { loadRandomMapping(testTimeoutMs, maxIterations, i + 1); });
 //    else

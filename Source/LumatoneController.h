@@ -58,6 +58,9 @@ public:
     void setMidiInput(int deviceIndex);
     void setMidiOutput(int deviceIndex);
 
+	void sendNoteOnMessage(int noteNumber, int channelNumber, uint8 velocity);
+	void sendNoteOffMessage(int noteNumber, int channelNumber, uint8 velocity);
+
     bool isConnected() const { return midiDriver.hasDevicesDefined() && currentDevicePairConfirmed; }
 
     // Auto-connection and monitoring
