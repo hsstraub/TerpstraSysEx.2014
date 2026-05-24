@@ -14,10 +14,8 @@
 #include "LumatoneMenu.h"
 #include "MainWindow.h"
 #include "MainComponent.h"
-#include "KeyboardDataStructure.h"
-#include "ViewConstants.h"
-#include "TerpstraMidiDriver.h"
 #include "LumatoneController.h"
+#include "ViewConstants.h"
 
 #define CHOOSE_FILE_NOOP [](bool) -> void {}
 
@@ -47,7 +45,6 @@ public:
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
 	LookAndFeel& getLookAndFeel() { return lookAndFeel; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
-	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	LumatoneController* getLumatoneController() { return lumatoneController.get(); }
 	int getOctaveBoardSize() const { return lumatoneController->getOctaveSize(); }
 
@@ -68,6 +65,8 @@ public:
 	bool pasteSubBoardData();
     bool canPasteSubBoardData() const;
 
+    void setEditMode(sysExSendingMode editMode);
+
 	bool performUndoableAction(UndoableAction* editAction);
 	bool undo();
 	bool redo();
@@ -81,7 +80,8 @@ public:
     bool setCurrentFile(File fileToOpen);
 	bool saveCurrentFile(std::function<void(bool success)> saveFileCallback = CHOOSE_FILE_NOOP);
 
-	void sendCurrentMappingToDevice();
+	void sendCurrentConfigurationToDevice();
+	void requestConfigurationFromDevice();
 
 	void updateMainTitle();
 
@@ -109,7 +109,6 @@ private:
 	std::unique_ptr<FileChooser> chooser;
 
 	// MIDI connection
-	TerpstraMidiDriver			midiDriver;
     std::unique_ptr<LumatoneController> lumatoneController;
 };
 

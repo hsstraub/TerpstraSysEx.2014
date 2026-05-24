@@ -39,9 +39,6 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	lumatoneController = std::make_unique<LumatoneController>();
 
-	int manufacturerId = propertiesFile->getIntValue("ManufacturerId", 0x002150);
-	midiDriver.setManufacturerId(manufacturerId);
-
 	// Colour scheme
 	lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
@@ -416,6 +413,11 @@ bool TerpstraSysExApplication::redo()
 		return false;
 }
 
+void TerpstraSysExApplication::setEditMode(sysExSendingMode editMode)
+{
+    lumatoneController->setSysExSendingMode(editMode);
+}
+
 bool TerpstraSysExApplication::generalOptionsDialog()
 {
 	GeneralOptionsDlg* optionsWindow = new GeneralOptionsDlg();
@@ -534,7 +536,7 @@ bool TerpstraSysExApplication::openFromCurrentFile()
 		updateMainTitle();
 
 		// Send configuration to controller, if connected
-		sendCurrentMappingToDevice();
+		sendCurrentConfigurationToDevice();
 
 		// Mark file as unchanged
 		setHasChangesToSave(false);
@@ -588,25 +590,84 @@ bool TerpstraSysExApplication::saveCurrentFile(std::function<void(bool success)>
 	return retc;
 }
 
-void TerpstraSysExApplication::sendCurrentMappingToDevice()
+void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 {
 	auto theConfig = getMainContentComponent()->getMappingInEdit();
 
 	// MIDI channel, MIDI note, colour and key type config for all keys
-	getMidiDriver().sendCompleteMapping(theConfig);
+	getLumatoneController()->sendCompleteMapping(theConfig);
 
 	// General options
-	getMidiDriver().sendAfterTouchActivation(theConfig.afterTouchActive);
-	getMidiDriver().sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
-	getMidiDriver().sendInvertFootController(theConfig.invertExpression);
-	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
-	getMidiDriver().sendInvertSustainPedal(theConfig.invertSustain);
+	getLumatoneController()->setAftertouchEnabled(theConfig.afterTouchActive);
+	getLumatoneController()->sendLightOnKeyStrokes(theConfig.lightOnKeyStrokes);
+	getLumatoneController()->sendInvertFootController(theConfig.invertExpression);
+	getLumatoneController()->sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
+    getLumatoneController()->invertSustainPedal(theConfig.invertSustain);
 
 	// Velocity curve config
-	TerpstraSysExApplication::getApp().getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
-	// ToDo Note on/off velocity configuration
-	// ToDo Fader configuration
-	// ToDo Aftertouch configuration
+	getLumatoneController()->setVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
+
+	((MainContentComponent*)(mainWindow->getContentComponent()))->getCurvesArea()->sendConfigToController();
+}
+
+void TerpstraSysExApplication::requestConfigurationFromDevice()
+{
+	// if editing operations were done that have not been saved, give the possibility to save them
+	if (hasChangesToSave)
+	{
+		AlertWindow::showYesNoCancelBox(
+			AlertWindow::AlertIconType::QuestionIcon,
+			"Request configuration from device",
+			"Lumatone's layout will now be imported. This will overwrite your unsaved changes. Do you want to save them first?",
+			"Save to file", "Import anyway", "Cancel import", nullptr,
+			ModalCallbackFunction::create([&](int retc)
+			{
+				if (retc == 0)
+				{
+					// "Cancel". Do not receive config, go offline
+					DBG("Layout import cancelled");
+                    setEditMode(sysExSendingMode::offlineEditor);
+					return;
+				}
+				else if (retc == 1)
+				{
+					// "Yes". Try to save. Cancel if unsuccessful
+					saveSysExMapping([this](bool success)
+					{
+						if (success)
+							this->requestConfigurationFromDevice();
+						else
+							DBG("Cancelled layout import");
+					});
+				}
+				else
+				{
+					// retc == 2: "No" -> no saving, overwrite
+					DBG("Overwriting current edits");
+					setHasChangesToSave(false);
+					requestConfigurationFromDevice();
+				}
+			})
+		);
+
+		return;
+	}
+
+	TerpstraSysExApplication::getApp().resetSysExMapping();
+
+	// Request MIDI channel, MIDI note, colour and key type config for all keys
+	getLumatoneController()->sendGetCompleteMappingRequest();
+
+	// General options
+	getLumatoneController()->getPresetFlags();
+	getLumatoneController()->getExpressionPedalSensitivity();
+
+	// Velocity curve config
+	getLumatoneController()->sendVelocityIntervalConfigRequest();
+	getLumatoneController()->sendVelocityConfigRequest();
+	getLumatoneController()->sendFaderConfigRequest();
+	getLumatoneController()->sendAftertouchConfigRequest();
+
 }
 
 void TerpstraSysExApplication::updateMainTitle()

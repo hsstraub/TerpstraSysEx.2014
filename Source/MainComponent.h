@@ -15,7 +15,7 @@
 #include "AllKeysOverview.h"
 #include "ViewComponents.h"
 #include "KeyboardDataStructure.h"
-#include "TerpstraMidiDriver.h"
+#include "LumatoneController.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
 #include "GeneralOptionsDlg.h"
@@ -30,7 +30,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public TerpstraMidiDriver::Listener, public ChangeListener
+class MainContentComponent : public Component, public ChangeListener
 {
 public:
 	//==============================================================================
@@ -48,18 +48,13 @@ public:
 	TerpstraKeyMapping&	getMappingInEdit() { return this->mappingData; }
 
 	TabbedButtonBar* getOctaveBoardSelectorTab() { return  noteEditArea->getOctaveBoardSelectorTab(); }
+	CurvesArea* getCurvesArea() { return curvesArea.get(); }
 
 	// Board edit operations
 	UndoableAction* createDeleteCurrentSectionAction();
 	bool copyCurrentSubBoardData();
 	UndoableAction* createPasteCurrentSectionAction();
 	bool canPasteCopiedSubBoard() const;
-
-	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-    void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
 
 	// Implementation of ChangeListener
 	void changeListenerCallback(ChangeBroadcaster *source) override;
@@ -88,7 +83,7 @@ private:
 	std::unique_ptr<NoteEditArea>	noteEditArea;
 
 	std::unique_ptr<GeneralOptionsDlg> generalOptionsArea;
-	
+
 	std::unique_ptr<CurvesArea> curvesArea;
 
 	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
