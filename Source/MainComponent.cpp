@@ -43,8 +43,6 @@ MainContentComponent::MainContentComponent()
 	globalSettingsArea.reset(new GlobalSettingsArea());
 	addAndMakeVisible(globalSettingsArea.get());
 
-	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
-
 	// Initial size
 	setSize(DEFAULTMAINWINDOWWIDTH, DEFAULTMAINWINDOWHEIGHT);
 
@@ -61,8 +59,6 @@ MainContentComponent::MainContentComponent()
 
 MainContentComponent::~MainContentComponent()
 {
-    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
-
 	midiEditArea = nullptr;
 	allKeysOverview = nullptr;
 	noteEditArea = nullptr;
@@ -158,118 +154,112 @@ bool MainContentComponent::canPasteCopiedSubBoard() const
     return !copiedSubBoardData.isEmpty();
 }
 
-void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
+void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData)
 {
-    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))
-    {
-        auto sysExData = midiMessage.getSysExData();
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
+	{
+		TerpstraKey& keyData = this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex];
+		auto newValue = colourData[keyIndex];
 
-        int boardNo = sysExData[3];
-        jassert(boardNo >= 1 && boardNo <= NUMBEROFBOARDS);
-        auto midiCmd = sysExData[4];
-        auto answerState = sysExData[5];
-
-        if (answerState == TerpstraMidiDriver::ACK) {
-			// ToDo General options
-
-			// Velocity curves
-			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage)) {
-				// After the answer state byte there must be 254 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
-
-				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-					this->mappingData.velocityIntervalTableValues[i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
-
-				curvesArea->resized();
-				curvesArea->repaint();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff)) {
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::fader)) {
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.faderConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch)) {
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.afterTouchConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			} else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch)) {
-				// After the answer state byte there must be 128 bytes of data
-				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
-				this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
-				for (int x = 0; x < 128; x++)
-					this->mappingData.lumaTouchConfig.velocityValues[x] = sysExData[6 + x];
-				curvesArea->loadFromMapping();
-			}
-
-			// Key configurations
-			else if (midiCmd == GET_RED_LED_CONFIG || midiCmd == GET_GREEN_LED_CONFIG || midiCmd == GET_BLUE_LED_CONFIG ||
-				midiCmd == GET_CHANNEL_CONFIG || midiCmd == GET_NOTE_CONFIG || midiCmd == GET_KEYTYPE_CONFIG) {
-				// After the answer state byte there must be 56 bytes of data (one for each key)
-				jassert(midiMessage.getSysExDataSize() >= 56 + 6); // ToDo display error otherwise
-
-				for (int keyIndex = 0; keyIndex < 56; keyIndex++) {
-					auto newValue = sysExData[6 + keyIndex];
-
-					TerpstraKey& keyData = this->mappingData.sets[boardNo - 1].theKeys[keyIndex];
-
-					switch (midiCmd) {
-					case GET_RED_LED_CONFIG:
-					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
-						break;
-					}
-
-					case GET_GREEN_LED_CONFIG:
-					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
-						break;
-					}
-
-					case GET_BLUE_LED_CONFIG:
-					{
-						auto theColour = Colour(keyData.colour);
-						theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
-						keyData.colour = theColour.toDisplayString(false).getHexValue32();
-						break;
-					}
-
-					case GET_CHANNEL_CONFIG:
-						keyData.channelNumber = newValue;
-						break;
-
-					case GET_NOTE_CONFIG:
-						keyData.noteNumber = newValue;
-						break;
-
-					case GET_KEYTYPE_CONFIG:
-						keyData.keyType = (LumatoneKeyType)newValue;
-						break;
-
-					default:
-						jassertfalse;   // Should not happen
-						break;
-					}
-				}
-
-				refreshAllKeysOverview();
-			}
+		if (rgbFlag == 0)
+		{
+-		    auto theColour = Colour(keyData.colour);
+-			theColour = Colour(newValue, theColour.getGreen(), theColour.getBlue());
+-			keyData.colour = theColour.toDisplayString(false).getHexValue32();
 		}
-    }
+		else if (rgbFlag == 1)
+		{
+-			auto theColour = Colour(keyData.colour);
+-			theColour = Colour(theColour.getRed(), theColour.getGreen(), newValue);
+-			keyData.colour = theColour.toDisplayString(false).getHexValue32();
+		}
+		else if (rgbFlag == 2)
+		{
+-			auto theColour = Colour(keyData.colour);
+-			theColour = Colour(theColour.getRed(), newValue, theColour.getBlue());
+-			keyData.colour = theColour.toDisplayString(false).getHexValue32();
+		}
+		else
+			jassertfalse;
+	}
+
+	refreshKeyDataFields();
+}
+
+void MainContentComponent::octaveChannelConfigReceived(int octaveIndex, const int* channelData)
+{
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
+	{
+		// Check channel values?
+		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].channelNumber = channelData[keyIndex];
+	}
+
+	refreshKeyDataFields();
+}
+
+void MainContentComponent::octaveNoteConfigReceived(int octaveIndex, const int* noteData)
+{
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
+	{
+		// Check note values?
+		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].noteNumber = noteData[keyIndex];
+	}
+
+	refreshKeyDataFields();
+}
+
+void MainContentComponent::keyTypeConfigReceived(int octaveIndex, const int* keyTypeData)
+{
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
+	{
+		// Check type values?
+		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].keyType = LumatoneKeyType(keyTypeData[keyIndex]);
+	}
+
+	refreshKeyDataFields();
+}
+
+void MainContentComponent::velocityConfigReceived(const int* velocityData)
+{
+	this->mappingData.noteOnOffVelocityCurveConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+	for (int i = 0; i < 128; i++)
+		this->mappingData.noteOnOffVelocityCurveConfig.velocityValues[i] = velocityData[127 - i]; // Reversed
+	curvesArea->loadFromMapping();
+}
+
+void MainContentComponent::aftertouchConfigReceived(const int* aftertouch)
+{
+	this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+	memmove(this->mappingData.afterTouchConfig.velocityValues, aftertouch, sizeof(int) * 128);
+	curvesArea->loadFromMapping();
+}
+
+void MainContentComponent::velocityIntervalConfigReceived(const int* velocityData)
+{
+	memmove(this->mappingData.velocityIntervalTableValues, velocityData, sizeof(int) * VELOCITYINTERVALTABLESIZE);
+	curvesArea->loadFromMapping();
+}
+
+void MainContentComponent::faderConfigReceived(const int* faderData)
+{
+	this->mappingData.faderConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+	memmove(this->mappingData.faderConfig.velocityValues, faderData, sizeof(int) * 128);
+	curvesArea->loadFromMapping();
+}
+
+void MainContentComponent::faderTypeConfigReceived(int octaveIndex, const int* faderTypeData)
+{
+	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
+	{
+		this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex].ccFaderDefault = faderTypeData[keyIndex];
+	}
+}
+
+void MainContentComponent::lumatouchConfigReceived(const int* lumatouchData)
+{
+	this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+	memmove(this->mappingData.lumaTouchConfig.velocityValues, lumatouchData, sizeof(int) * 128);
+	curvesArea->loadFromMapping();
 }
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
@@ -324,15 +314,15 @@ void MainContentComponent::resized()
 	globalSettingsArea->setBounds(newNoteEditAreaWidth, curvesArea->getBottom(), settingsAreaWidth, globalSettingsArea->getHeight());
 }
 
-void MainContentComponent::refreshAllKeysOverview()
+void MainContentComponent::refreshKeyDataFields()
 {
 	allKeysOverview->repaint();
+	noteEditArea->refreshKeyFields();
 }
 
 void MainContentComponent::refreshAllFields()
 {
-	refreshAllKeysOverview();
-	noteEditArea->refreshKeyFields();
+	refreshKeyDataFields();
 	generalOptionsArea->loadFromMapping();
 	pedalSensitivityDlg->loadFromMapping();
 	curvesArea->loadFromMapping();

@@ -42,12 +42,12 @@ KeyMiniDisplayInsideAllKeysOverview::KeyMiniDisplayInsideAllKeysOverview(int new
 	boardIndex = newBoardIndex;
 	keyIndex = newKeyIndex;
 
-	TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+	//TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 }
 
 KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 {
-	TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+	//TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 }
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
@@ -156,19 +156,16 @@ void KeyMiniDisplayInsideAllKeysOverview::mouseUp(const MouseEvent& e)
 	}
 }
 
-void KeyMiniDisplayInsideAllKeysOverview::midiMessageReceived(const MidiMessage& midiMessage)
+void KeyMiniDisplayInsideAllKeysOverview::handleMidiMessage(const MidiMessage& msg)
 {
-	// ToDo If key is parametrized as controller?
-	if (midiMessage.isNoteOnOrOff())
+	auto keyData = getKeyData();
+	if (keyData != nullptr && msg.getChannel() == keyData->channelNumber && msg.getNoteNumber() == keyData->noteNumber)
 	{
-		auto keyData = getKeyData();
-		if (keyData != nullptr && midiMessage.getChannel() == keyData->channelNumber && midiMessage.getNoteNumber() == keyData->noteNumber)
-		{
-			isHighlighted = midiMessage.isNoteOn();
-			repaint();
-		}
+		isHighlighted = msg.isNoteOn();
+		repaint();
 	}
 }
+
 
 const TerpstraKey* KeyMiniDisplayInsideAllKeysOverview::getKeyData() const
 {

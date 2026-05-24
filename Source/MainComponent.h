@@ -30,7 +30,10 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public ChangeListener
+class MainContentComponent : public Component,
+							 public LumatoneEditor::FirmwareListener,
+							 public ChangeListener,
+							 public Button::Listener
 {
 public:
 	//==============================================================================
@@ -63,8 +66,28 @@ public:
     void paint (Graphics&);
     void resized();
 
-	void refreshAllKeysOverview();
+	void refreshKeyDataFields();
 	void refreshAllFields();
+
+	void octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData) override;
+
+	void octaveChannelConfigReceived(int octaveIndex, const int* channelData) override;
+
+	void octaveNoteConfigReceived(int octaveIndex, const int* noteData) override;
+
+	void keyTypeConfigReceived(int octaveIndex, const int* keyTypeData) override;
+
+	void velocityConfigReceived(const int* velocityData) override;
+
+	void aftertouchConfigReceived(const int* aftertouchData) override;
+
+	void velocityIntervalConfigReceived(const int* velocityData) override;
+
+	void faderConfigReceived(const int* faderData) override;
+
+	void faderTypeConfigReceived(int octaveIndex, const int* faderTypeData) override;
+
+	void lumatouchConfigReceived(const int* lumatouchData) override;
 
 private:
     //==============================================================================

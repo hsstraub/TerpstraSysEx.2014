@@ -352,7 +352,15 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 				}
 			} else
 				jassert(false);
-		}
+        } else if ((pos1 = currentLine.indexOf("CCInvert_")) >= 0) {
+            int keyIndex = currentLine.substring(pos1 + 9, currentLine.length()).getIntValue();
+            if (boardIndex >= 0 && boardIndex < NUMBEROFBOARDS) {
+                if (keyIndex >= 0 && keyIndex < 56)
+                        sets[boardIndex].theKeys[keyIndex].ccFaderDefault = false;
+                else
+                    jassert(false);
+            }
+        }
 		// General options
 		else if ((pos1 = currentLine.indexOf("AfterTouchActive=")) >= 0) {
 			afterTouchActive = currentLine.substring(pos1 + 17).getIntValue() > 0;
@@ -425,6 +433,8 @@ StringArray TerpstraKeyMapping::toStringArray()
 				result.add("Col_" + String(keyIndex) + "=" + String::toHexString((sets[boardIndex].theKeys[keyIndex].colour)));
 			if (sets[boardIndex].theKeys[keyIndex].keyType != LumatoneKeyType::noteOnNoteOff)
 				result.add("KTyp_" + String(keyIndex) + "=" + String(sets[boardIndex].theKeys[keyIndex].keyType));
+            if (sets[boardIndex].theKeys[keyIndex].ccFaderDefault != true)
+                result.add("CCInvert_" + String(keyIndex));
 		}
 	}
 

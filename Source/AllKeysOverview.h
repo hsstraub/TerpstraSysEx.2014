@@ -22,12 +22,11 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 
-#include "KeyboardDataStructure.h"
-#include "TerpstraMidiDriver.h"
+#include "LumatoneController.h"
 
 
 // Representation of a key inside the overview
-class KeyMiniDisplayInsideAllKeysOverview : public Component, public TerpstraMidiDriver::Listener
+class KeyMiniDisplayInsideAllKeysOverview : public Component, public LumatoneEditor::MidiListener
 {
 public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
@@ -39,10 +38,11 @@ public:
 	void mouseUp(const juce::MouseEvent& e) override;
 
 	// Implementation of TerpstraNidiDriver::Listener
-	void midiMessageReceived(const MidiMessage& midiMessage) override;
-	void midiMessageSent(const MidiMessage& midiMessage) override {}
-	void midiSendQueueSize(int queueSize) override {}
-	void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+	//void midiMessageReceived(const MidiMessage& midiMessage) override;
+	//void midiMessageSent(const MidiMessage& midiMessage) override {}
+	//void midiSendQueueSize(int queueSize) override {}
+	//void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {}
+    void handleMidiMessage(const MidiMessage& msg) override;
 
 private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KeyMiniDisplayInsideAllKeysOverview)
