@@ -148,17 +148,13 @@ void PedalSensitivityDlg::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnInvertExpression.get())
     {
         //[UserButtonCode_btnInvertExpression] -- add your button handler code here..
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertExpression = btnInvertExpression->getToggleState();
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().sendInvertFootController(btnInvertExpression->getToggleState());
-        //[/UserButtonCode_btnInvertExpression]
+		//TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::InvertFootControllerEditAction(btnInvertExpression->getToggleState()));
+         //[/UserButtonCode_btnInvertExpression]
     }
     else if (buttonThatWasClicked == btnInvertSustain.get())
     {
         //[UserButtonCode_btnInvertSustain] -- add your button handler code here..
-        ((MainContentComponent*)getParentComponent())->getMappingInEdit().invertSustain = btnInvertSustain->getToggleState();
-        TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().sendInvertSustainPedal(btnInvertSustain->getToggleState());
+        //TerpstraSysExApplication::getApp().performUndoableAction(new Lumatone::InvertSustainEditAction(btnInvertSustain->getToggleState()));
         //[/UserButtonCode_btnInvertSustain]
     }
 
@@ -190,7 +186,7 @@ void PedalSensitivityDlg::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 
         ((MainContentComponent*)getParentComponent())->getMappingInEdit().expressionControllerSensivity = newSensitvity;
         TerpstraSysExApplication::getApp().setHasChangesToSave(true);
-        TerpstraSysExApplication::getApp().getMidiDriver().sendExpressionPedalSensivity(newSensitvity);
+        TerpstraSysExApplication::getApp().getLumatoneController()->sendExpressionPedalSensivity(newSensitvity);
         //[/UserSliderCode_sldExprCtrlSensitivity]
     }
 

@@ -156,6 +156,7 @@ bool MainContentComponent::canPasteCopiedSubBoard() const
 
 void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData)
 {
+    /*
 	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 	{
 		TerpstraKey& keyData = this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex];
@@ -182,6 +183,7 @@ void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgb
 		else
 			jassertfalse;
 	}
+	*/
 
 	refreshKeyDataFields();
 }
