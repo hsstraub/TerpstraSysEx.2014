@@ -59,12 +59,14 @@ MidiEditArea::MidiEditArea ()
 
 	pleaseConnectLabel.reset(new Label("PleaseConnectLabel", translate("PleaseConnect")));
 	pleaseConnectLabel->setFont(juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-	pleaseConnectLabel->setColour(Label::ColourIds::textColourId, juce::Colours::black);
+    pleaseConnectLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    pleaseConnectLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 	addAndMakeVisible(*pleaseConnectLabel);
 
 	offlineMsgLabel.reset(new Label("DirectionsLabel", translate("OfflineMessage")));
 	offlineMsgLabel->setFont(juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-	offlineMsgLabel->setColour(Label::ColourIds::textColourId, juce::Colours::black);
+    offlineMsgLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    offlineMsgLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 	addAndMakeVisible(*offlineMsgLabel);
 
 	logomark.reset(new Component());
@@ -195,9 +197,9 @@ void MidiEditArea::paint (juce::Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 
 	// Dark background for title and logomark
-	//g.setColour(lookAndFeel.findColour(LumatoneEditorColourIDs::DarkBackground));
-	//g.fillRect(lumatoneLabelBounds);
-	//g.fillRect(connectivityArea);
+	g.fillAll(findColour(ResizableWindow::backgroundColourId));
+	g.fillRect(lumatoneLabelBounds);
+	g.fillRect(connectivityArea);
 
 	// Rounded rect for device boxes
 	if (!isConnected)

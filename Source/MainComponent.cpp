@@ -156,34 +156,36 @@ bool MainContentComponent::canPasteCopiedSubBoard() const
 
 void MainContentComponent::octaveColourConfigReceived(int octaveIndex, uint8 rgbFlag, const int* colourData)
 {
-    /*
 	for (int keyIndex = 0; keyIndex < TerpstraSysExApplication::getApp().getOctaveBoardSize(); keyIndex++)
 	{
 		TerpstraKey& keyData = this->mappingData.sets[octaveIndex - 1].theKeys[keyIndex];
 		auto newValue = colourData[keyIndex];
+		auto theColour = Colour(keyData.colour);
 
 		if (rgbFlag == 0)
 		{
--		    auto theColour = juce::Colour(keyData.colour);
+            /*
 -			theColour = juce::Colour(newValue, theColour.getGreen(), theColour.getBlue());
 -			keyData.colour = theColour.toDisplayString(false).getHexValue32();
+            */
 		}
 		else if (rgbFlag == 1)
 		{
--			auto theColour = juce::Colour(keyData.colour);
+            /*
 -			theColour = juce::Colour(theColour.getRed(), theColour.getGreen(), newValue);
 -			keyData.colour = theColour.toDisplayString(false).getHexValue32();
+            */
 		}
 		else if (rgbFlag == 2)
 		{
--			auto theColour = juce::Colour(keyData.colour);
+            /*
 -			theColour = juce::Colour(theColour.getRed(), newValue, theColour.getBlue());
 -			keyData.colour = theColour.toDisplayString(false).getHexValue32();
+            */
 		}
 		else
 			jassertfalse;
 	}
-	*/
 
 	refreshKeyDataFields();
 }

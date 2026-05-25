@@ -30,7 +30,7 @@ public:
 	int		noteNumber;
 	int		channelNumber;
 	int		colour;
-	bool        ccFaderDefault;
+	bool    ccFaderDefault;
 	LumatoneKeyType	keyType;
 };
 
