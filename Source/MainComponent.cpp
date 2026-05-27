@@ -300,10 +300,8 @@ void MainContentComponent::resized()
 	int newHeight = getHeight();
 
 	// Logo, MIDI edit area and connection state
-	int midiAreaWidth = midiEditArea->getWidth();
 	int midiAreaHeight = midiEditArea->getHeight();
-	int midiAreaXPos = jmax(newWidth - midiAreaWidth, 0);
-	midiEditArea->setBounds(midiAreaXPos, 0, midiAreaWidth, midiAreaHeight);
+	midiEditArea->setBounds(0, 0, getWidth(), midiAreaHeight);
 
 	int settingsAreaWidth = globalSettingsArea->getWidth();
 
