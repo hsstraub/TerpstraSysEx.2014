@@ -16,6 +16,7 @@
 #include "MainComponent.h"
 #include "LumatoneController.h"
 #include "ViewConstants.h"
+#include "LocalisationMap.h"
 
 #define CHOOSE_FILE_NOOP [](bool) -> void {}
 

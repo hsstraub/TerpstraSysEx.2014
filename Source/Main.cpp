@@ -39,6 +39,11 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	lumatoneController = std::make_unique<LumatoneController>();
 
+	// Localisation
+	String localisation = getLocalisation(SystemStats::getDisplayLanguage());
+	LocalisedStrings::setCurrentMappings(new LocalisedStrings(localisation, false));
+	LocalisedStrings::getCurrentMappings()->setFallback(new LocalisedStrings(BinaryData::engb_txt, false));
+
 	// Colour scheme
 	lookAndFeel.setColourScheme(lookAndFeel.getDarkColourScheme());
 
